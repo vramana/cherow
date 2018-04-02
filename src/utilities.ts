@@ -47,26 +47,26 @@ export const enum Context {
 
 // Mutual parser flags
 export const enum Flags {
-    None = 0,
-    NewLine = 1 << 0,
-    AllowBinding = 1 << 1,
-    AllowDestructuring = 1 << 2,
-    SimpleParameterList = 1 << 3,
-    Switch = 1 << 4,
-    Iteration = 1 << 5,
-    StrictReserved = 1 << 6,
-    Octal = 1 << 7,
-    SimpleAssignmentTarget = 1 << 8,
-    HasProtoField = 1 << 9,
-    HasDuplicateProto = 1 << 10,
-    StrictFunctionName = 1 << 11,
-    StrictEvalArguments = 1 << 12,
-    InFunctionBody = 1 << 13,
+    None                    = 0,
+    NewLine                 = 1 << 0,
+    AllowBinding            = 1 << 1,
+    AllowDestructuring      = 1 << 2,
+    SimpleParameterList     = 1 << 3,
+    Switch                  = 1 << 4,
+    Iteration               = 1 << 5,
+    StrictReserved          = 1 << 6,
+    Octal                   = 1 << 7,
+    SimpleAssignmentTarget  = 1 << 8,
+    HasProtoField           = 1 << 9,
+    HasDuplicateProto       = 1 << 10,
+    StrictFunctionName      = 1 << 11,
+    StrictEvalArguments     = 1 << 12,
+    InFunctionBody          = 1 << 13,
     AllowBreakOrContinue = Switch | Iteration
 }
 
 export const enum ScannerState {
-    None = 0,
+    None        = 0,
     NewLine    = 1 << 0,
     SameLine   = 1 << 1,
     LastIsCR   = 1 << 2,
