@@ -12,31 +12,7 @@ import {
     mustEscape
 } from './unicode';
 
-/**
- * A set of flags for maintaining the internal state machine.
- */
-export const enum ScannerState {
-    None = 0,
-    NewLine    = 1 << 0,
-    SameLine   = 1 << 1,
-    LastIsCR   = 1 << 2,
-    LineStart  = 1 << 3,
-    Terminated = 1 << 4
-}
-export const enum ModifierState {
-    None = 0,
-    Generator = 1 << 0,
-    Await = 1 << 1,
-    Getter = 1 << 2,
-    Setter = 1 << 3,
-    Constructor = 1 << 4,
-    Static = 1 << 5,
-    Computed = 1 << 6,
-}
-
-/**
- * The core context, passed around everywhere as a simple immutable bit set.
- */
+// Context masks
 export const enum Context {
    Empty                = 0,
    OptionsNext          = 1 << 0,
@@ -68,22 +44,8 @@ export const enum Context {
    AllowSuperProperty   = 1 << 26,
    InParen              = 1 << 27,
 }
-export const enum ObjectState {
-    None        = 0,
-    Async       = 1 << 0,
-    Generator   = 1 << 1,
-    Getter      = 1 << 2,
-    Setter      = 1 << 3,
-    Computed    = 1 << 4,
-    Method      = 1 << 5,
-    Shorthand   = 1 << 6,
-    Static      = 1 << 7,
-    Constructor = 1 << 8,
-}
 
-/**
- * The mutable parser flags, in case any flags need passed by reference.
- */
+// Mutual parser flags
 export const enum Flags {
     None = 0,
     NewLine = 1 << 0,
@@ -102,6 +64,37 @@ export const enum Flags {
     InFunctionBody = 1 << 13,
     AllowBreakOrContinue = Switch | Iteration
 }
+
+export const enum ScannerState {
+    None = 0,
+    NewLine    = 1 << 0,
+    SameLine   = 1 << 1,
+    LastIsCR   = 1 << 2,
+    LineStart  = 1 << 3,
+    Terminated = 1 << 4
+}
+
+export const enum ModifierState {
+    None      = 0,
+    Generator = 1 << 0,
+    Await     = 1 << 1,
+}
+
+// Shared between class expr / decl & object literal
+export const enum ObjectState {
+    None        = 0,
+    Async       = 1 << 0,
+    Generator   = 1 << 1,
+    Getter      = 1 << 2,
+    Setter      = 1 << 3,
+    Computed    = 1 << 4,
+    Method      = 1 << 5,
+    Shorthand   = 1 << 6,
+    Static      = 1 << 7,
+    Constructor = 1 << 8,
+}
+
+// Label tracking state
 export const enum Labels {
     None      = 0,
     NotNested = 1 << 0,
