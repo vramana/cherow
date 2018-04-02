@@ -1,7 +1,7 @@
 {
   "name": "cherow",
-  "version": "1.3.1",
-  "description": "Fast, standard-compliant javascript parser written in ECMAScript",
+  "version": "020420181979",
+  "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
   "author": "KFlash",
@@ -30,7 +30,8 @@
     "esnext",
     "javascript",
     "ast",
-    "tolerant"
+    "tolerant",
+    "lightweight"
   ],
   "files": [
     "dist",
