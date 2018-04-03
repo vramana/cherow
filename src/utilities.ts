@@ -5,7 +5,7 @@ import { Parser, Delegate } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
 import { constructError } from './errors';
-import { parseExpression, parseIdentifier} from './expressions';
+import { parseExpression, parseIdentifier } from './expressions';
 import {
     isValidIdentifierStart,
     isValidIdentifierPart,
@@ -155,7 +155,7 @@ export function hasLabel(parser: Parser, label: string): Labels {
 }
 
 /**
- * Finish each the node for each parse. Set line / and column on the node if the 
+ * Finish each the node for each parse. Set line / and column on the node if the
  * options are set for it
  *
  * @param parser Parser instance
@@ -163,7 +163,7 @@ export function hasLabel(parser: Parser, label: string): Labels {
  * @param meta Line / column
  * @param node AST node
  */
-export function finishNode < T extends ESTree.Node > (
+export function finishNode < T extends ESTree.Node >(
     context: Context,
     parser: Parser,
     meta: any,
@@ -195,9 +195,8 @@ export function finishNode < T extends ESTree.Node > (
     return node;
 }
 
-
 /**
- * Finish each the node for each parse. Set line / and column on the node if the 
+ * Finish each the node for each parse. Set line / and column on the node if the
  * options are set for it
  *
  * @param parser Parser instance
@@ -210,7 +209,6 @@ export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
     code === Chars.Dollar ||
     code === Chars.Underscore ||
     (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
-
 
 /**
  * Expect token. Throws if no match
@@ -296,12 +294,12 @@ export function consumeSemicolon(parser: Parser, context: Context): boolean {
 /**
  * Allow destructuring and binding. Used for block statement at
  * Toplevel
- * 
+ *
  * @param parser Parser state
  * @param context Context mask
  * @param callback Callback function
  */
-export function allowExpressionCoverGrammar < T > (
+export function allowExpressionCoverGrammar < T >(
     parser: Parser,
     context: Context,
     callback: (parser: Parser, context: Context) => T
@@ -313,18 +311,18 @@ export function allowExpressionCoverGrammar < T > (
 /**
  * Bit fiddle current grammar state and keep track of the state during the parse and restore
  * it back to original state after finish parsing or throw.
- * 
- * Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way. 
- * 
- * However this implementation is an major improvement over similiar implementations, and 
+ *
+ * Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way.
+ *
+ * However this implementation is an major improvement over similiar implementations, and
  * does not require additonal bitmasks to be set / unset during the parsing outside this function.
- * 
+ *
  * @param parser Parser state
  * @param context Context mask
  * @param callback Callback function
  * @param errMsg Optional error message
  */
-export function parseExpressionCoverGrammar < T > (
+export function parseExpressionCoverGrammar < T >(
     parser: Parser,
     context: Context,
     callback: (parser: Parser, context: Context) => T
@@ -338,7 +336,7 @@ export function parseExpressionCoverGrammar < T > (
     // the same location it was recorded
     if (!!parser.pendingExpressionError) {
         const { error, line, column, index } = parser.pendingExpressionError;
-        constructError(index, line, column, error)
+        constructError(index, line, column, error);
     }
     parser.flags &= ~(Flags.AllowBinding | Flags.AllowDestructuring);
     if (prevFlags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
@@ -349,12 +347,12 @@ export function parseExpressionCoverGrammar < T > (
 
 /**
  * Restor current grammar to previous state, or unset necessary bitmasks
- * 
+ *
  * @param parser Parser state
  * @param context Context mask
  * @param callback Callback function
  */
-export function restoreExpressionCoverGrammar < T > (
+export function restoreExpressionCoverGrammar < T >(
     parser: Parser,
     context: Context,
     callback: (parser: Parser, context: Context) => T
@@ -376,14 +374,14 @@ export function restoreExpressionCoverGrammar < T > (
  * Set / unset yield / await context masks based on the
  * ModifierState masks before invoking the callback and
  * returning it's content
- * 
+ *
  * @param parser Parser instance
  * @param context Context masks
  * @param state Modifier state
- * @param callback 
+ * @param callback
  */
 
-export function swapContext < T > (parser: Parser, context: Context, state: ModifierState, callback: (parser: Parser, context: Context) => T): T {
+export function swapContext < T >(parser: Parser, context: Context, state: ModifierState, callback: (parser: Parser, context: Context) => T): T {
 
     context &= ~(Context.Async | Context.Yield);
 
@@ -407,7 +405,7 @@ export function nextChar(parser: Parser) {
 }
 
 export function nextUnicodeChar(parser: Parser) {
-    let { index } = parser;
+    const { index } = parser;
 
     const hi = parser.source.charCodeAt(index);
     if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
@@ -462,7 +460,6 @@ export const fromCodePoint = (code: Chars) => {
             Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 };
 
-
 export function toHex(code: number): number {
     if (code < Chars.Zero) return -1;
     if (code <= Chars.Nine) return code - Chars.Zero;
@@ -477,7 +474,7 @@ export function storeRaw(parser: Parser, start: number) {
     parser.tokenRaw = parser.source.slice(start, parser.index);
 }
 
-export function lookahead < T > (parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): any {
+export function lookahead < T >(parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): any {
 
     const savePos = parser.index;
     const {
@@ -662,7 +659,6 @@ export const isPrologueDirective = (node: ESTree.Statement): node is ESTree.Expr
         value: string
     };
 } => node.type === 'ExpressionStatement' && node.expression.type === 'Literal';
-
 
 export function parseAndDisallowDestructuringAndBinding(parser: Parser, context: Context, callback: any) {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);

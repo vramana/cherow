@@ -1,7 +1,7 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
-import { Location } from '../types';
+import * as ESTree from './estree';
+import { Token, tokenDesc } from './token';
+import { Errors, report } from './errors';
+import { Location } from './types';
 import { Parser } from './parser';
 import {
     parseIdentifier,
@@ -18,8 +18,9 @@ import {
     isIdentifier,
     Flags,
     parseExpressionCoverGrammar,
+    restoreExpressionCoverGrammar,
     hasBit,
-} from '../utilities';
+} from './utilities';
 
 // 12.15.5 Destructuring Assignment
 
@@ -37,7 +38,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
         if (token === Token.LeftBracket) return parseArrayAssignmentPattern(parser, context);
         return parserObjectAssignmentPattern(parser, context);
     }
-    
+
     if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
         report(parser, Errors.AwaitBindingIdentifier);
     } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
@@ -59,7 +60,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
 export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
 
     const { token } = parser;
-    
+
     if (token & Token.IsEvalOrArguments) {
         if (context & Context.Strict) report(parser, Errors.StrictLHSAssignment);
         parser.flags |= Flags.StrictReserved;
@@ -125,7 +126,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
                 elements.push(parseAssignmentRestElement(parser, context));
                 break;
             } else {
-                elements.push(parseAssignmentOrArrayAssignmentPattern(parser, context | Context.AllowIn));
+                elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentOrArrayAssignmentPattern));
             }
             if (parser.token !== Token.RightBracket) {
                 expect(parser, context, Token.Comma);
@@ -153,6 +154,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
 function parseAssignmentRestProperty(parser: Parser, context: Context): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
+
     const argument = parseBindingIdentifierOrPattern(parser, context);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
@@ -170,6 +172,7 @@ function parseAssignmentRestProperty(parser: Parser, context: Context): ESTree.R
 function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree.ObjectPattern {
     const pos = getLocation(parser);
     const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+
     expect(parser, context, Token.LeftBrace);
     while (parser.token !== Token.RightBrace) {
         if (parser.token === Token.Ellipsis) {
@@ -255,14 +258,18 @@ function parseBindingProperty(parser: Parser, context: Context): ESTree.Assignme
         key = parseIdentifier(parser, context);
         shorthand = !consume(parser, context, Token.Colon);
         if (shorthand) {
-            if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved)
-            value = parseAssignmentOrArrayAssignmentPattern(parser, context, pos, key)
+            if (consume(parser, context, Token.Assign)) {
+                value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
+            } else {
+                if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved);
+                value = key;
+            }
         } else value = parseAssignmentOrArrayAssignmentPattern(parser, context);
     } else {
         computed = token === Token.LeftBracket;
         key = parsePropertyName(parser, context);
         expect(parser, context, Token.Colon);
-        value = parseAssignmentOrArrayAssignmentPattern(parser, context);
+        value = parseExpressionCoverGrammar(parser, context, parseAssignmentOrArrayAssignmentPattern);
     }
 
     return finishNode(context, parser, pos, {

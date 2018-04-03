@@ -881,7 +881,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
     }
 
     let expr: any;
-    
+
     // '(...'
     if (parser.token === Token.Ellipsis) {
         parser.flags |= Flags.SimpleParameterList;
@@ -900,8 +900,8 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
     } else if (parser.token & Token.Reserved) {
         state |= CoverParenthesizedState.HasReservedWords;
     }
-    
-    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+
+    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
 
     expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
 
@@ -915,7 +915,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
         const expressions: ESTree.Expression[] = [expr];
 
         while (consume(parser, context, Token.Comma)) {
-            
+
             switch (parser.token) {
 
                 // '...'
@@ -924,7 +924,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                 // ')'
                 case Token.RightParen:
-                    return parseSequenceArrow(parser, context, expressions, pos);    
+                    return parseSequenceArrow(parser, context, expressions, pos);
 
                 default: {
 
@@ -935,7 +935,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     } else if (parser.token & Token.IsEvalOrArguments) {
                         state |= CoverParenthesizedState.HasEvalOrArguments;
                     }
-                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
                     expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                 }
             }
@@ -960,7 +960,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
         } else if (!(parser.flags & Flags.AllowBinding)) {
             report(parser, Errors.Unexpected);
         }
-        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
+        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
         const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
         return parseArrowFunction(parser, context, pos, params);
     }
@@ -1250,7 +1250,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
     // method
     if (parser.token === Token.LeftParen) {
         if (!(state & (ObjectState.Getter | ObjectState.Setter))) {
-            state |= ObjectState.Method
+            state |= ObjectState.Method;
             //parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
         }
         value = parseMethodDeclaration(parser, context | Context.Method, state);
@@ -1285,7 +1285,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                     line: parser.startLine,
                     column: parser.startColumn,
                     index: parser.startIndex,
-                }
+                };
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
             } else value = key;
         }
@@ -1486,7 +1486,7 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
         }
     }
 
-    // Note: This has to be unset each time we parse out a function body to 
+    // Note: This has to be unset each time we parse out a function body to
     // avoid conflicts with nested functions
     parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments);
 
@@ -1514,7 +1514,7 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
  */
 
 export function parseFormalParameters(parser: Parser, context: Context): any {
-     
+
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
     expect(parser, context, Token.LeftParen);
@@ -1526,7 +1526,7 @@ export function parseFormalParameters(parser: Parser, context: Context): any {
             parser.flags |= Flags.SimpleParameterList;
             params.push(parseRestElement(parser, context));
             break;
-        } 
+        }
 
         params.push(parseFormalParameterList(parser, context));
         if (!consume(parser, context, Token.Comma)) break;
@@ -1567,7 +1567,6 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
     const left: any = parseBindingIdentifierOrPattern(parser, context);
     if (!consume(parser, context, Token.Assign)) return left;
 
-
     if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {
         report(parser, parser.token & Token.IsAwait ? Errors.AwaitInParameter : Errors.YieldInParameter);
     }
@@ -1580,7 +1579,6 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
         right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression)
     });
 }
-
 
 /**
  * Parse class expression

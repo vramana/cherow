@@ -173,7 +173,7 @@ export const enum Token {
     EnumKeyword        = 118 | Reserved,
     BigIntLiteral      = 119 | IsExpressionStart,
     At                 = 120,
-    
+
 }
 
 // Note: this *must* be kept in sync with the enum's order.
