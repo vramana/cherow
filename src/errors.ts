@@ -67,7 +67,8 @@ export const enum Errors {
     InvalidLhsInAssignment,
     DuplicateProto,
     IllegalUseStrict,
-    StaticPrototype
+    StaticPrototype,
+    BadImportCallArity
 }
 
 export const ErrorMessages: {
@@ -140,7 +141,7 @@ export const ErrorMessages: {
     [Errors.DuplicateProto]: 'Duplicate __proto__ fields are not allowed in object literals',
     [Errors.IllegalUseStrict]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
     [Errors.StaticPrototype]: 'Classes may not have a static property named \'prototype\'',
-
+    [Errors.BadImportCallArity]: 'Unexpected token',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): never {

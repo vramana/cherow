@@ -389,9 +389,13 @@ function parseSpreadElement(parser: Parser, context: Context): any {
  * @param {context} Context masks
  */
 
-export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
-    const expr = parseMemberExpression(parser, context | Context.AllowIn, pos);
-    return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
+export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
+    const expr = parser.token === Token.ImportKeyword
+    ? parseImportExpressions(parser, context | Context.AllowIn, pos)
+    : parseMemberExpression(parser, context | Context.AllowIn, pos);
+    return parser.token !== Token.LeftParen && expr.type === 'ArrowFunctionExpression'
+    ? expr
+    : parseCallExpression(parser, context | Context.AllowIn, pos, expr);
 }
 
 /**
@@ -464,7 +468,7 @@ function parseMemberExpression(
 }
 
 /**
- * Parse statement list
+ * Parse call expression
  *
  * Note! This is really a part of 'CoverCallExpressionAndAsyncArrowHead', but separated because of performance reasons
  *
@@ -472,15 +476,10 @@ function parseMemberExpression(
  * @param {context} Context masks
  */
 function parseCallExpression(parser: Parser, context: Context, pos: any, expr: ESTree.Expression): ESTree.Expression | ESTree.CallExpression {
-
     while (true) {
-
         expr = parseMemberExpression(parser, context, pos, expr);
-
         if (parser.token !== Token.LeftParen) return expr;
-
         const args = parseArgumentList(parser, context);
-
         expr = finishNode(context, parser, pos, {
             type: 'CallExpression',
             callee: expr,
@@ -1826,15 +1825,14 @@ function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Loc
 }
 
 /**
- * Parse statement list
+ * Parse import expressions
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
- *
- * @param {Parser} Parser instance
+  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
 
-function parseImportExpressions(parser: Parser, context: Context): ESTree.Expression {
+function parseImportExpressions(parser: Parser, context: Context, poss: Location): ESTree.Expression {
+    if (!(context & Context.OptionsNext)) report(parser, Errors.Unexpected);
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
 
@@ -1847,9 +1845,21 @@ function parseImportExpressions(parser: Parser, context: Context): ESTree.Expres
         report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
 
-    return finishNode(context, parser, pos, {
+    let expr: ESTree.ImportExpression = finishNode(context, parser, pos, {
         type: 'Import'
     });
+
+    expect(parser, context, Token.LeftParen);
+    const args = parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
+    expect(parser, context, Token.RightParen);
+
+    expr = finishNode(context, parser, pos, {
+        type: 'CallExpression',
+        callee: expr,
+        arguments: [args]
+    });
+
+    return expr;
 }
 
 /**
@@ -1888,6 +1898,8 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
         if (parser.tokenValue !== 'target' ||
             !(context & (Context.InParameter | Context.InFunctionBody))) report(parser, Errors.MetaNotInFunctionBody);
         return parseMetaProperty(parser, context, id as ESTree.Identifier, pos);
+    } else if (context & Context.OptionsNext && parser.token === Token.ImportKeyword) {
+        report(parser, Errors.UnexpectedToken, tokenDesc(token));
     }
 
     return finishNode(context, parser, pos, {
