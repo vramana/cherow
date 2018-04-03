@@ -399,9 +399,9 @@ export function parseLeftHandSideExpression(parser: Parser, context: Context, po
 }
 
 /**
- * Parse statement list
+ * Parse member expression
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
@@ -1889,27 +1889,41 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
 
     const pos = getLocation(parser);
     const { token, tokenValue } = parser;
+
     const id = parseIdentifier(parser, context);
 
     if (consume(parser, context, Token.Period)) {
         if (parser.tokenValue !== 'target' ||
             !(context & (Context.InParameter | Context.InFunctionBody))) report(parser, Errors.MetaNotInFunctionBody);
         return parseMetaProperty(parser, context, id as ESTree.Identifier, pos);
-    } else if (context & Context.OptionsNext && parser.token === Token.ImportKeyword) {
-        report(parser, Errors.UnexpectedToken, tokenDesc(token));
     }
 
     return finishNode(context, parser, pos, {
         type: 'NewExpression',
-        callee: parseMemberExpression(parser, context, pos),
+        callee: parseImportOrMemberExpression(parser, context, pos),
         arguments: parser.token === Token.LeftParen ? parseArgumentList(parser, context) : []
     });
 }
 
 /**
- * Parse statement list
+ * Parse either import or member expression
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
+function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
+    return context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
+        parseImportExpressions(parser, context, pos) :
+        parseMemberExpression(parser, context, pos) // Fixes cases like ''new import.meta','
+}
+
+/**
+ * Parse super property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-SuperProperty)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
