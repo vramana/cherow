@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Module - Export', () => {
 
@@ -16,7 +16,6 @@ describe('Module - Export', () => {
             'var a, b; export { a as , b};',
             'export }',
             'var foo, bar; export { foo bar };',
-            //  "export { foo };",
             'export { , };',
             'export default;',
             'export default var x = 7;',
@@ -28,7 +27,7 @@ describe('Module - Export', () => {
             'export default from \'module.js\';',
             'export { for }',
             'export { for as foo }',
-            //"var a, b; export { a as c, b as c };",
+            'export * as z from "c";',
             'export function() {}',
             'export function*() {}',
             'export class {}',
@@ -36,11 +35,12 @@ describe('Module - Export', () => {
             'export default (function * yield() {})',
             'export default (async function await() {})',
             'export default (async function *await() {})',
-            //"export default async function await() {}",
-            //"export async function await() {}",
+            'export default async function await() {}',
+            'export async function await() {}',
             'export async function() {}',
             'export async',
             'export async\nfunction async() { await 1; }',
+            'export * as namespace from \'./foo\' null;',
             'export {try};',
             'export * +',
             'export default from "foo"',
@@ -96,9 +96,11 @@ describe('Module - Export', () => {
             'export let x = 0;',
             'export var y = 0;',
             'export const z = 0;',
+            'export default x;',
             'export function func() { };',
             'export class C { };',
             'export { };',
+            'export { x as default };',
             'function f() {}; f(); export { f };',
             'var a, b, c; export { a, b as baz, c };',
             'var d, e; export { d as dreary, e, };',
@@ -163,6 +165,15 @@ describe('Module - Export', () => {
             'export { default } from "other"',
             'export default function foo() {} false',
             'export default /foo/',
+            'export var namedOther = null;',
+            'export var starAsVarDecl;',
+            'export let starAsLetDecl;',
+            'export const starAsConstDecl = null;',
+            'export function starAsFuncDecl() {}',
+            'export function* starAsGenDecl() {}',
+            'export class starAsClassDecl {}',
+            'export { starAsBindingId };',
+            'export { starAsBindingId as starIdName };',
             'export default class Foo {}++x',
             'export { x as y } from \'./y.js\';\nexport { x as z } from \'./z.js\';',
             'export { default as y } from \'./y.js\';\nexport default 42;',

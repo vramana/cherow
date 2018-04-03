@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Module - Import', () => {
 
@@ -67,8 +67,8 @@ describe('Module - Import', () => {
             '({ set m(x) { import v from \'foo\'; } });',
             'class C { method() { import v from \'foo\'; } }',
             'import { arguments } from \'foo\';',
-            //"import { a as await } from 'foo';",
-            //"import { a as enum } from 'foo';",
+            'import { a as await } from \'foo\';',
+            'import { a as enum } from \'foo\';',
             'import { x }, def from \'foo\';',
             'import def, def2 from \'foo\';',
             'import * as x, def from \'foo\';',

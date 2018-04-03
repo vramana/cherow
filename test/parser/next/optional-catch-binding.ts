@@ -1,10 +1,15 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
-// This tests both public fields and public static fields
-describe('Declarations - Class fields', () => {
+describe('Declarations - Optional catch binding', () => {
+
+    describe('Failure', () => {
+        fail('try { throw undefined; } catch (err = "foo") { err }', Context.Empty, {
+            source: 'try { throw undefined; } catch (err = "foo") { err }',
+         });
+    });
 
     describe('Pass', () => {
 

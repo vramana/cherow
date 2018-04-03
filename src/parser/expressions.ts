@@ -1312,20 +1312,6 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
     const { params, body } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody);
-
-    if (state & ObjectState.Setter) {
-        if (params.length !== 1) {
-            report(parser, Errors.Unexpected);
-        } else if (params[0].type === 'RestElement') {
-            report(parser, Errors.Unexpected);
-        }
-    }
-
-    if (state & ObjectState.Getter) {
-        if (params.length > 0) {
-            report(parser, Errors.Unexpected);
-        }
-    }
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
         params,
@@ -1438,9 +1424,8 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, pos: any, par
  * @param {context} Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context) {
-
-    const paramList = parseFormalParameterList(parser, context | Context.InParameter);
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState = ObjectState.None) {
+    const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const body = parseFunctionBody(parser, context | Context.InFunctionBody);
     return { params: paramList, body };
 }
@@ -1507,9 +1492,10 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
+ * @param {state} Optional objectstate. Default to none
  */
 
-export function parseFormalParameters(parser: Parser, context: Context): any {
+export function parseFormalParameters(parser: Parser, context: Context, state: ObjectState = ObjectState.None): any {
 
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
@@ -1519,6 +1505,7 @@ export function parseFormalParameters(parser: Parser, context: Context): any {
 
     while (parser.token !== Token.RightParen) {
         if (parser.token === Token.Ellipsis) {
+            if (state & ObjectState.Setter) report(parser, Errors.BadSetterRestParameter);
             parser.flags |= Flags.SimpleParameterList;
             params.push(parseRestElement(parser, context));
             break;
@@ -1526,7 +1513,15 @@ export function parseFormalParameters(parser: Parser, context: Context): any {
 
         params.push(parseFormalParameterList(parser, context));
         if (!consume(parser, context, Token.Comma)) break;
-        if (parser.token === Token.RightParen)  break;
+        if (parser.token === Token.RightParen) break;
+    }
+
+    if (state & ObjectState.Setter && params.length !== 1) {
+        report(parser, Errors.BadSetterArity);
+    }
+
+    if (state & ObjectState.Getter && params.length > 0) {
+        report(parser, Errors.BadGetterArity);
     }
 
     expect(parser, context, Token.RightParen);

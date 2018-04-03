@@ -378,10 +378,16 @@ export function restoreExpressionCoverGrammar < T >(
  * @param parser Parser instance
  * @param context Context masks
  * @param state Modifier state
- * @param callback
+ * @param callback Callback function to be invoked
+ * @param methodState Optional Objectstate.
  */
 
-export function swapContext < T >(parser: Parser, context: Context, state: ModifierState, callback: (parser: Parser, context: Context) => T): T {
+export function swapContext < T > (
+    parser: Parser, 
+    context: Context, 
+    state: ModifierState, 
+    callback: (parser: Parser, context: Context, state: ObjectState) => T,
+    methodState: ObjectState = ObjectState.None): T {
 
     context &= ~(Context.Async | Context.Yield);
 
@@ -389,7 +395,7 @@ export function swapContext < T >(parser: Parser, context: Context, state: Modif
 
     if (state & ModifierState.Await) context |= Context.Async;
 
-    return callback(parser, context);
+    return callback(parser, context, methodState);
 }
 
 export function hasNext(parser: Parser) {

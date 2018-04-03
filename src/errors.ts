@@ -68,7 +68,10 @@ export const enum Errors {
     DuplicateProto,
     IllegalUseStrict,
     StaticPrototype,
-    BadImportCallArity
+    BadImportCallArity,
+    BadGetterArity,
+    BadSetterArity,
+    BadSetterRestParameter
 }
 
 export const ErrorMessages: {
@@ -127,7 +130,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.AwaitInParameter]: 'Await expression not allowed in formal parameter',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
-    [Errors.MetaNotInFunctionBody]: 'new.target only allowed within functions',
+    [Errors.MetaNotInFunctionBody]: 'new.target only allowed within functions',    
     [Errors.BadSuperCall]: 'super() is not allowed in this context',
     [Errors.UnexpectedSuper]: 'Member access from super not allowed in this context',
     [Errors.LoneSuper]: 'Only "(" or "." or "[" are allowed after \'super\'',
@@ -142,6 +145,10 @@ export const ErrorMessages: {
     [Errors.IllegalUseStrict]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
     [Errors.StaticPrototype]: 'Classes may not have a static property named \'prototype\'',
     [Errors.BadImportCallArity]: 'Unexpected token',
+    [Errors.BadGetterArity]: 'Getter must not have any formal parameters',
+    [Errors.BadSetterArity]: 'Setter must have exactly one formal parameter',
+    [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter',
+   
 };
 
 export function constructError(index: number, line: number, column: number, description: string): never {
@@ -156,5 +163,5 @@ export function constructError(index: number, line: number, column: number, desc
 }
 export function report(parser: Parser, type: Errors, ...params: string[]) {
     const { index, line, column} = parser;
-    constructError(index, line, column, ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]));
+    constructError(index, line, column, ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]))
 }
