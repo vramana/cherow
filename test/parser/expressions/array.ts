@@ -1,9 +1,64 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Array', () => {
 
-    pass(`[,,1,,,2,3,,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    describe('Failure', () => {});
+
+    describe('Pass', () => {
+
+        const validSyntax = [
+            '[1 <= 0]',
+            'let [a,,b] = c',
+            '[a, ...b=c]',
+            '([a, ...b=c])',
+            '[,,1,,,2,3,,]',
+            '[ 1, 2,, 3, ]',
+            '[ 0 ]',
+            '[ ,, 0 ]',
+            ' [,,3,,,]',
+            '[,]',
+            '[x()]',
+            '[a, ...b]',
+            '[function* f() {}]',
+            '[a, ...{0: b}] = (1);',
+            '[...{a}] = b;',
+            '[...{a}] = b;',
+            '[a, ...{0: b}] = 1',
+            '[1, "z", "a", "Symbol(foo)"]',
+            '[{...null}]',
+            '[{...{a: 2, b: 3}, ... {c: 4, d: 5}}]',
+            '[1, 2, 3, ...[]]',
+            ' [...{}];',
+            '[1,2,,4,5];',
+            'var array = [,,,,,];',
+            '  var a = [,];',
+        ];
+
+        for (const arg of validSyntax) {
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+                });
+            });
+
+            it(`"use strict"; ${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
+
+        pass(`[,,1,,,2,3,,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[,,1,,,2,3,,]`,
         expected: {
             type: 'Program',
@@ -111,7 +166,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[ 1, 2,, 3, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[ 1, 2,, 3, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[ 1, 2,, 3, ]`,
         expected: {
             type: 'Program',
@@ -214,7 +269,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[ 1, 2, 3, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[ 1, 2, 3, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[ 1, 2, 3, ]`,
         expected: {
             type: 'Program',
@@ -316,7 +371,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[]`,
         expected: {
             type: 'Program',
@@ -367,7 +422,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[ ,, 0 ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[ ,, 0 ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[ ,, 0 ]`,
         expected: {
             type: 'Program',
@@ -438,7 +493,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[ 0, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[ 0, ]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[ 0, ]`,
         expected: {
             type: 'Program',
@@ -505,7 +560,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[,,3,,,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[,,3,,,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[,,3,,,]`,
         expected: {
             type: 'Program',
@@ -578,7 +633,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[,]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[,]`,
         expected: {
             type: 'Program',
@@ -631,7 +686,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[x()]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[x()]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[x()]`,
         expected: {
             type: 'Program',
@@ -713,7 +768,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[a, ...{0: b}] = (1);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[a, ...{0: b}] = (1);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[a, ...{0: b}] = (1);`,
         expected: {
             type: 'Program',
@@ -895,7 +950,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass(`[1 <= 0]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`[1 <= 0]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `[1 <= 0]`,
         expected: {
             type: 'Program',
@@ -995,7 +1050,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass('[a.r] = b', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('[a.r] = b', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: '[a.r] = b',
         expected: {
             type: 'Program',
@@ -1125,7 +1180,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass('[ 1 ]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('[ 1 ]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: '[ 1 ]',
         expected: {
             type: 'Program',
@@ -1192,7 +1247,7 @@ describe('Expressions - Array', () => {
         }
     });
 
-    pass('[a, ...b=c]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('[a, ...b=c]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
     source: '[a, ...b=c]',
     expected: {
         type: 'Program',
@@ -1320,5 +1375,6 @@ describe('Expressions - Array', () => {
         }],
         sourceType: 'script'
     }
+});
 });
 });
