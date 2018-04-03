@@ -7,7 +7,7 @@ describe('Expressions - Rest property', () => {
 
     describe('Failure', () => {
 
-        const invalidSyntax = [
+        const miscInvalidSyntax = [
             'let { ...x = y } = z;',
             'let { a, ...b, c } = x;',
             'let {...obj1,...obj2} = foo',
@@ -40,7 +40,7 @@ describe('Expressions - Rest property', () => {
             // Object rest element needs to be the last AssignmenProperty in ObjectAssignmentPattern.
             '{...rest, b}',
         ];
-        for (const arg of invalidSyntax) {
+        for (const arg of miscInvalidSyntax) {
 
             it(`${arg}`, () => {
                 t.throws(() => {

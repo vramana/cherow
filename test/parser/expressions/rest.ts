@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Rest', () => {
 
@@ -19,10 +19,7 @@ describe('Expressions - Rest', () => {
         'a, ... args,\rb',
         '...args\t\n\t\t\n,  b',
         'a, ... args,  \n  \n  b',
-     //   "a, a, ...args",
-     //   "a,\ta, ...args",
-        //"a,\ra, ...args",
-        //"a,\na, ...args",
+
     ];
       for (const arg of invalidSyntax) {
 
@@ -37,17 +34,13 @@ describe('Expressions - Rest', () => {
             source: 'var obj = class { method(a, b = 1, ...c = [2,3]) {} };',
         });
 
-        /*fail('function f(c, a, ...a) { }', Context.Empty, {
-            source: 'function f(c, a, ...a) { }',
-        });*/
-
-       /* fail('function f(...a) { "use strict"; }', Context.Empty, {
+      fail('function f(...a) { "use strict"; }', Context.Empty, {
             source: 'function f(...a) { "use strict"; }',
         });
 
-        fail('x = { set f(...y) {} }', Context.Empty, {
+      fail('x = { set f(...y) {} }', Context.Empty, {
             source: `x = { set f(...y) {} }`,
-        });*/
+        });
 
       fail(`function f(a, ...b, c);`, Context.Empty, {
             source: 'function f(a, ...b, c);',
