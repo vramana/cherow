@@ -567,9 +567,6 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplateLiteral(parser, context);
         case Token.TemplateCont:
             return parseTemplate(parser, context);
-        case Token.ImportKeyword:
-            if (!(context & Context.OptionsNext)) report(parser, Errors.Unexpected);
-            return parseImportExpressions(parser, context | Context.AllowIn);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
         default:
