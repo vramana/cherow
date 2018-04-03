@@ -4,30 +4,30 @@ import { Context } from '../../../src/utilities';
 describe('Miscellaneous - Chinese', () => {
 
     describe('Failure', () => {});
-    
+
     describe('Pass', () => {
 
         pass(`class 𢭃 { /* 𢭃 */ }`, Context.Empty, {
             source: 'class 𢭃 { /* 𢭃 */ }',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "body": {
-                        "body": [],
-                        "type": "ClassBody"
+                      body: {
+                        body: [],
+                        type: 'ClassBody'
                       },
-                      "id": {
-                        "name": "𢭃",
-                        "type": "Identifier",
+                      id: {
+                        name: '𢭃',
+                        type: 'Identifier',
                       },
-                      "superClass": null,
-                      "type": "ClassDeclaration",
+                      superClass: null,
+                      type: 'ClassDeclaration',
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program",
+                  sourceType: 'script',
+                  type: 'Program',
                 }
         });
-    
+
     });
 });
