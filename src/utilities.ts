@@ -640,6 +640,11 @@ export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
         parser.token === Token.CaseKeyword;
 }
 
+export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
+    nextToken(parser, context);
+    return parser.token === Token.LeftParen || parser.token === Token.LeftBracket;
+}
+
 export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.LeftParen || parser.token === Token.Period;

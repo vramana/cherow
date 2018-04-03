@@ -33,7 +33,7 @@ import {
     parseAndDisallowDestructuringAndBinding,
     parseDirective,
     ObjectState,
-    ClassState,
+    nextTokenIsLeftParen,
     CoverParenthesizedState
 } from '../utilities';
 
@@ -1914,10 +1914,24 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
  * @param {context} Context masks
  */
 
+/**
+ * Parse either import or member expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
 function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    return context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
-        parseImportExpressions(parser, context, pos) :
-        parseMemberExpression(parser, context, pos) // Fixes cases like ''new import.meta','
+    const { token } = parser;
+    if (context & Context.OptionsNext && token === Token.ImportKeyword) {
+        // Invalid: '"new import(x)"'
+        if (lookahead(parser, context, nextTokenIsLeftParen)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
+        // Fixes cases like ''new import.meta','
+        return parseImportExpressions(parser, context, pos)
+    }
+     return parseMemberExpression(parser, context, pos);
 }
 
 /**
