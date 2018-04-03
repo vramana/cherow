@@ -34,7 +34,8 @@ import {
     parseDirective,
     ObjectState,
     nextTokenIsLeftParen,
-    CoverParenthesizedState
+    CoverParenthesizedState,
+    isEvalOrArguments
 } from '../utilities';
 
 /**
@@ -120,9 +121,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     if (context & Context.Yield && parser.token === Token.YieldKeyword) return parseYieldExpression(parser, context, pos);
 
-    const {
-        token
-    } = parser;
+    const { token } = parser;
 
     const expr = parseConditionalExpression(parser, context, pos);
 
@@ -142,6 +141,10 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
         const operator = parser.token;
 
+        if (context & Context.Strict && isEvalOrArguments((expr as ESTree.Identifier).name)) {
+            report(parser, Errors.StrictLHSAssignment);
+        }
+
         if (consume(parser, context, Token.Assign)) {
 
             if (!(parser.flags & Flags.AllowDestructuring)) {
@@ -149,7 +152,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             }
 
             if (parser.token & Token.IsYield && context & Context.InParen && context & Context.Yield) {
-                report(parser, Errors.YieldInParameter);
+                report(parser, Errors.YieldInParameter)
             }
             // Only re-interpret if not inside a formal parameter list
             if (!(context & Context.InParameter)) toAssignable(parser, context, expr);
@@ -313,10 +316,9 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
         prefix = true;
         nextToken(parser, context);
     }
+    const { token } = parser;
 
-    // TODO! Early errors
     const argument = parseLeftHandSideExpression(parser, context, pos);
-
     const isPostfix = !(parser.flags & Flags.NewLine) && hasBit(parser.token, Token.IsUpdateOp);
 
     if (!prefix && !isPostfix) return argument;
@@ -325,9 +327,9 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
         operator = parser.token;
         nextToken(parser, context);
     }
-
-    // TODO! Transform this into a mutal parser flag
-    if (!isValidSimpleAssignmentTarget(argument)) {
+    if (context & Context.Strict && token & Token.IsEvalOrArguments) {
+            report(parser, Errors.StrictLHSPrefixPostFix, prefix ? 'Prefix' : 'Postfix');
+    } else if (!isValidSimpleAssignmentTarget(argument)) {
         report(parser, Errors.InvalidLHSInAssignment);
     }
 

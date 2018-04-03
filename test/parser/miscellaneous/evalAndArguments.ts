@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Miscellaneous - Eval and arguments', () => {
 
@@ -20,18 +20,53 @@ describe('Miscellaneous - Eval and arguments', () => {
             'function foo(arguments) { }',
             'function foo(bar, eval) { }',
             'function foo(bar, arguments) { }',
-            // "(eval) => { }",
-            // "(arguments) => { }",
-            // "(foo, eval) => { }",
-            //"(foo, arguments) => { }",
-            // "eval = 1;",
-            //"arguments = 1;",
-            //"var foo = eval = 1;",
-            //"var foo = arguments = 1;",
-            // "++eval;",
-            // "++arguments;",
-            // "eval++;",
-            //   "arguments++;",
+            'eval => icefapper', // evil?
+            '(eval) => { }',
+            '(arguments) => { }',
+            '(foo, eval) => { }',
+            '(foo, arguments) => { }',
+            'eval = 1;',
+            'arguments = 1;',
+            '[ arguments = 0 ]',
+            'var foo = eval = 1;',
+            'var foo = arguments = 1;',
+            '++eval;',
+            '++arguments;',
+            'eval++;',
+            'arguments++;',
+            '{ foo: arguments }',
+            '{ foo: eval }',
+            '[ ...(eval = 0) ]',
+            '{ x: (eval = 0) }',
+            '{ x: (arguments = 0) }',
+            '{ eval = 0 }',
+            '{ arguments = 0 }',
+            '{ foo: eval = 0 }',
+            '{ foo: arguments = 0 }',
+            '[ eval = 0 ]',
+            '[ arguments = 0 ]',
+            '{ x: (arguments) = 0 }',
+            '{ x: (eval) = 0 }',
+            '[ (eval = 0) ]',
+            '[ (arguments = 0) ]',
+            '[ (eval) = 0 ]',
+            '[ (arguments) = 0 ]',
+            '[ ...(arguments = 0) ]',
+            '[ ...(eval) = 0 ]',
+            '[ ...(arguments) = 0 ]',
+            // TODO!
+            //"{ arguments }",
+            //"{ x: (eval) }",
+            // "[...eval] = arr",
+            // "{ eval }",
+            // "[ eval ]",
+            // "[ arguments ]",
+            // "{ x: (arguments) }",
+            // "[ (eval) ]",
+            // "[ (arguments) ]"
+            //"[ ...(eval) ]",
+            //"[ ...(arguments) ]",
+
         ];
 
         for (const arg of programs) {
@@ -41,19 +76,12 @@ describe('Miscellaneous - Eval and arguments', () => {
                     parse(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
-            /*
-                        it(`${arg}`, () => {
-                            t.throws(() => {
-                                parse(`${arg}`, undefined, Context.Module)
-                            })
-                        });
-            */
-            it(`var eval; function test_func() {"use strict"; ${arg} }`, () => {
+
+            it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`var eval; function test_func() {"use strict"; ${arg} }`, undefined, Context.Empty);
+                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
-
         }
     });
 

@@ -675,3 +675,7 @@ export function parseAndDisallowDestructuringAndBinding(parser: Parser, context:
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     return callback(parser, context);
 }
+
+export function isEvalOrArguments(value: string): boolean {
+    return value === 'eval' || value === 'arguments';
+}

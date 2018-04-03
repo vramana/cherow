@@ -387,10 +387,12 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
     const { tokenValue, token } = parser;
     const expr: ESTree.Expression = parseExpression(parser, context | Context.AllowIn);
     if (token & (Token.IsIdentifier | Token.Keyword) && parser.token === Token.Colon) {
-        // If within generator function bodies, we do it like this so we can throw an nice error message
-        if (context & Context.Yield && token & Token.IsYield) report(parser, Errors.YieldReservedKeyword);
+        // If within generator function bodies, we do it like this so we can throw an nice error message 
+        if (context & Context.Yield && token & Token.IsYield) report(parser, Errors.YieldReservedKeyword)
         expect(parser, context, Token.Colon);
-        if (hasLabel(parser, tokenValue)) report(parser, Errors.LabelRedeclaration, tokenValue);
+        if (context & Context.Strict && parser.token & Token.IsEvalOrArguments) {
+            report(parser, Errors.StrictLHSAssignment);
+        } else if (hasLabel(parser, tokenValue)) report(parser, Errors.LabelRedeclaration, tokenValue);
         addLabel(parser, tokenValue);
         let body: ESTree.FunctionDeclaration | ESTree.Statement;
         if (!(context & Context.Strict) && (context & Context.AllowSingleStatement) && parser.token === Token.FunctionKeyword) {
@@ -407,14 +409,6 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
             body
         });
     }
-
-    consumeSemicolon(parser, context);
-
-    return finishNode(context, parser, pos, {
-        type: 'ExpressionStatement',
-        expression: expr
-    });
-}
 
 /**
  * Parses either a binding identifier or bindign pattern
