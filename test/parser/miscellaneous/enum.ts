@@ -7,22 +7,22 @@ describe('Miscellaneous - Enum', () => {
 
     describe('Failure', () => {
 
-        const programs = [
+   const programs = [
       'enum;',
       'enum: ;',
       'var enum;',
       'var [enum] = [];',
-      //"var { enum } = {};",
+      'var { enum } = {};',
       'var { x: enum } = {};',
       '{ var enum; }',
       'let enum;',
       'let [enum] = [];',
-      //"let { enum } = {};",
+      'let { enum } = {};',
       'let { x: enum } = {};',
-       '{ let enum; }',
+      '{ let enum; }',
       'const enum = null;',
       'const [enum] = [];',
-      // "const { enum } = {};",
+      'const { enum } = {};',
       'const { x: enum } = {};',
       '{ const enum = null; }',
       'function enum() {}',
@@ -54,7 +54,7 @@ describe('Miscellaneous - Enum', () => {
       'try {} catch (enum) {} finally {}',
         ];
 
-        for (const arg of programs) {
+   for (const arg of programs) {
 
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {

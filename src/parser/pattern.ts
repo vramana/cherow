@@ -37,7 +37,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
         if (token === Token.LeftBracket) return parseArrayAssignmentPattern(parser, context);
         return parserObjectAssignmentPattern(parser, context);
     }
-
+    
     if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
         report(parser, Errors.AwaitBindingIdentifier);
     } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
@@ -59,7 +59,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
 export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
 
     const { token } = parser;
-
+    
     if (token & Token.IsEvalOrArguments) {
         if (context & Context.Strict) report(parser, Errors.StrictLHSAssignment);
         parser.flags |= Flags.StrictReserved;
@@ -245,19 +245,21 @@ function parseAssignmentOrArrayAssignmentPattern(
 
 function parseBindingProperty(parser: Parser, context: Context): ESTree.AssignmentProperty {
     const pos = getLocation(parser);
+    const { token } = parser;
     let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
     let value: ESTree.Node;
     let computed = false;
     let shorthand = false;
     // single name binding
-    if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
+    if (token & (Token.IsIdentifier | Token.Keyword)) {
         key = parseIdentifier(parser, context);
         shorthand = !consume(parser, context, Token.Colon);
-        value = shorthand ?
-            parseAssignmentOrArrayAssignmentPattern(parser, context, pos, key) :
-            parseAssignmentOrArrayAssignmentPattern(parser, context);
+        if (shorthand) {
+            if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved)
+            value = parseAssignmentOrArrayAssignmentPattern(parser, context, pos, key)
+        } else value = parseAssignmentOrArrayAssignmentPattern(parser, context);
     } else {
-        computed = parser.token === Token.LeftBracket;
+        computed = token === Token.LeftBracket;
         key = parsePropertyName(parser, context);
         expect(parser, context, Token.Colon);
         value = parseAssignmentOrArrayAssignmentPattern(parser, context);

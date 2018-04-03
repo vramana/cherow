@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Miscellaneous - Identifiers', () => {
 
@@ -111,6 +111,26 @@ describe('Miscellaneous - Identifiers', () => {
                     });
                 });
             }
+
+            // Enum is valid as identifiers in sloppy mode in a few cases only
+
+            describe('Enum', () => {
+
+              const programs = [
+                  'x = { enum: false }',
+                  'class X { enum(){} }',
+                  'class X { static enum(){} }',
+              ];
+
+              for (const arg of programs) {
+
+                  it(`${arg}`, () => {
+                      t.doesNotThrow(() => {
+                          parse(`${arg}`, undefined, Context.Empty);
+                      });
+                  });
+              }
+          });
 
             // Async is valid as identifiers in sloppy mode
 
