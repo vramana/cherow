@@ -840,115 +840,121 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
     expect(parser, context, Token.LeftParen);
 
-    // Simple case '()'
-    if (parser.token === Token.RightParen) {
-        expect(parser, context, Token.RightParen);
-        if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
-        return []; // parseSequenceArrow(parser, context, [], pos);
-    }
+    switch (parser.token) {
 
-    let expr: any;
-
-    // '(...'
-    if (parser.token === Token.Ellipsis) {
-        parser.flags |= Flags.SimpleParameterList;
-        expr = parseRestElement(parser, context);
-        expect(parser, context, Token.RightParen);
-        parser.flags |= Flags.SimpleParameterList;
-        if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
-        return [expr];
-    }
-
-    let state = CoverParenthesizedState.None;
-
-    // Record the sequence position
-    const sequencepos = getLocation(parser);
-
-    if (parser.token & Token.IsEvalOrArguments) {
-        state |= CoverParenthesizedState.HasEvalOrArguments;
-    } else if (parser.token & Token.Reserved) {
-        state |= CoverParenthesizedState.HasReservedWords;
-    }
-
-    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
-
-    expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
-
-    // Sequence expression
-    if (parser.token === Token.Comma) {
-
-        state |= CoverParenthesizedState.SequenceExpression;
-
-        parser.flags &= ~Flags.AllowDestructuring;
-
-        const expressions: ESTree.Expression[] = [expr];
-
-        while (consume(parser, context, Token.Comma)) {
-
-            switch (parser.token) {
-
-                // '...'
-                case Token.Ellipsis:
-                    if (!(parser.flags & Flags.AllowBinding)) report(parser, Errors.Unexpected);
-                    parser.flags |= Flags.SimpleParameterList;
-                    const restElement = parseRestElement(parser, context);
-                    expect(parser, context, Token.RightParen);
-                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
-                    parser.flags &= ~Flags.AllowBinding;
-                    expressions.push(restElement);
-                    return expressions;
-
-                    // ')'
-                case Token.RightParen:
-                    expect(parser, context, Token.RightParen);
-                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
-                    return expressions;
-
-                default:
-                    {
-
-                        if (parser.token & Token.IsEvalOrArguments) {
-                            state |= CoverParenthesizedState.HasEvalOrArguments;
-                        } else if (parser.token & Token.Reserved) {
-                            state |= CoverParenthesizedState.HasReservedWords;
-                        } else if (parser.token & Token.IsEvalOrArguments) {
-                            state |= CoverParenthesizedState.HasEvalOrArguments;
-                        }
-                        if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
-                        expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
-                    }
+        // ')'
+        case Token.RightParen:
+            {
+                expect(parser, context, Token.RightParen)
+                if (parser.token === Token.Arrow) return [];
             }
-        }
+            // '...'
+        case Token.Ellipsis:
+            {
+                const expr = parseRestElement(parser, context);
+                expect(parser, context, Token.RightParen);
+                parser.flags |= Flags.SimpleParameterList;
+                if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
+                return [expr];
+            }
 
-        expr = finishNode(context, parser, sequencepos, {
-            type: 'SequenceExpression',
-            expressions
-        });
+        default:
+            {
+                let state = CoverParenthesizedState.None;
+
+                // Record the sequence position
+                const sequencepos = getLocation(parser);
+
+                if (parser.token & Token.IsEvalOrArguments) {
+                    state |= CoverParenthesizedState.HasEvalOrArguments;
+                } else if (parser.token & Token.Reserved) {
+                    state |= CoverParenthesizedState.HasReservedWords;
+                }
+
+                if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+
+                let expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
+
+                // Sequence expression
+                if (parser.token === Token.Comma) {
+
+                    state |= CoverParenthesizedState.SequenceExpression;
+
+                    parser.flags &= ~Flags.AllowDestructuring;
+
+                    const expressions: ESTree.Expression[] = [expr];
+
+                    while (consume(parser, context, Token.Comma)) {
+
+                        switch (parser.token) {
+
+                            // '...'
+                            case Token.Ellipsis:
+                                {
+                                    if (!(parser.flags & Flags.AllowBinding)) report(parser, Errors.Unexpected);
+                                    parser.flags |= Flags.SimpleParameterList;
+                                    const restElement = parseRestElement(parser, context);
+                                    expect(parser, context, Token.RightParen);
+                                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected)
+                                    parser.flags &= ~Flags.AllowBinding;
+                                    expressions.push(restElement);
+                                    return expressions;
+                                }
+                                
+                            // ')'
+                            case Token.RightParen:
+                                {
+                                    expect(parser, context, Token.RightParen);
+                                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
+                                    return expressions;
+                                }
+
+                            default:
+                                {
+                                    if (parser.token & Token.IsEvalOrArguments) {
+                                        state |= CoverParenthesizedState.HasEvalOrArguments;
+                                    } else if (parser.token & Token.Reserved) {
+                                        state |= CoverParenthesizedState.HasReservedWords;
+                                    } else if (parser.token & Token.IsEvalOrArguments) {
+                                        state |= CoverParenthesizedState.HasEvalOrArguments;
+                                    }
+                                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+                                    expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
+                                }
+                        }
+                    }
+
+                    expr = finishNode(context, parser, sequencepos, {
+                        type: 'SequenceExpression',
+                        expressions
+                    });
+                }
+
+                expect(parser, context, Token.RightParen);
+
+                if (parser.token === Token.Arrow) {
+
+                    if (state & CoverParenthesizedState.HasEvalOrArguments) {
+                        if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
+                        parser.flags |= Flags.StrictEvalArguments;
+                    } else if (state & CoverParenthesizedState.HasReservedWords) {
+                        if (context & Context.Strict) report(parser, Errors.UnexpectedStrictReserved);
+                        parser.flags |= Flags.StrictReserved;
+                    } else if (!(parser.flags & Flags.AllowBinding)) {
+                        report(parser, Errors.InvalidLHSInAssignment);
+                    }
+                    if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
+                    const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
+                    return params;
+                }
+
+                parser.flags &= ~Flags.AllowBinding;
+
+                if (!isValidSimpleAssignmentTarget(expr)) parser.flags &= ~Flags.AllowDestructuring;
+
+                return expr;
+            }
     }
-
-    expect(parser, context, Token.RightParen);
-
-    if (parser.token === Token.Arrow) {
-
-        if (state & CoverParenthesizedState.HasEvalOrArguments) {
-            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
-            parser.flags |= Flags.StrictEvalArguments;
-        } else if (state & CoverParenthesizedState.HasReservedWords) {
-            if (context & Context.Strict) report(parser, Errors.UnexpectedStrictReserved);
-            parser.flags |= Flags.StrictReserved;
-        } else if (!(parser.flags & Flags.AllowBinding)) {
-            report(parser, Errors.Unexpected);
-        }
-        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
-        const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
-        return params;
-    }
-
-    parser.flags &= ~Flags.AllowBinding;
-
-    if (!isValidSimpleAssignmentTarget(expr)) parser.flags &= ~Flags.AllowDestructuring;
-
-    return expr;
 }
 
 /**
