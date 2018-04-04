@@ -34,19 +34,11 @@ describe('Miscellaneous - Eval and arguments', () => {
             '++arguments;',
             'eval++;',
             'arguments++;',
-            '{ foo: arguments }',
-            '{ foo: eval }',
             '[ ...(eval = 0) ]',
-            '{ x: (eval = 0) }',
-            '{ x: (arguments = 0) }',
             '{ eval = 0 }',
             '{ arguments = 0 }',
-            '{ foo: eval = 0 }',
-            '{ foo: arguments = 0 }',
             '[ eval = 0 ]',
             '[ arguments = 0 ]',
-            '{ x: (arguments) = 0 }',
-            '{ x: (eval) = 0 }',
             '[ (eval = 0) ]',
             '[ (arguments = 0) ]',
             '[ (eval) = 0 ]',
@@ -54,19 +46,8 @@ describe('Miscellaneous - Eval and arguments', () => {
             '[ ...(arguments = 0) ]',
             '[ ...(eval) = 0 ]',
             '[ ...(arguments) = 0 ]',
-            // TODO!
-            //"{ arguments }",
-            //"{ x: (eval) }",
+            // TODO
             // "[...eval] = arr",
-            // "{ eval }",
-            // "[ eval ]",
-            // "[ arguments ]",
-            // "{ x: (arguments) }",
-            // "[ (eval) ]",
-            // "[ (arguments) ]"
-            //"[ ...(eval) ]",
-            //"[ ...(arguments) ]",
-
         ];
 
         for (const arg of programs) {
@@ -86,8 +67,41 @@ describe('Miscellaneous - Eval and arguments', () => {
     });
 
     describe('Pass', () => {
+        // 'eval' and 'arguments' valid in strict mode code, and module code
+        const validInStrictMode = [
+            'eval;',
+            'arguments;',
+            'var foo = eval;',
+            'var foo = arguments;',
+            'var foo = { eval: 1 };',
+            'var foo = { arguments: 1 };',
+            'var foo = { }; foo.eval = {};',
+            'var foo = { }; foo.arguments = {};'
+        ];
 
-        const programs = [
+        for (const arg of validInStrictMode) {
+
+            it(`"use strict"; ${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                });
+            });
+
+            it(`function foo() { "use strict"; ${arg} }`, () => {
+                t.doesNotThrow(() => {
+                    parse(`function foo() { "use strict";  ${arg} }`, undefined, Context.Empty);
+                });
+            });
+
+            it(`() => { "use strict"; ${arg} }`, () => {
+                t.doesNotThrow(() => {
+                    parse(`() => { "use strict";  ${arg} }`, undefined, Context.Empty);
+                });
+            });
+        }
+
+        // Valid 'eval' and 'arguments' in sloppy mode
+        const validSyntax = [
             'var eval;',
             'var arguments',
             'var foo, eval;',
@@ -112,7 +126,7 @@ describe('Miscellaneous - Eval and arguments', () => {
             'arguments;'
         ];
 
-        for (const arg of programs) {
+        for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {

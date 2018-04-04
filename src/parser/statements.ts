@@ -390,9 +390,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
         // If within generator function bodies, we do it like this so we can throw an nice error message 
         if (context & Context.Yield && token & Token.IsYield) report(parser, Errors.YieldReservedKeyword)
         expect(parser, context, Token.Colon);
-        if (context & Context.Strict && parser.token & Token.IsEvalOrArguments) {
-            report(parser, Errors.StrictLHSAssignment);
-        } else if (hasLabel(parser, tokenValue)) report(parser, Errors.LabelRedeclaration, tokenValue);
+        if (hasLabel(parser, tokenValue)) report(parser, Errors.LabelRedeclaration, tokenValue);
         addLabel(parser, tokenValue);
         let body: ESTree.FunctionDeclaration | ESTree.Statement;
         if (!(context & Context.Strict) && (context & Context.AllowSingleStatement) && parser.token === Token.FunctionKeyword) {
