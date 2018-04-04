@@ -35,6 +35,15 @@ describe('Expressions - Async Arrows', () => {
             "async() => { await: ; };",
             "async() => { void await; };",
             "async() => { var await; };",
+            'async (await) => { "use strict"; };',
+            'async (await) => {  };',
+            'async (foo, bar, await) => {  };',
+            'async (yield) => { "use strict"; };',
+            'async (yield) => {  };',
+            'async (foo, bar, yield) => {  };',
+            'async (eval) => { "use strict"; };',
+            'async (foo, eval) => { "use strict"; };',
+            'async (foo, arguments, bar) => { "use strict"; };',
             `async
             (foo) => { }`,
             `async
@@ -120,6 +129,7 @@ describe('Expressions - Async Arrows', () => {
             '({x: async (y,w) => z})',
             "async(...a = b) => b",
             "async({x = yield}) => 1; ",
+            'async (icefapper = bad) => {  }',
             "var asyncFn = async({ foo = 1 }) => foo;",
             "var asyncFn = async({ foo = 1 } = {}) => foo;",
         ];

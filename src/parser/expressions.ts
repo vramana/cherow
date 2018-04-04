@@ -983,19 +983,27 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     let { token } = parser;
 
     const enum CoverCallState {
-        None        = 0,
-        SeenSpread  = 1 << 0,
-        HasSpread   = 1 << 1,
+        None = 0,
+        SeenSpread       = 1 << 0,
+        HasSpread        = 1 << 1,
+        SimpleParameter  = 1 << 2,
+        EvalOrArguments  = 1 << 3,
+        Yield            = 1 << 4,
+        Await            = 1 << 5,
     }
 
     let state = CoverCallState.None;
 
     while (parser.token !== Token.RightParen) {
         if (parser.token === Token.Ellipsis) {
+            parser.flags |= Flags.SimpleParameterList;
             args.push(parseSpreadElement(parser, context));
             state = CoverCallState.HasSpread
         } else {
             token = parser.token;
+            if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
+            if (hasBit(token, Token.IsYield)) state |= CoverCallState.Yield;
+            if (hasBit(token, Token.IsAwait)) state |= CoverCallState.Await;
             args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
         }
 
@@ -1011,8 +1019,13 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     if (parser.token === Token.Arrow) {
         parser.pendingExpressionError = null;
         if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
-        if (token & Token.IsAwait) report(parser, Errors.AwaitInParameter);
-        if (token & Token.IsYield) report(parser, Errors.YieldInParameter);
+        if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
+        if (state & CoverCallState.Await) report(parser, Errors.AwaitInParameter);
+        if (state & CoverCallState.Yield) report(parser, Errors.YieldInParameter);
+        if (state & CoverCallState.EvalOrArguments) {
+            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
+            parser.flags |= Flags.StrictEvalArguments;
+        }
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);
     }
 
