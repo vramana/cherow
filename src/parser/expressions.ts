@@ -959,6 +959,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
  * @param parser  Parser instance
  * @param context Context masks
  */
+
 function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Context): ESTree.Node {
 
     const pos = getLocation(parser);
@@ -973,29 +974,34 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     if (parser.flags & Flags.NewLine) report(parser, Errors.LineBreakAfterAsync);
 
     // Parenthesized async arrow function or call expression
-
     expect(parser, context, Token.LeftParen);
 
     parser.flags & ~(Flags.AllowDestructuring | Flags.AllowBinding);
 
-    const args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = [];
+    let args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = []
 
     let { token } = parser;
-    let seenSpread = false;
-    let spreadNotLast = false;
+
+    const enum CoverCallState {
+        None        = 0,
+        SeenSpread  = 1 << 0,
+        HasSpread   = 1 << 1,
+    }
+
+    let state = CoverCallState.None;
 
     while (parser.token !== Token.RightParen) {
         if (parser.token === Token.Ellipsis) {
             args.push(parseSpreadElement(parser, context));
-            seenSpread = true;
+            state = CoverCallState.HasSpread
         } else {
             token = parser.token;
             args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
         }
 
         if (consume(parser, context, Token.Comma)) {
-        if (seenSpread) spreadNotLast = true;
-       }
+            if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread
+        }
 
         if (parser.token === Token.RightParen) break;
     }
@@ -1004,7 +1010,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     if (parser.token === Token.Arrow) {
         parser.pendingExpressionError = null;
-        if (spreadNotLast) report(parser, Errors.Unexpected);
+        if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
         if (token & Token.IsAwait) report(parser, Errors.AwaitInParameter);
         if (token & Token.IsYield) report(parser, Errors.YieldInParameter);
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);

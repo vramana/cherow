@@ -651,6 +651,12 @@ export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean 
     return parser.token === Token.LeftParen || parser.token === Token.LeftBracket;
 }
 
+export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): boolean | number {
+    nextToken(parser, context);
+    const { token, flags } = parser;
+    return token & (Token.IsIdentifier | Token.IsYield) || token === Token.LeftParen;
+}
+
 export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.LeftParen || parser.token === Token.Period;
