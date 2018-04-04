@@ -119,39 +119,37 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     const pos = getLocation(parser);
 
-    if (context & Context.Yield && parser.token === Token.YieldKeyword) return parseYieldExpression(parser, context, pos);
+    if (context & Context.Yield && parser.token & Token.IsYield) return parseYieldExpression(parser, context, pos);
 
-    const { token } = parser;
+    let { token } = parser;
 
-    const expr = parseConditionalExpression(parser, context, pos);
+    const isAsync = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen);
 
-    if (parser.token === Token.Arrow && !(parser.flags & Flags.NewLine) && token & (Token.IsIdentifier | Token.Keyword)) {
-        if (token & Token.FutureReserved) {
-            if (context & Context.Strict) report(parser, Errors.InvalidLHSInAssignment);
-            parser.flags |= Flags.StrictReserved;
+    let expr: any = isAsync ? parserCoverCallExpressionAndAsyncArrowHead(parser, context) : parseConditionalExpression(parser, context, pos);
+
+    if (parser.token === Token.Arrow) {
+        if (token & (Token.IsIdentifier | Token.Keyword)) {
+            if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
+                if (context & Context.Strict) {
+                    report(parser, token & Token.IsEvalOrArguments ? Errors.StrictEvalArguments : Errors.InvalidLHSInAssignment);
+                }
+                parser.flags |= Flags.StrictReserved;
+            }
+            expr = [expr];
         }
-        if (token & Token.IsEvalOrArguments) {
-            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
-            parser.flags |= Flags.StrictReserved;
-        }
-        return parseArrowFunction(parser, context, pos, [expr]);
+
+        return parseArrowFunction(parser, context, pos, expr)
     }
-
     if (hasBit(parser.token, Token.IsAssignOp)) {
 
         const operator = parser.token;
 
         if (context & Context.Strict && isEvalOrArguments((expr as ESTree.Identifier).name)) {
             report(parser, Errors.StrictLHSAssignment);
-        }
-
-        if (consume(parser, context, Token.Assign)) {
-
+        } else if (consume(parser, context, Token.Assign)) {
             if (!(parser.flags & Flags.AllowDestructuring)) {
                 return report(parser, Errors.InvalidLHSInAssignment);
-            }
-
-            if (parser.token & Token.IsYield && context & Context.InParen && context & Context.Yield) {
+            } else if (parser.token & Token.IsYield && context & Context.InParen && context & Context.Yield) {
                 report(parser, Errors.YieldInParameter)
             }
             // Only re-interpret if not inside a formal parameter list
@@ -164,8 +162,11 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
             nextToken(parser, context);
         }
+
         const right = parseExpressionCoverGrammar(parser, context & ~Context.InParen | Context.AllowIn, parseAssignmentExpression);
+
         parser.pendingExpressionError = null;
+
         return finishNode(context, parser, pos, {
             type: 'AssignmentExpression',
             left: expr,
