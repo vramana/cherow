@@ -17,7 +17,6 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
-    isIdentifier1,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     swapContext,
@@ -39,6 +38,10 @@ import {
     isEvalOrArguments,
     nextTokenisIdentifierOrParen
 } from '../utilities';
+
+// TODO!
+//
+// . Finish refactoring of arrows
 
 /**
  * Parse expression
@@ -985,7 +988,6 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
         if (parser.token === Token.Ellipsis) {
             args.push(parseSpreadElement(parser, context));
             seenSpread = true;
-       //     if (parser.token === Token.Comma) rachelle = true;
         } else {
             token = parser.token;
             args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
