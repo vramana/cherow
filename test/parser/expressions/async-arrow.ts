@@ -8,7 +8,15 @@ describe('Expressions - Async Arrows', () => {
     describe('Failure', () => {
 
         const invalidSyntax = [
+            `async ((x, y)) => 0`,
+            `async ((x, y, z)) => 0`, 
+            `async ((x, y), z) => 0`,
+            "async (x) => {}  ? a : b",
+            "async (x) => {}a",
+            "async (x) => {} 1",
+            "async (x) => {} a()",
             "async (x) => {} + 2",
+            "async (()) => 0",
             "async(,)",
             "async()()",
             "async (,) => b;",
@@ -32,6 +40,8 @@ describe('Expressions - Async Arrows', () => {
             "async (...a,) => {}",
             "async(await) => {  }",
             "async (...a,) => {}",
+            '"use strict"; async (eval) => {};',
+            '"use strict"; async (foo, bar eval) => {};',
             "async() => { await: ; };",
             "async() => { void await; };",
             "async() => { var await; };",
@@ -88,16 +98,16 @@ describe('Expressions - Async Arrows', () => {
     describe('Pass', () => {
 
         const validSyntax = [
-            "(() => {}) + 2",
             "async () => {}",
-            "() => { return 42 }",
+            "async () => { return 42 }",
             "async x => { return x; }",
-            "(x) => { return x; }",
-            "(x, y) => { return x + y; }",
-            "(x, y, z) => { return x + y + z; }",
-            "(x, y) => { x.a = y; }",
+            "async (x) => { return x; }",
+            "async (x, y) => { return x + y; }",
+            "async (x, y, z) => { return x + y + z; }",
+            "async (x, y) => { x.a = y; }",
             "async (...x = []) => {}",
-            "() => 42",
+            "async () => 42",
+            `async ({}) => 0`,
             "async(a,)",
             "async (a,) => b;",
             "[async(x,y) => z]",

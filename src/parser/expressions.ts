@@ -976,25 +976,24 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     // Parenthesized async arrow function or call expression
     expect(parser, context, Token.LeftParen);
 
-    parser.flags & ~(Flags.AllowDestructuring | Flags.AllowBinding);
-
     let args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = []
 
     let { token } = parser;
 
     const enum CoverCallState {
-        None = 0,
-        SeenSpread       = 1 << 0,
-        HasSpread        = 1 << 1,
-        SimpleParameter  = 1 << 2,
-        EvalOrArguments  = 1 << 3,
-        Yield            = 1 << 4,
-        Await            = 1 << 5,
+        None            = 0,
+        SeenSpread      = 1 << 0,
+        HasSpread       = 1 << 1,
+        SimpleParameter = 1 << 2,
+        EvalOrArguments = 1 << 3,
+        Yield           = 1 << 4,
+        Await           = 1 << 5,
     }
 
     let state = CoverCallState.None;
 
     while (parser.token !== Token.RightParen) {
+        
         if (parser.token === Token.Ellipsis) {
             parser.flags |= Flags.SimpleParameterList;
             args.push(parseSpreadElement(parser, context));
@@ -1017,7 +1016,6 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     expect(parser, context, Token.RightParen);
 
     if (parser.token === Token.Arrow) {
-        parser.pendingExpressionError = null;
         if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
         if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
         if (state & CoverCallState.Await) report(parser, Errors.AwaitInParameter);
