@@ -27,7 +27,7 @@ import {
 
 /**
  * Scan
- * 
+ *
  * @param parser Parser instance
  * @param context Context masks
  */
@@ -103,8 +103,8 @@ export function scan(parser: Parser, context: Context): Token {
                     state |= ScannerState.SameLine;
 
                     if (!hasNext(parser))  return Token.Divide;
-                        
-                        switch (nextChar(parser)) {
+
+                    switch (nextChar(parser)) {
                             case Chars.Slash: {
                                 advance(parser);
                                 state = skipSingleLineComment(parser, state);
@@ -115,16 +115,16 @@ export function scan(parser: Parser, context: Context): Token {
                                 state = skipMultiLineComment(parser, state);
                                 continue;
                             }
-                            case Chars.EqualSign:{
+                            case Chars.EqualSign: {
                                 advance(parser);
                                 return Token.DivideAssign;
                             }
-                            
+
                             default:
                                 return Token.Divide;
                         }
                 }
-                
+
                 // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
             case Chars.LessThan:
 
@@ -141,7 +141,7 @@ export function scan(parser: Parser, context: Context): Token {
                 switch (nextChar(parser)) {
                     case Chars.LessThan:
                         advance(parser);
-                        return consumeOpt(parser, Chars.EqualSign) 
+                        return consumeOpt(parser, Chars.EqualSign)
                         ? Token.ShiftLeftAssign
                         : Token.ShiftLeft;
 
@@ -176,7 +176,7 @@ export function scan(parser: Parser, context: Context): Token {
 
                     const next = nextChar(parser);
 
-                        switch (next) {
+                    switch (next) {
                             case Chars.Hyphen:
                                 {
                                     advance(parser);
@@ -292,7 +292,7 @@ export function scan(parser: Parser, context: Context): Token {
                                 parser.column += 3;
                                 return Token.Ellipsis;
                             }
-                        } 
+                        }
                     }
 
                     advance(parser);
@@ -302,7 +302,7 @@ export function scan(parser: Parser, context: Context): Token {
                 // `0`...`9`
             case Chars.Zero: {
 
-                advance(parser)
+                advance(parser);
 
                 switch (nextChar(parser)) {
                         case Chars.UpperX:
@@ -318,7 +318,7 @@ export function scan(parser: Parser, context: Context): Token {
                             return scanImplicitOctalDigits(parser, context);
                     }
               }
-             
+
             case Chars.One:
             case Chars.Two:
             case Chars.Three:

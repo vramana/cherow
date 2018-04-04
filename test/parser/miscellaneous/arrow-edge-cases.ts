@@ -16,13 +16,13 @@ describe('Miscellaneous - Arrow edge cases', () => {
                 () => {}`,
                 });
 
-        fail(`async () => a
+                fail(`async () => a
     () => {}`, Context.Empty, {
             source: `async () => a
         () => {}`,
         });
 
-        fail(`() => {}()`, Context.Empty, {
+                fail(`() => {}()`, Context.Empty, {
             source: `() => {}()`,
         });
     });
@@ -350,20 +350,20 @@ describe('Miscellaneous - Arrow edge cases', () => {
       () => {}
       () => {}
       (() => {})().abc.call("Hello")`,
-        ]
+        ];
 
         for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty)
-                })
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
             });
 
             it(`function foo() { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo() { ${arg} }`, undefined, Context.Empty)
-                })
+                    parse(`function foo() { ${arg} }`, undefined, Context.Empty);
+                });
             });
         }
     });

@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Async Arrows', () => {
 
@@ -9,23 +9,18 @@ describe('Expressions - Async Arrows', () => {
 
         const invalidSyntax = [
             'async({ foo33 = 1 })',
-            //"async() => await"
+            'async() => await',
             'async() => ((async(x = await 1) => x)();',
             'async().foo13 () => 1',
             'async().foo10 => 1',
-            //"async(...a, b) => b",
-            //"[async(x,y) => z]",
-            //"[async x => z]"
-            'async({x = yield}) => 1; ',
+            'async(...a, b) => b',
             'var f = async() => ((async(x = await 1) => x)();',
-            //"async(...a = b) => b",
             'async(...a,) => b',
             'async(...a, b) => b',
             'async(await) => b',
             'async(foo, await) => b',
             'async(yield) => b',
             'async(foo, yield) => b',
-            //"async (...x = []) => {}",
             'async (...a,) => {}',
             'async(await) => {  }',
             'async (...a,) => {}',
@@ -38,10 +33,22 @@ describe('Expressions - Async Arrows', () => {
             (a) => await a`,
             `async (a)
             => await a`,
-          /*  `async ()
-            => 0`,*/
+            `async ()
+            => 0`,
             `async a
-            => await a`
+            => await a`,
+            '(async function foo4() { } => 1)',
+            '(async function() { } foo5 => 1)',
+            '(async function() { } () => 1)',
+            '(async function() { } => 1)',
+            'async(...a,) => b',
+            'async(...a, b) => b',
+            'async(...a,) => b',
+            'async(...a, b) => b',
+            'var asyncFn = async () => var await = \'test\';',
+
+  //          "var asyncFn = async await => await + 'test';",
+
         ];
 
         for (const arg of invalidSyntax) {
@@ -73,21 +80,37 @@ describe('Expressions - Async Arrows', () => {
             '(x, y) => { x.a = y; }',
             'async (...x = []) => {}',
             '() => 42',
+            '[async(x,y) => z]',
+            '[async x => z]',
+            'async(...a = b) => b',
             'id = async x => x, square = async (y) => { y * y }',
-           // "f(a, async b => await b)",
+            'f(a, async b => await b)',
+            'async (...x = []) => {}',
             'async (x, y) => { x * y }',
             'async (x, y) => y',
             'async a => { await a }',
             'async (y) => y',
             'async (x, ...y) => x',
             'async (x,y,) => x',
-            //"async ({a = b}) => a",
+            'async ({a = b}) => a',
             'async a => a',
             'async function foo(a = async () => await b) {}',
             '({async: 1})',
             //"async yield => 1",
             'f(a, async (b, c) => await [b, c], d)',
             'f(a, async (b, c) => await [b, c], d)',
+            'async()',
+            'async(a, b)',
+            'async(...a, ...b)',
+            '({ ...async () => { }})',
+            '(async x => y)',
+            'async(...a = b) => b',
+            '(async (x, z) => y)',
+            '({x: async (y,w) => z})',
+            'async(...a = b) => b',
+            'async({x = yield}) => 1; ',
+            'var asyncFn = async({ foo = 1 }) => foo;',
+            'var asyncFn = async({ foo = 1 } = {}) => foo;',
         ];
 
         for (const arg of validSyntax) {
@@ -451,6 +474,133 @@ describe('Expressions - Async Arrows', () => {
                     }
                 }
             }
+        });
+
+        pass('async a => b => c;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+            source: 'async a => b => c;',
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 18,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 18
+                  }
+                },
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 0,
+                    end: 18,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 18
+                      }
+                    },
+                    expression: {
+                      type: 'ArrowFunctionExpression',
+                      start: 0,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
+                        },
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      id: null,
+                      generator: false,
+                      expression: true,
+                      async: true,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          start: 6,
+                          end: 7,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 6
+                            },
+                            end: {
+                              line: 1,
+                              column: 7
+                            }
+                          },
+                          name: 'a'
+                        }
+                      ],
+                      body: {
+                        type: 'ArrowFunctionExpression',
+                        start: 11,
+                        end: 17,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 11
+                          },
+                          end: {
+                            line: 1,
+                            column: 17
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: true,
+                        async: false,
+                        params: [
+                          {
+                            type: 'Identifier',
+                            start: 11,
+                            end: 12,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 11
+                              },
+                              end: {
+                                line: 1,
+                                column: 12
+                              }
+                            },
+                            name: 'b'
+                          }
+                        ],
+                        body: {
+                          type: 'Identifier',
+                          start: 16,
+                          end: 17,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 16
+                            },
+                            end: {
+                              line: 1,
+                              column: 17
+                            }
+                          },
+                          name: 'c'
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
         });
     });
 });

@@ -382,10 +382,10 @@ export function restoreExpressionCoverGrammar < T >(
  * @param methodState Optional Objectstate.
  */
 
-export function swapContext < T > (
-    parser: Parser, 
-    context: Context, 
-    state: ModifierState, 
+export function swapContext < T >(
+    parser: Parser,
+    context: Context,
+    state: ModifierState,
     callback: (parser: Parser, context: Context, state: ObjectState) => T,
     methodState: ObjectState = ObjectState.None): T {
 
