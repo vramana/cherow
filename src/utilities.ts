@@ -92,6 +92,7 @@ export const enum ObjectState {
     Shorthand   = 1 << 6,
     Static      = 1 << 7,
     Constructor = 1 << 8,
+    Heritage    = 1 << 9,
 }
 
 // Label tracking state

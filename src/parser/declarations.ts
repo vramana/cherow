@@ -18,7 +18,8 @@ import {
     getLocation,
     ModifierState,
     swapContext,
-    parseExpressionCoverGrammar
+    parseExpressionCoverGrammar,
+    ObjectState
 } from '../utilities';
 
 // Declarations
@@ -40,14 +41,19 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         id = parseFunctionOrClassDeclarationName(parser, context | Context.Strict);
         // Class statements must have a bound name
     } else if (!(context & Context.RequireIdentifier)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
-    const superClass = consume(parser, context, Token.ExtendsKeyword) ?
+    let superClass: ESTree.Expression | null = null;
+    let state = ObjectState.None;
+    if (consume(parser, context, Token.ExtendsKeyword)) {
+        superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
+        state |= ObjectState.Heritage;
+    }
     parseLeftHandSideExpression(parser, context | Context.Strict, pos) :
         null;
     return finishNode(context, parser, pos, {
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier  | Context.Strict)
+        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict, state)
     });
 }
 
@@ -65,7 +71,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     if (isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) report(parser, Errors.GeneratorInSingleStatementContext);
     const id = parseFunctionOrClassDeclarationName(parser, context);
-    const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
+    const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
         params,
@@ -92,7 +98,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     const id = parseFunctionOrClassDeclarationName(parser, context);
-    const { params, body } = swapContext(parser, context & ~Context.RequireIdentifier, isGenerator | ModifierState.Await, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.RequireIdentifier), isGenerator | ModifierState.Await, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',

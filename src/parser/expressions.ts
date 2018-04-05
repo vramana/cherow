@@ -39,10 +39,6 @@ import {
     nextTokenisIdentifierOrParen
 } from '../utilities';
 
-// TODO!
-//
-// . Finish refactoring of arrows
-
 /**
  * Parse expression
  *
@@ -1065,10 +1061,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context, isGenerator, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context  & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1108,10 +1101,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context, isGenerator | isAwait, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context  & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1569,14 +1559,17 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
         parseBindingIdentifier(parser, context | Context.Strict) :
         null;
-    const superClass = consume(parser, context, Token.ExtendsKeyword) ?
-        parseLeftHandSideExpression(parser, context | Context.Strict, pos) :
-        null;
+    let superClass: ESTree.Expression | null = null;
+    let state = ObjectState.None;
+    if (consume(parser, context, Token.ExtendsKeyword)) {
+        superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
+        state |= ObjectState.Heritage;
+    }
     return finishNode(context, parser, pos, {
         type: 'ClassExpression',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context | Context.Strict)
+        body: parseClassBodyAndElementList(parser, context | Context.Strict, state)
     });
 }
 
@@ -1619,7 +1612,7 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context): 
  * @param {context} Context masks
  */
 
-export function parseClassElement(parser: Parser, context: Context): ESTree.MethodDefinition | ESTree.FieldDefinition {
+export function parseClassElement(parser: Parser, context: Context, state: ObjectState): ESTree.MethodDefinition | ESTree.FieldDefinition {
 
     const pos = getLocation(parser);
 
@@ -1628,7 +1621,6 @@ export function parseClassElement(parser: Parser, context: Context): ESTree.Meth
     }
 
     let { tokenValue, token } = parser;
-    let state = ObjectState.None;
 
     if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
 
@@ -1694,6 +1686,9 @@ export function parseClassElement(parser: Parser, context: Context): ESTree.Meth
 
     if (parser.token === Token.LeftParen) {
         if (!(state & (ObjectState.Getter | ObjectState.Setter))) state |= ObjectState.Method;
+        if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
+            context |= Context.AllowSuperProperty;
+        }
         value = parseMethodDeclaration(parser, context | Context.Method, state);
     } else {
         // Class fields - Stage 3 proposal
@@ -1908,12 +1903,23 @@ function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Lo
  * @param {context} Context masks
  */
 
-function parseSuperProperty(parser: Parser, context: Context): ESTree.Expression {
+function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
     const pos = getLocation(parser);
 
     expect(parser, context, Token.SuperKeyword);
 
     const { token } = parser;
+    
+        if (token === Token.LeftParen) {
+            // The super property has to be within a class constructor
+            if (!(context & Context.AllowSuperProperty)) {
+                report(parser, Errors.BadSuperCall);
+            }
+        } else if (token === Token.LeftBracket || token === Token.Period) {
+            if (!(context & Context.Method)) report(parser, Errors.UnexpectedSuper);
+        } else {
+            report(parser, Errors.LoneSuper);
+        }
 
     return finishNode(context, parser, pos, {
         type: 'Super'
