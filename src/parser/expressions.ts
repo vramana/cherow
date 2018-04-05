@@ -17,6 +17,7 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
+    isIdentifier1,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     swapContext,
@@ -120,7 +121,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     const pos = getLocation(parser);
 
-    const { token } = parser;
+    let {token } = parser;
 
     if (context & Context.Yield && token & Token.IsYield) return parseYieldExpression(parser, context, pos);
 
@@ -143,22 +144,27 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
     }
     if (hasBit(parser.token, Token.IsAssignOp)) {
 
-        const operator = parser.token;
+        token = parser.token;
 
         if (context & Context.Strict && isEvalOrArguments((expr as ESTree.Identifier).name)) {
             report(parser, Errors.StrictLHSAssignment);
         } else if (consume(parser, context, Token.Assign)) {
             if (!(parser.flags & Flags.AllowDestructuring)) {
-                return report(parser, Errors.InvalidLHSInAssignment);
+                report(parser, Errors.InvalidLHSInAssignment);
             } else if (parser.token & Token.IsYield && context & Context.InParen && context & Context.Yield) {
                 report(parser, Errors.YieldInParameter);
             }
             // Only re-interpret if not inside a formal parameter list
             if (!(context & Context.InParameter)) toAssignable(parser, context, expr);
-            if (context & Context.InParen) parser.flags |= Flags.SimpleParameterList;
+            if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
+            if (parser.token & Token.IsYield) parser.flags |= Flags.HasYield;
+            if (context & Context.InParen) {
+                parser.flags |= Flags.SimpleParameterList;
+            }
+
         } else {
             if (!isValidSimpleAssignmentTarget(expr)) {
-                return report(parser, Errors.InvalidLHSInAssignment);
+                report(parser, Errors.InvalidLHSInAssignment);
             }
             parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
             nextToken(parser, context);
@@ -171,7 +177,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
         return finishNode(context, parser, pos, {
             type: 'AssignmentExpression',
             left: expr,
-            operator: tokenDesc(operator),
+            operator: tokenDesc(token),
             right
         });
 
@@ -270,7 +276,7 @@ function parseAwaitExpression(parser: Parser, context: Context, pos: any): ESTre
  */
 function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
     const pos = getLocation(parser);
-    let { token } = parser;
+    let {token } = parser;
     // Note: 'await' is an unary operator, but we keep it separate due to performance reasons
     if (context & Context.Async && token === Token.AwaitKeyword) return parseAwaitExpression(parser, context, pos);
     if (hasBit(token, Token.IsUnaryOp)) {
@@ -316,7 +322,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
         prefix = true;
         nextToken(parser, context);
     }
-    const { token } = parser;
+    const {token } = parser;
 
     const argument = parseLeftHandSideExpression(parser, context, pos);
     const isPostfix = !(parser.flags & Flags.NewLine) && hasBit(parser.token, Token.IsUpdateOp);
@@ -716,7 +722,7 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
  */
 function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
-    const { token } = parser;
+    const {token } = parser;
     const raw = tokenDesc(token);
 
     nextToken(parser, context);
@@ -841,7 +847,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
         // ')'
         case Token.RightParen:
             {
-                expect(parser, context, Token.RightParen)
+                expect(parser, context, Token.RightParen);
                 if (parser.token === Token.Arrow) return [];
             }
             // '...'
@@ -867,7 +873,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     state |= CoverParenthesizedState.HasReservedWords;
                 }
 
-                if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+                if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
 
                 let expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
 
@@ -891,13 +897,13 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                     parser.flags |= Flags.SimpleParameterList;
                                     const restElement = parseRestElement(parser, context);
                                     expect(parser, context, Token.RightParen);
-                                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected)
+                                    if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
                                     parser.flags &= ~Flags.AllowBinding;
                                     expressions.push(restElement);
                                     return expressions;
                                 }
-                                
-                            // ')'
+
+                                // ')'
                             case Token.RightParen:
                                 {
                                     expect(parser, context, Token.RightParen);
@@ -914,7 +920,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                     } else if (parser.token & Token.IsEvalOrArguments) {
                                         state |= CoverParenthesizedState.HasEvalOrArguments;
                                     }
-                                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+                                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
                                     expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                 }
                         }
@@ -939,7 +945,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     } else if (!(parser.flags & Flags.AllowBinding)) {
                         report(parser, Errors.InvalidLHSInAssignment);
                     }
-                    if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
+                    if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
                     const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
                     return params;
                 }
@@ -970,6 +976,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     // 'async ice => fapper';
     if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
+        if (parser.token & Token.IsAwait) report(parser, Errors.Unexpected);
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [isIdentifier1(parser, context)]);
     }
 
@@ -978,28 +985,27 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     // Parenthesized async arrow function or call expression
     expect(parser, context, Token.LeftParen);
 
-    let args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = []
+    const args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = [];
 
-    let { token } = parser;
+    let {token } = parser;
 
     const enum CoverCallState {
-        None            = 0,
-        SeenSpread      = 1 << 0,
-        HasSpread       = 1 << 1,
-        SimpleParameter = 1 << 2,
-        EvalOrArguments = 1 << 3,
-        Yield           = 1 << 4,
-        Await           = 1 << 5,
+        None = 0,
+            SeenSpread = 1 << 0, // First run
+            HasSpread = 1 << 1, // Second run
+            SimpleParameter = 1 << 2, // Second run
+            EvalOrArguments = 1 << 3,
+            Yield = 1 << 4,
+            Await = 1 << 5,
     }
 
     let state = CoverCallState.None;
 
     while (parser.token !== Token.RightParen) {
-        
         if (parser.token === Token.Ellipsis) {
             parser.flags |= Flags.SimpleParameterList;
             args.push(parseSpreadElement(parser, context));
-            state = CoverCallState.HasSpread
+            state = CoverCallState.HasSpread;
         } else {
             token = parser.token;
             if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
@@ -1009,7 +1015,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
         }
 
         if (consume(parser, context, Token.Comma)) {
-            if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread
+            if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread;
         }
 
         if (parser.token === Token.RightParen) break;
@@ -1020,14 +1026,16 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     if (parser.token === Token.Arrow) {
         if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
         if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
-        if (state & CoverCallState.Await) report(parser, Errors.AwaitInParameter);
-        if (state & CoverCallState.Yield) report(parser, Errors.YieldInParameter);
+        if (state & CoverCallState.Await || parser.flags & Flags.HasAwait) report(parser, Errors.AwaitInParameter);
+        if (state & CoverCallState.Yield || parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
         if (state & CoverCallState.EvalOrArguments) {
             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictEvalArguments;
         }
+        parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);
     }
+    parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
 
     return finishNode(context, parser, pos, {
         type: 'CallExpression',
@@ -1050,7 +1058,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     let id: ESTree.Identifier | null = null;
-    const { token } = parser;
+    const {token } = parser;
 
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (hasBit(token, Token.IsEvalOrArguments)) {
@@ -1061,7 +1069,10 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const { params, body } = swapContext(parser, context  & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
+    const {
+        params,
+        body
+    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1090,7 +1101,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
-    const { token } = parser;
+    const {token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
 
         if (hasBit(token, Token.IsEvalOrArguments)) {
@@ -1101,7 +1112,10 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const { params, body } = swapContext(parser, context  & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
+    const {
+        params,
+        body
+    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1275,7 +1289,14 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                     index: parser.startIndex,
                 };
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
-            } else value = key;
+            } else {
+                if (t & Token.IsAwait) {
+                    if (context & Context.Async) report(parser, Errors.UnexpectedReserved);
+                    parser.flags |= Flags.HasAwait;
+                    //Flags.HasYield
+                }
+                value = key;
+            }
         }
     }
 
@@ -1303,7 +1324,10 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
     const pos = getLocation(parser);
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
-    const { params, body } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody, state);
+    const {
+        params,
+        body
+    } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody, state);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1362,12 +1386,12 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 
 function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState = ModifierState.None): ESTree.ArrowFunctionExpression {
 
-    const { token } = parser;
+    const {token } = parser;
     parser.pendingExpressionError = null;
     for (const i in params) toAssignable(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
-    const body = expression ?  parseExpressionCoverGrammar(parser, context | Context.Async, parseAssignmentExpression)
-    : swapContext(parser, context | Context.InFunctionBody, state, parseFunctionBody);
+    const body = expression ? parseExpressionCoverGrammar(parser, context | Context.Async, parseAssignmentExpression) :
+        swapContext(parser, context | Context.InFunctionBody, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
         body,
@@ -1554,13 +1578,14 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
-    const { token } = parser;
+    const {token } = parser;
+    let state = ObjectState.None;
     if (context & Context.Async && token & Token.IsAwait) report(parser, Errors.AwaitBindingIdentifier);
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
         parseBindingIdentifier(parser, context | Context.Strict) :
         null;
     let superClass: ESTree.Expression | null = null;
-    let state = ObjectState.None;
+
     if (consume(parser, context, Token.ExtendsKeyword)) {
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
         state |= ObjectState.Heritage;
@@ -1584,13 +1609,13 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
  * @param {context} Context masks
  */
 
-export function parseClassBodyAndElementList(parser: Parser, context: Context): ESTree.ClassBody {
+export function parseClassBodyAndElementList(parser: Parser, context: Context, state: ObjectState): ESTree.ClassBody {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
     while (parser.token !== Token.RightBrace) {
         if (!consume(parser, context, Token.Semicolon)) {
-            body.push(parseClassElement(parser, context));
+            body.push(parseClassElement(parser, context, state));
         }
     }
 
@@ -1884,7 +1909,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
  */
 
 function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    const { token } = parser;
+    const {token } = parser;
     if (context & Context.OptionsNext && token === Token.ImportKeyword) {
         // Invalid: '"new import(x)"'
         if (lookahead(parser, context, nextTokenIsLeftParen)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
@@ -1908,18 +1933,18 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
 
     expect(parser, context, Token.SuperKeyword);
 
-    const { token } = parser;
-    
-        if (token === Token.LeftParen) {
-            // The super property has to be within a class constructor
-            if (!(context & Context.AllowSuperProperty)) {
-                report(parser, Errors.BadSuperCall);
-            }
-        } else if (token === Token.LeftBracket || token === Token.Period) {
-            if (!(context & Context.Method)) report(parser, Errors.UnexpectedSuper);
-        } else {
-            report(parser, Errors.LoneSuper);
+    const {token } = parser;
+
+    if (token === Token.LeftParen) {
+        // The super property has to be within a class constructor
+        if (!(context & Context.AllowSuperProperty)) {
+            report(parser, Errors.BadSuperCall);
         }
+    } else if (token === Token.LeftBracket || token === Token.Period) {
+        if (!(context & Context.Method)) report(parser, Errors.UnexpectedSuper);
+    } else {
+        report(parser, Errors.LoneSuper);
+    }
 
     return finishNode(context, parser, pos, {
         type: 'Super'

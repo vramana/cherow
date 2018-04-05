@@ -172,15 +172,15 @@ function parseAssignmentRestProperty(parser: Parser, context: Context): ESTree.R
 function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree.ObjectPattern {
     const pos = getLocation(parser);
     const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
-
     expect(parser, context, Token.LeftBrace);
+
     while (parser.token !== Token.RightBrace) {
         if (parser.token === Token.Ellipsis) {
             properties.push(parseAssignmentRestProperty(parser, context));
-        } else {
-            properties.push(parseBindingProperty(parser, context));
-            if (parser.token !== Token.RightBrace) consume(parser, context, Token.Comma);
+            break;
         }
+        properties.push(parseBindingProperty(parser, context));
+        if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma, Errors.InvalidElisonInObjPropList);
     }
 
     expect(parser, context, Token.RightBrace);

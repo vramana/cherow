@@ -56,12 +56,13 @@ export const enum Flags {
     Iteration               = 1 << 5,
     StrictReserved          = 1 << 6,
     Octal                   = 1 << 7,
-    SimpleAssignmentTarget  = 1 << 8,
-    HasProtoField           = 1 << 9,
-    HasDuplicateProto       = 1 << 10,
-    StrictFunctionName      = 1 << 11,
-    StrictEvalArguments     = 1 << 12,
-    InFunctionBody          = 1 << 13,
+    HasProtoField           = 1 << 8,
+    HasDuplicateProto       = 1 << 9,
+    StrictFunctionName      = 1 << 10,
+    StrictEvalArguments     = 1 << 11,
+    InFunctionBody          = 1 << 12,
+    HasAwait                = 1 << 13,
+    HasYield                = 1 << 14,
     AllowBreakOrContinue = Switch | Iteration
 }
 

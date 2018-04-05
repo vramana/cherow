@@ -83,11 +83,9 @@ describe('Expressions - Await', () => {
             'var { await f } = {};',
             'let { await f } = {};',
             'const { await f } = {};',
-
             'var { ...await f } = {};',
             'let { ...await f } = {};',
             'const { ...await f } = {};',
-
             'var { f: await f } = {};',
             'let { f: await f } = {};',
             'const { f: await f } = {};',
@@ -169,9 +167,9 @@ describe('Expressions - Await', () => {
             source: 'x = { async f() { let await } }',
         });
 
-    //    fail(`async(e=await)=>l`, Context.Empty, {
-      //      source: 'async(e=await)=>l',
-//        });
+        fail(`async(e=await)=>l`, Context.Empty, {
+            source: 'async(e=await)=>l',
+        });
 
         fail(`async function f() { let await; }`, Context.Empty, {
             source: 'async function f() { let await; }',
@@ -245,9 +243,9 @@ describe('Expressions - Await', () => {
             source: 'async f() { x = { async await(){} } }',
         });
 
-//        fail(`async ({await}) => 1;`, Context.Empty, {
-  //          source: 'async ({await}) => 1;',
-    //    });
+        fail(`async ({await}) => 1;`, Context.Empty, {
+            source: 'async ({await}) => 1;',
+        });
 
         fail(`await a;`, Context.Empty, {
             source: 'await a;',
@@ -257,7 +255,7 @@ describe('Expressions - Await', () => {
             'await',
             'var f = await => 42;',
             //  "var { await } = 1;",
-            //"var [ await ] = 1;",
+            'var [ await ] = 1;',
             'return async (await) => {};',
             'var O = { async [await](a, a) {} }',
             'await;',
@@ -273,7 +271,7 @@ describe('Expressions - Await', () => {
             'var e = (await = 42)',
             '(await 1) = 1',
             'var e = [await];',
-            //   "var e = {await};",
+            'var e = {await};',
         ];
 
         for (const arg of bodyErrors) {
@@ -295,11 +293,11 @@ describe('Expressions - Await', () => {
                 });
             });
 
-            /*   it(`'use strict'; var f = async() => { ${arg} }`, () => {
-                   t.throws(() => {
-                       parse(`'use strict'; var f = async() => { ${arg} }`, undefined, Context.Empty)
-                   })
-               });*/
+            it(`'use strict'; var f = async() => { ${arg} }`, () => {
+                t.throws(() => {
+                    parse(`'use strict'; var f = async() => { ${arg} }`, undefined, Context.Empty);
+                });
+            });
 
             it(`'use strict'; var O = { async method() {${arg} }`, () => {
                 t.throws(() => {
@@ -315,7 +313,7 @@ describe('Expressions - Await', () => {
             'export async function() {}',
             'export async',
             'export async\nfunction async() { await 1; }',
-            // "async function foo() { return {await} }"
+            'async function foo() { return {await} }'
         ];
 
         for (const arg of invalidInModuleCode) {
@@ -333,28 +331,21 @@ describe('Expressions - Await', () => {
             'var [...await f] = [];',
             'let [...await f] = [];',
             'const [...await f] = [];',
-
-            /*   "var { await f } = {};",
-            "let { await f } = {};",
-            "const { await f } = {};",
-
-            "var { ...await f } = {};",
-            "let { ...await f } = {};",
-            "const { ...await f } = {};",
-
-            "var { f: await f } = {};",
-            "let { f: await f } = {};",
-            "const { f: await f } = {};",
-
-                        "var { [f]: await f } = {};",
-            "let { [f]: await f } = {};",
-            "const { [f]: await f } = {};",
-        */
-
+            'var { await f } = {};',
+            'let { await f } = {};',
+            'const { await f } = {};',
+            'var { ...await f } = {};',
+            'let { ...await f } = {};',
+            'const { ...await f } = {};',
+            'var { f: await f } = {};',
+            'let { f: await f } = {};',
+            'const { f: await f } = {};',
+            'var { [f]: await f } = {};',
+            'let { [f]: await f } = {};',
+            'const { [f]: await f } = {};',
             'var { f: ...await f } = {};',
             'let { f: ...await f } = {};',
             'const { f: ...await f } = {};',
-
             'var { [f]: ...await f } = {};',
             'let { [f]: ...await f } = {};',
             'const { [f]: ...await f } = {};',
@@ -410,21 +401,21 @@ describe('Expressions - Await', () => {
             });
         }
 
-        // fail('async await => 1;', Context.Empty, {
-        //  source: 'async await => 1;',
-        // });
+        fail('async await => 1;', Context.Empty, {
+            source: 'async await => 1;',
+        });
 
-        // fail('async function foo() { return {await} };', Context.Empty, {
-        //  source: 'async function foo() { return {await} };',
-        // });
+        fail('async function foo() { return {await} };', Context.Empty, {
+            source: 'async function foo() { return {await} };',
+        });
 
         fail('async function wrap() { async function await() { } };', Context.Empty, {
             source: 'async function wrap() { async function await() { } };',
         });
 
-        // fail('function* wrap() { async(a = yield b) => a };', Context.Empty, {
-        // source: 'function* wrap() { async(a = yield b) => a };',
-        // });
+        fail('function* wrap() { async(a = yield b) => a };', Context.Empty, {
+            source: 'function* wrap() { async(a = yield b) => a };',
+        });
 
         fail('await f();', Context.Empty, {
             source: 'await f();',
@@ -449,16 +440,6 @@ describe('Expressions - Await', () => {
                 return b;
               }`,
         });
-
-        /*fail(`async function f() {
-              let { [await "a"]: a } = { a: 1 };
-              return a;
-            }`, Context.Empty, {
-            source: `async function f() {
-                  let { [await "a"]: a } = { a: 1 };
-                  return a;
-                }`,
-        });*/
     });
 
     describe('Pass', () => {
@@ -482,11 +463,11 @@ describe('Expressions - Await', () => {
                 });
             });
 
-            //it(`var f = async(${arg}) => {}`, () => {
-            //  t.doesNotThrow(() => {
-            //    parse(`var f = async(${arg}) => {}`, undefined, Context.Empty)
-            //})
-            //});
+            it(`var f = async(${arg}) => {}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`var f = async(${arg}) => {}`, undefined, Context.Empty);
+                });
+            });
 
             it(`"use strict"; async function f( ${arg}) {}`, () => {
                 t.doesNotThrow(() => {
@@ -500,26 +481,26 @@ describe('Expressions - Await', () => {
                 });
             });
 
-            //it(`"use strict"; var f = async(${arg}) => {}`, () => {
-            //  t.doesNotThrow(() => {
-            //    parse(`"use strict"; var f = async(${arg}) => {}`, undefined, Context.Empty)
-            //})
-            //});
+            it(`"use strict"; var f = async(${arg}) => {}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`"use strict"; var f = async(${arg}) => {}`, undefined, Context.Empty);
+                });
+            });
         }
 
         const programs = [
             'var asyncFn = async function() { await 1; };',
             'var asyncFn = async function withName() { await 1; };',
-            // "var asyncFn = async () => await 'test';",
-            // "var asyncFn = async x => await x + 'test';",
+            'var asyncFn = async () => await \'test\';',
+            'var asyncFn = async x => await x + \'test\';',
             'async function asyncFn() { await 1; }',
             'var O = { async method() { await 1; } }',
             'var O = { async [\'meth\' + \'od\']() { await 1; } }',
             'var O = { async \'method\'() { await 1; } }',
             'var O = { async 0() { await 1; } }',
             'async function await() {}',
-            //"var asyncFn = async({ foo = 1 }) => foo;",
-            // "var asyncFn = async({ foo = 1 } = {}) => foo;",
+            'var asyncFn = async({ foo = 1 }) => foo;',
+            'var asyncFn = async({ foo = 1 } = {}) => foo;',
             'function* g() { var f = async(yield); }',
             'function* g() { var f = async(x = yield); }',
             'function foo() { var await = 1; return await; }',
@@ -536,6 +517,10 @@ describe('Expressions - Await', () => {
             'var O = { *method(await) { return await; } };',
             'var O = { *method(await) { return await; } };',
             'var O = { *method(await) { return await; } };',
+            `async function f() {
+                let { [await "a"]: a } = { a: 1 };
+                return a;
+              }`
         ];
         for (const arg of programs) {
             it(`${arg}`, () => {
@@ -576,83 +561,79 @@ describe('Expressions - Await', () => {
                 start: 0,
                 end: 14,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 14
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 14
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExpressionStatement',
                     start: 0,
                     end: 14,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 14
-                      }
-                    },
-                    expression: {
-                      type: 'CallExpression',
-                      start: 0,
-                      end: 13,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 0
-                        },
-                        end: {
-                          line: 1,
-                          column: 13
-                        }
-                      },
-                      callee: {
-                        type: 'Identifier',
-                        start: 0,
-                        end: 5,
-                        loc: {
-                          start: {
                             line: 1,
                             column: 0
-                          },
-                          end: {
-                            line: 1,
-                            column: 5
-                          }
                         },
-                        name: 'async'
-                      },
-                      arguments: [
-                        {
-                          type: 'Identifier',
-                          start: 7,
-                          end: 12,
-                          loc: {
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
+                    },
+                    expression: {
+                        type: 'CallExpression',
+                        start: 0,
+                        end: 13,
+                        loc: {
                             start: {
-                              line: 1,
-                              column: 7
+                                line: 1,
+                                column: 0
                             },
                             end: {
-                              line: 1,
-                              column: 12
+                                line: 1,
+                                column: 13
                             }
-                          },
-                          name: 'await'
-                        }
-                      ]
+                        },
+                        callee: {
+                            type: 'Identifier',
+                            start: 0,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            },
+                            name: 'async'
+                        },
+                        arguments: [{
+                            type: 'Identifier',
+                            start: 7,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 7
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            },
+                            name: 'await'
+                        }]
                     }
-                  }
-                ],
+                }],
                 sourceType: 'script'
-              }
+            }
         });
 
         // Await in a generator is an identifier
@@ -1191,81 +1172,15 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
+                body: [{
                         type: 'FunctionDeclaration',
-                        params: [
-                            {
-                                type: 'AssignmentPattern',
-                                left: {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 19,
-                                    end: 20,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 19
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 20
-                                        }
-                                    }
-                                },
-                                right: {
-                                    type: 'ArrowFunctionExpression',
-                                    body: {
-                                        type: 'AwaitExpression',
-                                        argument: {
-                                            type: 'Identifier',
-                                            name: 'b',
-                                            start: 41,
-                                            end: 42,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 41
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 42
-                                                }
-                                            }
-                                        },
-                                        start: 35,
-                                        end: 42,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 35
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 42
-                                            }
-                                        }
-                                    },
-                                    params: [],
-                                    id: null,
-                                    async: true,
-                                    generator: false,
-                                    expression: true,
-                                    start: 23,
-                                    end: 42,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 23
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 42
-                                        }
-                                    }
-                                },
+                        params: [{
+                            type: 'AssignmentPattern',
+                            left: {
+                                type: 'Identifier',
+                                name: 'a',
                                 start: 19,
-                                end: 42,
+                                end: 20,
                                 loc: {
                                     start: {
                                         line: 1,
@@ -1273,11 +1188,74 @@ describe('Expressions - Await', () => {
                                     },
                                     end: {
                                         line: 1,
+                                        column: 20
+                                    }
+                                }
+                            },
+                            right: {
+                                type: 'ArrowFunctionExpression',
+                                body: {
+                                    type: 'AwaitExpression',
+                                    argument: {
+                                        type: 'Identifier',
+                                        name: 'b',
+                                        start: 41,
+                                        end: 42,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 41
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 42
+                                            }
+                                        }
+                                    },
+                                    start: 35,
+                                    end: 42,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 35
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 42
+                                        }
+                                    }
+                                },
+                                params: [],
+                                id: null,
+                                async: true,
+                                generator: false,
+                                expression: true,
+                                start: 23,
+                                end: 42,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 23
+                                    },
+                                    end: {
+                                        line: 1,
                                         column: 42
                                     }
                                 }
+                            },
+                            start: 19,
+                            end: 42,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 19
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 42
+                                }
                             }
-                        ],
+                        }],
                         body: {
                             type: 'BlockStatement',
                             body: [],
@@ -1362,111 +1340,107 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ObjectExpression',
-                            properties: [
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: 'foo',
-                                        start: 8,
-                                        end: 11,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 11
-                                            }
-                                        }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'foo',
+                                start: 8,
+                                end: 11,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 8
                                     },
-                                    value: {
-                                        type: 'FunctionExpression',
-                                        params: [],
-                                        body: {
-                                            type: 'BlockStatement',
-                                            body: [],
-                                            start: 14,
-                                            end: 17,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 14
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 17
-                                                }
-                                            }
-                                        },
-                                        async: true,
-                                        generator: false,
-                                        expression: false,
-                                        id: null,
-                                        start: 11,
-                                        end: 17,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 11
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 17
-                                            }
-                                        }
-                                    },
-                                    kind: 'init',
-                                    computed: false,
-                                    method: true,
-                                    shorthand: false,
-                                    start: 2,
+                                    end: {
+                                        line: 1,
+                                        column: 11
+                                    }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 14,
                                     end: 17,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 2
+                                            column: 14
                                         },
                                         end: {
                                             line: 1,
                                             column: 17
                                         }
                                     }
+                                },
+                                async: true,
+                                generator: false,
+                                expression: false,
+                                id: null,
+                                start: 11,
+                                end: 17,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 17
+                                    }
                                 }
-                            ],
-                            start: 1,
-                            end: 18,
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: true,
+                            shorthand: false,
+                            start: 2,
+                            end: 17,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 1
+                                    column: 2
                                 },
                                 end: {
                                     line: 1,
-                                    column: 18
+                                    column: 17
                                 }
                             }
-                        },
-                        start: 0,
-                        end: 20,
+                        }],
+                        start: 1,
+                        end: 18,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 1
                             },
                             end: {
                                 line: 1,
-                                column: 20
+                                column: 18
                             }
                         }
+                    },
+                    start: 0,
+                    end: 20,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 20
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 20,
                 loc: {
@@ -1487,59 +1461,57 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'FunctionDeclaration',
-                        params: [],
-                        body: {
-                            type: 'BlockStatement',
-                            body: [],
-                            start: 18,
-                            end: 20,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 18
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 20
-                                }
-                            }
-                        },
-                        async: false,
-                        generator: true,
-                        expression: false,
-                        id: {
-                            type: 'Identifier',
-                            name: 'await',
-                            start: 10,
-                            end: 15,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 10
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 15
-                                }
-                            }
-                        },
-                        start: 0,
+                body: [{
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 18,
                         end: 20,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 18
                             },
                             end: {
                                 line: 1,
                                 column: 20
                             }
                         }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'await',
+                        start: 10,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 20,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 20
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 20,
                 loc: {
@@ -1560,65 +1532,51 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'TryStatement',
-                        block: {
-                            type: 'BlockStatement',
-                            body: [],
-                            start: 4,
-                            end: 6,
+                body: [{
+                    type: 'TryStatement',
+                    block: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 4,
+                        end: 6,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 6
+                            }
+                        }
+                    },
+                    handler: {
+                        type: 'CatchClause',
+                        param: {
+                            type: 'Identifier',
+                            name: 'await',
+                            start: 14,
+                            end: 19,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 4
+                                    column: 14
                                 },
                                 end: {
                                     line: 1,
-                                    column: 6
+                                    column: 19
                                 }
                             }
                         },
-                        handler: {
-                            type: 'CatchClause',
-                            param: {
-                                type: 'Identifier',
-                                name: 'await',
-                                start: 14,
-                                end: 19,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 14
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 19
-                                    }
-                                }
-                            },
-                            body: {
-                                type: 'BlockStatement',
-                                body: [],
-                                start: 21,
-                                end: 23,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 21
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 23
-                                    }
-                                }
-                            },
-                            start: 7,
+                        body: {
+                            type: 'BlockStatement',
+                            body: [],
+                            start: 21,
                             end: 23,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 7
+                                    column: 21
                                 },
                                 end: {
                                     line: 1,
@@ -1626,21 +1584,33 @@ describe('Expressions - Await', () => {
                                 }
                             }
                         },
-                        finalizer: null,
-                        start: 0,
+                        start: 7,
                         end: 23,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 7
                             },
                             end: {
                                 line: 1,
                                 column: 23
                             }
                         }
+                    },
+                    finalizer: null,
+                    start: 0,
+                    end: 23,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 23,
                 loc: {
@@ -1661,106 +1631,90 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ClassExpression',
-                            id: null,
-                            superClass: null,
-                            body: {
-                                type: 'ClassBody',
-                                body: [
-                                    {
-                                        type: 'MethodDefinition',
-                                        kind: 'method',
-                                        static: true,
-                                        computed: false,
-                                        key: {
-                                            type: 'Identifier',
-                                            name: 'await',
-                                            start: 17,
-                                            end: 22,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 17
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 22
-                                                }
-                                            }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        id: null,
+                        superClass: null,
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                kind: 'method',
+                                static: true,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'await',
+                                    start: 17,
+                                    end: 22,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
                                         },
-                                        value: {
-                                            type: 'FunctionExpression',
-                                            params: [],
-                                            body: {
-                                                type: 'BlockStatement',
-                                                body: [],
-                                                start: 25,
-                                                end: 27,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 25
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 27
-                                                    }
-                                                }
-                                            },
-                                            async: false,
-                                            generator: true,
-                                            expression: false,
-                                            id: null,
-                                            start: 22,
-                                            end: 27,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 22
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 27
-                                                }
-                                            }
-                                        },
-                                        start: 9,
+                                        end: {
+                                            line: 1,
+                                            column: 22
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 25,
                                         end: 27,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 9
+                                                column: 25
                                             },
                                             end: {
                                                 line: 1,
                                                 column: 27
                                             }
                                         }
+                                    },
+                                    async: false,
+                                    generator: true,
+                                    expression: false,
+                                    id: null,
+                                    start: 22,
+                                    end: 27,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 22
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 27
+                                        }
                                     }
-                                ],
-                                start: 7,
-                                end: 29,
+                                },
+                                start: 9,
+                                end: 27,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 7
+                                        column: 9
                                     },
                                     end: {
                                         line: 1,
-                                        column: 29
+                                        column: 27
                                     }
                                 }
-                            },
-                            start: 1,
+                            }],
+                            start: 7,
                             end: 29,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 1
+                                    column: 7
                                 },
                                 end: {
                                     line: 1,
@@ -1768,20 +1722,32 @@ describe('Expressions - Await', () => {
                                 }
                             }
                         },
-                        start: 0,
-                        end: 31,
+                        start: 1,
+                        end: 29,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 1
                             },
                             end: {
                                 line: 1,
-                                column: 31
+                                column: 29
                             }
                         }
+                    },
+                    start: 0,
+                    end: 31,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 31
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 31,
                 loc: {
@@ -1802,111 +1768,107 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ObjectExpression',
-                            properties: [
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: 'await',
-                                        start: 3,
-                                        end: 8,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 3
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 8
-                                            }
-                                        }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'await',
+                                start: 3,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
                                     },
-                                    value: {
-                                        type: 'FunctionExpression',
-                                        params: [],
-                                        body: {
-                                            type: 'BlockStatement',
-                                            body: [],
-                                            start: 11,
-                                            end: 13,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 11
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 13
-                                                }
-                                            }
-                                        },
-                                        async: false,
-                                        generator: false,
-                                        expression: false,
-                                        id: null,
-                                        start: 8,
-                                        end: 13,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 13
-                                            }
-                                        }
-                                    },
-                                    kind: 'init',
-                                    computed: false,
-                                    method: true,
-                                    shorthand: false,
-                                    start: 3,
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 11,
                                     end: 13,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 3
+                                            column: 11
                                         },
                                         end: {
                                             line: 1,
                                             column: 13
                                         }
                                     }
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null,
+                                start: 8,
+                                end: 13,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 8
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 13
+                                    }
                                 }
-                            ],
-                            start: 1,
-                            end: 15,
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: true,
+                            shorthand: false,
+                            start: 3,
+                            end: 13,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 1
+                                    column: 3
                                 },
                                 end: {
                                     line: 1,
-                                    column: 15
+                                    column: 13
                                 }
                             }
-                        },
-                        start: 0,
-                        end: 17,
+                        }],
+                        start: 1,
+                        end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 1
                             },
                             end: {
                                 line: 1,
-                                column: 17
+                                column: 15
                             }
                         }
+                    },
+                    start: 0,
+                    end: 17,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 17
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 17,
                 loc: {
@@ -1927,50 +1889,36 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'MemberExpression',
-                            object: {
-                                type: 'ObjectExpression',
-                                properties: [],
-                                start: 1,
-                                end: 3,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 3
-                                    }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'MemberExpression',
+                        object: {
+                            type: 'ObjectExpression',
+                            properties: [],
+                            start: 1,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
                                 }
-                            },
-                            computed: false,
-                            property: {
-                                type: 'Identifier',
-                                name: 'await',
-                                start: 5,
-                                end: 10,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 5
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 10
-                                    }
-                                }
-                            },
-                            start: 0,
+                            }
+                        },
+                        computed: false,
+                        property: {
+                            type: 'Identifier',
+                            name: 'await',
+                            start: 5,
                             end: 10,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 5
                                 },
                                 end: {
                                     line: 1,
@@ -1979,7 +1927,7 @@ describe('Expressions - Await', () => {
                             }
                         },
                         start: 0,
-                        end: 11,
+                        end: 10,
                         loc: {
                             start: {
                                 line: 1,
@@ -1987,11 +1935,23 @@ describe('Expressions - Await', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 11
+                                column: 10
                             }
                         }
+                    },
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 11,
                 loc: {
@@ -2012,128 +1972,122 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ObjectExpression',
-                            properties: [
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: 'await',
-                                        start: 7,
-                                        end: 12,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 7
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 12
-                                            }
-                                        }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'await',
+                                start: 7,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
                                     },
-                                    value: {
-                                        type: 'FunctionExpression',
-                                        params: [
-                                            {
-                                                type: 'Identifier',
-                                                name: 'x',
-                                                start: 13,
-                                                end: 14,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 13
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 14
-                                                    }
-                                                }
-                                            }
-                                        ],
-                                        body: {
-                                            type: 'BlockStatement',
-                                            body: [],
-                                            start: 16,
-                                            end: 18,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 16
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 18
-                                                }
-                                            }
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 13,
+                                    end: 14,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
                                         },
-                                        async: false,
-                                        generator: false,
-                                        expression: false,
-                                        id: null,
-                                        start: 12,
-                                        end: 18,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 12
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 18
-                                            }
+                                        end: {
+                                            line: 1,
+                                            column: 14
                                         }
-                                    },
-                                    kind: 'set',
-                                    computed: false,
-                                    method: false,
-                                    shorthand: false,
-                                    start: 3,
+                                    }
+                                }],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 16,
                                     end: 18,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 3
+                                            column: 16
                                         },
                                         end: {
                                             line: 1,
                                             column: 18
                                         }
                                     }
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null,
+                                start: 12,
+                                end: 18,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 18
+                                    }
                                 }
-                            ],
-                            start: 1,
-                            end: 20,
+                            },
+                            kind: 'set',
+                            computed: false,
+                            method: false,
+                            shorthand: false,
+                            start: 3,
+                            end: 18,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 1
+                                    column: 3
                                 },
                                 end: {
                                     line: 1,
-                                    column: 20
+                                    column: 18
                                 }
                             }
-                        },
-                        start: 0,
-                        end: 22,
+                        }],
+                        start: 1,
+                        end: 20,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 1
                             },
                             end: {
                                 line: 1,
-                                column: 22
+                                column: 20
                             }
                         }
+                    },
+                    start: 0,
+                    end: 22,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 22
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 22,
                 loc: {
@@ -2154,92 +2108,88 @@ describe('Expressions - Await', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ObjectExpression',
-                            properties: [
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: 'await',
-                                        start: 3,
-                                        end: 8,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 3
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 8
-                                            }
-                                        }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'await',
+                                start: 3,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
                                     },
-                                    value: {
-                                        type: 'Literal',
-                                        value: null,
-                                        start: 10,
-                                        end: 14,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 10
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 14
-                                            }
-                                        },
-                                        raw: 'null'
-                                    },
-                                    kind: 'init',
-                                    computed: false,
-                                    method: false,
-                                    shorthand: false,
-                                    start: 3,
-                                    end: 14,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 3
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 14
-                                        }
+                                    end: {
+                                        line: 1,
+                                        column: 8
                                     }
                                 }
-                            ],
-                            start: 1,
-                            end: 16,
+                            },
+                            value: {
+                                type: 'Literal',
+                                value: null,
+                                start: 10,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                },
+                                raw: 'null'
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: false,
+                            start: 3,
+                            end: 14,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 1
+                                    column: 3
                                 },
                                 end: {
                                     line: 1,
-                                    column: 16
+                                    column: 14
                                 }
                             }
-                        },
-                        start: 0,
-                        end: 18,
+                        }],
+                        start: 1,
+                        end: 16,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 1
                             },
                             end: {
                                 line: 1,
-                                column: 18
+                                column: 16
                             }
                         }
+                    },
+                    start: 0,
+                    end: 18,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 18
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 18,
                 loc: {

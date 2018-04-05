@@ -47,8 +47,8 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
         state |= ObjectState.Heritage;
     }
-    parseLeftHandSideExpression(parser, context | Context.Strict, pos) :
-        null;
+    parseLeftHandSideExpression(parser, context | Context.Strict, pos); :
+    null;
     return finishNode(context, parser, pos, {
         type: 'ClassDeclaration',
         id,

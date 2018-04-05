@@ -71,7 +71,9 @@ export const enum Errors {
     BadImportCallArity,
     BadGetterArity,
     BadSetterArity,
-    BadSetterRestParameter
+    BadSetterRestParameter,
+    StrictLHSPrefixPostFix,
+    InvalidElisonInObjPropList
 }
 
 export const ErrorMessages: {
@@ -148,6 +150,9 @@ export const ErrorMessages: {
     [Errors.BadGetterArity]: 'Getter must not have any formal parameters',
     [Errors.BadSetterArity]: 'Setter must have exactly one formal parameter',
     [Errors.BadSetterRestParameter]: 'Setter function argument must not be a rest parameter',
+    [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
+    [Errors.LineBreakAfterAsync]: 'No line break is allowed after async',
+    [Errors.InvalidElisonInObjPropList]: 'Elision not allowed in object property list',
 
 };
 
