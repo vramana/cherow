@@ -54,7 +54,7 @@ export class Parser {
 
     public labelSet: any;
 
-    public onComment: Comments;
+    public comments: any[];
     public tokenValue: any;
     public tokenRaw: string;
     public lastChar: number;
@@ -63,9 +63,9 @@ export class Parser {
     public token: Token;
     public delegate: Delegate | void;
 
-    constructor(source: string, onComment: Comments, sourceFile: string | void, delegate: Delegate | void) {
+    constructor(source: string, sourceFile: string | void, delegate: Delegate | void) {
         this.source = source;
-        this.onComment = onComment;
+        this.comments = [];
         this.sourceFile = sourceFile;
         this.flags = Flags.AllowDestructuring;
         this.index = 0;
@@ -91,7 +91,6 @@ export class Parser {
 
 export function parse(source: string, options: Options | void, context: Context): ESTree.Program {
 
-    let comments: Comments;
     let sourceFile: string = '';
     let delegate;
 
@@ -106,7 +105,8 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.skipShebang) context |= Context.OptionsShebang;
 
         if (!!options.source) sourceFile = options.source;
-        if (!!options.comment) comments = options.comment;
+        if (!!options.comments) context |= Context.OptionsComments;
+
         if (options.impliedStrict) context |= Context.OptionsImpliedStrict;
         // TODO! Refactor!
         if (typeof options.delegate === 'function') {
@@ -115,7 +115,7 @@ export function parse(source: string, options: Options | void, context: Context)
         }
     }
 
-    const parser = new Parser(source, comments, sourceFile, delegate);
+    const parser = new Parser(source, sourceFile, delegate);
 
     const body = context & Context.Module ? parseModuleItemList(parser, context) : parseStatementList(parser, context);
 
@@ -148,6 +148,10 @@ export function parse(source: string, options: Options | void, context: Context)
         }
     }
 
+    if (context & Context.OptionsComments) {
+        node.comments = parser.comments;
+    }
+
     return node;
 }
 
@@ -161,7 +165,6 @@ export function parse(source: string, options: Options | void, context: Context)
  */
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
-
     const statements: ESTree.Statement[] = [];
 
     nextToken(parser, context);

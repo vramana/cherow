@@ -107,12 +107,12 @@ export function scan(parser: Parser, context: Context): Token {
                     switch (nextChar(parser)) {
                             case Chars.Slash: {
                                 advance(parser);
-                                state = skipSingleLineComment(parser, state);
+                                state = skipSingleLineComment(parser, context, state, 'SingleLine');
                                 continue;
                             }
                             case Chars.Asterisk: {
                                 advance(parser);
-                                state = skipMultiLineComment(parser, state);
+                                state = skipMultiLineComment(parser, context, state);
                                 continue;
                             }
                             case Chars.EqualSign: {
@@ -121,7 +121,7 @@ export function scan(parser: Parser, context: Context): Token {
                             }
 
                             default:
-                                return Token.Divide;
+                            return Token.Divide;
                         }
                 }
 
@@ -135,7 +135,7 @@ export function scan(parser: Parser, context: Context): Token {
                     consumeOpt(parser, Chars.Exclamation) &&
                     consumeOpt(parser, Chars.Hyphen) &&
                     consumeOpt(parser, Chars.Hyphen)) {
-                    state = skipSingleLineComment(parser, state);
+                    state = skipSingleLineComment(parser, context, state, 'HTMLOpen');
                     continue;
                 }
                 switch (nextChar(parser)) {
@@ -184,7 +184,7 @@ export function scan(parser: Parser, context: Context): Token {
                                         nextChar(parser) === Chars.GreaterThan) {
                                         if (!(context & Context.Module)) {
                                             advance(parser);
-                                            state = skipSingleLineComment(parser, state);
+                                            state = skipSingleLineComment(parser, context, state, 'HTMLClose');
                                         }
                                         continue;
                                     }
@@ -343,7 +343,7 @@ export function scan(parser: Parser, context: Context): Token {
                         state & ScannerState.LineStart &&
                         next === Chars.Exclamation) {
                         parser.index = index + 1;
-                        skipSingleLineComment(parser, ScannerState.None);
+                        skipSingleLineComment(parser, context, ScannerState.None, 'SheBang');
                         continue;
                     }
                     return scanPrivateName(parser, context);

@@ -1,7 +1,7 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
 import { Errors, report } from './errors';
-import { Parser } from './types';
+import { Parser, Options, CommentType } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
 import {
@@ -19,11 +19,6 @@ import {
 
 // 11.4 Comments
 
-// TODO
-//
-// - Collecting of comments
-// - Comment injection into the AST
-
 /**
  * Skips SingleLineComment, SingleLineHTMLCloseComment and SingleLineHTMLOpenComment
  *
@@ -34,7 +29,7 @@ import {
  * @param parser Parser instance
  * @param state  Scanner state
  */
-export function skipSingleLineComment(parser: Parser, state: ScannerState): ScannerState {
+export function skipSingleLineComment(parser: Parser, context: Context, state: ScannerState, type: CommentType): ScannerState {
 
     const start = parser.index;
 
@@ -57,6 +52,9 @@ export function skipSingleLineComment(parser: Parser, state: ScannerState): Scan
             }
         }
 
+    if (context & (Context.OptionsComments | context & Context.OptionsDelegate)) {
+        addComment(parser, context, type, state, start);
+    }
     return state;
 }
 
@@ -68,55 +66,76 @@ export function skipSingleLineComment(parser: Parser, state: ScannerState): Scan
  * @param parser
  * @param state
  */
-export function skipMultiLineComment(parser: Parser, state: ScannerState): ScannerState {
+export function skipMultiLineComment(parser: Parser, context: Context, state: ScannerState): any {
 
     const start = parser.index;
 
-    scan:
-        while (hasNext(parser)) {
-            switch (nextChar(parser)) {
-                case Chars.Asterisk:
-                    advance(parser);
-                    state &= ~ScannerState.LastIsCR;
-                    if (consumeOpt(parser, Chars.Slash)) {
-                        state |= ScannerState.Terminated;
-                        break scan;
+    while (hasNext(parser)) {
+        switch (nextChar(parser)) {
+            case Chars.Asterisk:
+                advance(parser);
+                state &= ~ScannerState.LastIsCR;
+                if (consumeOpt(parser, Chars.Slash)) {
+                    if (context & (Context.OptionsComments | context & Context.OptionsDelegate)) {
+                        addComment(parser, context, 'Multiline', state, start);
                     }
-                    break;
+                    return state;
+                }
+                break;
 
                 // Mark multiline comments containing linebreaks as new lines
                 // so we can perfectly handle edge cases like: '1/*\n*/--> a comment'
-                case Chars.CarriageReturn:
-                    state |= ScannerState.NewLine | ScannerState.LastIsCR;
-                    advanceNewline(parser);
-                    break;
+            case Chars.CarriageReturn:
+                state |= ScannerState.NewLine | ScannerState.LastIsCR;
+                advanceNewline(parser);
+                break;
 
-                case Chars.LineFeed:
-                    consumeLineFeed(parser, state);
-                    state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
-                    break;
+            case Chars.LineFeed:
+                consumeLineFeed(parser, state);
+                state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
+                break;
 
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
-                    advanceNewline(parser);
-                    break;
+            case Chars.LineSeparator:
+            case Chars.ParagraphSeparator:
+                state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
+                advanceNewline(parser);
+                break;
 
-                default:
-                    state &= ~ScannerState.LastIsCR;
-                    advanceAndOrSkipUC(parser);
-            }
+            default:
+                state &= ~ScannerState.LastIsCR;
+                advanceAndOrSkipUC(parser);
         }
+    }
 
-    if (!(state & ScannerState.Terminated)) report(parser, Errors.UnterminatedComment);
-
-    return state;
+    report(parser, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, state: ScannerState, commentStart: number) {
+export function addComment(parser: Parser, context: Context, type: any, state: ScannerState, start: number) {
+    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
 
-}
+    const comment: ESTree.Comment = {
+        type,
+        value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
+        start: startIndex,
+        end: index,
+    };
 
-export function attachComment(parser: Parser, context: Context, state: ScannerState, commentStart: number) {
-    // TODO
+    if (context & Context.OptionsLoc) {
+        comment.loc = {
+            start: {
+                line: startLine,
+                column: startColumn,
+            },
+            end: {
+                line: lastLine,
+                column: column
+            }
+        };
+    }
+
+    if (context & Context.OptionsDelegate) {
+        (parser.delegate as any)(comment, startIndex, index);
+    }
+
+    parser.comments.push(comment);
 }

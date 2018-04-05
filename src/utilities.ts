@@ -191,7 +191,7 @@ export function finishNode < T extends ESTree.Node >(
         };
     }
     if (context & Context.OptionsDelegate) {
-        (parser.delegate as Delegate)(node);
+        (parser.delegate as Delegate)(node, meta.index, parser.index);
     }
 
     return node;
