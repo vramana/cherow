@@ -5,9 +5,9 @@ describe('Statements - Debugger', () => {
 
   describe('Failure', () => {
 
-      //fail('(debugger);', Context.Empty, {
-          //source: '(debugger);',
-      //});
+      fail('(debugger);', Context.Empty, {
+          source: '(debugger);',
+      });
   });
 
   describe('Pass', () => {

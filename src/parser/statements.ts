@@ -27,7 +27,7 @@ import {
     consumeSemicolon,
     lookahead,
     isLexical,
-    toAssignable,
+    reinterpret,
     validateBreakOrContinueLabel,
     isEndOfCaseOrDefaultClauses,
     nextTokenIsFuncKeywordOnSameLine,
@@ -408,6 +408,14 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
         });
     }
 
+    consumeSemicolon(parser, context);
+
+    return finishNode(context, parser, pos, {
+        type: 'ExpressionStatement',
+        expression: expr
+    });
+}
+
 /**
  * Parses either a binding identifier or bindign pattern
  *
@@ -417,7 +425,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.DoWhileStatement {
+export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.DoWhileStatement {
     const pos = getLocation(parser);
     expect(parser, context, Token.DoKeyword);
     const body = parseIterationStatement(parser, context);
@@ -442,7 +450,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseWhileStatement(parser: Parser, context: Context): ESTree.WhileStatement {
+export function parseWhileStatement(parser: Parser, context: Context): ESTree.WhileStatement {
     const pos = getLocation(parser);
     expect(parser, context, Token.WhileKeyword);
     expect(parser, context, Token.LeftParen);
@@ -466,15 +474,14 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseBlockStatement(parser: Parser, context: Context): ESTree.BlockStatement {
+export function parseBlockStatement(parser: Parser, context: Context): ESTree.BlockStatement {
     const pos = getLocation(parser);
     const body: ESTree.Statement[] = [];
 
     expect(parser, context, Token.LeftBrace);
-    if (parser.token !== Token.RightBrace) {
-        while (parser.token !== Token.RightBrace) {
-            body.push(allowExpressionCoverGrammar(parser, context, parseStatementListItem));
-        }
+
+    while (parser.token !== Token.RightBrace) {
+        body.push(allowExpressionCoverGrammar(parser, context, parseStatementListItem));
     }
 
     expect(parser, context, Token.RightBrace);
@@ -484,7 +491,6 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
         body
     });
 }
-
 /**
  * Parses return statement
  *
@@ -494,7 +500,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseReturnStatement(parser: Parser, context: Context): ESTree.ReturnStatement {
+export function parseReturnStatement(parser: Parser, context: Context): ESTree.ReturnStatement {
     const pos = getLocation(parser);
     if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(parser, Errors.IllegalReturn);
     expect(parser, context, Token.ReturnKeyword);
@@ -517,7 +523,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param parser  Parser instance
  * @param context Context masks
  */
-    export function parseIterationStatement(parser: Parser, context: Context): ESTree.Statement {
+export function parseIterationStatement(parser: Parser, context: Context): ESTree.Statement {
     // Note: We are deviating from the original grammar here beauce the original grammar says that the
     // 'iterationStatement' should return either'for', 'do' or 'while' statements. We are doing some
     // bitfiddling before and after to modify the parser state before we let the 'parseStatement'
@@ -538,7 +544,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
+export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
     if (context & Context.Strict) report(parser, Errors.StrictModeWith);
     const pos = getLocation(parser);
     expect(parser, context, Token.WithKeyword);
@@ -562,7 +568,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchStatement {
+export function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchStatement {
     const pos = getLocation(parser);
     expect(parser, context, Token.SwitchKeyword);
     expect(parser, context, Token.LeftParen);
@@ -595,7 +601,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseCaseOrDefaultClauses(parser: Parser, context: Context): ESTree.SwitchCase {
+export function parseCaseOrDefaultClauses(parser: Parser, context: Context): ESTree.SwitchCase {
     const pos = getLocation(parser);
     let seenDefault = consume(parser, context, Token.DefaultKeyword);
     const test = !seenDefault && consume(parser, context, Token.CaseKeyword) ? parseExpression(parser, context | Context.AllowIn) : null;
@@ -628,7 +634,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    export function parseVariableStatement(parser: Parser, context: Context, shouldConsume = true): ESTree.VariableDeclaration {
+export function parseVariableStatement(parser: Parser, context: Context, shouldConsume = true): ESTree.VariableDeclaration {
     const pos = getLocation(parser);
     const { token } = parser;
     const isConst = token === Token.ConstKeyword;
@@ -653,7 +659,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    function parseLetOrExpressionStatement(parser: Parser, context: Context, shouldConsume = true): ESTree.Node {
+function parseLetOrExpressionStatement(parser: Parser, context: Context, shouldConsume = true): ESTree.Node {
     return lookahead(parser, context, isLexical) ?
         parseVariableStatement(parser, context | Context.BlockScope, shouldConsume) :
         parseExpressionOrLabelledStatement(parser, context);
@@ -668,7 +674,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param parser  Parser instance
  * @param context Context masks
  */
-    function parseAsyncFunctionDeclarationOrStatement(parser: Parser, context: Context): ESTree.Node {
+function parseAsyncFunctionDeclarationOrStatement(parser: Parser, context: Context): ESTree.Node {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) :
         parseStatement(parser, context);
@@ -684,7 +690,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  * @param context Context masks
  */
 
-    function parseForStatement(parser: Parser, context: Context): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
+function parseForStatement(parser: Parser, context: Context): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
 
     const pos = getLocation(parser);
 
@@ -722,7 +728,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
             if (!(parser.flags & Flags.AllowDestructuring) || init.type === 'AssignmentExpression') {
                 report(parser, Errors.Unexpected);
             }
-            toAssignable(parser, context, init);
+            reinterpret(parser, context, init);
         } else init = variableStatement;
 
         right = parseAssignmentExpression(parser, context | Context.AllowIn);
@@ -731,7 +737,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
 
         if (init) {
             if (!(parser.flags & Flags.AllowDestructuring)) report(parser, Errors.Unexpected);
-            toAssignable(parser, context, init);
+            reinterpret(parser, context, init);
         } else init = variableStatement;
 
         type = 'ForInStatement';

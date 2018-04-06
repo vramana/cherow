@@ -12,9 +12,9 @@ describe('Expressions - Async Generator', () => {
             '(async function *foo() { void await; });',
             '(async function *foo() { await: ; });',
             '(async function *foo(x = 1) {"use strict"})',
-            // "(async function *foo(foo) { super() })",
-            // "(async function *foo(foo) { super.prop });",
-            // "(async function *foo(foo = super()) { var bar; });",
+            '(async function *foo(foo) { super() })',
+            '(async function *foo(foo) { super.prop });',
+            '(async function *foo(foo = super()) { var bar; });',
             '(async function*([...x, y]) {})',
             '(async function*([...x, y] = [1, 2, 3]) {})',
             '(async function* h([...{ x } = []]) {})',
@@ -47,9 +47,9 @@ describe('Expressions - Async Generator', () => {
             source: '"use strict"; (async function* arguments() { });',
         });
 
-        // fail('(async function*(a = super()) { });', Context.Empty, {
-           //  source: '(async function*(a = super()) { });',
-        // });
+        fail('(async function*(a = super()) { });', Context.Empty, {
+           source: '(async function*(a = super()) { });',
+        });
 
         fail('0, async function* g(...a,) {};', Context.Empty, {
             source: '0, async function* g(...a,) {};',

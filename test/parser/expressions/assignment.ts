@@ -32,6 +32,12 @@ describe('Expressions - Assignment', () => {
       fail('"x" = 42;', Context.Module, {
           source: '"x" = 42;',
       });
+
+      // Esprima issue: https://github.com/jquery/esprima/issues/1888
+      fail('[(a = 0)] = 1', Context.Module, {
+        source: '[(a = 0)] = 1',
+    });
+
   });
 
   describe('Pass', () => {

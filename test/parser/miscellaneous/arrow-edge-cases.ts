@@ -1,28 +1,170 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 // Validate miscellaneous combinations of call expr, arrows and async arrows
+describe('Miscellaneous - Edge cases', () => {
 
-describe('Miscellaneous - Arrow edge cases', () => {
+    pass(`async`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'async',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 5,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 5
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 5,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 5
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 5,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 5
+                    }
+                  },
+                  name: 'async'
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`async ice => fapper`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    source: 'async ice => fapper',
+    expected: {
+        type: 'Program',
+        start: 0,
+        end: 19,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 19
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 19,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 19
+              }
+            },
+            expression: {
+              type: 'ArrowFunctionExpression',
+              start: 0,
+              end: 19,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 19
+                }
+              },
+              id: null,
+              generator: false,
+              expression: true,
+              async: true,
+              params: [
+                {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 9,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 9
+                    }
+                  },
+                  name: 'ice'
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                start: 13,
+                end: 19,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 13
+                  },
+                  end: {
+                    line: 1,
+                    column: 19
+                  }
+                },
+                name: 'fapper'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+});
 
     describe('Failures', () => {
 
         // I'm not sure what's wrong with Acorn here
-                fail(`async()
+        /*        fail(`async()
                  () => {}`, Context.Empty, {
                     source: `async()
                 () => {}`,
-                });
+                });*/
 
-                fail(`async () => a
+        fail(`async () => a
     () => {}`, Context.Empty, {
             source: `async () => a
         () => {}`,
         });
 
-                fail(`() => {}()`, Context.Empty, {
+        fail(`() => {}()`, Context.Empty, {
             source: `() => {}()`,
         });
     });

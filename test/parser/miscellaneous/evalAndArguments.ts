@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Eval and arguments', () => {
 
@@ -34,6 +34,7 @@ describe('Miscellaneous - Eval and arguments', () => {
             '++arguments;',
             'eval++;',
             'arguments++;',
+            '--arguments;',
             '[ ...(eval = 0) ]',
             '{ eval = 0 }',
             '{ arguments = 0 }',
@@ -71,12 +72,17 @@ describe('Miscellaneous - Eval and arguments', () => {
         const validInStrictMode = [
             'eval;',
             'arguments;',
+            'arguments[1] = 7;',
+            'arguments[1]--;',
+            'arguments[1] = 7;',
+            '--arguments[1];',
             'var foo = eval;',
             'var foo = arguments;',
             'var foo = { eval: 1 };',
             'var foo = { arguments: 1 };',
             'var foo = { }; foo.eval = {};',
-            'var foo = { }; foo.arguments = {};'
+            'var foo = { }; foo.arguments = {};',
+            '(0,eval)(true)',
         ];
 
         for (const arg of validInStrictMode) {
@@ -123,7 +129,10 @@ describe('Miscellaneous - Eval and arguments', () => {
             'eval++;',
             'arguments++;',
             'eval;',
-            'arguments;'
+            'arguments;',
+            'arguments[1] = 7;',
+            'arguments[1]--;',
+            'foo = arguments[1];',
         ];
 
         for (const arg of validSyntax) {
@@ -137,42 +146,6 @@ describe('Miscellaneous - Eval and arguments', () => {
             it(`function foo() { ${arg} }`, () => {
                 t.doesNotThrow(() => {
                     parse(`function foo() { ${arg} }`, undefined, Context.Empty);
-                });
-            });
-        }
-
-        const NoStrictError = [
-            'var foo = eval;',
-            'var foo = arguments;',
-            'var foo = { eval: 1 };',
-            'var foo = { arguments: 1 };',
-            'var foo = { }; foo.eval = {};',
-            'var foo = { }; foo.arguments = {};',
-        ];
-
-        for (const arg of NoStrictError) {
-
-            it(`"use strict"; ${arg}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
-                });
-            });
-
-            it(`() => { "use strict"; ${arg}}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`() => { "use strict"; ${arg}}`, undefined, Context.Empty);
-                });
-            });
-
-            it(`${arg}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Module);
-                });
-            });
-
-            it(`var eval; function test_func() {"use strict"; ${arg} }`, () => {
-                t.doesNotThrow(() => {
-                    parse(`var eval; function test_func() {"use strict"; ${arg} }`, undefined, Context.Empty);
                 });
             });
         }

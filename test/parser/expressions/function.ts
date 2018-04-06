@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Function', () => {
 
@@ -116,7 +116,6 @@ describe('Expressions - Function', () => {
       fail('"use strict"; (function package() {})', Context.Empty, {
           source: '"use strict"; (function package() {})',
       });
-
   });
 
   describe('Pass', () => {

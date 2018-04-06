@@ -1,12 +1,12 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Declarations - Optional catch binding', () => {
 
     describe('Failure', () => {
-        fail('try { throw undefined; } catch (err = "foo") { err }', Context.Empty, {
+        fail('try { throw undefined; } catch (err = "foo") { err }', Context.OptionsNext, {
             source: 'try { throw undefined; } catch (err = "foo") { err }',
          });
     });

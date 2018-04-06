@@ -17,13 +17,12 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
-    isIdentifier1,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     swapContext,
     ModifierState,
     getLocation,
-    toAssignable,
+    reinterpret,
     consumeSemicolon,
     Labels,
     nextTokenIsFuncKeywordOnSameLine,
@@ -121,7 +120,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     const pos = getLocation(parser);
 
-    let {token } = parser;
+    let { token } = parser;
 
     if (context & Context.Yield && token & Token.IsYield) return parseYieldExpression(parser, context, pos);
 
@@ -155,13 +154,14 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
                 report(parser, Errors.YieldInParameter);
             }
             // Only re-interpret if not inside a formal parameter list
-            if (!(context & Context.InParameter)) toAssignable(parser, context, expr);
+            if (!(context & Context.InParameter)) reinterpret(parser, context, expr);
             if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
             if (parser.token & Token.IsYield) parser.flags |= Flags.HasYield;
+
             if (context & Context.InParen) {
+
                 parser.flags |= Flags.SimpleParameterList;
             }
-
         } else {
             if (!isValidSimpleAssignmentTarget(expr)) {
                 report(parser, Errors.InvalidLHSInAssignment);
@@ -276,7 +276,7 @@ function parseAwaitExpression(parser: Parser, context: Context, pos: any): ESTre
  */
 function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
     const pos = getLocation(parser);
-    let {token } = parser;
+    let { token } = parser;
     // Note: 'await' is an unary operator, but we keep it separate due to performance reasons
     if (context & Context.Async && token === Token.AwaitKeyword) return parseAwaitExpression(parser, context, pos);
     if (hasBit(token, Token.IsUnaryOp)) {
@@ -322,7 +322,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
         prefix = true;
         nextToken(parser, context);
     }
-    const {token } = parser;
+    const { token } = parser;
 
     const argument = parseLeftHandSideExpression(parser, context, pos);
     const isPostfix = !(parser.flags & Flags.NewLine) && hasBit(parser.token, Token.IsUpdateOp);
@@ -377,7 +377,6 @@ export function parseRestElement(parser: Parser, context: Context): any {
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-
 function parseSpreadElement(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
@@ -722,7 +721,7 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
  */
 function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
-    const {token } = parser;
+    const { token} = parser;
     const raw = tokenDesc(token);
 
     nextToken(parser, context);
@@ -762,7 +761,7 @@ function parseThisExpression(parser: Parser, context: Context): ESTree.ThisExpre
  */
 
 export function parseIdentifierName(parser: Parser, context: Context, t: Token): ESTree.Identifier {
-    if (!(t & (Token.IsIdentifier | Token.Keyword))) report(parser, Errors.Unexpected);
+    if (!(t & (Token.IsIdentifier | Token.Keyword))) report(parser, Errors.UnexpectedKeyword, tokenDesc(t));
     return parseIdentifier(parser, context);
 }
 
@@ -777,9 +776,10 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
 
 function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): ESTree.PrivateName | ESTree.Identifier {
     if (!consume(parser, context, Token.Hash)) return parseIdentifierName(parser, context, parser.token);
-    if (!(parser.token & Token.IsIdentifier)) report(parser, Errors.Unexpected);
+    const {token, tokenValue} = parser;
+    if (!(parser.token & Token.IsIdentifier)) report(parser, Errors.UnexpectedKeyword, tokenDesc(token));
     const pos = getLocation(parser);
-    const name = parser.tokenValue;
+    const name = tokenValue;
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'PrivateName',
@@ -987,7 +987,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     const args: (ESTree.SpreadElement | ESTree.AssignmentExpression)[] = [];
 
-    let {token } = parser;
+    let { token } = parser;
 
     const enum CoverCallState {
         None = 0,
@@ -1058,8 +1058,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     let id: ESTree.Identifier | null = null;
-    const {token } = parser;
-
+    const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (hasBit(token, Token.IsEvalOrArguments)) {
             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
@@ -1069,10 +1068,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1101,7 +1097,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
-    const {token } = parser;
+    const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
 
         if (hasBit(token, Token.IsEvalOrArguments)) {
@@ -1112,10 +1108,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1179,6 +1172,27 @@ export function parsePropertyName(parser: Parser, context: Context): any {
 }
 
 /**
+ * Parse object spread properties
+ *
+ * @see [Link](https://tc39.github.io/proposal-object-rest-spread/#Spread)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+function parseSpreadProperties(parser: Parser, context: Context): any {
+    const pos = getLocation(parser);
+    expect(parser, context, Token.Ellipsis);
+    const token = parser.token;
+    if (parser.token & Token.IsBindingPattern) parser.flags &= ~Flags.AllowDestructuring;
+    const argument = parseAssignmentExpression(parser, context | Context.AllowIn);
+    //if (parser.token !== Token.RightBrace) report(parser, Errors.ElementAfterSpread);
+    return finishNode(context, parser, pos, {
+        type: 'SpreadElement',
+        argument
+    });
+}
+
+/**
  * Parses object literal
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ObjectLiteral)
@@ -1194,7 +1208,7 @@ function parseObjectLiteral(parser: Parser, context: Context): ESTree.ObjectExpr
 
     while (parser.token !== Token.RightBrace) {
         properties.push(parser.token === Token.Ellipsis ?
-            parseSpreadElement(parser, context) :
+            parseSpreadProperties(parser, context) :
             parsePropertyDefinition(parser, context));
         if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
     }
@@ -1386,9 +1400,9 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 
 function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState = ModifierState.None): ESTree.ArrowFunctionExpression {
 
-    const {token } = parser;
+    const { token } = parser;
     parser.pendingExpressionError = null;
-    for (const i in params) toAssignable(parser, context | Context.InParameter, params[i]);
+    for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
     const body = expression ? parseExpressionCoverGrammar(parser, context | Context.Async, parseAssignmentExpression) :
         swapContext(parser, context | Context.InFunctionBody, state, parseFunctionBody);
@@ -1578,7 +1592,7 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
-    const {token } = parser;
+    const { token } = parser;
     let state = ObjectState.None;
     if (context & Context.Async && token & Token.IsAwait) report(parser, Errors.AwaitBindingIdentifier);
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
@@ -1909,7 +1923,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
  */
 
 function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    const {token } = parser;
+    const { token } = parser;
     if (context & Context.OptionsNext && token === Token.ImportKeyword) {
         // Invalid: '"new import(x)"'
         if (lookahead(parser, context, nextTokenIsLeftParen)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
@@ -1933,8 +1947,7 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
 
     expect(parser, context, Token.SuperKeyword);
 
-    const {token } = parser;
-
+    const { token } = parser;
     if (token === Token.LeftParen) {
         // The super property has to be within a class constructor
         if (!(context & Context.AllowSuperProperty)) {
@@ -2039,7 +2052,6 @@ function parseTemplate(
 
 function parseTemplateSpans(parser: Parser, context: Context, pos: Location = getLocation(parser)): ESTree.TemplateElement {
     const { tokenValue, tokenRaw } = parser;
-
     expect(parser, context, Token.TemplateTail);
 
     return finishNode(context, parser, pos, {

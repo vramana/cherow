@@ -41,13 +41,13 @@ describe('Statements - While', () => {
             source: 'while ( false ) Label: continue Label;',
         });
 
-      /*  fail(`while({1}){
+        fail(`while({1}){
             break ;
          };`, Context.Empty, {
             source: `while({1}){
                 break ;
              };`,
-        });*/
+        });
 
         fail(`while '' break;`, Context.Empty, {
             source: `while '' break;`,

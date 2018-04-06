@@ -151,10 +151,12 @@ describe('Expressions - Arrows', () => {
             '((x, y, z)) => 0',
             '(x, (y, z)) => 0',
             '((x, y), z) => 0',
+            '(a => a) +',
             'eval => { \'use strict\'; 0 }',
             'arguments => { \'use strict\'; 0 }',
             'yield => { \'use strict\'; 0 }',
             'interface => { \'use strict\'; 0 }',
+            'a => (b => (a + b)',
             `([[[[[[[[[[[[[[[[[[[[{a:b[0]}]]]]]]]]]]]]]]]]]]]])=>0;`,
             `bar ? (=> 0) : baz;`,
             `() => {} 1`,
@@ -743,6 +745,7 @@ const fuckingshit = [
 '(a, ...[]) => 1',
 '(x)=>{\'use strict\';}',
 '(() => 5)() === 5;',
+'() => a + b - yield / 1',
 '(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
 'var f = (function() { return z => arguments[0]; }(5));',
 '({y}) => x;',
@@ -788,6 +791,9 @@ const fuckingshit = [
 '([a]) => 0',
 '(() => null)();',
 '(() => {})()',
+'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
+'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
+'a => (a + 1)',
 
     ];
 for (const arg of fuckingshit) {

@@ -23,14 +23,14 @@ describe('Miscellaneous - Cover grammar', () => {
     '{ get x() {} }',
     '{ set x() {} }',
     '{ x: y() }',
-  //  "{ this }",
+    '{ this }',
     '{ x: this }',
     '{ x: this = 1 }',
-    //"{ super }",
+    '{ super }',
     '{ x: super }',
     '{ x: super = 1 }',
     '{ new.target }',
-    //"{ x: new.target }",
+    '{ x: new.target }',
     '{ import.meta }',
     '{ x: import.meta }',
     '{ x: import.meta = 1 }',
@@ -39,8 +39,8 @@ describe('Miscellaneous - Cover grammar', () => {
     '[x()]',
     '[this]',
     '[this = 1]',
-    //"[new.target]",
-    //"[new.target = 1]",
+    '[new.target]',
+    '[new.target = 1]',
     '[import.meta]',
     '[import.meta = 1]',
     '[super]',
@@ -77,11 +77,6 @@ describe('Miscellaneous - Cover grammar', () => {
     '{x: async (y,w) => z}',
     '[x, ...y, z]',
     '[...x,]',
-  //  "[x, y, ...z = 1]",
-    //"[...z = 1]",
-    //"[x, y, ...[z] = [1]]",
-    //"[...[z] = [1]]",
-
     '[...++x]',
     '[...x--]',
     '[...!x]',
@@ -113,7 +108,6 @@ describe('Miscellaneous - Cover grammar', () => {
     '[ ([a] = []) ]',
     '[ (++y) ]',
     '[ ...(++y) ]',
-
     '[ x += x ]',
     '{ foo: x += x }',
 
@@ -297,22 +291,6 @@ describe('Miscellaneous - Cover grammar', () => {
                 });
             });
         }
-
-     /*   fail('function f(x, {x : x}){}', Context.Empty, {
-            source: 'function f(x, {x : x}){}',
-        });
-
-        fail('function f(x, {x}){}', Context.Empty, {
-            source: 'function f(x, {x}){}',
-        });
-
-        fail('function f({x,x}) {}', Context.Empty, {
-            source: 'function f({x,x}) {}',
-        });
-
-        fail('function f(x, x, {a}) {}', Context.Empty, {
-            source: 'function f(x, x, {a}) {}',
-        });*/
 
         fail('"use strict"; var f = {x} => {};', Context.Empty, {
             source: '"use strict"; var f = {x} => {};',
@@ -715,16 +693,16 @@ describe('Miscellaneous - Cover grammar', () => {
         });
 
         //fail('var f = ( { ...x, ...y } ) => {};', Context.Empty, {
-        //  source: 'var f = ( { ...x, ...y } ) => {};',
+          //source: 'var f = ( { ...x, ...y } ) => {};',
         //});
 
         //fail('var f = ( { ...x, ...x = {} } ) => {};', Context.Empty, {
-        //  source: 'var f = ( { ...x, ...x = {} } ) => {};',
-        //});
+//          source: 'var f = ( { ...x, ...x = {} } ) => {};',
+  //      });
 
-        //fail('var f = ( { ,, ...x } ) => {};', Context.Empty, {
-        //  source: 'var f = ( { ,, ...x } ) => {};',
-        //});
+        fail('var f = ( { ,, ...x } ) => {};', Context.Empty, {
+          source: 'var f = ( { ,, ...x } ) => {};',
+        });
 
         fail('var f = ( { ...get a() {} } ) => {};', Context.Empty, {
             source: 'var f = ( { ...get a() {} } ) => {};',
@@ -782,9 +760,9 @@ describe('Miscellaneous - Cover grammar', () => {
             source: 'var f = (argument1, a >>> a) => {};',
         });
 
-        // fail('var f = (argument1, {x : {y : var}}) => {};', Context.Empty, {
-        //  source: 'var f = (argument1, {x : {y : var}}) => {};',
-        // });
+        fail('var f = (argument1, {x : {y : var}}) => {};', Context.Empty, {
+          source: 'var f = (argument1, {x : {y : var}}) => {};',
+         });
 
         fail('var f = (argument1, {[1+1]}) => {};', Context.Empty, {
             source: 'var f = (argument1, {[1+1]}) => {};',
@@ -862,10 +840,6 @@ describe('Miscellaneous - Cover grammar', () => {
             source: 'function f( { ...function() {} } ) {}',
         });
 
-        // fail('function f( {...{ x = 5 } } ) {}', Context.Empty, {
-        // source: 'function f( {...{ x = 5 } } ) {}',
-        // });
-
         fail('function f( async function* a() {} ) {}', Context.Empty, {
             source: 'function f( async function* a() {} ) {}',
         });
@@ -909,11 +883,631 @@ describe('Miscellaneous - Cover grammar', () => {
         fail('function f( argument1, a.b ) {}', Context.Empty, {
             source: 'function f( argument1, a.b ) {}',
         });
+
+        fail('{...a, ...b, ...c} = {...a, ...b, ...c}', Context.Empty, {
+            source: '{...a, ...b, ...c} = {...a, ...b, ...c}',
+        });
+
+        fail('a = {...a, ...b, ...c}', Context.Empty, {
+            source: 'a = {..., ...b}',
+        });
+
+        fail('[...a, ...b, ...c] = [...a, ...b, ...c]', Context.Empty, {
+            source: '[...a, ...b, ...c] = [...a, ...b, ...c]',
+        });
+
+        fail('a = [...a, ...b, ...c]', Context.Empty, {
+            source: 'a = [..., ...b]',
+        });
     });
 
     describe('Pass', () => {
 
-        pass('(a.b) = 0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('[x, y, ...z = 1]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '[x, y, ...z = 1]',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 16,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 16
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 16,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 16
+                  }
+                },
+                expression: {
+                  type: 'ArrayExpression',
+                  start: 0,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  elements: [
+                    {
+                      type: 'Identifier',
+                      start: 1,
+                      end: 2,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 2
+                        }
+                      },
+                      name: 'x'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'y'
+                    },
+                    {
+                      type: 'SpreadElement',
+                      start: 7,
+                      end: 15,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
+                          column: 15
+                        }
+                      },
+                      argument: {
+                        type: 'AssignmentExpression',
+                        start: 10,
+                        end: 15,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 10
+                          },
+                          end: {
+                            line: 1,
+                            column: 15
+                          }
+                        },
+                        operator: '=',
+                        left: {
+                          type: 'Identifier',
+                          start: 10,
+                          end: 11,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 11
+                            }
+                          },
+                          name: 'z'
+                        },
+                        right: {
+                          type: 'Literal',
+                          start: 14,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 14
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          value: 1,
+                          raw: '1'
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass('[...z = 1]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '[...z = 1]',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 10,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 10
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 10,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 10
+                  }
+                },
+                expression: {
+                  type: 'ArrayExpression',
+                  start: 0,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  elements: [
+                    {
+                      type: 'SpreadElement',
+                      start: 1,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      argument: {
+                        type: 'AssignmentExpression',
+                        start: 4,
+                        end: 9,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 9
+                          }
+                        },
+                        operator: '=',
+                        left: {
+                          type: 'Identifier',
+                          start: 4,
+                          end: 5,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 4
+                            },
+                            end: {
+                              line: 1,
+                              column: 5
+                            }
+                          },
+                          name: 'z'
+                        },
+                        right: {
+                          type: 'Literal',
+                          start: 8,
+                          end: 9,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 8
+                            },
+                            end: {
+                              line: 1,
+                              column: 9
+                            }
+                          },
+                          value: 1,
+                          raw: '1'
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass('[x, y, ...[z] = [1]]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '[x, y, ...[z] = [1]]',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 20
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                expression: {
+                  type: 'ArrayExpression',
+                  start: 0,
+                  end: 20,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 20
+                    }
+                  },
+                  elements: [
+                    {
+                      type: 'Identifier',
+                      start: 1,
+                      end: 2,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 2
+                        }
+                      },
+                      name: 'x'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'y'
+                    },
+                    {
+                      type: 'SpreadElement',
+                      start: 7,
+                      end: 19,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
+                          column: 19
+                        }
+                      },
+                      argument: {
+                        type: 'AssignmentExpression',
+                        start: 10,
+                        end: 19,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 10
+                          },
+                          end: {
+                            line: 1,
+                            column: 19
+                          }
+                        },
+                        operator: '=',
+                        left: {
+                          type: 'ArrayPattern',
+                          start: 10,
+                          end: 13,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 13
+                            }
+                          },
+                          elements: [
+                            {
+                              type: 'Identifier',
+                              start: 11,
+                              end: 12,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 11
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 12
+                                }
+                              },
+                              name: 'z'
+                            }
+                          ]
+                        },
+                        right: {
+                          type: 'ArrayExpression',
+                          start: 16,
+                          end: 19,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 16
+                            },
+                            end: {
+                              line: 1,
+                              column: 19
+                            }
+                          },
+                          elements: [
+                            {
+                              type: 'Literal',
+                              start: 17,
+                              end: 18,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 17
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 18
+                                }
+                              },
+                              value: 1,
+                              raw: '1'
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass('[...[z] = [1]]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '[...[z] = [1]]',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 14,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 14
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 14,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 14
+                  }
+                },
+                expression: {
+                  type: 'ArrayExpression',
+                  start: 0,
+                  end: 14,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 14
+                    }
+                  },
+                  elements: [
+                    {
+                      type: 'SpreadElement',
+                      start: 1,
+                      end: 13,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 13
+                        }
+                      },
+                      argument: {
+                        type: 'AssignmentExpression',
+                        start: 4,
+                        end: 13,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 13
+                          }
+                        },
+                        operator: '=',
+                        left: {
+                          type: 'ArrayPattern',
+                          start: 4,
+                          end: 7,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 4
+                            },
+                            end: {
+                              line: 1,
+                              column: 7
+                            }
+                          },
+                          elements: [
+                            {
+                              type: 'Identifier',
+                              start: 5,
+                              end: 6,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 5
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 6
+                                }
+                              },
+                              name: 'z'
+                            }
+                          ]
+                        },
+                        right: {
+                          type: 'ArrayExpression',
+                          start: 10,
+                          end: 13,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 13
+                            }
+                          },
+                          elements: [
+                            {
+                              type: 'Literal',
+                              start: 11,
+                              end: 12,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 11
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 12
+                                }
+                              },
+                              value: 1,
+                              raw: '1'
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass('(a.b) = 0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a.b) = 0',
             expected: {
                 type: 'Program',
@@ -1031,7 +1625,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('a0({});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('a0({});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'a0({});',
             expected: {
                 type: 'Program',
@@ -1117,7 +1711,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('(a) = 0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(a) = 0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a) = 0',
             expected: {
                 type: 'Program',
@@ -1203,7 +1797,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('(a) = 2;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(a) = 2;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a) = 2;',
             expected: {
                 type: 'Program',
@@ -1289,7 +1883,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('({ a: 1 }).a === 1', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('({ a: 1 }).a === 1', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({ a: 1 }).a === 1',
             expected: {
                 type: 'Program',
@@ -1460,7 +2054,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({ responseText: text } = res)',
             expected: {
                 type: 'Program',
@@ -1597,7 +2191,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('(({a = {b} = {b: 42}}) => a.b)({})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(({a = {b} = {b: 42}}) => a.b)({})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(({a = {b} = {b: 42}}) => a.b)({})',
             expected: {
                 type: 'Program',
@@ -1960,7 +2554,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var { x : y } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var { x : y } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { x : y } = {};',
             expected: {
                 type: 'Program',
@@ -2093,7 +2687,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var { x : y = 1 } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var { x : y = 1 } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { x : y = 1 } = {};',
             expected: {
                 type: 'Program',
@@ -2258,7 +2852,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var { get, set } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var { get, set } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { get, set } = {};',
             expected: {
                 type: 'Program',
@@ -2443,7 +3037,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('{ get = 1, set = 2 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('{ get = 1, set = 2 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '{ get = 1, set = 2 }',
             expected: {
                 type: 'Program',
@@ -2607,7 +3201,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('for (var x = {} in null);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('for (var x = {} in null);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'for (var x = {} in null);',
             expected: {
                 type: 'Program',
@@ -2741,7 +3335,7 @@ describe('Miscellaneous - Cover grammar', () => {
               }
         });
 
-        pass('var [a] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var [a] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var [a] = {};',
             expected: {
                 type: 'Program',
@@ -2839,7 +3433,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]] = {};',
             expected: {
                 type: 'Program',
@@ -3264,7 +3858,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {[1+1] : z} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {[1+1] : z} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {[1+1] : z} = {};',
             expected: {
                 type: 'Program',
@@ -3431,7 +4025,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var { __proto__: x, __proto__: y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var { __proto__: x, __proto__: y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { __proto__: x, __proto__: y} = {};',
             expected: {
                 type: 'Program',
@@ -3616,7 +4210,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var { x : x, y : y, ...z } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var { x : x, y : y, ...z } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { x : x, y : y, ...z } = {};',
             expected: {
                 type: 'Program',
@@ -3832,7 +4426,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var [{x:x, y:y, ...z}, [a,b,c]] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var [{x:x, y:y, ...z}, [a,b,c]] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var [{x:x, y:y, ...z}, [a,b,c]] = {};',
             expected: {
                 type: 'Program',
@@ -4128,7 +4722,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {x, ...y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {x, ...y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {x, ...y} = {};',
             expected: {
                 type: 'Program',
@@ -4293,7 +4887,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {[x] : z, ...y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {[x] : z, ...y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {[x] : z, ...y} = {};',
             expected: {
                 type: 'Program',
@@ -4458,7 +5052,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {[1+1] : z, ...x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {[1+1] : z, ...x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {[1+1] : z, ...x} = {};',
             expected: {
                 type: 'Program',
@@ -4657,7 +5251,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {arguments: x, ...z} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {arguments: x, ...z} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {arguments: x, ...z} = {};',
             expected: {
                 type: 'Program',
@@ -4822,7 +5416,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f( { __proto__: x, __proto__: y, ...z} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f( { __proto__: x, __proto__: y, ...z} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f( { __proto__: x, __proto__: y, ...z} ) {}',
             expected: {
                 type: 'Program',
@@ -5041,7 +5635,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f( {eval: x} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f( {eval: x} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f( {eval: x} ) {}',
             expected: {
                 type: 'Program',
@@ -5177,7 +5771,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f( {var: x = 42} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f( {var: x = 42} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f( {var: x = 42} ) {}',
             expected: {
                 type: 'Program',
@@ -5345,7 +5939,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f( {"isiah" : x = 42} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f( {"isiah" : x = 42} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f( {"isiah" : x = 42} ) {}',
             expected: {
                 type: 'Program',
@@ -5514,7 +6108,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f( {[foo()] : z} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f( {[foo()] : z} ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f( {[foo()] : z}) {}',
             expected: {
                 type: 'Program',
@@ -5666,7 +6260,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('try {} catch( [a,b,...rest] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('try {} catch( [a,b,...rest] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'try {} catch( [a,b,...rest] ) {}',
             expected: {
                 type: 'Program',
@@ -5828,7 +6422,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('try {} catch( [a = 1] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('try {} catch( [a = 1] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'try {} catch( [a = 1] ) {}',
             expected: {
                 type: 'Program',
@@ -5974,7 +6568,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('try {} catch( [{x:x, y:y}, [a,b,c]] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('try {} catch( [{x:x, y:y}, [a,b,c]] ) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'try {} catch( [{x:x, y:y}, [a,b,c]] ) {}',
             expected: {
                 type: 'Program',
@@ -6255,7 +6849,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = (argument1, [a,b,c]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = (argument1, [a,b,c]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = (argument1, [a,b,c]) => {};',
             expected: {
                 type: 'Program',
@@ -6438,7 +7032,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = (argument1, { x : x, y : y = 42 }) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = (argument1, { x : x, y : y = 42 }) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = (argument1, { x : x, y : y = 42 }) => {};',
             expected: {
                 type: 'Program',
@@ -6707,7 +7301,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = (argument1, [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = (argument1, [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = (argument1, [{x:x = 1, y:y = 2}, [a = 3, b = 4, c = 5]]) => {};',
             expected: {
                 type: 'Program',
@@ -7184,7 +7778,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = (argument1, [a,b,...rest]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = (argument1, [a,b,...rest]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = (argument1, [a,b,...rest]) => {};',
             expected: {
                 type: 'Program',
@@ -7382,7 +7976,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = (argument1, {x = 42, y = 15, ...z}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = (argument1, {x = 42, y = 15, ...z}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = (argument1, {x = 42, y = 15, ...z}) => {};',
             expected: {
                 type: 'Program',
@@ -7886,7 +8480,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });*/
 
-        pass('"use strict"; let {"hi" : x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('"use strict"; let {"hi" : x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '"use strict"; let {"hi" : x} = {};',
             expected: {
                 type: 'Program',
@@ -8059,7 +8653,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('"use strict"; let {42 : x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('"use strict"; let {42 : x} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '"use strict"; let {42 : x} = {};',
             expected: {
                 type: 'Program',
@@ -8232,7 +8826,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('"use strict"; let [a,,...rest] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('"use strict"; let [a,,...rest] = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '"use strict"; let [a,,...rest] = {};',
             expected: {
                 type: 'Program',
@@ -8401,7 +8995,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('"use strict"; let {var: x = 42} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('"use strict"; let {var: x = 42} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '"use strict"; let {var: x = 42} = {};',
             expected: {
                 type: 'Program',
@@ -8605,7 +9199,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var f = ( {[x] : z} ) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var f = ( {[x] : z} ) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var f = ( {[x] : z} ) => {};',
             expected: {
                 type: 'Program',
@@ -8773,7 +9367,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f(argument1, [...rest]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f(argument1, [...rest]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f(argument1, [...rest]) {}',
             expected: {
                 type: 'Program',
@@ -8906,7 +9500,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f(argument1, { x : y = 1, ...z }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f(argument1, { x : y = 1, ...z }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f(argument1, { x : y = 1, ...z }) {}',
             expected: {
                 type: 'Program',
@@ -9123,7 +9717,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('function f(argument1, { x : x, y : y = 42, ...z }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('function f(argument1, { x : x, y : y = 42, ...z }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function f(argument1, { x : x, y : y = 42, ...z }) {}',
             expected: {
                 type: 'Program',
@@ -9391,7 +9985,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {arguments} = {};',
             expected: {
                 type: 'Program',
@@ -9524,7 +10118,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {x: arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {x: arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {x: arguments} = {};',
             expected: {
                 type: 'Program',
@@ -9657,7 +10251,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {...arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {...arguments} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {...arguments} = {};',
             expected: {
                 type: 'Program',
@@ -9770,7 +10364,7 @@ describe('Miscellaneous - Cover grammar', () => {
             }
         });
 
-        pass('var {arguments = false} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('var {arguments = false} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var {arguments = false} = {};',
             expected: {
                 type: 'Program',

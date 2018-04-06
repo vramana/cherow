@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Module - Miscellaneous', () => {
 
@@ -15,7 +15,7 @@ describe('Module - Miscellaneous', () => {
             'return;',
             'label: { label: 0; }',
             '<!--',
-            //"-->",
+            '-->',
             '{ eval = 0 }',
             '{ arguments = 0 }',
             '{ x: (arguments = 0) }',

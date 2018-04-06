@@ -28,13 +28,13 @@ describe('Expressions - Let', () => {
         source: 'let [a, let, b] = [1, 2, 3];',
     });
 
-   /* fail(`do let
+    fail(`do let
     [x] = 0
     while (false);`, Context.Empty, {
         source: `do let
         [x] = 0
         while (false);`
-    });*/
+    });
 
     fail(`let
           let;`, Context.Empty, {

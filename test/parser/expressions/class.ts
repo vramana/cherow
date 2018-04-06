@@ -311,70 +311,7 @@ describe('Expressions  - Class', () => {
             'async *method({ w: { x, y, z } = undefined }) {}',
             'static async *method([[x, y, z] = [4, 5, 6]]) {}',
             'static async *method([{ u: v, w: x, y: z } = { u: 444, w: 555, y: 666 }]) {}',
-
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-            'method([[x]]) {}',
-
-        ];
+          ];
 
         for (const arg of validSyntax) {
             it(`(class { ${arg}})`, () => {
@@ -407,6 +344,55 @@ describe('Expressions  - Class', () => {
                 });
             });
         }
+
+        // Babylon issue: https://github.com/babel/babel/issues/7537
+        pass(`(class A {} < 1);`, Context.OptionsRanges | Context.OptionsRaw, {
+                source: `(class A {} < 1);`,
+                expected: {
+                    type: 'Program',
+                    sourceType: 'script',
+                    body: [
+                        {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'BinaryExpression',
+                                left: {
+                                    type: 'ClassExpression',
+                                    id: {
+                                        type: 'Identifier',
+                                        name: 'A',
+                                        start: 7,
+                                        end: 8
+                                    },
+                                    superClass: null,
+                                    body: {
+                                        type: 'ClassBody',
+                                        body: [],
+                                        start: 9,
+                                        end: 11
+                                    },
+                                    start: 1,
+                                    end: 11
+                                },
+                                right: {
+                                    type: 'Literal',
+                                    value: 1,
+                                    start: 14,
+                                    end: 15,
+                                    raw: '1'
+                                },
+                                operator: '<',
+                                start: 1,
+                                end: 15
+                            },
+                            start: 0,
+                            end: 17
+                        }
+                    ],
+                    start: 0,
+                    end: 17
+                }
+            });
 
         pass(`class A {
             *g1() { (yield) }

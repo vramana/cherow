@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Module - Import', () => {
 
@@ -79,7 +79,7 @@ describe('Module - Import', () => {
             'import { class } from "foo"',
             'iimport { class, var } from "foo"',
             'import { a as class } from "foo"',
-            //'import * as class from "foo"',
+            'import * as class from "foo"',
             'import { enum } from "foo"',
             'import { foo, bar }',
             'import foo from bar',

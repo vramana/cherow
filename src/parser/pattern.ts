@@ -1,7 +1,7 @@
-import * as ESTree from './estree';
-import { Token, tokenDesc } from './token';
-import { Errors, report } from './errors';
-import { Location } from './types';
+import * as ESTree from '../estree';
+import { Token, tokenDesc } from '../token';
+import { Errors, report } from '../errors';
+import { Location } from '../types';
 import { Parser } from './parser';
 import {
     parseIdentifier,
@@ -20,7 +20,7 @@ import {
     parseExpressionCoverGrammar,
     restoreExpressionCoverGrammar,
     hasBit,
-} from './utilities';
+} from '../utilities';
 
 // 12.15.5 Destructuring Assignment
 
@@ -84,18 +84,21 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
 }
 
 /**
- * Parse assignment rest element
+ * Parse assignment rest element or assignment rest property
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
  *
  * @param parser  Parser instance
  * @param context Context masks
  */
 
-function parseAssignmentRestElement(parser: Parser, context: Context): ESTree.RestElement {
+function parseAssignmentRestElementOrProperty(parser: Parser, context: Context, endToken: Token): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
+    if (parser.token !== endToken) report(parser, Errors.ElementAfterRest);
+    if (parser.token === Token.Assign) report(parser, Errors.RestDefaultInitializer);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument
@@ -123,7 +126,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
             elements.push(null);
         } else {
             if (parser.token === Token.Ellipsis) {
-                elements.push(parseAssignmentRestElement(parser, context));
+                elements.push(parseAssignmentRestElementOrProperty(parser, context, Token.RightBracket));
                 break;
             } else {
                 elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentOrArrayAssignmentPattern));
@@ -143,26 +146,6 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
 }
 
 /**
- * Parse object rest property
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
- *
- * @param {Parser} Parser instance
- * @param {context} Context masks
- */
-
-function parseAssignmentRestProperty(parser: Parser, context: Context): ESTree.RestElement {
-    const pos = getLocation(parser);
-    expect(parser, context, Token.Ellipsis);
-
-    const argument = parseBindingIdentifierOrPattern(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'RestElement',
-        argument
-    });
-}
-
-/**
  * Parse object assignment pattern
  *
  * @param Parser Parser instance
@@ -176,7 +159,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
 
     while (parser.token !== Token.RightBrace) {
         if (parser.token === Token.Ellipsis) {
-            properties.push(parseAssignmentRestProperty(parser, context));
+            properties.push(parseAssignmentRestElementOrProperty(parser, context, Token.RightBrace));
             break;
         }
         properties.push(parseBindingProperty(parser, context));
@@ -191,8 +174,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
     });
 }
 
-/**
- * Parse assignment pattern
+/** Parse assignment pattern
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
@@ -253,6 +235,7 @@ function parseBindingProperty(parser: Parser, context: Context): ESTree.Assignme
     let value: ESTree.Node;
     let computed = false;
     let shorthand = false;
+
     // single name binding
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         key = parseIdentifier(parser, context);

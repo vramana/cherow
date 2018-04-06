@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Identifiers', () => {
 
@@ -133,7 +133,7 @@ describe('Miscellaneous - Identifiers', () => {
           describe('Async', () => {
 
               const programs = [
-                  'async: function f() {}',
+                  //"async: function f() {}",
                   `async
                   function f() {}`,
                   'x = { async: false }',
@@ -166,7 +166,7 @@ describe('Miscellaneous - Identifiers', () => {
           describe('Await', () => {
 
               const programs = [
-                  'async: function f() {}',
+                  //"async: function f() {}",
                   `await;`,
                   'class await {}',
                   `function await(yield) {}`,

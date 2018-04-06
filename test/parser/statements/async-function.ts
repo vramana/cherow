@@ -44,25 +44,25 @@ describe('Statements - Async function', () => {
     source: '"use strict"; async function arguments () {  }',
   });
 
-  // fail('async function foo (foo) { super() };', Context.Empty, {
-    // source: 'async function foo (foo) { super() };',
-  // });
+  fail('async function foo (foo) { super() };', Context.Empty, {
+     source: 'async function foo (foo) { super() };',
+   });
 
-  // fail('async function foo (foo) { super.prop };', Context.Empty, {
-    // source: 'async function foo (foo) { super.prop };',
-  // });
+  fail('async function foo (foo) { super.prop };', Context.Empty, {
+     source: 'async function foo (foo) { super.prop };',
+   });
 
-  // fail('"use strict"; async function foo(a, a) { }', Context.Empty, {
-   //  source: '"use strict"; async function foo(a, a) { }',
-  // });
+   // fail('"use strict"; async function foo(a, a) { }', Context.Empty, {
+   //   source: '"use strict"; async function foo(a, a) { }',
+   // });
 
   fail('"use strict"; async function foo (eval) {  }', Context.Empty, {
     source: '"use strict"; async function foo (eval) {  }',
   });
 
-  // fail('async function foo (foo = super()) { let bar; }', Context.Empty, {
-    // source: 'async function foo (foo = super()) { let bar; }',
-  // });
+  fail('async function foo (foo = super()) { let bar; }', Context.Empty, {
+     source: 'async function foo (foo = super()) { let bar; }',
+   });
 
   //fail('\\u0061sync function f(){}', Context.Empty, {
     //source: '\\u0061sync function f(){}',

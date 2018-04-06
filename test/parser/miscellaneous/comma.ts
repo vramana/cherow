@@ -20,8 +20,8 @@ describe('Miscellaneous - Trailing comma', () => {
             '(function* a(b,c,d,,) {});',
             '(function   (b,c,d,,) {});',
             '(function*  (b,c,d,,) {});',
-            //"(b,,) => {};",
-            //"(b,c,d,,) => {};",
+            '(b,,) => {};',
+            '(b,c,d,,) => {};',
             'a(1,,);',
             'a(1,2,3,,);',
             ' function  a1(,) {}',
@@ -47,8 +47,8 @@ describe('Miscellaneous - Trailing comma', () => {
             '(...b,) => {};',
             '(b, c, ...d,) => {};',
             '(,);',
-            //"(a,);",
-            //"(a,b,c,);",
+            '(a,);',
+            '(a,b,c,);',
         ];
 
         for (const arg of TrailingCommasInParameters) {
@@ -77,7 +77,6 @@ describe('Miscellaneous - Trailing comma', () => {
                 });
             });
         }
-
     });
 
     describe('Pass', () => {
@@ -141,7 +140,7 @@ describe('Miscellaneous - Trailing comma', () => {
             'a, b, ',
             'a = 30, ',
             //"...a,",
-            //  ", ",
+            //", ",
             //", a",
             //"a..., , ",
             //"a, ...b,",

@@ -428,7 +428,7 @@ function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifi
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword);
-    const local = parseIdentifierName(parser, context, parser.token);
+    const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {
         type: 'ImportNamespaceSpecifier',
         local

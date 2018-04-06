@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Expressions - Super property', () => {
 
@@ -220,8 +220,17 @@ describe('Expressions - Super property', () => {
             });
         }
 
-        fail(`new super()`, Context.Empty, {
-            source: 'new super()',
+        // super in global scope
+        fail(`() => { super(); };`, Context.Empty, {
+            source: '() => { super.foo; };',
+        });
+
+        fail(`() => { super(); };`, Context.Empty, {
+          source: '() => { super.foo; };',
+      });
+
+        fail(`super.property;`, Context.Empty, {
+          source: 'super.property;',
         });
 
         fail(`class a extends b { c() { function* d(c = super.e()){} } }`, Context.Empty, {
@@ -321,8 +330,35 @@ describe('Expressions - Super property', () => {
         });
 
         fail(`function x(){function x(){super();}}`, Context.Empty, {
-            source: 'function x(){function x(){super();}}',
+          source: 'function x(){function x(){super();}}',
         });
+
+        // Acorn: https://github.com/acornjs/acorn/issues/448
+
+        fail(`class A extends B { *g1() { return super() } }`, Context.Empty, {
+            source: 'class A extends B { *g1() { return super() } }',
+        });
+
+        // fail(`class A extends B { *g2(a = 1 + (yield 2)) { } }`, Context.Empty, {
+          // source: 'class A extends B { *g2(a = 1 + (yield 2)) { } }',
+      // });
+
+        fail(`function x(){function x(){super();}}`, Context.Empty, {
+          source: 'function x(){function x(){super();}}',
+      });
+
+        fail(`function x(){function x(){super();}}`, Context.Empty, {
+        source: 'function x(){function x(){super();}}',
+    });
+
+        fail(`function* foo(a = 1 + (yield 2)) { super.foo() }`, Context.Empty, {
+      source: '`function* foo(a = 1 + (yield 2)) { super.foo() }`,',
+    });
+
+        fail(`var foo = function*(a = 1 + (yield 2)) { super.foo() }`, Context.Empty, {
+      source: '`var foo = function*(a = 1 + (yield 2)) { super.foo() }`,',
+  });
+
     });
 
     describe('Pass', () => {

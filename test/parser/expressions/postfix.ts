@@ -12,6 +12,11 @@ describe('Expressions - Postfix', () => {
         fail('this--', Context.Empty, {
             source: 'this--',
         });
+
+        // Esprima issue: https://github.com/jquery/esprima/issues/1912
+        fail('function f() { (new.target)--; }', Context.Empty, {
+            source: 'function f() { (new.target)--; }',
+        });
     });
 
     describe('Pass', () => {

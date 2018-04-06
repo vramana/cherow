@@ -5,7 +5,7 @@ import { Parser, Delegate } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
 import { constructError } from './errors';
-import { parseExpression, parseIdentifier } from './expressions';
+import { parseExpression, parseIdentifier } from './parser/expressions';
 import {
     isValidIdentifierStart,
     isValidIdentifierPart,
@@ -564,7 +564,14 @@ export function getLocation(parser: Parser) {
     };
 }
 
-export const toAssignable = (parser: Parser, context: Context, node: any) => {
+/**
+ * Reinterpret various expressions as pattern
+ * @param parser  Parser instance
+ * @param context Context masks
+ * @param node AST node
+ */
+
+export const reinterpret = (parser: Parser, context: Context, node: any) => {
 
     switch (node.type) {
         case 'Identifier':
@@ -579,7 +586,7 @@ export const toAssignable = (parser: Parser, context: Context, node: any) => {
             for (let i = 0; i < node.elements.length; ++i) {
                 // skip holes in pattern
                 if (node.elements[i] !== null) {
-                    toAssignable(parser, context, node.elements[i]);
+                    reinterpret(parser, context, node.elements[i]);
                 }
             }
             return;
@@ -587,18 +594,18 @@ export const toAssignable = (parser: Parser, context: Context, node: any) => {
             node.type = 'ObjectPattern';
 
             for (let i = 0; i < node.properties.length; i++) {
-                toAssignable(parser, context, node.properties[i]);
+                reinterpret(parser, context, node.properties[i]);
             }
 
             return;
 
         case 'Property':
-            toAssignable(parser, context, node.value);
+            reinterpret(parser, context, node.value);
             return;
 
         case 'SpreadElement':
             node.type = 'RestElement';
-            toAssignable(parser, context, node.argument);
+            reinterpret(parser, context, node.argument);
             break;
         case 'AssignmentExpression':
             if (node.operator !== '=') {
@@ -606,7 +613,7 @@ export const toAssignable = (parser: Parser, context: Context, node: any) => {
             }
             node.type = 'AssignmentPattern';
             delete node.operator; // operator is not relevant for assignment pattern
-            toAssignable(parser, context, node.left); // recursive descent
+            reinterpret(parser, context, node.left); // recursive descent
             return;
 
         case 'MemberExpression':

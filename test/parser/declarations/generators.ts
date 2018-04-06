@@ -22,15 +22,15 @@ describe('Statements - Generators', () => {
             'yield *',
             '(yield *)',
             'yield 3 + yield 4;',
-            // "yield: 34",
+            'yield: 34',
             'yield ? 1 : 2',
             'yield / yield',
             '+ yield',
             '+ yield 3',
             'yield\n*3',
-            //"yield\n{yield: 42}",
-            //"yield /* comment */\n {yield: 42}",
-            //"yield //comment\n {yield: 42}",
+            'yield\n{yield: 42}',
+            'yield /* comment */\n {yield: 42}',
+            'yield //comment\n {yield: 42}',
             'var [yield] = [42];',
             'var {foo: yield} = {a: 42};',
             '[yield] = [42];',
@@ -168,9 +168,9 @@ describe('Statements - Generators', () => {
             source: 'function* f([...{ x } = []] = []) {}',
         });
 
-        // fail('function* g(x = yield) {}', Context.Empty, {
-        //     source: 'function* g(x = yield) {}',
-        //  });
+        fail('function* g(x = yield) {}', Context.Empty, {
+             source: 'function* g(x = yield) {}',
+          });
 
         fail('function* f(...a,) {}', Context.Empty, {
             source: 'function* f(...a,) {}',

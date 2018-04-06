@@ -9,18 +9,18 @@ describe('Miscellaneous - Reserved words', () => {
 
         const programs = [
             'var super;',
-                                  'var foo, super;',
-                                  'try { } catch (super) { }',
-                                  'function super() { }',
-                                  'function foo(super) { }',
-                                  'function foo(bar, super) { }',
-                                  '(super) => { }',
-                                  '(bar, super) => { }',
-                                  'super = 1;',
-                                  'var foo = super = 1;',
-                                  '++super;',
-                                  'super++;',
-                                  'function foo super',
+            'var foo, super;',
+            'try { } catch (super) { }',
+            'function super() { }',
+            'function foo(super) { }',
+            'function foo(bar, super) { }',
+            '(super) => { }',
+            '(bar, super) => { }',
+            'super = 1;',
+            'var foo = super = 1;',
+            '++super;',
+            'super++;',
+            'function foo super',
         ];
 
         for (const arg of programs) {
@@ -45,6 +45,5 @@ describe('Miscellaneous - Reserved words', () => {
         }
     });
 
-    describe('Pass', () => {
-    });
+    describe('Pass', () => {});
 });
