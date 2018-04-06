@@ -566,6 +566,8 @@ export function getLocation(parser: Parser) {
 
 /**
  * Reinterpret various expressions as pattern
+ * This Is only used for assignment and arrow parameter list
+ *
  * @param parser  Parser instance
  * @param context Context masks
  * @param node AST node
@@ -590,13 +592,13 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
                 }
             }
             return;
-        case 'ObjectExpression':
+
+            case 'ObjectExpression':
             node.type = 'ObjectPattern';
 
             for (let i = 0; i < node.properties.length; i++) {
                 reinterpret(parser, context, node.properties[i]);
             }
-
             return;
 
         case 'Property':
@@ -607,6 +609,7 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             node.type = 'RestElement';
             reinterpret(parser, context, node.argument);
             break;
+
         case 'AssignmentExpression':
             if (node.operator !== '=') {
                 return report(parser, Errors.Unexpected);

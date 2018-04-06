@@ -1185,7 +1185,6 @@ function parseSpreadProperties(parser: Parser, context: Context): any {
     const token = parser.token;
     if (parser.token & Token.IsBindingPattern) parser.flags &= ~Flags.AllowDestructuring;
     const argument = parseAssignmentExpression(parser, context | Context.AllowIn);
-    //if (parser.token !== Token.RightBrace) report(parser, Errors.ElementAfterSpread);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
         argument
