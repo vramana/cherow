@@ -3,188 +3,158 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('Miscellaneous - Trailing comma', () => {
+describe('Failure', () => {
 
-    describe('Failure', () => {
+    const invalidSyntax = [
+        ',',
+        ',,',
+        ',,,',
+        'ice,',
+        'ice, fapper,,,',
+        'function ("foo",") {}',
+        ' function  a(b,,) {}',
+        ' function* a(b,,) {}',
+        '(function  a(b,,) {});',
+        '(function* a(b,,) {});',
+        '(function   (b,,) {});',
+        '(function*  (b,,) {});',
+        ' function  a(b,c,d,,) {}',
+        ' function* a(b,c,d,,) {}',
+        '(function  a(b,c,d,,) {});',
+        '(function* a(b,c,d,,) {});',
+        '(function   (b,c,d,,) {});',
+        '(function*  (b,c,d,,) {});',
+        '(b,,) => {};',
+        '(b,c,d,,) => {};',
+        'a(1,,);',
+        'a(1,2,3,,);',
+        ' function  a1(,) {}',
+        ' function* a2(,) {}',
+        '(function  a3(,) {});',
+        '(function* a4(,) {});',
+        '(function    (,) {});',
+        '(function*   (,) {});',
+        '(,) => {};',
+        'a1(,);',
+        ' function  a(...b,) {}',
+        ' function* a(...b,) {}',
+        '(function  a(...b,) {});',
+        '(function* a(...b,) {});',
+        '(function   (...b,) {});',
+        '(function*  (...b,) {});',
+        ' function  a(b, c, ...d,) {}',
+        ' function* a(b, c, ...d,) {}',
+        '(function  a(b, c, ...d,) {});',
+        '(function* a(b, c, ...d,) {});',
+        '(function   (b, c, ...d,) {});',
+        '(function*  (b, c, ...d,) {});',
+        '(...b,) => {};',
+        '(b, c, ...d,) => {};',
+        '(,);',
+        '(a,);',
+        '(a,b,c,);',
+        'n, op, val,',
+        'foo(a,,) => 0',
+        'async (a,,) => 0',
+        'foo (,) => 0',
+        ', => 0',
+        ', () => 0',
+        'async (,) => 0',
+    ];
 
-        const TrailingCommasInParameters = [
-            ' function  a(b,,) {}',
-            ' function* a(b,,) {}',
-            '(function  a(b,,) {});',
-            '(function* a(b,,) {});',
-            '(function   (b,,) {});',
-            '(function*  (b,,) {});',
-            ' function  a(b,c,d,,) {}',
-            ' function* a(b,c,d,,) {}',
-            '(function  a(b,c,d,,) {});',
-            '(function* a(b,c,d,,) {});',
-            '(function   (b,c,d,,) {});',
-            '(function*  (b,c,d,,) {});',
-            '(b,,) => {};',
-            '(b,c,d,,) => {};',
-            'a(1,,);',
-            'a(1,2,3,,);',
-            ' function  a1(,) {}',
-            ' function* a2(,) {}',
-            '(function  a3(,) {});',
-            '(function* a4(,) {});',
-            '(function    (,) {});',
-            '(function*   (,) {});',
-            '(,) => {};',
-            'a1(,);',
-            ' function  a(...b,) {}',
-            ' function* a(...b,) {}',
-            '(function  a(...b,) {});',
-            '(function* a(...b,) {});',
-            '(function   (...b,) {});',
-            '(function*  (...b,) {});',
-            ' function  a(b, c, ...d,) {}',
-            ' function* a(b, c, ...d,) {}',
-            '(function  a(b, c, ...d,) {});',
-            '(function* a(b, c, ...d,) {});',
-            '(function   (b, c, ...d,) {});',
-            '(function*  (b, c, ...d,) {});',
-            '(...b,) => {};',
-            '(b, c, ...d,) => {};',
-            '(,);',
-            '(a,);',
-            '(a,b,c,);',
-        ];
+    for (const arg of invalidSyntax) {
 
-        for (const arg of TrailingCommasInParameters) {
-
-            it(`${arg}`, () => {
-                t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
-                });
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
             });
+        });
 
-            it(`"use strict"; ${arg}`, () => {
-                t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
-                });
+        it(`"use strict"; ${arg}`, () => {
+            t.throws(() => {
+                parse(`"use strict"; ${arg}`, undefined, Context.Empty);
             });
+        });
 
-            it(`function foo() {${arg}}`, () => {
-                t.throws(() => {
-                    parse(`function foo() {${arg}}`, undefined, Context.Empty);
-                });
+        it(`function foo() {${arg}}`, () => {
+            t.throws(() => {
+                parse(`function foo() {${arg}}`, undefined, Context.Empty);
             });
+        });
 
-            it(`function foo() {'use strict'; ${arg}}`, () => {
-                t.throws(() => {
-                    parse(`function foo() {'use strict'; ${arg}}`, undefined, Context.Empty);
-                });
+        it(`function foo() {'use strict'; ${arg}}`, () => {
+            t.throws(() => {
+                parse(`function foo() {'use strict'; ${arg}}`, undefined, Context.Empty);
             });
-        }
-    });
+        });
+    }
+});
 
-    describe('Pass', () => {
+describe('Pass', () => {
 
-        const TrailingCommasInParameters = [
-            ' function  a(b,) {}',
-            ' function* a(b,) {}',
-            '(function  a(b,) {});',
-            '(function* a(b,) {});',
-            '(function   (b,) {});',
-            '(function*  (b,) {});',
-            ' function  a(b,c,d,) {}',
-            ' function* a(b,c,d,) {}',
-            '(function  a(b,c,d,) {});',
-            '(function* a(b,c,d,) {});',
-            '(function   (b,c,d,) {});',
-            '(function*  (b,c,d,) {});',
-            '(b,) => {};',
-            '(b,c,d,) => {};',
-            'a(1,);',
-            'a(1,2,3,);',
-            'a(...[],);',
-            'a(1, 2, ...[],);',
-            'a(...[], 2, ...[],);',
-        ];
+    const validSyntax = [
+        ' function  a(b,) {}',
+        ' function* a(b,) {}',
+        '(function  a(b,) {});',
+        '(function* a(b,) {});',
+        '(function   (b,) {});',
+        '(function*  (b,) {});',
+        ' function  a(b,c,d,) {}',
+        ' function* a(b,c,d,) {}',
+        '(function  a(b,c,d,) {});',
+        '(function* a(b,c,d,) {});',
+        '(function   (b,c,d,) {});',
+        '(function*  (b,c,d,) {});',
+        'class Foo { bar(a,) { } }',
+        '(1, y)',
+        '0, f(n - 1);',
+        '(b,) => {};',
+        '(b,c,d,) => {};',
+        'a(1,);',
+        'a(1,2,3,);',
+        'a(...[],);',
+        'a(1, 2, ...[],);',
+        'a(...[], 2, ...[],);',
+        'a, b => 0',
+        'a, b, (c, d) => 0',
+        '(a, b, (c, d) => 0)',
+        '(a, b) => 0, (c, d) => 1',
+        '(a, b => {}, a => a + 1)',
+        '((a, b) => {}, (a => a + 1))',
+        '(a, (a, (b, c) => 0))',
+        'async (a, (a, (b, c) => 0))',
+        '[...a,]',
+        '[...a, ,]',
+        '[, ...a]',
+        '[...[...a]]',
+        '[, ...a]',
+        '[, , ...a]',
+    ];
 
-        for (const arg of TrailingCommasInParameters) {
+    for (const arg of validSyntax) {
 
-            it(`${arg}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
-                });
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
             });
+        });
 
-            it(`"use strict"; ${arg}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
-                });
+        it(`"use strict"; ${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`"use strict"; ${arg}`, undefined, Context.Empty);
             });
+        });
 
-            it(`function foo() {${arg}}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`function foo() {${arg}}`, undefined, Context.Empty);
-                });
+        it(`function foo() {${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`function foo() {${arg}}`, undefined, Context.Empty);
             });
+        });
 
-            it(`function foo() {'use strict'; ${arg}}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`function foo() {'use strict'; ${arg}}`, undefined, Context.Empty);
-                });
+        it(`function foo() {'use strict'; ${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`function foo() {'use strict'; ${arg}}`, undefined, Context.Empty);
             });
-        }
-
-        const programs = [
-            'a,',
-            '{a}, {b}, ',
-            '{a} = {a: 30}, {b} = {b: 40}, ',
-            '[a], ',
-            '[a] = [30], ',
-            '[a] = [30], [b] = [40], ',
-            'a, b, ',
-            'a = 30, ',
-            //"...a,",
-            //", ",
-            //", a",
-            //"a..., , ",
-            //"a, ...b,",
-        ];
-
-        for (const arg of programs) {
-
-            it(`({ m(${arg}) {} })`, () => {
-                t.doesNotThrow(() => {
-                    parse(`({ m(${arg}) {} })`, undefined, Context.Empty);
-                });
-            });
-
-            it(`(class { static * m(${arg}) {} })`, () => {
-                t.doesNotThrow(() => {
-                    parse(`(class { static * m(${arg}) {} })`, undefined, Context.Empty);
-                });
-            });
-
-            it(`function* f(${arg}) {}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`function* f(${arg}) {}`, undefined, Context.Empty);
-                });
-            });
-
-            it(`async function f(${arg}) {}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`async function f(${arg}) {}`, undefined, Context.Empty);
-                });
-            });
-
-            it(`fun = (${arg}) => {}`, () => {
-                t.doesNotThrow(() => {
-                    parse(`fun = (${arg}) => {}`, undefined, Context.Empty);
-                });
-            });
-
-            it(`let fun = (${arg}) => foo`, () => {
-                t.doesNotThrow(() => {
-                    parse(`let fun = (${arg}) => foo`, undefined, Context.Empty);
-                });
-            });
-
-        }
-
-    });
+        });
+    }
 });

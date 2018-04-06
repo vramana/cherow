@@ -73,7 +73,11 @@ export const enum Errors {
     BadSetterArity,
     BadSetterRestParameter,
     StrictLHSPrefixPostFix,
-    InvalidElisonInObjPropList
+    InvalidElisonInObjPropList,
+    ElementAfterRest,
+    RestDefaultInitializer,
+    ElementAfterSpread,
+    InvalidDestructuringTarget
 }
 
 export const ErrorMessages: {
@@ -153,6 +157,10 @@ export const ErrorMessages: {
     [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
     [Errors.LineBreakAfterAsync]: 'No line break is allowed after async',
     [Errors.InvalidElisonInObjPropList]: 'Elision not allowed in object property list',
+    [Errors.ElementAfterRest]: 'Rest element must be last element',
+    [Errors.ElementAfterSpread]: 'Spread element must be last element',
+    [Errors.RestDefaultInitializer]: 'Rest parameter may not have a default initializer',
+    [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
 
 };
 

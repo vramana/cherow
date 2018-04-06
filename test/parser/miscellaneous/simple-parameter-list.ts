@@ -8,15 +8,20 @@ describe('Miscellaneous - Simple parameter list', () => {
     describe('Failure', () => {
 
         const invalidSyntax = [
+
             // Array destructuring.
             '[]',
             '[a]',
             'x, [a]',
+            '[a, b]',
             '[a], x',
+
             // Array destructuring with defaults.
             '[a = 0]',
+            '[a, b] = []',
             'x, [a = 0]',
             '[a = 0], x',
+
             // Array destructuring with rest binding identifier.
             '[...a]',
             'x, [...a]',
@@ -37,6 +42,7 @@ describe('Miscellaneous - Simple parameter list', () => {
             '{p: o = 0}',
             'x, {p: o = 0}',
             '{p: o = 0}, x',
+            '{ p, o } = {}',
 
             // Object destructuring with shorthand identifier form.
             '{o}',

@@ -56,6 +56,353 @@ describe('Statements - Const', () => {
 
   describe('Pass', () => {
 
+    pass(`const { async: foo } = bar;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: `const { async: foo } = bar;`,
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 27,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 27
+          }
+        },
+        body: [
+          {
+            type: 'VariableDeclaration',
+            start: 0,
+            end: 27,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 27
+              }
+            },
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                start: 6,
+                end: 26,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 6
+                  },
+                  end: {
+                    line: 1,
+                    column: 26
+                  }
+                },
+                id: {
+                  type: 'ObjectPattern',
+                  start: 6,
+                  end: 20,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 20
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 8,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 8
+                        },
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 8,
+                        end: 13,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 8
+                          },
+                          end: {
+                            line: 1,
+                            column: 13
+                          }
+                        },
+                        name: 'async'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        start: 15,
+                        end: 18,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 15
+                          },
+                          end: {
+                            line: 1,
+                            column: 18
+                          }
+                        },
+                        name: 'foo'
+                      },
+                      kind: 'init'
+                    }
+                  ]
+                },
+                init: {
+                  type: 'Identifier',
+                  start: 23,
+                  end: 26,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 23
+                    },
+                    end: {
+                      line: 1,
+                      column: 26
+                    }
+                  },
+                  name: 'bar'
+                }
+              }
+            ],
+            kind: 'const'
+          }
+        ],
+        sourceType: 'script'
+      }
+    });
+
+    pass(`const foo = function({ async = true }) {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: `const foo = function({ async = true }) {};`,
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 42,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 42
+          }
+        },
+        body: [
+          {
+            type: 'VariableDeclaration',
+            start: 0,
+            end: 42,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 42
+              }
+            },
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                start: 6,
+                end: 41,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 6
+                  },
+                  end: {
+                    line: 1,
+                    column: 41
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 9,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 9
+                    }
+                  },
+                  name: 'foo'
+                },
+                init: {
+                  type: 'FunctionExpression',
+                  start: 12,
+                  end: 41,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 12
+                    },
+                    end: {
+                      line: 1,
+                      column: 41
+                    }
+                  },
+                  id: null,
+                  generator: false,
+                  expression: false,
+                  async: false,
+                  params: [
+                    {
+                      type: 'ObjectPattern',
+                      start: 21,
+                      end: 37,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 21
+                        },
+                        end: {
+                          line: 1,
+                          column: 37
+                        }
+                      },
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 23,
+                          end: 35,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 23
+                            },
+                            end: {
+                              line: 1,
+                              column: 35
+                            }
+                          },
+                          method: false,
+                          shorthand: true,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
+                            start: 23,
+                            end: 28,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 23
+                              },
+                              end: {
+                                line: 1,
+                                column: 28
+                              }
+                            },
+                            name: 'async'
+                          },
+                          kind: 'init',
+                          value: {
+                            type: 'AssignmentPattern',
+                            start: 23,
+                            end: 35,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 23
+                              },
+                              end: {
+                                line: 1,
+                                column: 35
+                              }
+                            },
+                            left: {
+                              type: 'Identifier',
+                              start: 23,
+                              end: 28,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 23
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 28
+                                }
+                              },
+                              name: 'async'
+                            },
+                            right: {
+                              type: 'Literal',
+                              start: 31,
+                              end: 35,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 31
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 35
+                                }
+                              },
+                              value: true,
+                              raw: 'true'
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    start: 39,
+                    end: 41,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 39
+                      },
+                      end: {
+                        line: 1,
+                        column: 41
+                      }
+                    },
+                    body: []
+                  }
+                }
+              }
+            ],
+            kind: 'const'
+          }
+        ],
+        sourceType: 'script'
+      }
+    });
+
     pass(`const await = 10;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `const await = 10;`,
         expected: {

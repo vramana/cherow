@@ -3,89 +3,119 @@ import { Context } from '../../../src/utilities';
 
 describe('Destructuring - Parenthesized', () => {
 
-    describe('Failure', () => {
+  describe('Failure', () => {
 
-        fail('(new.target) = 1', Context.Empty, {
-            source: '(new.target) = 1',
-        });
+      fail('(new.target) = 1', Context.Empty, {
+          source: '(new.target) = 1',
+      });
 
-        fail('for (`a` of b);', Context.Empty, {
-            source: 'for (`a` of b);',
-        });
+      fail('([a += a] = a)', Context.Empty, {
+        source: '([a += a] = a)',
+      });
 
-        fail('(`a`) => b;', Context.Empty, {
-            source: '(`a`) => b;',
-        });
+      fail('for (`a` of b);', Context.Empty, {
+          source: 'for (`a` of b);',
+      });
 
-        fail('({ x }) = { x: 5 };', Context.Empty, {
-            source: '({ x }) = { x: 5 };',
-        });
+      fail('(`a`) => b;', Context.Empty, {
+          source: '(`a`) => b;',
+      });
 
-        fail('({a}) = 1;', Context.Empty, {
-            source: '({a}) = 1;',
-        });
+      fail('({ x }) = { x: 5 };', Context.Empty, {
+          source: '({ x }) = { x: 5 };',
+      });
 
-        fail('const ({a}) = 1;', Context.Empty, {
-            source: 'const ({a}) = 1;',
-        });
+      fail('({a}) = 1;', Context.Empty, {
+          source: '({a}) = 1;',
+      });
 
-        fail('(var {a:b} = {})', Context.Empty, {
-            source: '(var {a:b} = {})',
-        });
+      fail('const ({a}) = 1;', Context.Empty, {
+          source: 'const ({a}) = 1;',
+      });
 
-        fail('({start, stop}) = othernode;', Context.Empty, {
-            source: '({start, stop}) = othernode;',
-        });
+      fail('(var {a:b} = {})', Context.Empty, {
+          source: '(var {a:b} = {})',
+      });
 
-        fail('{a, b} = {a: 1, b: 2}', Context.Empty, {
-            source: '{a, b} = {a: 1, b: 2}',
-        });
+      fail('({start, stop}) = othernode;', Context.Empty, {
+          source: '({start, stop}) = othernode;',
+      });
 
-        fail('({a, b}) = {a: 1, b:2};', Context.Empty, {
-            source: '({a, b}) = {a: 1, b:2};',
-        });
+      fail('{a, b} = {a: 1, b: 2}', Context.Empty, {
+          source: '{a, b} = {a: 1, b: 2}',
+      });
 
-        fail('({b}) = b;', Context.Empty, {
-            source: '({b}) = b;',
-        });
+      fail('({a, b}) = {a: 1, b:2};', Context.Empty, {
+          source: '({a, b}) = {a: 1, b:2};',
+      });
 
-        fail('([b]) = b;', Context.Empty, {
-            source: '([b]) = b;',
-        });
+      fail('({b}) = b;', Context.Empty, {
+          source: '({b}) = b;',
+      });
 
-        fail('([{constructor(){}}] = b);', Context.Empty, {
-            source: '([{constructor(){}}] = b);',
-        });
+      fail('([b]) = b;', Context.Empty, {
+          source: '([b]) = b;',
+      });
 
-        // doesn't fail in Acorn / Esprima / Espree and Babylon
-        fail('({ src: ([dest]) } = obj)', Context.Empty, {
-            source: '({ src: ([dest]) } = obj)',
-        });
-    });
+      fail('([a]) = 2;', Context.Empty, {
+        source: '([a]) = 2;',
+      });
 
-    describe('Pass', () => {
+      fail('({a}) = 2;', Context.Empty, {
+        source: '({a}) = 2;',
+      });
 
-        pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: 'c = ({b} = b);',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 14,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 14
-                  }
+      fail('([b]) = b;', Context.Empty, {
+        source: '([b]) = b;',
+      });
+
+      fail('([{constructor(){}}] = b);', Context.Empty, {
+          source: '([{constructor(){}}] = b);',
+      });
+
+      // doesn't fail in Acorn / Esprima / Espree and Babylon
+      fail('({ src: ([dest]) } = obj)', Context.Empty, {
+          source: '({ src: ([dest]) } = obj)',
+      });
+  });
+
+  describe('Pass', () => {
+
+      pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'c = ({b} = b);',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 14,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
+                end: {
+                  line: 1,
+                  column: 14
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 14,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 14
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
                     start: 0,
-                    end: 14,
+                    end: 13,
                     loc: {
                       start: {
                         line: 1,
@@ -93,13 +123,14 @@ describe('Destructuring - Parenthesized', () => {
                       },
                       end: {
                         line: 1,
-                        column: 14
+                        column: 13
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
                       start: 0,
-                      end: 13,
+                      end: 1,
                       loc: {
                         start: {
                           line: 1,
@@ -107,30 +138,30 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
-                          column: 13
+                          column: 1
+                        }
+                      },
+                      name: 'c'
+                    },
+                    right: {
+                      type: 'AssignmentExpression',
+                      start: 5,
+                      end: 12,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 12
                         }
                       },
                       operator: '=',
                       left: {
-                        type: 'Identifier',
-                        start: 0,
-                        end: 1,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 0
-                          },
-                          end: {
-                            line: 1,
-                            column: 1
-                          }
-                        },
-                        name: 'c'
-                      },
-                      right: {
-                        type: 'AssignmentExpression',
+                        type: 'ObjectPattern',
                         start: 5,
-                        end: 12,
+                        end: 8,
                         loc: {
                           start: {
                             line: 1,
@@ -138,27 +169,29 @@ describe('Destructuring - Parenthesized', () => {
                           },
                           end: {
                             line: 1,
-                            column: 12
+                            column: 8
                           }
                         },
-                        operator: '=',
-                        left: {
-                          type: 'ObjectPattern',
-                          start: 5,
-                          end: 8,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 5
+                        properties: [
+                          {
+                            type: 'Property',
+                            start: 6,
+                            end: 7,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 6
+                              },
+                              end: {
+                                line: 1,
+                                column: 7
+                              }
                             },
-                            end: {
-                              line: 1,
-                              column: 8
-                            }
-                          },
-                          properties: [
-                            {
-                              type: 'Property',
+                            method: false,
+                            shorthand: true,
+                            computed: false,
+                            key: {
+                              type: 'Identifier',
                               start: 6,
                               end: 7,
                               loc: {
@@ -171,104 +204,102 @@ describe('Destructuring - Parenthesized', () => {
                                   column: 7
                                 }
                               },
-                              method: false,
-                              shorthand: true,
-                              computed: false,
-                              key: {
-                                type: 'Identifier',
-                                start: 6,
-                                end: 7,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 6
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 7
-                                  }
-                                },
-                                name: 'b'
-                              },
-                              kind: 'init',
-                              value: {
-                                type: 'Identifier',
-                                start: 6,
-                                end: 7,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 6
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 7
-                                  }
-                                },
-                                name: 'b'
-                              }
-                            }
-                          ]
-                        },
-                        right: {
-                          type: 'Identifier',
-                          start: 11,
-                          end: 12,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 11
+                              name: 'b'
                             },
-                            end: {
-                              line: 1,
-                              column: 12
+                            kind: 'init',
+                            value: {
+                              type: 'Identifier',
+                              start: 6,
+                              end: 7,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 6
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 7
+                                }
+                              },
+                              name: 'b'
                             }
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 11
                           },
-                          name: 'b'
-                        }
+                          end: {
+                            line: 1,
+                            column: 12
+                          }
+                        },
+                        name: 'b'
                       }
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '({b} = b);',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 10,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 10
-                  }
+      pass('({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '({b} = b);',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 10,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 10,
+                end: {
+                  line: 1,
+                  column: 10
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
+                    start: 1,
+                    end: 8,
                     loc: {
                       start: {
                         line: 1,
-                        column: 0
+                        column: 1
                       },
                       end: {
                         line: 1,
-                        column: 10
+                        column: 8
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'ObjectPattern',
                       start: 1,
-                      end: 8,
+                      end: 4,
                       loc: {
                         start: {
                           line: 1,
@@ -276,27 +307,29 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
-                          column: 8
+                          column: 4
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'ObjectPattern',
-                        start: 1,
-                        end: 4,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 1
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 2,
+                          end: 3,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 2
+                            },
+                            end: {
+                              line: 1,
+                              column: 3
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 4
-                          }
-                        },
-                        properties: [
-                          {
-                            type: 'Property',
+                          method: false,
+                          shorthand: true,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 2,
                             end: 3,
                             loc: {
@@ -309,130 +342,10 @@ describe('Destructuring - Parenthesized', () => {
                                 column: 3
                               }
                             },
-                            method: false,
-                            shorthand: true,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 2,
-                              end: 3,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 2
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 3
-                                }
-                              },
-                              name: 'b'
-                            },
-                            kind: 'init',
-                            value: {
-                              type: 'Identifier',
-                              start: 2,
-                              end: 3,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 2
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 3
-                                }
-                              },
-                              name: 'b'
-                            }
-                          }
-                        ]
-                      },
-                      right: {
-                        type: 'Identifier',
-                        start: 7,
-                        end: 8,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 7
+                            name: 'b'
                           },
-                          end: {
-                            line: 1,
-                            column: 8
-                          }
-                        },
-                        name: 'b'
-                      }
-                    }
-                  }
-                ],
-                sourceType: 'script'
-              }
-        });
-
-        pass('([b] = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '([b] = b);',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 10,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 10
-                  }
-                },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 10,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 10
-                      }
-                    },
-                    expression: {
-                      type: 'AssignmentExpression',
-                      start: 1,
-                      end: 8,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 1
-                        },
-                        end: {
-                          line: 1,
-                          column: 8
-                        }
-                      },
-                      operator: '=',
-                      left: {
-                        type: 'ArrayPattern',
-                        start: 1,
-                        end: 4,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 1
-                          },
-                          end: {
-                            line: 1,
-                            column: 4
-                          }
-                        },
-                        elements: [
-                          {
+                          kind: 'init',
+                          value: {
                             type: 'Identifier',
                             start: 2,
                             end: 3,
@@ -448,66 +361,82 @@ describe('Destructuring - Parenthesized', () => {
                             },
                             name: 'b'
                           }
-                        ]
-                      },
-                      right: {
-                        type: 'Identifier',
-                        start: 7,
-                        end: 8,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 7
-                          },
-                          end: {
-                            line: 1,
-                            column: 8
-                          }
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 7,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
                         },
-                        name: 'b'
-                      }
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      name: 'b'
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('({a, b} = {a: 1, b: 2});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '({a, b} = {a: 1, b: 2});',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 24,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 24
-                  }
+      pass('([b] = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '([b] = b);',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 10,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 24,
+                end: {
+                  line: 1,
+                  column: 10
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
+                    start: 1,
+                    end: 8,
                     loc: {
                       start: {
                         line: 1,
-                        column: 0
+                        column: 1
                       },
                       end: {
                         line: 1,
-                        column: 24
+                        column: 8
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'ArrayPattern',
                       start: 1,
-                      end: 22,
+                      end: 4,
                       loc: {
                         start: {
                           line: 1,
@@ -515,27 +444,131 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
-                          column: 22
+                          column: 4
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'ObjectPattern',
-                        start: 1,
-                        end: 7,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 1
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          start: 2,
+                          end: 3,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 2
+                            },
+                            end: {
+                              line: 1,
+                              column: 3
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 7
-                          }
+                          name: 'b'
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 7,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
                         },
-                        properties: [
-                          {
-                            type: 'Property',
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      name: 'b'
+                    }
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('({a, b} = {a: 1, b: 2});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '({a, b} = {a: 1, b: 2});',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 24,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 24
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 24,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 24
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
+                    start: 1,
+                    end: 22,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 1
+                      },
+                      end: {
+                        line: 1,
+                        column: 22
+                      }
+                    },
+                    operator: '=',
+                    left: {
+                      type: 'ObjectPattern',
+                      start: 1,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 2,
+                          end: 3,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 2
+                            },
+                            end: {
+                              line: 1,
+                              column: 3
+                            }
+                          },
+                          method: false,
+                          shorthand: true,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 2,
                             end: 3,
                             loc: {
@@ -548,45 +581,45 @@ describe('Destructuring - Parenthesized', () => {
                                 column: 3
                               }
                             },
-                            method: false,
-                            shorthand: true,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 2,
-                              end: 3,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 2
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 3
-                                }
+                            name: 'a'
+                          },
+                          kind: 'init',
+                          value: {
+                            type: 'Identifier',
+                            start: 2,
+                            end: 3,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 2
                               },
-                              name: 'a'
+                              end: {
+                                line: 1,
+                                column: 3
+                              }
                             },
-                            kind: 'init',
-                            value: {
-                              type: 'Identifier',
-                              start: 2,
-                              end: 3,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 2
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 3
-                                }
-                              },
-                              name: 'a'
+                            name: 'a'
+                          }
+                        },
+                        {
+                          type: 'Property',
+                          start: 5,
+                          end: 6,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 5
+                            },
+                            end: {
+                              line: 1,
+                              column: 6
                             }
                           },
-                          {
-                            type: 'Property',
+                          method: false,
+                          shorthand: true,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 5,
                             end: 6,
                             loc: {
@@ -599,64 +632,64 @@ describe('Destructuring - Parenthesized', () => {
                                 column: 6
                               }
                             },
-                            method: false,
-                            shorthand: true,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 5,
-                              end: 6,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 5
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 6
-                                }
-                              },
-                              name: 'b'
-                            },
-                            kind: 'init',
-                            value: {
-                              type: 'Identifier',
-                              start: 5,
-                              end: 6,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 5
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 6
-                                }
-                              },
-                              name: 'b'
-                            }
-                          }
-                        ]
-                      },
-                      right: {
-                        type: 'ObjectExpression',
-                        start: 10,
-                        end: 22,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 10
+                            name: 'b'
                           },
-                          end: {
-                            line: 1,
-                            column: 22
+                          kind: 'init',
+                          value: {
+                            type: 'Identifier',
+                            start: 5,
+                            end: 6,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 5
+                              },
+                              end: {
+                                line: 1,
+                                column: 6
+                              }
+                            },
+                            name: 'b'
                           }
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 10,
+                      end: 22,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 10
                         },
-                        properties: [
-                          {
-                            type: 'Property',
+                        end: {
+                          line: 1,
+                          column: 22
+                        }
+                      },
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 11,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 11
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          method: false,
+                          shorthand: false,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 11,
-                            end: 15,
+                            end: 12,
                             loc: {
                               start: {
                                 line: 1,
@@ -664,51 +697,51 @@ describe('Destructuring - Parenthesized', () => {
                               },
                               end: {
                                 line: 1,
+                                column: 12
+                              }
+                            },
+                            name: 'a'
+                          },
+                          value: {
+                            type: 'Literal',
+                            start: 14,
+                            end: 15,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 14
+                              },
+                              end: {
+                                line: 1,
                                 column: 15
                               }
                             },
-                            method: false,
-                            shorthand: false,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 11,
-                              end: 12,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 11
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 12
-                                }
-                              },
-                              name: 'a'
-                            },
-                            value: {
-                              type: 'Literal',
-                              start: 14,
-                              end: 15,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 14
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 15
-                                }
-                              },
-                              value: 1,
-                              raw: '1'
-                            },
-                            kind: 'init'
+                            value: 1,
+                            raw: '1'
                           },
-                          {
-                            type: 'Property',
+                          kind: 'init'
+                        },
+                        {
+                          type: 'Property',
+                          start: 17,
+                          end: 21,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 17
+                            },
+                            end: {
+                              line: 1,
+                              column: 21
+                            }
+                          },
+                          method: false,
+                          shorthand: false,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 17,
-                            end: 21,
+                            end: 18,
                             loc: {
                               start: {
                                 line: 1,
@@ -716,75 +749,72 @@ describe('Destructuring - Parenthesized', () => {
                               },
                               end: {
                                 line: 1,
+                                column: 18
+                              }
+                            },
+                            name: 'b'
+                          },
+                          value: {
+                            type: 'Literal',
+                            start: 20,
+                            end: 21,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 20
+                              },
+                              end: {
+                                line: 1,
                                 column: 21
                               }
                             },
-                            method: false,
-                            shorthand: false,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 17,
-                              end: 18,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 17
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 18
-                                }
-                              },
-                              name: 'b'
-                            },
-                            value: {
-                              type: 'Literal',
-                              start: 20,
-                              end: 21,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 20
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 21
-                                }
-                              },
-                              value: 2,
-                              raw: '2'
-                            },
-                            kind: 'init'
-                          }
-                        ]
-                      }
+                            value: 2,
+                            raw: '2'
+                          },
+                          kind: 'init'
+                        }
+                      ]
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('[a, b] = [1, 2]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '[a, b] = [1, 2]',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 15,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 15
-                  }
+      pass('[a, b] = [1, 2]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '[a, b] = [1, 2]',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 15,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
+                end: {
+                  line: 1,
+                  column: 15
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 15,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 15
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
                     start: 0,
                     end: 15,
                     loc: {
@@ -797,10 +827,11 @@ describe('Destructuring - Parenthesized', () => {
                         column: 15
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'ArrayPattern',
                       start: 0,
-                      end: 15,
+                      end: 6,
                       loc: {
                         start: {
                           line: 1,
@@ -808,167 +839,30 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
-                          column: 15
+                          column: 6
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'ArrayPattern',
-                        start: 0,
-                        end: 6,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 0
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          start: 1,
+                          end: 2,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 1
+                            },
+                            end: {
+                              line: 1,
+                              column: 2
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 6
-                          }
+                          name: 'a'
                         },
-                        elements: [
-                          {
-                            type: 'Identifier',
-                            start: 1,
-                            end: 2,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 1
-                              },
-                              end: {
-                                line: 1,
-                                column: 2
-                              }
-                            },
-                            name: 'a'
-                          },
-                          {
-                            type: 'Identifier',
-                            start: 4,
-                            end: 5,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 4
-                              },
-                              end: {
-                                line: 1,
-                                column: 5
-                              }
-                            },
-                            name: 'b'
-                          }
-                        ]
-                      },
-                      right: {
-                        type: 'ArrayExpression',
-                        start: 9,
-                        end: 15,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 9
-                          },
-                          end: {
-                            line: 1,
-                            column: 15
-                          }
-                        },
-                        elements: [
-                          {
-                            type: 'Literal',
-                            start: 10,
-                            end: 11,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 10
-                              },
-                              end: {
-                                line: 1,
-                                column: 11
-                              }
-                            },
-                            value: 1,
-                            raw: '1'
-                          },
-                          {
-                            type: 'Literal',
-                            start: 13,
-                            end: 14,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 13
-                              },
-                              end: {
-                                line: 1,
-                                column: 14
-                              }
-                            },
-                            value: 2,
-                            raw: '2'
-                          }
-                        ]
-                      }
-                    }
-                  }
-                ],
-                sourceType: 'script'
-              }
-        });
-
-        pass('let {start, stop} = node;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: 'let {start, stop} = node;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 25,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 25
-                  }
-                },
-                body: [
-                  {
-                    type: 'VariableDeclaration',
-                    start: 0,
-                    end: 25,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 25
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 4,
-                        end: 24,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 4
-                          },
-                          end: {
-                            line: 1,
-                            column: 24
-                          }
-                        },
-                        id: {
-                          type: 'ObjectPattern',
+                        {
+                          type: 'Identifier',
                           start: 4,
-                          end: 17,
+                          end: 5,
                           loc: {
                             start: {
                               line: 1,
@@ -976,12 +870,151 @@ describe('Destructuring - Parenthesized', () => {
                             },
                             end: {
                               line: 1,
-                              column: 17
+                              column: 5
                             }
                           },
-                          properties: [
-                            {
-                              type: 'Property',
+                          name: 'b'
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 9,
+                      end: 15,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 9
+                        },
+                        end: {
+                          line: 1,
+                          column: 15
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 10,
+                          end: 11,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 11
+                            }
+                          },
+                          value: 1,
+                          raw: '1'
+                        },
+                        {
+                          type: 'Literal',
+                          start: 13,
+                          end: 14,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 14
+                            }
+                          },
+                          value: 2,
+                          raw: '2'
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('let {start, stop} = node;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'let {start, stop} = node;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 25,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 25
+                }
+              },
+              body: [
+                {
+                  type: 'VariableDeclaration',
+                  start: 0,
+                  end: 25,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 25
+                    }
+                  },
+                  declarations: [
+                    {
+                      type: 'VariableDeclarator',
+                      start: 4,
+                      end: 24,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 24
+                        }
+                      },
+                      id: {
+                        type: 'ObjectPattern',
+                        start: 4,
+                        end: 17,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 17
+                          }
+                        },
+                        properties: [
+                          {
+                            type: 'Property',
+                            start: 5,
+                            end: 10,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 5
+                              },
+                              end: {
+                                line: 1,
+                                column: 10
+                              }
+                            },
+                            method: false,
+                            shorthand: true,
+                            computed: false,
+                            key: {
+                              type: 'Identifier',
                               start: 5,
                               end: 10,
                               loc: {
@@ -994,45 +1027,45 @@ describe('Destructuring - Parenthesized', () => {
                                   column: 10
                                 }
                               },
-                              method: false,
-                              shorthand: true,
-                              computed: false,
-                              key: {
-                                type: 'Identifier',
-                                start: 5,
-                                end: 10,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 5
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 10
-                                  }
+                              name: 'start'
+                            },
+                            kind: 'init',
+                            value: {
+                              type: 'Identifier',
+                              start: 5,
+                              end: 10,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 5
                                 },
-                                name: 'start'
+                                end: {
+                                  line: 1,
+                                  column: 10
+                                }
                               },
-                              kind: 'init',
-                              value: {
-                                type: 'Identifier',
-                                start: 5,
-                                end: 10,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 5
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 10
-                                  }
-                                },
-                                name: 'start'
+                              name: 'start'
+                            }
+                          },
+                          {
+                            type: 'Property',
+                            start: 12,
+                            end: 16,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 12
+                              },
+                              end: {
+                                line: 1,
+                                column: 16
                               }
                             },
-                            {
-                              type: 'Property',
+                            method: false,
+                            shorthand: true,
+                            computed: false,
+                            key: {
+                              type: 'Identifier',
                               start: 12,
                               end: 16,
                               loc: {
@@ -1045,105 +1078,103 @@ describe('Destructuring - Parenthesized', () => {
                                   column: 16
                                 }
                               },
-                              method: false,
-                              shorthand: true,
-                              computed: false,
-                              key: {
-                                type: 'Identifier',
-                                start: 12,
-                                end: 16,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 12
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 16
-                                  }
-                                },
-                                name: 'stop'
-                              },
-                              kind: 'init',
-                              value: {
-                                type: 'Identifier',
-                                start: 12,
-                                end: 16,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 12
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 16
-                                  }
-                                },
-                                name: 'stop'
-                              }
-                            }
-                          ]
-                        },
-                        init: {
-                          type: 'Identifier',
-                          start: 20,
-                          end: 24,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 20
+                              name: 'stop'
                             },
-                            end: {
-                              line: 1,
-                              column: 24
+                            kind: 'init',
+                            value: {
+                              type: 'Identifier',
+                              start: 12,
+                              end: 16,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 12
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 16
+                                }
+                              },
+                              name: 'stop'
                             }
+                          }
+                        ]
+                      },
+                      init: {
+                        type: 'Identifier',
+                        start: 20,
+                        end: 24,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 20
                           },
-                          name: 'node'
-                        }
+                          end: {
+                            line: 1,
+                            column: 24
+                          }
+                        },
+                        name: 'node'
                       }
-                    ],
-                    kind: 'let'
-                  }
-                ],
-                sourceType: 'script'
-              }
-        });
+                    }
+                  ],
+                  kind: 'let'
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '({ responseText: text } = res)',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 30,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 30
-                  }
+      pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '({ responseText: text } = res)',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 30,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 30,
+                end: {
+                  line: 1,
+                  column: 30
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 30,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 30
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
+                    start: 1,
+                    end: 29,
                     loc: {
                       start: {
                         line: 1,
-                        column: 0
+                        column: 1
                       },
                       end: {
                         line: 1,
-                        column: 30
+                        column: 29
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'ObjectPattern',
                       start: 1,
-                      end: 29,
+                      end: 23,
                       loc: {
                         start: {
                           line: 1,
@@ -1151,29 +1182,31 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
-                          column: 29
+                          column: 23
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'ObjectPattern',
-                        start: 1,
-                        end: 23,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 1
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 3,
+                          end: 21,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 3
+                            },
+                            end: {
+                              line: 1,
+                              column: 21
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 23
-                          }
-                        },
-                        properties: [
-                          {
-                            type: 'Property',
+                          method: false,
+                          shorthand: false,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 3,
-                            end: 21,
+                            end: 15,
                             loc: {
                               start: {
                                 line: 1,
@@ -1181,90 +1214,87 @@ describe('Destructuring - Parenthesized', () => {
                               },
                               end: {
                                 line: 1,
+                                column: 15
+                              }
+                            },
+                            name: 'responseText'
+                          },
+                          value: {
+                            type: 'Identifier',
+                            start: 17,
+                            end: 21,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 17
+                              },
+                              end: {
+                                line: 1,
                                 column: 21
                               }
                             },
-                            method: false,
-                            shorthand: false,
-                            computed: false,
-                            key: {
-                              type: 'Identifier',
-                              start: 3,
-                              end: 15,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 3
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 15
-                                }
-                              },
-                              name: 'responseText'
-                            },
-                            value: {
-                              type: 'Identifier',
-                              start: 17,
-                              end: 21,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 17
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 21
-                                }
-                              },
-                              name: 'text'
-                            },
-                            kind: 'init'
-                          }
-                        ]
-                      },
-                      right: {
-                        type: 'Identifier',
-                        start: 26,
-                        end: 29,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 26
+                            name: 'text'
                           },
-                          end: {
-                            line: 1,
-                            column: 29
-                          }
+                          kind: 'init'
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 26,
+                      end: 29,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 26
                         },
-                        name: 'res'
-                      }
+                        end: {
+                          line: 1,
+                          column: 29
+                        }
+                      },
+                      name: 'res'
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('(a) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(a) = {}',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 8,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 8
-                  }
+      pass('(a) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(a) = {}',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 8,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
+                end: {
+                  line: 1,
+                  column: 8
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
                     start: 0,
                     end: 8,
                     loc: {
@@ -1277,22 +1307,107 @@ describe('Destructuring - Parenthesized', () => {
                         column: 8
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
-                      start: 0,
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
+                      start: 1,
+                      end: 2,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 2
+                        }
+                      },
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 6,
                       end: 8,
                       loc: {
                         start: {
                           line: 1,
-                          column: 0
+                          column: 6
                         },
                         end: {
                           line: 1,
                           column: 8
                         }
                       },
-                      operator: '=',
-                      left: {
+                      properties: []
+                    }
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('(a["b"]) = {} ', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(a["b"]) = {}',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 13,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 13
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 13,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 13
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
+                    start: 0,
+                    end: 13,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 13
+                      }
+                    },
+                    operator: '=',
+                    left: {
+                      type: 'MemberExpression',
+                      start: 1,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      object: {
                         type: 'Identifier',
                         start: 1,
                         end: 2,
@@ -1308,166 +1423,81 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         name: 'a'
                       },
-                      right: {
-                        type: 'ObjectExpression',
-                        start: 6,
-                        end: 8,
+                      property: {
+                        type: 'Literal',
+                        start: 3,
+                        end: 6,
                         loc: {
                           start: {
                             line: 1,
-                            column: 6
+                            column: 3
                           },
                           end: {
                             line: 1,
-                            column: 8
+                            column: 6
                           }
                         },
-                        properties: []
-                      }
-                    }
-                  }
-                ],
-                sourceType: 'script'
-              }
-        });
-
-        pass('(a["b"]) = {} ', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(a["b"]) = {}',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 13,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 13
-                  }
-                },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 13,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 0
+                        value: 'b',
+                        raw: '"b"'
                       },
-                      end: {
-                        line: 1,
-                        column: 13
-                      }
+                      computed: true
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
-                      start: 0,
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 11,
                       end: 13,
                       loc: {
                         start: {
                           line: 1,
-                          column: 0
+                          column: 11
                         },
                         end: {
                           line: 1,
                           column: 13
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'MemberExpression',
-                        start: 1,
-                        end: 7,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 1
-                          },
-                          end: {
-                            line: 1,
-                            column: 7
-                          }
-                        },
-                        object: {
-                          type: 'Identifier',
-                          start: 1,
-                          end: 2,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 1
-                            },
-                            end: {
-                              line: 1,
-                              column: 2
-                            }
-                          },
-                          name: 'a'
-                        },
-                        property: {
-                          type: 'Literal',
-                          start: 3,
-                          end: 6,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 3
-                            },
-                            end: {
-                              line: 1,
-                              column: 6
-                            }
-                          },
-                          value: 'b',
-                          raw: '"b"'
-                        },
-                        computed: true
-                      },
-                      right: {
-                        type: 'ObjectExpression',
-                        start: 11,
-                        end: 13,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 11
-                          },
-                          end: {
-                            line: 1,
-                            column: 13
-                          }
-                        },
-                        properties: []
-                      }
+                      properties: []
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('(a.b) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(a.b) = {}',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 10,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 10
-                  }
+      pass('(a.b) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(a.b) = {}',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 10,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
+                end: {
+                  line: 1,
+                  column: 10
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
                     start: 0,
                     end: 10,
                     loc: {
@@ -1480,25 +1510,25 @@ describe('Destructuring - Parenthesized', () => {
                         column: 10
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
-                      start: 0,
-                      end: 10,
+                    operator: '=',
+                    left: {
+                      type: 'MemberExpression',
+                      start: 1,
+                      end: 4,
                       loc: {
                         start: {
                           line: 1,
-                          column: 0
+                          column: 1
                         },
                         end: {
                           line: 1,
-                          column: 10
+                          column: 4
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
                         start: 1,
-                        end: 4,
+                        end: 2,
                         loc: {
                           start: {
                             line: 1,
@@ -1506,85 +1536,85 @@ describe('Destructuring - Parenthesized', () => {
                           },
                           end: {
                             line: 1,
-                            column: 4
+                            column: 2
                           }
                         },
-                        object: {
-                          type: 'Identifier',
-                          start: 1,
-                          end: 2,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 1
-                            },
-                            end: {
-                              line: 1,
-                              column: 2
-                            }
-                          },
-                          name: 'a'
-                        },
-                        property: {
-                          type: 'Identifier',
-                          start: 3,
-                          end: 4,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 3
-                            },
-                            end: {
-                              line: 1,
-                              column: 4
-                            }
-                          },
-                          name: 'b'
-                        },
-                        computed: false
+                        name: 'a'
                       },
-                      right: {
-                        type: 'ObjectExpression',
-                        start: 8,
-                        end: 10,
+                      property: {
+                        type: 'Identifier',
+                        start: 3,
+                        end: 4,
                         loc: {
                           start: {
                             line: 1,
-                            column: 8
+                            column: 3
                           },
                           end: {
                             line: 1,
-                            column: 10
+                            column: 4
                           }
                         },
-                        properties: []
-                      }
+                        name: 'b'
+                      },
+                      computed: false
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 8,
+                      end: 10,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 8
+                        },
+                        end: {
+                          line: 1,
+                          column: 10
+                        }
+                      },
+                      properties: []
                     }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
 
-        pass('test = { a: 1 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: 'test = { a: 1 }',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 15,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 15
-                  }
+      pass('test = { a: 1 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'test = { a: 1 }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 15,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
                 },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
+                end: {
+                  line: 1,
+                  column: 15
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 15,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 15
+                    }
+                  },
+                  expression: {
+                    type: 'AssignmentExpression',
                     start: 0,
                     end: 15,
                     loc: {
@@ -1597,10 +1627,11 @@ describe('Destructuring - Parenthesized', () => {
                         column: 15
                       }
                     },
-                    expression: {
-                      type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
                       start: 0,
-                      end: 15,
+                      end: 4,
                       loc: {
                         start: {
                           line: 1,
@@ -1608,45 +1639,47 @@ describe('Destructuring - Parenthesized', () => {
                         },
                         end: {
                           line: 1,
+                          column: 4
+                        }
+                      },
+                      name: 'test'
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 7,
+                      end: 15,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
                           column: 15
                         }
                       },
-                      operator: '=',
-                      left: {
-                        type: 'Identifier',
-                        start: 0,
-                        end: 4,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 0
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 9,
+                          end: 13,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 13
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 4
-                          }
-                        },
-                        name: 'test'
-                      },
-                      right: {
-                        type: 'ObjectExpression',
-                        start: 7,
-                        end: 15,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 7
-                          },
-                          end: {
-                            line: 1,
-                            column: 15
-                          }
-                        },
-                        properties: [
-                          {
-                            type: 'Property',
+                          method: false,
+                          shorthand: false,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
                             start: 9,
-                            end: 13,
+                            end: 10,
                             loc: {
                               start: {
                                 line: 1,
@@ -1654,684 +1687,667 @@ describe('Destructuring - Parenthesized', () => {
                               },
                               end: {
                                 line: 1,
+                                column: 10
+                              }
+                            },
+                            name: 'a'
+                          },
+                          value: {
+                            type: 'Literal',
+                            start: 12,
+                            end: 13,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 12
+                              },
+                              end: {
+                                line: 1,
                                 column: 13
                               }
                             },
-                            method: false,
-                            shorthand: false,
-                            computed: false,
-                            key: {
+                            value: 1,
+                            raw: '1'
+                          },
+                          kind: 'init'
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('(new f()[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(new f()[0]) = 1;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 17,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 17
+                  }
+              },
+              body: [{
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 17,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
+                      },
+                      end: {
+                          line: 1,
+                          column: 17
+                      }
+                  },
+                  expression: {
+                      type: 'AssignmentExpression',
+                      start: 0,
+                      end: 16,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 16
+                          }
+                      },
+                      operator: '=',
+                      left: {
+                          type: 'MemberExpression',
+                          start: 1,
+                          end: 11,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 1
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 11
+                              }
+                          },
+                          object: {
+                              type: 'NewExpression',
+                              start: 1,
+                              end: 8,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 1
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 8
+                                  }
+                              },
+                              callee: {
+                                  type: 'Identifier',
+                                  start: 5,
+                                  end: 6,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 5
+                                      },
+                                      end: {
+                                          line: 1,
+                                          column: 6
+                                      }
+                                  },
+                                  name: 'f'
+                              },
+                              arguments: []
+                          },
+                          property: {
+                              type: 'Literal',
+                              start: 9,
+                              end: 10,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 9
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 10
+                                  }
+                              },
+                              value: 0,
+                              raw: '0'
+                          },
+                          computed: true
+                      },
+                      right: {
+                          type: 'Literal',
+                          start: 15,
+                          end: 16,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 15
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 16
+                              }
+                          },
+                          value: 1,
+                          raw: '1'
+                      }
+                  }
+              }],
+              sourceType: 'script'
+          }
+      });
+
+      pass('(new f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(new f().a) = 1;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 16,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 16
+                  }
+              },
+              body: [{
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 16,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
+                      },
+                      end: {
+                          line: 1,
+                          column: 16
+                      }
+                  },
+                  expression: {
+                      type: 'AssignmentExpression',
+                      start: 0,
+                      end: 15,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 15
+                          }
+                      },
+                      operator: '=',
+                      left: {
+                          type: 'MemberExpression',
+                          start: 1,
+                          end: 10,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 1
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 10
+                              }
+                          },
+                          object: {
+                              type: 'NewExpression',
+                              start: 1,
+                              end: 8,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 1
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 8
+                                  }
+                              },
+                              callee: {
+                                  type: 'Identifier',
+                                  start: 5,
+                                  end: 6,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 5
+                                      },
+                                      end: {
+                                          line: 1,
+                                          column: 6
+                                      }
+                                  },
+                                  name: 'f'
+                              },
+                              arguments: []
+                          },
+                          property: {
                               type: 'Identifier',
                               start: 9,
                               end: 10,
                               loc: {
-                                start: {
-                                  line: 1,
-                                  column: 9
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 10
-                                }
+                                  start: {
+                                      line: 1,
+                                      column: 9
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 10
+                                  }
                               },
                               name: 'a'
-                            },
-                            value: {
-                              type: 'Literal',
-                              start: 12,
-                              end: 13,
+                          },
+                          computed: false
+                      },
+                      right: {
+                          type: 'Literal',
+                          start: 14,
+                          end: 15,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 14
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 15
+                              }
+                          },
+                          value: 1,
+                          raw: '1'
+                      }
+                  }
+              }],
+              sourceType: 'script'
+          }
+      });
+
+      pass('(f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(f().a) = 1;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 12,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 12
+                  }
+              },
+              body: [{
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 12,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
+                      },
+                      end: {
+                          line: 1,
+                          column: 12
+                      }
+                  },
+                  expression: {
+                      type: 'AssignmentExpression',
+                      start: 0,
+                      end: 11,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 11
+                          }
+                      },
+                      operator: '=',
+                      left: {
+                          type: 'MemberExpression',
+                          start: 1,
+                          end: 6,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 1
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 6
+                              }
+                          },
+                          object: {
+                              type: 'CallExpression',
+                              start: 1,
+                              end: 4,
                               loc: {
-                                start: {
+                                  start: {
+                                      line: 1,
+                                      column: 1
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 4
+                                  }
+                              },
+                              callee: {
+                                  type: 'Identifier',
+                                  start: 1,
+                                  end: 2,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 1
+                                      },
+                                      end: {
+                                          line: 1,
+                                          column: 2
+                                      }
+                                  },
+                                  name: 'f'
+                              },
+                              arguments: []
+                          },
+                          property: {
+                              type: 'Identifier',
+                              start: 5,
+                              end: 6,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 5
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 6
+                                  }
+                              },
+                              name: 'a'
+                          },
+                          computed: false
+                      },
+                      right: {
+                          type: 'Literal',
+                          start: 10,
+                          end: 11,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 10
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 11
+                              }
+                          },
+                          value: 1,
+                          raw: '1'
+                      }
+                  }
+              }],
+              sourceType: 'script'
+          }
+      });
+
+      pass('(obj[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(obj[0]) = 1;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 13,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 13
+                  }
+              },
+              body: [{
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 13,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
+                      },
+                      end: {
+                          line: 1,
+                          column: 13
+                      }
+                  },
+                  expression: {
+                      type: 'AssignmentExpression',
+                      start: 0,
+                      end: 12,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 12
+                          }
+                      },
+                      operator: '=',
+                      left: {
+                          type: 'MemberExpression',
+                          start: 1,
+                          end: 7,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 1
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 7
+                              }
+                          },
+                          object: {
+                              type: 'Identifier',
+                              start: 1,
+                              end: 4,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 1
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 4
+                                  }
+                              },
+                              name: 'obj'
+                          },
+                          property: {
+                              type: 'Literal',
+                              start: 5,
+                              end: 6,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 5
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 6
+                                  }
+                              },
+                              value: 0,
+                              raw: '0'
+                          },
+                          computed: true
+                      },
+                      right: {
+                          type: 'Literal',
+                          start: 11,
+                          end: 12,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 11
+                              },
+                              end: {
                                   line: 1,
                                   column: 12
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 13
-                                }
-                              },
-                              value: 1,
-                              raw: '1'
-                            },
-                            kind: 'init'
-                          }
-                        ]
+                              }
+                          },
+                          value: 1,
+                          raw: '1'
                       }
-                    }
                   }
-                ],
-                sourceType: 'script'
-              }
-        });
+              }],
+              sourceType: 'script'
+          }
+      });
 
-        pass('(new f()[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(new f()[0]) = 1;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 17,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 17
-                    }
-                },
-                body: [{
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 17,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 17
-                        }
-                    },
-                    expression: {
-                        type: 'AssignmentExpression',
-                        start: 0,
-                        end: 16,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 16
-                            }
-                        },
-                        operator: '=',
-                        left: {
-                            type: 'MemberExpression',
-                            start: 1,
-                            end: 11,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 11
-                                }
-                            },
-                            object: {
-                                type: 'NewExpression',
-                                start: 1,
-                                end: 8,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 8
-                                    }
-                                },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 5,
-                                    end: 6,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 5
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 6
-                                        }
-                                    },
-                                    name: 'f'
-                                },
-                                arguments: []
-                            },
-                            property: {
-                                type: 'Literal',
-                                start: 9,
-                                end: 10,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 9
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 10
-                                    }
-                                },
-                                value: 0,
-                                raw: '0'
-                            },
-                            computed: true
-                        },
-                        right: {
-                            type: 'Literal',
-                            start: 15,
-                            end: 16,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 15
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 16
-                                }
-                            },
-                            value: 1,
-                            raw: '1'
-                        }
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
-
-        pass('(new f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(new f().a) = 1;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 16,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 16
-                    }
-                },
-                body: [{
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 16,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 16
-                        }
-                    },
-                    expression: {
-                        type: 'AssignmentExpression',
-                        start: 0,
-                        end: 15,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 15
-                            }
-                        },
-                        operator: '=',
-                        left: {
-                            type: 'MemberExpression',
-                            start: 1,
-                            end: 10,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 10
-                                }
-                            },
-                            object: {
-                                type: 'NewExpression',
-                                start: 1,
-                                end: 8,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 8
-                                    }
-                                },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 5,
-                                    end: 6,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 5
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 6
-                                        }
-                                    },
-                                    name: 'f'
-                                },
-                                arguments: []
-                            },
-                            property: {
-                                type: 'Identifier',
-                                start: 9,
-                                end: 10,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 9
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 10
-                                    }
-                                },
-                                name: 'a'
-                            },
-                            computed: false
-                        },
-                        right: {
-                            type: 'Literal',
-                            start: 14,
-                            end: 15,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 14
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 15
-                                }
-                            },
-                            value: 1,
-                            raw: '1'
-                        }
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
-
-        pass('(f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(f().a) = 1;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 12,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 12
-                    }
-                },
-                body: [{
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 12,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 12
-                        }
-                    },
-                    expression: {
-                        type: 'AssignmentExpression',
-                        start: 0,
-                        end: 11,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 11
-                            }
-                        },
-                        operator: '=',
-                        left: {
-                            type: 'MemberExpression',
-                            start: 1,
-                            end: 6,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 6
-                                }
-                            },
-                            object: {
-                                type: 'CallExpression',
-                                start: 1,
-                                end: 4,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 4
-                                    }
-                                },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 1,
-                                    end: 2,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 1
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 2
-                                        }
-                                    },
-                                    name: 'f'
-                                },
-                                arguments: []
-                            },
-                            property: {
-                                type: 'Identifier',
-                                start: 5,
-                                end: 6,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 5
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 6
-                                    }
-                                },
-                                name: 'a'
-                            },
-                            computed: false
-                        },
-                        right: {
-                            type: 'Literal',
-                            start: 10,
-                            end: 11,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 10
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 11
-                                }
-                            },
-                            value: 1,
-                            raw: '1'
-                        }
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
-
-        pass('(obj[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(obj[0]) = 1;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 13,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 13
-                    }
-                },
-                body: [{
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 13,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 13
-                        }
-                    },
-                    expression: {
-                        type: 'AssignmentExpression',
-                        start: 0,
-                        end: 12,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 12
-                            }
-                        },
-                        operator: '=',
-                        left: {
-                            type: 'MemberExpression',
-                            start: 1,
-                            end: 7,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 7
-                                }
-                            },
-                            object: {
-                                type: 'Identifier',
-                                start: 1,
-                                end: 4,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 4
-                                    }
-                                },
-                                name: 'obj'
-                            },
-                            property: {
-                                type: 'Literal',
-                                start: 5,
-                                end: 6,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 5
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 6
-                                    }
-                                },
-                                value: 0,
-                                raw: '0'
-                            },
-                            computed: true
-                        },
-                        right: {
-                            type: 'Literal',
-                            start: 11,
-                            end: 12,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 11
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 12
-                                }
-                            },
-                            value: 1,
-                            raw: '1'
-                        }
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
-
-        pass('(obj.a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: '(obj.a) = 1;',
-            expected: {
-                type: 'Program',
-                start: 0,
-                end: 12,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 12
-                    }
-                },
-                body: [{
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 12,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 12
-                        }
-                    },
-                    expression: {
-                        type: 'AssignmentExpression',
-                        start: 0,
-                        end: 11,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 11
-                            }
-                        },
-                        operator: '=',
-                        left: {
-                            type: 'MemberExpression',
-                            start: 1,
-                            end: 6,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 6
-                                }
-                            },
-                            object: {
-                                type: 'Identifier',
-                                start: 1,
-                                end: 4,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 4
-                                    }
-                                },
-                                name: 'obj'
-                            },
-                            property: {
-                                type: 'Identifier',
-                                start: 5,
-                                end: 6,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 5
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 6
-                                    }
-                                },
-                                name: 'a'
-                            },
-                            computed: false
-                        },
-                        right: {
-                            type: 'Literal',
-                            start: 10,
-                            end: 11,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 10
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 11
-                                }
-                            },
-                            value: 1,
-                            raw: '1'
-                        }
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
-    });
+      pass('(obj.a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: '(obj.a) = 1;',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 12,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 12
+                  }
+              },
+              body: [{
+                  type: 'ExpressionStatement',
+                  start: 0,
+                  end: 12,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
+                      },
+                      end: {
+                          line: 1,
+                          column: 12
+                      }
+                  },
+                  expression: {
+                      type: 'AssignmentExpression',
+                      start: 0,
+                      end: 11,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 11
+                          }
+                      },
+                      operator: '=',
+                      left: {
+                          type: 'MemberExpression',
+                          start: 1,
+                          end: 6,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 1
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 6
+                              }
+                          },
+                          object: {
+                              type: 'Identifier',
+                              start: 1,
+                              end: 4,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 1
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 4
+                                  }
+                              },
+                              name: 'obj'
+                          },
+                          property: {
+                              type: 'Identifier',
+                              start: 5,
+                              end: 6,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 5
+                                  },
+                                  end: {
+                                      line: 1,
+                                      column: 6
+                                  }
+                              },
+                              name: 'a'
+                          },
+                          computed: false
+                      },
+                      right: {
+                          type: 'Literal',
+                          start: 10,
+                          end: 11,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 10
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 11
+                              }
+                          },
+                          value: 1,
+                          raw: '1'
+                      }
+                  }
+              }],
+              sourceType: 'script'
+          }
+      });
+  });
 });

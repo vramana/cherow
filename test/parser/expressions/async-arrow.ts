@@ -8,7 +8,11 @@ describe('Expressions - Async Arrows', () => {
     describe('Failure', () => {
 
         const invalidSyntax = [
+            '"use strict"; async(x = await) => {  }',
             `async ((x, y)) => 0`,
+            'async(foo) => { super.prop };',
+            'async(foo = super()) => {}',
+            'async (foo = super.foo) => { }',
             `async ((x, y, z)) => 0`,
             `async ((x, y), z) => 0`,
             'async (x) => {}  ? a : b',
@@ -92,7 +96,6 @@ describe('Expressions - Async Arrows', () => {
                 });
             });
         }
-
     });
 
     describe('Pass', () => {
@@ -106,7 +109,11 @@ describe('Expressions - Async Arrows', () => {
             'async (x, y, z) => { return x + y + z; }',
             'async (x, y) => { x.a = y; }',
             'async (...x = []) => {}',
+            '(a, async promise => await promise)',
             'async () => 42',
+            'f(a, async(x, y) => await [x, y], b)',
+            'const foo = ({ async = true }) => {};',
+            'const foo = async ({ async: bar }) => { await baz; };',
             `async ({}) => 0`,
             'async(a,)',
             'async (a,) => b;',
