@@ -7,130 +7,209 @@ describe('Destructuring - Binding', () => {
 
     describe('Failure', () => {
 
-         fail('var { this };', Context.Empty, {
-          source: 'var { this };',
-         });
+        const invalidSyntax = [
+            '({e: a.b}) => 0',
+            'function a({e: a.b}) {}',
+            'function* a({e: a.b}) {}',
+            '(function ({e: a.b}) {})',
+            '(function* ({e: a.b}) {})',
+            '(function* ([a.b]) {})',
+            '({a([a.b]){}})',
+            '({*a([a.b]){}})',
+            '({set a([a.b]){}})',
+            'function a([a.b]) {}',
+            '([a.b]) => 0',
+            '({a({e: a.b}){}})',
+            '({*a({e: a.b}){}})',
+            '({set a({e: a.b}){}})',
+            '({a:for} = 0)',
+            '({a = 0});',
+            '({a} += 0);',
+            '({a,,} = 0)',
+            '({,a,} = 0)',
+            '({a,,a} = 0)',
+            '({function} = 0)',
+            '({a:function} = 0)',
+            '({a:for} = 0)',
+            '({\'a\'} = 0)',
+            '({var} = 0)',
+            '({a.b} = 0)',
+            '({0} = 0)',
+        ];
 
-         fail('let [...a,] = 0', Context.Empty, {
+        for (const arg of invalidSyntax) {
+
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                });
+            });
+        }
+
+        fail('var { this };', Context.Empty, {
+            source: 'var { this };',
+        });
+
+        fail('let [...a,] = 0', Context.Empty, {
             source: 'let [...a,] = 0',
         });
 
-         fail('([a.b]) => 0', Context.Empty, {
+        fail('([a.b]) => 0', Context.Empty, {
             source: '([a.b]) => 0',
         });
 
-         fail('function a([a.b]) {}', Context.Empty, {
+        fail('function a([a.b]) {}', Context.Empty, {
             source: 'function a([a.b]) {}',
         });
 
-         fail('(function ([a.b]) {})', Context.Empty, {
+        fail('(function ([a.b]) {})', Context.Empty, {
             source: '(function ([a.b]) {})',
         });
 
-         fail('({a}) = 1;', Context.Empty, {
+        fail('({a}) = 1;', Context.Empty, {
             source: '({a}) = 1;',
         });
 
-         fail('({a([a.b]){}})', Context.Empty, {
+        fail('({a([a.b]){}})', Context.Empty, {
             source: '({a([a.b]){}})',
         });
 
-         fail('({*a([a.b]){}})', Context.Empty, {
+        fail('({*a([a.b]){}})', Context.Empty, {
             source: '({*a([a.b]){}})',
         });
 
-         fail('({set a([a.b]){}})', Context.Empty, {
+        fail('({set a([a.b]){}})', Context.Empty, {
             source: '({set a([a.b]){}})',
         });
 
-         fail('let [...{x} = {}] = [{}];', Context.Empty, {
-          source: 'let [...{x} = {}] = [{}];',
-      });
+        fail('let [...{x} = {}] = [{}];', Context.Empty, {
+            source: 'let [...{x} = {}] = [{}];',
+        });
 
-         fail('({foo() {}} = {});', Context.Empty, {
-          source: '({foo() {}} = {});',
-      });
+        fail('({foo() {}} = {});', Context.Empty, {
+            source: '({foo() {}} = {});',
+        });
 
-         fail('let {get foo() {}} = {};', Context.Empty, {
-          source: 'let {get foo() {}} = {};',
-      });
+        fail('let {get foo() {}} = {};', Context.Empty, {
+            source: 'let {get foo() {}} = {};',
+        });
 
-         fail('let [...{x} = {}] = [{}];', Context.Empty, {
-          source: 'let [...{x} = {}] = [{}];',
-      });
+        fail('let [...{x} = {}] = [{}];', Context.Empty, {
+            source: 'let [...{x} = {}] = [{}];',
+        });
 
-         fail('function foo() {for (let {x} = {} of []) {}; }; foo();', Context.Empty, {
-          source: 'function foo() {for (let {x} = {} of []) {}; }; foo();',
-      });
+        fail('function foo() {for (let {x} = {} of []) {}; }; foo();', Context.Empty, {
+            source: 'function foo() {for (let {x} = {} of []) {}; }; foo();',
+        });
 
-         fail('for (let {x} = {} of []) {}', Context.Empty, {
-          source: 'for (let {x} = {} of []) {}',
-      });
+        fail('for (let {x} = {} of []) {}', Context.Empty, {
+            source: 'for (let {x} = {} of []) {}',
+        });
 
-         fail('var a = 1; ({x, y = 1, z = 2} = {a = 2});', Context.Empty, {
-          source: 'var a = 1; ({x, y = 1, z = 2} = {a = 2});',
-      });
+        fail('var a = 1; ({x, y = 1, z = 2} = {a = 2});', Context.Empty, {
+            source: 'var a = 1; ({x, y = 1, z = 2} = {a = 2});',
+        });
 
-         fail('let x; ([...{x} = {}] = [{}]);', Context.Empty, {
-          source: 'let x; ([...{x} = {}] = [{}]);',
-      });
+        fail('let x; ([...{x} = {}] = [{}]);', Context.Empty, {
+            source: 'let x; ([...{x} = {}] = [{}]);',
+        });
 
-         fail('let a; ([...[a] = []] = [[]]);', Context.Empty, {
-          source: 'let a; ([...[a] = []] = [[]]);',
-      });
+        fail('let a; ([...[a] = []] = [[]]);', Context.Empty, {
+            source: 'let a; ([...[a] = []] = [[]]);',
+        });
 
     });
     describe('Pass', () => {
 
-      const validSyntax = [
-          'var [{x, y}, [a, b]] = f();',
-          'let [{x, y}, [a, b]] = f();',
-          'let a = [{x:1, y:-1}, {x:2,y:-2}, {x:3,y:-3}];',
-          'var o = { __proto__:null, \'a1\':1, \'b2\':2 };',
-          'var a = [{x:1, y:-1}, {x:2,y:-2}, {x:3,y:-3}];',
-          'var o = { __proto__:null, \'a1\':1, \'b2\':2 };',
-          'var g34 = ({x = function() { return a }}, ...a) => { return x()[0] };',
-          'var { x : x0 = 0, y : { z : z1 = 1}, x : x1 = 0} = o;',
-          'var { x : x, y : y = 2 } = { x : 1 };',
-          'for (var {z} = { z : 3 }; z != 0; z--) {}',
-          'let [...[a]] = [[]];',
-          'let a; [...[a]] = [[]];',
-          'let a; [...{a}] = [{}];',
-          'let a; [...[a = 1]] = [[]];',
-          'let [...[a]] = [[]];',
-          'let a; [...{a:a = 1}] = [{}];',
-          'var {a:a, a:a} = {};',
-          'let a; ({a:a, a:a} = {});',
-          'let a; ({a:((((a1))))} = {a:20})',
-          'var a; [a = class aClass {}] = []',
-          'var a; for ({x:x = class aClass {}} of []) {}',
-          'var {x:[...y]} = {x:[1]}',
-          '({a: [b = 1, c = 2][1]} = {a:[]});',
-          '({a: [b = 1, c = 2].b} = {a:[]});',
-          'var a; `${({a} = {})}`',
-          'let a, r1; ({a:a1 = r1 = 44} = {})',
-          'var a = 1; ({x = {a = 1} = {}} = {});',
-          ' let {1:x1, 0:y1} = [11, 22];',
-          'let [i,j] = [0,0];',
-          'let [...[,...[[x2]]]] = [[1, 2], [3, 4], 5];',
-          'for (let {x, y} = {x:10, y:20}; x<y; {x:x} = {x:x+2}) {}',
-          'let {0:x2} = {\'0\':33};',
-          '({x, y = 1, z = 2} = {});',
-          'var [{x : [{y:{z = 1}, z1 = 2}] }, {x2 = 3}, {x3 : {y3:[{z3 = 4}]}} ] = [{x:[{y:{}}]}, {}, {x3:{y3:[{}]}}];',
-          'var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };',
-          'var z = {x:x1} = {y:y1} = {x:10, y:20};'
-      ];
+        const validSyntax = [
+            '({x} = 0)',
+            '({x,} = 0)',
+            '({x,y} = 0)',
+            '({x,y,} = 0)',
+            '({[a]: a} = 1)',
+            '({x = 0} = 1)',
+            '({x = 0,} = 1)',
+            '({x: y} = 0)',
+            '({x: y,} = 0)',
+            '({var: x} = 0)',
+            '({"x": y} = 0)',
+            '({\'x\': y} = 0)',
+            '({0: y} = 0)',
+            '({0: x, 1: x} = 0)',
+            '({x: y = 0} = 1)',
+            '({x: y = z = 0} = 1)',
+            '({x: [y] = 0} = 1)',
+            '({a:let} = 0);',
+            '({let} = 0);',
+            '({a:yield} = 0);',
+            '({yield} = 0);',
+            '({yield = 0} = 0);',
+            'try {} catch ({e = 0}) {}',
+            'try {} catch ({e}) {}',
+            'var {let, yield} = 0;',
+            'var a, {x: {y: a}} = 0;',
+            '(function*() { [...{ x = yield }] = 0; })',
+            'var {a, x: {y: a}} = 0;',
+            'var {a} = 0;',
+            'var [{x, y}, [a, b]] = f();',
+            'let [{x, y}, [a, b]] = f();',
+            'let a = [{x:1, y:-1}, {x:2,y:-2}, {x:3,y:-3}];',
+            'var o = { __proto__:null, \'a1\':1, \'b2\':2 };',
+            'var a = [{x:1, y:-1}, {x:2,y:-2}, {x:3,y:-3}];',
+            'var o = { __proto__:null, \'a1\':1, \'b2\':2 };',
+            'var g34 = ({x = function() { return a }}, ...a) => { return x()[0] };',
+            'var { x : x0 = 0, y : { z : z1 = 1}, x : x1 = 0} = o;',
+            'var { x : x, y : y = 2 } = { x : 1 };',
+            'for (var {z} = { z : 3 }; z != 0; z--) {}',
+            'try {} catch ([e, ...a]) {}',
+            'var [a, a] = 0;',
+            'var [[a]]=0;',
+            'var [a]=[1];',
+            'let [...[a]] = [[]];',
+            'let a; [...[a]] = [[]];',
+            'let a; [...{a}] = [{}];',
+            'let a; [...[a = 1]] = [[]];',
+            'let [...[a]] = [[]];',
+            'let a; [...{a:a = 1}] = [{}];',
+            'var {a:a, a:a} = {};',
+            'let a; ({a:a, a:a} = {});',
+            'let a; ({a:((((a1))))} = {a:20})',
+            'var a; [a = class aClass {}] = []',
+            'var a; for ({x:x = class aClass {}} of []) {}',
+            'var {x:[...y]} = {x:[1]}',
+            '({a: [b = 1, c = 2][1]} = {a:[]});',
+            '({a: [b = 1, c = 2].b} = {a:[]});',
+            'var a; `${({a} = {})}`',
+            'let a, r1; ({a:a1 = r1 = 44} = {})',
+            'var a = 1; ({x = {a = 1} = {}} = {});',
+            ' let {1:x1, 0:y1} = [11, 22];',
+            'let [i,j] = [0,0];',
+            'let [...[,...[[x2]]]] = [[1, 2], [3, 4], 5];',
+            'for (let {x, y} = {x:10, y:20}; x<y; {x:x} = {x:x+2}) {}',
+            'let {0:x2} = {\'0\':33};',
+            '({x, y = 1, z = 2} = {});',
+            'var [,a] = 0;',
+            'var [{x : [{y:{z = 1}, z1 = 2}] }, {x2 = 3}, {x3 : {y3:[{z3 = 4}]}} ] = [{x:[{y:{}}]}, {}, {x3:{y3:[{}]}}];',
+            'var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };',
+            'var z = {x:x1} = {y:y1} = {x:10, y:20};'
+        ];
 
-      for (const arg of validSyntax) {
+        for (const arg of validSyntax) {
 
-          it(`${arg}`, () => {
-              t.doesNotThrow(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
-              });
-          });
-      }
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
 
-      pass('for (let [a = b] of [0, c = 0]);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('for (let [a = b] of [0, c = 0]);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'for (let [a = b] of [0, c = 0]);',
             expected: {
                 type: 'Program',
@@ -357,7 +436,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('let [a,,b]=0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('let [a,,b]=0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'let [a,,b]=0',
             expected: {
                 type: 'Program',
@@ -474,7 +553,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('let [[]]=0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('let [[]]=0', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'let [[]]=0',
             expected: {
                 type: 'Program',
@@ -573,7 +652,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('var [...{x}] = y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('var [...{x}] = y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var [...{x}] = y',
             expected: {
                 type: 'Program',
@@ -736,7 +815,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('let [...a] = 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('let [...a] = 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'let [...a] = 0;',
             expected: {
                 type: 'Program',
@@ -850,7 +929,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('var [let] = answer;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('var [let] = answer;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var [let] = answer;',
             expected: {
                 type: 'Program',
@@ -948,7 +1027,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function a([a=0]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function a([a=0]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function a([a=0]) {}',
             expected: {
                 type: 'Program',
@@ -1080,7 +1159,7 @@ describe('Destructuring - Binding', () => {
                 sourceType: 'script'
             }
         });
-      pass('function fn1([a, b = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1([a, b = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1([a, b = 42]) {}',
             expected: {
                 type: 'Program',
@@ -1230,7 +1309,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([a = 42, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([a = 42, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([a = 42, b,]) {}',
             expected: {
                 type: 'Program',
@@ -1380,7 +1459,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3([a,, b = a, c = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3([a,, b = a, c = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3([a,, b = a, c = 42]) {}',
             expected: {
                 type: 'Program',
@@ -1578,7 +1657,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1([{}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1([{}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1([{}]) {}',
             expected: {
                 type: 'Program',
@@ -1679,7 +1758,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([{} = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([{} = 42]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([{} = 42]) {}',
             expected: {
                 type: 'Program',
@@ -1812,7 +1891,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3([a, {b: c}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3([a, {b: c}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3([a, {b: c}]) {}',
             expected: {
                 type: 'Program',
@@ -1980,7 +2059,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn4([a, {b: []}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn4([a, {b: []}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn4([a, {b: []}]) {}',
             expected: {
                 type: 'Program',
@@ -2148,7 +2227,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1([a, b]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1([a, b]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1([a, b]) {}',
             expected: {
                 type: 'Program',
@@ -2266,7 +2345,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([a, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([a, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([a, b,]) {}',
             expected: {
                 type: 'Program',
@@ -2384,7 +2463,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3([a,, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3([a,, b,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3([a,, b,]) {}',
             expected: {
                 type: 'Program',
@@ -2503,7 +2582,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1([,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1([,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1([,]) {}',
             expected: {
                 type: 'Program',
@@ -2591,7 +2670,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([,,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([,,]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([,,]) {}',
             expected: {
                 type: 'Program',
@@ -2680,7 +2759,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn([]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn([]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn([]) {}',
             expected: {
                 type: 'Program',
@@ -2766,7 +2845,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1([...args]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1([...args]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1([...args]) {}',
             expected: {
                 type: 'Program',
@@ -2882,7 +2961,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([,,,,,,,...args]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([,,,,,,,...args]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([,,,,,,,...args]) {}',
             expected: {
                 type: 'Program',
@@ -3007,7 +3086,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3([x, {y}, ...z]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3([x, {y}, ...z]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3([x, {y}, ...z]) {}',
             expected: {
                 type: 'Program',
@@ -3206,7 +3285,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn4([,x, {y}, , ...z]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn4([,x, {y}, , ...z]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn4([,x, {y}, , ...z]) {}',
             expected: {
                 type: 'Program',
@@ -3408,7 +3487,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn5({x: [...y]}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn5({x: [...y]}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn5({x: [...y]}) {}',
             expected: {
                 type: 'Program',
@@ -3574,7 +3653,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn({}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn({}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn({}) {}',
             expected: {
                 type: 'Program',
@@ -3660,7 +3739,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fna({x: y}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fna({x: y}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fna({x: y}) {}',
             expected: {
                 type: 'Program',
@@ -3796,7 +3875,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnb({x: y = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnb({x: y = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnb({x: y = 42}) {}',
             expected: {
                 type: 'Program',
@@ -3964,7 +4043,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnc({x: {}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnc({x: {}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnc({x: {}}) {}',
             expected: {
                 type: 'Program',
@@ -4100,7 +4179,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnd({x: {y}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnd({x: {y}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnd({x: {y}}) {}',
             expected: {
                 type: 'Program',
@@ -4286,7 +4365,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fne({x: {} = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fne({x: {} = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fne({x: {} = 42}) {}',
             expected: {
                 type: 'Program',
@@ -4454,7 +4533,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnf({x: {y} = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnf({x: {y} = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnf({x: {y} = 42}) {}',
             expected: {
                 type: 'Program',
@@ -4672,7 +4751,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2({a: {p: q, }, }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2({a: {p: q, }, }) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2({a: {p: q, }, }) {}',
             expected: {
                 type: 'Program',
@@ -4858,7 +4937,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1({x,}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1({x,}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1({x,}) {}',
             expected: {
                 type: 'Program',
@@ -4994,7 +5073,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3({x,}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3({x,}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3({x,}) {}',
             expected: {
                 type: 'Program',
@@ -5130,7 +5209,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fna({x}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fna({x}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fna({x}) {}',
             expected: {
                 type: 'Program',
@@ -5266,7 +5345,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnb({x, y}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnb({x, y}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnb({x, y}) {}',
             expected: {
                 type: 'Program',
@@ -5454,7 +5533,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnc({x = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnc({x = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnc({x = 42}) {}',
             expected: {
                 type: 'Program',
@@ -5622,7 +5701,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fnd({x, y = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fnd({x, y = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fnd({x, y = 42}) {}',
             expected: {
                 type: 'Program',
@@ -5842,7 +5921,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn1({a: {p: q}, b: {r}, c: {s = 0}, d: {}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn1({a: {p: q}, b: {r}, c: {s = 0}, d: {}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn1({a: {p: q}, b: {r}, c: {s = 0}, d: {}}) {}',
             expected: {
                 type: 'Program',
@@ -6314,7 +6393,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2(x, {a: r, b: s, c: t}, y) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2(x, {a: r, b: s, c: t}, y) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2(x, {a: r, b: s, c: t}, y) {}',
             expected: {
                 type: 'Program',
@@ -6586,7 +6665,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3({x: {y: {z: {} = 42}}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3({x: {y: {z: {} = 42}}}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3({x: {y: {z: {} = 42}}}) {}',
             expected: {
                 type: 'Program',
@@ -6854,7 +6933,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn4([], [[]], [[[[[[[[[x]]]]]]]]]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn4([], [[]], [[[[[[[[[x]]]]]]]]]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn4([], [[]], [[[[[[[[[x]]]]]]]]]) {}',
             expected: {
                 type: 'Program',
@@ -7123,7 +7202,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn2([{a: [{}]}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn2([{a: [{}]}]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn2([{a: [{}]}]) {}',
             expected: {
                 type: 'Program',
@@ -7289,7 +7368,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn3({a: [,,,] = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn3({a: [,,,] = 42}) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn3({a: [,,,] = 42}) {}',
             expected: {
                 type: 'Program',
@@ -7461,7 +7540,7 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('function fn4([[x, y, ...z]]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('function fn4([[x, y, ...z]]) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'function fn4([[x, y, ...z]]) {}',
             expected: {
                 type: 'Program',
@@ -7625,245 +7704,238 @@ describe('Destructuring - Binding', () => {
             }
         });
 
-      pass('var {x} = {}, {y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-          source: 'var {x} = {}, {y} = {};',
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 23,
-            loc: {
-              start: {
-                line: 1,
-                column: 0
-              },
-              end: {
-                line: 1,
-                column: 23
-              }
-            },
-            body: [
-              {
-                type: 'VariableDeclaration',
+        pass('var {x} = {}, {y} = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+            source: 'var {x} = {}, {y} = {};',
+            expected: {
+                type: 'Program',
                 start: 0,
                 end: 23,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 23
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 23
+                    }
                 },
-                declarations: [
-                  {
-                    type: 'VariableDeclarator',
-                    start: 4,
-                    end: 12,
+                body: [{
+                    type: 'VariableDeclaration',
+                    start: 0,
+                    end: 23,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 4
-                      },
-                      end: {
-                        line: 1,
-                        column: 12
-                      }
-                    },
-                    id: {
-                      type: 'ObjectPattern',
-                      start: 4,
-                      end: 7,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 4
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 7
+                            line: 1,
+                            column: 23
                         }
-                      },
-                      properties: [
-                        {
-                          type: 'Property',
-                          start: 5,
-                          end: 6,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 5
+                    },
+                    declarations: [{
+                            type: 'VariableDeclarator',
+                            start: 4,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
                             },
-                            end: {
-                              line: 1,
-                              column: 6
+                            id: {
+                                type: 'ObjectPattern',
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                },
+                                properties: [{
+                                    type: 'Property',
+                                    start: 5,
+                                    end: 6,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 5
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 6
+                                        }
+                                    },
+                                    method: false,
+                                    shorthand: true,
+                                    computed: false,
+                                    key: {
+                                        type: 'Identifier',
+                                        start: 5,
+                                        end: 6,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 5
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 6
+                                            }
+                                        },
+                                        name: 'x'
+                                    },
+                                    kind: 'init',
+                                    value: {
+                                        type: 'Identifier',
+                                        start: 5,
+                                        end: 6,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 5
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 6
+                                            }
+                                        },
+                                        name: 'x'
+                                    }
+                                }]
+                            },
+                            init: {
+                                type: 'ObjectExpression',
+                                start: 10,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                },
+                                properties: []
                             }
-                          },
-                          method: false,
-                          shorthand: true,
-                          computed: false,
-                          key: {
-                            type: 'Identifier',
-                            start: 5,
-                            end: 6,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 5
-                              },
-                              end: {
-                                line: 1,
-                                column: 6
-                              }
-                            },
-                            name: 'x'
-                          },
-                          kind: 'init',
-                          value: {
-                            type: 'Identifier',
-                            start: 5,
-                            end: 6,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 5
-                              },
-                              end: {
-                                line: 1,
-                                column: 6
-                              }
-                            },
-                            name: 'x'
-                          }
-                        }
-                      ]
-                    },
-                    init: {
-                      type: 'ObjectExpression',
-                      start: 10,
-                      end: 12,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 10
                         },
-                        end: {
-                          line: 1,
-                          column: 12
-                        }
-                      },
-                      properties: []
-                    }
-                  },
-                  {
-                    type: 'VariableDeclarator',
-                    start: 14,
-                    end: 22,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 14
-                      },
-                      end: {
-                        line: 1,
-                        column: 22
-                      }
-                    },
-                    id: {
-                      type: 'ObjectPattern',
-                      start: 14,
-                      end: 17,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 14
-                        },
-                        end: {
-                          line: 1,
-                          column: 17
-                        }
-                      },
-                      properties: [
                         {
-                          type: 'Property',
-                          start: 15,
-                          end: 16,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 15
+                            type: 'VariableDeclarator',
+                            start: 14,
+                            end: 22,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 22
+                                }
                             },
-                            end: {
-                              line: 1,
-                              column: 16
+                            id: {
+                                type: 'ObjectPattern',
+                                start: 14,
+                                end: 17,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 14
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 17
+                                    }
+                                },
+                                properties: [{
+                                    type: 'Property',
+                                    start: 15,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    },
+                                    method: false,
+                                    shorthand: true,
+                                    computed: false,
+                                    key: {
+                                        type: 'Identifier',
+                                        start: 15,
+                                        end: 16,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 15
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 16
+                                            }
+                                        },
+                                        name: 'y'
+                                    },
+                                    kind: 'init',
+                                    value: {
+                                        type: 'Identifier',
+                                        start: 15,
+                                        end: 16,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 15
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 16
+                                            }
+                                        },
+                                        name: 'y'
+                                    }
+                                }]
+                            },
+                            init: {
+                                type: 'ObjectExpression',
+                                start: 20,
+                                end: 22,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 20
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 22
+                                    }
+                                },
+                                properties: []
                             }
-                          },
-                          method: false,
-                          shorthand: true,
-                          computed: false,
-                          key: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 16,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 15
-                              },
-                              end: {
-                                line: 1,
-                                column: 16
-                              }
-                            },
-                            name: 'y'
-                          },
-                          kind: 'init',
-                          value: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 16,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 15
-                              },
-                              end: {
-                                line: 1,
-                                column: 16
-                              }
-                            },
-                            name: 'y'
-                          }
                         }
-                      ]
-                    },
-                    init: {
-                      type: 'ObjectExpression',
-                      start: 20,
-                      end: 22,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 20
-                        },
-                        end: {
-                          line: 1,
-                          column: 22
-                        }
-                      },
-                      properties: []
-                    }
-                  }
-                ],
-                kind: 'var'
-              }
-            ],
-            sourceType: 'script'
-          }
+                    ],
+                    kind: 'var'
+                }],
+                sourceType: 'script'
+            }
         });
 
-      pass('var { x : y } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('var { x : y } = {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'var { x : y } = {};',
             expected: {
                 type: 'Program',
@@ -7996,4 +8068,4 @@ describe('Destructuring - Binding', () => {
             }
         });
     });
-  });
+});

@@ -3,7 +3,6 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-// Testing assignment destructuring
 describe('Destructuring - Assignment', () => {
 
     describe('Failure', () => {
@@ -17,13 +16,17 @@ describe('Destructuring - Assignment', () => {
             '[0,{a=0}] = 0',
             'f({x = 0})',
             '[...x,,] = 0',
-            '[0,{a=0}] = 0',
             '[{a=0},{b=0},0] = 0',
             '[{a=0},...0]',
             '[...0,a]=0',
             '[...0,{a=0}]=0',
+            '[...0,...{a=0}]=0',
             '[...{a=0},]',
             '[...{a=0},]=0',
+            '[0] = 0',
+            '[a, ...b, {c=0}]',
+            '{a = [...b, c]} = 0',
+            '[a, ...(b = c)] = 0',
             '([a]) = 0',
             '({a = 0});',
             '({a} += 0);',
@@ -42,15 +45,15 @@ describe('Destructuring - Assignment', () => {
             '{ get x() {} }',
             '{ set x() {} }',
             '{ x: y() }',
-            // "{ this }",
+            '{ this }',
             '{ x: this }',
             '{ x: this = 1 }',
-            // "{ super }",
+            '{ super }',
             '{ x: super }',
             '{ x: super = 1 }',
             '{ new.target }',
-            // "{ x: new.target }",
-            // "{ x: new.target = 1 }",
+            '{ x: new.target }',
+            '{ x: new.target = 1 }',
             '{ import.meta }',
             '{ x: import.meta }',
             '{ x: import.meta = 1 }',
@@ -60,8 +63,8 @@ describe('Destructuring - Assignment', () => {
             '[this]',
             '[this = 1]',
             'var {a};',
-            //   "[new.target]",
-            // "[new.target = 1]",
+            '[new.target]',
+            '[new.target = 1]',
             '[import.meta]',
             '[import.meta = 1]',
             '[super]',
@@ -69,6 +72,15 @@ describe('Destructuring - Assignment', () => {
             '[function f() {}]',
             '[async function f() {}]',
             '[function* f() {}]',
+            '([arguments] = []);',
+            '[{ get x() {} }] = [{}];',
+            '[...x, y] = [];',
+            '[...[(x, y)]] = [[]];',
+            '"use strict"; ({ eval } = {});',
+            'assignmentResult = { x: x = yield } = value;',
+            '"use strict";  ({ x: unresolvable } = {});',
+            '[ c ] = [1];',
+            '"use strict";  [ x ] = [];',
             '[50]',
             '[(50)]',
             '[(function() {})]',
@@ -133,7 +145,25 @@ describe('Destructuring - Assignment', () => {
             '[ (++y) ]',
             '[ ...(++y) ]',
             '[ x += x ]',
+            '[x[yield]]] = value;',
             '{ foo: x += x }',
+            '([arguments] = []);',
+            '"use strict"; [ x = yield ] = [];',
+            '[[(x, y)]] = [[]];',
+            '[[ x ]] = [null];',
+            '[[ x ]] = [ , ];',
+            '[[ x ]] = [undefined];',
+            '[[ x ]] = [];',
+            '"use strict"; [[x[yield]]] = 123;',
+            '[...x,] = [];',
+            '[...x, ...y] = [];',
+            '"use strict"; [...{ x = yield }] = [{}];',
+            'let [{a, ...[]}] = [{/*...*/}]; // invalid;',
+            'let {a, ...[]} = {/*...*/}; // invalid;',
+            'let {a, ...[b]} = {/*...*/}; // invalid;',
+            'let {a, ...{}} = {/*...*/}; // invalid;',
+            'let {a, ...{b}} = {/*...*/}; // invalid;',
+
         ];
 
         for (const arg of invalidSyntax) {
@@ -265,14 +295,64 @@ for (new.target of b);
             '[x,,] = 0',
             '[[x]] = 0',
             '[, x,,] = 0',
+            '[...[x]] = 0',
             '[...{x = 1}] = [{}]',
             '[...[x]] = 0',
             '[x, ...{0: y}] = 0',
             '[x, x] = 0',
             '[x, ...x] = 0',
-            '[x.a=a] = b',
             '[(a)] = 0',
             '({x} = 0)',
+            'let {a, ...b} = {/*...*/}; // valid;',
+            '[ x = \'x\' in {} ] = value;',
+            'a = [ a = x += 1, b = x *= 2 ] = value;',
+            ' [[ x ]] = [null]',
+            '[{ x }] = [null];',
+            '[{ x }] = [];',
+            '[{ x }] = [ , ];',
+            'a = [{ x = yield }] = value;',
+            'a = [[x[yield]]] = 123;',
+            '[{ x }] = [null];',
+            ' [{ x }] = [];',
+            'a = [{ x }] =  [{ x: 2 }];',
+            'a = [x.y] = [123];',
+            '[x, ...y] = [1, 2, 3];',
+            '[, ...x] = [1, 2, 3];',
+            'a = [x.y] = value;',
+            'a = [ x[yield] ] = [33];',
+            'a = [...[x, y]] = [null];',
+            'a = [...[x]] = [ , ];',
+            'a = [...{ 0: x, length }] = [undefined];',
+            'a = [...{ 1: x }] =  [1, 2, 3];',
+            'a = [...x.y] = [4, 3, 2];',
+            'a = [...[x[yield]]] = [2018];',
+            'a = [...{ 0: x, length }] = value;',
+            'a = [...{ 1: x }] = [1, 2, 3];',
+            ' [,] = undefined;',
+            ' [,] = null;',
+            ' [,] = 1;',
+            ' [,] = \'icefapper\';',
+            ' [,] = []',
+            ' [,] = undefined;',
+            'a = { prop = \'x\' in {} } = value;',
+            'a = { x = 1 } = value;',
+            '({ x = y } = {});',
+            'a = { x: x = yield } = { a: 1 };',
+            'a = { x: [x = yield] } =  { x: [321] };',
+            'a = { x: [y] } =  { x: [321] };',
+            'a = { x: { y } } =  { x: { y: 2 } };',
+            'a = { xy: x.y } = { xy: 4 };',
+            'a = [, , x, , ...y] = [1, 2, 3, 4, 5, 6];',
+            '[[x]] = [[1]];',
+            '[[ x ]] = [null];',
+            'a = [ x = yield ] = [];',
+            '[ x = y ] = [];',
+            'result = [, x, , y, ,] = [1, 2, 3, 4, 5, 6];',
+            'x = [ x = 14 ] = [,];',
+            'a = [ x = flag = true ] = [];',
+            ' [ x = y ] = [];',
+            'a = [ a = x += 1, b = x *= 2 ] = [];',
+            'a = [arguments = 4, eval = 5] = value;',
             '({x=0, y:z} = 0)',
             '({x,} = 0)',
             '({x,y} = 0)',
@@ -304,6 +384,11 @@ for (new.target of b);
             '[,,]=0',
             '[...a[0]] = 0;',
             '[{a=b}=0]',
+            '[{a=0}, ...b] = 0',
+            '[a = 0, ...{b = 0}] = 0',
+            '[[x]] = 0',
+            '[x.a=a] = 0',
+            '[x[a]=a] = 0',
             'function f({x = f}) { let f; return x; }',
             'function f1({a = x}, x) { return a }',
             'function f5({a = () => x}, x) { return a() }',
@@ -317,6 +402,9 @@ for (new.target of b);
             'function f1({x}) { var x = 2; return x }',
             'function f10({x}, y) { var y; return y }',
             '(function([ x = y = 1 ]) {}([]));',
+            '[{a=0},{a=0}] = 0',
+            '[] = 0',
+            '[...[...a[x]]] = 1',
             'const {x,x} = {x:1};',
             'let {x = (function() { x = 2; }())} = {};',
             'for (const {x, z} = { x : 0, z : 3 }; z != 3 || x != 0;) {}',
@@ -604,147 +692,144 @@ for (new.target of b);
                 start: 0,
                 end: 16,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 16
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 16
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExpressionStatement',
                     start: 0,
                     end: 16,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 16
-                      }
-                    },
-                    expression: {
-                      type: 'ArrayExpression',
-                      start: 0,
-                      end: 16,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 0
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 16
+                            line: 1,
+                            column: 16
                         }
-                      },
-                      elements: [
-                        {
-                          type: 'Identifier',
-                          start: 1,
-                          end: 2,
-                          loc: {
+                    },
+                    expression: {
+                        type: 'ArrayExpression',
+                        start: 0,
+                        end: 16,
+                        loc: {
                             start: {
-                              line: 1,
-                              column: 1
-                            },
-                            end: {
-                              line: 1,
-                              column: 2
-                            }
-                          },
-                          name: 'x'
-                        },
-                        {
-                          type: 'Identifier',
-                          start: 4,
-                          end: 5,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 4
-                            },
-                            end: {
-                              line: 1,
-                              column: 5
-                            }
-                          },
-                          name: 'y'
-                        },
-                        {
-                          type: 'SpreadElement',
-                          start: 7,
-                          end: 15,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 7
-                            },
-                            end: {
-                              line: 1,
-                              column: 15
-                            }
-                          },
-                          argument: {
-                            type: 'AssignmentExpression',
-                            start: 10,
-                            end: 15,
-                            loc: {
-                              start: {
                                 line: 1,
-                                column: 10
-                              },
-                              end: {
+                                column: 0
+                            },
+                            end: {
                                 line: 1,
-                                column: 15
-                              }
-                            },
-                            operator: '=',
-                            left: {
-                              type: 'Identifier',
-                              start: 10,
-                              end: 11,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 10
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 11
-                                }
-                              },
-                              name: 'z'
-                            },
-                            right: {
-                              type: 'Literal',
-                              start: 14,
-                              end: 15,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 14
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 15
-                                }
-                              },
-                              value: 1,
-                              raw: '1'
+                                column: 16
                             }
-                          }
-                        }
-                      ]
+                        },
+                        elements: [{
+                                type: 'Identifier',
+                                start: 1,
+                                end: 2,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 1
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 2
+                                    }
+                                },
+                                name: 'x'
+                            },
+                            {
+                                type: 'Identifier',
+                                start: 4,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                },
+                                name: 'y'
+                            },
+                            {
+                                type: 'SpreadElement',
+                                start: 7,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                },
+                                argument: {
+                                    type: 'AssignmentExpression',
+                                    start: 10,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 10
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    },
+                                    operator: '=',
+                                    left: {
+                                        type: 'Identifier',
+                                        start: 10,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        },
+                                        name: 'z'
+                                    },
+                                    right: {
+                                        type: 'Literal',
+                                        start: 14,
+                                        end: 15,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 14
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 15
+                                            }
+                                        },
+                                        value: 1,
+                                        raw: '1'
+                                    }
+                                }
+                            }
+                        ]
                     }
-                  }
-                ],
+                }],
                 sourceType: 'script'
-              }
+            }
         });
 
         pass('function a(a = b += 1, c = d +=1) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
@@ -754,231 +839,228 @@ for (new.target of b);
                 start: 0,
                 end: 36,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 36
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 36
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'FunctionDeclaration',
                     start: 0,
                     end: 36,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 36
-                      }
-                    },
-                    id: {
-                      type: 'Identifier',
-                      start: 9,
-                      end: 10,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 9
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 10
+                            line: 1,
+                            column: 36
                         }
-                      },
-                      name: 'a'
+                    },
+                    id: {
+                        type: 'Identifier',
+                        start: 9,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 9
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        },
+                        name: 'a'
                     },
                     generator: false,
                     expression: false,
                     async: false,
-                    params: [
-                      {
-                        type: 'AssignmentPattern',
-                        start: 11,
-                        end: 21,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 11
-                          },
-                          end: {
-                            line: 1,
-                            column: 21
-                          }
-                        },
-                        left: {
-                          type: 'Identifier',
-                          start: 11,
-                          end: 12,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 11
-                            },
-                            end: {
-                              line: 1,
-                              column: 12
-                            }
-                          },
-                          name: 'a'
-                        },
-                        right: {
-                          type: 'AssignmentExpression',
-                          start: 15,
-                          end: 21,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 15
-                            },
-                            end: {
-                              line: 1,
-                              column: 21
-                            }
-                          },
-                          operator: '+=',
-                          left: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 16,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 15
-                              },
-                              end: {
-                                line: 1,
-                                column: 16
-                              }
-                            },
-                            name: 'b'
-                          },
-                          right: {
-                            type: 'Literal',
-                            start: 20,
+                    params: [{
+                            type: 'AssignmentPattern',
+                            start: 11,
                             end: 21,
                             loc: {
-                              start: {
-                                line: 1,
-                                column: 20
-                              },
-                              end: {
-                                line: 1,
-                                column: 21
-                              }
+                                start: {
+                                    line: 1,
+                                    column: 11
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 21
+                                }
                             },
-                            value: 1,
-                            raw: '1'
-                          }
-                        }
-                      },
-                      {
-                        type: 'AssignmentPattern',
-                        start: 23,
-                        end: 32,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 23
-                          },
-                          end: {
-                            line: 1,
-                            column: 32
-                          }
-                        },
-                        left: {
-                          type: 'Identifier',
-                          start: 23,
-                          end: 24,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 23
+                            left: {
+                                type: 'Identifier',
+                                start: 11,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                },
+                                name: 'a'
                             },
-                            end: {
-                              line: 1,
-                              column: 24
+                            right: {
+                                type: 'AssignmentExpression',
+                                start: 15,
+                                end: 21,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 21
+                                    }
+                                },
+                                operator: '+=',
+                                left: {
+                                    type: 'Identifier',
+                                    start: 15,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    },
+                                    name: 'b'
+                                },
+                                right: {
+                                    type: 'Literal',
+                                    start: 20,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    },
+                                    value: 1,
+                                    raw: '1'
+                                }
                             }
-                          },
-                          name: 'c'
                         },
-                        right: {
-                          type: 'AssignmentExpression',
-                          start: 27,
-                          end: 32,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 27
-                            },
-                            end: {
-                              line: 1,
-                              column: 32
-                            }
-                          },
-                          operator: '+=',
-                          left: {
-                            type: 'Identifier',
-                            start: 27,
-                            end: 28,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 27
-                              },
-                              end: {
-                                line: 1,
-                                column: 28
-                              }
-                            },
-                            name: 'd'
-                          },
-                          right: {
-                            type: 'Literal',
-                            start: 31,
+                        {
+                            type: 'AssignmentPattern',
+                            start: 23,
                             end: 32,
                             loc: {
-                              start: {
-                                line: 1,
-                                column: 31
-                              },
-                              end: {
-                                line: 1,
-                                column: 32
-                              }
+                                start: {
+                                    line: 1,
+                                    column: 23
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 32
+                                }
                             },
-                            value: 1,
-                            raw: '1'
-                          }
+                            left: {
+                                type: 'Identifier',
+                                start: 23,
+                                end: 24,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 23
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 24
+                                    }
+                                },
+                                name: 'c'
+                            },
+                            right: {
+                                type: 'AssignmentExpression',
+                                start: 27,
+                                end: 32,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 27
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 32
+                                    }
+                                },
+                                operator: '+=',
+                                left: {
+                                    type: 'Identifier',
+                                    start: 27,
+                                    end: 28,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 27
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 28
+                                        }
+                                    },
+                                    name: 'd'
+                                },
+                                right: {
+                                    type: 'Literal',
+                                    start: 31,
+                                    end: 32,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 31
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 32
+                                        }
+                                    },
+                                    value: 1,
+                                    raw: '1'
+                                }
+                            }
                         }
-                      }
                     ],
                     body: {
-                      type: 'BlockStatement',
-                      start: 34,
-                      end: 36,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 34
+                        type: 'BlockStatement',
+                        start: 34,
+                        end: 36,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 34
+                            },
+                            end: {
+                                line: 1,
+                                column: 36
+                            }
                         },
-                        end: {
-                          line: 1,
-                          column: 36
-                        }
-                      },
-                      body: []
+                        body: []
                     }
-                  }
-                ],
+                }],
                 sourceType: 'script'
-              }
+            }
         });
 
         pass('[...z = 1]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
