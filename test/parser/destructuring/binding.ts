@@ -3,6 +3,7 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
+// Note: There exist other tests covering the cases not tested here
 describe('Destructuring - Binding', () => {
 
     describe('Failure', () => {
@@ -197,7 +198,47 @@ describe('Destructuring - Binding', () => {
             'var [,a] = 0;',
             'var [{x : [{y:{z = 1}, z1 = 2}] }, {x2 = 3}, {x3 : {y3:[{z3 = 4}]}} ] = [{x:[{y:{}}]}, {}, {x3:{y3:[{}]}}];',
             'var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };',
-            'var z = {x:x1} = {y:y1} = {x:10, y:20};'
+            'var z = {x:x1} = {y:y1} = {x:10, y:20};',
+            '[[...x] = [2, 1, 3]]',
+            '[arrow = () => {}]',
+            '[{ x, y, z } = { x: 44, y: 55, z: 66 }]',
+            '[{ x: 11, y: 22, z: 33 }]',
+            '[...[]]',
+            'f = ([x]) => {}',
+            'function fn2([{} = 42]) {}',
+            'function fn3([a, {b: c}]) {}',
+            'function fn4([a, {b: []}]) {}',
+            'function fn1([a, b]) {}',
+            'function fn2([a, b,]) {}',
+            'function fn3([a,, b,]) {}',
+            'function fn1([,]) {}',
+            'function fn2([,,]) {}',
+            'function fn1([...args]) {}',
+            'function fn2([,,,,,,,...args]) {}',
+            'function fn3([x, {y}, ...z]) {}',
+            'function fn4([,x, {y}, , ...z]) {}',
+            'function fn5({x: [...y]}) {}',
+            'function fna({x: y}) {}',
+            'function fnb({x: y = 42}) {}',
+            'function fnc({x: {}}) {}',
+            'function fnd({x: {y}}) {}',
+            'function fne({x: {} = 42}) {}',
+            'function fnf({x: {y} = 42}) {}',
+            'function fn1({x,}) {}',
+            'function fn2({a: {p: q, }, }) {}',
+            'function fn3({x,}) {}',
+            'function fna({x}) {}',
+            'function fnb({x, y}) {}',
+            'function fnc({x = 42}) {}',
+            'function fnd({x, y = 42}) {} ',
+            'function fn1({a: {p: q}, b: {r}, c: {s = 0}, d: {}}) {}',
+            'function fn2(x, {a: r, b: s, c: t}, y) {}',
+            'function fn3({x: {y: {z: {} = 42}}}) {}',
+            'function fn1([{}]) {}',
+            'function fn2([{a: [{}]}]) {}',
+            'function fn3({a: [,,,] = 42}) {}',
+            'function fn4([], [[]], [[[[[[[[[x]]]]]]]]]) {}',
+            'function fn4([[x, y, ...z]]) {}'
         ];
 
         for (const arg of validSyntax) {
