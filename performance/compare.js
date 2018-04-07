@@ -37,7 +37,7 @@ var setupBenchmarks,
 parsers = [
 {
     name: 'Cherow',
-    src: '../cherow.js',
+    src: '../cherow.min.js',
     version: function () {
         return window.cherow.version;
     },
