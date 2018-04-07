@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 // Note! Only a few early errors are tested here, and a few doesn't fail. Should we use time on fixing that?
 
@@ -333,7 +333,81 @@ describe('Miscellaneous - Early errors', () => {
             'with: icefapper',
             'let var',
             // Early ReferenceError!
-            'Array() **= 10'
+            'Array() **= 10',
+
+            // Note: The tests below are a dedication to Icefapper, so he can be happy! Regards, J.K. Thomas!
+
+            'new.target = 42',
+            'var foo = 1; new.target = foo = 42',
+            'function eval() {"use strict"; }',
+            'for (let let in a);',
+            '"use strict"; function static() { }',
+            '!function* (a){ super.b }',
+            'class a extends b { c() { !function* (c = super.d()){} } }',
+            '"use strict"; yield:;',
+            '!{ a() { !function* (a = super.b()){} } };',
+            'for(const a = 1;;) c: function b(){}',
+            'a: continue a;',
+            'continue;',
+            'switch(1) { default: !function(){ break; }; }',
+            'function a() { "use strict"; function b(arguments) {} }',
+            '"use strict"; delete (a);',
+            '(((...a)))',
+            '"use strict"; arguments *= 1',
+            '(function () { "use strict"; delete a; }())',
+            '"use strict"; var arguments;',
+            'function* a(){ ({b = yield}) => 1; }',
+            'function* a(){ (b = yield c) => 1; }',
+            'class a {static [static](){};}',
+            'function* a(){ function* b(c = yield){} }',
+            'function a(){ c: while(1) continue b; }',
+            '"use strict"; function eval(){}',
+            'for(const a;;);',
+            'function a() {"use strict"; (function eval() { }()) }',
+            `class a extends b { c() { function* d(c = super.e()){} } }`,
+            '"use strict"; for (a in let) {}',
+            'class a { *b(eval){} };',
+            '!function* a(b = super()){}',
+            '"use strict"; let [eval] = 1;',
+            '!function* a(b) { super() }',
+            'b: break a;',
+            '!{ a(let) { "use strict"; } }',
+            'function a() {"use strict"; --arguments; }',
+            'for(let a;;) c: function b(){}',
+            '--0',
+            '"use strict"; ({a: arguments = 1} = 2)',
+            'if(1) break;',
+            'for(({a: 0}) in 0);',
+            'class a {set constructor(b){}}',
+            'function* a(b = super()){}',
+            'for(let let;;);',
+            'function a(){ break b; }',
+            'while(1) { function a(){ continue; } }',
+            'function a() { "use strict"; ({ b: function b(eval) { } }); }',
+            '!{ set a(let) { "use strict"; } }',
+            'with(1) b: function a(){}',
+            '"use strict"; function* a(eval){}',
+            'let let;',
+            '!{ a() { !function* (){ super.b(); } } };',
+            'class a { constructor() { super(); } }',
+            'for(([0]) of 0);',
+            'if(1) b: function a(){}',
+            'for(const a = 1, b;;);',
+            'class a extends b { static c() { super(); } }',
+            'class a { set constructor(b) {} }',
+            'function* a(){ ({ *b(c = yield){} }); }',
+            '"use strict"; (class a { static constructor() { super() }})',
+            'for(let a of b) d: function c(){}',
+            'function* a(){ !function*({b = yield}){} }',
+            'class a extends b { c() { function d(){ super.e(); } } }',
+            'function a() { "use strict"; var package; }',
+            'for([0] in 0);',
+            '!{ *a(b) { super() } };',
+            'function a() { "use strict"; package = 1; }',
+            'function a(package) { "use strict"; }',
+            'while (true) { continue a; }',
+            '"use strict"; function a(...yield) {}',
+            'break a;',
         ];
 
         for (const arg of programs) {
