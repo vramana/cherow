@@ -97,7 +97,6 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context, 
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
     if (parser.token !== endToken) report(parser, Errors.ElementAfterRest);
-    if (parser.token === Token.Assign) report(parser, Errors.RestDefaultInitializer);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument
@@ -214,7 +213,7 @@ function parseAssignmentOrArrayAssignmentPattern(
     if (!consume(parser, context, Token.Assign)) return left;
     if (context & (Context.InParen | Context.InFunctionBody)) {
         if (parser.token & Token.IsYield && context & Context.Yield) {
-            report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
+            report(parser, Errors.YieldBindingIdentifier);
         }
     }
     return finishNode(context, parser, pos, {

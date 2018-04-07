@@ -38,7 +38,7 @@ import {
     nextTokenIsLeftParen,
     isEvalOrArguments,
     nextTokenisIdentifierOrParen
-} from '../utilities';
+} from './utilities';
 
 /**
  * Parse expression
@@ -133,7 +133,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
         if (token & (Token.IsIdentifier | Token.Keyword)) {
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
                 if (context & Context.Strict) {
-                    report(parser, token & Token.IsEvalOrArguments ? Errors.StrictEvalArguments : Errors.InvalidLHSInAssignment);
+                    report(parser, Errors.StrictEvalArguments);
                 }
                 parser.flags |= Flags.StrictReserved;
             }
@@ -644,7 +644,7 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
 function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree.RegExpLiteral {
 
     const pos = getLocation(parser);
-    const { tokenRegExp, tokenValue, tokenRaw } = parser;
+    const { tokenRegExp, tokenValue, tokenRaw} = parser;
 
     nextToken(parser, context);
 
@@ -695,7 +695,7 @@ export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
  */
 export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
-    const { tokenValue, tokenRaw } = parser;
+    const { tokenValue, tokenRaw} = parser;
     nextToken(parser, context);
     const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
@@ -913,8 +913,6 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                             state |= CoverParenthesizedState.HasEvalOrArguments;
                                         } else if (parser.token & Token.Reserved) {
                                             state |= CoverParenthesizedState.HasReservedWords;
-                                        } else if (parser.token & Token.IsEvalOrArguments) {
-                                            state |= CoverParenthesizedState.HasEvalOrArguments;
                                         }
                                         if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
                                         expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
@@ -1069,10 +1067,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1112,10 +1107,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
 
-    const {
-        params,
-        body
-    } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1305,6 +1297,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             state |= ObjectState.Shorthand;
 
             if (consume(parser, context, Token.Assign)) {
+                //if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) report(parser, Errors.YieldInParameter);
                 parser.pendingExpressionError = {
                     error: Errors.InvalidLHSInAssignment,
                     line: parser.startLine,
@@ -1346,10 +1339,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
     const pos = getLocation(parser);
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
-    const {
-        params,
-        body
-    } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody, state);
+    const { params, body } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody, state);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1406,7 +1396,8 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 
 // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
 
-function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState = ModifierState.None): ESTree.ArrowFunctionExpression {
+function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
+
     const { token } = parser;
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
@@ -1434,7 +1425,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @param {context} Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState = ObjectState.None) {
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
 
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const body = parseFunctionBody(parser, context | Context.InFunctionBody);
@@ -1510,7 +1501,7 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
 export function parseFormalParameters(
     parser: Parser,
     context: Context,
-    state: ObjectState = ObjectState.None
+    state: ObjectState
 ): ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] {
 
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
@@ -1904,7 +1895,6 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
 
     const pos = getLocation(parser);
     const { token, tokenValue } = parser;
-
     const id = parseIdentifier(parser, context);
 
     if (consume(parser, context, Token.Period)) {
