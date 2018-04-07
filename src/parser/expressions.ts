@@ -873,10 +873,10 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     const sequencepos = getLocation(parser);
                     
                     if (parser.token & Token.IsEvalOrArguments) {
-                        recordError(parser, Errors.YieldBindingIdentifier);
+                        recordError(parser, Errors.StrictEvalArguments);
                         state |= CoverParenthesizedState.HasEvalOrArguments;
                     } else if (parser.token & Token.Reserved) {
-                        recordError(parser, Errors.YieldBindingIdentifier);
+                        recordError(parser, Errors.UnexpectedStrictReserved);
                         state |= CoverParenthesizedState.HasReservedWords;
                     }
 
@@ -920,13 +920,12 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                     {
                                         if (parser.token & Token.IsEvalOrArguments) {
                                             recordError(parser, Errors.YieldBindingIdentifier);
-                                            state |= CoverParenthesizedState.HasEvalOrArguments;
+                                            state |= CoverParenthesizedState.StrictEvalArguments;
                                         } else if (parser.token & Token.Reserved) {
-                                            recordError(parser, Errors.YieldBindingIdentifier);
+                                            recordError(parser, Errors.UnexpectedStrictReserved);
                                             state |= CoverParenthesizedState.HasReservedWords;
                                         }
                                         if (parser.token & Token.IsBindingPattern) {
-                                            recordError(parser, Errors.YieldBindingIdentifier);
                                             state |= CoverParenthesizedState.HasBinding
                                         }
                                         expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
