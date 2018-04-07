@@ -61,6 +61,7 @@ export class Parser {
     public parsingContext: any;
     public tokenRegExp: undefined;
     public token: Token;
+    public errorLocation: Location | void;
     public delegate: Delegate | void;
 
     constructor(source: string, sourceFile: string | void, delegate: Delegate | void) {
@@ -85,6 +86,7 @@ export class Parser {
         this.tokenRegExp = undefined;
         this.tokenValue = undefined;
         this.labelSet = undefined;
+        this.errorLocation = undefined;
         this.delegate = delegate;
     }
 }

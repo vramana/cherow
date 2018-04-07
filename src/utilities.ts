@@ -702,3 +702,12 @@ export function parseAndDisallowDestructuringAndBinding(parser: Parser, context:
 export function isEvalOrArguments(value: string): boolean {
     return value === 'eval' || value === 'arguments';
 }
+
+export function recordError(parser: Parser, error: Errors) {
+    parser.errorLocation = {
+        error,
+        line: parser.line,
+        column: parser.column,
+        index: parser.index,
+    };
+}

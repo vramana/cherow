@@ -109,7 +109,7 @@ export interface Parser {
 
     // Mutable parser flags
     sourceFile: string | void;
-
+    errorLocation: any;
     labelSet: any;
     comments: any;
     tokenValue: any;

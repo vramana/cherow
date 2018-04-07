@@ -175,6 +175,15 @@ export function constructError(index: number, line: number, column: number, desc
     throw error;
 }
 export function report(parser: Parser, type: Errors, ...params: string[]) {
-    const { index, line, column} = parser;
-    constructError(index, line, column, ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]));
+    let { index, line, column} = parser;
+    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    const errorLoc = parser.errorLocation;
+    if (!!errorLoc) {
+        index = errorLoc.index;
+        line = errorLoc.line;
+        column = errorLoc.column;
+        errorMessage = errorLoc.error
+    }
+
+    constructError(index, line, column, errorMessage)
 }

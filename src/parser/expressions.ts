@@ -37,7 +37,8 @@ import {
     isIdentifier,
     nextTokenIsLeftParen,
     isEvalOrArguments,
-    nextTokenisIdentifierOrParen
+    nextTokenisIdentifierOrParen,
+    recordError
 } from './utilities';
 
 /**
@@ -142,7 +143,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             expr = [expr];
         }
 
-        return parseArrowFunction(parser, context &= ~Context.Async, pos, expr);
+        return parseArrowFunction(parser, context &= ~Context.Async, pos, expr)
     }
     if (hasBit(parser.token, Token.IsAssignOp)) {
 
@@ -154,13 +155,17 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             if (!(parser.flags & Flags.AllowDestructuring)) report(parser, Errors.InvalidLHSInAssignment);
             // Only re-interpret if not inside a formal parameter list
             if (!(context & Context.InParameter)) reinterpret(parser, context, expr);
-            if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
-            if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) parser.flags |= Flags.HasYield;
-
-            if (context & Context.InParen) {
-
-                parser.flags |= Flags.SimpleParameterList;
+            if (parser.token & Token.IsAwait) {
+                recordError(parser, Errors.AwaitBindingIdentifier);
+                parser.flags |= Flags.HasAwait;
             }
+            if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
+                recordError(parser, Errors.YieldBindingIdentifier);
+                parser.flags |= Flags.HasYield;
+            }
+
+            if (context & Context.InParen)  parser.flags |= Flags.SimpleParameterList;
+            
         } else {
             if (!isValidSimpleAssignmentTarget(expr)) {
                 report(parser, Errors.InvalidLHSInAssignment);
@@ -866,10 +871,12 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                     // Record the sequence position
                     const sequencepos = getLocation(parser);
-
+                    
                     if (parser.token & Token.IsEvalOrArguments) {
+                        recordError(parser, Errors.YieldBindingIdentifier);
                         state |= CoverParenthesizedState.HasEvalOrArguments;
                     } else if (parser.token & Token.Reserved) {
+                        recordError(parser, Errors.YieldBindingIdentifier);
                         state |= CoverParenthesizedState.HasReservedWords;
                     }
 
@@ -912,11 +919,16 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                 default:
                                     {
                                         if (parser.token & Token.IsEvalOrArguments) {
+                                            recordError(parser, Errors.YieldBindingIdentifier);
                                             state |= CoverParenthesizedState.HasEvalOrArguments;
                                         } else if (parser.token & Token.Reserved) {
+                                            recordError(parser, Errors.YieldBindingIdentifier);
                                             state |= CoverParenthesizedState.HasReservedWords;
                                         }
-                                        if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
+                                        if (parser.token & Token.IsBindingPattern) {
+                                            recordError(parser, Errors.YieldBindingIdentifier);
+                                            state |= CoverParenthesizedState.HasBinding
+                                        }
                                         expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                     }
                             }
@@ -931,7 +943,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     expect(parser, context, Token.RightParen);
 
                     if (parser.token === Token.Arrow) {
-// ILLEGAL_ARROW_FUNCTION_PARAMS
+
                         if (state & CoverParenthesizedState.HasEvalOrArguments) {
                             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
                             parser.flags |= Flags.StrictEvalArguments;
@@ -1302,18 +1314,21 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
 
             if (consume(parser, context, Token.Assign)) {
                 if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
+                    recordError(parser, Errors.YieldBindingIdentifier);
                     parser.flags |= Flags.HasYield;
                 }
+                value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
                 parser.pendingExpressionError = {
                     error: Errors.InvalidLHSInAssignment,
                     line: parser.startLine,
                     column: parser.startColumn,
                     index: parser.startIndex,
-                };
-                value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
+                }
+
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) report(parser, Errors.UnexpectedReserved);
+                    recordError(parser, Errors.AwaitBindingIdentifier);
                     parser.flags |= Flags.HasAwait;
                 }
                 value = key;
