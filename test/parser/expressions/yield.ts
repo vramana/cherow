@@ -233,9 +233,9 @@ describe('Expressions - Yield', () => {
       });
 
       // Esprima issue: https://github.com/jquery/esprima/issues/1904
-      //fail('function *a() { ({b = yield}) => {} }', Context.Empty, {
-      // source: 'function *a() { ({b = yield}) => {} }',
-      //});
+      fail('function *a() { ({b = yield}) => {} }', Context.Empty, {
+       source: 'function *a() { ({b = yield}) => {} }',
+      });
 
       fail('"use strict"; function a({yield}){}', Context.Empty, {
           source: '"use strict"; function a({yield}){}',

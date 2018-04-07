@@ -1299,7 +1299,9 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             state |= ObjectState.Shorthand;
 
             if (consume(parser, context, Token.Assign)) {
-                //if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) report(parser, Errors.YieldInParameter);
+                if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
+                    parser.flags |= Flags.HasYield;
+                }
                 parser.pendingExpressionError = {
                     error: Errors.InvalidLHSInAssignment,
                     line: parser.startLine,
