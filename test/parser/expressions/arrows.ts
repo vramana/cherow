@@ -7,6 +7,7 @@ describe('Expressions - Arrows', () => {
 
     describe('Failure', () => {
         const early_errors = [
+            '"use strict"; let => 1',
             '"use strict"; (enum => 1)',
             '"use strict"; (eval => 1)',
             '"use strict"; (arguments => 1)',
@@ -30,6 +31,47 @@ describe('Expressions - Arrows', () => {
             });
         }
 
+        // Testing yield in arrow formal list
+        const invalidYieldInArrowParamList = [
+            'x=yield',
+            'x, y=yield',
+            '{x=yield}',
+            '[x=yield]',
+            'x=(yield)',
+            'x, y=(yield)',
+            '{x=(yield)}',
+            '[x=(yield)]',
+            'x=f(yield)',
+            'x, y=f(yield)',
+            '{x=f(yield)}',
+            '[x=f(yield)]',
+            '{x}=yield',
+            '[x]=yield',
+            '{x}=(yield)',
+            '[x]=(yield)',
+            '{x}=f(yield)',
+            '[x]=f(yield)',
+        ];
+        for (const arg of invalidYieldInArrowParamList) {
+
+            it(`(function *g(z = ( ${arg} ) => {}) { });`, () => {
+                t.throws(() => {
+                    parse(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
+                });
+            });
+
+            it(`"use strict"; (function *g(z = ( ${arg} ) => {}) { });`, () => {
+                t.throws(() => {
+                    parse(`"use strict"; (function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
+                });
+            });
+
+            it(`(function *g(z = ( ${arg} ) => {}) { });`, () => {
+                t.throws(() => {
+                    parse(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Strict | Context.Module);
+                });
+            });
+        }
         const ArrowFunctionASIErrors = [
             '(a\n=> a)(1)',
             '(a/*\n*/=> a)(1)',
@@ -203,15 +245,19 @@ describe('Expressions - Arrows', () => {
             `[]=>0`,
             `() ? 0`,
             `(a)\n=> 0`,
-           `1 + ()`,
-           `(a,...a)/*\u2028*/ => 0`,
-           `(a,...a)\n`,
-           `() <= 0`,
-           `(a,...a)/*\u202a*/`,
-           `(a,...a)/*\n*/ => 0`,
-           `left = (aSize.width/2) - ()`,
-           `(10) => 0;`,
-           `"use strict"; (a) => 00;`,
+            `1 + ()`,
+            `(a,...a)/*\u2028*/ => 0`,
+            `(a,...a)\n`,
+            `() <= 0`,
+            `(a,...a)/*\u202a*/`,
+            `(a,...a)/*\n*/ => 0`,
+            `left = (aSize.width/2) - ()`,
+            `(10) => 0;`,
+            `"use strict"; (a) => 00;`,
+            'eval => { \'use strict\'; 0 }',
+            'arguments => { \'use strict\'; 0 }',
+            'yield => { \'use strict\'; 0 }',
+            'interface => { \'use strict\'; 0 }',
             '(eval) => { \'use strict\'; 0 }',
             '(arguments) => { \'use strict\'; 0 }',
             '(yield) => { \'use strict\'; 0 }',
@@ -219,8 +265,8 @@ describe('Expressions - Arrows', () => {
             '(eval, bar) => { \'use strict\'; 0 }',
             '(bar, eval) => { \'use strict\'; 0 }',
             '(bar, arguments) => { \'use strict\'; 0 }',
-            //"(bar, yield) => { 'use strict'; 0 }",
-            '(package) => { \'use strict\'; 0 }',
+            '(bar, yield) => { \'use strict\'; 0 }',
+            '(bar, interface) => { \'use strict\'; 0 }',
             '(interface, icefapper) => { \'use strict\'; 0 }',
             '(bar, interface) => { \'use strict\'; 0 }',
             '32 => {}',
@@ -298,17 +344,25 @@ describe('Expressions - Arrows', () => {
             source: '(function *g(z = ( x=yield) => {}) { });',
         });
 
-        /* fail('(function *g(z = ([x=(yield)]) => {}) { });', Context.Empty, {
-        source: '(function *g(z = ( [x=(yield)]) => {}) { });',
-    });*/
+        fail('(function *g(z = ([x=(yield)]) => {}) { });', Context.Empty, {
+            source: '(function *g(z = ( [x=(yield)]) => {}) { });',
+        });
+
+        fail(`var f = {x} => {};`, Context.Empty, {
+            source: `var f = {x} => {};`,
+        });
+
+        fail(`var f = {x,y} => {};`, Context.Empty, {
+            source: `var f = {x,y} => {};`,
+        });
 
         fail('f = ([...x, y] = [1, 2, 3]) => {};', Context.Empty, {
             source: 'f = ([...x, y] = [1, 2, 3]) => {};',
         });
 
-        // fail('f = ([...[ x ] = []] = []) => {};', Context.Empty, {
-        //  source: 'f = ([...[ x ] = []] = []) => {};',
-        // });
+        fail('f = ([...[ x ] = []] = []) => {};', Context.Empty, {
+            source: 'f = ([...[ x ] = []] = []) => {};',
+        });
 
         fail('f = ([...[x], y] = [1, 2, 3]) => {};', Context.Empty, {
             source: 'f = ([...[x], y] = [1, 2, 3]) => {};',
@@ -338,42 +392,33 @@ describe('Expressions - Arrows', () => {
             source: '((x, y), z) =>  a',
         });
 
-        //fail('f = ([...{ x } = []]) => {};', Context.Empty, {
-        //  source: 'f = ([...{ x } = []]) => {};',
-        //});
+        fail('f = ([...{ x } = []]) => {};', Context.Empty, {
+            source: 'f = ([...{ x } = []]) => {};',
+        });
 
-        /*
-            fail('"use strict"; (function *g(z = (x=f(yield)) => {}) { });', Context.Empty, {
-                source: '"use strict"; (function *g(z = (x=f(yield)) => {}) { });',
-            });
+        fail('"use strict"; (function *g(z = (x=f(yield)) => {}) { });', Context.Empty, {
+            source: '"use strict"; (function *g(z = (x=f(yield)) => {}) { });',
+        });
 
-            fail('"use strict"; (function *g(z = ([x=f(yield)]) => {}) { });', Context.Empty, {
-                source: '"use strict"; (function *g(z = ([x=f(yield)]) => {}) { });',
-            });
+        fail('"use strict"; (function *g(z = ([x=f(yield)]) => {}) { });', Context.Empty, {
+            source: '"use strict"; (function *g(z = ([x=f(yield)]) => {}) { });',
+        });
 
-            fail('"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });', Context.Empty, {
-                source: '"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });',
-            });*/
+        fail('(function *g([x = class extends (a ? null : yield) { }] = [null]) { });', Context.Empty, {
+            source: '(function *g([x = class extends (a ? null : yield) { }] = [null]) { });',
+        });
 
-        // fail('(function *g([x = class extends (a ? null : yield) { }] = [null]) { });', Context.Empty, {
-        //   source: '(function *g([x = class extends (a ? null : yield) { }] = [null]) { });',
-        //});
+        fail('(function *g(x = class { [y = (yield, 1)]() { } }) { });', Context.Empty, {
+            source: '(function *g(x = class { [y = (yield, 1)]() { } }) { });',
+        });
 
-        //fail('(function *g([x] = [class extends (a ? null : yield) { }]) { });', Context.Empty, {
-        //  source: '(function *g([x] = [class extends (a ? null : yield) { }]) { });',
-        //});
+        fail('(function *g(x = class extends (yield) { }) { });', Context.Empty, {
+            source: '(function *g(x = class extends (yield) { }) { });',
+        });
 
-        //fail('(function *g(x = class { [y = (yield, 1)]() { } }) { });', Context.Empty, {
-        //  source: '(function *g(x = class { [y = (yield, 1)]() { } }) { });',
-        //});
-
-        //fail('(function *g(x = class extends (yield) { }) { });', Context.Empty, {
-        //  source: '(function *g(x = class extends (yield) { }) { });',
-        //});
-
-        //fail('"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });', Context.Empty, {
-        //  source: '"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });',
-        //});
+        fail('"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });', Context.Empty, {
+            source: '"use strict"; (function *g(z = ({x}=f(yield)) => {}) { });',
+        });
 
         fail('()=c=>{}=>{}', Context.Empty, {
             source: '()=c=>{}=>{}',
@@ -684,7 +729,7 @@ describe('Expressions - Arrows', () => {
         });
 
         fail('(a,...a)/*\u2028*/ => 0', Context.Empty, {
-        source: '(a,...a)/*\u2028*/ => 0',
+            source: '(a,...a)/*\u2028*/ => 0',
         });
 
         fail('((a),...a) => 1', Context.Empty, {
@@ -706,106 +751,106 @@ describe('Expressions - Arrows', () => {
     });
 
     describe('Pass', () => {
-const fuckingshit = [
-        `const a = () => {return (3, 4);};`,
-        `"use strict";
+        const fuckingshit = [
+            `const a = () => {return (3, 4);};`,
+            `"use strict";
 ((one, two) => {});`,
-`([])=>0;`,
-`([a,...b])=>0;`,
-`([a,b])=>0;`,
-`([a]) => [0];`,
-`({a,b=b,a:c,[a]:[d]})=>0;`,
-`(() => {}) || true;
+            `([])=>0;`,
+            `([a,...b])=>0;`,
+            `([a,b])=>0;`,
+            `([a]) => [0];`,
+            `({a,b=b,a:c,[a]:[d]})=>0;`,
+            `(() => {}) || true;
 (() => {}) ? a : b;`,
-'(() => {}) + 2',
-'new (() => {});',
-'bar ? ( (x) => x ) : baz;',
-'bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;',
-'bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;',
-'bar ? ( (a, (a, (b, c) => 0)) ) : baz;',
-'bar ? ( foo ? bar : baz => {} ) : baz;',
-'bar ? ( (a, {}) => {} ) : baz;',
-'bar ? ( (x, y = 9) => {} ) : baz;',
-'bar ? ( (...a) => {} ) : baz;',
-'bar ? ( ([x] = []) => {} ) : baz;',
-'bar ? ( (x = 9, ...a) => {} ) : baz;',
-'(x, y = 9, {b}, z = 8, ...a) => {}',
-'(x = 9) => {}',
-'([x = 0]) => {}',
-'(a, (a, (b, c) => 0))',
-`a => 0`,
-`() => () => 0`,
-'() => 0, 1',
-'() => 0 + 1',
-'(a,b) => 0 + 1',
-`(a,b,...c) => 0 + 1`,
-'() => (a) = 0',
-'a => b => c => 0',
-'(e) => "test"',
-'(a, ...[]) => 1',
-'(x)=>{\'use strict\';}',
-'(() => 5)() === 5;',
-'() => a + b - yield / 1',
-'(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
-'var f = (function() { return z => arguments[0]; }(5));',
-'({y}) => x;',
-'([x = 10]) => x',
-'({x = 10, y: { z = 10 }}) => [x, z]',
-'({x = 10}) => x',
-`([y]) => x;`,
-'(x=1) => x * x;',
-'(eval = 10) => 42;',
-'(a, b=(c)=>{}) => {}',
-'(async function foo(a) { await a });',
-'(a,b) =>{}',
-'var x = (a,b) =>{}',
-'(a,...b) =>{}',
-'var x = (a,...b) =>{}',
-'foo((x, y) => {});',
-'e => { 42; };',
-'e => ({ property: 42 });',
-'(a, b) => { 42; };',
-'(x) => ((y, z) => (x, y, z));',
-'(a) => 00;',
-'e => "test";',
-'a =>{}',
-'(...a) =>{}',
-'var x = a =>{}',
-'(a,b) => [a]',
-'() => { value: b}',
-'(x, y) => { x.a = y; }',
-'(x, y) => x.a = y',
-'x => (y, z) => z * (x + y)',
-'(a = b, c) => {}',
-'(x, ...a) => {}',
-'({a} = {}) => {}',
-'({a} = {}) => {}',
-'(interface, eval) => {}',
-'yield => {}',
-'arguments => {}',
-'(...[]) => 0',
-'(()=>0)',
-'(()=>0)',
-'() => 0',
-'(...a) => 0',
-'([a]) => 0',
-'(() => null)();',
-'(() => {})()',
-'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
-'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
-'a => (a + 1)',
+            '(() => {}) + 2',
+            'new (() => {});',
+            'bar ? ( (x) => x ) : baz;',
+            'bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;',
+            'bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;',
+            'bar ? ( (a, (a, (b, c) => 0)) ) : baz;',
+            'bar ? ( foo ? bar : baz => {} ) : baz;',
+            'bar ? ( (a, {}) => {} ) : baz;',
+            'bar ? ( (x, y = 9) => {} ) : baz;',
+            'bar ? ( (...a) => {} ) : baz;',
+            'bar ? ( ([x] = []) => {} ) : baz;',
+            'bar ? ( (x = 9, ...a) => {} ) : baz;',
+            '(x, y = 9, {b}, z = 8, ...a) => {}',
+            '(x = 9) => {}',
+            '([x = 0]) => {}',
+            '(a, (a, (b, c) => 0))',
+            `a => 0`,
+            `() => () => 0`,
+            '() => 0, 1',
+            '() => 0 + 1',
+            '(a,b) => 0 + 1',
+            `(a,b,...c) => 0 + 1`,
+            '() => (a) = 0',
+            'a => b => c => 0',
+            '(e) => "test"',
+            '(a, ...[]) => 1',
+            '(x)=>{\'use strict\';}',
+            '(() => 5)() === 5;',
+            '() => a + b - yield / 1',
+            '(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
+            'var f = (function() { return z => arguments[0]; }(5));',
+            '({y}) => x;',
+            '([x = 10]) => x',
+            '({x = 10, y: { z = 10 }}) => [x, z]',
+            '({x = 10}) => x',
+            `([y]) => x;`,
+            '(x=1) => x * x;',
+            '(eval = 10) => 42;',
+            '(a, b=(c)=>{}) => {}',
+            '(async function foo(a) { await a });',
+            '(a,b) =>{}',
+            'var x = (a,b) =>{}',
+            '(a,...b) =>{}',
+            'var x = (a,...b) =>{}',
+            'foo((x, y) => {});',
+            'e => { 42; };',
+            'e => ({ property: 42 });',
+            '(a, b) => { 42; };',
+            '(x) => ((y, z) => (x, y, z));',
+            '(a) => 00;',
+            'e => "test";',
+            'a =>{}',
+            '(...a) =>{}',
+            'var x = a =>{}',
+            '(a,b) => [a]',
+            '() => { value: b}',
+            '(x, y) => { x.a = y; }',
+            '(x, y) => x.a = y',
+            'x => (y, z) => z * (x + y)',
+            '(a = b, c) => {}',
+            '(x, ...a) => {}',
+            '({a} = {}) => {}',
+            '({a} = {}) => {}',
+            '(interface, eval) => {}',
+            'yield => {}',
+            'arguments => {}',
+            '(...[]) => 0',
+            '(()=>0)',
+            '(()=>0)',
+            '() => 0',
+            '(...a) => 0',
+            '([a]) => 0',
+            '(() => null)();',
+            '(() => {})()',
+            'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
+            'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
+            'a => (a + 1)',
 
-    ];
-for (const arg of fuckingshit) {
+        ];
+        for (const arg of fuckingshit) {
 
-        it(`${arg};`, () => {
-            t.doesNotThrow(() => {
-                parse(`${arg};`, undefined, Context.Empty);
+            it(`${arg};`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg};`, undefined, Context.Empty);
+                });
             });
-        });
-    }
+        }
 
-const validSyntax = [
+        const validSyntax = [
             '() => {}',
             '() => { return 42 }',
             'x => { return x; }',
@@ -878,7 +923,7 @@ const validSyntax = [
             '([x = 0]) => {}',
 
         ];
-for (const arg of validSyntax) {
+        for (const arg of validSyntax) {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
@@ -917,7 +962,7 @@ for (const arg of validSyntax) {
             });
         }
 
-const ArrowFunctionsSloppyParameterNames = [
+        const ArrowFunctionsSloppyParameterNames = [
             'arguments => {}',
             'yield => {}',
             'interface => {}',
@@ -935,7 +980,7 @@ const ArrowFunctionsSloppyParameterNames = [
             '(eval, interface) => {}',
             '(arguments, interface) => {}',
         ];
-for (const arg of ArrowFunctionsSloppyParameterNames) {
+        for (const arg of ArrowFunctionsSloppyParameterNames) {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
@@ -968,7 +1013,7 @@ for (const arg of ArrowFunctionsSloppyParameterNames) {
             });
         }
 
-const ArrowFunctionsYieldParameterNameInGenerator = [
+        const validArrowWithYieldParam = [
             'yield => {}',
             '(yield) => {}',
             '(a, yield) => {}',
@@ -977,7 +1022,7 @@ const ArrowFunctionsYieldParameterNameInGenerator = [
             '(a, ...yield) => {}',
             '([yield]) => {}'
         ];
-for (const arg of ArrowFunctionsYieldParameterNameInGenerator) {
+        for (const arg of validArrowWithYieldParam) {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
@@ -1004,7 +1049,28 @@ for (const arg of ArrowFunctionsYieldParameterNameInGenerator) {
             });
         }
 
-pass(`(a) => b;  // 1 args
+        /*
+                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
+                    expected: {}
+                });
+
+                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
+                    expected: {}
+                });
+
+                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
+                    expected: {}
+                });
+
+                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
+                    expected: {}
+                });*/
+
+        pass(`(a) => b;  // 1 args
         (a, b) => c;  // n args
         () => b;  // 0 args
         (a) => (b) => c;  // func returns func returns func
@@ -1025,1097 +1091,1062 @@ pass(`(a) => b;  // 1 args
                 start: 0,
                 end: 353,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 8,
-                    column: 45
-                  }
-                },
-                body: [
-                  {
-                    type: 'ExpressionStatement',
-                    start: 0,
-                    end: 9,
-                    loc: {
-                      start: {
+                    start: {
                         line: 1,
                         column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 9
-                      }
                     },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 0,
-                      end: 8,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 0
-                        },
-                        end: {
-                          line: 1,
-                          column: 8
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 1,
-                          end: 2,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 1
-                            },
-                            end: {
-                              line: 1,
-                              column: 2
-                            }
-                          },
-                          name: 'a'
-                        }
-                      ],
-                      body: {
-                        type: 'Identifier',
-                        start: 7,
-                        end: 8,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 7
-                          },
-                          end: {
-                            line: 1,
-                            column: 8
-                          }
-                        },
-                        name: 'b'
-                      }
+                    end: {
+                        line: 8,
+                        column: 45
                     }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 33,
-                    end: 45,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 12
-                      },
-                      end: {
-                        line: 2,
-                        column: 24
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 33,
-                      end: 44,
-                      loc: {
-                        start: {
-                          line: 2,
-                          column: 12
-                        },
-                        end: {
-                          line: 2,
-                          column: 23
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 34,
-                          end: 35,
-                          loc: {
+                },
+                body: [{
+                        type: 'ExpressionStatement',
+                        start: 0,
+                        end: 9,
+                        loc: {
                             start: {
-                              line: 2,
-                              column: 13
+                                line: 1,
+                                column: 0
                             },
                             end: {
-                              line: 2,
-                              column: 14
+                                line: 1,
+                                column: 9
                             }
-                          },
-                          name: 'a'
                         },
-                        {
-                          type: 'Identifier',
-                          start: 37,
-                          end: 38,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 16
-                            },
-                            end: {
-                              line: 2,
-                              column: 17
-                            }
-                          },
-                          name: 'b'
-                        }
-                      ],
-                      body: {
-                        type: 'Identifier',
-                        start: 43,
-                        end: 44,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 22
-                          },
-                          end: {
-                            line: 2,
-                            column: 23
-                          }
-                        },
-                        name: 'c'
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 69,
-                    end: 77,
-                    loc: {
-                      start: {
-                        line: 3,
-                        column: 12
-                      },
-                      end: {
-                        line: 3,
-                        column: 20
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 69,
-                      end: 76,
-                      loc: {
-                        start: {
-                          line: 3,
-                          column: 12
-                        },
-                        end: {
-                          line: 3,
-                          column: 19
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [],
-                      body: {
-                        type: 'Identifier',
-                        start: 75,
-                        end: 76,
-                        loc: {
-                          start: {
-                            line: 3,
-                            column: 18
-                          },
-                          end: {
-                            line: 3,
-                            column: 19
-                          }
-                        },
-                        name: 'b'
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 101,
-                    end: 117,
-                    loc: {
-                      start: {
-                        line: 4,
-                        column: 12
-                      },
-                      end: {
-                        line: 4,
-                        column: 28
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 101,
-                      end: 116,
-                      loc: {
-                        start: {
-                          line: 4,
-                          column: 12
-                        },
-                        end: {
-                          line: 4,
-                          column: 27
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 102,
-                          end: 103,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 13
-                            },
-                            end: {
-                              line: 4,
-                              column: 14
-                            }
-                          },
-                          name: 'a'
-                        }
-                      ],
-                      body: {
-                        type: 'ArrowFunctionExpression',
-                        start: 108,
-                        end: 116,
-                        loc: {
-                          start: {
-                            line: 4,
-                            column: 19
-                          },
-                          end: {
-                            line: 4,
-                            column: 27
-                          }
-                        },
-                        id: null,
-                        generator: false,
-                        expression: true,
-                        async: false,
-                        params: [
-                          {
-                            type: 'Identifier',
-                            start: 109,
-                            end: 110,
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 0,
+                            end: 8,
                             loc: {
-                              start: {
-                                line: 4,
-                                column: 20
-                              },
-                              end: {
-                                line: 4,
-                                column: 21
-                              }
-                            },
-                            name: 'b'
-                          }
-                        ],
-                        body: {
-                          type: 'Identifier',
-                          start: 115,
-                          end: 116,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 26
-                            },
-                            end: {
-                              line: 4,
-                              column: 27
-                            }
-                          },
-                          name: 'c'
-                        }
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 165,
-                    end: 183,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 12
-                      },
-                      end: {
-                        line: 5,
-                        column: 30
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 165,
-                      end: 182,
-                      loc: {
-                        start: {
-                          line: 5,
-                          column: 12
-                        },
-                        end: {
-                          line: 5,
-                          column: 29
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 166,
-                          end: 167,
-                          loc: {
-                            start: {
-                              line: 5,
-                              column: 13
-                            },
-                            end: {
-                              line: 5,
-                              column: 14
-                            }
-                          },
-                          name: 'a'
-                        }
-                      ],
-                      body: {
-                        type: 'ArrowFunctionExpression',
-                        start: 173,
-                        end: 181,
-                        loc: {
-                          start: {
-                            line: 5,
-                            column: 20
-                          },
-                          end: {
-                            line: 5,
-                            column: 28
-                          }
-                        },
-                        id: null,
-                        generator: false,
-                        expression: true,
-                        async: false,
-                        params: [
-                          {
-                            type: 'Identifier',
-                            start: 174,
-                            end: 175,
-                            loc: {
-                              start: {
-                                line: 5,
-                                column: 21
-                              },
-                              end: {
-                                line: 5,
-                                column: 22
-                              }
-                            },
-                            name: 'b'
-                          }
-                        ],
-                        body: {
-                          type: 'Identifier',
-                          start: 180,
-                          end: 181,
-                          loc: {
-                            start: {
-                              line: 5,
-                              column: 27
-                            },
-                            end: {
-                              line: 5,
-                              column: 28
-                            }
-                          },
-                          name: 'c'
-                        }
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 228,
-                    end: 245,
-                    loc: {
-                      start: {
-                        line: 6,
-                        column: 12
-                      },
-                      end: {
-                        line: 6,
-                        column: 29
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 228,
-                      end: 244,
-                      loc: {
-                        start: {
-                          line: 6,
-                          column: 12
-                        },
-                        end: {
-                          line: 6,
-                          column: 28
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [],
-                      body: {
-                        type: 'ArrowFunctionExpression',
-                        start: 234,
-                        end: 244,
-                        loc: {
-                          start: {
-                            line: 6,
-                            column: 18
-                          },
-                          end: {
-                            line: 6,
-                            column: 28
-                          }
-                        },
-                        id: null,
-                        generator: false,
-                        expression: true,
-                        async: false,
-                        params: [
-                          {
-                            type: 'Identifier',
-                            start: 235,
-                            end: 236,
-                            loc: {
-                              start: {
-                                line: 6,
-                                column: 19
-                              },
-                              end: {
-                                line: 6,
-                                column: 20
-                              }
-                            },
-                            name: 'b'
-                          },
-                          {
-                            type: 'Identifier',
-                            start: 237,
-                            end: 238,
-                            loc: {
-                              start: {
-                                line: 6,
-                                column: 21
-                              },
-                              end: {
-                                line: 6,
-                                column: 22
-                              }
-                            },
-                            name: 'c'
-                          }
-                        ],
-                        body: {
-                          type: 'Identifier',
-                          start: 243,
-                          end: 244,
-                          loc: {
-                            start: {
-                              line: 6,
-                              column: 27
-                            },
-                            end: {
-                              line: 6,
-                              column: 28
-                            }
-                          },
-                          name: 'd'
-                        }
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 293,
-                    end: 307,
-                    loc: {
-                      start: {
-                        line: 7,
-                        column: 12
-                      },
-                      end: {
-                        line: 7,
-                        column: 26
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 293,
-                      end: 307,
-                      loc: {
-                        start: {
-                          line: 7,
-                          column: 12
-                        },
-                        end: {
-                          line: 7,
-                          column: 26
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: false,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 293,
-                          end: 294,
-                          loc: {
-                            start: {
-                              line: 7,
-                              column: 12
-                            },
-                            end: {
-                              line: 7,
-                              column: 13
-                            }
-                          },
-                          name: 'a'
-                        }
-                      ],
-                      body: {
-                        type: 'BlockStatement',
-                        start: 296,
-                        end: 307,
-                        loc: {
-                          start: {
-                            line: 7,
-                            column: 15
-                          },
-                          end: {
-                            line: 7,
-                            column: 26
-                          }
-                        },
-                        body: [
-                          {
-                            type: 'ReturnStatement',
-                            start: 297,
-                            end: 306,
-                            loc: {
-                              start: {
-                                line: 7,
-                                column: 16
-                              },
-                              end: {
-                                line: 7,
-                                column: 25
-                              }
-                            },
-                            argument: {
-                              type: 'Identifier',
-                              start: 304,
-                              end: 305,
-                              loc: {
                                 start: {
-                                  line: 7,
-                                  column: 23
+                                    line: 1,
+                                    column: 0
                                 },
                                 end: {
-                                  line: 7,
-                                  column: 24
+                                    line: 1,
+                                    column: 8
                                 }
-                              },
-                              name: 'b'
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [{
+                                type: 'Identifier',
+                                start: 1,
+                                end: 2,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 1
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 2
+                                    }
+                                },
+                                name: 'a'
+                            }],
+                            body: {
+                                type: 'Identifier',
+                                start: 7,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                },
+                                name: 'b'
                             }
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    type: 'ExpressionStatement',
-                    start: 320,
-                    end: 329,
-                    loc: {
-                      start: {
-                        line: 8,
-                        column: 12
-                      },
-                      end: {
-                        line: 8,
-                        column: 21
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 320,
-                      end: 328,
-                      loc: {
-                        start: {
-                          line: 8,
-                          column: 12
-                        },
-                        end: {
-                          line: 8,
-                          column: 20
                         }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: false,
-                      params: [
-                        {
-                          type: 'Identifier',
-                          start: 320,
-                          end: 321,
-                          loc: {
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 33,
+                        end: 45,
+                        loc: {
                             start: {
-                              line: 8,
-                              column: 12
+                                line: 2,
+                                column: 12
                             },
                             end: {
-                              line: 8,
-                              column: 13
+                                line: 2,
+                                column: 24
                             }
-                          },
-                          name: 'a'
-                        }
-                      ],
-                      body: {
-                        type: 'Literal',
-                        start: 325,
-                        end: 328,
-                        loc: {
-                          start: {
-                            line: 8,
-                            column: 17
-                          },
-                          end: {
-                            line: 8,
-                            column: 20
-                          }
                         },
-                        value: 'e',
-                        raw: '\'e\''
-                      }
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 33,
+                            end: 44,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 23
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [{
+                                    type: 'Identifier',
+                                    start: 34,
+                                    end: 35,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 14
+                                        }
+                                    },
+                                    name: 'a'
+                                },
+                                {
+                                    type: 'Identifier',
+                                    start: 37,
+                                    end: 38,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 17
+                                        }
+                                    },
+                                    name: 'b'
+                                }
+                            ],
+                            body: {
+                                type: 'Identifier',
+                                start: 43,
+                                end: 44,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 22
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 23
+                                    }
+                                },
+                                name: 'c'
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 69,
+                        end: 77,
+                        loc: {
+                            start: {
+                                line: 3,
+                                column: 12
+                            },
+                            end: {
+                                line: 3,
+                                column: 20
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 69,
+                            end: 76,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 19
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [],
+                            body: {
+                                type: 'Identifier',
+                                start: 75,
+                                end: 76,
+                                loc: {
+                                    start: {
+                                        line: 3,
+                                        column: 18
+                                    },
+                                    end: {
+                                        line: 3,
+                                        column: 19
+                                    }
+                                },
+                                name: 'b'
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 101,
+                        end: 117,
+                        loc: {
+                            start: {
+                                line: 4,
+                                column: 12
+                            },
+                            end: {
+                                line: 4,
+                                column: 28
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 101,
+                            end: 116,
+                            loc: {
+                                start: {
+                                    line: 4,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 4,
+                                    column: 27
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [{
+                                type: 'Identifier',
+                                start: 102,
+                                end: 103,
+                                loc: {
+                                    start: {
+                                        line: 4,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 4,
+                                        column: 14
+                                    }
+                                },
+                                name: 'a'
+                            }],
+                            body: {
+                                type: 'ArrowFunctionExpression',
+                                start: 108,
+                                end: 116,
+                                loc: {
+                                    start: {
+                                        line: 4,
+                                        column: 19
+                                    },
+                                    end: {
+                                        line: 4,
+                                        column: 27
+                                    }
+                                },
+                                id: null,
+                                generator: false,
+                                expression: true,
+                                async: false,
+                                params: [{
+                                    type: 'Identifier',
+                                    start: 109,
+                                    end: 110,
+                                    loc: {
+                                        start: {
+                                            line: 4,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 4,
+                                            column: 21
+                                        }
+                                    },
+                                    name: 'b'
+                                }],
+                                body: {
+                                    type: 'Identifier',
+                                    start: 115,
+                                    end: 116,
+                                    loc: {
+                                        start: {
+                                            line: 4,
+                                            column: 26
+                                        },
+                                        end: {
+                                            line: 4,
+                                            column: 27
+                                        }
+                                    },
+                                    name: 'c'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 165,
+                        end: 183,
+                        loc: {
+                            start: {
+                                line: 5,
+                                column: 12
+                            },
+                            end: {
+                                line: 5,
+                                column: 30
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 165,
+                            end: 182,
+                            loc: {
+                                start: {
+                                    line: 5,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 5,
+                                    column: 29
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [{
+                                type: 'Identifier',
+                                start: 166,
+                                end: 167,
+                                loc: {
+                                    start: {
+                                        line: 5,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 5,
+                                        column: 14
+                                    }
+                                },
+                                name: 'a'
+                            }],
+                            body: {
+                                type: 'ArrowFunctionExpression',
+                                start: 173,
+                                end: 181,
+                                loc: {
+                                    start: {
+                                        line: 5,
+                                        column: 20
+                                    },
+                                    end: {
+                                        line: 5,
+                                        column: 28
+                                    }
+                                },
+                                id: null,
+                                generator: false,
+                                expression: true,
+                                async: false,
+                                params: [{
+                                    type: 'Identifier',
+                                    start: 174,
+                                    end: 175,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 22
+                                        }
+                                    },
+                                    name: 'b'
+                                }],
+                                body: {
+                                    type: 'Identifier',
+                                    start: 180,
+                                    end: 181,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 27
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 28
+                                        }
+                                    },
+                                    name: 'c'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 228,
+                        end: 245,
+                        loc: {
+                            start: {
+                                line: 6,
+                                column: 12
+                            },
+                            end: {
+                                line: 6,
+                                column: 29
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 228,
+                            end: 244,
+                            loc: {
+                                start: {
+                                    line: 6,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 6,
+                                    column: 28
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [],
+                            body: {
+                                type: 'ArrowFunctionExpression',
+                                start: 234,
+                                end: 244,
+                                loc: {
+                                    start: {
+                                        line: 6,
+                                        column: 18
+                                    },
+                                    end: {
+                                        line: 6,
+                                        column: 28
+                                    }
+                                },
+                                id: null,
+                                generator: false,
+                                expression: true,
+                                async: false,
+                                params: [{
+                                        type: 'Identifier',
+                                        start: 235,
+                                        end: 236,
+                                        loc: {
+                                            start: {
+                                                line: 6,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 6,
+                                                column: 20
+                                            }
+                                        },
+                                        name: 'b'
+                                    },
+                                    {
+                                        type: 'Identifier',
+                                        start: 237,
+                                        end: 238,
+                                        loc: {
+                                            start: {
+                                                line: 6,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 6,
+                                                column: 22
+                                            }
+                                        },
+                                        name: 'c'
+                                    }
+                                ],
+                                body: {
+                                    type: 'Identifier',
+                                    start: 243,
+                                    end: 244,
+                                    loc: {
+                                        start: {
+                                            line: 6,
+                                            column: 27
+                                        },
+                                        end: {
+                                            line: 6,
+                                            column: 28
+                                        }
+                                    },
+                                    name: 'd'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 293,
+                        end: 307,
+                        loc: {
+                            start: {
+                                line: 7,
+                                column: 12
+                            },
+                            end: {
+                                line: 7,
+                                column: 26
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 293,
+                            end: 307,
+                            loc: {
+                                start: {
+                                    line: 7,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 7,
+                                    column: 26
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: false,
+                            async: false,
+                            params: [{
+                                type: 'Identifier',
+                                start: 293,
+                                end: 294,
+                                loc: {
+                                    start: {
+                                        line: 7,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 7,
+                                        column: 13
+                                    }
+                                },
+                                name: 'a'
+                            }],
+                            body: {
+                                type: 'BlockStatement',
+                                start: 296,
+                                end: 307,
+                                loc: {
+                                    start: {
+                                        line: 7,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 7,
+                                        column: 26
+                                    }
+                                },
+                                body: [{
+                                    type: 'ReturnStatement',
+                                    start: 297,
+                                    end: 306,
+                                    loc: {
+                                        start: {
+                                            line: 7,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 7,
+                                            column: 25
+                                        }
+                                    },
+                                    argument: {
+                                        type: 'Identifier',
+                                        start: 304,
+                                        end: 305,
+                                        loc: {
+                                            start: {
+                                                line: 7,
+                                                column: 23
+                                            },
+                                            end: {
+                                                line: 7,
+                                                column: 24
+                                            }
+                                        },
+                                        name: 'b'
+                                    }
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        start: 320,
+                        end: 329,
+                        loc: {
+                            start: {
+                                line: 8,
+                                column: 12
+                            },
+                            end: {
+                                line: 8,
+                                column: 21
+                            }
+                        },
+                        expression: {
+                            type: 'ArrowFunctionExpression',
+                            start: 320,
+                            end: 328,
+                            loc: {
+                                start: {
+                                    line: 8,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 8,
+                                    column: 20
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: true,
+                            async: false,
+                            params: [{
+                                type: 'Identifier',
+                                start: 320,
+                                end: 321,
+                                loc: {
+                                    start: {
+                                        line: 8,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 8,
+                                        column: 13
+                                    }
+                                },
+                                name: 'a'
+                            }],
+                            body: {
+                                type: 'Literal',
+                                start: 325,
+                                end: 328,
+                                loc: {
+                                    start: {
+                                        line: 8,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 8,
+                                        column: 20
+                                    }
+                                },
+                                value: 'e',
+                                raw: '\'e\''
+                            }
+                        }
                     }
-                  }
                 ],
                 sourceType: 'script'
-              }
-    });
+            }
+        });
 
-pass(`({yield}) => {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-        source: `({yield}) => {}`,
-        expected: {
-            type: 'Program',
-            start: 0,
-            end: 15,
-            loc: {
-              start: {
-                line: 1,
-                column: 0
-              },
-              end: {
-                line: 1,
-                column: 15
-              }
-            },
-            body: [
-              {
-                type: 'ExpressionStatement',
+        pass(`({yield}) => {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+            source: `({yield}) => {}`,
+            expected: {
+                type: 'Program',
                 start: 0,
                 end: 15,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 15
-                  }
-                },
-                expression: {
-                  type: 'ArrowFunctionExpression',
-                  start: 0,
-                  end: 15,
-                  loc: {
                     start: {
-                      line: 1,
-                      column: 0
+                        line: 1,
+                        column: 0
                     },
                     end: {
-                      line: 1,
-                      column: 15
-                    }
-                  },
-                  id: null,
-                  generator: false,
-                  expression: false,
-                  async: false,
-                  params: [
-                    {
-                      type: 'ObjectPattern',
-                      start: 1,
-                      end: 8,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 1
-                        },
-                        end: {
-                          line: 1,
-                          column: 8
-                        }
-                      },
-                      properties: [
-                        {
-                          type: 'Property',
-                          start: 2,
-                          end: 7,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 2
-                            },
-                            end: {
-                              line: 1,
-                              column: 7
-                            }
-                          },
-                          method: false,
-                          shorthand: true,
-                          computed: false,
-                          key: {
-                            type: 'Identifier',
-                            start: 2,
-                            end: 7,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 2
-                              },
-                              end: {
-                                line: 1,
-                                column: 7
-                              }
-                            },
-                            name: 'yield'
-                          },
-                          kind: 'init',
-                          value: {
-                            type: 'Identifier',
-                            start: 2,
-                            end: 7,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 2
-                              },
-                              end: {
-                                line: 1,
-                                column: 7
-                              }
-                            },
-                            name: 'yield'
-                          }
-                        }
-                      ]
-                    }
-                  ],
-                  body: {
-                    type: 'BlockStatement',
-                    start: 13,
-                    end: 15,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 13
-                      },
-                      end: {
                         line: 1,
                         column: 15
-                      }
+                    }
+                },
+                body: [{
+                    type: 'ExpressionStatement',
+                    start: 0,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
                     },
-                    body: []
-                  }
-                }
-              }
-            ],
-            sourceType: 'script'
-          }
-    });
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        start: 0,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [{
+                            type: 'ObjectPattern',
+                            start: 1,
+                            end: 8,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 8
+                                }
+                            },
+                            properties: [{
+                                type: 'Property',
+                                start: 2,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                },
+                                method: false,
+                                shorthand: true,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    start: 2,
+                                    end: 7,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 7
+                                        }
+                                    },
+                                    name: 'yield'
+                                },
+                                kind: 'init',
+                                value: {
+                                    type: 'Identifier',
+                                    start: 2,
+                                    end: 7,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 7
+                                        }
+                                    },
+                                    name: 'yield'
+                                }
+                            }]
+                        }],
+                        body: {
+                            type: 'BlockStatement',
+                            start: 13,
+                            end: 15,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 15
+                                }
+                            },
+                            body: []
+                        }
+                    }
+                }],
+                sourceType: 'script'
+            }
+        });
 
-pass(`const b = () => {return;};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`const b = () => {return;};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `const b = () => {return;};`,
             expected: {
                 type: 'Program',
                 start: 0,
                 end: 26,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 26
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 26
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'VariableDeclaration',
                     start: 0,
                     end: 26,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 26
-                      }
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
                     },
-                    declarations: [
-                      {
+                    declarations: [{
                         type: 'VariableDeclarator',
                         start: 6,
                         end: 25,
                         loc: {
-                          start: {
-                            line: 1,
-                            column: 6
-                          },
-                          end: {
-                            line: 1,
-                            column: 25
-                          }
-                        },
-                        id: {
-                          type: 'Identifier',
-                          start: 6,
-                          end: 7,
-                          loc: {
                             start: {
-                              line: 1,
-                              column: 6
-                            },
-                            end: {
-                              line: 1,
-                              column: 7
-                            }
-                          },
-                          name: 'b'
-                        },
-                        init: {
-                          type: 'ArrowFunctionExpression',
-                          start: 10,
-                          end: 25,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 10
-                            },
-                            end: {
-                              line: 1,
-                              column: 25
-                            }
-                          },
-                          id: null,
-                          generator: false,
-                          expression: false,
-                          async: false,
-                          params: [],
-                          body: {
-                            type: 'BlockStatement',
-                            start: 16,
-                            end: 25,
-                            loc: {
-                              start: {
                                 line: 1,
-                                column: 16
-                              },
-                              end: {
+                                column: 6
+                            },
+                            end: {
                                 line: 1,
                                 column: 25
-                              }
-                            },
-                            body: [
-                              {
-                                type: 'ReturnStatement',
-                                start: 17,
-                                end: 24,
-                                loc: {
-                                  start: {
+                            }
+                        },
+                        id: {
+                            type: 'Identifier',
+                            start: 6,
+                            end: 7,
+                            loc: {
+                                start: {
                                     line: 1,
-                                    column: 17
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 24
-                                  }
+                                    column: 6
                                 },
-                                argument: null
-                              }
-                            ]
-                          }
+                                end: {
+                                    line: 1,
+                                    column: 7
+                                }
+                            },
+                            name: 'b'
+                        },
+                        init: {
+                            type: 'ArrowFunctionExpression',
+                            start: 10,
+                            end: 25,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 10
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 25
+                                }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: false,
+                            async: false,
+                            params: [],
+                            body: {
+                                type: 'BlockStatement',
+                                start: 16,
+                                end: 25,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 16
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 25
+                                    }
+                                },
+                                body: [{
+                                    type: 'ReturnStatement',
+                                    start: 17,
+                                    end: 24,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 24
+                                        }
+                                    },
+                                    argument: null
+                                }]
+                            }
                         }
-                      }
-                    ],
+                    }],
                     kind: 'const'
-                  }
-                ],
+                }],
                 sourceType: 'script'
-              }
+            }
         });
 
-pass(`async (a = 1) => 0`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`async (a = 1) => 0`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `async (a = 1) => 0`,
             expected: {
                 type: 'Program',
                 start: 0,
                 end: 18,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 18
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 18
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExpressionStatement',
                     start: 0,
                     end: 18,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 18
-                      }
-                    },
-                    expression: {
-                      type: 'ArrowFunctionExpression',
-                      start: 0,
-                      end: 18,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 0
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 18
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: true,
-                      params: [
-                        {
-                          type: 'AssignmentPattern',
-                          start: 7,
-                          end: 12,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 7
-                            },
-                            end: {
-                              line: 1,
-                              column: 12
-                            }
-                          },
-                          left: {
-                            type: 'Identifier',
-                            start: 7,
-                            end: 8,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 7
-                              },
-                              end: {
-                                line: 1,
-                                column: 8
-                              }
-                            },
-                            name: 'a'
-                          },
-                          right: {
-                            type: 'Literal',
-                            start: 11,
-                            end: 12,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 11
-                              },
-                              end: {
-                                line: 1,
-                                column: 12
-                              }
-                            },
-                            value: 1,
-                            raw: '1'
-                          }
-                        }
-                      ],
-                      body: {
-                        type: 'Literal',
-                        start: 17,
-                        end: 18,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 17
-                          },
-                          end: {
                             line: 1,
                             column: 18
-                          }
+                        }
+                    },
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        start: 0,
+                        end: 18,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 18
+                            }
                         },
-                        value: 0,
-                        raw: '0'
-                      }
+                        id: null,
+                        generator: false,
+                        expression: true,
+                        async: true,
+                        params: [{
+                            type: 'AssignmentPattern',
+                            start: 7,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 7
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            },
+                            left: {
+                                type: 'Identifier',
+                                start: 7,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                },
+                                name: 'a'
+                            },
+                            right: {
+                                type: 'Literal',
+                                start: 11,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                },
+                                value: 1,
+                                raw: '1'
+                            }
+                        }],
+                        body: {
+                            type: 'Literal',
+                            start: 17,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 17
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            },
+                            value: 0,
+                            raw: '0'
+                        }
                     }
-                  }
-                ],
+                }],
                 sourceType: 'script'
-              }
+            }
         });
 
-pass(`([,,])=>0`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`([,,])=>0`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `([,,])=>0`,
             expected: {
                 type: 'Program',
@@ -2205,7 +2236,7 @@ pass(`([,,])=>0`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRa
             }
         });
 
-pass('(( x=yield  )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( x=yield  )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( x=yield  )=>{});',
             expected: {
                 type: 'Program',
@@ -2322,7 +2353,7 @@ pass('(( x=yield  )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context
             }
         });
 
-pass('(( [x=yield] )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( [x=yield] )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( [x=yield] )=>{});',
             expected: {
                 type: 'Program',
@@ -2454,7 +2485,7 @@ pass('(( [x=yield] )=>{});', Context.OptionsRanges | Context.OptionsLoc | Contex
             }
         });
 
-pass('(( x, y=(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( x, y=(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( x, y=(yield) )=>{});',
             expected: {
                 type: 'Program',
@@ -2588,7 +2619,7 @@ pass('(( x, y=(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Con
             }
         });
 
-pass('(( x, y=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( x, y=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( x, y=f(yield) )=>{});',
             expected: {
                 type: 'Program',
@@ -2753,7 +2784,7 @@ pass('(( x, y=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Co
             }
         });
 
-pass('(( {x}=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( {x}=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( {x}=f(yield) )=>{});',
             expected: {
                 type: 'Program',
@@ -2951,7 +2982,7 @@ pass('(( {x}=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Con
             }
         });
 
-pass('(( [x]=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( [x]=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( [x]=f(yield) )=>{});',
             expected: {
                 type: 'Program',
@@ -3114,7 +3145,7 @@ pass('(( [x]=f(yield) )=>{});', Context.OptionsRanges | Context.OptionsLoc | Con
             }
         });
 
-pass('(( {x=f(yield)} )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( {x=f(yield)} )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( {x=f(yield)} )=>{});',
             expected: {
                 type: 'Program',
@@ -3312,7 +3343,7 @@ pass('(( {x=f(yield)} )=>{});', Context.OptionsRanges | Context.OptionsLoc | Con
             }
         });
 
-pass('(( x=(yield))=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( x=(yield))=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( x=(yield) )=>{});',
             expected: {
                 type: 'Program',
@@ -3429,7 +3460,7 @@ pass('(( x=(yield))=>{});', Context.OptionsRanges | Context.OptionsLoc | Context
             }
         });
 
-pass('(( [x]=yield )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(( [x]=yield )=>{});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(( [x]=yield )=>{});',
             expected: {
                 type: 'Program',
@@ -3561,7 +3592,7 @@ pass('(( [x]=yield )=>{});', Context.OptionsRanges | Context.OptionsLoc | Contex
             }
         });
 
-pass('for ( f => ( "key" in {}) ; 0;);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('for ( f => ( "key" in {}) ; 0;);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'for ( f => ( "key" in {}) ; 0;);',
             expected: {
                 type: 'Program',
@@ -3713,7 +3744,7 @@ pass('for ( f => ( "key" in {}) ; 0;);', Context.OptionsRanges | Context.Options
             }
         });
 
-pass('([])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([])=>0;',
             expected: {
                 type: 'Program',
@@ -3800,7 +3831,7 @@ pass('([])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw
             }
         });
 
-pass('([a,...b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([a,...b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([a,...b])=>0;',
             expected: {
                 type: 'Program',
@@ -3934,7 +3965,7 @@ pass('([a,...b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('([a,b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([a,b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([a,b])=>0;',
             expected: {
                 type: 'Program',
@@ -4053,7 +4084,7 @@ pass('([a,b])=>0;', Context.OptionsRanges | Context.OptionsLoc | Context.Options
             }
         });
 
-pass('x => x;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('x => x;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'x => x',
             expected: {
                 type: 'Program',
@@ -4139,7 +4170,7 @@ pass('x => x;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw,
             }
         });
 
-pass('x => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('x => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'x => x * x',
             expected: {
                 type: 'Program',
@@ -4257,7 +4288,7 @@ pass('x => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsR
             }
         });
 
-pass('(x) => x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x) => x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x) => x',
             expected: {
                 type: 'Program',
@@ -4343,7 +4374,7 @@ pass('(x) => x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw
             }
         });
 
-pass('(x) => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x) => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x) => x * x',
             expected: {
                 type: 'Program',
@@ -4461,7 +4492,7 @@ pass('(x) => x * x', Context.OptionsRanges | Context.OptionsLoc | Context.Option
             }
         });
 
-pass('(x, y) => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y) => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y) => x + y',
             expected: {
                 type: 'Program',
@@ -4596,7 +4627,7 @@ pass('(x, y) => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
             }
         });
 
-pass('(x, y) => x.a = y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y) => x.a = y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y) => x.a = y',
             expected: {
                 type: 'Program',
@@ -4763,7 +4794,7 @@ pass('(x, y) => x.a = y', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('() => ({"value": 42})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('() => ({"value": 42})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '() => ({"value": 42})',
             expected: {
                 type: 'Program',
@@ -4886,7 +4917,7 @@ pass('() => ({"value": 42})', Context.OptionsRanges | Context.OptionsLoc | Conte
             }
         });
 
-pass('x => y => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('x => y => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'x => y => x + y',
             expected: {
                 type: 'Program',
@@ -5039,7 +5070,7 @@ pass('x => y => x + y', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
             }
         });
 
-pass('(x, y) => (u, v) => x*u + y*v;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y) => (u, v) => x*u + y*v;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y) => (u, v) => x*u + y*v;',
             expected: {
                 type: 'Program',
@@ -5290,7 +5321,7 @@ pass('(x, y) => (u, v) => x*u + y*v;', Context.OptionsRanges | Context.OptionsLo
             }
         });
 
-pass('(x, y) => z => z * (x + y);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y) => z => z * (x + y);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y) => z => z * (x + y);',
             expected: {
                 type: 'Program',
@@ -5492,7 +5523,7 @@ pass('(x, y) => z => z * (x + y);', Context.OptionsRanges | Context.OptionsLoc |
             }
         });
 
-pass('x => (y, z) => z * (x + y)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('x => (y, z) => z * (x + y)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'x => (y, z) => z * (x + y)',
             expected: {
                 type: 'Program',
@@ -5694,7 +5725,7 @@ pass('x => (y, z) => z * (x + y)', Context.OptionsRanges | Context.OptionsLoc | 
             }
         });
 
-pass('a, b => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('a, b => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'a, b => 0;',
             expected: {
                 type: 'Program',
@@ -5813,7 +5844,7 @@ pass('a, b => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsR
             }
         });
 
-pass('a, b, (c, d) => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('a, b, (c, d) => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'a, b, (c, d) => 0;',
             expected: {
                 type: 'Program',
@@ -5965,7 +5996,7 @@ pass('a, b, (c, d) => 0;', Context.OptionsRanges | Context.OptionsLoc | Context.
             }
         });
 
-pass('(a, b) => 0, (c, d) => 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, b) => 0, (c, d) => 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, b) => 0, (c, d) => 1;',
             expected: {
                 type: 'Program',
@@ -6154,7 +6185,7 @@ pass('(a, b) => 0, (c, d) => 1;', Context.OptionsRanges | Context.OptionsLoc | C
             }
         });
 
-pass('(a, b => {}, a => a + 1);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, b => {}, a => a + 1);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, b => {}, a => a + 1);',
             expected: {
                 type: 'Program',
@@ -6356,7 +6387,7 @@ pass('(a, b => {}, a => a + 1);', Context.OptionsRanges | Context.OptionsLoc | C
             }
         });
 
-pass('((a, b) => {}, (a => a + 1));', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('((a, b) => {}, (a => a + 1));', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '((a, b) => {}, (a => a + 1));',
             expected: {
                 type: 'Program',
@@ -6559,7 +6590,7 @@ pass('((a, b) => {}, (a => a + 1));', Context.OptionsRanges | Context.OptionsLoc
             }
         });
 
-pass('(a, (a, (b, c) => 0));', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, (a, (b, c) => 0));', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, (a, (b, c) => 0));',
             expected: {
                 type: 'Program',
@@ -6727,7 +6758,7 @@ pass('(a, (a, (b, c) => 0));', Context.OptionsRanges | Context.OptionsLoc | Cont
             }
         });
 
-pass('foo ? bar : baz => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('foo ? bar : baz => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'foo ? bar : baz => {};',
             expected: {
                 type: 'Program',
@@ -6860,7 +6891,7 @@ pass('foo ? bar : baz => {};', Context.OptionsRanges | Context.OptionsLoc | Cont
             }
         });
 
-pass('({}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({}) => {};',
             expected: {
                 type: 'Program',
@@ -6946,7 +6977,7 @@ pass('({}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Options
             }
         });
 
-pass('(a, {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, {}) => {};',
             expected: {
                 type: 'Program',
@@ -7049,7 +7080,7 @@ pass('(a, {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('({}, a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({}, a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({}, a) => {};',
             expected: {
                 type: 'Program',
@@ -7152,7 +7183,7 @@ pass('({}, a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('([]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([]) => {};',
             expected: {
                 type: 'Program',
@@ -7238,7 +7269,7 @@ pass('([]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Options
             }
         });
 
-pass('(a, []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, []) => {};',
             expected: {
                 type: 'Program',
@@ -7341,7 +7372,7 @@ pass('(a, []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('([], a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([], a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a = b) => {};',
             expected: {
                 type: 'Program',
@@ -7458,7 +7489,7 @@ pass('([], a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('(a, b = c) => {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(a, b = c) => {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(a, b = c) => {}',
             expected: {
                 type: 'Program',
@@ -7592,7 +7623,7 @@ pass('(a, b = c) => {}', Context.OptionsRanges | Context.OptionsLoc | Context.Op
             }
         });
 
-pass('({a}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({a}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({a}) => {};',
             expected: {
                 type: 'Program',
@@ -7728,7 +7759,7 @@ pass('({a}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Option
             }
         });
 
-pass('(x = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x = 9) => {};',
             expected: {
                 type: 'Program',
@@ -7846,7 +7877,7 @@ pass('(x = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('(x, y = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y = 9) => {};',
             expected: {
                 type: 'Program',
@@ -7981,7 +8012,7 @@ pass('(x, y = 9) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('(x = 9, y) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x = 9, y) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x = 9, y) => {};',
             expected: {
                 type: 'Program',
@@ -8116,7 +8147,7 @@ pass('(x = 9, y) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('(x, y = 9, z) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y = 9, z) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y = 9, z) => {};',
             expected: {
                 type: 'Program',
@@ -8267,7 +8298,7 @@ pass('(x, y = 9, z) => {};', Context.OptionsRanges | Context.OptionsLoc | Contex
             }
         });
 
-pass('(x, y = 9, z = 8) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y = 9, z = 8) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y = 9, z = 8) => {};',
             expected: {
                 type: 'Program',
@@ -8450,7 +8481,7 @@ pass('(x, y = 9, z = 8) => {};', Context.OptionsRanges | Context.OptionsLoc | Co
             }
         });
 
-pass('(...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(...a) => {};',
             expected: {
                 type: 'Program',
@@ -8551,7 +8582,7 @@ pass('(...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Optio
             }
         });
 
-pass('(x, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, ...a) => {};',
             expected: {
                 type: 'Program',
@@ -8669,7 +8700,7 @@ pass('(x, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Op
             }
         });
 
-pass('(x = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x = 9, ...a) => {};',
             expected: {
                 type: 'Program',
@@ -8819,7 +8850,7 @@ pass('(x = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Contex
             }
         });
 
-pass('(x, y = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y = 9, ...a) => {};',
             expected: {
                 type: 'Program',
@@ -8985,7 +9016,7 @@ pass('(x, y = 9, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Con
             }
         });
 
-pass('(x, y = 9, {b}, z = 8, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y = 9, {b}, z = 8, ...a) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y = 9, {b}, z = 8, ...a) => {};',
             expected: {
                 type: 'Program',
@@ -9265,7 +9296,7 @@ pass('(x, y = 9, {b}, z = 8, ...a) => {};', Context.OptionsRanges | Context.Opti
             }
         });
 
-pass('({a} = {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({a} = {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({a} = {}) => {};',
             expected: {
                 type: 'Program',
@@ -9432,7 +9463,7 @@ pass('({a} = {}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('([x] = []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([x] = []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([x] = []) => {};',
             expected: {
                 type: 'Program',
@@ -9564,7 +9595,7 @@ pass('([x] = []) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('({a = 42}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({a = 42}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({a = 42}) => {};',
             expected: {
                 type: 'Program',
@@ -9732,7 +9763,7 @@ pass('({a = 42}) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.O
             }
         });
 
-pass('([x = 0]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('([x = 0]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '([x = 0]) => {};',
             expected: {
                 type: 'Program',
@@ -9865,7 +9896,7 @@ pass('([x = 0]) => {};', Context.OptionsRanges | Context.OptionsLoc | Context.Op
             }
         });
 
-pass('bar ? ( (x, y) => { x.a = y; } ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('bar ? ( (x, y) => { x.a = y; } ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'bar ? ( (x, y) => { x.a = y; } ) : baz;',
             expected: {
                 type: 'Program',
@@ -10109,7 +10140,7 @@ pass('bar ? ( (x, y) => { x.a = y; } ) : baz;', Context.OptionsRanges | Context.
             }
         });
 
-pass('() => 42, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('() => 42, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '() => 42, bar;',
             expected: {
                 type: 'Program',
@@ -10213,7 +10244,7 @@ pass('() => 42, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('x => x, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('x => x, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'x => x, bar;',
             expected: {
                 type: 'Program',
@@ -10331,7 +10362,7 @@ pass('x => x, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.Option
             }
         });
 
-pass(`(a) => b;  // 1 args
+        pass(`(a) => b;  // 1 args
         (a, b) => c;  // n args
         () => b;  // 0 args
         (a) => (b) => c;  // func returns func returns func
@@ -10350,8 +10381,7 @@ pass(`(a) => b;  // 1 args
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
+                body: [{
                         type: 'ExpressionStatement',
                         expression: {
                             type: 'ArrowFunctionExpression',
@@ -10371,24 +10401,22 @@ pass(`(a) => b;  // 1 args
                                     }
                                 }
                             },
-                            params: [
-                                {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 1,
-                                    end: 2,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 1
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 2
-                                        }
+                            params: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 1,
+                                end: 2,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 1
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 2
                                     }
                                 }
-                            ],
+                            }],
                             id: null,
                             async: false,
                             generator: false,
@@ -10439,8 +10467,7 @@ pass(`(a) => b;  // 1 args
                                     }
                                 }
                             },
-                            params: [
-                                {
+                            params: [{
                                     type: 'Identifier',
                                     name: 'a',
                                     start: 34,
@@ -10576,24 +10603,22 @@ pass(`(a) => b;  // 1 args
                                         }
                                     }
                                 },
-                                params: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 109,
-                                        end: 110,
-                                        loc: {
-                                            start: {
-                                                line: 4,
-                                                column: 20
-                                            },
-                                            end: {
-                                                line: 4,
-                                                column: 21
-                                            }
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 109,
+                                    end: 110,
+                                    loc: {
+                                        start: {
+                                            line: 4,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 4,
+                                            column: 21
                                         }
                                     }
-                                ],
+                                }],
                                 id: null,
                                 async: false,
                                 generator: false,
@@ -10611,24 +10636,22 @@ pass(`(a) => b;  // 1 args
                                     }
                                 }
                             },
-                            params: [
-                                {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 102,
-                                    end: 103,
-                                    loc: {
-                                        start: {
-                                            line: 4,
-                                            column: 13
-                                        },
-                                        end: {
-                                            line: 4,
-                                            column: 14
-                                        }
+                            params: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 102,
+                                end: 103,
+                                loc: {
+                                    start: {
+                                        line: 4,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 4,
+                                        column: 14
                                     }
                                 }
-                            ],
+                            }],
                             id: null,
                             async: false,
                             generator: false,
@@ -10681,24 +10704,22 @@ pass(`(a) => b;  // 1 args
                                         }
                                     }
                                 },
-                                params: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 174,
-                                        end: 175,
-                                        loc: {
-                                            start: {
-                                                line: 5,
-                                                column: 21
-                                            },
-                                            end: {
-                                                line: 5,
-                                                column: 22
-                                            }
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 174,
+                                    end: 175,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 22
                                         }
                                     }
-                                ],
+                                }],
                                 id: null,
                                 async: false,
                                 generator: false,
@@ -10716,24 +10737,22 @@ pass(`(a) => b;  // 1 args
                                     }
                                 }
                             },
-                            params: [
-                                {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 166,
-                                    end: 167,
-                                    loc: {
-                                        start: {
-                                            line: 5,
-                                            column: 13
-                                        },
-                                        end: {
-                                            line: 5,
-                                            column: 14
-                                        }
+                            params: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 166,
+                                end: 167,
+                                loc: {
+                                    start: {
+                                        line: 5,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 5,
+                                        column: 14
                                     }
                                 }
-                            ],
+                            }],
                             id: null,
                             async: false,
                             generator: false,
@@ -10786,8 +10805,7 @@ pass(`(a) => b;  // 1 args
                                         }
                                     }
                                 },
-                                params: [
-                                    {
+                                params: [{
                                         type: 'Identifier',
                                         name: 'b',
                                         start: 235,
@@ -10874,39 +10892,37 @@ pass(`(a) => b;  // 1 args
                             type: 'ArrowFunctionExpression',
                             body: {
                                 type: 'BlockStatement',
-                                body: [
-                                    {
-                                        type: 'ReturnStatement',
-                                        argument: {
-                                            type: 'Identifier',
-                                            name: 'b',
-                                            start: 304,
-                                            end: 305,
-                                            loc: {
-                                                start: {
-                                                    line: 7,
-                                                    column: 23
-                                                },
-                                                end: {
-                                                    line: 7,
-                                                    column: 24
-                                                }
-                                            }
-                                        },
-                                        start: 297,
-                                        end: 306,
+                                body: [{
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'Identifier',
+                                        name: 'b',
+                                        start: 304,
+                                        end: 305,
                                         loc: {
                                             start: {
                                                 line: 7,
-                                                column: 16
+                                                column: 23
                                             },
                                             end: {
                                                 line: 7,
-                                                column: 25
+                                                column: 24
                                             }
                                         }
+                                    },
+                                    start: 297,
+                                    end: 306,
+                                    loc: {
+                                        start: {
+                                            line: 7,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 7,
+                                            column: 25
+                                        }
                                     }
-                                ],
+                                }],
                                 start: 296,
                                 end: 307,
                                 loc: {
@@ -10920,24 +10936,22 @@ pass(`(a) => b;  // 1 args
                                     }
                                 }
                             },
-                            params: [
-                                {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 293,
-                                    end: 294,
-                                    loc: {
-                                        start: {
-                                            line: 7,
-                                            column: 12
-                                        },
-                                        end: {
-                                            line: 7,
-                                            column: 13
-                                        }
+                            params: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 293,
+                                end: 294,
+                                loc: {
+                                    start: {
+                                        line: 7,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 7,
+                                        column: 13
                                     }
                                 }
-                            ],
+                            }],
                             id: null,
                             async: false,
                             generator: false,
@@ -10989,24 +11003,22 @@ pass(`(a) => b;  // 1 args
                                 },
                                 raw: '\'e\''
                             },
-                            params: [
-                                {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 320,
-                                    end: 321,
-                                    loc: {
-                                        start: {
-                                            line: 8,
-                                            column: 12
-                                        },
-                                        end: {
-                                            line: 8,
-                                            column: 13
-                                        }
+                            params: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 320,
+                                end: 321,
+                                loc: {
+                                    start: {
+                                        line: 8,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 8,
+                                        column: 13
                                     }
                                 }
-                            ],
+                            }],
                             id: null,
                             async: false,
                             generator: false,
@@ -11053,165 +11065,158 @@ pass(`(a) => b;  // 1 args
             }
         });
 
-pass('const a = () => {return (3, 4);};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('const a = () => {return (3, 4);};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'const a = () => {return (3, 4);};',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'VariableDeclaration',
-                        declarations: [
-                            {
-                                type: 'VariableDeclarator',
-                                init: {
-                                    type: 'ArrowFunctionExpression',
-                                    body: {
-                                        type: 'BlockStatement',
-                                        body: [
-                                            {
-                                                type: 'ReturnStatement',
-                                                argument: {
-                                                    type: 'SequenceExpression',
-                                                    expressions: [
-                                                        {
-                                                            type: 'Literal',
-                                                            value: 3,
-                                                            start: 25,
-                                                            end: 26,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 1,
-                                                                    column: 25
-                                                                },
-                                                                end: {
-                                                                    line: 1,
-                                                                    column: 26
-                                                                }
-                                                            },
-                                                            raw: '3'
-                                                        },
-                                                        {
-                                                            type: 'Literal',
-                                                            value: 4,
-                                                            start: 28,
-                                                            end: 29,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 1,
-                                                                    column: 28
-                                                                },
-                                                                end: {
-                                                                    line: 1,
-                                                                    column: 29
-                                                                }
-                                                            },
-                                                            raw: '4'
-                                                        }
-                                                    ],
-                                                    start: 25,
-                                                    end: 29,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 25
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 29
-                                                        }
-                                                    }
-                                                },
-                                                start: 17,
-                                                end: 31,
+                body: [{
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        init: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [{
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'SequenceExpression',
+                                        expressions: [{
+                                                type: 'Literal',
+                                                value: 3,
+                                                start: 25,
+                                                end: 26,
                                                 loc: {
                                                     start: {
                                                         line: 1,
-                                                        column: 17
+                                                        column: 25
                                                     },
                                                     end: {
                                                         line: 1,
-                                                        column: 31
+                                                        column: 26
                                                     }
-                                                }
+                                                },
+                                                raw: '3'
+                                            },
+                                            {
+                                                type: 'Literal',
+                                                value: 4,
+                                                start: 28,
+                                                end: 29,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 28
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 29
+                                                    }
+                                                },
+                                                raw: '4'
                                             }
                                         ],
-                                        start: 16,
-                                        end: 32,
+                                        start: 25,
+                                        end: 29,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 16
+                                                column: 25
                                             },
                                             end: {
                                                 line: 1,
-                                                column: 32
+                                                column: 29
                                             }
                                         }
                                     },
-                                    params: [],
-                                    id: null,
-                                    async: false,
-                                    generator: false,
-                                    expression: false,
-                                    start: 10,
-                                    end: 32,
+                                    start: 17,
+                                    end: 31,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 10
+                                            column: 17
                                         },
                                         end: {
                                             line: 1,
-                                            column: 32
+                                            column: 31
                                         }
                                     }
-                                },
-                                id: {
-                                    type: 'Identifier',
-                                    name: 'a',
-                                    start: 6,
-                                    end: 7,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 6
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 7
-                                        }
-                                    }
-                                },
-                                start: 6,
+                                }],
+                                start: 16,
                                 end: 32,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 6
+                                        column: 16
                                     },
                                     end: {
                                         line: 1,
                                         column: 32
                                     }
                                 }
+                            },
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 10,
+                            end: 32,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 10
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 32
+                                }
                             }
-                        ],
-                        kind: 'const',
-                        start: 0,
-                        end: 33,
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 6,
+                            end: 7,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 7
+                                }
+                            }
+                        },
+                        start: 6,
+                        end: 32,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 6
                             },
                             end: {
                                 line: 1,
-                                column: 33
+                                column: 32
                             }
                         }
+                    }],
+                    kind: 'const',
+                    start: 0,
+                    end: 33,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 33
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 33,
                 loc: {
@@ -11227,15 +11232,14 @@ pass('const a = () => {return (3, 4);};', Context.OptionsRanges | Context.Option
             }
         });
 
-pass(`(() => {}) || true;
+        pass(`(() => {}) || true;
         (() => {}) ? a : b;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `(() => {}) || true;
             (() => {}) ? a : b;`,
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
+                body: [{
                         type: 'ExpressionStatement',
                         expression: {
                             type: 'LogicalExpression',
@@ -11433,45 +11437,26 @@ pass(`(() => {}) || true;
             }
         });
 
-pass('(() => {}) + 2', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(() => {}) + 2', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(() => {}) + 2',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'BinaryExpression',
-                            left: {
-                                type: 'ArrowFunctionExpression',
-                                body: {
-                                    type: 'BlockStatement',
-                                    body: [],
-                                    start: 7,
-                                    end: 9,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 7
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 9
-                                        }
-                                    }
-                                },
-                                params: [],
-                                id: null,
-                                async: false,
-                                generator: false,
-                                expression: false,
-                                start: 1,
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 7,
                                 end: 9,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 1
+                                        column: 7
                                     },
                                     end: {
                                         line: 1,
@@ -11479,37 +11464,42 @@ pass('(() => {}) + 2', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
                                     }
                                 }
                             },
-                            right: {
-                                type: 'Literal',
-                                value: 2,
-                                start: 13,
-                                end: 14,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 13
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 14
-                                    }
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 1,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
                                 },
-                                raw: '2'
-                            },
-                            operator: '+',
-                            start: 0,
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 2,
+                            start: 13,
                             end: 14,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 13
                                 },
                                 end: {
                                     line: 1,
                                     column: 14
                                 }
-                            }
+                            },
+                            raw: '2'
                         },
+                        operator: '+',
                         start: 0,
                         end: 14,
                         loc: {
@@ -11522,8 +11512,20 @@ pass('(() => {}) + 2', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
                                 column: 14
                             }
                         }
+                    },
+                    start: 0,
+                    end: 14,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 14,
                 loc: {
@@ -11539,45 +11541,26 @@ pass('(() => {}) + 2', Context.OptionsRanges | Context.OptionsLoc | Context.Opti
             }
         });
 
-pass('new (() => {});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('new (() => {});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'new (() => {});',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'NewExpression',
-                            callee: {
-                                type: 'ArrowFunctionExpression',
-                                body: {
-                                    type: 'BlockStatement',
-                                    body: [],
-                                    start: 11,
-                                    end: 13,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 11
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 13
-                                        }
-                                    }
-                                },
-                                params: [],
-                                id: null,
-                                async: false,
-                                generator: false,
-                                expression: false,
-                                start: 5,
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'NewExpression',
+                        callee: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 11,
                                 end: 13,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 5
+                                        column: 11
                                     },
                                     end: {
                                         line: 1,
@@ -11585,22 +11568,27 @@ pass('new (() => {});', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
                                     }
                                 }
                             },
-                            arguments: [],
-                            start: 0,
-                            end: 14,
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 5,
+                            end: 13,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 5
                                 },
                                 end: {
                                     line: 1,
-                                    column: 14
+                                    column: 13
                                 }
                             }
                         },
+                        arguments: [],
                         start: 0,
-                        end: 15,
+                        end: 14,
                         loc: {
                             start: {
                                 line: 1,
@@ -11608,11 +11596,23 @@ pass('new (() => {});', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
                             },
                             end: {
                                 line: 1,
-                                column: 15
+                                column: 14
                             }
                         }
+                    },
+                    start: 0,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 15,
                 loc: {
@@ -11628,75 +11628,44 @@ pass('new (() => {});', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
             }
         });
 
-pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ConditionalExpression',
-                            test: {
-                                type: 'Identifier',
-                                name: 'bar',
-                                start: 0,
-                                end: 3,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 3
-                                    }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ConditionalExpression',
+                        test: {
+                            type: 'Identifier',
+                            name: 'bar',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
                                 }
-                            },
-                            consequent: {
+                            }
+                        },
+                        consequent: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
                                 type: 'ArrowFunctionExpression',
                                 body: {
-                                    type: 'ArrowFunctionExpression',
-                                    body: {
+                                    type: 'BinaryExpression',
+                                    left: {
                                         type: 'BinaryExpression',
                                         left: {
-                                            type: 'BinaryExpression',
-                                            left: {
-                                                type: 'Identifier',
-                                                name: 'x',
-                                                start: 28,
-                                                end: 29,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 28
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 29
-                                                    }
-                                                }
-                                            },
-                                            right: {
-                                                type: 'Identifier',
-                                                name: 'u',
-                                                start: 30,
-                                                end: 31,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 30
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 31
-                                                    }
-                                                }
-                                            },
-                                            operator: '*',
+                                            type: 'Identifier',
+                                            name: 'x',
                                             start: 28,
-                                            end: 31,
+                                            end: 29,
                                             loc: {
                                                 start: {
                                                     line: 1,
@@ -11704,61 +11673,29 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                                                 },
                                                 end: {
                                                     line: 1,
-                                                    column: 31
+                                                    column: 29
                                                 }
                                             }
                                         },
                                         right: {
-                                            type: 'BinaryExpression',
-                                            left: {
-                                                type: 'Identifier',
-                                                name: 'y',
-                                                start: 34,
-                                                end: 35,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 34
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 35
-                                                    }
-                                                }
-                                            },
-                                            right: {
-                                                type: 'Identifier',
-                                                name: 'v',
-                                                start: 36,
-                                                end: 37,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 36
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 37
-                                                    }
-                                                }
-                                            },
-                                            operator: '*',
-                                            start: 34,
-                                            end: 37,
+                                            type: 'Identifier',
+                                            name: 'u',
+                                            start: 30,
+                                            end: 31,
                                             loc: {
                                                 start: {
                                                     line: 1,
-                                                    column: 34
+                                                    column: 30
                                                 },
                                                 end: {
                                                     line: 1,
-                                                    column: 37
+                                                    column: 31
                                                 }
                                             }
                                         },
-                                        operator: '+',
+                                        operator: '*',
                                         start: 28,
-                                        end: 37,
+                                        end: 31,
                                         loc: {
                                             start: {
                                                 line: 1,
@@ -11766,54 +11703,65 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                                             },
                                             end: {
                                                 line: 1,
+                                                column: 31
+                                            }
+                                        }
+                                    },
+                                    right: {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'y',
+                                            start: 34,
+                                            end: 35,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 34
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 35
+                                                }
+                                            }
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'v',
+                                            start: 36,
+                                            end: 37,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 36
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 37
+                                                }
+                                            }
+                                        },
+                                        operator: '*',
+                                        start: 34,
+                                        end: 37,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 34
+                                            },
+                                            end: {
+                                                line: 1,
                                                 column: 37
                                             }
                                         }
                                     },
-                                    params: [
-                                        {
-                                            type: 'Identifier',
-                                            name: 'u',
-                                            start: 19,
-                                            end: 20,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 19
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 20
-                                                }
-                                            }
-                                        },
-                                        {
-                                            type: 'Identifier',
-                                            name: 'v',
-                                            start: 22,
-                                            end: 23,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 22
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 23
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    id: null,
-                                    async: false,
-                                    generator: false,
-                                    expression: true,
-                                    start: 18,
+                                    operator: '+',
+                                    start: 28,
                                     end: 37,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 18
+                                            column: 28
                                         },
                                         end: {
                                             line: 1,
@@ -11821,36 +11769,35 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                                         }
                                     }
                                 },
-                                params: [
-                                    {
+                                params: [{
                                         type: 'Identifier',
-                                        name: 'x',
-                                        start: 9,
-                                        end: 10,
+                                        name: 'u',
+                                        start: 19,
+                                        end: 20,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 9
+                                                column: 19
                                             },
                                             end: {
                                                 line: 1,
-                                                column: 10
+                                                column: 20
                                             }
                                         }
                                     },
                                     {
                                         type: 'Identifier',
-                                        name: 'y',
-                                        start: 12,
-                                        end: 13,
+                                        name: 'v',
+                                        start: 22,
+                                        end: 23,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 12
+                                                column: 22
                                             },
                                             end: {
                                                 line: 1,
-                                                column: 13
+                                                column: 23
                                             }
                                         }
                                     }
@@ -11859,12 +11806,12 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                                 async: false,
                                 generator: false,
                                 expression: true,
-                                start: 8,
+                                start: 18,
                                 end: 37,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 8
+                                        column: 18
                                     },
                                     end: {
                                         line: 1,
@@ -11872,28 +11819,65 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                                     }
                                 }
                             },
-                            alternate: {
-                                type: 'Identifier',
-                                name: 'baz',
-                                start: 42,
-                                end: 45,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 42
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 45
+                            params: [{
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 9,
+                                    end: 10,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 10
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'y',
+                                    start: 12,
+                                    end: 13,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 13
+                                        }
                                     }
                                 }
-                            },
-                            start: 0,
+                            ],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: true,
+                            start: 8,
+                            end: 37,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 37
+                                }
+                            }
+                        },
+                        alternate: {
+                            type: 'Identifier',
+                            name: 'baz',
+                            start: 42,
                             end: 45,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 42
                                 },
                                 end: {
                                     line: 1,
@@ -11902,7 +11886,7 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                             }
                         },
                         start: 0,
-                        end: 46,
+                        end: 45,
                         loc: {
                             start: {
                                 line: 1,
@@ -11910,11 +11894,23 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
                             },
                             end: {
                                 line: 1,
-                                column: 46
+                                column: 45
                             }
                         }
+                    },
+                    start: 0,
+                    end: 46,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 46
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 46,
                 loc: {
@@ -11930,211 +11926,194 @@ pass('bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;', Context.OptionsRanges | C
             }
         });
 
-pass('bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: 'bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ConditionalExpression',
-                            test: {
-                                type: 'Identifier',
-                                name: 'bar',
-                                start: 0,
-                                end: 3,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 3
-                                    }
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ConditionalExpression',
+                        test: {
+                            type: 'Identifier',
+                            name: 'bar',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
                                 }
-                            },
-                            consequent: {
-                                type: 'SequenceExpression',
-                                expressions: [
-                                    {
-                                        type: 'ArrowFunctionExpression',
-                                        body: {
-                                            type: 'Literal',
-                                            value: 0,
-                                            start: 18,
-                                            end: 19,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 18
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 19
-                                                }
-                                            },
-                                            raw: '0'
-                                        },
-                                        params: [
-                                            {
-                                                type: 'Identifier',
-                                                name: 'a',
-                                                start: 9,
-                                                end: 10,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 9
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 10
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                type: 'Identifier',
-                                                name: 'b',
-                                                start: 12,
-                                                end: 13,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 12
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 13
-                                                    }
-                                                }
-                                            }
-                                        ],
-                                        id: null,
-                                        async: false,
-                                        generator: false,
-                                        expression: true,
-                                        start: 8,
+                            }
+                        },
+                        consequent: {
+                            type: 'SequenceExpression',
+                            expressions: [{
+                                    type: 'ArrowFunctionExpression',
+                                    body: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 18,
                                         end: 19,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 8
+                                                column: 18
                                             },
                                             end: {
                                                 line: 1,
                                                 column: 19
                                             }
-                                        }
+                                        },
+                                        raw: '0'
                                     },
-                                    {
-                                        type: 'ArrowFunctionExpression',
-                                        body: {
-                                            type: 'Literal',
-                                            value: 1,
-                                            start: 31,
-                                            end: 32,
+                                    params: [{
+                                            type: 'Identifier',
+                                            name: 'a',
+                                            start: 9,
+                                            end: 10,
                                             loc: {
                                                 start: {
                                                     line: 1,
-                                                    column: 31
+                                                    column: 9
                                                 },
                                                 end: {
                                                     line: 1,
-                                                    column: 32
-                                                }
-                                            },
-                                            raw: '1'
-                                        },
-                                        params: [
-                                            {
-                                                type: 'Identifier',
-                                                name: 'c',
-                                                start: 22,
-                                                end: 23,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 22
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 23
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                type: 'Identifier',
-                                                name: 'd',
-                                                start: 25,
-                                                end: 26,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 25
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 26
-                                                    }
+                                                    column: 10
                                                 }
                                             }
-                                        ],
-                                        id: null,
-                                        async: false,
-                                        generator: false,
-                                        expression: true,
-                                        start: 21,
+                                        },
+                                        {
+                                            type: 'Identifier',
+                                            name: 'b',
+                                            start: 12,
+                                            end: 13,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 12
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 13
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    id: null,
+                                    async: false,
+                                    generator: false,
+                                    expression: true,
+                                    start: 8,
+                                    end: 19,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 8
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 19
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'ArrowFunctionExpression',
+                                    body: {
+                                        type: 'Literal',
+                                        value: 1,
+                                        start: 31,
                                         end: 32,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 21
+                                                column: 31
                                             },
                                             end: {
                                                 line: 1,
                                                 column: 32
                                             }
+                                        },
+                                        raw: '1'
+                                    },
+                                    params: [{
+                                            type: 'Identifier',
+                                            name: 'c',
+                                            start: 22,
+                                            end: 23,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 22
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 23
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Identifier',
+                                            name: 'd',
+                                            start: 25,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    id: null,
+                                    async: false,
+                                    generator: false,
+                                    expression: true,
+                                    start: 21,
+                                    end: 32,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 32
                                         }
                                     }
-                                ],
-                                start: 8,
-                                end: 32,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 8
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 32
-                                    }
                                 }
-                            },
-                            alternate: {
-                                type: 'Identifier',
-                                name: 'baz',
-                                start: 37,
-                                end: 40,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 37
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 40
-                                    }
+                            ],
+                            start: 8,
+                            end: 32,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 32
                                 }
-                            },
-                            start: 0,
+                            }
+                        },
+                        alternate: {
+                            type: 'Identifier',
+                            name: 'baz',
+                            start: 37,
                             end: 40,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 37
                                 },
                                 end: {
                                     line: 1,
@@ -12143,7 +12122,7 @@ pass('bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;', Context.OptionsRanges | Contex
                             }
                         },
                         start: 0,
-                        end: 41,
+                        end: 40,
                         loc: {
                             start: {
                                 line: 1,
@@ -12151,11 +12130,23 @@ pass('bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;', Context.OptionsRanges | Contex
                             },
                             end: {
                                 line: 1,
-                                column: 41
+                                column: 40
                             }
                         }
+                    },
+                    start: 0,
+                    end: 41,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 41
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 41,
                 loc: {
@@ -12171,112 +12162,24 @@ pass('bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;', Context.OptionsRanges | Contex
             }
         });
 
-pass('({y}) => x;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({y}) => x;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({y}) => x;',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ArrowFunctionExpression',
-                            body: {
-                                type: 'Identifier',
-                                name: 'x',
-                                start: 9,
-                                end: 10,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 9
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 10
-                                    }
-                                }
-                            },
-                            params: [
-                                {
-                                    type: 'ObjectPattern',
-                                    properties: [
-                                        {
-                                            type: 'Property',
-                                            key: {
-                                                type: 'Identifier',
-                                                name: 'y',
-                                                start: 2,
-                                                end: 3,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 3
-                                                    }
-                                                }
-                                            },
-                                            value: {
-                                                type: 'Identifier',
-                                                name: 'y',
-                                                start: 2,
-                                                end: 3,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 3
-                                                    }
-                                                }
-                                            },
-                                            kind: 'init',
-                                            computed: false,
-                                            method: false,
-                                            shorthand: true,
-                                            start: 2,
-                                            end: 3,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 2
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 3
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    start: 1,
-                                    end: 4,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 1
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 4
-                                        }
-                                    }
-                                }
-                            ],
-                            id: null,
-                            async: false,
-                            generator: false,
-                            expression: true,
-                            start: 0,
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Identifier',
+                            name: 'x',
+                            start: 9,
                             end: 10,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 9
                                 },
                                 end: {
                                     line: 1,
@@ -12284,8 +12187,78 @@ pass('({y}) => x;', Context.OptionsRanges | Context.OptionsLoc | Context.Options
                                 }
                             }
                         },
+                        params: [{
+                            type: 'ObjectPattern',
+                            properties: [{
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'y',
+                                    start: 2,
+                                    end: 3,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 3
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'y',
+                                    start: 2,
+                                    end: 3,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 3
+                                        }
+                                    }
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: true,
+                                start: 2,
+                                end: 3,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 3
+                                    }
+                                }
+                            }],
+                            start: 1,
+                            end: 4,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 4
+                                }
+                            }
+                        }],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true,
                         start: 0,
-                        end: 11,
+                        end: 10,
                         loc: {
                             start: {
                                 line: 1,
@@ -12293,11 +12266,23 @@ pass('({y}) => x;', Context.OptionsRanges | Context.OptionsLoc | Context.Options
                             },
                             end: {
                                 line: 1,
-                                column: 11
+                                column: 10
                             }
                         }
+                    },
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 11,
                 loc: {
@@ -12313,312 +12298,56 @@ pass('({y}) => x;', Context.OptionsRanges | Context.OptionsLoc | Context.Options
             }
         });
 
-pass('({x = 10, y: { z = 10 }}) => [x, z]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({x = 10, y: { z = 10 }}) => [x, z]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({x = 10, y: { z = 10 }}) => [x, z]',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ArrowFunctionExpression',
-                            body: {
-                                type: 'ArrayExpression',
-                                elements: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'x',
-                                        start: 30,
-                                        end: 31,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 30
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 31
-                                            }
-                                        }
-                                    },
-                                    {
-                                        type: 'Identifier',
-                                        name: 'z',
-                                        start: 33,
-                                        end: 34,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 33
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 34
-                                            }
-                                        }
-                                    }
-                                ],
-                                start: 29,
-                                end: 35,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 29
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 35
-                                    }
-                                }
-                            },
-                            params: [
-                                {
-                                    type: 'ObjectPattern',
-                                    properties: [
-                                        {
-                                            type: 'Property',
-                                            key: {
-                                                type: 'Identifier',
-                                                name: 'x',
-                                                start: 2,
-                                                end: 3,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 3
-                                                    }
-                                                }
-                                            },
-                                            value: {
-                                                type: 'AssignmentPattern',
-                                                left: {
-                                                    type: 'Identifier',
-                                                    name: 'x',
-                                                    start: 2,
-                                                    end: 3,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 2
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 3
-                                                        }
-                                                    }
-                                                },
-                                                right: {
-                                                    type: 'Literal',
-                                                    value: 10,
-                                                    start: 6,
-                                                    end: 8,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 6
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 8
-                                                        }
-                                                    },
-                                                    raw: '10'
-                                                },
-                                                start: 2,
-                                                end: 8,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 8
-                                                    }
-                                                }
-                                            },
-                                            kind: 'init',
-                                            computed: false,
-                                            method: false,
-                                            shorthand: true,
-                                            start: 2,
-                                            end: 8,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 2
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 8
-                                                }
-                                            }
-                                        },
-                                        {
-                                            type: 'Property',
-                                            key: {
-                                                type: 'Identifier',
-                                                name: 'y',
-                                                start: 10,
-                                                end: 11,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 10
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 11
-                                                    }
-                                                }
-                                            },
-                                            value: {
-                                                type: 'ObjectPattern',
-                                                properties: [
-                                                    {
-                                                        type: 'Property',
-                                                        key: {
-                                                            type: 'Identifier',
-                                                            name: 'z',
-                                                            start: 15,
-                                                            end: 16,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 1,
-                                                                    column: 15
-                                                                },
-                                                                end: {
-                                                                    line: 1,
-                                                                    column: 16
-                                                                }
-                                                            }
-                                                        },
-                                                        value: {
-                                                            type: 'AssignmentPattern',
-                                                            left: {
-                                                                type: 'Identifier',
-                                                                name: 'z',
-                                                                start: 15,
-                                                                end: 16,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 1,
-                                                                        column: 15
-                                                                    },
-                                                                    end: {
-                                                                        line: 1,
-                                                                        column: 16
-                                                                    }
-                                                                }
-                                                            },
-                                                            right: {
-                                                                type: 'Literal',
-                                                                value: 10,
-                                                                start: 19,
-                                                                end: 21,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 1,
-                                                                        column: 19
-                                                                    },
-                                                                    end: {
-                                                                        line: 1,
-                                                                        column: 21
-                                                                    }
-                                                                },
-                                                                raw: '10'
-                                                            },
-                                                            start: 15,
-                                                            end: 21,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 1,
-                                                                    column: 15
-                                                                },
-                                                                end: {
-                                                                    line: 1,
-                                                                    column: 21
-                                                                }
-                                                            }
-                                                        },
-                                                        kind: 'init',
-                                                        computed: false,
-                                                        method: false,
-                                                        shorthand: true,
-                                                        start: 15,
-                                                        end: 21,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 15
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 21
-                                                            }
-                                                        }
-                                                    }
-                                                ],
-                                                start: 13,
-                                                end: 23,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 13
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 23
-                                                    }
-                                                }
-                                            },
-                                            kind: 'init',
-                                            computed: false,
-                                            method: false,
-                                            shorthand: false,
-                                            start: 10,
-                                            end: 23,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 10
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 23
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    start: 1,
-                                    end: 24,
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'ArrayExpression',
+                            elements: [{
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 30,
+                                    end: 31,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 1
+                                            column: 30
                                         },
                                         end: {
                                             line: 1,
-                                            column: 24
+                                            column: 31
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'z',
+                                    start: 33,
+                                    end: 34,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 33
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 34
                                         }
                                     }
                                 }
                             ],
-                            id: null,
-                            async: false,
-                            generator: false,
-                            expression: true,
-                            start: 0,
+                            start: 29,
                             end: 35,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 29
                                 },
                                 end: {
                                     line: 1,
@@ -12626,6 +12355,242 @@ pass('({x = 10, y: { z = 10 }}) => [x, z]', Context.OptionsRanges | Context.Opti
                                 }
                             }
                         },
+                        params: [{
+                            type: 'ObjectPattern',
+                            properties: [{
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'x',
+                                        start: 2,
+                                        end: 3,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 2
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 3
+                                            }
+                                        }
+                                    },
+                                    value: {
+                                        type: 'AssignmentPattern',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 2,
+                                            end: 3,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 2
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 3
+                                                }
+                                            }
+                                        },
+                                        right: {
+                                            type: 'Literal',
+                                            value: 10,
+                                            start: 6,
+                                            end: 8,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 6
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 8
+                                                }
+                                            },
+                                            raw: '10'
+                                        },
+                                        start: 2,
+                                        end: 8,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 2
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 8
+                                            }
+                                        }
+                                    },
+                                    kind: 'init',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: true,
+                                    start: 2,
+                                    end: 8,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 8
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'y',
+                                        start: 10,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        }
+                                    },
+                                    value: {
+                                        type: 'ObjectPattern',
+                                        properties: [{
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'z',
+                                                start: 15,
+                                                end: 16,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 15
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 16
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'AssignmentPattern',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'z',
+                                                    start: 15,
+                                                    end: 16,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 15
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 16
+                                                        }
+                                                    }
+                                                },
+                                                right: {
+                                                    type: 'Literal',
+                                                    value: 10,
+                                                    start: 19,
+                                                    end: 21,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 19
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 21
+                                                        }
+                                                    },
+                                                    raw: '10'
+                                                },
+                                                start: 15,
+                                                end: 21,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 15
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 21
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: false,
+                                            shorthand: true,
+                                            start: 15,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 15
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            }
+                                        }],
+                                        start: 13,
+                                        end: 23,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 13
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 23
+                                            }
+                                        }
+                                    },
+                                    kind: 'init',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 10,
+                                    end: 23,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 10
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 23
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 1,
+                            end: 24,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 24
+                                }
+                            }
+                        }],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true,
                         start: 0,
                         end: 35,
                         loc: {
@@ -12638,8 +12603,20 @@ pass('({x = 10, y: { z = 10 }}) => [x, z]', Context.OptionsRanges | Context.Opti
                                 column: 35
                             }
                         }
+                    },
+                    start: 0,
+                    end: 35,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 35
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 35,
                 loc: {
@@ -12655,144 +12632,24 @@ pass('({x = 10, y: { z = 10 }}) => [x, z]', Context.OptionsRanges | Context.Opti
             }
         });
 
-pass('({x = 10}) => x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('({x = 10}) => x', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '({x = 10}) => x',
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'ArrowFunctionExpression',
-                            body: {
-                                type: 'Identifier',
-                                name: 'x',
-                                start: 14,
-                                end: 15,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 14
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 15
-                                    }
-                                }
-                            },
-                            params: [
-                                {
-                                    type: 'ObjectPattern',
-                                    properties: [
-                                        {
-                                            type: 'Property',
-                                            key: {
-                                                type: 'Identifier',
-                                                name: 'x',
-                                                start: 2,
-                                                end: 3,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 3
-                                                    }
-                                                }
-                                            },
-                                            value: {
-                                                type: 'AssignmentPattern',
-                                                left: {
-                                                    type: 'Identifier',
-                                                    name: 'x',
-                                                    start: 2,
-                                                    end: 3,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 2
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 3
-                                                        }
-                                                    }
-                                                },
-                                                right: {
-                                                    type: 'Literal',
-                                                    value: 10,
-                                                    start: 6,
-                                                    end: 8,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 6
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 8
-                                                        }
-                                                    },
-                                                    raw: '10'
-                                                },
-                                                start: 2,
-                                                end: 8,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 2
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 8
-                                                    }
-                                                }
-                                            },
-                                            kind: 'init',
-                                            computed: false,
-                                            method: false,
-                                            shorthand: true,
-                                            start: 2,
-                                            end: 8,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 2
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 8
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    start: 1,
-                                    end: 9,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 1
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 9
-                                        }
-                                    }
-                                }
-                            ],
-                            id: null,
-                            async: false,
-                            generator: false,
-                            expression: true,
-                            start: 0,
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Identifier',
+                            name: 'x',
+                            start: 14,
                             end: 15,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 0
+                                    column: 14
                                 },
                                 end: {
                                     line: 1,
@@ -12800,6 +12657,108 @@ pass('({x = 10}) => x', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
                                 }
                             }
                         },
+                        params: [{
+                            type: 'ObjectPattern',
+                            properties: [{
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 2,
+                                    end: 3,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 3
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'AssignmentPattern',
+                                    left: {
+                                        type: 'Identifier',
+                                        name: 'x',
+                                        start: 2,
+                                        end: 3,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 2
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 3
+                                            }
+                                        }
+                                    },
+                                    right: {
+                                        type: 'Literal',
+                                        value: 10,
+                                        start: 6,
+                                        end: 8,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 6
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 8
+                                            }
+                                        },
+                                        raw: '10'
+                                    },
+                                    start: 2,
+                                    end: 8,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 8
+                                        }
+                                    }
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: true,
+                                start: 2,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                }
+                            }],
+                            start: 1,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        }],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true,
                         start: 0,
                         end: 15,
                         loc: {
@@ -12812,8 +12771,20 @@ pass('({x = 10}) => x', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
                                 column: 15
                             }
                         }
+                    },
+                    start: 0,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 15,
                 loc: {
@@ -12829,7 +12800,7 @@ pass('({x = 10}) => x', Context.OptionsRanges | Context.OptionsLoc | Context.Opt
             }
         });
 
-pass('(x, y) => (u, v) => x*u + y*v, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass('(x, y) => (u, v) => x*u + y*v, bar;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: '(x, y) => (u, v) => x*u + y*v, bar;',
             expected: {
                 type: 'Program',
@@ -13111,6 +13082,5 @@ pass('(x, y) => (u, v) => x*u + y*v, bar;', Context.OptionsRanges | Context.Opti
                 sourceType: 'script'
             }
         });
-
     });
 });

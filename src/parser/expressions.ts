@@ -87,6 +87,8 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
 
 function parseYieldExpression(parser: Parser, context: Context, pos: Location): ESTree.YieldExpression | ESTree.Identifier {
 
+    if (context & Context.InParameter) report(parser, Errors.YieldInParameter);
+
     expect(parser, context, Token.YieldKeyword);
 
     let argument: ESTree.Expression | null = null;
