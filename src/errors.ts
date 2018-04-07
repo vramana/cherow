@@ -182,8 +182,8 @@ export function report(parser: Parser, type: Errors, ...params: string[]) {
         index = errorLoc.index;
         line = errorLoc.line;
         column = errorLoc.column;
-        errorMessage = errorLoc.error
+        errorMessage = errorLoc.error;
     }
 
-    constructError(index, line, column, errorMessage)
+    constructError(index, line, column, errorMessage);
 }

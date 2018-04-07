@@ -143,7 +143,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             expr = [expr];
         }
 
-        return parseArrowFunction(parser, context &= ~Context.Async, pos, expr)
+        return parseArrowFunction(parser, context &= ~Context.Async, pos, expr);
     }
     if (hasBit(parser.token, Token.IsAssignOp)) {
 
@@ -165,7 +165,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             }
 
             if (context & Context.InParen)  parser.flags |= Flags.SimpleParameterList;
-            
+
         } else {
             if (!isValidSimpleAssignmentTarget(expr)) {
                 report(parser, Errors.InvalidLHSInAssignment);
@@ -871,7 +871,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                     // Record the sequence position
                     const sequencepos = getLocation(parser);
-                    
+
                     if (parser.token & Token.IsEvalOrArguments) {
                         recordError(parser, Errors.StrictEvalArguments);
                         state |= CoverParenthesizedState.HasEvalOrArguments;
@@ -926,7 +926,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                             state |= CoverParenthesizedState.HasReservedWords;
                                         }
                                         if (parser.token & Token.IsBindingPattern) {
-                                            state |= CoverParenthesizedState.HasBinding
+                                            state |= CoverParenthesizedState.HasBinding;
                                         }
                                         expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                     }
@@ -1322,7 +1322,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                     line: parser.startLine,
                     column: parser.startColumn,
                     index: parser.startIndex,
-                }
+                };
 
             } else {
                 if (t & Token.IsAwait) {
@@ -1501,7 +1501,7 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
 
     if (savedFlags & Flags.Iteration) parser.flags |= Flags.Iteration;
     if (savedFlags & Flags.Switch) parser.flags |= Flags.Switch;
-    
+
     parser.labelSet = labelSet;
 
     expect(parser, context, Token.RightBrace);

@@ -112,6 +112,40 @@ export const enum CoverParenthesizedState {
     HasBinding          = 1 << 4,
 }
 
+export const enum NumericState {
+    None            = 0,
+    SeenSeparator   = 1 << 0,
+    EigthOrNine     = 1 << 1,
+    Float           = 1 << 2,
+    BigInt          = 1 << 3,
+}
+
+export const enum Escape {
+    Empty = -1,
+    StrictOctal = -2,
+    EightOrNine = -3,
+    InvalidHex = -4,
+    OutOfRange = -5,
+}
+
+/* Regular expression scanning */
+export const enum RegexState {
+    Empty = 0,
+    Escape = 0x1,
+    Class = 0x2,
+}
+
+/* Spidermonkey values */
+export const enum RegexFlags {
+    None        = 0,
+    IgnoreCase = 1 << 0,
+    Global     = 1 << 1,
+    Multiline  = 1 << 2,
+    Unicode    = 1 << 3,
+    Sticky     = 1 << 4,
+    DotAll     = 1 << 5,
+}
+
 /**
  * Validate break and continue statement
  *
