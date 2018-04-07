@@ -17,7 +17,7 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
-    isIdentifier1,
+    parseAndValidateIdentifier,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     swapContext,
@@ -580,7 +580,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
         default:
-            return isIdentifier1(parser, context);
+            return parseAndValidateIdentifier(parser, context);
     }
 }
 
@@ -987,8 +987,8 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     // 'async ice => fapper';
     if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
-        if (parser.token & Token.IsAwait) report(parser, Errors.Unexpected);
-        return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [isIdentifier1(parser, context)]);
+        if (parser.token & Token.IsAwait) report(parser, Errors.DisallowedInContext);
+        return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
     }
 
     if (parser.flags & Flags.NewLine) report(parser, Errors.LineBreakAfterAsync);

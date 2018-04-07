@@ -67,7 +67,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
         // let is disallowed as a lexically bound name
         report(parser, Errors.LetInLexicalBinding);
     } else if (hasBit(token, Token.FutureReserved)) {
-        if (context & Context.Strict) report(parser, Errors.UnexpectedKeyword);
+        if (context & Context.Strict) report(parser, Errors.UnexpectedToken, tokenDesc(token));
         parser.flags |= Flags.StrictFunctionName;
     } else if (!isIdentifier(context, token)) {
         report(parser, Errors.UnexpectedToken, tokenDesc(token));

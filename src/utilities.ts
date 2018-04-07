@@ -745,3 +745,44 @@ export function recordError(parser: Parser, error: Errors) {
         index: parser.index,
     };
 }
+
+/**
+ * Validates identifier before parsing / throwing
+ *
+ * @param parser Parser instance
+ * @param context Context masks
+ */
+export function parseAndValidateIdentifier(parser: Parser, context: Context) {
+
+    const { token } = parser;
+
+    if (context & Context.Strict) {
+
+        // Module code is also "strict mode code"
+        if (context & Context.Module && token & Token.IsAwait) {
+            report(parser, Errors.DisallowedInContext, tokenDesc(token));
+        }
+        
+        if (token & Token.IsYield) report(parser, Errors.DisallowedInContext, tokenDesc(token));
+
+        if ((token & Token.IsIdentifier) === Token.IsIdentifier ||
+            (token & Token.Contextual) === Token.Contextual) {
+            return parseIdentifier(parser, context);
+        }
+
+        report(parser, Errors.UnexpectedToken, tokenDesc(token));
+    }
+
+    if (context & Context.Yield && token & Token.IsYield) {
+        report(parser, Errors.DisallowedInContext, tokenDesc(token));
+    } else if (context & Context.Async && token & Token.IsAwait) {
+        report(parser, Errors.DisallowedInContext, tokenDesc(token));
+    }
+
+    if ((token & Token.IsIdentifier) === Token.IsIdentifier ||
+        (token & Token.Contextual) === Token.Contextual ||
+        (token & Token.FutureReserved) === Token.FutureReserved) {
+        return parseIdentifier(parser, context);
+    }
+    report(parser, Errors.Unexpected);
+}
