@@ -7,9 +7,9 @@ import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Early errors', () => {
 
-    describe('Failure', () => {
+    describe('Failure - sloppy / strict', () => {
 
-        const programs = [
+        const invalidSyntax = [
             `'use strict'; delete ((a));`,
             `'use strict'; if (1) function a(){} else;`,
             `function* a(){ function* b(c = yield d){} }`,
@@ -408,12 +408,67 @@ describe('Miscellaneous - Early errors', () => {
             'while (true) { continue a; }',
             '"use strict"; function a(...yield) {}',
             'break a;',
+            '"use strict"; eval = 42;',
+
+            // Class fields - Stage 3 proposal
+            'var x = "string"; class C { static [x] = /*{ initializer }*/; }',
+            'var x = "string"; class C { x = typeof /*{ initializer }*/; }',
+            'var x = "string"; class C { static x = /*{ initializer }*/; }',
+            'var x = "string"; class C { static x = /*{ initializer }*/; }',
+            'var x = "string"; class C { static x = /*{ initializer }*/; }',
+            'var x = "string"; class C { x = () => super(); }',
+            'var x = "string"; class C { [x] = arguments; }',
+            'var x = "string"; class C {  [x] = super(); }',
+            'var x = "string"; class C { x = {} == super(); }',
+            'var x = "string"; class C { x = arguments;}',
+            'var x = "string"; class C { static [x] = arguments; }',
+            'var x = "string"; class C { static [x] = super(); }',
+            'var x = "string"; class C { static x = arguments; }',
+            'var x = "string"; class C { static x = super(); }',
+            'var x = "string"; class C { static "x" = arguments; }',
+            'var x = "string"; class C { x = true ? {} : super();}',
+            'var x = "string"; class C { x = typeof super(); }',
+            'var x = "string"; class C { x = () => super(); }',
+            'var x = "string"; class C { "x" = arguments; }',
+            'var x = "string"; class C { x = false ? {} : super(); }',
+
+            // Private fields  - Stage 3 proposal
+
+            'var x = "string"; class C { #x = () => /*{ initializer }*/; }',
+            'var x = "string"; class C {  #x = true ? {} : /*{ initializer }*/; }',
+            'var x = "string"; class C { static #x = /*{ initializer }*/; }', // not implemented, so this will ofc. fail. / J.K Thomas.
+            'var x = "string"; class C { #x = () => super(); }',
+            'var x = "string"; class C {  #x = super(); }',
+            'var x = "string"; class C {  #x = typeof super(); }',
         ];
 
-        for (const arg of programs) {
+        for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parse(`${arg}`, undefined, Context.OptionsNext);
+                });
+            });
+        }
+    });
+
+    describe('Failure - Module code', () => {
+
+        const invalidSyntax = [
+            'import { x as eval } from "foo',
+            'import { x as arguments } from  "foo";',
+            'label: { label: 0; }',
+            '{ import { x } from \'y\'; }',
+            'while (false) { break icefapper; }',
+            'while (false) { break foo; }',
+            'var public;',
+            'new.target;',
+            `super;`,
+        ];
+
+        for (const arg of invalidSyntax) {
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
