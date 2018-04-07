@@ -751,7 +751,7 @@ describe('Expressions - Arrows', () => {
     });
 
     describe('Pass', () => {
-        const fuckingshit = [
+        const fuckingsIcefapper = [
             `const a = () => {return (3, 4);};`,
             `"use strict";
 ((one, two) => {});`,
@@ -841,7 +841,7 @@ describe('Expressions - Arrows', () => {
             'a => (a + 1)',
 
         ];
-        for (const arg of fuckingshit) {
+        for (const arg of fuckingsIcefapper) {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
@@ -1048,28 +1048,6 @@ describe('Expressions - Arrows', () => {
                 });
             });
         }
-
-        /*
-                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
-                    expected: {}
-                });
-
-                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
-                    expected: {}
-                });
-
-                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
-                    expected: {}
-                });
-
-                pass(`"use strict"; (function *g() { ( {x=yield} ) => {} });`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                    source: `"use strict"; (function *g() { ( {x=yield} ) => {} });`,
-                    expected: {}
-                });*/
-
         pass(`(a) => b;  // 1 args
         (a, b) => c;  // n args
         () => b;  // 0 args
