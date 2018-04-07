@@ -242,12 +242,15 @@ function parseBindingProperty(parser: Parser, context: Context): ESTree.Assignme
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         key = parseIdentifier(parser, context);
         shorthand = !consume(parser, context, Token.Colon);
+
         if (shorthand) {
+
+            if (context & (Context.Strict | Context.Yield) &&
+                (token & Token.IsYield || parser.token & Token.IsYield)) {
+                report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
+            }
+
             if (consume(parser, context, Token.Assign)) {
-                if (context & (Context.Strict | Context.Yield) &&
-                    (token & Token.IsYield || parser.token & Token.IsYield)) {
-                    report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
-                }
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
             } else {
                 if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved);

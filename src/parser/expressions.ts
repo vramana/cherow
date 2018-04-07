@@ -1287,6 +1287,8 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                 parser.flags |= parser.flags & Flags.HasProtoField ? Flags.HasDuplicateProto : Flags.HasProtoField;
             }
             expect(parser, context, Token.Colon);
+
+            if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
             value = restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression);
         } else {
 
