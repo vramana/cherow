@@ -1456,7 +1456,8 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
     const body: ESTree.Statement[] = [];
     const { labelSet } = parser;
     parser.labelSet = {};
-
+    const savedFlags = parser.flags;
+    parser.flags &= ~(Flags.Switch | Flags.Iteration);
     while (parser.token === Token.StringLiteral) {
 
         const item: ESTree.Statement = parseDirective(parser, context);
@@ -1484,6 +1485,9 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
         body.push(parseStatementListItem(parser, context));
     }
 
+    if (savedFlags & Flags.Iteration) parser.flags |= Flags.Iteration;
+    if (savedFlags & Flags.Switch) parser.flags |= Flags.Switch;
+    
     parser.labelSet = labelSet;
 
     expect(parser, context, Token.RightBrace);
