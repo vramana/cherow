@@ -35,7 +35,8 @@ import {
     allowExpressionCoverGrammar,
     hasLabel,
     addLabel,
-    popLabel
+    popLabel,
+    restoreExpressionCoverGrammar
 } from '../utilities';
 
 // Statements
@@ -717,9 +718,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         variableStatement = parseVariableStatement(parser, context & ~Context.AllowIn, /* shouldConsume */ false);
     } else if (token !== Token.Semicolon) {
         sequencePos = getLocation(parser);
-        // Similar to what's done in SM. Restore the cover grammar to original state, so we avoid
-        // unpleasant surprises in the expression code
-        init = parseAssignmentExpression(parser, context & ~Context.AllowIn);
+        init = restoreExpressionCoverGrammar(parser, context & ~Context.AllowIn, parseAssignmentExpression);
     }
 
     if (consume(parser, context, Token.OfKeyword)) {
