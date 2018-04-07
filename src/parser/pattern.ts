@@ -60,7 +60,6 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
 export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
 
     const { token } = parser;
-
     if (token & Token.IsEvalOrArguments) {
         if (context & Context.Strict) report(parser, Errors.StrictLHSAssignment);
         parser.flags |= Flags.StrictReserved;
@@ -213,7 +212,11 @@ function parseAssignmentOrArrayAssignmentPattern(
 ): ESTree.AssignmentPattern {
 
     if (!consume(parser, context, Token.Assign)) return left;
-
+    if (context & (Context.InParen | Context.InFunctionBody)) {
+        if (parser.token & Token.IsYield && context & Context.Yield) {
+            report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
+        }
+    }
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
         left,
@@ -229,19 +232,23 @@ function parseAssignmentOrArrayAssignmentPattern(
  */
 
 function parseBindingProperty(parser: Parser, context: Context): ESTree.AssignmentProperty {
+
     const pos = getLocation(parser);
     const { token } = parser;
     let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
     let value: ESTree.Node;
     let computed = false;
     let shorthand = false;
-
     // single name binding
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         key = parseIdentifier(parser, context);
         shorthand = !consume(parser, context, Token.Colon);
         if (shorthand) {
             if (consume(parser, context, Token.Assign)) {
+                if (context & (Context.Strict | Context.Yield) &&
+                    (token & Token.IsYield || parser.token & Token.IsYield)) {
+                    report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
+                }
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
             } else {
                 if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved);
@@ -249,6 +256,7 @@ function parseBindingProperty(parser: Parser, context: Context): ESTree.Assignme
             }
         } else value = parseAssignmentOrArrayAssignmentPattern(parser, context);
     } else {
+
         computed = token === Token.LeftBracket;
         key = parsePropertyName(parser, context);
         expect(parser, context, Token.Colon);
