@@ -37,9 +37,10 @@ import {
     isIdentifier,
     nextTokenIsLeftParen,
     isEvalOrArguments,
-    nextTokenisIdentifierOrParen,
+    nextTokenisIdentifierOrParen,,
+    CoverCallState
     recordError
-} from './utilities';
+} from '../utilities';
 
 /**
  * Parse expression
@@ -499,6 +500,48 @@ function parseCallExpression(parser: Parser, context: Context, pos: any, expr: E
 }
 
 /**
+ * Parse cover call expression and async arrow head
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-CoverCallExpressionAndAsyncArrowHead)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+
+function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Context): ESTree.Expression {
+    const pos = getLocation(parser);
+    let expr = parseMemberExpression(parser, context | Context.AllowIn, pos);
+    // Here we jump right into it and parse a simple, faster sub-grammar for 
+    // async arrow / async identifier + call expression. This could have been done different
+    // but ESTree sucks!
+    //
+    // - J.K. Thomas
+
+    // Simple, unparenthesized async arrow
+    if (parser.token & Token.IsIdentifier) {
+        if (parser.token & Token.IsAwait) report(parser, Errors.DisallowedInContext);
+        return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
+    }
+    if (parser.flags & Flags.NewLine) report(parser, Errors.LineBreakAfterAsync);
+
+    while (parser.token === Token.LeftParen) {
+        expr = parseMemberExpression(parser, context, pos, expr);
+
+        const args = parseAsyncArgumentList(parser, context);
+        if (parser.token === Token.Arrow) {
+            expr = parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);
+            break;
+        }
+        expr = finishNode(context, parser, pos, {
+            type: 'CallExpression',
+            callee: expr,
+            arguments: args
+        });
+    }
+    return expr;
+}
+
+/**
  * Parse argument list
  *
  * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
@@ -524,6 +567,65 @@ function parseArgumentList(parser: Parser, context: Context): ESTree.Expression[
 
     expect(parser, context, Token.RightParen);
     return expressions;
+}
+
+/**
+ * Parse argument list for async arrow / async call expression
+ *
+ * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
+function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expression[] {
+    // Here we parse a "extended" argument list tweaked to handle async arrows. This is
+    // done here to avoid overhead and possible performance loss if we are only
+    // parsing out a simple call expression - E.g 'async(foo, bar)' or 'async(foo, bar)()';
+    //
+    // - J.K. Thomas
+
+    expect(parser, context, Token.LeftParen);
+    
+    const args: any[] = [];
+
+    let { token } = parser;
+    let state = CoverCallState.Empty;
+
+    while (parser.token !== Token.RightParen) {
+        if (parser.token === Token.Ellipsis) {
+            parser.flags |= Flags.SimpleParameterList;
+            args.push(parseSpreadElement(parser, context));
+            state = CoverCallState.HasSpread
+        } else {
+            token = parser.token;
+            if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
+            if (hasBit(token, Token.IsYield)) state |= CoverCallState.Yield;
+            if (hasBit(token, Token.IsAwait)) state |= CoverCallState.Await;
+            args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
+        }
+
+        if (consume(parser, context, Token.Comma)) {
+            if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread
+        }
+
+        if (parser.token === Token.RightParen) break;
+    }
+
+    expect(parser, context, Token.RightParen);
+    if (parser.token === Token.Arrow) {
+        if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
+        if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
+        if (state & CoverCallState.Await || parser.flags & Flags.HasAwait) report(parser, Errors.AwaitInParameter);
+        if (state & CoverCallState.Yield || parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
+        if (state & CoverCallState.EvalOrArguments) {
+            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
+            parser.flags |= Flags.StrictEvalArguments;
+        }
+        parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
+         }
+    
+    return args;
 }
 
 /**
@@ -968,106 +1070,6 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     return expr;
                 }
         }
-}
-
-/**
- * Parse argument list for async arrow / async call expr
- *
- * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
- *
- * @param {Parser} Parser instance
- * @param {context} Context masks
- */
-
-function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expression[] {
-
-    expect(parser, context, Token.LeftParen);
-
-    const args: any[] = [];
-
-    const enum CoverCallState {
-        None = 0,
-            SeenSpread = 1 << 0, // First run
-            HasSpread = 1 << 1, // Second run
-            SimpleParameter = 1 << 2, // Second run
-            EvalOrArguments = 1 << 3,
-            Yield = 1 << 4,
-            Await = 1 << 5,
-    }
-
-    let { token } = parser;
-    let state = CoverCallState.None;
-
-    while (parser.token !== Token.RightParen) {
-        if (parser.token === Token.Ellipsis) {
-            parser.flags |= Flags.SimpleParameterList;
-            args.push(parseSpreadElement(parser, context));
-            state = CoverCallState.HasSpread;
-        } else {
-            token = parser.token;
-            if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
-            if (hasBit(token, Token.IsYield)) state |= CoverCallState.Yield;
-            if (hasBit(token, Token.IsAwait)) state |= CoverCallState.Await;
-            args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
-        }
-
-        if (consume(parser, context, Token.Comma)) {
-            if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread;
-        }
-
-        if (parser.token === Token.RightParen) break;
-    }
-
-    expect(parser, context, Token.RightParen);
-    if (parser.token === Token.Arrow) {
-        if (state & CoverCallState.SeenSpread) report(parser, Errors.Unexpected);
-        if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
-        if (state & CoverCallState.Await || parser.flags & Flags.HasAwait) report(parser, Errors.AwaitInParameter);
-        if (state & CoverCallState.Yield || parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
-        if (state & CoverCallState.EvalOrArguments) {
-            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
-            parser.flags |= Flags.StrictEvalArguments;
-        }
-        parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-         }
-
-    return args;
-}
-
-/**
- * Parse cover call expression and async arrow head
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-CoverCallExpressionAndAsyncArrowHead)
- *
- * @param parser  Parser instance
- * @param context Context masks
- */
-
-function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Context): any {
-    const pos = getLocation(parser);
-    let expr = parseMemberExpression(parser, context | Context.AllowIn, pos);
-
-    if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
-    if (parser.token & Token.IsAwait) report(parser, Errors.DisallowedInContext);
-    return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
-}
-    if (parser.flags & Flags.NewLine) report(parser, Errors.LineBreakAfterAsync);
-
-    while (parser.token === Token.LeftParen) {
-        expr = parseMemberExpression(parser, context, pos, expr);
-
-        const args = parseAsyncArgumentList(parser, context);
-        if (parser.token === Token.Arrow) {
-            expr = parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);
-            break;
-        }
-        expr = finishNode(context, parser, pos, {
-            type: 'CallExpression',
-            callee: expr,
-            arguments: args
-        });
-    }
-    return expr;
 }
 
 /**

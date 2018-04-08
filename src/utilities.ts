@@ -146,6 +146,16 @@ export const enum RegexFlags {
     DotAll     = 1 << 5,
 }
 
+export const enum CoverCallState {
+    Empty           = 0,
+    SeenSpread      = 1 << 0,
+    HasSpread       = 1 << 1,
+    SimpleParameter = 1 << 2,
+    EvalOrArguments = 1 << 3,
+    Yield           = 1 << 4,
+    Await           = 1 << 5,
+}
+
 /**
  * Validate break and continue statement
  *
