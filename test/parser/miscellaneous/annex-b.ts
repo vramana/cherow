@@ -23,8 +23,8 @@ describe('Miscellaneous - Annex B', () => {
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty)
-                })
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
             });
         }
     });
@@ -92,12 +92,12 @@ describe('Miscellaneous - Annex B', () => {
             '0719',
             '0782',
             '0790',
-            '"\\0"', 
-            '"\\x05"', 
-            '"\\x06"', 
+            '"\\0"',
+            '"\\x05"',
+            '"\\x06"',
             '"\\18"',
-            '"\\00"', 
-            '"\\218"', 
+            '"\\00"',
+            '"\\218"',
             '"\\66"',
             '"\\210"',
             'if (x) function f() { return 23; } else function f() { return 42; }',
@@ -113,23 +113,23 @@ describe('Miscellaneous - Annex B', () => {
             'for (let f in { key: 0 }) {}',
             `(function(f) {
                         init = f;
-                      
+
                         switch (1) {
                           case 1:
                             function f() {  }
                         }
-                      
+
                         after = f;
                       }(123));`,
             ` try {
                         throw {};
                       } catch ({ f }) {
-                    
+
                       switch (1) {
                         default:
                           function f() {  }
                       }
-                    
+
                       }
                     `,
             `{
@@ -145,7 +145,7 @@ describe('Miscellaneous - Annex B', () => {
             `for (let f; ; ) {
 
                         if (false) ; else function f() {  }
-                        
+
                           break;
                         }`,
             `try {
@@ -167,38 +167,38 @@ switch (1) {
             `try {
                         throw {};
                       } catch ({ f }) {
-                      
+
                       switch (1) {
                         case 1:
                           function f() {  }
                       }
-                      
+
                       }`,
             `{
                         let f = 123;
-                        
+
                         switch (1) {
                           case 1:
                             function f() {  }
                         }
-                        
+
                         }`,
             `
                         for (let f in { key: 0 }) {
-                        
+
                         switch (1) {
                           case 1:
                             function f() {  }
                         }
-                        
+
                         }`
         ];
 
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty)
-                })
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
             });
         }
     });

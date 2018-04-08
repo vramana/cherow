@@ -762,7 +762,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         if (context & Context.Module && token & Token.IsAwait) {
             report(parser, Errors.DisallowedInContext, tokenDesc(token));
         }
-        
+
         if (token & Token.IsYield) report(parser, Errors.DisallowedInContext, tokenDesc(token));
 
         if ((token & Token.IsIdentifier) === Token.IsIdentifier ||

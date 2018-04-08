@@ -562,6 +562,7 @@ export function scan(parser: Parser, context: Context): Token {
  */
 
 export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
+    const { index: start } = parser;
     advance(parser);
     let state = NumericState.None;
     let value = toHex(nextChar(parser));
@@ -584,7 +585,7 @@ export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
         advance(parser);
     }
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
-    return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN));
+    return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN), start);
 }
 
 /**
@@ -598,7 +599,7 @@ export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
  */
 
 export function scanOctalOrBinary(parser: Parser, context: Context, base: number): Token {
-
+    const { index: start } = parser;
     advance(parser);
 
     let digits = 0;
@@ -626,7 +627,7 @@ export function scanOctalOrBinary(parser: Parser, context: Context, base: number
 
     if (digits === 0) report(parser, Errors.InvalidOrUnexpectedToken);
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
-    return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN));
+    return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN), start);
 }
 
 /**
@@ -654,7 +655,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
                 let index = parser.index;
                 let column = parser.column;
                 let code = 0;
-
+                const { index: start } = parser;
                 parser.flags |= Flags.Octal;
 
                 while (index < parser.source.length) {
@@ -672,7 +673,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
 
                 parser.index = index;
                 parser.column = column;
-                return assembleNumericLiteral(parser, context, code, consumeOpt(parser, Chars.LowerN));
+                return assembleNumericLiteral(parser, context, code, consumeOpt(parser, Chars.LowerN), start);
             }
         case Chars.Eight:
         case Chars.Nine:
@@ -708,7 +709,9 @@ export function scanSignedInteger(parser: Parser, context: Context, end: number)
         report(parser, Errors.InvalidOrUnexpectedToken);
     }
 
-    return parser.source.substring(end, parser.index) + scanDecimalDigitsOrSeparator(parser, context);
+    const preNumericPart = parser.index;
+    const finalFragment = scanDecimalDigitsOrSeparator(parser, context);
+    return parser.source.substring(end, preNumericPart) + finalFragment;
 }
 
 /**
@@ -721,19 +724,19 @@ export function scanSignedInteger(parser: Parser, context: Context, end: number)
  */
 
 export function scanNumericLiteral(parser: Parser, context: Context, state: NumericState = NumericState.None): Token {
-
-    let value: any = state & NumericState.Float ?
+const start = parser.index;
+let value: any = state & NumericState.Float ?
         0 :
         scanDecimalAsSmi(parser, context);
 
-    const next = nextChar(parser);
+const next = nextChar(parser);
 
     // I know I'm causing a bug here. The question is - will anyone figure this out?
-    if (next !== Chars.Period && next !== Chars.Period && !isValidIdentifierStart(next)) {
+if (next !== Chars.Period && next !== Chars.Period && !isValidIdentifierStart(next)) {
         return assembleNumericLiteral(parser, context, value);
     }
 
-    if (consumeOpt(parser, Chars.Period)) {
+if (consumeOpt(parser, Chars.Period)) {
         if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
             report(parser, Errors.ZeroDigitNumericSeparator);
         }
@@ -741,23 +744,23 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
         value = value + '.' + scanDecimalDigitsOrSeparator(parser, context);
     }
 
-    const end = parser.index;
+const end = parser.index;
 
-    if (consumeOpt(parser, Chars.LowerN)) {
+if (consumeOpt(parser, Chars.LowerN)) {
         if (state & NumericState.Float) report(parser, Errors.Unexpected);
         state |= NumericState.BigInt;
     }
 
-    if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
+if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
+        state |= NumericState.Float;
         value += scanSignedInteger(parser, context, end);
-
     }
 
-    if (isValidIdentifierStart(nextChar(parser))) {
+if (isValidIdentifierStart(nextChar(parser))) {
         report(parser, Errors.Unexpected);
     }
 
-    return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value) : parseInt(value), !!(state & NumericState.BigInt));
+return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value) : parseInt(value), !!(state & NumericState.BigInt), start);
 }
 
 /**
@@ -851,10 +854,9 @@ export function scanDecimalAsSmi(parser: Parser, context: Context): number {
  * @param {context} Context masks
  * @param {value} The numeric value
  */
-function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt = false): Token {
+function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt = false, start: number = 0): Token {
     parser.tokenValue = value;
-    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
+    if (context & Context.OptionsRaw) storeRaw(parser, start);
     return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;
 }
-
 // Coming soon

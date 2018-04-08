@@ -880,7 +880,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                         state |= CoverParenthesizedState.HasReservedWords;
                     }
 
-                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
+                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
 
                     let expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
 
@@ -902,7 +902,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                         parser.flags |= Flags.SimpleParameterList;
                                         const restElement = parseRestElement(parser, context);
                                         expect(parser, context, Token.RightParen);
-                                        if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected)
+                                        if (parser.token !== Token.Arrow) report(parser, Errors.Unexpected);
                                         parser.flags &= ~Flags.AllowBinding;
                                         expressions.push(restElement);
                                         return expressions;
@@ -926,7 +926,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                                             state |= CoverParenthesizedState.HasReservedWords;
                                         }
                                         if (parser.token & Token.IsBindingPattern) {
-                                            state |= CoverParenthesizedState.HasBinding
+                                            state |= CoverParenthesizedState.HasBinding;
                                         }
                                         expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                     }
@@ -953,9 +953,9 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                             report(parser, Errors.InvalidLHSInAssignment);
                         }
                         if (parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
-                        
+
                         parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
+                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
                         parser.flags &= ~Flags.AllowBinding;
                         const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
                         return params;
