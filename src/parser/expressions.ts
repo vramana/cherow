@@ -517,8 +517,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
     //
     // - J.K. Thomas
 
-    // Simple, unparenthesized async arrow
-    if (parser.token & Token.IsIdentifier) {
+    if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
         if (parser.token & Token.IsAwait) report(parser, Errors.DisallowedInContext);
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
     }
@@ -579,12 +578,12 @@ function parseArgumentList(parser: Parser, context: Context): ESTree.Expression[
  */
 
 function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expression[] {
-    // Here we parse a "extended" argument list tweaked to handle async arrows. This is
-    // done here to avoid overhead and possible performance loss if we are only
-    // parsing out a simple call expression - E.g 'async(foo, bar)' or 'async(foo, bar)()';
+    // Here we are parsing an "extended" argument list tweaked to handle async arrows. This is
+    // done here to avoid overhead and possible performance loss if we only
+    // parse out a simple call expression - E.g 'async(foo, bar)' or 'async(foo, bar)()';
     //
     // - J.K. Thomas
-
+    
     expect(parser, context, Token.LeftParen);
     
     const args: any[] = [];
@@ -602,10 +601,14 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
             if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
             if (hasBit(token, Token.IsYield)) state |= CoverCallState.Yield;
             if (hasBit(token, Token.IsAwait)) state |= CoverCallState.Await;
-            args.push(parseAssignmentExpression(parser, context | Context.AllowIn));
+            if (!(parser.flags & Flags.AllowBinding)) {
+                report(parser, Errors.InvalidLHSInAssignment);
+            }
+            args.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
         }
 
         if (consume(parser, context, Token.Comma)) {
+            parser.flags &= ~Flags.AllowDestructuring;
             if (state & CoverCallState.HasSpread) state = CoverCallState.SeenSpread
         }
 
@@ -622,9 +625,12 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictEvalArguments;
         }
-        parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
+        parser.flags &= ~Flags.AllowBinding;    
+
          }
-    
+
+    parser.flags &= ~(Flags.HasAwait | Flags.HasYield);    
+
     return args;
 }
 
@@ -1044,7 +1050,6 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     expect(parser, context, Token.RightParen);
 
                     if (parser.token === Token.Arrow) {
-// ILLEGAL_ARROW_FUNCTION_PARAMS
                         if (state & CoverParenthesizedState.HasEvalOrArguments) {
                             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
                             parser.flags |= Flags.StrictEvalArguments;
