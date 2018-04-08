@@ -7,30 +7,30 @@ describe('Expressions - Call', () => {
 
     describe('Failures', () => {
 
-      // This fails on Acorn, Esprima and Babylon
-      const invalidAsyncCallEdgeCases = [
-          'async(a)(b)async',
-          '(a)(( async () => {}) => {})',
-          'async(async() () => {})(async() () => {})(y)(n)(c)', // crazy #1
-          'async(async() () => {})(async() () => {})(y)(n)(c)', // crazy #2
-          'async(async() () => {})(async() () => {})(async() () => {})(async() () => {})(async() () => {})', // crazy #3
-      ];
+        // This fails on Acorn, Esprima and Babylon
+        const invalidAsyncCallEdgeCases = [
+            'async(a)(b)async',
+            '(a)(( async () => {}) => {})',
+            'async(async() () => {})(async() () => {})(y)(n)(c)', // crazy #1
+            'async(async() () => {})(async() () => {})(y)(n)(c)', // crazy #2
+            'async(async() () => {})(async() () => {})(async() () => {})(async() () => {})(async() () => {})', // crazy #3
+        ];
 
-      for (const arg of invalidAsyncCallEdgeCases) {
+        for (const arg of invalidAsyncCallEdgeCases) {
 
-          it(`${arg}`, () => {
-              t.throws(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
-              });
-          });
-      }
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
 
-      const invalidSpreadCall = [
+        const invalidSpreadCall = [
             '(...[1, 2, 3])',
             '......[1,2,3]',
         ];
 
-      for (const arg of invalidSpreadCall) {
+        for (const arg of invalidSpreadCall) {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.throws(() => {
@@ -44,41 +44,43 @@ describe('Expressions - Call', () => {
                 });
             });
         }
-      fail('a.b( c() ).d.e().().f.g.();', Context.Empty, {
+
+        fail('a.b( c() ).d.e().().f.g.();', Context.Empty, {
             source: 'a.b( c() ).d.e().().f.g.();',
         });
 
-      fail('a.b( c() ).d.e(()).f.g', Context.Empty, {
+        fail('a.b( c() ).d.e(()).f.g', Context.Empty, {
             source: 'a.b( c() ).d.e(()).f.g',
         });
 
-      fail('() => {}()', Context.Empty, {
+        fail('() => {}()', Context.Empty, {
             source: '() => {}()',
         });
     });
 
     describe('Pass', () => {
 
-      const asyncCallEdgeCases = [
-          'async', // Async identifier
-          'async()',
-          'async(async(async(async(async(async())))))', // Nested
-          'async(a)(b)',
-          'async(a)(s)(y)(n)(c)',
-          'async() () => {}', // async arrow
-          'async()',
-      ];
+        const asyncCallEdgeCases = [
+            'async', // Async identifier
+            'async()',
+            'async(async(async(async(async(async())))))', // Nested
+            'async(a)(b)',
+            'async(a)(s)(y)(n)(c)',
+            'async() => {}', // async arrow
+            'async()()',
+            'async()(async() => {})',
+        ];
 
-      for (const arg of asyncCallEdgeCases) {
+        for (const arg of asyncCallEdgeCases) {
 
-          it(`function fn() { 'use strict';} fn(${arg});`, () => {
-              t.doesNotThrow(() => {
-                  parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
-              });
-          });
-      }
+            it(`function fn() { 'use strict';} fn(${arg});`, () => {
+                t.doesNotThrow(() => {
+                    parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+                });
+            });
+        }
 
-      const spreadCall = [
+        const spreadCall = [
             `a()(a)`,
             `async()()`,
             `async(a)()`,
@@ -96,7 +98,7 @@ describe('Expressions - Call', () => {
             '...[0, 1, 2], 3, 4, 5, 6, ...\'7\', 8, 9, ...[10]',
         ];
 
-      for (const arg of spreadCall) {
+        for (const arg of spreadCall) {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.doesNotThrow(() => {
@@ -111,7 +113,7 @@ describe('Expressions - Call', () => {
             });
         }
 
-      const validSyntax = [
+        const validSyntax = [
             'foo(...[],);',
             '(function(obj) {}(1, 2, 3, ...[]));',
             'foo(x=1,y=x,x+y)',
@@ -122,6 +124,10 @@ describe('Expressions - Call', () => {
             'a.b.c( foo() );',
             'a.b( foo() );',
             'a.b( c() ).d;',
+            'eval(...{}, "x = 0;");',
+            'foo()(1, 2, 3, ...{})',
+            'foo(...[],)',
+            '(function(obj) {}({a: 1, b: 2, ...{c: 3, d: 4}}));',
             'a.b( c() ).d.e;',
             'a.b( c() ).d.e((a)).f.g',
             'a.b( c() ).d.e((a = 123)).f.g',
@@ -134,7 +140,7 @@ describe('Expressions - Call', () => {
             '(function(obj) {}(...target = [2, 3, 4]));',
         ];
 
-      for (const arg of validSyntax) {
+        for (const arg of validSyntax) {
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
@@ -143,7 +149,7 @@ describe('Expressions - Call', () => {
             });
         }
 
-      pass(`a(String, 2).v(123).length;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`a(String, 2).v(123).length;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a(String, 2).v(123).length;`,
             expected: {
                 type: 'Program',
@@ -339,7 +345,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`a(b,c).abc(1).def`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`a(b,c).abc(1).def`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a(b,c).abc(1).def`,
             expected: {
                 type: 'Program',
@@ -534,7 +540,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`a(b,c).abc(1)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`a(b,c).abc(1)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a(b,c).abc(1)`,
             expected: {
                 type: 'Program',
@@ -697,7 +703,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`a(b,c).abc`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`a(b,c).abc`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a(b,c).abc`,
             expected: {
                 type: 'Program',
@@ -828,7 +834,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`a(b,c)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`a(b,c)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a(b,c)`,
             expected: {
                 type: 'Program',
@@ -927,7 +933,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`foo(bar, baz)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`foo(bar, baz)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `foo(bar, baz)`,
             expected: {
                 type: 'Program',
@@ -1026,7 +1032,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`(    foo  )()`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`(    foo  )()`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `(    foo  )()`,
             expected: {
                 type: 'Program',
@@ -1093,7 +1099,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`f(...a)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`f(...a)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `f(...a)`,
             expected: {
                 type: 'Program',
@@ -1190,7 +1196,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`f(...a, ...b)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`f(...a, ...b)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `f(...a, ...b)`,
             expected: {
                 type: 'Program',
@@ -1319,7 +1325,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`f(...a, b, ...c)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`f(...a, b, ...c)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `f(...a, b, ...c)`,
             expected: {
                 type: 'Program',
@@ -1464,7 +1470,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`f(...0);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`f(...0);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `f(...0);`,
             expected: {
                 type: 'Program',
@@ -1562,7 +1568,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`f(0)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`f(0)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `f(0)`,
             expected: {
                 type: 'Program',
@@ -1645,7 +1651,7 @@ describe('Expressions - Call', () => {
             }
         });
 
-      pass(`Math.round(diff / 6.048e8); // 6.048e8 ms per week`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`Math.round(diff / 6.048e8); // 6.048e8 ms per week`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `Math.round(diff / 6.048e8); // 6.048e8 ms per week`,
             expected: {
                 type: 'Program',
@@ -1792,4 +1798,4 @@ describe('Expressions - Call', () => {
             }
         });
     });
-  });
+});
