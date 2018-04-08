@@ -42,6 +42,11 @@ describe('Expressions - Call', () => {
   describe('Pass', () => {
 
       const spreadCall = [
+        `a()(a)`,
+        `async()()`,
+        `async(a)()`,
+        `async()(b)`,
+        `async(a)(b)`,
           '...([1, 2, 3])',
           '...\'123\', ...\'456\'',
           '...new Set([1, 2, 3]), 4',

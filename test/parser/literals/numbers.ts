@@ -1884,6 +1884,5 @@ describe('Literals - numbers', () => {
                       type: 'Program'
                     }
                 });
-    });
 
-})
+});
