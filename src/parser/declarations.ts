@@ -156,15 +156,11 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
 
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
-
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            if (context & (Context.BlockScope | Context.Strict) || parser.token === Token.OfKeyword) {
-                report(parser, Errors.ForInOfLoopInitializer, 'of');
-            } else if (!(context & Context.BlockScope) && isBindingPattern && parser.token === Token.InKeyword) {
-                report(parser, Errors.ForInOfLoopInitializer, 'in');
-            }
+            report(parser, context & (Context.BlockScope | Context.Strict) 
+                ? Errors.ForInOfLoopInitializer 
+                : Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
-
         // Initializers are required for 'const' and binding patterns
     } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
         report(parser, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
