@@ -64,6 +64,9 @@ export interface Options {
 
     // The flag to allow to skip shebang - '#'
     skipShebang ?: boolean;
+
+    // Attach raw property to each identifier node
+    rawidentifiers?: boolean;
 }
 
 /**

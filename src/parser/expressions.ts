@@ -743,10 +743,14 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
     const pos = getLocation(parser);
     const name = parser.tokenValue;
     nextToken(parser, context | Context.TaggedTemplate);
-    return finishNode(context, parser, pos, {
+    const node: any = finishNode(context, parser, pos, {
         type: 'Identifier',
         name
     });
+
+    if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
+
+    return node;
 }
 
 /**

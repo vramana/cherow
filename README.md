@@ -1,4 +1,4 @@
-# Cherow 
+# Cherow
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
@@ -17,7 +17,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Supports Stage 3 proposals via option
 * Optionally track syntactic node locations
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~23 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Very well tested (~43 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Lightweight - 62 KB minified
 
 ## ESNext features
@@ -110,7 +110,7 @@ There is a second argument to both methods that allows you to specify various op
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `raw`             | Attach raw property to each literal node    |
-
+| `rawidentifiers`  | Attach raw property to each identifier node    |
 
 # Modules
 

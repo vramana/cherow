@@ -105,6 +105,7 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.globalReturn) context |= Context.OptionsGlobalReturn;
         if (options.globalAwait) context |= Context.OptionsGlobalAwait;
         if (options.skipShebang) context |= Context.OptionsShebang;
+        if (options.rawidentifiers) context |= Context.OptionsRawidentifiers;
 
         if (!!options.source) sourceFile = options.source;
         if (!!options.comments) context |= Context.OptionsComments;
