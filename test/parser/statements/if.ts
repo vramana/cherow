@@ -11,6 +11,11 @@ describe('Statements - If', () => {
         if (false)`,
         });
 
+        // Esprima issue: https://github.com/jquery/esprima/issues/1866
+        fail('if(1)class A{}', Context.Empty, {
+            source: 'if(1)class A{}',
+        });
+
         fail('if true;', Context.Empty, {
             source: 'if true;',
         });

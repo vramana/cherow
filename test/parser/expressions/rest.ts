@@ -79,6 +79,11 @@ describe('Expressions - Rest', () => {
           source: '0, function(...a,) { };',
       });
 
+      // Esprima issue: https://github.com/jquery/esprima/issues/1800
+    fail('[a, ...(b = c)] = 0', Context.Empty, {
+        source: '[a, ...(b = c)] = 0',
+      });
+
   });
 
   describe('Pass', () => {

@@ -83,6 +83,11 @@ source: 'var x | true;',
   source: '"use strict"; for (var eval in arrObj) { }',
 });
 
+// Esprima issue: https://github.com/jquery/esprima/issues/1871
+    fail('var obj = { *g(yield) {} };', Context.Empty, {
+  source: 'var obj = { *g(yield) {} };',
+});
+
   });
 
   describe('Pass', () => {
