@@ -47,6 +47,9 @@ export interface Options {
     // The flag to attach raw property to each literal node
     raw ?: boolean;
 
+    // Attach raw property to each identifier node
+    rawIdentifier?: boolean;
+    
     // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
     delegate ?: Delegate;
 
@@ -64,9 +67,6 @@ export interface Options {
 
     // The flag to allow to skip shebang - '#'
     skipShebang ?: boolean;
-
-    // Attach raw property to each identifier node
-    rawidentifiers?: boolean;
 }
 
 /**

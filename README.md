@@ -110,7 +110,7 @@ There is a second argument to both methods that allows you to specify various op
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `raw`             | Attach raw property to each literal node    |
-| `rawidentifiers`  | Attach raw property to each identifier node    |
+| `rawIdentifier`   | Attach raw property to each identifier node    |
 
 # Modules
 
