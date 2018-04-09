@@ -1068,7 +1068,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     expect(parser, context, Token.RightParen);
 
                     if (parser.token === Token.Arrow) {
-// ILLEGAL_ARROW_FUNCTION_PARAMS
+
                         if (state & CoverParenthesizedState.HasEvalOrArguments) {
                             if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
                             parser.flags |= Flags.StrictEvalArguments;
@@ -1079,9 +1079,9 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                             report(parser, Errors.InvalidLHSInAssignment);
                         }
                         if (parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
-
+                        if (parser.flags & Flags.HasAwait) report(parser, Errors.AwaitInParameter);
                         parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
+                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
                         parser.flags &= ~Flags.AllowBinding;
                         const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
                         return params;
