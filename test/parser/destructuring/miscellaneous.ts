@@ -1,65 +1,122 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Destructuring - Miscellaneous', () => {
 
     describe('Failure', () => {
 
-        fail(' [([a])] = 12;', Context.Empty, {
+      const invalidSyntax = [
+        // Syntax errors
+        'function f1() { var a = 10; [a+2] = []; }; f1();',
+        'function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();',
+        'for (let []; ;) { }',
+        'for (let a = 1, []; ;) { }',
+        'for (let [] = [], a = 1, {}; ;) { }',
+        'for (let [[a] = []]; ;) { }',
+        'for (var {a: ...a1} = {}; ; ) { } ',
+        'for (var {a: ...[]} = {}; ; ) { } ',
+        'for (var {a: ...[]} of \'\' ) { } ',
+        'for (var a of {b: foo()} = {}) { }',
+        'for ([{b: foo()} = {}] of {}) { }',
+        'for (var a in {b: foo().bar()} = {}) { }',
+        '({x : , y} = {});',
+        'var {x :  , y} = {};',
+        'var {x :  } = {};',
+        'var {x :  , } = {};',
+        '(bar, [((zoo) = (1))] = (bar)) => { };',
+        'var e = 1;       ( {abcdef  = ((((({})) = (1))))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1;       ( {ghijkl  = ((((({})) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        '( {abcdef  = ((((([...((abcdef))] = [1, 2, 3])) = (1))))} = (e)) => {  try{  } catch(abcdef) {}}',
+        '(bar, [((zoo) = (1))] = (bar)) => { };',
+        'function test5(){ var ggnzrk=function(){ }; ({ggnzrk, namespace: {}, w: [(inmgdv)]}) => { };};'
+    ];
+
+      for (const arg of invalidSyntax) {
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+      }
+
+      fail(' [([a])] = 12;', Context.Empty, {
             source: ' [([a])] = 12;',
         });
 
-        fail('[...a, b] = [...e,] = 12', Context.Empty, {
+      fail('[...a, b] = [...e,] = 12', Context.Empty, {
             source: '[...a, b] = [...e,] = 12',
         });
 
-        fail('[ a -= 12 ] = 12;', Context.Empty, {
+      fail('[ a -= 12 ] = 12;', Context.Empty, {
             source: '[ a -= 12 ] = 12;',
         });
 
-        fail('();', Context.Empty, {
+      fail('();', Context.Empty, {
             source: '();',
         });
 
-        fail('for (var [ a ]; a; ) {}', Context.Empty, {
+      fail('for (var [ a ]; a; ) {}', Context.Empty, {
             source: 'for (var [ a ]; a; ) {}',
         });
 
-        fail('var { a, b, c };', Context.Empty, {
+      fail('var { a, b, c };', Context.Empty, {
             source: 'var { a, b, c };',
         });
 
-        fail('for (var { a, b, c }; a && b && c; ) {}', Context.Empty, {
+      fail('for (var { a, b, c }; a && b && c; ) {}', Context.Empty, {
             source: 'for (var { a, b, c }; a && b && c; ) {}',
         });
 
-        fail('function f1() { var a = 10; [a+2] = []; }; f1();', Context.Empty, {
+      fail('function f1() { var a = 10; [a+2] = []; }; f1();', Context.Empty, {
             source: 'function f1() { var a = 10; [a+2] = []; }; f1();',
         });
 
-        fail('function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();', Context.Empty, {
+      fail('function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();', Context.Empty, {
             source: 'function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();',
         });
 
         // This tests isn't implemented with the Jazzle parser
-        fail('[...(a),] = 12', Context.Empty, {
+      fail('[...(a),] = 12', Context.Empty, {
             source: '[...(a),] = 12',
         });
 
-        fail('([a]) = 12', Context.Empty, {
+      fail('([a]) = 12', Context.Empty, {
             source: '([a]) = 12',
         });
 
-        fail('function* l() { ({[yield]: (a)})=>12 }', Context.Empty, {
+      fail('function* l() { ({[yield]: (a)})=>12 }', Context.Empty, {
             source: 'function* l() { ({[yield]: (a)})=>12 }',
         });
     });
 
     describe('Pass', () => {
 
-        const validSyntax = [
+      const validCombos = [
+        'var e = 1; ( {foo = (((  {}   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1; ( {tuvwxy  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        'var a; [a = class aClass {}] = [];',
+        'var a; ({ bar = ((cspagh = 4) => a) } = 1) => { /*jjj*/ }; (function(a) { })()',
+        'var e = 1; ( {bar  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1;       ( {ghijkl  = (((((foo)) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1;       ( {abcdef  = (((((foo)) = (1))))} = (e)) => {  try{ } catch(e) {}}',
+        'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}'
+    ];
+
+      for (const arg of validCombos) {
+
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+      }
+
+      const validSyntax = [
             'a',
             '{ x : y }',
             '{ x : y = 1 }',
@@ -119,7 +176,7 @@ describe('Destructuring - Miscellaneous', () => {
             //"{ __proto__: x, __proto__: y, ...z}",
         ];
 
-        for (const arg of validSyntax) {
+      for (const arg of validSyntax) {
 
             it(`var ${arg} = {};`, () => {
                 t.doesNotThrow(() => {
