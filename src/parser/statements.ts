@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
+import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern } from './pattern';
 import { Location, ForStatementType } from '../types';
 import { Parser } from './parser';
@@ -65,7 +65,7 @@ export function parseStatementListItem(parser: Parser, context: Context) {
         case Token.AsyncKeyword:
             return parseAsyncFunctionDeclarationOrStatement(parser, context);
         case Token.ExportKeyword:
-            if (context & Context.Module) report(parser, Errors.ExportDeclAtTopLevel);
+            if (context & Context.Module) tolerant(parser, context, Errors.ExportDeclAtTopLevel);
             break;
         case Token.ImportKeyword:
             // We must be careful not to parse a 'import()'
@@ -73,7 +73,7 @@ export function parseStatementListItem(parser: Parser, context: Context) {
             if (context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
                 return parseExpressionStatement(parser, context | Context.AllowIn);
             }
-            if (context & Context.Module) report(parser, Errors.ImportDeclAtTopLevel);
+            if (context & Context.Module) tolerant(parser, context, Errors.ImportDeclAtTopLevel);
             break;
         default: // ignore
     }
@@ -125,14 +125,14 @@ export function parseStatement(parser: Parser, context: Context): any {
             return parseForStatement(parser, context | Context.ForStatement);
         case Token.AsyncKeyword:
             if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
-                report(parser, Errors.AsyncFunctionInSingleStatementContext);
+                tolerant(parser, context, Errors.AsyncFunctionInSingleStatementContext);
             }
             return parseExpressionOrLabelledStatement(parser, context | Context.AllowSingleStatement);
         case Token.FunctionKeyword:
             // V8
-            report(parser, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+            tolerant(parser, context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
         case Token.ClassKeyword:
-            report(parser, Errors.ForbiddenAsStatement, tokenDesc(parser.token));
+            tolerant(parser, context, Errors.ForbiddenAsStatement, tokenDesc(parser.token));
         default:
             return parseExpressionOrLabelledStatement(parser, context);
     }
@@ -168,7 +168,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     expect(parser, context, Token.ContinueKeyword);
     // Appearing of continue without an IterationStatement leads to syntax error
     if (!(parser.flags & Flags.AllowBreakOrContinue)) {
-        report(parser, Errors.InvalidNestedStatement, tokenDesc(parser.token));
+        tolerant(parser, context, Errors.InvalidNestedStatement, tokenDesc(parser.token));
     }
     let label: ESTree.Identifier | undefined | null = null;
     const { tokenValue } = parser;
@@ -205,7 +205,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
         label = parseIdentifier(parser, context);
         validateBreakOrContinueLabel(parser, tokenValue, /* isContinue */ false);
     } else if (!(parser.flags & Flags.AllowBreakOrContinue)) {
-        report(parser, Errors.InvalidNestedStatement, 'break');
+        tolerant(parser, context, Errors.InvalidNestedStatement, 'break');
     }
 
     consumeSemicolon(parser, context);
@@ -287,7 +287,7 @@ export function parseTryStatement(parser: Parser, context: Context) {
     const block = parseBlockStatement(parser, context);
     const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
-    if (!handler && !finalizer) report(parser, Errors.Unexpected);
+    if (!handler && !finalizer) tolerant(parser, context, Errors.Unexpected);
     return finishNode(context, parser, pos, {
         type: 'TryStatement',
         block,
@@ -347,7 +347,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
 export function parseThrowStatement(parser: Parser, context: Context) {
     const pos = getLocation(parser);
     expect(parser, context, Token.ThrowKeyword);
-    if (parser.flags & Flags.NewLine) report(parser, Errors.Unexpected);
+    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.Unexpected);
     const argument: ESTree.Expression = parseExpression(parser, context | Context.AllowIn);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -390,9 +390,9 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
     const expr: ESTree.Expression = parseExpression(parser, context | Context.AllowIn);
     if (token & (Token.IsIdentifier | Token.Keyword) && parser.token === Token.Colon) {
         // If within generator function bodies, we do it like this so we can throw an nice error message
-        if (context & Context.Yield && token & Token.IsYield) report(parser, Errors.YieldReservedKeyword);
+        if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldReservedKeyword);
         expect(parser, context, Token.Colon);
-        if (hasLabel(parser, tokenValue)) report(parser, Errors.LabelRedeclaration, tokenValue);
+        if (hasLabel(parser, tokenValue)) tolerant(parser, context, Errors.LabelRedeclaration, tokenValue);
         addLabel(parser, tokenValue);
         let body: ESTree.FunctionDeclaration | ESTree.Statement;
         if (!(context & Context.Strict) && (context & Context.AllowSingleStatement) && parser.token === Token.FunctionKeyword) {
@@ -505,7 +505,7 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
 
 export function parseReturnStatement(parser: Parser, context: Context): ESTree.ReturnStatement {
     const pos = getLocation(parser);
-    if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(parser, Errors.IllegalReturn);
+    if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) tolerant(parser, context, Errors.IllegalReturn);
     expect(parser, context, Token.ReturnKeyword);
     const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine) ?
         parseExpression(parser, context & ~Context.InFunctionBody | Context.AllowIn) :
@@ -548,7 +548,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
  */
 
 export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
-    if (context & Context.Strict) report(parser, Errors.StrictModeWith);
+    if (context & Context.Strict) tolerant(parser, context, Errors.StrictModeWith);
     const pos = getLocation(parser);
     expect(parser, context, Token.WithKeyword);
     expect(parser, context, Token.LeftParen);
@@ -616,7 +616,7 @@ export function parseCaseOrDefaultClauses(parser: Parser, context: Context): EST
     while (!isEndOfCaseOrDefaultClauses(parser)) {
         consequent.push(parseStatementListItem(parser, context | Context.AllowIn));
         if (parser.token === Token.DefaultKeyword) {
-            if (seenDefault) report(parser, Errors.MultipleDefaultsInSwitch);
+            if (seenDefault) tolerant(parser, context, Errors.MultipleDefaultsInSwitch);
             seenDefault = true;
         }
     }
@@ -727,7 +727,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         type = 'ForOfStatement';
         if (init) {
             if (!(parser.flags & Flags.AllowDestructuring) || init.type === 'AssignmentExpression') {
-                report(parser, Errors.Unexpected);
+                tolerant(parser, context, Errors.Unexpected);
             }
             reinterpret(parser, context, init);
         } else init = variableStatement;
@@ -737,7 +737,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
     } else if (consume(parser, context, Token.InKeyword)) {
 
         if (init) {
-            if (!(parser.flags & Flags.AllowDestructuring)) report(parser, Errors.Unexpected);
+            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.Unexpected);
             reinterpret(parser, context, init);
         } else init = variableStatement;
 

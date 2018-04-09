@@ -9,7 +9,8 @@ describe('Statements - For await of', () => {
 
         const Failures = [
             '(a = 1 of [])',
-            '(a = 1 of []',
+            '(var a = 0 in null)',
+            '(var [a] = 0 in null)',
             '(a = 1 of [)',
             '(a  1 of [])',
             '(a = 1) of [])',

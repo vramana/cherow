@@ -68,8 +68,8 @@ export interface Options {
     // The flag to allow to skip shebang - '#'
     skipShebang ?: boolean;
 
-    // Enable editor mode
-    editor?: boolean;
+    // Enable tolerant mode
+    tolerant?: boolean;
 }
 
 /**

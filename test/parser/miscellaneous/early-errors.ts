@@ -3,8 +3,6 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-// Note! Only a few early errors are tested here, and a few doesn't fail. Should we use time on fixing that?
-
 describe('Miscellaneous - Early errors', () => {
 
     describe('Failure - sloppy / strict', () => {
@@ -409,6 +407,20 @@ describe('Miscellaneous - Early errors', () => {
             '"use strict"; function a(...yield) {}',
             'break a;',
             '"use strict"; eval = 42;',
+
+            // Async functions
+
+            'async function a(k = super.prop) { }',
+            '(async function(k = super.prop) {})',
+            '(async function a(k = super.prop) {})',
+            'async function a() { super.prop(); }',
+            '(async function a() { super.prop(); })',
+            '(async function a(k = super()) {})',
+            '(async function a() { super(); })',
+            '\'use strict\'; (async function eval() {})',
+            '\'use strict\'; async function eval() {}',
+            '(async function a(k = await 3) {})',
+            'async function a(k = await 3) {}',
 
             // Class fields - Stage 3 proposal
             'var x = "string"; class C { static [x] = /*{ initializer }*/; }',

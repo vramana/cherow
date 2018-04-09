@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
+import { Errors, report, tolerant } from '../errors';
 import { Location } from '../types';
 import { Parser } from './parser';
 import {
@@ -40,9 +40,9 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
     }
 
     if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
-        report(parser, Errors.AwaitBindingIdentifier);
+        tolerant(parser, context, Errors.AwaitBindingIdentifier);
     } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
-        report(parser, Errors.YieldBindingIdentifier);
+        tolerant(parser, context, Errors.YieldBindingIdentifier);
     }
 
     return parseBindingIdentifier(parser, context);
@@ -61,16 +61,16 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
 
     const { token } = parser;
     if (token & Token.IsEvalOrArguments) {
-        if (context & Context.Strict) report(parser, Errors.StrictLHSAssignment);
+        if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
         parser.flags |= Flags.StrictReserved;
     } else if (context & Context.BlockScope && token === Token.LetKeyword) {
         // let is disallowed as a lexically bound name
-        report(parser, Errors.LetInLexicalBinding);
+        tolerant(parser, context, Errors.LetInLexicalBinding);
     } else if (hasBit(token, Token.FutureReserved)) {
-        if (context & Context.Strict) report(parser, Errors.UnexpectedToken, tokenDesc(token));
+        if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
         parser.flags |= Flags.StrictFunctionName;
     } else if (!isIdentifier(context, token)) {
-        report(parser, Errors.UnexpectedToken, tokenDesc(token));
+        tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
     }
 
     const pos = getLocation(parser);
@@ -96,7 +96,7 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context, 
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
-    if (parser.token !== endToken) report(parser, Errors.ElementAfterRest);
+    if (parser.token !== endToken) tolerant(parser, context, Errors.ElementAfterRest);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument
@@ -213,7 +213,7 @@ function parseAssignmentOrArrayAssignmentPattern(
     if (!consume(parser, context, Token.Assign)) return left;
     if (context & (Context.InParen | Context.InFunctionBody)) {
         if (parser.token & Token.IsYield && context & Context.Yield) {
-            report(parser, Errors.YieldBindingIdentifier);
+            tolerant(parser, context, Errors.YieldBindingIdentifier);
         }
     }
     return finishNode(context, parser, pos, {
@@ -247,13 +247,13 @@ function parseBindingProperty(parser: Parser, context: Context): ESTree.Assignme
 
             if (context & (Context.Strict | Context.Yield) &&
                 (token & Token.IsYield || parser.token & Token.IsYield)) {
-                report(parser, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
+                tolerant(parser, context, context & Context.InParameter ? Errors.YieldInParameter : Errors.YieldBindingIdentifier);
             }
 
             if (consume(parser, context, Token.Assign)) {
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
             } else {
-                if (!isIdentifier(context, token)) report(parser, Errors.UnexpectedReserved);
+                if (!isIdentifier(context, token)) tolerant(parser, context, Errors.UnexpectedReserved);
                 value = key;
             }
         } else value = parseAssignmentOrArrayAssignmentPattern(parser, context);

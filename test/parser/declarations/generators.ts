@@ -140,6 +140,34 @@ describe('Statements - Generators', () => {
             });
         }
 
+        fail('function* g() { yield\n* foo }', Context.Empty, {
+            source: 'function* g() { yield\n* foo }',
+        });
+
+        fail('function* g() { yield ? yield : yield }', Context.Empty, {
+            source: 'function* g() { yield ? yield : yield }',
+        });
+
+        fail('function* g() { yield 3 + yield 4; }', Context.Empty, {
+            source: 'function* g() { yield 3 + yield 4; }',
+        });
+
+        fail('function f() { \'use strict\'; var yield = 13; }', Context.Empty, {
+            source: 'function f() { \'use strict\'; var yield = 13; }',
+        });
+
+        fail('function f() { (function* yield() {}); }', Context.Empty, {
+            source: 'function f() { (function* yield() {}); }',
+        });
+
+        fail('function* g() { (function* yield() {}); }', Context.Empty, {
+            source: 'function* g() { (function* yield() {}); }',
+        });
+
+        fail('function* g(yield) { yield (10); }', Context.Empty, {
+            source: 'function* g(yield) { yield (10); }',
+        });
+
         fail('function* f(...x = []) {}', Context.Empty, {
             source: 'function* f(...x = []) {}',
         });
@@ -186,6 +214,597 @@ describe('Statements - Generators', () => {
     });
 
     describe('Pass', () => {
+
+        pass(`// Yield statements.
+        function* g() { yield 3; yield 4; }
+
+        // Yield expressions.
+        function* g() { (yield 3) + (yield 4); }
+
+        // Yield without a RHS.
+        function* g() { yield; }
+        function* g() { yield }
+        function* g() {
+            yield
+        }
+        function* g() { (yield) }
+        function* g() { [yield] }
+        function* g() { {yield} }
+        function* g() { (yield), (yield) }
+        function* g() { yield; yield }
+        function* g() { (yield) ? yield : yield }
+        function* g() {
+            (yield)
+            ? yield
+            : yield
+        }`, Context.OptionsRanges | Context.OptionsRaw, {
+            source: `// Yield statements.
+            function* g() { yield 3; yield 4; }
+
+            // Yield expressions.
+            function* g() { (yield 3) + (yield 4); }
+
+            // Yield without a RHS.
+            function* g() { yield; }
+            function* g() { yield }
+            function* g() {
+                yield
+            }
+            function* g() { (yield) }
+            function* g() { [yield] }
+            function* g() { {yield} }
+            function* g() { (yield), (yield) }
+            function* g() { yield; yield }
+            function* g() { (yield) ? yield : yield }
+            function* g() {
+                (yield)
+                ? yield
+                : yield
+            }`,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 726,
+                body: [
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 0,
+                    end: 68,
+                    id: {
+                      type: 'Identifier',
+                      start: 43,
+                      end: 44,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 47,
+                      end: 68,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 49,
+                          end: 57,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 49,
+                            end: 56,
+                            delegate: false,
+                            argument: {
+                              type: 'Literal',
+                              start: 55,
+                              end: 56,
+                              value: 3,
+                              raw: '3'
+                            }
+                          }
+                        },
+                        {
+                          type: 'ExpressionStatement',
+                          start: 58,
+                          end: 66,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 58,
+                            end: 65,
+                            delegate: false,
+                            argument: {
+                              type: 'Literal',
+                              start: 64,
+                              end: 65,
+                              value: 4,
+                              raw: '4'
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 128,
+                    end: 168,
+                    id: {
+                      type: 'Identifier',
+                      start: 138,
+                      end: 139,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 142,
+                      end: 168,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 144,
+                          end: 166,
+                          expression: {
+                            type: 'BinaryExpression',
+                            start: 144,
+                            end: 165,
+                            left: {
+                              type: 'YieldExpression',
+                              start: 145,
+                              end: 152,
+                              delegate: false,
+                              argument: {
+                                type: 'Literal',
+                                start: 151,
+                                end: 152,
+                                value: 3,
+                                raw: '3'
+                              }
+                            },
+                            operator: '+',
+                            right: {
+                              type: 'YieldExpression',
+                              start: 157,
+                              end: 164,
+                              delegate: false,
+                              argument: {
+                                type: 'Literal',
+                                start: 163,
+                                end: 164,
+                                value: 4,
+                                raw: '4'
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 230,
+                    end: 254,
+                    id: {
+                      type: 'Identifier',
+                      start: 240,
+                      end: 241,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 244,
+                      end: 254,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 246,
+                          end: 252,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 246,
+                            end: 251,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 267,
+                    end: 290,
+                    id: {
+                      type: 'Identifier',
+                      start: 277,
+                      end: 278,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 281,
+                      end: 290,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 283,
+                          end: 288,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 283,
+                            end: 288,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 303,
+                    end: 354,
+                    id: {
+                      type: 'Identifier',
+                      start: 313,
+                      end: 314,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 317,
+                      end: 354,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 335,
+                          end: 340,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 335,
+                            end: 340,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 367,
+                    end: 392,
+                    id: {
+                      type: 'Identifier',
+                      start: 377,
+                      end: 378,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 381,
+                      end: 392,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 383,
+                          end: 390,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 384,
+                            end: 389,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 405,
+                    end: 430,
+                    id: {
+                      type: 'Identifier',
+                      start: 415,
+                      end: 416,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 419,
+                      end: 430,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 421,
+                          end: 428,
+                          expression: {
+                            type: 'ArrayExpression',
+                            start: 421,
+                            end: 428,
+                            elements: [
+                              {
+                                type: 'YieldExpression',
+                                start: 422,
+                                end: 427,
+                                delegate: false,
+                                argument: null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 443,
+                    end: 468,
+                    id: {
+                      type: 'Identifier',
+                      start: 453,
+                      end: 454,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 457,
+                      end: 468,
+                      body: [
+                        {
+                          type: 'BlockStatement',
+                          start: 459,
+                          end: 466,
+                          body: [
+                            {
+                              type: 'ExpressionStatement',
+                              start: 460,
+                              end: 465,
+                              expression: {
+                                type: 'YieldExpression',
+                                start: 460,
+                                end: 465,
+                                delegate: false,
+                                argument: null
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 481,
+                    end: 515,
+                    id: {
+                      type: 'Identifier',
+                      start: 491,
+                      end: 492,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 495,
+                      end: 515,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 497,
+                          end: 513,
+                          expression: {
+                            type: 'SequenceExpression',
+                            start: 497,
+                            end: 513,
+                            expressions: [
+                              {
+                                type: 'YieldExpression',
+                                start: 498,
+                                end: 503,
+                                delegate: false,
+                                argument: null
+                              },
+                              {
+                                type: 'YieldExpression',
+                                start: 507,
+                                end: 512,
+                                delegate: false,
+                                argument: null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 528,
+                    end: 558,
+                    id: {
+                      type: 'Identifier',
+                      start: 538,
+                      end: 539,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 542,
+                      end: 558,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 544,
+                          end: 550,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 544,
+                            end: 549,
+                            delegate: false,
+                            argument: null
+                          }
+                        },
+                        {
+                          type: 'ExpressionStatement',
+                          start: 551,
+                          end: 556,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 551,
+                            end: 556,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 571,
+                    end: 612,
+                    id: {
+                      type: 'Identifier',
+                      start: 581,
+                      end: 582,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 585,
+                      end: 612,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 587,
+                          end: 610,
+                          expression: {
+                            type: 'ConditionalExpression',
+                            start: 587,
+                            end: 610,
+                            test: {
+                              type: 'YieldExpression',
+                              start: 588,
+                              end: 593,
+                              delegate: false,
+                              argument: null
+                            },
+                            consequent: {
+                              type: 'YieldExpression',
+                              start: 597,
+                              end: 602,
+                              delegate: false,
+                              argument: null
+                            },
+                            alternate: {
+                              type: 'YieldExpression',
+                              start: 605,
+                              end: 610,
+                              delegate: false,
+                              argument: null
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 625,
+                    end: 726,
+                    id: {
+                      type: 'Identifier',
+                      start: 635,
+                      end: 636,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 639,
+                      end: 726,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 657,
+                          end: 712,
+                          expression: {
+                            type: 'ConditionalExpression',
+                            start: 657,
+                            end: 712,
+                            test: {
+                              type: 'YieldExpression',
+                              start: 658,
+                              end: 663,
+                              delegate: false,
+                              argument: null
+                            },
+                            consequent: {
+                              type: 'YieldExpression',
+                              start: 683,
+                              end: 688,
+                              delegate: false,
+                              argument: null
+                            },
+                            alternate: {
+                              type: 'YieldExpression',
+                              start: 707,
+                              end: 712,
+                              delegate: false,
+                              argument: null
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
 
         pass(`function* g1() { yield; } function* g2() { yield 1; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `function* g1() { yield; } function* g2() { yield 1; }`,

@@ -173,7 +173,7 @@ export const ErrorMessages: {
 /**
  * Collect line, index, and colum from either the recorded error
  * or directly from the parser and returns it
- *
+ * 
  * @param parser Parser instance
  * @param context Context masks
  * @param index  The 0-based end index of the error.
@@ -190,7 +190,7 @@ export function constructError(parser: Parser, context: Context, index: number, 
     error.line = line;
     error.column = column;
     error.description = description;
-    if (context & Context.OptionsEditor) {
+    if (context & Context.OptionsTolerant) {
         parser.errors.push(error);
     } else throw error;
 }
@@ -198,12 +198,12 @@ export function constructError(parser: Parser, context: Context, index: number, 
 /**
  * Collect line, index, and colum from either the recorded error
  * or directly from the parser and returns it
- *
+ * 
  * @param parser Parser instance
  */
 
 function getErrorLocation(parser: Parser) {
-    let { index, line, column } = parser;
+    let { index, line, column } = parser;;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
         index = errorLoc.index;
@@ -215,31 +215,31 @@ function getErrorLocation(parser: Parser) {
 
 /**
  * Throws an error
- *
+ * 
  * @param parser Parser instance
  * @param context Context masks
  * @param type Error type
  * @param params Error params
  */
 export function report(parser: Parser, type: Errors, ...params: string[]) {
-    const { index, line, column } = getErrorLocation(parser);
+    let { index, line, column } = getErrorLocation(parser);
     type = parser.errorLocation ? parser.errorLocation.error : type;
-    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-    constructError(parser, Context.Empty, index, line, column, errorMessage);
+    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    constructError(parser, Context.Empty, index, line, column, errorMessage)
 }
 
 /**
- * If in editor mode, all errors are pushed to a top-level error array containing
+ * If in tolerant mode, all errors are pushed to a top-level error array containing 
  * otherwise throws
- *
+ * 
  * @param parser Parser instance
  * @param context Context masks
  * @param type Error type
  * @param params Error params
  */
-export function editor(parser: Parser, context: Context, type: Errors, ...params: string[]) {
-    const { index, line, column } = getErrorLocation(parser);
+export function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]) {
+    let { index, line, column } = getErrorLocation(parser);
     type = parser.errorLocation ? parser.errorLocation.error : type;
-    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-    constructError(parser, Context.Empty, index, line, column, errorMessage);
+    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    constructError(parser, Context.Empty, index, line, column, errorMessage)
 }

@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
+import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
 import { Parser } from './parser';
@@ -41,7 +41,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     if (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) {
         id = parseFunctionOrClassDeclarationName(parser, context | Context.Strict);
         // Class statements must have a bound name
-    } else if (!(context & Context.RequireIdentifier)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
+    } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
     let state = ObjectState.None;
     let superClass: ESTree.Expression | null = null;
 
@@ -70,7 +70,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
-    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) report(parser, Errors.GeneratorInSingleStatementContext);
+    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
     const id = parseFunctionOrClassDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -123,17 +123,17 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
 function parseFunctionOrClassDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
-    if (context & Context.Yield && token & Token.IsYield) report(parser, Errors.YieldBindingIdentifier);
-    if (context & Context.Async && token & Token.IsAwait) report(parser, Errors.AwaitBindingIdentifier);
+    if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
+    if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
     if (hasBit(token, Token.IsEvalOrArguments)) {
-        if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
+        if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
         parser.flags |= Flags.StrictEvalArguments;
     }
     if (token !== Token.LeftParen) {
 
         id = parseBindingIdentifier(parser, context);
     }
-    else if (!(context & Context.RequireIdentifier)) report(parser, Errors.UnNamedFunctionDecl);
+    else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
     return id as any;
 }
 
@@ -157,13 +157,13 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            report(parser, context & (Context.BlockScope | Context.Strict) 
+            tolerant(parser, context, context & (Context.BlockScope | Context.Strict) 
                 ? Errors.ForInOfLoopInitializer 
                 : Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Initializers are required for 'const' and binding patterns
     } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
-        report(parser, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
+        tolerant(parser, context, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
     }
     return finishNode(context, parser, pos, {
         type: 'VariableDeclarator',
@@ -187,7 +187,7 @@ export function parseVariableDeclarationList(parser: Parser, context: Context, i
         list.push(parseVariableDeclaration(parser, context, isConst));
     }
     if (context & Context.ForStatement && parser.token & Token.IsInOrOf && list.length !== 1) {
-        report(parser, Errors.ForInOfLoopMultiBindings, tokenDesc(parser.token));
+        tolerant(parser, context, Errors.ForInOfLoopMultiBindings, tokenDesc(parser.token));
     }
     return list;
 }

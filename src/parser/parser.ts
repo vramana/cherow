@@ -108,7 +108,7 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.globalAwait) context |= Context.OptionsGlobalAwait;
         if (options.skipShebang) context |= Context.OptionsShebang;
         if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
-        if (options.editor) context |= Context.OptionsEditor;
+        if (options.tolerant) context |= Context.OptionsTolerant;
         if (!!options.source) sourceFile = options.source;
         if (!!options.comments) context |= Context.OptionsComments;
 
@@ -157,7 +157,7 @@ export function parse(source: string, options: Options | void, context: Context)
         node.comments = parser.comments;
     }
 
-    if (context & Context.OptionsEditor) {
+    if (context & Context.OptionsTolerant) {
         node.errors = parser.errors;
     }
 
