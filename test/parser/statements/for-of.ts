@@ -7,7 +7,74 @@ describe('Statements - For of', () => {
 
     describe('Failure', () => {
 
+      const invalidDestructuring = [
+          'for(var [] = 0 of {});',
+          'for(var [,] = 0 of {});',
+          'for(var [a] = 0 of {});',
+          'for(var [a = 0] = 0 of {});',
+          'for(var [...a] = 0 of {});',
+          'for(var [...[]] = 0 of {});',
+          'for(var [...[a]] = 0 of {});',
+          'for(var {} = 0 of {});',
+          'for(var {p: x} = 0 of {});',
+          'for(var {p: x = 0} = 0 of {});',
+          'for(var {x} = 0 of {});',
+          'for(var {x = 0} = 0 of {});',
+          'for(let x = 0 of {});',
+          'for(let [] = 0 of {});',
+          'for(let [,] = 0 of {});',
+          'for(let [a] = 0 of {});',
+          'for(let [a = 0] = 0 of {});',
+          'for(let [...a] = 0 of {});',
+          'for(let [...[]] = 0 of {});',
+          'for(let [...[a]] = 0 of {});',
+          'for(let {} = 0 of {});',
+          'for(let {p: x} = 0 of {});',
+          'for(let {p: x = 0} = 0 of {});',
+          'for(let {x} = 0 of {});',
+          'for(let {x = 0} = 0 of {});',
+          'for(const x = 0 of {});',
+          'for(const [] = 0 of {});',
+          'for(const [,] = 0 of {});',
+          'for(const [a] = 0 of {});',
+          'for(const [a = 0] = 0 of {});',
+          'for(const [...a] = 0 of {});',
+          'for(const [...[]] = 0 of {});',
+          'for(const [...[a]] = 0 of {});',
+          'for(const {} = 0 of {});',
+          'for(const {p: x} = 0 of {});',
+          'for(const {p: x = 0} = 0 of {});',
+          'for(const {x} = 0 of {});',
+          'for(const {x = 0} = 0 of {});',
+          'for(x = 0 of {});',
+          'for([] = 0 of {});',
+          'for([,] = 0 of {});',
+          'for([a] = 0 of {});',
+          'for([a = 0] = 0 of {});',
+          'for([...a] = 0 of {});',
+          'for([...[]] = 0 of {});',
+          'for([...[a]] = 0 of {});',
+          'for({} = 0 of {});',
+          'for({p: x} = 0 of {});',
+          'for({p: x = 0} = 0 of {});',
+          'for({x} = 0 of {});',
+          'for({x = 0} = 0 of {});',
+          'for(o.p = 0 of {});',
+          'for(o[0] = 0 of {});',
+          'for(f() = 0 of {});',
+      ];
+
+      for (const arg of invalidDestructuring) {
+          it(`${arg}`, () => {
+              t.throws(() => {
+                  parse(`${arg}`, undefined, Context.Empty);
+              });
+          });
+      }
+
       const invalidSyntax = [
+          'for (var {a: []} = 2 of []) { }',
+          'for (var [x] = x of y) var x;',
           'function () { for (let x of bar) { } }',
           'function () { for (let x of { }) { } }',
           'function () { for (let x of 0) { } }',

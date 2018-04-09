@@ -6,13 +6,77 @@ import { parse } from '../../../src/parser/parser';
 describe('Statements - For in', () => {
 
     describe('Failure', () => {
+      const invalidDestructuring = [
+          'for(var [] = 0 in {});',
+          'for(var [,] = 0 in {});',
+          'for(var [a] = 0 in {});',
+          'for(var [a = 0] = 0 in {});',
+          'for(var [...a] = 0 in {});',
+          'for(var [...[]] = 0 in {});',
+          'for(var [...[a]] = 0 in {});',
+          'for(var {} = 0 in {});',
+          'for(var {p: x} = 0 in {});',
+          'for(var {p: x = 0} = 0 in {});',
+          'for(var {x} = 0 in {});',
+          'for(var {x = 0} = 0 in {});',
+          'for(let x = 0 in {});',
+          'for(let [] = 0 in {});',
+          'for(let [,] = 0 in {});',
+          'for(let [a] = 0 in {});',
+          'for(let [a = 0] = 0 in {});',
+          'for(let [...a] = 0 in {});',
+          'for(let [...[]] = 0 in {});',
+          'for(let [...[a]] = 0 in {});',
+          'for(let {} = 0 in {});',
+          'for(let {p: x} = 0 in {});',
+          'for(let {p: x = 0} = 0 in {});',
+          'for(let {x} = 0 in {});',
+          'for(let {x = 0} = 0 in {});',
+          'for(const x = 0 in {});',
+          'for(const [] = 0 in {});',
+          'for(const [,] = 0 in {});',
+          'for(const [a] = 0 in {});',
+          'for(const [a = 0] = 0 in {});',
+          'for(const [...a] = 0 in {});',
+          'for(const [...[]] = 0 in {});',
+          'for(const [...[a]] = 0 in {});',
+          'for(const {} = 0 in {});',
+          'for(const {p: x} = 0 in {});',
+          'for(const {p: x = 0} = 0 in {});',
+          'for(const {x} = 0 in {});',
+          'for(const {x = 0} = 0 in {});',
+          'for(x = 0 in {});',
+          'for([] = 0 in {});',
+          'for([,] = 0 in {});',
+          'for([a] = 0 in {});',
+          'for([a = 0] = 0 in {});',
+          'for([...a] = 0 in {});',
+          'for([...[]] = 0 in {});',
+          'for([...[a]] = 0 in {});',
+          'for({} = 0 in {});',
+          'for({p: x} = 0 in {});',
+          'for({p: x = 0} = 0 in {});',
+          'for({x} = 0 in {});',
+          'for({x = 0} = 0 in {});',
+          'for(o.p = 0 in {});',
+          'for(o[0] = 0 in {});',
+          'for(f() = 0 in {});',
+      ];
+
+      for (const arg of invalidDestructuring) {
+          it(`${arg}`, () => {
+              t.throws(() => {
+                  parse(`${arg}`, undefined, Context.Empty);
+              });
+          });
+      }
 
       const invalidSyntax = [
-          'for (var [ v , c ] = 0 in undefined) { }',
-          'for (var {a: []} = 2 in []) { }',
+          '"use strict"; for (var [ v , c ] = 0 in undefined) { }',
+          '"use strict"; for (var {a: []} = 2 in []) { }',
           'for (x => 0 in 1;;) break;',
-          'for (var [x] = x in y) var x;',
-          'for (var [arguments] = ({ get y(){} }) in y ) (x);',
+          '"use strict"; for (var [x] = x in y) var x;',
+          '"use strict"; for (var [arguments] = ({ get y(){} }) in y ) (x);',
           'for (var i, j in {}) {}',
           'for (var i, j in [1, 2, 3]) {}',
           'for (var i, j = 1 in {}) {}',
@@ -8598,6 +8662,5 @@ describe('Statements - For in', () => {
                 sourceType: 'script'
             }
         });
-
-    });
+      });
   });
