@@ -64,9 +64,28 @@ describe('Expressions - New target', () => {
         fail(`function f() { new..target; }`, Context.Empty, {
             source: 'function f() { new..target; }',
         });
+
+        fail(`function() { return new['target']; }`, Context.Empty, {
+            source: 'function() { return new["target"]; }',
+        });
     });
 
     describe('Pass', () => {
+
+        const validCombos = [
+            'function foo(){with({}) {new.target;}}',
+            'function foo(){{if(true){new.target;}}}',
+            'function foo(){ var x = function() {new.target;}; x();}',
+            'function foo(){ var o = { "foo" : function () { new.target}}; o.foo();}',
+        ];
+        for (const arg of validCombos) {
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+                });
+            });
+        }
 
         const validSyntax = [
             'new.target',

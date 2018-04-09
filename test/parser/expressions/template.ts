@@ -328,6 +328,49 @@ describe('Expressions - Template', () => {
         });
     }
 
+        const validCombos = [
+        'function z() {}; `z`;',
+        'function z() {}; `${z}`;',
+        'function z() {}; `${z}${z}`;',
+        'function z() {}; `${z}${z}${z}`;',
+        'function z() {}; `${\'z\'}${z}${z}`;',
+        'function z() {}; `${\'z\'}${\'z\'}${z}`;',
+        'function z() {}; \'\' + z + \'\';',
+        'function z() {}; z`${`${z}`}`;',
+        'function z() {}; z``;',
+        'function z() {}; ``;',
+        '(`${function(id) { return id }}`);',
+        'function y() {} y`${`${\'z\'}${`${function(id) { return id }})${ /x/g >= \'c\'}`}`}`;',
+        'tag`foo\\n`',
+        't`foo\\n`;',
+        '`a\\u{d}c`',
+        '`a\\u{062}c`',
+        '`a\\u{000000062}c`',
+        'foo`\n${0}`',
+        'foo`\\\n${0}`',
+        'foo`\\r${0}`',
+        'foo`\r\n${0}`',
+        'foo`\\\r\\\n${0}`',
+        'foo`\\\r\n${0}`',
+        'foo`\r\\\n${0}`',
+        'foo`\\r\\n${0}`',
+        'foo`\u2029${0}`',
+        'foo`\\\u2029${0}`',
+        'foo`\\n${0}`',
+        'foo`\\r${0}`',
+        'foo`\\\r\\\n${0}`',
+        'foo`\r\\n${0}`',
+        'foo`\\\u2029${0}`'
+    ];
+        for (const arg of validCombos) {
+
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
+
         const validSyntax = [
             '`\r\n\t\n`',
             'sampleTag`\\01`',

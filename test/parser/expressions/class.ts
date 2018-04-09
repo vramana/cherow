@@ -152,6 +152,57 @@ describe('Expressions  - Class', () => {
 
     describe('Pass', () => {
 
+        const validCombos = [
+            '(class A { foo() {} foo() {} })',
+            '(class B { get foo() {} get foo() {} })',
+            '(class C { set foo(x) {} set foo(x) {} })',
+            '(class D { get foo() {} set foo(x) {} })',
+            '(class E { static foo() {} static foo() {} })',
+            '(class F { static get foo() {} static get foo() {} })',
+            '(class G { static set foo(x) {} static set foo(x) {} })',
+            '(class H { static get foo() {} static set foo(x) {} })',
+            '(class I { foo() {} get foo() {} set foo(x) {}})',
+            '(class J { static get foo() {} static set foo(x) {} get foo() {} set foo(x) {} })',
+            '(class K { static foo() {} static get foo() {} static set foo(x) {}})',
+            '(class L { static foo() {} foo() {} })',
+            '(class M { static foo() {} get foo() {} set foo(x) {}})',
+            '(class N { foo() {} static get foo() {} static set foo(x) {}})',
+            '(class Empty { })',
+            '(class EmptySemi { ; })',
+            '(class OnlyCtor { constructor() { p(\'ctor\') } })',
+            '(class OnlyMethod { method() { p(\'method\') } })',
+            '(class OnlyStaticMethod { static method() { p(\'smethod\') } })',
+            '(class OnlyGetter { get getter() { p(\'getter\') } })',
+            '(class OnlyStaticGetter { static get getter() { p(\'sgetter\') } })',
+            '(class OnlySetter { set setter(x) { p(\'setter \' + x) } })',
+            '(class OnlyStaticSetter { static set setter(x) { p(\'ssetter \' + x) } })',
+            `(function f1() {
+                class Empty { }
+                class EmptySemi { ; }
+                class OnlyCtor { constructor() { p('ctor') } }
+                class OnlyMethod { method() { p('method') } }
+                class OnlyStaticMethod { static method() { p('smethod') } }
+                class OnlyGetter { get getter() { p('getter') } }
+                class OnlyStaticGetter { static get getter() { p('sgetter') } }
+                class OnlySetter { set setter(x) { p('setter ' + x) } }
+                class OnlyStaticSetter { static set setter(x) { p('ssetter ' + x) } }
+                class OnlyComputedMethod { ["cmethod"]() { p('cmethod') } }
+                class OnlyStaticComputedMethod { static ["cmethod"]() { p('scmethod') } }
+                class OnlyComputedGetter { get ["cgetter"]() { p('cgetter') } }
+                class OnlyStaticComputedGetter { static get ["cgetter"]() { p('scgetter') } }
+                class OnlyComputedSetter { set ["csetter"](x) { p('csetter ' + x) } }
+                class OnlyStaticComputedSetter { static set ["csetter"](x) { p('scsetter ' + x) } }
+            })`
+        ];
+
+        for (const arg of validCombos) {
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
+
         const extendSyntax = [
             'class {}',
             'class name {}',
