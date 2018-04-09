@@ -75,10 +75,9 @@ describe('Expressions - Object literal', () => {
           foo() { }`,
           'async foo (x = await) {  }',
           'async foo (await) {  }',
-          // "async foo () { super() }",
+          'async foo () { super() }',
           '"async foo(eval) {"use strict"; }',
-          // "async foo(foo = super()) { }",
-          // "s\u0065t m(v) {}",
+          'async foo(foo = super()) { }',
           'async *method() { var yi\\u0065ld; }',
           'async *method() { var yield; }',
           'async *method() { void yield; }',
@@ -427,6 +426,33 @@ describe('Expressions - Object literal', () => {
       it(`"use strict"; ({ ${arg} })`, () => {
           t.doesNotThrow(() => {
               parse(`"use strict";  ({ ${arg} });`, undefined, Context.OptionsNext);
+          });
+      });
+    }
+
+    // Note! `get` and `set` are  not keywords in these cases, - J. K. Thomas
+
+    const validGetterAndSetterShorthand = [
+      'var a = 0;',
+      'var get = 1;',
+      'var set = 2;',
+      'var z = 3;',
+      'var o = { get };',
+      'var p = { set };',
+      'var q = { get, set };',
+      'var r = { set, get };',
+      'var s = { get, z };',
+      'var t = { a, set };',
+      'var u = { a, get, z };',
+      // concise method shorthand
+      'var o = { get() { return "g"; } }',
+      'var o = { set() { return "s"; } }'
+  ];
+    for (const arg of validGetterAndSetterShorthand) {
+
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.OptionsNext);
           });
       });
     }

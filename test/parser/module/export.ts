@@ -57,6 +57,20 @@ describe('Module - Export', () => {
             'export { if as foo }',
             'export * from foo',
             'export { bar } from foo',
+            'export const const1;',
+            'function foo() { }; export foo;',
+            'export function () { }',
+            'export function* () { }',
+            // missing binding identifier
+            'export class { }',
+            'function foo() { }; export [ foo ];',
+            'function foo() { export default function() { } }',
+            'function foo() { }; export { , foo };',
+            'function foo() { }; () => { export { foo }; }',
+            'function foo() { }; try { export { foo }; } catch(e) { }',
+            // 'Syntax error if export is followed by non-identifier'
+            'export 12;',
+            'function foo() { }; export { foo as 100 };',
         ];
 
         for (const arg of failures) {
@@ -180,6 +194,15 @@ describe('Module - Export', () => {
             'export { default as y } from \'./y.js\';\nexport default 42;',
             'export default function(x) {};',
             'export {a as super }',
+            'export default function () { };',
+            'export default function _fn2 () { }',
+            'var a; export default a = 10;',
+            'export default () => 3',
+            'function _default() { }; export default _default',
+            // Named generator function statement
+            'function* g() { }; export default g',
+            'class c { }; export default c',
+            'var _ = { method: function() { return \'method_result\'; }, method2: function() { return \'method2_result\'; } }; export default _',
         ];
 
         for (const arg of programs) {
