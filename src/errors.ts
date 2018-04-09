@@ -1,4 +1,5 @@
 import { Parser } from './types';
+import { Context } from './utilities';
 
 export const enum Errors {
     Unexpected,
@@ -167,10 +168,21 @@ export const ErrorMessages: {
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.InvalidUnicodeEscapeSequence]: 'Invalid Unicode escape sequence',
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
-
 };
 
-export function constructError(index: number, line: number, column: number, description: string): never {
+/**
+ * Collect line, index, and colum from either the recorded error
+ * or directly from the parser and returns it
+ * 
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param index  The 0-based end index of the error.
+ * @param line The 0-based line position of the error.
+ * @param column The 0-based column position of the error.
+ * @param parser The 0-based end index of the current node.
+ * @param description Error description
+ */
+export function constructError(parser: Parser, context: Context, index: number, line: number, column: number, description: string) {
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
     );
@@ -178,19 +190,56 @@ export function constructError(index: number, line: number, column: number, desc
     error.line = line;
     error.column = column;
     error.description = description;
-    throw error;
+    if (context & Context.OptionsEditor) {
+        parser.errors.push(error);
+    } else throw error;
 }
-export function report(parser: Parser, type: Errors, ...params: string[]) {
-    let { index, line, column} = parser;
-    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+
+/**
+ * Collect line, index, and colum from either the recorded error
+ * or directly from the parser and returns it
+ * 
+ * @param parser Parser instance
+ */
+
+function getErrorLocation(parser: Parser) {
+    let { index, line, column } = parser;;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
-        const errorLoc = parser.errorLocation;
         index = errorLoc.index;
         line = errorLoc.line;
         column = errorLoc.column;
-        errorMessage = errorLoc.error;
     }
+    return { index, line, column };
+}
 
-    constructError(index, line, column, errorMessage);
+/**
+ * Throws an error
+ * 
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param type Error type
+ * @param params Error params
+ */
+export function report(parser: Parser, type: Errors, ...params: string[]) {
+    let { index, line, column } = getErrorLocation(parser);
+    type = parser.errorLocation ? parser.errorLocation.error : type;
+    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    constructError(parser, Context.Empty, index, line, column, errorMessage)
+}
+
+/**
+ * If in editor mode, all errors are pushed to a top-level error array containing 
+ * otherwise throws
+ * 
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param type Error type
+ * @param params Error params
+ */
+export function editor(parser: Parser, context: Context, type: Errors, ...params: string[]) {
+    let { index, line, column } = getErrorLocation(parser);
+    type = parser.errorLocation ? parser.errorLocation.error : type;
+    let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    constructError(parser, Context.Empty, index, line, column, errorMessage)
 }
