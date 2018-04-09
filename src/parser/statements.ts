@@ -36,7 +36,8 @@ import {
     hasLabel,
     addLabel,
     popLabel,
-    restoreExpressionCoverGrammar
+    restoreExpressionCoverGrammar,
+    parseExpressionCoverGrammar
 } from '../utilities';
 
 // Statements
@@ -492,6 +493,7 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
         body
     });
 }
+
 /**
  * Parses return statement
  *

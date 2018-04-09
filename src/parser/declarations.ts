@@ -8,6 +8,7 @@ import {
     parseClassBodyAndElementList,
     parseLeftHandSideExpression
 } from './expressions';
+
 import {
     Flags,
     hasBit,
@@ -18,8 +19,8 @@ import {
     getLocation,
     ModifierState,
     swapContext,
-    parseExpressionCoverGrammar,
-    ObjectState
+    ObjectState,
+    parseExpressionCoverGrammar
 } from '../utilities';
 
 // Declarations
@@ -41,19 +42,19 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         id = parseFunctionOrClassDeclarationName(parser, context | Context.Strict);
         // Class statements must have a bound name
     } else if (!(context & Context.RequireIdentifier)) report(parser, Errors.UnexpectedToken, tokenDesc(token));
-    let superClass: ESTree.Expression | null = null;
     let state = ObjectState.None;
+    let superClass: ESTree.Expression | null = null;
+
     if (consume(parser, context, Token.ExtendsKeyword)) {
-        superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
-        state |= ObjectState.Heritage;
-    }
-    parseLeftHandSideExpression(parser, context | Context.Strict, pos); :
-    null;
+            superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
+            state |= ObjectState.Heritage;
+        }
+
     return finishNode(context, parser, pos, {
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict, state)
+        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier  | Context.Strict, state)
     });
 }
 
@@ -69,7 +70,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
-    if (isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) report(parser, Errors.GeneratorInSingleStatementContext);
+    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) report(parser, Errors.GeneratorInSingleStatementContext);
     const id = parseFunctionOrClassDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -133,7 +134,7 @@ function parseFunctionOrClassDeclarationName(parser: Parser, context: Context): 
         id = parseBindingIdentifier(parser, context);
     }
     else if (!(context & Context.RequireIdentifier)) report(parser, Errors.UnNamedFunctionDecl);
-    return id;
+    return id as any;
 }
 
 /**

@@ -23,16 +23,16 @@ import {
 } from '../utilities';
 
 // 12.15.5 Destructuring Assignment
-
 /**
  * Parses either a binding identifier or binding pattern
  *
  * @param parser  Parser instance
  * @param context Context masks
  */
-
 export function parseBindingIdentifierOrPattern(parser: Parser, context: Context): ESTree.Node {
-    const { token } = parser;
+    const {
+        token
+    } = parser;
 
     if (token & Token.IsBindingPattern) {
         if (token === Token.LeftBracket) return parseArrayAssignmentPattern(parser, context);

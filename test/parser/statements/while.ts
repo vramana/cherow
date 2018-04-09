@@ -52,6 +52,10 @@ describe('Statements - While', () => {
         fail(`while '' break;`, Context.Empty, {
             source: `while '' break;`,
         });
+
+        fail(`while() {}`, Context.Empty, {
+            source: `while() {}`,
+        });
     });
 
     describe('Pass', () => {

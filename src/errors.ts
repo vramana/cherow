@@ -77,7 +77,10 @@ export const enum Errors {
     ElementAfterRest,
     RestDefaultInitializer,
     ElementAfterSpread,
-    InvalidDestructuringTarget
+    InvalidDestructuringTarget,
+    UnexpectedSurrogate,
+    InvalidUnicodeEscapeSequence,
+    TemplateOctalLiteral
 }
 
 export const ErrorMessages: {
@@ -161,6 +164,9 @@ export const ErrorMessages: {
     [Errors.ElementAfterSpread]: 'Spread element must be last element',
     [Errors.RestDefaultInitializer]: 'Rest parameter may not have a default initializer',
     [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
+    [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
+    [Errors.InvalidUnicodeEscapeSequence]: 'Invalid Unicode escape sequence',
+    [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
 
 };
 
@@ -179,6 +185,7 @@ export function report(parser: Parser, type: Errors, ...params: string[]) {
     let errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
+        const errorLoc = parser.errorLocation;
         index = errorLoc.index;
         line = errorLoc.line;
         column = errorLoc.column;

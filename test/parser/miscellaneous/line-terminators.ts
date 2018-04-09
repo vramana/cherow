@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser';
+import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Line terminators', () => {
 
@@ -14,7 +14,7 @@ describe('Miscellaneous - Line terminators', () => {
       line: 1
   });
 
-  fail(`ingle line comment contains line feed`, Context.Empty, {
+  fail(`single line comment contains line feed`, Context.Empty, {
       source: `//single
       line comment`,
       line: 2

@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import { Options, Delegate } from '../types';
+import {  Options, Delegate, Location } from '../types';
 import { parseStatementListItem } from './statements';
 import { parseModuleItemList } from './module';
 import {
