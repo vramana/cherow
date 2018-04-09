@@ -49,7 +49,7 @@ export interface Options {
 
     // Attach raw property to each identifier node
     rawIdentifier?: boolean;
-    
+
     // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
     delegate ?: Delegate;
 

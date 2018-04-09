@@ -1081,7 +1081,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                         if (parser.flags & Flags.HasYield) report(parser, Errors.YieldInParameter);
                         if (parser.flags & Flags.HasAwait) report(parser, Errors.AwaitInParameter);
                         parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
+                        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
                         parser.flags &= ~Flags.AllowBinding;
                         const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
                         return params;
