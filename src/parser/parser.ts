@@ -63,6 +63,7 @@ export class Parser {
     public token: Token;
     public errorLocation: Location | void;
     public delegate: Delegate | void;
+    public errors: any[];
 
     constructor(source: string, sourceFile: string | void, delegate: Delegate | void) {
         this.source = source;
@@ -88,6 +89,7 @@ export class Parser {
         this.labelSet = undefined;
         this.errorLocation = undefined;
         this.delegate = delegate;
+        this.errors = [];
     }
 }
 
@@ -106,7 +108,7 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.globalAwait) context |= Context.OptionsGlobalAwait;
         if (options.skipShebang) context |= Context.OptionsShebang;
         if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
-
+        if (options.editor) context |= Context.OptionsEditor;
         if (!!options.source) sourceFile = options.source;
         if (!!options.comments) context |= Context.OptionsComments;
 
@@ -153,6 +155,10 @@ export function parse(source: string, options: Options | void, context: Context)
 
     if (context & Context.OptionsComments) {
         node.comments = parser.comments;
+    }
+
+    if (context & Context.OptionsEditor) {
+        node.errors = parser.errors;
     }
 
     return node;

@@ -67,6 +67,9 @@ export interface Options {
 
     // The flag to allow to skip shebang - '#'
     skipShebang ?: boolean;
+
+    // Enable editor mode
+    editor?: boolean;
 }
 
 /**
@@ -122,6 +125,7 @@ export interface Parser {
     tokenRegExp: any;
     token: Token;
     delegate: Delegate | void;
+    errors: any[];
 }
 
 /**
