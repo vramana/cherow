@@ -15,6 +15,18 @@ describe('Miscellaneous - Identifiers', () => {
           source: 'var 🀒',
       });
 
+      fail('var true = 123;', Context.Empty, {
+        source: 'var true = 123;',
+      });
+
+      fail('var const = 123;', Context.Empty, {
+        source: 'var const = 123;',
+      });
+
+      fail('var typeof = 123;', Context.Empty, {
+        source: 'var typeof = 123;',
+      });
+            
       fail('export var await;', Context.Strict | Context.Module, {
           source: 'export var await;',
           line: 1,

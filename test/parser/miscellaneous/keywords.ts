@@ -17,11 +17,15 @@ describe('Miscellaneous - Keywords', () => {
             'var = 1;',
             'void = 1;',
             'with = 1;',
+            'in = 1;',
+            'var = 1;',
             'class',
             'if',
             'continue',
             'for',
             'switch',
+            'while = 1;',
+            'try = 1;'
         ];
 
         for (const arg of programs) {

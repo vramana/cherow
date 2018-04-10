@@ -1,10 +1,72 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - ASI', () => {
 
     describe('Failures', () => {
+   
+    // Added this tests so we can check for both 'sloppy mode' and 'strict mode' and 'module code. It's
+    // not needed, just did it to make sure, because Test262 was complaining we didn't fail on this
+    const invalidSyntax = [
+      '{ 1 2 } 3',
+      '{} * 1',
+      '({};) * 1',
+      'if (false) x = 1 else x = -1',
+      `var x = 0;
+      if (false) {x = 1};
+      else x = -1`,
+      `var a=1,b=2,c=3,d;
+      if(a>b)
+      else c=d`,
+      `{} * 1`,
+      `for(
+    
+        ;) {
+          break;
+        }`,
+        `for(
+          false
+      ) {
+        break;
+      }`,
+        `for(
+          false
+          false
+          false
+      ) {
+        break;
+      }`,
+        `do
+        while (false)`,
+        `do {}; 
+        while (false)`,
+        `
+        var x=0, y=0;
+        var z=
+        x
+        ++
+        ++
+        y`,
+        `var x = 0;
+        if (false) x = 1 else x = -1`,
+    ];
 
+    for (const arg of invalidSyntax) {
+
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parse(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+    }
       fail(`Variable1 \n ++ \n ++ \n Variable2 construction`, Context.Empty, {
         source: `var x=0, y=0;
         var z=

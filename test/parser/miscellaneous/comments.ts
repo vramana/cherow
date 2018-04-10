@@ -14,6 +14,40 @@ describe('Miscellaneous - Comments', () => {
             x*/`,
     });
 
+    fail(`/* 
+    var
+    /* x */
+    = 1;
+    */`, Context.Empty, {
+        source: `/* 
+        var
+        /* x */
+        = 1;
+        */`,
+    });
+
+    fail(`
+    /* var*/
+    x*/`, Context.Empty, {
+        source: `
+        /* var*/
+        x*/`,
+    });
+
+    fail(`/*CHECK#1/`, Context.Empty, {
+        source: `/*CHECK#1/`,
+    });
+
+    fail(`/*
+    */ the comment should not include these characters, regardless of AnnexB extensions -->`, Context.Empty, {
+        source: `/*
+        */ the comment should not include these characters, regardless of AnnexB extensions -->`,
+    });
+
+    fail(`;-->`, Context.Empty, {
+        source: `;-->`,
+    });
+
     fail(`<!-`, Context.Empty, {
         source: `<!-`,
     });
