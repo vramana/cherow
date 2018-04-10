@@ -3,11 +3,8 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
-import { Parser } from '../types';
-import {
-    parseClassBodyAndElementList,
-    parseLeftHandSideExpression
-} from './expressions';
+import { Parser, Location } from '../types';
+import { parseClassBodyAndElementList,  parseLeftHandSideExpression } from './expressions';
 import {
     Flags,
     hasBit,
@@ -71,15 +68,29 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
 
         isGenerator = ModifierState.Generator;
     }
+    return parseFunctionDeclartionBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator, pos);
+}
 
+/**
+ * Parses out a function declartion body
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
+ *
+ * @param parser Parser instance
+ * @param context Context mask
+ * @param state Modifier state
+ * @param pos Current location
+ */
+function parseFunctionDeclartionBody(parser: Parser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
     const id = parseFunctionDeclarationName(parser, context);
-    const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~Context.RequireIdentifier, state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
         params,
         body,
-        async: false,
-        generator: !!(isGenerator & ModifierState.Generator),
+        async: !!(state & ModifierState.Await),
+        generator: !!(state & ModifierState.Generator),
         expression: false,
         id
     });
@@ -106,18 +117,8 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
         }
         isGenerator = ModifierState.Generator;
     }
-    const id = parseFunctionDeclarationName(parser, context);
-    const { params, body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.RequireIdentifier), isGenerator | isAwait, parseFormalListAndBody);
 
-    return finishNode(context, parser, pos, {
-        type: 'FunctionDeclaration',
-        params,
-        body,
-        async: true,
-        generator: !!(isGenerator & ModifierState.Generator),
-        expression: false,
-        id
-    });
+    return parseFunctionDeclartionBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, pos);
 }
 
 /**
@@ -163,9 +164,9 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            tolerant(parser, context, context & (Context.BlockScope | Context.Strict)
-                ? Errors.ForInOfLoopInitializer
-                : Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
+            tolerant(parser, context, context & (Context.BlockScope | Context.Strict) ?
+                Errors.ForInOfLoopInitializer :
+                Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Initializers are required for 'const' and binding patterns
     } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
