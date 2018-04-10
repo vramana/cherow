@@ -906,7 +906,7 @@ export function scanIdentifier(parser: Parser, context: Context): Token {
         const token = descKeyword(ret);
         if (token > 0) return token;
     }
-
+    if (context & Context.OptionsRawidentifiers) storeRaw(parser, start);
     return Token.Identifier;
 }
 

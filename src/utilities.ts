@@ -234,7 +234,12 @@ export function finishNode < T extends ESTree.Node >(
                 column: parser.lastColumn
             }
         };
+
+        if (parser.sourceFile) {
+            node.loc.source = parser.sourceFile;
+        }
     }
+    
     if (context & Context.OptionsDelegate) {
         (parser.delegate as Delegate)(node, meta.index, parser.index);
     }

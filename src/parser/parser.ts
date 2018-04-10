@@ -102,6 +102,7 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.next) context |= Context.OptionsNext;
         if (options.jsx) context |= Context.OptionsJSX;
         if (options.ranges) context |= Context.OptionsRanges;
+        if (options.loc) context |= Context.OptionsLoc;
         if (options.raw) context |= Context.OptionsRaw;
         if (options.delegate) context |= Context.OptionsDelegate;
         if (options.globalReturn) context |= Context.OptionsGlobalReturn;
