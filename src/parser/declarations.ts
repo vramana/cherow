@@ -72,7 +72,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
         isGenerator = ModifierState.Generator;
     }
     
-    const id = parseFunctionOrClassDeclarationName(parser, context);
+    const id = parseFunctionDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
@@ -104,10 +104,9 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
         if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
             tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
         }
-    
         isGenerator = ModifierState.Generator;
     }
-    const id = parseFunctionOrClassDeclarationName(parser, context);
+    const id = parseFunctionDeclarationName(parser, context);
     const { params, body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.RequireIdentifier), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
@@ -129,7 +128,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
  * @param parser  Parser instance
  * @param context Context masks
  */
-function parseFunctionOrClassDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
+function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
     if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
