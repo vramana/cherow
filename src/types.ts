@@ -121,7 +121,6 @@ export interface Parser {
     tokenValue: any;
     tokenRaw: string;
     lastValue: number;
-    parsingContext: any;
     tokenRegExp: any;
     token: Token;
     delegate: Delegate | void;

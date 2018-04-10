@@ -18,26 +18,38 @@ import {
  * @param sourceFile Optional source file info to be attached in every node
  * @param delegate  Optional callback function to be invoked for each syntax node (as the node is constructed)
  */
-  export function createParserObj(source: string, sourceFile: string | void, delegate: Delegate | void): Parser {
-    return  {
+export function createParserObj(source: string, sourceFile: string | void, delegate: Delegate | void): Parser {
+    return {
+        // The source code to parse
         source: source,
-        comments: [],
-        sourceFile: sourceFile,
-        flags: Flags.AllowDestructuring,
+        // Current position
         index: 0,
+        // Current line
         line: 1,
+        // Current column
         column: 0,
+        // Start position  before current token
         startIndex: 0,
+        // Start position column before current token
         startColumn: 0,
+        // Start position line before current token
         startLine: 1,
+        // End position after parsing after current token
         lastIndex: 0,
+        // End column position after current token
         lastColumn: 0,
+        // End line position after current token
         lastLine: 0,
+        // Pending cover grammar errors
+        pendingExpressionError: undefined,
+        // Mutable parser flags. Allows destructuring by default.
+        flags: Flags.AllowDestructuring,
+        // The tokens
+        token: Token.EndOfSource,
         tokenRaw: '',
         lastValue: 0,
-        parsingContext: 0,
-        token: 0,
-        pendingExpressionError: undefined,
+        comments: [],
+        sourceFile: sourceFile,
         tokenRegExp: undefined,
         tokenValue: undefined,
         labelSet: undefined,
@@ -45,15 +57,15 @@ import {
         delegate: delegate,
         errors: [],
     }
-  }
-  
-  /**
-   * Creating the parser
-   * 
-   * @param source The source coode to parser
-   * @param options The parser options
-   * @param context Context masks
-   */
+}
+
+/**
+ * Creating the parser
+ * 
+ * @param source The source coode to parser
+ * @param options The parser options
+ * @param context Context masks
+ */
 
 export function parse(source: string, options: Options | void, context: Context): ESTree.Program {
 
@@ -76,7 +88,7 @@ export function parse(source: string, options: Options | void, context: Context)
         if (!!options.comments) context |= Context.OptionsComments;
 
         if (options.impliedStrict) context |= Context.OptionsImpliedStrict
-        
+
         delegate = (typeof options.delegate === 'function') ? options.delegate : undefined;
 
         if (delegate) context |= Context.OptionsDelegate;
