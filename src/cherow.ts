@@ -1,5 +1,6 @@
 import { parse } from './parser/parser';
 import * as ESTree from './estree';
+import * as Parser from './parser/index';
 import { Options } from './types';
 import { Context } from './utilities';
 
@@ -31,13 +32,7 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
 
 export const version = '__VERSION__';
 
-export { ESTree };
-export * from './parser/declarations';
-export * from './parser/expressions';
-export * from './parser/module';
-export * from './parser/parser';
-export * from './parser/pattern';
-export * from './parser/statements';
+export { ESTree, Parser };
 export * from './chars';
 export * from './comments';
 export * from './errors';
