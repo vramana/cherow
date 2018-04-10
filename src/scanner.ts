@@ -167,7 +167,6 @@ export function scan(parser: Parser, context: Context): Token {
             case Chars.Hyphen:
                 {
                     advance(parser); // skip `-`
-                    if (!hasNext(parser)) return Token.Subtract;
 
                     const next = nextChar(parser);
 
@@ -299,16 +298,20 @@ export function scan(parser: Parser, context: Context): Token {
                     advance(parser);
 
                     switch (nextChar(parser)) {
+                        // Hex number - '0x', '0X'
                         case Chars.UpperX:
                         case Chars.LowerX:
                             return scanHexIntegerLiteral(parser, context);
+                        // Binary number - '0b', '0B'
                         case Chars.UpperB:
                         case Chars.LowerB:
                             return scanOctalOrBinary(parser, context, 2);
+                        // Octal number - '0o', '0O'
                         case Chars.UpperO:
                         case Chars.LowerO:
                             return scanOctalOrBinary(parser, context, 8);
                         default:
+                            // Implicit octal digits startign with '0'
                             return scanImplicitOctalDigits(parser, context);
                     }
                 }
@@ -662,7 +665,9 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
                 let code = 0;
 
                 parser.flags |= Flags.Octal;
-
+                
+                // Implicit octal, unless there is a non-octal digit.
+                // (Annex B.1.1 on Numeric Literals)
                 while (index < parser.source.length) {
                     const next = parser.source.charCodeAt(index);
                     if (next === Chars.Underscore) {
@@ -869,6 +874,7 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
  * Scan identifier
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
@@ -902,6 +908,7 @@ export function scanIdentifier(parser: Parser, context: Context): Token {
     const len = ret.length;
 
     // Keywords are between 2 and 11 characters long and start with a lowercase letter
+    // https://tc39.github.io/ecma262/#sec-keywords
     if (len >= 2 && len <= 11) {
         const token = descKeyword(ret);
         if (token > 0) return token;
@@ -1002,7 +1009,6 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
  */
 function scanEscapeSequence(parser: Parser, context: Context, first: number): number {
     switch (first) {
-        // Magic escapes
         case Chars.LowerB:
             return Chars.Backspace;
         case Chars.LowerF:
@@ -1022,8 +1028,6 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
             parser.column = -1;
             parser.line++;
             return Escape.Empty;
-
-            // Null character, octals
         case Chars.Zero:
         case Chars.One:
         case Chars.Two:
@@ -1036,7 +1040,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
 
                 if (index < parser.source.length) {
                     const next = parser.source.charCodeAt(index);
-
+            
                     if (next < Chars.Zero || next > Chars.Seven) {
 
                         // Strict mode code allows only \0, then a non-digit.
@@ -1054,7 +1058,6 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
 
                         if (index < parser.source.length) {
                             const next = parser.source.charCodeAt(index);
-
                             if (next >= Chars.Zero && next <= Chars.Seven) {
                                 parser.lastValue = next;
                                 code = code * 8 + (next - Chars.Zero);
@@ -1184,10 +1187,13 @@ function throwStringError(parser: Parser, context: Context, code: Escape): void 
 }
 
 /**
- * Scan a string token.
+ * Scan a string literal
+ * 
+ * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
+ * @param {context} quote codepoint
  */
 export function scanString(parser: Parser, context: Context, quote: number): Token {
     const { index: start, lastValue } = parser;
@@ -1317,8 +1323,10 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
                         ret += fromCodePoint(ch);
                     } else {
                         parser.lastValue = ch;
+                        // Because octals are forbidden in escaped template sequences and the fact that
+                        // both string and template scanning uses the same method - 'scanEscapeSequence',
+                        // we set the strict context mask.
                         const code = scanEscapeSequence(parser, context | Context.Strict, ch);
-
                         if (code >= 0) {
                             ret += fromCodePoint(code);
                         } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
