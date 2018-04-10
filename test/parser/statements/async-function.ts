@@ -107,7 +107,7 @@ describe('Statements - Async function', () => {
       expected: {
         type: 'Program',
         start: 0,
-        end: 35,
+        end: 34,
         loc: {
           start: {
             line: 1,
@@ -152,8 +152,8 @@ describe('Statements - Async function', () => {
           },
           {
             type: 'FunctionDeclaration',
-            start: 13,
-            end: 35,
+            start: 12,
+            end: 34,
             loc: {
               start: {
                 line: 2,
@@ -166,8 +166,8 @@ describe('Statements - Async function', () => {
             },
             id: {
               type: 'Identifier',
-              start: 22,
-              end: 29,
+              start: 21,
+              end: 28,
               loc: {
                 start: {
                   line: 2,
@@ -186,8 +186,8 @@ describe('Statements - Async function', () => {
             params: [],
             body: {
               type: 'BlockStatement',
-              start: 32,
-              end: 35,
+              start: 31,
+              end: 34,
               loc: {
                 start: {
                   line: 2,

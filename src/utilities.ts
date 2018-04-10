@@ -14,35 +14,37 @@ import {
 
 // Context masks
 export const enum Context {
-   Empty                = 0,
-   OptionsNext          = 1 << 0,
-   OptionsRanges        = 1 << 1,
-   OptionsJSX           = 1 << 2,
-   OptionsRaw           = 1 << 3,
-   OptionsLoc           = 1 << 4,
-   OptionsDelegate      = 1 << 5,
-   OptionsImpliedStrict = 1 << 6,
-   OptionsGlobalReturn  = 1 << 7,
-   OptionsGlobalAwait   = 1 << 8,
-   OptionsComments      = 1 << 9,
-   OptionsShebang       = 1 << 10,
-   Strict               = 1 << 11,
-   Module               = 1 << 12,
-   TaggedTemplate       = 1 << 13,
-   InClass              = 1 << 14,
-   AllowIn              = 1 << 15,
-   Async                = 1 << 16,
-   Yield                = 1 << 17,
-   InParameter          = 1 << 18,
-   IsReserved           = 1 << 19,
-   InFunctionBody       = 1 << 20,
-   AllowSingleStatement = 1 << 21,
-   BlockScope           = 1 << 22,
-   ForStatement         = 1 << 23,
-   RequireIdentifier    = 1 << 24,
-   Method               = 1 << 25,
-   AllowSuperProperty   = 1 << 26,
-   InParen              = 1 << 27,
+    Empty                   = 0,
+    OptionsNext             = 1 << 0,
+    OptionsRanges           = 1 << 1,
+    OptionsJSX              = 1 << 2,
+    OptionsRaw              = 1 << 3,
+    OptionsLoc              = 1 << 4,
+    OptionsDelegate         = 1 << 5,
+    OptionsImpliedStrict    = 1 << 6,
+    OptionsGlobalReturn     = 1 << 7,
+    OptionsGlobalAwait      = 1 << 8,
+    OptionsComments         = 1 << 9,
+    OptionsShebang          = 1 << 10,
+    OptionsRawidentifiers   = 1 << 11,
+    OptionsTolerant         = 1 << 12,
+    Strict                  = 1 << 13,
+    Module                  = 1 << 14,
+    TaggedTemplate          = 1 << 15,
+    InClass                 = 1 << 16,
+    AllowIn                 = 1 << 17,
+    Async                   = 1 << 18,
+    Yield                   = 1 << 19,
+    InParameter             = 1 << 20,
+    IsReserved              = 1 << 21,
+    InFunctionBody          = 1 << 22,
+    AllowSingleStatement    = 1 << 23,
+    BlockScope              = 1 << 24,
+    ForStatement            = 1 << 25,
+    RequireIdentifier       = 1 << 26,
+    Method                  = 1 << 27,
+    AllowSuperProperty      = 1 << 28,
+    InParen                 = 1 << 29
 }
 
 // Mutual parser flags
@@ -56,51 +58,45 @@ export const enum Flags {
     Iteration               = 1 << 5,
     StrictReserved          = 1 << 6,
     Octal                   = 1 << 7,
-    HasProtoField           = 1 << 8,
-    HasDuplicateProto       = 1 << 9,
-    StrictFunctionName      = 1 << 10,
-    StrictEvalArguments     = 1 << 11,
-    InFunctionBody          = 1 << 12,
-    HasAwait                = 1 << 13,
-    HasYield                = 1 << 14,
-    AllowBreakOrContinue = Switch | Iteration
-}
-
-export const enum ScannerState {
-    None        = 0,
-    NewLine    = 1 << 0,
-    SameLine   = 1 << 1,
-    LastIsCR   = 1 << 2,
-    LineStart  = 1 << 3,
-    Terminated = 1 << 4
-}
-
-export const enum ModifierState {
-    None      = 0,
-    Generator = 1 << 0,
-    Await     = 1 << 1,
-}
-
-// Shared between class expr / decl & object literal
-export const enum ObjectState {
-    None        = 0,
-    Async       = 1 << 0,
-    Generator   = 1 << 1,
-    Getter      = 1 << 2,
-    Setter      = 1 << 3,
-    Computed    = 1 << 4,
-    Method      = 1 << 5,
-    Shorthand   = 1 << 6,
-    Static      = 1 << 7,
-    Constructor = 1 << 8,
-    Heritage    = 1 << 9,
+    SimpleAssignmentTarget  = 1 << 8,
+    HasProtoField           = 1 << 9,
+    HasDuplicateProto       = 1 << 10,
+    StrictFunctionName      = 1 << 11,
+    StrictEvalArguments     = 1 << 12,
+    InFunctionBody          = 1 << 13,
+    HasAwait                = 1 << 14,
+    HasYield                = 1 << 15,
+    AllowBreakOrContinue = Switch | Iteration,
 }
 
 // Label tracking state
 export const enum Labels {
-    None      = 0,
-    NotNested = 1 << 0,
-    Nested    = 1 << 1
+    None        = 0,
+    NotNested   = 1 << 0,
+    Nested      = 1 << 1
+}
+
+export const enum NumericState {
+    None            = 0,
+    SeenSeparator   = 1 << 0,
+    EigthOrNine     = 1 << 1,
+    Float           = 1 << 2,
+    BigInt          = 1 << 3,
+}
+
+export const enum ScannerState {
+    None        = 0,
+    NewLine     = 1 << 0,
+    SameLine    = 1 << 1,
+    LastIsCR    = 1 << 2,
+    LineStart   = 1 << 3,
+    Terminated  = 1 << 4
+}
+
+export const enum ModifierState {
+    None        = 0,
+    Generator   = 1 << 0,
+    Await       = 1 << 1,
 }
 
 export const enum CoverParenthesizedState {
@@ -112,32 +108,16 @@ export const enum CoverParenthesizedState {
     HasBinding          = 1 << 4,
 }
 
-export const enum NumericState {
-    None            = 0,
-    SeenSeparator   = 1 << 0,
-    EigthOrNine     = 1 << 1,
-    Float           = 1 << 2,
-    BigInt          = 1 << 3,
-}
-
 export const enum Escape {
-    Empty = -1,
-    StrictOctal = -2,
-    EightOrNine = -3,
-    InvalidHex = -4,
-    OutOfRange = -5,
+    Empty        = -1,
+    StrictOctal  = -2,
+    EightOrNine  = -3,
+    InvalidHex   = -4,
+    OutOfRange   = -5,
 }
 
-/* Regular expression scanning */
-export const enum RegexState {
-    Empty = 0,
-    Escape = 0x1,
-    Class = 0x2,
-}
-
-/* Spidermonkey values */
 export const enum RegexFlags {
-    None        = 0,
+    Empty       = 0,
     IgnoreCase = 1 << 0,
     Global     = 1 << 1,
     Multiline  = 1 << 2,
@@ -153,7 +133,28 @@ export const enum CoverCallState {
     SimpleParameter = 1 << 2,
     EvalOrArguments = 1 << 3,
     Yield           = 1 << 4,
-    Await           = 1 << 5,
+    Await            = 1 << 5,
+}
+
+export const enum RegexState {
+    Empty = 0,
+    Escape = 0x1,
+    Class = 0x2,
+}
+
+// Shared between class expr / decl & object literal
+export const enum ObjectState {
+    None        = 0,
+    Async       = 1 << 0,
+    Generator   = 1 << 1,
+    Getter      = 1 << 2,
+    Setter      = 1 << 3,
+    Computed    = 1 << 4,
+    Method      = 1 << 5,
+    Shorthand   = 1 << 6,
+    Static      = 1 << 7,
+    Constructor = 1 << 8,
+    Heritage    = 1 << 9,
 }
 
 /**
@@ -382,7 +383,7 @@ export function parseExpressionCoverGrammar < T >(
     // the same location it was recorded
     if (!!parser.pendingExpressionError) {
         const { error, line, column, index } = parser.pendingExpressionError;
-        constructError(index, line, column, error);
+        constructError(parser, context, index, line, column, error);
     }
     parser.flags &= ~(Flags.AllowBinding | Flags.AllowDestructuring);
     if (prevFlags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
@@ -444,6 +445,12 @@ export function swapContext < T >(
     return callback(parser, context, methodState);
 }
 
+/**
+ * Return the next codepoint in the stream
+ *
+ * @param parser Parser instance
+ */
+
 export function hasNext(parser: Parser) {
     return parser.index < parser.source.length;
 }
@@ -452,10 +459,20 @@ export function advance(parser: Parser) {
     parser.column++;
 }
 
+/**
+ * Return the next codepoint in the stream by index
+ *
+ * @param parser Parser instance
+ */
 export function nextChar(parser: Parser) {
     return parser.source.charCodeAt(parser.index);
 }
 
+/**
+ * Return the next unicodechar in the stream
+ *
+ * @param parser Parser instance
+ */
 export function nextUnicodeChar(parser: Parser) {
     const { index } = parser;
 
@@ -465,6 +482,75 @@ export function nextUnicodeChar(parser: Parser) {
     if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
     return Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF;
 }
+
+/**
+ * Reinterpret various expressions as pattern
+ * This Is only used for assignment and arrow parameter list
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ * @param node AST node
+ */
+
+export const reinterpret = (parser: Parser, context: Context, node: any) => {
+
+    switch (node.type) {
+        case 'Identifier':
+        case 'ArrayPattern':
+        case 'AssignmentPattern':
+        case 'ObjectPattern':
+        case 'RestElement':
+        case 'MetaProperty':
+            return;
+        case 'ArrayExpression':
+            node.type = 'ArrayPattern';
+            for (let i = 0; i < node.elements.length; ++i) {
+                // skip holes in pattern
+                if (node.elements[i] !== null) {
+                    reinterpret(parser, context, node.elements[i]);
+                }
+            }
+            return;
+        case 'ObjectExpression':
+            node.type = 'ObjectPattern';
+
+            for (let i = 0; i < node.properties.length; i++) {
+                reinterpret(parser, context, node.properties[i]);
+            }
+
+            return;
+
+        case 'Property':
+            reinterpret(parser, context, node.value);
+            return;
+
+        case 'SpreadElement':
+            node.type = 'RestElement';
+            if (node.argument.type !== 'ArrayExpression' &&
+                node.argument.type !== 'ObjectExpression' &&
+                !isValidSimpleAssignmentTarget(node.argument)) {
+                report(parser, Errors.RestDefaultInitializer);
+              }
+
+            reinterpret(parser, context, node.argument);
+            break;
+        case 'AssignmentExpression':
+            if (node.operator !== '=') {
+                return report(parser, Errors.Unexpected);
+            }
+            node.type = 'AssignmentPattern';
+            delete node.operator; // operator is not relevant for assignment pattern
+            reinterpret(parser, context, node.left); // recursive descent
+            return;
+
+        case 'MemberExpression':
+            if (!(context & Context.InParameter)) return;
+            // Fall through
+
+        default:
+            report(parser, Errors.Unexpected);
+    }
+};
 
 export function advanceAndOrSkipUC(parser: Parser) {
     const hi = parser.source.charCodeAt(parser.index++);
@@ -542,7 +628,7 @@ export function lookahead < T >(parser: Parser, context: Context, callback: (par
         startIndex,
         tokenRaw,
         token,
-        lastChar,
+        lastValue,
         tokenRegExp
     } = parser;
     const res = callback(parser, context);
@@ -554,7 +640,7 @@ export function lookahead < T >(parser: Parser, context: Context, callback: (par
     parser.line = line;
     parser.column = column;
     parser.tokenRaw = tokenRaw;
-    parser.lastChar = lastChar;
+    parser.lastValue = lastValue;
 
     parser.startColumn = startColumn;
     parser.lastColumn = lastColumn;
@@ -608,78 +694,11 @@ export function getLocation(parser: Parser) {
     };
 }
 
-/**
- * Reinterpret various expressions as pattern
- * This Is only used for assignment and arrow parameter list
- *
- * @param parser  Parser instance
- * @param context Context masks
- * @param node AST node
- */
-
-export const reinterpret = (parser: Parser, context: Context, node: any) => {
-
-    switch (node.type) {
-        case 'Identifier':
-        case 'ArrayPattern':
-        case 'AssignmentPattern':
-        case 'ObjectPattern':
-        case 'RestElement':
-        case 'MetaProperty':
-            return;
-        case 'ArrayExpression':
-            node.type = 'ArrayPattern';
-            for (let i = 0; i < node.elements.length; ++i) {
-                // skip holes in pattern
-                if (node.elements[i] !== null) {
-                    reinterpret(parser, context, node.elements[i]);
-                }
-            }
-            return;
-        case 'ObjectExpression':
-            node.type = 'ObjectPattern';
-
-            for (let i = 0; i < node.properties.length; i++) {
-                reinterpret(parser, context, node.properties[i]);
-            }
-
-            return;
-
-        case 'Property':
-            reinterpret(parser, context, node.value);
-            return;
-
-        case 'SpreadElement':
-            node.type = 'RestElement';
-            if (node.argument.type !== 'ArrayExpression' &&
-                node.argument.type !== 'ObjectExpression' &&
-                !isValidSimpleAssignmentTarget(node.argument)) {
-                report(parser, Errors.RestDefaultInitializer);
-              }
-
-            reinterpret(parser, context, node.argument);
-            break;
-        case 'AssignmentExpression':
-            if (node.operator !== '=') {
-                return report(parser, Errors.Unexpected);
-            }
-            node.type = 'AssignmentPattern';
-            delete node.operator; // operator is not relevant for assignment pattern
-            reinterpret(parser, context, node.left); // recursive descent
-            return;
-
-        case 'MemberExpression':
-            if (!(context & Context.InParameter)) return;
-            // Fall through
-
-        default:
-            report(parser, Errors.Unexpected);
-    }
-};
-
 export function isIdentifier(context: Context, t: Token): boolean {
 
     if (context & Context.Strict) {
+
+        if (context & Context.Module && t & Token.IsAwait) return false;
         if (t & Token.IsYield) return false;
 
         return (t & Token.IsIdentifier) === Token.IsIdentifier ||
@@ -707,9 +726,9 @@ export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
         parser.token === Token.CaseKeyword;
 }
 
-export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
+export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
-    return parser.token === Token.LeftParen || parser.token === Token.LeftBracket;
+    return parser.token === Token.LeftParen || parser.token === Token.Period;
 }
 
 export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): boolean | number {
@@ -718,10 +737,11 @@ export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): 
     return token & (Token.IsIdentifier | Token.IsYield) || token === Token.LeftParen;
 }
 
-export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
+export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
-    return parser.token === Token.LeftParen || parser.token === Token.Period;
+    return parser.token === Token.LeftParen || parser.token === Token.LeftBracket;
 }
+
 export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return !(parser.flags & Flags.NewLine) && parser.token === Token.FunctionKeyword;
@@ -743,28 +763,9 @@ export function parseAndDisallowDestructuringAndBinding(parser: Parser, context:
     return callback(parser, context);
 }
 
-export function isEvalOrArguments(value: string): boolean {
-    return value === 'eval' || value === 'arguments';
-}
-
-export function recordError(parser: Parser, error: Errors) {
-    parser.errorLocation = {
-        error,
-        line: parser.line,
-        column: parser.column,
-        index: parser.index,
-    };
-}
-
-/**
- * Validates identifier before parsing / throwing
- *
- * @param parser Parser instance
- * @param context Context masks
- */
 export function parseAndValidateIdentifier(parser: Parser, context: Context) {
 
-    const { token } = parser;
+    const { token} = parser;
 
     if (context & Context.Strict) {
 
@@ -794,5 +795,38 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
+    console.log(tokenDesc(parser.token));
     report(parser, Errors.Unexpected);
+}
+
+// https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive
+export function parseDirective(parser: Parser, context: Context): ESTree.ExpressionStatement {
+    const pos = getLocation(parser);
+    const directive = parser.tokenRaw.slice(1, -1);
+    const expr = parseExpression(parser, context | Context.AllowIn);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'ExpressionStatement',
+        expression: expr,
+        directive
+    });
+}
+
+export function isEvalOrArguments(value: string): boolean {
+    return value === 'eval' || value === 'arguments';
+}
+
+export function recordError(parser: Parser, error: Errors) {
+    parser.errorLocation = {
+        error,
+        line: parser.line,
+        column: parser.column,
+        index: parser.index,
+    };
+}
+
+export function readNext(parser: Parser, prev: number): number {
+    advance(parser);
+    if (!hasNext(parser)) report(parser, Errors.UnicodeOutOfRange);
+    return nextUnicodeChar(parser);
 }

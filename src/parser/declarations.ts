@@ -157,8 +157,8 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            tolerant(parser, context, context & (Context.BlockScope | Context.Strict) 
-                ? Errors.ForInOfLoopInitializer 
+            tolerant(parser, context, context & (Context.BlockScope | Context.Strict)
+                ? Errors.ForInOfLoopInitializer
                 : Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Initializers are required for 'const' and binding patterns

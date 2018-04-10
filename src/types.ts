@@ -120,7 +120,7 @@ export interface Parser {
     comments: any;
     tokenValue: any;
     tokenRaw: string;
-    lastChar: number;
+    lastValue: number;
     parsingContext: any;
     tokenRegExp: any;
     token: Token;

@@ -761,263 +761,263 @@ describe('Statements - For in', () => {
                     g()
                   }`,
               expected: {
-                  type: 'Program',
-                  start: 0,
-                  end: 135,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 6,
-                      column: 17
-                    }
+                type: 'Program',
+                start: 0,
+                end: 145,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  body: [
-                    {
-                      type: 'IfStatement',
-                      start: 0,
-                      end: 135,
+                  end: {
+                    line: 6,
+                    column: 19
+                  }
+                },
+                body: [
+                  {
+                    type: 'IfStatement',
+                    start: 0,
+                    end: 145,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 6,
+                        column: 19
+                      }
+                    },
+                    test: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
                       loc: {
                         start: {
                           line: 1,
-                          column: 0
+                          column: 4
                         },
                         end: {
-                          line: 6,
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'a'
+                    },
+                    consequent: {
+                      type: 'BlockStatement',
+                      start: 7,
+                      end: 64,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 3,
                           column: 17
                         }
                       },
-                      test: {
-                        type: 'Identifier',
-                        start: 4,
-                        end: 5,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 4
+                      body: [
+                        {
+                          type: 'ForStatement',
+                          start: 27,
+                          end: 46,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 18
+                            },
+                            end: {
+                              line: 2,
+                              column: 37
+                            }
                           },
-                          end: {
-                            line: 1,
-                            column: 5
-                          }
-                        },
-                        name: 'a'
-                      },
-                      consequent: {
-                        type: 'BlockStatement',
-                        start: 7,
-                        end: 60,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 7
-                          },
-                          end: {
-                            line: 3,
-                            column: 15
-                          }
-                        },
-                        body: [
-                          {
-                            type: 'ForStatement',
-                            start: 25,
-                            end: 44,
+                          init: {
+                            type: 'CallExpression',
+                            start: 31,
+                            end: 34,
                             loc: {
                               start: {
                                 line: 2,
-                                column: 16
+                                column: 22
                               },
                               end: {
                                 line: 2,
-                                column: 35
+                                column: 25
                               }
                             },
-                            init: {
-                              type: 'CallExpression',
-                              start: 29,
+                            callee: {
+                              type: 'Identifier',
+                              start: 31,
                               end: 32,
                               loc: {
                                 start: {
                                   line: 2,
-                                  column: 20
+                                  column: 22
                                 },
                                 end: {
                                   line: 2,
                                   column: 23
                                 }
                               },
-                              callee: {
-                                type: 'Identifier',
-                                start: 29,
-                                end: 30,
-                                loc: {
-                                  start: {
-                                    line: 2,
-                                    column: 20
-                                  },
-                                  end: {
-                                    line: 2,
-                                    column: 21
-                                  }
-                                },
-                                name: 'f'
-                              },
-                              arguments: []
+                              name: 'f'
                             },
-                            test: {
-                              type: 'Literal',
-                              start: 34,
-                              end: 39,
-                              loc: {
-                                start: {
-                                  line: 2,
-                                  column: 25
-                                },
-                                end: {
-                                  line: 2,
-                                  column: 30
-                                }
+                            arguments: []
+                          },
+                          test: {
+                            type: 'Literal',
+                            start: 36,
+                            end: 41,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 27
                               },
-                              value: false,
-                              raw: 'false'
+                              end: {
+                                line: 2,
+                                column: 32
+                              }
                             },
-                            update: null,
-                            body: {
-                              type: 'BlockStatement',
-                              start: 42,
-                              end: 44,
-                              loc: {
-                                start: {
-                                  line: 2,
-                                  column: 33
-                                },
-                                end: {
-                                  line: 2,
-                                  column: 35
-                                }
+                            value: false,
+                            raw: 'false'
+                          },
+                          update: null,
+                          body: {
+                            type: 'BlockStatement',
+                            start: 44,
+                            end: 46,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 35
                               },
-                              body: []
-                            }
+                              end: {
+                                line: 2,
+                                column: 37
+                              }
+                            },
+                            body: []
                           }
-                        ]
+                        }
+                      ]
+                    },
+                    alternate: {
+                      type: 'ForInStatement',
+                      start: 88,
+                      end: 145,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 18
+                        },
+                        end: {
+                          line: 6,
+                          column: 19
+                        }
                       },
-                      alternate: {
-                        type: 'ForInStatement',
-                        start: 82,
-                        end: 135,
+                      left: {
+                        type: 'Identifier',
+                        start: 92,
+                        end: 93,
                         loc: {
                           start: {
                             line: 4,
-                            column: 16
+                            column: 22
+                          },
+                          end: {
+                            line: 4,
+                            column: 23
+                          }
+                        },
+                        name: 'x'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        start: 97,
+                        end: 98,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 27
+                          },
+                          end: {
+                            line: 4,
+                            column: 28
+                          }
+                        },
+                        name: 'y'
+                      },
+                      body: {
+                        type: 'BlockStatement',
+                        start: 100,
+                        end: 145,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 30
                           },
                           end: {
                             line: 6,
-                            column: 17
+                            column: 19
                           }
                         },
-                        left: {
-                          type: 'Identifier',
-                          start: 86,
-                          end: 87,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 20
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            start: 122,
+                            end: 125,
+                            loc: {
+                              start: {
+                                line: 5,
+                                column: 20
+                              },
+                              end: {
+                                line: 5,
+                                column: 23
+                              }
                             },
-                            end: {
-                              line: 4,
-                              column: 21
-                            }
-                          },
-                          name: 'x'
-                        },
-                        right: {
-                          type: 'Identifier',
-                          start: 91,
-                          end: 92,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 25
-                            },
-                            end: {
-                              line: 4,
-                              column: 26
-                            }
-                          },
-                          name: 'y'
-                        },
-                        body: {
-                          type: 'BlockStatement',
-                          start: 94,
-                          end: 135,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 28
-                            },
-                            end: {
-                              line: 6,
-                              column: 17
-                            }
-                          },
-                          body: [
-                            {
-                              type: 'ExpressionStatement',
-                              start: 114,
-                              end: 117,
+                            expression: {
+                              type: 'CallExpression',
+                              start: 122,
+                              end: 125,
                               loc: {
                                 start: {
                                   line: 5,
-                                  column: 18
+                                  column: 20
                                 },
                                 end: {
                                   line: 5,
-                                  column: 21
+                                  column: 23
                                 }
                               },
-                              expression: {
-                                type: 'CallExpression',
-                                start: 114,
-                                end: 117,
+                              callee: {
+                                type: 'Identifier',
+                                start: 122,
+                                end: 123,
                                 loc: {
                                   start: {
                                     line: 5,
-                                    column: 18
+                                    column: 20
                                   },
                                   end: {
                                     line: 5,
                                     column: 21
                                   }
                                 },
-                                callee: {
-                                  type: 'Identifier',
-                                  start: 114,
-                                  end: 115,
-                                  loc: {
-                                    start: {
-                                      line: 5,
-                                      column: 18
-                                    },
-                                    end: {
-                                      line: 5,
-                                      column: 19
-                                    }
-                                  },
-                                  name: 'g'
-                                },
-                                arguments: []
-                              }
+                                name: 'g'
+                              },
+                              arguments: []
                             }
-                          ]
-                        }
+                          }
+                        ]
                       }
                     }
-                  ],
-                  sourceType: 'script'
-                }
+                  }
+                ],
+                sourceType: 'script'
+              }
           });
 
           pass(`for(var ind in (arr=[2,1,4,3]))__str+=arr[ind]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
@@ -3568,65 +3568,51 @@ describe('Statements - For in', () => {
             }
         }`,
             expected: {
-              type: 'Program',
-              start: 0,
-              end: 328,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 13,
-                  column: 7
-                }
-              },
-              body: [
-                {
-                  type: 'ForInStatement',
-                  start: 0,
-                  end: 328,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 13,
-                      column: 7
-                    }
+                type: 'Program',
+                start: 0,
+                end: 352,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  left: {
-                    type: 'VariableDeclaration',
-                    start: 5,
-                    end: 10,
+                  end: {
+                    line: 13,
+                    column: 9
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForInStatement',
+                    start: 0,
+                    end: 352,
                     loc: {
                       start: {
                         line: 1,
-                        column: 5
+                        column: 0
                       },
                       end: {
-                        line: 1,
-                        column: 10
+                        line: 13,
+                        column: 9
                       }
                     },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 9,
-                        end: 10,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 9
-                          },
-                          end: {
-                            line: 1,
-                            column: 10
-                          }
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 5,
+                      end: 10,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
                         },
-                        id: {
-                          type: 'Identifier',
+                        end: {
+                          line: 1,
+                          column: 10
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
                           start: 9,
                           end: 10,
                           loc: {
@@ -3639,567 +3625,569 @@ describe('Statements - For in', () => {
                               column: 10
                             }
                           },
-                          name: 'p'
-                        },
-                        init: null
-                      }
-                    ],
-                    kind: 'var'
-                  },
-                  right: {
-                    type: 'Identifier',
-                    start: 14,
-                    end: 17,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 14
-                      },
-                      end: {
-                        line: 1,
-                        column: 17
-                      }
-                    },
-                    name: 'obj'
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 19,
-                    end: 328,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 19
-                      },
-                      end: {
-                        line: 13,
-                        column: 7
-                      }
-                    },
-                    body: [
-                      {
-                        type: 'IfStatement',
-                        start: 31,
-                        end: 320,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 10
+                          id: {
+                            type: 'Identifier',
+                            start: 9,
+                            end: 10,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 9
+                              },
+                              end: {
+                                line: 1,
+                                column: 10
+                              }
+                            },
+                            name: 'p'
                           },
-                          end: {
-                            line: 12,
-                            column: 11
-                          }
+                          init: null
+                        }
+                      ],
+                      kind: 'var'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 14,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 14
                         },
-                        test: {
-                          type: 'CallExpression',
-                          start: 35,
-                          end: 56,
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      name: 'obj'
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 19,
+                      end: 352,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 19
+                        },
+                        end: {
+                          line: 13,
+                          column: 9
+                        }
+                      },
+                      body: [
+                        {
+                          type: 'IfStatement',
+                          start: 33,
+                          end: 342,
                           loc: {
                             start: {
                               line: 2,
-                              column: 14
+                              column: 12
                             },
                             end: {
-                              line: 2,
-                              column: 35
+                              line: 12,
+                              column: 13
                             }
                           },
-                          callee: {
-                            type: 'MemberExpression',
-                            start: 35,
-                            end: 53,
+                          test: {
+                            type: 'CallExpression',
+                            start: 37,
+                            end: 58,
                             loc: {
                               start: {
                                 line: 2,
-                                column: 14
+                                column: 16
                               },
                               end: {
                                 line: 2,
-                                column: 32
+                                column: 37
                               }
                             },
-                            object: {
-                              type: 'Identifier',
-                              start: 35,
-                              end: 38,
-                              loc: {
-                                start: {
-                                  line: 2,
-                                  column: 14
-                                },
-                                end: {
-                                  line: 2,
-                                  column: 17
-                                }
-                              },
-                              name: 'obj'
-                            },
-                            property: {
-                              type: 'Identifier',
-                              start: 39,
-                              end: 53,
-                              loc: {
-                                start: {
-                                  line: 2,
-                                  column: 18
-                                },
-                                end: {
-                                  line: 2,
-                                  column: 32
-                                }
-                              },
-                              name: 'hasOwnProperty'
-                            },
-                            computed: false
-                          },
-                          arguments: [
-                            {
-                              type: 'Identifier',
-                              start: 54,
+                            callee: {
+                              type: 'MemberExpression',
+                              start: 37,
                               end: 55,
                               loc: {
                                 start: {
                                   line: 2,
-                                  column: 33
+                                  column: 16
                                 },
                                 end: {
                                   line: 2,
                                   column: 34
                                 }
                               },
-                              name: 'p'
-                            }
-                          ]
-                        },
-                        consequent: {
-                          type: 'BlockStatement',
-                          start: 58,
-                          end: 320,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 37
-                            },
-                            end: {
-                              line: 12,
-                              column: 11
-                            }
-                          },
-                          body: [
-                            {
-                              type: 'IfStatement',
-                              start: 74,
-                              end: 142,
-                              loc: {
-                                start: {
-                                  line: 3,
-                                  column: 14
-                                },
-                                end: {
-                                  line: 5,
-                                  column: 15
-                                }
-                              },
-                              test: {
-                                type: 'BinaryExpression',
-                                start: 78,
-                                end: 91,
+                              object: {
+                                type: 'Identifier',
+                                start: 37,
+                                end: 40,
                                 loc: {
                                   start: {
-                                    line: 3,
-                                    column: 18
+                                    line: 2,
+                                    column: 16
                                   },
                                   end: {
-                                    line: 3,
-                                    column: 31
+                                    line: 2,
+                                    column: 19
                                   }
                                 },
-                                left: {
-                                  type: 'Identifier',
-                                  start: 78,
-                                  end: 79,
-                                  loc: {
-                                    start: {
-                                      line: 3,
-                                      column: 18
-                                    },
-                                    end: {
-                                      line: 3,
-                                      column: 19
-                                    }
-                                  },
-                                  name: 'p'
-                                },
-                                operator: '===',
-                                right: {
-                                  type: 'Literal',
-                                  start: 84,
-                                  end: 91,
-                                  loc: {
-                                    start: {
-                                      line: 3,
-                                      column: 24
-                                    },
-                                    end: {
-                                      line: 3,
-                                      column: 31
-                                    }
-                                  },
-                                  value: 'prop1',
-                                  raw: '"prop1"'
-                                }
+                                name: 'obj'
                               },
-                              consequent: {
-                                type: 'BlockStatement',
-                                start: 93,
-                                end: 142,
+                              property: {
+                                type: 'Identifier',
+                                start: 41,
+                                end: 55,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 20
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 34
+                                  }
+                                },
+                                name: 'hasOwnProperty'
+                              },
+                              computed: false
+                            },
+                            arguments: [
+                              {
+                                type: 'Identifier',
+                                start: 56,
+                                end: 57,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 35
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 36
+                                  }
+                                },
+                                name: 'p'
+                              }
+                            ]
+                          },
+                          consequent: {
+                            type: 'BlockStatement',
+                            start: 60,
+                            end: 342,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 39
+                              },
+                              end: {
+                                line: 12,
+                                column: 13
+                              }
+                            },
+                            body: [
+                              {
+                                type: 'IfStatement',
+                                start: 78,
+                                end: 150,
                                 loc: {
                                   start: {
                                     line: 3,
-                                    column: 33
+                                    column: 16
                                   },
                                   end: {
                                     line: 5,
-                                    column: 15
+                                    column: 17
                                   }
                                 },
-                                body: [
-                                  {
-                                    type: 'ExpressionStatement',
-                                    start: 113,
-                                    end: 126,
+                                test: {
+                                  type: 'BinaryExpression',
+                                  start: 82,
+                                  end: 95,
+                                  loc: {
+                                    start: {
+                                      line: 3,
+                                      column: 20
+                                    },
+                                    end: {
+                                      line: 3,
+                                      column: 33
+                                    }
+                                  },
+                                  left: {
+                                    type: 'Identifier',
+                                    start: 82,
+                                    end: 83,
                                     loc: {
                                       start: {
-                                        line: 4,
-                                        column: 18
+                                        line: 3,
+                                        column: 20
                                       },
                                       end: {
-                                        line: 4,
-                                        column: 31
+                                        line: 3,
+                                        column: 21
                                       }
                                     },
-                                    expression: {
-                                      type: 'UpdateExpression',
-                                      start: 113,
-                                      end: 125,
+                                    name: 'p'
+                                  },
+                                  operator: '===',
+                                  right: {
+                                    type: 'Literal',
+                                    start: 88,
+                                    end: 95,
+                                    loc: {
+                                      start: {
+                                        line: 3,
+                                        column: 26
+                                      },
+                                      end: {
+                                        line: 3,
+                                        column: 33
+                                      }
+                                    },
+                                    value: 'prop1',
+                                    raw: '"prop1"'
+                                  }
+                                },
+                                consequent: {
+                                  type: 'BlockStatement',
+                                  start: 97,
+                                  end: 150,
+                                  loc: {
+                                    start: {
+                                      line: 3,
+                                      column: 35
+                                    },
+                                    end: {
+                                      line: 5,
+                                      column: 17
+                                    }
+                                  },
+                                  body: [
+                                    {
+                                      type: 'ExpressionStatement',
+                                      start: 119,
+                                      end: 132,
                                       loc: {
                                         start: {
                                           line: 4,
-                                          column: 18
+                                          column: 20
                                         },
                                         end: {
                                           line: 4,
-                                          column: 30
+                                          column: 33
                                         }
                                       },
-                                      operator: '++',
-                                      prefix: false,
-                                      argument: {
-                                        type: 'Identifier',
-                                        start: 113,
-                                        end: 123,
+                                      expression: {
+                                        type: 'UpdateExpression',
+                                        start: 119,
+                                        end: 131,
                                         loc: {
                                           start: {
                                             line: 4,
-                                            column: 18
+                                            column: 20
                                           },
                                           end: {
                                             line: 4,
-                                            column: 28
+                                            column: 32
                                           }
                                         },
-                                        name: 'countProp1'
+                                        operator: '++',
+                                        prefix: false,
+                                        argument: {
+                                          type: 'Identifier',
+                                          start: 119,
+                                          end: 129,
+                                          loc: {
+                                            start: {
+                                              line: 4,
+                                              column: 20
+                                            },
+                                            end: {
+                                              line: 4,
+                                              column: 30
+                                            }
+                                          },
+                                          name: 'countProp1'
+                                        }
                                       }
                                     }
-                                  }
-                                ]
-                              },
-                              alternate: null
-                            },
-                            {
-                              type: 'IfStatement',
-                              start: 157,
-                              end: 225,
-                              loc: {
-                                start: {
-                                  line: 6,
-                                  column: 14
+                                  ]
                                 },
-                                end: {
-                                  line: 8,
-                                  column: 15
-                                }
+                                alternate: null
                               },
-                              test: {
-                                type: 'BinaryExpression',
-                                start: 161,
-                                end: 174,
+                              {
+                                type: 'IfStatement',
+                                start: 167,
+                                end: 239,
                                 loc: {
                                   start: {
                                     line: 6,
-                                    column: 18
-                                  },
-                                  end: {
-                                    line: 6,
-                                    column: 31
-                                  }
-                                },
-                                left: {
-                                  type: 'Identifier',
-                                  start: 161,
-                                  end: 162,
-                                  loc: {
-                                    start: {
-                                      line: 6,
-                                      column: 18
-                                    },
-                                    end: {
-                                      line: 6,
-                                      column: 19
-                                    }
-                                  },
-                                  name: 'p'
-                                },
-                                operator: '===',
-                                right: {
-                                  type: 'Literal',
-                                  start: 167,
-                                  end: 174,
-                                  loc: {
-                                    start: {
-                                      line: 6,
-                                      column: 24
-                                    },
-                                    end: {
-                                      line: 6,
-                                      column: 31
-                                    }
-                                  },
-                                  value: 'prop2',
-                                  raw: '"prop2"'
-                                }
-                              },
-                              consequent: {
-                                type: 'BlockStatement',
-                                start: 176,
-                                end: 225,
-                                loc: {
-                                  start: {
-                                    line: 6,
-                                    column: 33
+                                    column: 16
                                   },
                                   end: {
                                     line: 8,
-                                    column: 15
+                                    column: 17
                                   }
                                 },
-                                body: [
-                                  {
-                                    type: 'ExpressionStatement',
-                                    start: 196,
-                                    end: 209,
+                                test: {
+                                  type: 'BinaryExpression',
+                                  start: 171,
+                                  end: 184,
+                                  loc: {
+                                    start: {
+                                      line: 6,
+                                      column: 20
+                                    },
+                                    end: {
+                                      line: 6,
+                                      column: 33
+                                    }
+                                  },
+                                  left: {
+                                    type: 'Identifier',
+                                    start: 171,
+                                    end: 172,
                                     loc: {
                                       start: {
-                                        line: 7,
-                                        column: 18
+                                        line: 6,
+                                        column: 20
                                       },
                                       end: {
-                                        line: 7,
-                                        column: 31
+                                        line: 6,
+                                        column: 21
                                       }
                                     },
-                                    expression: {
-                                      type: 'UpdateExpression',
-                                      start: 196,
-                                      end: 208,
+                                    name: 'p'
+                                  },
+                                  operator: '===',
+                                  right: {
+                                    type: 'Literal',
+                                    start: 177,
+                                    end: 184,
+                                    loc: {
+                                      start: {
+                                        line: 6,
+                                        column: 26
+                                      },
+                                      end: {
+                                        line: 6,
+                                        column: 33
+                                      }
+                                    },
+                                    value: 'prop2',
+                                    raw: '"prop2"'
+                                  }
+                                },
+                                consequent: {
+                                  type: 'BlockStatement',
+                                  start: 186,
+                                  end: 239,
+                                  loc: {
+                                    start: {
+                                      line: 6,
+                                      column: 35
+                                    },
+                                    end: {
+                                      line: 8,
+                                      column: 17
+                                    }
+                                  },
+                                  body: [
+                                    {
+                                      type: 'ExpressionStatement',
+                                      start: 208,
+                                      end: 221,
                                       loc: {
                                         start: {
                                           line: 7,
-                                          column: 18
+                                          column: 20
                                         },
                                         end: {
                                           line: 7,
-                                          column: 30
+                                          column: 33
                                         }
                                       },
-                                      operator: '++',
-                                      prefix: false,
-                                      argument: {
-                                        type: 'Identifier',
-                                        start: 196,
-                                        end: 206,
+                                      expression: {
+                                        type: 'UpdateExpression',
+                                        start: 208,
+                                        end: 220,
                                         loc: {
                                           start: {
                                             line: 7,
-                                            column: 18
+                                            column: 20
                                           },
                                           end: {
                                             line: 7,
-                                            column: 28
+                                            column: 32
                                           }
                                         },
-                                        name: 'countProp2'
+                                        operator: '++',
+                                        prefix: false,
+                                        argument: {
+                                          type: 'Identifier',
+                                          start: 208,
+                                          end: 218,
+                                          loc: {
+                                            start: {
+                                              line: 7,
+                                              column: 20
+                                            },
+                                            end: {
+                                              line: 7,
+                                              column: 30
+                                            }
+                                          },
+                                          name: 'countProp2'
+                                        }
                                       }
                                     }
-                                  }
-                                ]
-                              },
-                              alternate: null
-                            },
-                            {
-                              type: 'IfStatement',
-                              start: 240,
-                              end: 308,
-                              loc: {
-                                start: {
-                                  line: 9,
-                                  column: 14
+                                  ]
                                 },
-                                end: {
-                                  line: 11,
-                                  column: 15
-                                }
+                                alternate: null
                               },
-                              test: {
-                                type: 'BinaryExpression',
-                                start: 244,
-                                end: 257,
+                              {
+                                type: 'IfStatement',
+                                start: 256,
+                                end: 328,
                                 loc: {
                                   start: {
                                     line: 9,
-                                    column: 18
-                                  },
-                                  end: {
-                                    line: 9,
-                                    column: 31
-                                  }
-                                },
-                                left: {
-                                  type: 'Identifier',
-                                  start: 244,
-                                  end: 245,
-                                  loc: {
-                                    start: {
-                                      line: 9,
-                                      column: 18
-                                    },
-                                    end: {
-                                      line: 9,
-                                      column: 19
-                                    }
-                                  },
-                                  name: 'p'
-                                },
-                                operator: '===',
-                                right: {
-                                  type: 'Literal',
-                                  start: 250,
-                                  end: 257,
-                                  loc: {
-                                    start: {
-                                      line: 9,
-                                      column: 24
-                                    },
-                                    end: {
-                                      line: 9,
-                                      column: 31
-                                    }
-                                  },
-                                  value: 'prop3',
-                                  raw: '"prop3"'
-                                }
-                              },
-                              consequent: {
-                                type: 'BlockStatement',
-                                start: 259,
-                                end: 308,
-                                loc: {
-                                  start: {
-                                    line: 9,
-                                    column: 33
+                                    column: 16
                                   },
                                   end: {
                                     line: 11,
-                                    column: 15
+                                    column: 17
                                   }
                                 },
-                                body: [
-                                  {
-                                    type: 'ExpressionStatement',
-                                    start: 279,
-                                    end: 292,
+                                test: {
+                                  type: 'BinaryExpression',
+                                  start: 260,
+                                  end: 273,
+                                  loc: {
+                                    start: {
+                                      line: 9,
+                                      column: 20
+                                    },
+                                    end: {
+                                      line: 9,
+                                      column: 33
+                                    }
+                                  },
+                                  left: {
+                                    type: 'Identifier',
+                                    start: 260,
+                                    end: 261,
                                     loc: {
                                       start: {
-                                        line: 10,
-                                        column: 18
+                                        line: 9,
+                                        column: 20
                                       },
                                       end: {
-                                        line: 10,
-                                        column: 31
+                                        line: 9,
+                                        column: 21
                                       }
                                     },
-                                    expression: {
-                                      type: 'UpdateExpression',
-                                      start: 279,
-                                      end: 291,
+                                    name: 'p'
+                                  },
+                                  operator: '===',
+                                  right: {
+                                    type: 'Literal',
+                                    start: 266,
+                                    end: 273,
+                                    loc: {
+                                      start: {
+                                        line: 9,
+                                        column: 26
+                                      },
+                                      end: {
+                                        line: 9,
+                                        column: 33
+                                      }
+                                    },
+                                    value: 'prop3',
+                                    raw: '"prop3"'
+                                  }
+                                },
+                                consequent: {
+                                  type: 'BlockStatement',
+                                  start: 275,
+                                  end: 328,
+                                  loc: {
+                                    start: {
+                                      line: 9,
+                                      column: 35
+                                    },
+                                    end: {
+                                      line: 11,
+                                      column: 17
+                                    }
+                                  },
+                                  body: [
+                                    {
+                                      type: 'ExpressionStatement',
+                                      start: 297,
+                                      end: 310,
                                       loc: {
                                         start: {
                                           line: 10,
-                                          column: 18
+                                          column: 20
                                         },
                                         end: {
                                           line: 10,
-                                          column: 30
+                                          column: 33
                                         }
                                       },
-                                      operator: '++',
-                                      prefix: false,
-                                      argument: {
-                                        type: 'Identifier',
-                                        start: 279,
-                                        end: 289,
+                                      expression: {
+                                        type: 'UpdateExpression',
+                                        start: 297,
+                                        end: 309,
                                         loc: {
                                           start: {
                                             line: 10,
-                                            column: 18
+                                            column: 20
                                           },
                                           end: {
                                             line: 10,
-                                            column: 28
+                                            column: 32
                                           }
                                         },
-                                        name: 'countProp3'
+                                        operator: '++',
+                                        prefix: false,
+                                        argument: {
+                                          type: 'Identifier',
+                                          start: 297,
+                                          end: 307,
+                                          loc: {
+                                            start: {
+                                              line: 10,
+                                              column: 20
+                                            },
+                                            end: {
+                                              line: 10,
+                                              column: 30
+                                            }
+                                          },
+                                          name: 'countProp3'
+                                        }
                                       }
                                     }
-                                  }
-                                ]
-                              },
-                              alternate: null
-                            }
-                          ]
-                        },
-                        alternate: null
-                      }
-                    ]
+                                  ]
+                                },
+                                alternate: null
+                              }
+                            ]
+                          },
+                          alternate: null
+                        }
+                      ]
+                    }
                   }
-                }
-              ],
-              sourceType: 'script'
-            }
+                ],
+                sourceType: 'script'
+              }
         });
-        /*
-            pass(`for (var x in null) let // ASI
-            {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                source: `for (var x in null) let // ASI
-                {}`,
-                expected: {}
-            });*/
-        /*
-            pass(`for ( let in obj ) ;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-                source: `for ( let in obj ) ;`,
-                expected: {}
-            }); */
 
           pass(`for ( let[x] in obj ) {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `for ( let[x] in obj ) {}`,
@@ -4336,52 +4324,38 @@ describe('Statements - For in', () => {
             source: `for (a(b in c)[0] in d);
         for (a(b in c)[0] in d);`,
             expected: {
-              type: 'Program',
-              start: 0,
-              end: 55,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 2,
-                  column: 30
-                }
-              },
-              body: [
-                {
-                  type: 'ForInStatement',
-                  start: 0,
-                  end: 24,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 1,
-                      column: 24
-                    }
+                type: 'Program',
+                start: 0,
+                end: 57,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  left: {
-                    type: 'MemberExpression',
-                    start: 5,
-                    end: 17,
+                  end: {
+                    line: 2,
+                    column: 32
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForInStatement',
+                    start: 0,
+                    end: 24,
                     loc: {
                       start: {
                         line: 1,
-                        column: 5
+                        column: 0
                       },
                       end: {
                         line: 1,
-                        column: 17
+                        column: 24
                       }
                     },
-                    object: {
-                      type: 'CallExpression',
+                    left: {
+                      type: 'MemberExpression',
                       start: 5,
-                      end: 14,
+                      end: 17,
                       loc: {
                         start: {
                           line: 1,
@@ -4389,13 +4363,13 @@ describe('Statements - For in', () => {
                         },
                         end: {
                           line: 1,
-                          column: 14
+                          column: 17
                         }
                       },
-                      callee: {
-                        type: 'Identifier',
+                      object: {
+                        type: 'CallExpression',
                         start: 5,
-                        end: 6,
+                        end: 14,
                         loc: {
                           start: {
                             line: 1,
@@ -4403,30 +4377,30 @@ describe('Statements - For in', () => {
                           },
                           end: {
                             line: 1,
-                            column: 6
+                            column: 14
                           }
                         },
-                        name: 'a'
-                      },
-                      arguments: [
-                        {
-                          type: 'BinaryExpression',
-                          start: 7,
-                          end: 13,
+                        callee: {
+                          type: 'Identifier',
+                          start: 5,
+                          end: 6,
                           loc: {
                             start: {
                               line: 1,
-                              column: 7
+                              column: 5
                             },
                             end: {
                               line: 1,
-                              column: 13
+                              column: 6
                             }
                           },
-                          left: {
-                            type: 'Identifier',
+                          name: 'a'
+                        },
+                        arguments: [
+                          {
+                            type: 'BinaryExpression',
                             start: 7,
-                            end: 8,
+                            end: 13,
                             loc: {
                               start: {
                                 line: 1,
@@ -4434,145 +4408,142 @@ describe('Statements - For in', () => {
                               },
                               end: {
                                 line: 1,
-                                column: 8
-                              }
-                            },
-                            name: 'b'
-                          },
-                          operator: 'in',
-                          right: {
-                            type: 'Identifier',
-                            start: 12,
-                            end: 13,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 12
-                              },
-                              end: {
-                                line: 1,
                                 column: 13
                               }
                             },
-                            name: 'c'
+                            left: {
+                              type: 'Identifier',
+                              start: 7,
+                              end: 8,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 7
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 8
+                                }
+                              },
+                              name: 'b'
+                            },
+                            operator: 'in',
+                            right: {
+                              type: 'Identifier',
+                              start: 12,
+                              end: 13,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 12
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 13
+                                }
+                              },
+                              name: 'c'
+                            }
                           }
-                        }
-                      ]
+                        ]
+                      },
+                      property: {
+                        type: 'Literal',
+                        start: 15,
+                        end: 16,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 15
+                          },
+                          end: {
+                            line: 1,
+                            column: 16
+                          }
+                        },
+                        value: 0,
+                        raw: '0'
+                      },
+                      computed: true
                     },
-                    property: {
-                      type: 'Literal',
-                      start: 15,
-                      end: 16,
+                    right: {
+                      type: 'Identifier',
+                      start: 21,
+                      end: 22,
                       loc: {
                         start: {
                           line: 1,
-                          column: 15
+                          column: 21
                         },
                         end: {
                           line: 1,
-                          column: 16
+                          column: 22
                         }
                       },
-                      value: 0,
-                      raw: '0'
+                      name: 'd'
                     },
-                    computed: true
-                  },
-                  right: {
-                    type: 'Identifier',
-                    start: 21,
-                    end: 22,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 21
-                      },
-                      end: {
-                        line: 1,
-                        column: 22
-                      }
-                    },
-                    name: 'd'
-                  },
-                  body: {
-                    type: 'EmptyStatement',
-                    start: 23,
-                    end: 24,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 23
-                      },
-                      end: {
-                        line: 1,
-                        column: 24
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 23,
+                      end: 24,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 23
+                        },
+                        end: {
+                          line: 1,
+                          column: 24
+                        }
                       }
                     }
-                  }
-                },
-                {
-                  type: 'ForInStatement',
-                  start: 31,
-                  end: 55,
-                  loc: {
-                    start: {
-                      line: 2,
-                      column: 6
-                    },
-                    end: {
-                      line: 2,
-                      column: 30
-                    }
                   },
-                  left: {
-                    type: 'MemberExpression',
-                    start: 36,
-                    end: 48,
+                  {
+                    type: 'ForInStatement',
+                    start: 33,
+                    end: 57,
                     loc: {
                       start: {
                         line: 2,
-                        column: 11
+                        column: 8
                       },
                       end: {
                         line: 2,
-                        column: 23
+                        column: 32
                       }
                     },
-                    object: {
-                      type: 'CallExpression',
-                      start: 36,
-                      end: 45,
+                    left: {
+                      type: 'MemberExpression',
+                      start: 38,
+                      end: 50,
                       loc: {
                         start: {
                           line: 2,
-                          column: 11
+                          column: 13
                         },
                         end: {
                           line: 2,
-                          column: 20
+                          column: 25
                         }
                       },
-                      callee: {
-                        type: 'Identifier',
-                        start: 36,
-                        end: 37,
+                      object: {
+                        type: 'CallExpression',
+                        start: 38,
+                        end: 47,
                         loc: {
                           start: {
                             line: 2,
-                            column: 11
+                            column: 13
                           },
                           end: {
                             line: 2,
-                            column: 12
+                            column: 22
                           }
                         },
-                        name: 'a'
-                      },
-                      arguments: [
-                        {
-                          type: 'BinaryExpression',
+                        callee: {
+                          type: 'Identifier',
                           start: 38,
-                          end: 44,
+                          end: 39,
                           loc: {
                             start: {
                               line: 2,
@@ -4580,99 +4551,116 @@ describe('Statements - For in', () => {
                             },
                             end: {
                               line: 2,
-                              column: 19
+                              column: 14
                             }
                           },
-                          left: {
-                            type: 'Identifier',
-                            start: 38,
-                            end: 39,
+                          name: 'a'
+                        },
+                        arguments: [
+                          {
+                            type: 'BinaryExpression',
+                            start: 40,
+                            end: 46,
                             loc: {
                               start: {
                                 line: 2,
-                                column: 13
+                                column: 15
                               },
                               end: {
                                 line: 2,
-                                column: 14
+                                column: 21
                               }
                             },
-                            name: 'b'
-                          },
-                          operator: 'in',
-                          right: {
-                            type: 'Identifier',
-                            start: 43,
-                            end: 44,
-                            loc: {
-                              start: {
-                                line: 2,
-                                column: 18
+                            left: {
+                              type: 'Identifier',
+                              start: 40,
+                              end: 41,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 15
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 16
+                                }
                               },
-                              end: {
-                                line: 2,
-                                column: 19
-                              }
+                              name: 'b'
                             },
-                            name: 'c'
+                            operator: 'in',
+                            right: {
+                              type: 'Identifier',
+                              start: 45,
+                              end: 46,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 20
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 21
+                                }
+                              },
+                              name: 'c'
+                            }
                           }
-                        }
-                      ]
+                        ]
+                      },
+                      property: {
+                        type: 'Literal',
+                        start: 48,
+                        end: 49,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 23
+                          },
+                          end: {
+                            line: 2,
+                            column: 24
+                          }
+                        },
+                        value: 0,
+                        raw: '0'
+                      },
+                      computed: true
                     },
-                    property: {
-                      type: 'Literal',
-                      start: 46,
-                      end: 47,
+                    right: {
+                      type: 'Identifier',
+                      start: 54,
+                      end: 55,
                       loc: {
                         start: {
                           line: 2,
-                          column: 21
+                          column: 29
                         },
                         end: {
                           line: 2,
-                          column: 22
+                          column: 30
                         }
                       },
-                      value: 0,
-                      raw: '0'
+                      name: 'd'
                     },
-                    computed: true
-                  },
-                  right: {
-                    type: 'Identifier',
-                    start: 52,
-                    end: 53,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 27
-                      },
-                      end: {
-                        line: 2,
-                        column: 28
-                      }
-                    },
-                    name: 'd'
-                  },
-                  body: {
-                    type: 'EmptyStatement',
-                    start: 54,
-                    end: 55,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 29
-                      },
-                      end: {
-                        line: 2,
-                        column: 30
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 56,
+                      end: 57,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 31
+                        },
+                        end: {
+                          line: 2,
+                          column: 32
+                        }
                       }
                     }
                   }
-                }
-              ],
-              sourceType: 'script'
-            }
+                ],
+                sourceType: 'script'
+              }
         });
 
           pass(`for (a.in in a);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
@@ -4794,65 +4782,51 @@ describe('Statements - For in', () => {
             source: `for(let [a=b in c] in null);
         for(let [a=b in c] in null);`,
             expected: {
-              type: 'Program',
-              start: 0,
-              end: 63,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 2,
-                  column: 34
-                }
-              },
-              body: [
-                {
-                  type: 'ForInStatement',
-                  start: 0,
-                  end: 28,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 1,
-                      column: 28
-                    }
+                type: 'Program',
+                start: 0,
+                end: 65,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  left: {
-                    type: 'VariableDeclaration',
-                    start: 4,
-                    end: 18,
+                  end: {
+                    line: 2,
+                    column: 36
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForInStatement',
+                    start: 0,
+                    end: 28,
                     loc: {
                       start: {
                         line: 1,
-                        column: 4
+                        column: 0
                       },
                       end: {
                         line: 1,
-                        column: 18
+                        column: 28
                       }
                     },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 8,
-                        end: 18,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 8
-                          },
-                          end: {
-                            line: 1,
-                            column: 18
-                          }
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 4,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
                         },
-                        id: {
-                          type: 'ArrayPattern',
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
                           start: 8,
                           end: 18,
                           loc: {
@@ -4865,45 +4839,29 @@ describe('Statements - For in', () => {
                               column: 18
                             }
                           },
-                          elements: [
-                            {
-                              type: 'AssignmentPattern',
-                              start: 9,
-                              end: 17,
-                              loc: {
-                                start: {
-                                  line: 1,
-                                  column: 9
-                                },
-                                end: {
-                                  line: 1,
-                                  column: 17
-                                }
+                          id: {
+                            type: 'ArrayPattern',
+                            start: 8,
+                            end: 18,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 8
                               },
-                              left: {
-                                type: 'Identifier',
+                              end: {
+                                line: 1,
+                                column: 18
+                              }
+                            },
+                            elements: [
+                              {
+                                type: 'AssignmentPattern',
                                 start: 9,
-                                end: 10,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 9
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 10
-                                  }
-                                },
-                                name: 'a'
-                              },
-                              right: {
-                                type: 'BinaryExpression',
-                                start: 11,
                                 end: 17,
                                 loc: {
                                   start: {
                                     line: 1,
-                                    column: 11
+                                    column: 9
                                   },
                                   end: {
                                     line: 1,
@@ -4912,8 +4870,24 @@ describe('Statements - For in', () => {
                                 },
                                 left: {
                                   type: 'Identifier',
+                                  start: 9,
+                                  end: 10,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 9
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 10
+                                    }
+                                  },
+                                  name: 'a'
+                                },
+                                right: {
+                                  type: 'BinaryExpression',
                                   start: 11,
-                                  end: 12,
+                                  end: 17,
                                   loc: {
                                     start: {
                                       line: 1,
@@ -4921,162 +4895,146 @@ describe('Statements - For in', () => {
                                     },
                                     end: {
                                       line: 1,
-                                      column: 12
-                                    }
-                                  },
-                                  name: 'b'
-                                },
-                                operator: 'in',
-                                right: {
-                                  type: 'Identifier',
-                                  start: 16,
-                                  end: 17,
-                                  loc: {
-                                    start: {
-                                      line: 1,
-                                      column: 16
-                                    },
-                                    end: {
-                                      line: 1,
                                       column: 17
                                     }
                                   },
-                                  name: 'c'
+                                  left: {
+                                    type: 'Identifier',
+                                    start: 11,
+                                    end: 12,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 11
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 12
+                                      }
+                                    },
+                                    name: 'b'
+                                  },
+                                  operator: 'in',
+                                  right: {
+                                    type: 'Identifier',
+                                    start: 16,
+                                    end: 17,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 16
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 17
+                                      }
+                                    },
+                                    name: 'c'
+                                  }
                                 }
                               }
-                            }
-                          ]
-                        },
-                        init: null
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  right: {
-                    type: 'Literal',
-                    start: 22,
-                    end: 26,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 22
-                      },
-                      end: {
-                        line: 1,
-                        column: 26
-                      }
-                    },
-                    value: null,
-                    raw: 'null'
-                  },
-                  body: {
-                    type: 'EmptyStatement',
-                    start: 27,
-                    end: 28,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 27
-                      },
-                      end: {
-                        line: 1,
-                        column: 28
-                      }
-                    }
-                  }
-                },
-                {
-                  type: 'ForInStatement',
-                  start: 35,
-                  end: 63,
-                  loc: {
-                    start: {
-                      line: 2,
-                      column: 6
-                    },
-                    end: {
-                      line: 2,
-                      column: 34
-                    }
-                  },
-                  left: {
-                    type: 'VariableDeclaration',
-                    start: 39,
-                    end: 53,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 10
-                      },
-                      end: {
-                        line: 2,
-                        column: 24
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 43,
-                        end: 53,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 14
+                            ]
                           },
-                          end: {
-                            line: 2,
-                            column: 24
-                          }
+                          init: null
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    right: {
+                      type: 'Literal',
+                      start: 22,
+                      end: 26,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 22
                         },
-                        id: {
-                          type: 'ArrayPattern',
-                          start: 43,
-                          end: 53,
+                        end: {
+                          line: 1,
+                          column: 26
+                        }
+                      },
+                      value: null,
+                      raw: 'null'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 27,
+                      end: 28,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 27
+                        },
+                        end: {
+                          line: 1,
+                          column: 28
+                        }
+                      }
+                    }
+                  },
+                  {
+                    type: 'ForInStatement',
+                    start: 37,
+                    end: 65,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 8
+                      },
+                      end: {
+                        line: 2,
+                        column: 36
+                      }
+                    },
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 41,
+                      end: 55,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 12
+                        },
+                        end: {
+                          line: 2,
+                          column: 26
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 45,
+                          end: 55,
                           loc: {
                             start: {
                               line: 2,
-                              column: 14
+                              column: 16
                             },
                             end: {
                               line: 2,
-                              column: 24
+                              column: 26
                             }
                           },
-                          elements: [
-                            {
-                              type: 'AssignmentPattern',
-                              start: 44,
-                              end: 52,
-                              loc: {
-                                start: {
-                                  line: 2,
-                                  column: 15
-                                },
-                                end: {
-                                  line: 2,
-                                  column: 23
-                                }
+                          id: {
+                            type: 'ArrayPattern',
+                            start: 45,
+                            end: 55,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 16
                               },
-                              left: {
-                                type: 'Identifier',
-                                start: 44,
-                                end: 45,
-                                loc: {
-                                  start: {
-                                    line: 2,
-                                    column: 15
-                                  },
-                                  end: {
-                                    line: 2,
-                                    column: 16
-                                  }
-                                },
-                                name: 'a'
-                              },
-                              right: {
-                                type: 'BinaryExpression',
+                              end: {
+                                line: 2,
+                                column: 26
+                              }
+                            },
+                            elements: [
+                              {
+                                type: 'AssignmentPattern',
                                 start: 46,
-                                end: 52,
+                                end: 54,
                                 loc: {
                                   start: {
                                     line: 2,
@@ -5084,7 +5042,7 @@ describe('Statements - For in', () => {
                                   },
                                   end: {
                                     line: 2,
-                                    column: 23
+                                    column: 25
                                   }
                                 },
                                 left: {
@@ -5101,70 +5059,100 @@ describe('Statements - For in', () => {
                                       column: 18
                                     }
                                   },
-                                  name: 'b'
+                                  name: 'a'
                                 },
-                                operator: 'in',
                                 right: {
-                                  type: 'Identifier',
-                                  start: 51,
-                                  end: 52,
+                                  type: 'BinaryExpression',
+                                  start: 48,
+                                  end: 54,
                                   loc: {
                                     start: {
                                       line: 2,
-                                      column: 22
+                                      column: 19
                                     },
                                     end: {
                                       line: 2,
-                                      column: 23
+                                      column: 25
                                     }
                                   },
-                                  name: 'c'
+                                  left: {
+                                    type: 'Identifier',
+                                    start: 48,
+                                    end: 49,
+                                    loc: {
+                                      start: {
+                                        line: 2,
+                                        column: 19
+                                      },
+                                      end: {
+                                        line: 2,
+                                        column: 20
+                                      }
+                                    },
+                                    name: 'b'
+                                  },
+                                  operator: 'in',
+                                  right: {
+                                    type: 'Identifier',
+                                    start: 53,
+                                    end: 54,
+                                    loc: {
+                                      start: {
+                                        line: 2,
+                                        column: 24
+                                      },
+                                      end: {
+                                        line: 2,
+                                        column: 25
+                                      }
+                                    },
+                                    name: 'c'
+                                  }
                                 }
                               }
-                            }
-                          ]
-                        },
-                        init: null
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  right: {
-                    type: 'Literal',
-                    start: 57,
-                    end: 61,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 28
-                      },
-                      end: {
-                        line: 2,
-                        column: 32
-                      }
+                            ]
+                          },
+                          init: null
+                        }
+                      ],
+                      kind: 'let'
                     },
-                    value: null,
-                    raw: 'null'
-                  },
-                  body: {
-                    type: 'EmptyStatement',
-                    start: 62,
-                    end: 63,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 33
+                    right: {
+                      type: 'Literal',
+                      start: 59,
+                      end: 63,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 30
+                        },
+                        end: {
+                          line: 2,
+                          column: 34
+                        }
                       },
-                      end: {
-                        line: 2,
-                        column: 34
+                      value: null,
+                      raw: 'null'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 64,
+                      end: 65,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 35
+                        },
+                        end: {
+                          line: 2,
+                          column: 36
+                        }
                       }
                     }
                   }
-                }
-              ],
-              sourceType: 'script'
-            }
+                ],
+                sourceType: 'script'
+              }
         });
 
           pass(`for(x in list) process(x);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {

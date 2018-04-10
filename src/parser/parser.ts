@@ -57,7 +57,7 @@ export class Parser {
     public comments: any[];
     public tokenValue: any;
     public tokenRaw: string;
-    public lastChar: number;
+    public lastValue: number;
     public parsingContext: any;
     public tokenRegExp: undefined;
     public token: Token;
@@ -80,7 +80,7 @@ export class Parser {
         this.lastColumn = 0;
         this.lastLine = 0;
         this.tokenRaw = '';
-        this.lastChar = 0;
+        this.lastValue = 0;
         this.parsingContext = 0;
         this.token = 0;
         this.pendingExpressionError = undefined;

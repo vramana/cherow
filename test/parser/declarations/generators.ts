@@ -3,7 +3,7 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('Statements - Generators', () => {
+describe('Declarations - Generators', () => {
 
     describe('Failures', () => {
 
@@ -264,7 +264,7 @@ describe('Statements - Generators', () => {
             expected: {
                 type: 'Program',
                 start: 0,
-                end: 726,
+                end: 702,
                 body: [
                   {
                     type: 'FunctionDeclaration',
@@ -326,12 +326,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 128,
-                    end: 168,
+                    start: 116,
+                    end: 156,
                     id: {
                       type: 'Identifier',
-                      start: 138,
-                      end: 139,
+                      start: 126,
+                      end: 127,
                       name: 'g'
                     },
                     generator: true,
@@ -340,18 +340,32 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 142,
-                      end: 168,
+                      start: 130,
+                      end: 156,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 144,
-                          end: 166,
+                          start: 132,
+                          end: 154,
                           expression: {
                             type: 'BinaryExpression',
-                            start: 144,
-                            end: 165,
+                            start: 132,
+                            end: 153,
                             left: {
+                              type: 'YieldExpression',
+                              start: 133,
+                              end: 140,
+                              delegate: false,
+                              argument: {
+                                type: 'Literal',
+                                start: 139,
+                                end: 140,
+                                value: 3,
+                                raw: '3'
+                              }
+                            },
+                            operator: '+',
+                            right: {
                               type: 'YieldExpression',
                               start: 145,
                               end: 152,
@@ -360,20 +374,6 @@ describe('Statements - Generators', () => {
                                 type: 'Literal',
                                 start: 151,
                                 end: 152,
-                                value: 3,
-                                raw: '3'
-                              }
-                            },
-                            operator: '+',
-                            right: {
-                              type: 'YieldExpression',
-                              start: 157,
-                              end: 164,
-                              delegate: false,
-                              argument: {
-                                type: 'Literal',
-                                start: 163,
-                                end: 164,
                                 value: 4,
                                 raw: '4'
                               }
@@ -385,12 +385,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 230,
-                    end: 254,
+                    start: 206,
+                    end: 230,
                     id: {
                       type: 'Identifier',
-                      start: 240,
-                      end: 241,
+                      start: 216,
+                      end: 217,
                       name: 'g'
                     },
                     generator: true,
@@ -399,17 +399,51 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 244,
+                      start: 220,
+                      end: 230,
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 222,
+                          end: 228,
+                          expression: {
+                            type: 'YieldExpression',
+                            start: 222,
+                            end: 227,
+                            delegate: false,
+                            argument: null
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'FunctionDeclaration',
+                    start: 243,
+                    end: 266,
+                    id: {
+                      type: 'Identifier',
+                      start: 253,
                       end: 254,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 257,
+                      end: 266,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 246,
-                          end: 252,
+                          start: 259,
+                          end: 264,
                           expression: {
                             type: 'YieldExpression',
-                            start: 246,
-                            end: 251,
+                            start: 259,
+                            end: 264,
                             delegate: false,
                             argument: null
                           }
@@ -419,31 +453,31 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 267,
-                    end: 290,
+                    start: 279,
+                    end: 330,
                     id: {
                       type: 'Identifier',
-                      start: 277,
-                      end: 278,
-                      name: 'g'
-                    },
-                    generator: true,
-                    expression: false,
-                    async: false,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      start: 281,
+                      start: 289,
                       end: 290,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 293,
+                      end: 330,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 283,
-                          end: 288,
+                          start: 311,
+                          end: 316,
                           expression: {
                             type: 'YieldExpression',
-                            start: 283,
-                            end: 288,
+                            start: 311,
+                            end: 316,
                             delegate: false,
                             argument: null
                           }
@@ -453,31 +487,31 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 303,
-                    end: 354,
+                    start: 343,
+                    end: 368,
                     id: {
                       type: 'Identifier',
-                      start: 313,
-                      end: 314,
-                      name: 'g'
-                    },
-                    generator: true,
-                    expression: false,
-                    async: false,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      start: 317,
+                      start: 353,
                       end: 354,
+                      name: 'g'
+                    },
+                    generator: true,
+                    expression: false,
+                    async: false,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      start: 357,
+                      end: 368,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 335,
-                          end: 340,
+                          start: 359,
+                          end: 366,
                           expression: {
                             type: 'YieldExpression',
-                            start: 335,
-                            end: 340,
+                            start: 360,
+                            end: 365,
                             delegate: false,
                             argument: null
                           }
@@ -487,46 +521,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 367,
-                    end: 392,
+                    start: 381,
+                    end: 406,
                     id: {
                       type: 'Identifier',
-                      start: 377,
-                      end: 378,
-                      name: 'g'
-                    },
-                    generator: true,
-                    expression: false,
-                    async: false,
-                    params: [],
-                    body: {
-                      type: 'BlockStatement',
-                      start: 381,
+                      start: 391,
                       end: 392,
-                      body: [
-                        {
-                          type: 'ExpressionStatement',
-                          start: 383,
-                          end: 390,
-                          expression: {
-                            type: 'YieldExpression',
-                            start: 384,
-                            end: 389,
-                            delegate: false,
-                            argument: null
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    type: 'FunctionDeclaration',
-                    start: 405,
-                    end: 430,
-                    id: {
-                      type: 'Identifier',
-                      start: 415,
-                      end: 416,
                       name: 'g'
                     },
                     generator: true,
@@ -535,22 +535,22 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 419,
-                      end: 430,
+                      start: 395,
+                      end: 406,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 421,
-                          end: 428,
+                          start: 397,
+                          end: 404,
                           expression: {
                             type: 'ArrayExpression',
-                            start: 421,
-                            end: 428,
+                            start: 397,
+                            end: 404,
                             elements: [
                               {
                                 type: 'YieldExpression',
-                                start: 422,
-                                end: 427,
+                                start: 398,
+                                end: 403,
                                 delegate: false,
                                 argument: null
                               }
@@ -562,12 +562,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 443,
-                    end: 468,
+                    start: 419,
+                    end: 444,
                     id: {
                       type: 'Identifier',
-                      start: 453,
-                      end: 454,
+                      start: 429,
+                      end: 430,
                       name: 'g'
                     },
                     generator: true,
@@ -576,22 +576,22 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 457,
-                      end: 468,
+                      start: 433,
+                      end: 444,
                       body: [
                         {
                           type: 'BlockStatement',
-                          start: 459,
-                          end: 466,
+                          start: 435,
+                          end: 442,
                           body: [
                             {
                               type: 'ExpressionStatement',
-                              start: 460,
-                              end: 465,
+                              start: 436,
+                              end: 441,
                               expression: {
                                 type: 'YieldExpression',
-                                start: 460,
-                                end: 465,
+                                start: 436,
+                                end: 441,
                                 delegate: false,
                                 argument: null
                               }
@@ -603,12 +603,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 481,
-                    end: 515,
+                    start: 457,
+                    end: 491,
                     id: {
                       type: 'Identifier',
-                      start: 491,
-                      end: 492,
+                      start: 467,
+                      end: 468,
                       name: 'g'
                     },
                     generator: true,
@@ -617,29 +617,29 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 495,
-                      end: 515,
+                      start: 471,
+                      end: 491,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 497,
-                          end: 513,
+                          start: 473,
+                          end: 489,
                           expression: {
                             type: 'SequenceExpression',
-                            start: 497,
-                            end: 513,
+                            start: 473,
+                            end: 489,
                             expressions: [
                               {
                                 type: 'YieldExpression',
-                                start: 498,
-                                end: 503,
+                                start: 474,
+                                end: 479,
                                 delegate: false,
                                 argument: null
                               },
                               {
                                 type: 'YieldExpression',
-                                start: 507,
-                                end: 512,
+                                start: 483,
+                                end: 488,
                                 delegate: false,
                                 argument: null
                               }
@@ -651,12 +651,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 528,
-                    end: 558,
+                    start: 504,
+                    end: 534,
                     id: {
                       type: 'Identifier',
-                      start: 538,
-                      end: 539,
+                      start: 514,
+                      end: 515,
                       name: 'g'
                     },
                     generator: true,
@@ -665,29 +665,29 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 542,
-                      end: 558,
+                      start: 518,
+                      end: 534,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 544,
-                          end: 550,
+                          start: 520,
+                          end: 526,
                           expression: {
                             type: 'YieldExpression',
-                            start: 544,
-                            end: 549,
+                            start: 520,
+                            end: 525,
                             delegate: false,
                             argument: null
                           }
                         },
                         {
                           type: 'ExpressionStatement',
-                          start: 551,
-                          end: 556,
+                          start: 527,
+                          end: 532,
                           expression: {
                             type: 'YieldExpression',
-                            start: 551,
-                            end: 556,
+                            start: 527,
+                            end: 532,
                             delegate: false,
                             argument: null
                           }
@@ -697,12 +697,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 571,
-                    end: 612,
+                    start: 547,
+                    end: 588,
                     id: {
                       type: 'Identifier',
-                      start: 581,
-                      end: 582,
+                      start: 557,
+                      end: 558,
                       name: 'g'
                     },
                     generator: true,
@@ -711,35 +711,35 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 585,
-                      end: 612,
+                      start: 561,
+                      end: 588,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 587,
-                          end: 610,
+                          start: 563,
+                          end: 586,
                           expression: {
                             type: 'ConditionalExpression',
-                            start: 587,
-                            end: 610,
+                            start: 563,
+                            end: 586,
                             test: {
                               type: 'YieldExpression',
-                              start: 588,
-                              end: 593,
+                              start: 564,
+                              end: 569,
                               delegate: false,
                               argument: null
                             },
                             consequent: {
                               type: 'YieldExpression',
-                              start: 597,
-                              end: 602,
+                              start: 573,
+                              end: 578,
                               delegate: false,
                               argument: null
                             },
                             alternate: {
                               type: 'YieldExpression',
-                              start: 605,
-                              end: 610,
+                              start: 581,
+                              end: 586,
                               delegate: false,
                               argument: null
                             }
@@ -750,12 +750,12 @@ describe('Statements - Generators', () => {
                   },
                   {
                     type: 'FunctionDeclaration',
-                    start: 625,
-                    end: 726,
+                    start: 601,
+                    end: 702,
                     id: {
                       type: 'Identifier',
-                      start: 635,
-                      end: 636,
+                      start: 611,
+                      end: 612,
                       name: 'g'
                     },
                     generator: true,
@@ -764,35 +764,35 @@ describe('Statements - Generators', () => {
                     params: [],
                     body: {
                       type: 'BlockStatement',
-                      start: 639,
-                      end: 726,
+                      start: 615,
+                      end: 702,
                       body: [
                         {
                           type: 'ExpressionStatement',
-                          start: 657,
-                          end: 712,
+                          start: 633,
+                          end: 688,
                           expression: {
                             type: 'ConditionalExpression',
-                            start: 657,
-                            end: 712,
+                            start: 633,
+                            end: 688,
                             test: {
                               type: 'YieldExpression',
-                              start: 658,
-                              end: 663,
+                              start: 634,
+                              end: 639,
                               delegate: false,
                               argument: null
                             },
                             consequent: {
                               type: 'YieldExpression',
-                              start: 683,
-                              end: 688,
+                              start: 659,
+                              end: 664,
                               delegate: false,
                               argument: null
                             },
                             alternate: {
                               type: 'YieldExpression',
-                              start: 707,
-                              end: 712,
+                              start: 683,
+                              end: 688,
                               delegate: false,
                               argument: null
                             }

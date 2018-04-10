@@ -2623,469 +2623,478 @@ describe('Statements - For of', () => {
         for (x.y of [23]) {}
         for (x.y of [23]) {}`,
               expected: {
-                  type: 'Program',
-                  start: 0,
-                  end: 101,
-                  loc: {
+                type: 'Program',
+                start: 0,
+                end: 107,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 4,
+                    column: 28
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 0,
+                    end: 20,
+                    loc: {
                       start: {
-                          line: 1,
-                          column: 0
+                        line: 1,
+                        column: 0
                       },
                       end: {
+                        line: 1,
+                        column: 20
+                      }
+                    },
+                    left: {
+                      type: 'MemberExpression',
+                      start: 5,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      object: {
+                        type: 'Identifier',
+                        start: 5,
+                        end: 6,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 5
+                          },
+                          end: {
+                            line: 1,
+                            column: 6
+                          }
+                        },
+                        name: 'x'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        start: 7,
+                        end: 8,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 7
+                          },
+                          end: {
+                            line: 1,
+                            column: 8
+                          }
+                        },
+                        name: 'y'
+                      },
+                      computed: false
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 12,
+                      end: 16,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 16
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 13,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          value: 23,
+                          raw: '23'
+                        }
+                      ]
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 18,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 18
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      },
+                      body: []
+                    }
+                  },
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 29,
+                    end: 49,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 8
+                      },
+                      end: {
+                        line: 2,
+                        column: 28
+                      }
+                    },
+                    left: {
+                      type: 'MemberExpression',
+                      start: 34,
+                      end: 37,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 13
+                        },
+                        end: {
+                          line: 2,
+                          column: 16
+                        }
+                      },
+                      object: {
+                        type: 'Identifier',
+                        start: 34,
+                        end: 35,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 13
+                          },
+                          end: {
+                            line: 2,
+                            column: 14
+                          }
+                        },
+                        name: 'x'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        start: 36,
+                        end: 37,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 15
+                          },
+                          end: {
+                            line: 2,
+                            column: 16
+                          }
+                        },
+                        name: 'y'
+                      },
+                      computed: false
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 41,
+                      end: 45,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 20
+                        },
+                        end: {
+                          line: 2,
+                          column: 24
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 42,
+                          end: 44,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 21
+                            },
+                            end: {
+                              line: 2,
+                              column: 23
+                            }
+                          },
+                          value: 23,
+                          raw: '23'
+                        }
+                      ]
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 47,
+                      end: 49,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 26
+                        },
+                        end: {
+                          line: 2,
+                          column: 28
+                        }
+                      },
+                      body: []
+                    }
+                  },
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 58,
+                    end: 78,
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 8
+                      },
+                      end: {
+                        line: 3,
+                        column: 28
+                      }
+                    },
+                    left: {
+                      type: 'MemberExpression',
+                      start: 63,
+                      end: 66,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 13
+                        },
+                        end: {
+                          line: 3,
+                          column: 16
+                        }
+                      },
+                      object: {
+                        type: 'Identifier',
+                        start: 63,
+                        end: 64,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 13
+                          },
+                          end: {
+                            line: 3,
+                            column: 14
+                          }
+                        },
+                        name: 'x'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        start: 65,
+                        end: 66,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 15
+                          },
+                          end: {
+                            line: 3,
+                            column: 16
+                          }
+                        },
+                        name: 'y'
+                      },
+                      computed: false
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 70,
+                      end: 74,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 20
+                        },
+                        end: {
+                          line: 3,
+                          column: 24
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 71,
+                          end: 73,
+                          loc: {
+                            start: {
+                              line: 3,
+                              column: 21
+                            },
+                            end: {
+                              line: 3,
+                              column: 23
+                            }
+                          },
+                          value: 23,
+                          raw: '23'
+                        }
+                      ]
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 76,
+                      end: 78,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 26
+                        },
+                        end: {
+                          line: 3,
+                          column: 28
+                        }
+                      },
+                      body: []
+                    }
+                  },
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 87,
+                    end: 107,
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 8
+                      },
+                      end: {
+                        line: 4,
+                        column: 28
+                      }
+                    },
+                    left: {
+                      type: 'MemberExpression',
+                      start: 92,
+                      end: 95,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 13
+                        },
+                        end: {
+                          line: 4,
+                          column: 16
+                        }
+                      },
+                      object: {
+                        type: 'Identifier',
+                        start: 92,
+                        end: 93,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 13
+                          },
+                          end: {
+                            line: 4,
+                            column: 14
+                          }
+                        },
+                        name: 'x'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        start: 94,
+                        end: 95,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 15
+                          },
+                          end: {
+                            line: 4,
+                            column: 16
+                          }
+                        },
+                        name: 'y'
+                      },
+                      computed: false
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 99,
+                      end: 103,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 20
+                        },
+                        end: {
+                          line: 4,
+                          column: 24
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 100,
+                          end: 102,
+                          loc: {
+                            start: {
+                              line: 4,
+                              column: 21
+                            },
+                            end: {
+                              line: 4,
+                              column: 23
+                            }
+                          },
+                          value: 23,
+                          raw: '23'
+                        }
+                      ]
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 105,
+                      end: 107,
+                      loc: {
+                        start: {
                           line: 4,
                           column: 26
-                      }
-                  },
-                  body: [{
-                          type: 'ForOfStatement',
-                          await: false,
-                          start: 0,
-                          end: 20,
-                          loc: {
-                              start: {
-                                  line: 1,
-                                  column: 0
-                              },
-                              end: {
-                                  line: 1,
-                                  column: 20
-                              }
-                          },
-                          left: {
-                              type: 'MemberExpression',
-                              start: 5,
-                              end: 8,
-                              loc: {
-                                  start: {
-                                      line: 1,
-                                      column: 5
-                                  },
-                                  end: {
-                                      line: 1,
-                                      column: 8
-                                  }
-                              },
-                              object: {
-                                  type: 'Identifier',
-                                  start: 5,
-                                  end: 6,
-                                  loc: {
-                                      start: {
-                                          line: 1,
-                                          column: 5
-                                      },
-                                      end: {
-                                          line: 1,
-                                          column: 6
-                                      }
-                                  },
-                                  name: 'x'
-                              },
-                              property: {
-                                  type: 'Identifier',
-                                  start: 7,
-                                  end: 8,
-                                  loc: {
-                                      start: {
-                                          line: 1,
-                                          column: 7
-                                      },
-                                      end: {
-                                          line: 1,
-                                          column: 8
-                                      }
-                                  },
-                                  name: 'y'
-                              },
-                              computed: false
-                          },
-                          right: {
-                              type: 'ArrayExpression',
-                              start: 12,
-                              end: 16,
-                              loc: {
-                                  start: {
-                                      line: 1,
-                                      column: 12
-                                  },
-                                  end: {
-                                      line: 1,
-                                      column: 16
-                                  }
-                              },
-                              elements: [{
-                                  type: 'Literal',
-                                  start: 13,
-                                  end: 15,
-                                  loc: {
-                                      start: {
-                                          line: 1,
-                                          column: 13
-                                      },
-                                      end: {
-                                          line: 1,
-                                          column: 15
-                                      }
-                                  },
-                                  value: 23,
-                                  raw: '23'
-                              }]
-                          },
-                          body: {
-                              type: 'BlockStatement',
-                              start: 18,
-                              end: 20,
-                              loc: {
-                                  start: {
-                                      line: 1,
-                                      column: 18
-                                  },
-                                  end: {
-                                      line: 1,
-                                      column: 20
-                                  }
-                              },
-                              body: []
-                          }
+                        },
+                        end: {
+                          line: 4,
+                          column: 28
+                        }
                       },
-                      {
-                          type: 'ForOfStatement',
-                          await: false,
-                          start: 27,
-                          end: 47,
-                          loc: {
-                              start: {
-                                  line: 2,
-                                  column: 6
-                              },
-                              end: {
-                                  line: 2,
-                                  column: 26
-                              }
-                          },
-                          left: {
-                              type: 'MemberExpression',
-                              start: 32,
-                              end: 35,
-                              loc: {
-                                  start: {
-                                      line: 2,
-                                      column: 11
-                                  },
-                                  end: {
-                                      line: 2,
-                                      column: 14
-                                  }
-                              },
-                              object: {
-                                  type: 'Identifier',
-                                  start: 32,
-                                  end: 33,
-                                  loc: {
-                                      start: {
-                                          line: 2,
-                                          column: 11
-                                      },
-                                      end: {
-                                          line: 2,
-                                          column: 12
-                                      }
-                                  },
-                                  name: 'x'
-                              },
-                              property: {
-                                  type: 'Identifier',
-                                  start: 34,
-                                  end: 35,
-                                  loc: {
-                                      start: {
-                                          line: 2,
-                                          column: 13
-                                      },
-                                      end: {
-                                          line: 2,
-                                          column: 14
-                                      }
-                                  },
-                                  name: 'y'
-                              },
-                              computed: false
-                          },
-                          right: {
-                              type: 'ArrayExpression',
-                              start: 39,
-                              end: 43,
-                              loc: {
-                                  start: {
-                                      line: 2,
-                                      column: 18
-                                  },
-                                  end: {
-                                      line: 2,
-                                      column: 22
-                                  }
-                              },
-                              elements: [{
-                                  type: 'Literal',
-                                  start: 40,
-                                  end: 42,
-                                  loc: {
-                                      start: {
-                                          line: 2,
-                                          column: 19
-                                      },
-                                      end: {
-                                          line: 2,
-                                          column: 21
-                                      }
-                                  },
-                                  value: 23,
-                                  raw: '23'
-                              }]
-                          },
-                          body: {
-                              type: 'BlockStatement',
-                              start: 45,
-                              end: 47,
-                              loc: {
-                                  start: {
-                                      line: 2,
-                                      column: 24
-                                  },
-                                  end: {
-                                      line: 2,
-                                      column: 26
-                                  }
-                              },
-                              body: []
-                          }
-                      },
-                      {
-                          type: 'ForOfStatement',
-                          await: false,
-                          start: 54,
-                          end: 74,
-                          loc: {
-                              start: {
-                                  line: 3,
-                                  column: 6
-                              },
-                              end: {
-                                  line: 3,
-                                  column: 26
-                              }
-                          },
-                          left: {
-                              type: 'MemberExpression',
-                              start: 59,
-                              end: 62,
-                              loc: {
-                                  start: {
-                                      line: 3,
-                                      column: 11
-                                  },
-                                  end: {
-                                      line: 3,
-                                      column: 14
-                                  }
-                              },
-                              object: {
-                                  type: 'Identifier',
-                                  start: 59,
-                                  end: 60,
-                                  loc: {
-                                      start: {
-                                          line: 3,
-                                          column: 11
-                                      },
-                                      end: {
-                                          line: 3,
-                                          column: 12
-                                      }
-                                  },
-                                  name: 'x'
-                              },
-                              property: {
-                                  type: 'Identifier',
-                                  start: 61,
-                                  end: 62,
-                                  loc: {
-                                      start: {
-                                          line: 3,
-                                          column: 13
-                                      },
-                                      end: {
-                                          line: 3,
-                                          column: 14
-                                      }
-                                  },
-                                  name: 'y'
-                              },
-                              computed: false
-                          },
-                          right: {
-                              type: 'ArrayExpression',
-                              start: 66,
-                              end: 70,
-                              loc: {
-                                  start: {
-                                      line: 3,
-                                      column: 18
-                                  },
-                                  end: {
-                                      line: 3,
-                                      column: 22
-                                  }
-                              },
-                              elements: [{
-                                  type: 'Literal',
-                                  start: 67,
-                                  end: 69,
-                                  loc: {
-                                      start: {
-                                          line: 3,
-                                          column: 19
-                                      },
-                                      end: {
-                                          line: 3,
-                                          column: 21
-                                      }
-                                  },
-                                  value: 23,
-                                  raw: '23'
-                              }]
-                          },
-                          body: {
-                              type: 'BlockStatement',
-                              start: 72,
-                              end: 74,
-                              loc: {
-                                  start: {
-                                      line: 3,
-                                      column: 24
-                                  },
-                                  end: {
-                                      line: 3,
-                                      column: 26
-                                  }
-                              },
-                              body: []
-                          }
-                      },
-                      {
-                          type: 'ForOfStatement',
-                          await: false,
-                          start: 81,
-                          end: 101,
-                          loc: {
-                              start: {
-                                  line: 4,
-                                  column: 6
-                              },
-                              end: {
-                                  line: 4,
-                                  column: 26
-                              }
-                          },
-                          left: {
-                              type: 'MemberExpression',
-                              start: 86,
-                              end: 89,
-                              loc: {
-                                  start: {
-                                      line: 4,
-                                      column: 11
-                                  },
-                                  end: {
-                                      line: 4,
-                                      column: 14
-                                  }
-                              },
-                              object: {
-                                  type: 'Identifier',
-                                  start: 86,
-                                  end: 87,
-                                  loc: {
-                                      start: {
-                                          line: 4,
-                                          column: 11
-                                      },
-                                      end: {
-                                          line: 4,
-                                          column: 12
-                                      }
-                                  },
-                                  name: 'x'
-                              },
-                              property: {
-                                  type: 'Identifier',
-                                  start: 88,
-                                  end: 89,
-                                  loc: {
-                                      start: {
-                                          line: 4,
-                                          column: 13
-                                      },
-                                      end: {
-                                          line: 4,
-                                          column: 14
-                                      }
-                                  },
-                                  name: 'y'
-                              },
-                              computed: false
-                          },
-                          right: {
-                              type: 'ArrayExpression',
-                              start: 93,
-                              end: 97,
-                              loc: {
-                                  start: {
-                                      line: 4,
-                                      column: 18
-                                  },
-                                  end: {
-                                      line: 4,
-                                      column: 22
-                                  }
-                              },
-                              elements: [{
-                                  type: 'Literal',
-                                  start: 94,
-                                  end: 96,
-                                  loc: {
-                                      start: {
-                                          line: 4,
-                                          column: 19
-                                      },
-                                      end: {
-                                          line: 4,
-                                          column: 21
-                                      }
-                                  },
-                                  value: 23,
-                                  raw: '23'
-                              }]
-                          },
-                          body: {
-                              type: 'BlockStatement',
-                              start: 99,
-                              end: 101,
-                              loc: {
-                                  start: {
-                                      line: 4,
-                                      column: 24
-                                  },
-                                  end: {
-                                      line: 4,
-                                      column: 26
-                                  }
-                              },
-                              body: []
-                          }
-                      }
-                  ],
-                  sourceType: 'script'
+                      body: []
+                    }
+                  }
+                ],
+                sourceType: 'script'
               }
           });
 

@@ -10204,53 +10204,39 @@ describe('Expressions - Let', () => {
 
         for (let x = "c", i = 0; i < 1; i++) { let y = "d"; }`,
             expected: {
-              type: 'Program',
-              start: 0,
-              end: 92,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 4,
-                  column: 59
-                }
-              },
-              body: [
-                {
-                  type: 'VariableDeclaration',
-                  start: 0,
-                  end: 12,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 1,
-                      column: 12
-                    }
+                type: 'Program',
+                start: 0,
+                end: 96,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  declarations: [
-                    {
-                      type: 'VariableDeclarator',
-                      start: 4,
-                      end: 11,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 4
-                        },
-                        end: {
-                          line: 1,
-                          column: 11
-                        }
+                  end: {
+                    line: 4,
+                    column: 61
+                  }
+                },
+                body: [
+                  {
+                    type: 'VariableDeclaration',
+                    start: 0,
+                    end: 12,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
                       },
-                      id: {
-                        type: 'Identifier',
+                      end: {
+                        line: 1,
+                        column: 12
+                      }
+                    },
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
                         start: 4,
-                        end: 5,
+                        end: 11,
                         loc: {
                           start: {
                             line: 1,
@@ -10258,395 +10244,409 @@ describe('Expressions - Let', () => {
                           },
                           end: {
                             line: 1,
-                            column: 5
-                          }
-                        },
-                        name: 'x'
-                      },
-                      init: {
-                        type: 'Literal',
-                        start: 8,
-                        end: 11,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 8
-                          },
-                          end: {
-                            line: 1,
                             column: 11
-                          }
-                        },
-                        value: 'a',
-                        raw: '"a"'
-                      }
-                    }
-                  ],
-                  kind: 'let'
-                },
-                {
-                  type: 'VariableDeclaration',
-                  start: 19,
-                  end: 31,
-                  loc: {
-                    start: {
-                      line: 2,
-                      column: 6
-                    },
-                    end: {
-                      line: 2,
-                      column: 18
-                    }
-                  },
-                  declarations: [
-                    {
-                      type: 'VariableDeclarator',
-                      start: 23,
-                      end: 30,
-                      loc: {
-                        start: {
-                          line: 2,
-                          column: 10
-                        },
-                        end: {
-                          line: 2,
-                          column: 17
-                        }
-                      },
-                      id: {
-                        type: 'Identifier',
-                        start: 23,
-                        end: 24,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 10
-                          },
-                          end: {
-                            line: 2,
-                            column: 11
-                          }
-                        },
-                        name: 'y'
-                      },
-                      init: {
-                        type: 'Literal',
-                        start: 27,
-                        end: 30,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 14
-                          },
-                          end: {
-                            line: 2,
-                            column: 17
-                          }
-                        },
-                        value: 'b',
-                        raw: '"b"'
-                      }
-                    }
-                  ],
-                  kind: 'let'
-                },
-                {
-                  type: 'ForStatement',
-                  start: 39,
-                  end: 92,
-                  loc: {
-                    start: {
-                      line: 4,
-                      column: 6
-                    },
-                    end: {
-                      line: 4,
-                      column: 59
-                    }
-                  },
-                  init: {
-                    type: 'VariableDeclaration',
-                    start: 44,
-                    end: 62,
-                    loc: {
-                      start: {
-                        line: 4,
-                        column: 11
-                      },
-                      end: {
-                        line: 4,
-                        column: 29
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 48,
-                        end: 55,
-                        loc: {
-                          start: {
-                            line: 4,
-                            column: 15
-                          },
-                          end: {
-                            line: 4,
-                            column: 22
                           }
                         },
                         id: {
                           type: 'Identifier',
-                          start: 48,
-                          end: 49,
+                          start: 4,
+                          end: 5,
                           loc: {
                             start: {
-                              line: 4,
-                              column: 15
+                              line: 1,
+                              column: 4
                             },
                             end: {
-                              line: 4,
-                              column: 16
+                              line: 1,
+                              column: 5
                             }
                           },
                           name: 'x'
                         },
                         init: {
                           type: 'Literal',
-                          start: 52,
-                          end: 55,
+                          start: 8,
+                          end: 11,
                           loc: {
                             start: {
-                              line: 4,
-                              column: 19
+                              line: 1,
+                              column: 8
                             },
                             end: {
-                              line: 4,
-                              column: 22
+                              line: 1,
+                              column: 11
                             }
                           },
-                          value: 'c',
-                          raw: '"c"'
-                        }
-                      },
-                      {
-                        type: 'VariableDeclarator',
-                        start: 57,
-                        end: 62,
-                        loc: {
-                          start: {
-                            line: 4,
-                            column: 24
-                          },
-                          end: {
-                            line: 4,
-                            column: 29
-                          }
-                        },
-                        id: {
-                          type: 'Identifier',
-                          start: 57,
-                          end: 58,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 24
-                            },
-                            end: {
-                              line: 4,
-                              column: 25
-                            }
-                          },
-                          name: 'i'
-                        },
-                        init: {
-                          type: 'Literal',
-                          start: 61,
-                          end: 62,
-                          loc: {
-                            start: {
-                              line: 4,
-                              column: 28
-                            },
-                            end: {
-                              line: 4,
-                              column: 29
-                            }
-                          },
-                          value: 0,
-                          raw: '0'
+                          value: 'a',
+                          raw: '"a"'
                         }
                       }
                     ],
                     kind: 'let'
                   },
-                  test: {
-                    type: 'BinaryExpression',
-                    start: 64,
-                    end: 69,
+                  {
+                    type: 'VariableDeclaration',
+                    start: 21,
+                    end: 33,
                     loc: {
                       start: {
-                        line: 4,
-                        column: 31
+                        line: 2,
+                        column: 8
                       },
                       end: {
-                        line: 4,
-                        column: 36
+                        line: 2,
+                        column: 20
                       }
                     },
-                    left: {
-                      type: 'Identifier',
-                      start: 64,
-                      end: 65,
-                      loc: {
-                        start: {
-                          line: 4,
-                          column: 31
-                        },
-                        end: {
-                          line: 4,
-                          column: 32
-                        }
-                      },
-                      name: 'i'
-                    },
-                    operator: '<',
-                    right: {
-                      type: 'Literal',
-                      start: 68,
-                      end: 69,
-                      loc: {
-                        start: {
-                          line: 4,
-                          column: 35
-                        },
-                        end: {
-                          line: 4,
-                          column: 36
-                        }
-                      },
-                      value: 1,
-                      raw: '1'
-                    }
-                  },
-                  update: {
-                    type: 'UpdateExpression',
-                    start: 71,
-                    end: 74,
-                    loc: {
-                      start: {
-                        line: 4,
-                        column: 38
-                      },
-                      end: {
-                        line: 4,
-                        column: 41
-                      }
-                    },
-                    operator: '++',
-                    prefix: false,
-                    argument: {
-                      type: 'Identifier',
-                      start: 71,
-                      end: 72,
-                      loc: {
-                        start: {
-                          line: 4,
-                          column: 38
-                        },
-                        end: {
-                          line: 4,
-                          column: 39
-                        }
-                      },
-                      name: 'i'
-                    }
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 76,
-                    end: 92,
-                    loc: {
-                      start: {
-                        line: 4,
-                        column: 43
-                      },
-                      end: {
-                        line: 4,
-                        column: 59
-                      }
-                    },
-                    body: [
+                    declarations: [
                       {
-                        type: 'VariableDeclaration',
-                        start: 78,
-                        end: 90,
+                        type: 'VariableDeclarator',
+                        start: 25,
+                        end: 32,
                         loc: {
                           start: {
-                            line: 4,
-                            column: 45
+                            line: 2,
+                            column: 12
                           },
                           end: {
-                            line: 4,
-                            column: 57
+                            line: 2,
+                            column: 19
                           }
                         },
-                        declarations: [
-                          {
-                            type: 'VariableDeclarator',
-                            start: 82,
-                            end: 89,
+                        id: {
+                          type: 'Identifier',
+                          start: 25,
+                          end: 26,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 12
+                            },
+                            end: {
+                              line: 2,
+                              column: 13
+                            }
+                          },
+                          name: 'y'
+                        },
+                        init: {
+                          type: 'Literal',
+                          start: 29,
+                          end: 32,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 16
+                            },
+                            end: {
+                              line: 2,
+                              column: 19
+                            }
+                          },
+                          value: 'b',
+                          raw: '"b"'
+                        }
+                      }
+                    ],
+                    kind: 'let'
+                  },
+                  {
+                    type: 'ForStatement',
+                    start: 43,
+                    end: 96,
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 8
+                      },
+                      end: {
+                        line: 4,
+                        column: 61
+                      }
+                    },
+                    init: {
+                      type: 'VariableDeclaration',
+                      start: 48,
+                      end: 66,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 13
+                        },
+                        end: {
+                          line: 4,
+                          column: 31
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 52,
+                          end: 59,
+                          loc: {
+                            start: {
+                              line: 4,
+                              column: 17
+                            },
+                            end: {
+                              line: 4,
+                              column: 24
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 52,
+                            end: 53,
                             loc: {
                               start: {
                                 line: 4,
-                                column: 49
+                                column: 17
                               },
                               end: {
                                 line: 4,
-                                column: 56
+                                column: 18
                               }
                             },
-                            id: {
-                              type: 'Identifier',
-                              start: 82,
-                              end: 83,
-                              loc: {
-                                start: {
-                                  line: 4,
-                                  column: 49
-                                },
-                                end: {
-                                  line: 4,
-                                  column: 50
-                                }
+                            name: 'x'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 56,
+                            end: 59,
+                            loc: {
+                              start: {
+                                line: 4,
+                                column: 21
                               },
-                              name: 'y'
+                              end: {
+                                line: 4,
+                                column: 24
+                              }
                             },
-                            init: {
-                              type: 'Literal',
+                            value: 'c',
+                            raw: '"c"'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 61,
+                          end: 66,
+                          loc: {
+                            start: {
+                              line: 4,
+                              column: 26
+                            },
+                            end: {
+                              line: 4,
+                              column: 31
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 61,
+                            end: 62,
+                            loc: {
+                              start: {
+                                line: 4,
+                                column: 26
+                              },
+                              end: {
+                                line: 4,
+                                column: 27
+                              }
+                            },
+                            name: 'i'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 65,
+                            end: 66,
+                            loc: {
+                              start: {
+                                line: 4,
+                                column: 30
+                              },
+                              end: {
+                                line: 4,
+                                column: 31
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    test: {
+                      type: 'BinaryExpression',
+                      start: 68,
+                      end: 73,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 33
+                        },
+                        end: {
+                          line: 4,
+                          column: 38
+                        }
+                      },
+                      left: {
+                        type: 'Identifier',
+                        start: 68,
+                        end: 69,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 33
+                          },
+                          end: {
+                            line: 4,
+                            column: 34
+                          }
+                        },
+                        name: 'i'
+                      },
+                      operator: '<',
+                      right: {
+                        type: 'Literal',
+                        start: 72,
+                        end: 73,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 37
+                          },
+                          end: {
+                            line: 4,
+                            column: 38
+                          }
+                        },
+                        value: 1,
+                        raw: '1'
+                      }
+                    },
+                    update: {
+                      type: 'UpdateExpression',
+                      start: 75,
+                      end: 78,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 40
+                        },
+                        end: {
+                          line: 4,
+                          column: 43
+                        }
+                      },
+                      operator: '++',
+                      prefix: false,
+                      argument: {
+                        type: 'Identifier',
+                        start: 75,
+                        end: 76,
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 40
+                          },
+                          end: {
+                            line: 4,
+                            column: 41
+                          }
+                        },
+                        name: 'i'
+                      }
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 80,
+                      end: 96,
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 45
+                        },
+                        end: {
+                          line: 4,
+                          column: 61
+                        }
+                      },
+                      body: [
+                        {
+                          type: 'VariableDeclaration',
+                          start: 82,
+                          end: 94,
+                          loc: {
+                            start: {
+                              line: 4,
+                              column: 47
+                            },
+                            end: {
+                              line: 4,
+                              column: 59
+                            }
+                          },
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
                               start: 86,
-                              end: 89,
+                              end: 93,
                               loc: {
                                 start: {
                                   line: 4,
-                                  column: 53
+                                  column: 51
                                 },
                                 end: {
                                   line: 4,
-                                  column: 56
+                                  column: 58
                                 }
                               },
-                              value: 'd',
-                              raw: '"d"'
+                              id: {
+                                type: 'Identifier',
+                                start: 86,
+                                end: 87,
+                                loc: {
+                                  start: {
+                                    line: 4,
+                                    column: 51
+                                  },
+                                  end: {
+                                    line: 4,
+                                    column: 52
+                                  }
+                                },
+                                name: 'y'
+                              },
+                              init: {
+                                type: 'Literal',
+                                start: 90,
+                                end: 93,
+                                loc: {
+                                  start: {
+                                    line: 4,
+                                    column: 55
+                                  },
+                                  end: {
+                                    line: 4,
+                                    column: 58
+                                  }
+                                },
+                                value: 'd',
+                                raw: '"d"'
+                              }
                             }
-                          }
-                        ],
-                        kind: 'let'
-                      }
-                    ]
+                          ],
+                          kind: 'let'
+                        }
+                      ]
+                    }
                   }
-                }
-              ],
-              sourceType: 'script'
-            }
+                ],
+                sourceType: 'script'
+              }
         });
 
       pass(`let a = [];
@@ -10660,53 +10660,39 @@ describe('Expressions - Let', () => {
         }
         for (let k = 0; k < 5; ++k) {}`,
             expected: {
-              type: 'Program',
-              start: 0,
-              end: 140,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 5,
-                  column: 36
-                }
-              },
-              body: [
-                {
-                  type: 'VariableDeclaration',
-                  start: 0,
-                  end: 11,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 1,
-                      column: 11
-                    }
+                type: 'Program',
+                start: 0,
+                end: 148,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  declarations: [
-                    {
-                      type: 'VariableDeclarator',
-                      start: 4,
-                      end: 10,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 4
-                        },
-                        end: {
-                          line: 1,
-                          column: 10
-                        }
+                  end: {
+                    line: 5,
+                    column: 38
+                  }
+                },
+                body: [
+                  {
+                    type: 'VariableDeclaration',
+                    start: 0,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
                       },
-                      id: {
-                        type: 'Identifier',
+                      end: {
+                        line: 1,
+                        column: 11
+                      }
+                    },
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
                         start: 4,
-                        end: 5,
+                        end: 10,
                         loc: {
                           start: {
                             line: 1,
@@ -10714,819 +10700,140 @@ describe('Expressions - Let', () => {
                           },
                           end: {
                             line: 1,
-                            column: 5
-                          }
-                        },
-                        name: 'a'
-                      },
-                      init: {
-                        type: 'ArrayExpression',
-                        start: 8,
-                        end: 10,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 8
-                          },
-                          end: {
-                            line: 1,
                             column: 10
                           }
                         },
-                        elements: []
-                      }
-                    }
-                  ],
-                  kind: 'let'
-                },
-                {
-                  type: 'ForStatement',
-                  start: 18,
-                  end: 103,
-                  loc: {
-                    start: {
-                      line: 2,
-                      column: 6
-                    },
-                    end: {
-                      line: 4,
-                      column: 7
-                    }
-                  },
-                  init: {
-                    type: 'VariableDeclaration',
-                    start: 23,
-                    end: 61,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 11
-                      },
-                      end: {
-                        line: 2,
-                        column: 49
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 27,
-                        end: 32,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 15
-                          },
-                          end: {
-                            line: 2,
-                            column: 20
-                          }
-                        },
                         id: {
                           type: 'Identifier',
-                          start: 27,
-                          end: 28,
+                          start: 4,
+                          end: 5,
                           loc: {
                             start: {
-                              line: 2,
-                              column: 15
+                              line: 1,
+                              column: 4
                             },
                             end: {
-                              line: 2,
-                              column: 16
+                              line: 1,
+                              column: 5
                             }
                           },
-                          name: 'i'
+                          name: 'a'
                         },
                         init: {
-                          type: 'Literal',
-                          start: 31,
-                          end: 32,
+                          type: 'ArrayExpression',
+                          start: 8,
+                          end: 10,
                           loc: {
                             start: {
-                              line: 2,
-                              column: 19
-                            },
-                            end: {
-                              line: 2,
-                              column: 20
-                            }
-                          },
-                          value: 0,
-                          raw: '0'
-                        }
-                      },
-                      {
-                        type: 'VariableDeclarator',
-                        start: 34,
-                        end: 61,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 22
-                          },
-                          end: {
-                            line: 2,
-                            column: 49
-                          }
-                        },
-                        id: {
-                          type: 'Identifier',
-                          start: 34,
-                          end: 35,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 22
-                            },
-                            end: {
-                              line: 2,
-                              column: 23
-                            }
-                          },
-                          name: 'f'
-                        },
-                        init: {
-                          type: 'FunctionExpression',
-                          start: 38,
-                          end: 61,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 26
-                            },
-                            end: {
-                              line: 2,
-                              column: 49
-                            }
-                          },
-                          id: null,
-                          generator: false,
-                          expression: false,
-                          async: false,
-                          params: [],
-                          body: {
-                            type: 'BlockStatement',
-                            start: 49,
-                            end: 61,
-                            loc: {
-                              start: {
-                                line: 2,
-                                column: 37
-                              },
-                              end: {
-                                line: 2,
-                                column: 49
-                              }
-                            },
-                            body: [
-                              {
-                                type: 'ReturnStatement',
-                                start: 51,
-                                end: 59,
-                                loc: {
-                                  start: {
-                                    line: 2,
-                                    column: 39
-                                  },
-                                  end: {
-                                    line: 2,
-                                    column: 47
-                                  }
-                                },
-                                argument: {
-                                  type: 'Identifier',
-                                  start: 58,
-                                  end: 59,
-                                  loc: {
-                                    start: {
-                                      line: 2,
-                                      column: 46
-                                    },
-                                    end: {
-                                      line: 2,
-                                      column: 47
-                                    }
-                                  },
-                                  name: 'i'
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  test: {
-                    type: 'BinaryExpression',
-                    start: 63,
-                    end: 68,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 51
-                      },
-                      end: {
-                        line: 2,
-                        column: 56
-                      }
-                    },
-                    left: {
-                      type: 'Identifier',
-                      start: 63,
-                      end: 64,
-                      loc: {
-                        start: {
-                          line: 2,
-                          column: 51
-                        },
-                        end: {
-                          line: 2,
-                          column: 52
-                        }
-                      },
-                      name: 'i'
-                    },
-                    operator: '<',
-                    right: {
-                      type: 'Literal',
-                      start: 67,
-                      end: 68,
-                      loc: {
-                        start: {
-                          line: 2,
-                          column: 55
-                        },
-                        end: {
-                          line: 2,
-                          column: 56
-                        }
-                      },
-                      value: 5,
-                      raw: '5'
-                    }
-                  },
-                  update: {
-                    type: 'UpdateExpression',
-                    start: 70,
-                    end: 73,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 58
-                      },
-                      end: {
-                        line: 2,
-                        column: 61
-                      }
-                    },
-                    operator: '++',
-                    prefix: true,
-                    argument: {
-                      type: 'Identifier',
-                      start: 72,
-                      end: 73,
-                      loc: {
-                        start: {
-                          line: 2,
-                          column: 60
-                        },
-                        end: {
-                          line: 2,
-                          column: 61
-                        }
-                      },
-                      name: 'i'
-                    }
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 75,
-                    end: 103,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 63
-                      },
-                      end: {
-                        line: 4,
-                        column: 7
-                      }
-                    },
-                    body: [
-                      {
-                        type: 'ExpressionStatement',
-                        start: 85,
-                        end: 95,
-                        loc: {
-                          start: {
-                            line: 3,
-                            column: 8
-                          },
-                          end: {
-                            line: 3,
-                            column: 18
-                          }
-                        },
-                        expression: {
-                          type: 'CallExpression',
-                          start: 85,
-                          end: 94,
-                          loc: {
-                            start: {
-                              line: 3,
+                              line: 1,
                               column: 8
                             },
                             end: {
-                              line: 3,
+                              line: 1,
+                              column: 10
+                            }
+                          },
+                          elements: []
+                        }
+                      }
+                    ],
+                    kind: 'let'
+                  },
+                  {
+                    type: 'ForStatement',
+                    start: 20,
+                    end: 109,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 8
+                      },
+                      end: {
+                        line: 4,
+                        column: 9
+                      }
+                    },
+                    init: {
+                      type: 'VariableDeclaration',
+                      start: 25,
+                      end: 63,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 13
+                        },
+                        end: {
+                          line: 2,
+                          column: 51
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 29,
+                          end: 34,
+                          loc: {
+                            start: {
+                              line: 2,
                               column: 17
-                            }
-                          },
-                          callee: {
-                            type: 'MemberExpression',
-                            start: 85,
-                            end: 91,
-                            loc: {
-                              start: {
-                                line: 3,
-                                column: 8
-                              },
-                              end: {
-                                line: 3,
-                                column: 14
-                              }
-                            },
-                            object: {
-                              type: 'Identifier',
-                              start: 85,
-                              end: 86,
-                              loc: {
-                                start: {
-                                  line: 3,
-                                  column: 8
-                                },
-                                end: {
-                                  line: 3,
-                                  column: 9
-                                }
-                              },
-                              name: 'a'
-                            },
-                            property: {
-                              type: 'Identifier',
-                              start: 87,
-                              end: 91,
-                              loc: {
-                                start: {
-                                  line: 3,
-                                  column: 10
-                                },
-                                end: {
-                                  line: 3,
-                                  column: 14
-                                }
-                              },
-                              name: 'push'
-                            },
-                            computed: false
-                          },
-                          arguments: [
-                            {
-                              type: 'Identifier',
-                              start: 92,
-                              end: 93,
-                              loc: {
-                                start: {
-                                  line: 3,
-                                  column: 15
-                                },
-                                end: {
-                                  line: 3,
-                                  column: 16
-                                }
-                              },
-                              name: 'f'
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  type: 'ForStatement',
-                  start: 110,
-                  end: 140,
-                  loc: {
-                    start: {
-                      line: 5,
-                      column: 6
-                    },
-                    end: {
-                      line: 5,
-                      column: 36
-                    }
-                  },
-                  init: {
-                    type: 'VariableDeclaration',
-                    start: 115,
-                    end: 124,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 11
-                      },
-                      end: {
-                        line: 5,
-                        column: 20
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 119,
-                        end: 124,
-                        loc: {
-                          start: {
-                            line: 5,
-                            column: 15
-                          },
-                          end: {
-                            line: 5,
-                            column: 20
-                          }
-                        },
-                        id: {
-                          type: 'Identifier',
-                          start: 119,
-                          end: 120,
-                          loc: {
-                            start: {
-                              line: 5,
-                              column: 15
                             },
                             end: {
-                              line: 5,
-                              column: 16
-                            }
-                          },
-                          name: 'k'
-                        },
-                        init: {
-                          type: 'Literal',
-                          start: 123,
-                          end: 124,
-                          loc: {
-                            start: {
-                              line: 5,
-                              column: 19
-                            },
-                            end: {
-                              line: 5,
-                              column: 20
-                            }
-                          },
-                          value: 0,
-                          raw: '0'
-                        }
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  test: {
-                    type: 'BinaryExpression',
-                    start: 126,
-                    end: 131,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 22
-                      },
-                      end: {
-                        line: 5,
-                        column: 27
-                      }
-                    },
-                    left: {
-                      type: 'Identifier',
-                      start: 126,
-                      end: 127,
-                      loc: {
-                        start: {
-                          line: 5,
-                          column: 22
-                        },
-                        end: {
-                          line: 5,
-                          column: 23
-                        }
-                      },
-                      name: 'k'
-                    },
-                    operator: '<',
-                    right: {
-                      type: 'Literal',
-                      start: 130,
-                      end: 131,
-                      loc: {
-                        start: {
-                          line: 5,
-                          column: 26
-                        },
-                        end: {
-                          line: 5,
-                          column: 27
-                        }
-                      },
-                      value: 5,
-                      raw: '5'
-                    }
-                  },
-                  update: {
-                    type: 'UpdateExpression',
-                    start: 133,
-                    end: 136,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 29
-                      },
-                      end: {
-                        line: 5,
-                        column: 32
-                      }
-                    },
-                    operator: '++',
-                    prefix: true,
-                    argument: {
-                      type: 'Identifier',
-                      start: 135,
-                      end: 136,
-                      loc: {
-                        start: {
-                          line: 5,
-                          column: 31
-                        },
-                        end: {
-                          line: 5,
-                          column: 32
-                        }
-                      },
-                      name: 'k'
-                    }
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 138,
-                    end: 140,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 34
-                      },
-                      end: {
-                        line: 5,
-                        column: 36
-                      }
-                    },
-                    body: []
-                  }
-                }
-              ],
-              sourceType: 'script'
-            }
-        });
-
-      pass(`let a = [];
-      for (let i = 0; a.push(function () { return i; }), i < 5; ++i) { }
-      for (let k = 0; k < 5; ++k) {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
-            source: `let a = [];
-        for (let i = 0; a.push(function () { return i; }), i < 5; ++i) { }
-        for (let k = 0; k < 5; ++k) {}`,
-            expected: {
-              type: 'Program',
-              start: 0,
-              end: 121,
-              loc: {
-                start: {
-                  line: 1,
-                  column: 0
-                },
-                end: {
-                  line: 3,
-                  column: 36
-                }
-              },
-              body: [
-                {
-                  type: 'VariableDeclaration',
-                  start: 0,
-                  end: 11,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 0
-                    },
-                    end: {
-                      line: 1,
-                      column: 11
-                    }
-                  },
-                  declarations: [
-                    {
-                      type: 'VariableDeclarator',
-                      start: 4,
-                      end: 10,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 4
-                        },
-                        end: {
-                          line: 1,
-                          column: 10
-                        }
-                      },
-                      id: {
-                        type: 'Identifier',
-                        start: 4,
-                        end: 5,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 4
-                          },
-                          end: {
-                            line: 1,
-                            column: 5
-                          }
-                        },
-                        name: 'a'
-                      },
-                      init: {
-                        type: 'ArrayExpression',
-                        start: 8,
-                        end: 10,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 8
-                          },
-                          end: {
-                            line: 1,
-                            column: 10
-                          }
-                        },
-                        elements: []
-                      }
-                    }
-                  ],
-                  kind: 'let'
-                },
-                {
-                  type: 'ForStatement',
-                  start: 18,
-                  end: 84,
-                  loc: {
-                    start: {
-                      line: 2,
-                      column: 6
-                    },
-                    end: {
-                      line: 2,
-                      column: 72
-                    }
-                  },
-                  init: {
-                    type: 'VariableDeclaration',
-                    start: 23,
-                    end: 32,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 11
-                      },
-                      end: {
-                        line: 2,
-                        column: 20
-                      }
-                    },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 27,
-                        end: 32,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 15
-                          },
-                          end: {
-                            line: 2,
-                            column: 20
-                          }
-                        },
-                        id: {
-                          type: 'Identifier',
-                          start: 27,
-                          end: 28,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 15
-                            },
-                            end: {
-                              line: 2,
-                              column: 16
-                            }
-                          },
-                          name: 'i'
-                        },
-                        init: {
-                          type: 'Literal',
-                          start: 31,
-                          end: 32,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 19
-                            },
-                            end: {
-                              line: 2,
-                              column: 20
-                            }
-                          },
-                          value: 0,
-                          raw: '0'
-                        }
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  test: {
-                    type: 'SequenceExpression',
-                    start: 34,
-                    end: 74,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 22
-                      },
-                      end: {
-                        line: 2,
-                        column: 62
-                      }
-                    },
-                    expressions: [
-                      {
-                        type: 'CallExpression',
-                        start: 34,
-                        end: 67,
-                        loc: {
-                          start: {
-                            line: 2,
-                            column: 22
-                          },
-                          end: {
-                            line: 2,
-                            column: 55
-                          }
-                        },
-                        callee: {
-                          type: 'MemberExpression',
-                          start: 34,
-                          end: 40,
-                          loc: {
-                            start: {
                               line: 2,
                               column: 22
-                            },
-                            end: {
-                              line: 2,
-                              column: 28
                             }
                           },
-                          object: {
+                          id: {
                             type: 'Identifier',
-                            start: 34,
-                            end: 35,
+                            start: 29,
+                            end: 30,
                             loc: {
                               start: {
                                 line: 2,
-                                column: 22
+                                column: 17
                               },
                               end: {
                                 line: 2,
-                                column: 23
+                                column: 18
                               }
                             },
-                            name: 'a'
+                            name: 'i'
                           },
-                          property: {
+                          init: {
+                            type: 'Literal',
+                            start: 33,
+                            end: 34,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 21
+                              },
+                              end: {
+                                line: 2,
+                                column: 22
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 36,
+                          end: 63,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 24
+                            },
+                            end: {
+                              line: 2,
+                              column: 51
+                            }
+                          },
+                          id: {
                             type: 'Identifier',
                             start: 36,
-                            end: 40,
+                            end: 37,
                             loc: {
                               start: {
                                 line: 2,
@@ -11534,26 +10841,23 @@ describe('Expressions - Let', () => {
                               },
                               end: {
                                 line: 2,
-                                column: 28
+                                column: 25
                               }
                             },
-                            name: 'push'
+                            name: 'f'
                           },
-                          computed: false
-                        },
-                        arguments: [
-                          {
+                          init: {
                             type: 'FunctionExpression',
-                            start: 41,
-                            end: 66,
+                            start: 40,
+                            end: 63,
                             loc: {
                               start: {
                                 line: 2,
-                                column: 29
+                                column: 28
                               },
                               end: {
                                 line: 2,
-                                column: 54
+                                column: 51
                               }
                             },
                             id: null,
@@ -11563,45 +10867,45 @@ describe('Expressions - Let', () => {
                             params: [],
                             body: {
                               type: 'BlockStatement',
-                              start: 53,
-                              end: 66,
+                              start: 51,
+                              end: 63,
                               loc: {
                                 start: {
                                   line: 2,
-                                  column: 41
+                                  column: 39
                                 },
                                 end: {
                                   line: 2,
-                                  column: 54
+                                  column: 51
                                 }
                               },
                               body: [
                                 {
                                   type: 'ReturnStatement',
-                                  start: 55,
-                                  end: 64,
+                                  start: 53,
+                                  end: 61,
                                   loc: {
                                     start: {
                                       line: 2,
-                                      column: 43
+                                      column: 41
                                     },
                                     end: {
                                       line: 2,
-                                      column: 52
+                                      column: 49
                                     }
                                   },
                                   argument: {
                                     type: 'Identifier',
-                                    start: 62,
-                                    end: 63,
+                                    start: 60,
+                                    end: 61,
                                     loc: {
                                       start: {
                                         line: 2,
-                                        column: 50
+                                        column: 48
                                       },
                                       end: {
                                         line: 2,
-                                        column: 51
+                                        column: 49
                                       }
                                     },
                                     name: 'i'
@@ -11610,12 +10914,45 @@ describe('Expressions - Let', () => {
                               ]
                             }
                           }
-                        ]
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    test: {
+                      type: 'BinaryExpression',
+                      start: 65,
+                      end: 70,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 53
+                        },
+                        end: {
+                          line: 2,
+                          column: 58
+                        }
                       },
-                      {
-                        type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        start: 65,
+                        end: 66,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 53
+                          },
+                          end: {
+                            line: 2,
+                            column: 54
+                          }
+                        },
+                        name: 'i'
+                      },
+                      operator: '<',
+                      right: {
+                        type: 'Literal',
                         start: 69,
-                        end: 74,
+                        end: 70,
                         loc: {
                           start: {
                             line: 2,
@@ -11623,66 +10960,713 @@ describe('Expressions - Let', () => {
                           },
                           end: {
                             line: 2,
-                            column: 62
+                            column: 58
                           }
                         },
-                        left: {
-                          type: 'Identifier',
-                          start: 69,
-                          end: 70,
-                          loc: {
-                            start: {
-                              line: 2,
-                              column: 57
-                            },
-                            end: {
-                              line: 2,
-                              column: 58
-                            }
-                          },
-                          name: 'i'
+                        value: 5,
+                        raw: '5'
+                      }
+                    },
+                    update: {
+                      type: 'UpdateExpression',
+                      start: 72,
+                      end: 75,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 60
                         },
-                        operator: '<',
-                        right: {
-                          type: 'Literal',
-                          start: 73,
-                          end: 74,
+                        end: {
+                          line: 2,
+                          column: 63
+                        }
+                      },
+                      operator: '++',
+                      prefix: true,
+                      argument: {
+                        type: 'Identifier',
+                        start: 74,
+                        end: 75,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 62
+                          },
+                          end: {
+                            line: 2,
+                            column: 63
+                          }
+                        },
+                        name: 'i'
+                      }
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 77,
+                      end: 109,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 65
+                        },
+                        end: {
+                          line: 4,
+                          column: 9
+                        }
+                      },
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          start: 89,
+                          end: 99,
                           loc: {
                             start: {
-                              line: 2,
-                              column: 61
+                              line: 3,
+                              column: 10
                             },
                             end: {
-                              line: 2,
-                              column: 62
+                              line: 3,
+                              column: 20
                             }
                           },
-                          value: 5,
-                          raw: '5'
+                          expression: {
+                            type: 'CallExpression',
+                            start: 89,
+                            end: 98,
+                            loc: {
+                              start: {
+                                line: 3,
+                                column: 10
+                              },
+                              end: {
+                                line: 3,
+                                column: 19
+                              }
+                            },
+                            callee: {
+                              type: 'MemberExpression',
+                              start: 89,
+                              end: 95,
+                              loc: {
+                                start: {
+                                  line: 3,
+                                  column: 10
+                                },
+                                end: {
+                                  line: 3,
+                                  column: 16
+                                }
+                              },
+                              object: {
+                                type: 'Identifier',
+                                start: 89,
+                                end: 90,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 10
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 11
+                                  }
+                                },
+                                name: 'a'
+                              },
+                              property: {
+                                type: 'Identifier',
+                                start: 91,
+                                end: 95,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 12
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 16
+                                  }
+                                },
+                                name: 'push'
+                              },
+                              computed: false
+                            },
+                            arguments: [
+                              {
+                                type: 'Identifier',
+                                start: 96,
+                                end: 97,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 17
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 18
+                                  }
+                                },
+                                name: 'f'
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    type: 'ForStatement',
+                    start: 118,
+                    end: 148,
+                    loc: {
+                      start: {
+                        line: 5,
+                        column: 8
+                      },
+                      end: {
+                        line: 5,
+                        column: 38
+                      }
+                    },
+                    init: {
+                      type: 'VariableDeclaration',
+                      start: 123,
+                      end: 132,
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 13
+                        },
+                        end: {
+                          line: 5,
+                          column: 22
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 127,
+                          end: 132,
+                          loc: {
+                            start: {
+                              line: 5,
+                              column: 17
+                            },
+                            end: {
+                              line: 5,
+                              column: 22
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 127,
+                            end: 128,
+                            loc: {
+                              start: {
+                                line: 5,
+                                column: 17
+                              },
+                              end: {
+                                line: 5,
+                                column: 18
+                              }
+                            },
+                            name: 'k'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 131,
+                            end: 132,
+                            loc: {
+                              start: {
+                                line: 5,
+                                column: 21
+                              },
+                              end: {
+                                line: 5,
+                                column: 22
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    test: {
+                      type: 'BinaryExpression',
+                      start: 134,
+                      end: 139,
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 24
+                        },
+                        end: {
+                          line: 5,
+                          column: 29
+                        }
+                      },
+                      left: {
+                        type: 'Identifier',
+                        start: 134,
+                        end: 135,
+                        loc: {
+                          start: {
+                            line: 5,
+                            column: 24
+                          },
+                          end: {
+                            line: 5,
+                            column: 25
+                          }
+                        },
+                        name: 'k'
+                      },
+                      operator: '<',
+                      right: {
+                        type: 'Literal',
+                        start: 138,
+                        end: 139,
+                        loc: {
+                          start: {
+                            line: 5,
+                            column: 28
+                          },
+                          end: {
+                            line: 5,
+                            column: 29
+                          }
+                        },
+                        value: 5,
+                        raw: '5'
+                      }
+                    },
+                    update: {
+                      type: 'UpdateExpression',
+                      start: 141,
+                      end: 144,
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 31
+                        },
+                        end: {
+                          line: 5,
+                          column: 34
+                        }
+                      },
+                      operator: '++',
+                      prefix: true,
+                      argument: {
+                        type: 'Identifier',
+                        start: 143,
+                        end: 144,
+                        loc: {
+                          start: {
+                            line: 5,
+                            column: 33
+                          },
+                          end: {
+                            line: 5,
+                            column: 34
+                          }
+                        },
+                        name: 'k'
+                      }
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      start: 146,
+                      end: 148,
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 36
+                        },
+                        end: {
+                          line: 5,
+                          column: 38
+                        }
+                      },
+                      body: []
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
+
+      pass(`let a = [];
+      for (let i = 0; a.push(function () { return i; }), i < 5; ++i) { }
+      for (let k = 0; k < 5; ++k) {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+            source: `let a = [];
+        for (let i = 0; a.push(function () { return i; }), i < 5; ++i) { }
+        for (let k = 0; k < 5; ++k) {}`,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 125,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 3,
+                    column: 38
+                  }
+                },
+                body: [
+                  {
+                    type: 'VariableDeclaration',
+                    start: 0,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 11
+                      }
+                    },
+                    declarations: [
+                      {
+                        type: 'VariableDeclarator',
+                        start: 4,
+                        end: 10,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 10
+                          }
+                        },
+                        id: {
+                          type: 'Identifier',
+                          start: 4,
+                          end: 5,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 4
+                            },
+                            end: {
+                              line: 1,
+                              column: 5
+                            }
+                          },
+                          name: 'a'
+                        },
+                        init: {
+                          type: 'ArrayExpression',
+                          start: 8,
+                          end: 10,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 8
+                            },
+                            end: {
+                              line: 1,
+                              column: 10
+                            }
+                          },
+                          elements: []
                         }
                       }
-                    ]
+                    ],
+                    kind: 'let'
                   },
-                  update: {
-                    type: 'UpdateExpression',
-                    start: 76,
-                    end: 79,
+                  {
+                    type: 'ForStatement',
+                    start: 20,
+                    end: 86,
                     loc: {
                       start: {
                         line: 2,
-                        column: 64
+                        column: 8
                       },
                       end: {
                         line: 2,
-                        column: 67
+                        column: 74
                       }
                     },
-                    operator: '++',
-                    prefix: true,
-                    argument: {
-                      type: 'Identifier',
+                    init: {
+                      type: 'VariableDeclaration',
+                      start: 25,
+                      end: 34,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 13
+                        },
+                        end: {
+                          line: 2,
+                          column: 22
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 29,
+                          end: 34,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 17
+                            },
+                            end: {
+                              line: 2,
+                              column: 22
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 29,
+                            end: 30,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 17
+                              },
+                              end: {
+                                line: 2,
+                                column: 18
+                              }
+                            },
+                            name: 'i'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 33,
+                            end: 34,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 21
+                              },
+                              end: {
+                                line: 2,
+                                column: 22
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    test: {
+                      type: 'SequenceExpression',
+                      start: 36,
+                      end: 76,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 24
+                        },
+                        end: {
+                          line: 2,
+                          column: 64
+                        }
+                      },
+                      expressions: [
+                        {
+                          type: 'CallExpression',
+                          start: 36,
+                          end: 69,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 24
+                            },
+                            end: {
+                              line: 2,
+                              column: 57
+                            }
+                          },
+                          callee: {
+                            type: 'MemberExpression',
+                            start: 36,
+                            end: 42,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 24
+                              },
+                              end: {
+                                line: 2,
+                                column: 30
+                              }
+                            },
+                            object: {
+                              type: 'Identifier',
+                              start: 36,
+                              end: 37,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 24
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 25
+                                }
+                              },
+                              name: 'a'
+                            },
+                            property: {
+                              type: 'Identifier',
+                              start: 38,
+                              end: 42,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 26
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 30
+                                }
+                              },
+                              name: 'push'
+                            },
+                            computed: false
+                          },
+                          arguments: [
+                            {
+                              type: 'FunctionExpression',
+                              start: 43,
+                              end: 68,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 31
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 56
+                                }
+                              },
+                              id: null,
+                              generator: false,
+                              expression: false,
+                              async: false,
+                              params: [],
+                              body: {
+                                type: 'BlockStatement',
+                                start: 55,
+                                end: 68,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 43
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 56
+                                  }
+                                },
+                                body: [
+                                  {
+                                    type: 'ReturnStatement',
+                                    start: 57,
+                                    end: 66,
+                                    loc: {
+                                      start: {
+                                        line: 2,
+                                        column: 45
+                                      },
+                                      end: {
+                                        line: 2,
+                                        column: 54
+                                      }
+                                    },
+                                    argument: {
+                                      type: 'Identifier',
+                                      start: 64,
+                                      end: 65,
+                                      loc: {
+                                        start: {
+                                          line: 2,
+                                          column: 52
+                                        },
+                                        end: {
+                                          line: 2,
+                                          column: 53
+                                        }
+                                      },
+                                      name: 'i'
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          type: 'BinaryExpression',
+                          start: 71,
+                          end: 76,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 59
+                            },
+                            end: {
+                              line: 2,
+                              column: 64
+                            }
+                          },
+                          left: {
+                            type: 'Identifier',
+                            start: 71,
+                            end: 72,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 59
+                              },
+                              end: {
+                                line: 2,
+                                column: 60
+                              }
+                            },
+                            name: 'i'
+                          },
+                          operator: '<',
+                          right: {
+                            type: 'Literal',
+                            start: 75,
+                            end: 76,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 63
+                              },
+                              end: {
+                                line: 2,
+                                column: 64
+                              }
+                            },
+                            value: 5,
+                            raw: '5'
+                          }
+                        }
+                      ]
+                    },
+                    update: {
+                      type: 'UpdateExpression',
                       start: 78,
-                      end: 79,
+                      end: 81,
                       loc: {
                         start: {
                           line: 2,
@@ -11690,178 +11674,178 @@ describe('Expressions - Let', () => {
                         },
                         end: {
                           line: 2,
-                          column: 67
+                          column: 69
                         }
                       },
-                      name: 'i'
-                    }
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 81,
-                    end: 84,
-                    loc: {
-                      start: {
-                        line: 2,
-                        column: 69
-                      },
-                      end: {
-                        line: 2,
-                        column: 72
+                      operator: '++',
+                      prefix: true,
+                      argument: {
+                        type: 'Identifier',
+                        start: 80,
+                        end: 81,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 68
+                          },
+                          end: {
+                            line: 2,
+                            column: 69
+                          }
+                        },
+                        name: 'i'
                       }
                     },
-                    body: []
-                  }
-                },
-                {
-                  type: 'ForStatement',
-                  start: 91,
-                  end: 121,
-                  loc: {
-                    start: {
-                      line: 3,
-                      column: 6
-                    },
-                    end: {
-                      line: 3,
-                      column: 36
+                    body: {
+                      type: 'BlockStatement',
+                      start: 83,
+                      end: 86,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 71
+                        },
+                        end: {
+                          line: 2,
+                          column: 74
+                        }
+                      },
+                      body: []
                     }
                   },
-                  init: {
-                    type: 'VariableDeclaration',
-                    start: 96,
-                    end: 105,
+                  {
+                    type: 'ForStatement',
+                    start: 95,
+                    end: 125,
                     loc: {
                       start: {
                         line: 3,
-                        column: 11
+                        column: 8
                       },
                       end: {
                         line: 3,
-                        column: 20
+                        column: 38
                       }
                     },
-                    declarations: [
-                      {
-                        type: 'VariableDeclarator',
-                        start: 100,
-                        end: 105,
+                    init: {
+                      type: 'VariableDeclaration',
+                      start: 100,
+                      end: 109,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 13
+                        },
+                        end: {
+                          line: 3,
+                          column: 22
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 104,
+                          end: 109,
+                          loc: {
+                            start: {
+                              line: 3,
+                              column: 17
+                            },
+                            end: {
+                              line: 3,
+                              column: 22
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 104,
+                            end: 105,
+                            loc: {
+                              start: {
+                                line: 3,
+                                column: 17
+                              },
+                              end: {
+                                line: 3,
+                                column: 18
+                              }
+                            },
+                            name: 'k'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 108,
+                            end: 109,
+                            loc: {
+                              start: {
+                                line: 3,
+                                column: 21
+                              },
+                              end: {
+                                line: 3,
+                                column: 22
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    test: {
+                      type: 'BinaryExpression',
+                      start: 111,
+                      end: 116,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 24
+                        },
+                        end: {
+                          line: 3,
+                          column: 29
+                        }
+                      },
+                      left: {
+                        type: 'Identifier',
+                        start: 111,
+                        end: 112,
                         loc: {
                           start: {
                             line: 3,
-                            column: 15
+                            column: 24
                           },
                           end: {
                             line: 3,
-                            column: 20
+                            column: 25
                           }
                         },
-                        id: {
-                          type: 'Identifier',
-                          start: 100,
-                          end: 101,
-                          loc: {
-                            start: {
-                              line: 3,
-                              column: 15
-                            },
-                            end: {
-                              line: 3,
-                              column: 16
-                            }
+                        name: 'k'
+                      },
+                      operator: '<',
+                      right: {
+                        type: 'Literal',
+                        start: 115,
+                        end: 116,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 28
                           },
-                          name: 'k'
+                          end: {
+                            line: 3,
+                            column: 29
+                          }
                         },
-                        init: {
-                          type: 'Literal',
-                          start: 104,
-                          end: 105,
-                          loc: {
-                            start: {
-                              line: 3,
-                              column: 19
-                            },
-                            end: {
-                              line: 3,
-                              column: 20
-                            }
-                          },
-                          value: 0,
-                          raw: '0'
-                        }
-                      }
-                    ],
-                    kind: 'let'
-                  },
-                  test: {
-                    type: 'BinaryExpression',
-                    start: 107,
-                    end: 112,
-                    loc: {
-                      start: {
-                        line: 3,
-                        column: 22
-                      },
-                      end: {
-                        line: 3,
-                        column: 27
+                        value: 5,
+                        raw: '5'
                       }
                     },
-                    left: {
-                      type: 'Identifier',
-                      start: 107,
-                      end: 108,
-                      loc: {
-                        start: {
-                          line: 3,
-                          column: 22
-                        },
-                        end: {
-                          line: 3,
-                          column: 23
-                        }
-                      },
-                      name: 'k'
-                    },
-                    operator: '<',
-                    right: {
-                      type: 'Literal',
-                      start: 111,
-                      end: 112,
-                      loc: {
-                        start: {
-                          line: 3,
-                          column: 26
-                        },
-                        end: {
-                          line: 3,
-                          column: 27
-                        }
-                      },
-                      value: 5,
-                      raw: '5'
-                    }
-                  },
-                  update: {
-                    type: 'UpdateExpression',
-                    start: 114,
-                    end: 117,
-                    loc: {
-                      start: {
-                        line: 3,
-                        column: 29
-                      },
-                      end: {
-                        line: 3,
-                        column: 32
-                      }
-                    },
-                    operator: '++',
-                    prefix: true,
-                    argument: {
-                      type: 'Identifier',
-                      start: 116,
-                      end: 117,
+                    update: {
+                      type: 'UpdateExpression',
+                      start: 118,
+                      end: 121,
                       loc: {
                         start: {
                           line: 3,
@@ -11869,32 +11853,48 @@ describe('Expressions - Let', () => {
                         },
                         end: {
                           line: 3,
-                          column: 32
+                          column: 34
                         }
                       },
-                      name: 'k'
-                    }
-                  },
-                  body: {
-                    type: 'BlockStatement',
-                    start: 119,
-                    end: 121,
-                    loc: {
-                      start: {
-                        line: 3,
-                        column: 34
-                      },
-                      end: {
-                        line: 3,
-                        column: 36
+                      operator: '++',
+                      prefix: true,
+                      argument: {
+                        type: 'Identifier',
+                        start: 120,
+                        end: 121,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 33
+                          },
+                          end: {
+                            line: 3,
+                            column: 34
+                          }
+                        },
+                        name: 'k'
                       }
                     },
-                    body: []
+                    body: {
+                      type: 'BlockStatement',
+                      start: 123,
+                      end: 125,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 36
+                        },
+                        end: {
+                          line: 3,
+                          column: 38
+                        }
+                      },
+                      body: []
+                    }
                   }
-                }
-              ],
-              sourceType: 'script'
-            }
+                ],
+                sourceType: 'script'
+              }
         });
     });
 

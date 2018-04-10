@@ -22,13 +22,19 @@ import {
     Flags,
     ScannerState,
     isIdentifierPart,
+    readNext,
     Escape,
     RegexFlags,
+    RegexState,
     NumericState
 } from './utilities';
 
 /**
  * Scan
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-punctuatorss)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
+
  *
  * @param parser Parser instance
  * @param context Context masks
@@ -857,4 +863,646 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
     parser.tokenValue = value;
     if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
     return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;
+}
+
+/**
+ * Scan identifier
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
+export function scanIdentifier(parser: Parser, context: Context): Token {
+    let start = parser.index;
+    let ret: string = '';
+    loop:
+        while (hasNext(parser)) {
+            const ch = nextChar(parser);
+            switch (ch) {
+
+                case Chars.Backslash:
+                    const index = parser.index;
+                    ret += parser.source.slice(start, index);
+                    ret += scanUnicodeCodePointEscape(parser, context);
+                    start = parser.index;
+                    break;
+
+                default:
+                    if (ch >= Chars.LeadSurrogateMin && ch <= Chars.TrailSurrogateMax) {
+                        nextUnicodeChar(parser);
+                    } else if (!isIdentifierPart(ch)) break loop;
+                    advance(parser);
+            }
+        }
+    if (start < parser.index) ret += parser.source.slice(start, parser.index);
+    parser.tokenValue = ret;
+
+    const len = ret.length;
+
+    // Keywords are between 2 and 11 characters long and start with a lowercase letter
+    if (len >= 2 && len <= 11) {
+        const token = descKeyword(ret);
+        if (token > 0) return token;
+    }
+
+    return Token.Identifier;
+}
+
+/**
+ * Scan unicode codepoint escape
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+function scanUnicodeCodePointEscape(parser: Parser, context: Context): string | void {
+
+    const index = parser.index;
+
+    if (index + 5 < parser.source.length) {
+
+        if (parser.source.charCodeAt(index + 1) !== Chars.LowerU) {
+            report(parser, Errors.Unexpected);
+        }
+
+        parser.index += 2;
+        parser.column += 2;
+
+        const code = scanIdentifierUnicodeEscape(parser);
+
+        if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
+            report(parser, Errors.UnexpectedSurrogate);
+        }
+
+        if (!isIdentifierPart(code)) {
+            report(parser, Errors.InvalidUnicodeEscapeSequence);
+        }
+
+        return fromCodePoint(code);
+    }
+
+    report(parser, Errors.Unexpected);
+}
+
+/**
+ * Scan identifier unicode escape
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+function scanIdentifierUnicodeEscape(parser: Parser): Chars {
+
+    // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
+    // hex digits between { } is arbitrary. \ and u have already been read.
+    let ch = nextChar(parser);
+    let codePoint = 0;
+
+    // '\u{DDDDDDDD}'
+    if (ch === Chars.LeftBrace) { // {
+        ch = readNext(parser, ch);
+
+        let digit = toHex(ch);
+
+        while (digit >= 0) {
+            codePoint = (codePoint << 4) | digit;
+            if (codePoint > Chars.LastUnicodeChar) {
+                report(parser, Errors.Unexpected /*UndefinedUnicodeCodePoint*/ );
+            }
+            advance(parser);
+            digit = toHex(nextChar(parser));
+        }
+
+        if (nextChar(parser) !== Chars.RightBrace) {
+            report(parser, Errors.InvalidHexEscapeSequence);
+        }
+
+        consumeOpt(parser, Chars.RightBrace);
+
+        // '\uDDDD'
+    } else {
+
+        for (let i = 0; i < 4; i++) {
+            ch = nextChar(parser);
+            const digit = toHex(ch);
+            if (digit < 0) report(parser, Errors.InvalidHexEscapeSequence);
+            codePoint = (codePoint << 4) | digit;
+            advance(parser);
+        }
+    }
+
+    return codePoint;
+}
+
+/**
+ * Scan escape sequence
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+function scanEscapeSequence(parser: Parser, context: Context, first: number): number {
+    switch (first) {
+        // Magic escapes
+        case Chars.LowerB:
+            return Chars.Backspace;
+        case Chars.LowerF:
+            return Chars.FormFeed;
+        case Chars.LowerR:
+            return Chars.CarriageReturn;
+        case Chars.LowerN:
+            return Chars.LineFeed;
+        case Chars.LowerT:
+            return Chars.Tab;
+        case Chars.LowerV:
+            return Chars.VerticalTab;
+        case Chars.CarriageReturn:
+        case Chars.LineFeed:
+        case Chars.LineSeparator:
+        case Chars.ParagraphSeparator:
+            parser.column = -1;
+            parser.line++;
+            return Escape.Empty;
+
+            // Null character, octals
+        case Chars.Zero:
+        case Chars.One:
+        case Chars.Two:
+        case Chars.Three:
+            {
+                // 1 to 3 octal digits
+                let code = first - Chars.Zero;
+                let index = parser.index + 1;
+                let column = parser.column + 1;
+
+                if (index < parser.source.length) {
+                    const next = parser.source.charCodeAt(index);
+
+                    if (next < Chars.Zero || next > Chars.Seven) {
+
+                        // Strict mode code allows only \0, then a non-digit.
+                        if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
+                            if (context & Context.Strict) return Escape.StrictOctal;
+                            parser.flags |= Flags.Octal;
+                        }
+                    } else if (context & Context.Strict) {
+                        return Escape.StrictOctal;
+                    } else {
+                        parser.lastValue = next;
+                        code = code * 8 + (next - Chars.Zero);
+                        index++;
+                        column++;
+
+                        if (index < parser.source.length) {
+                            const next = parser.source.charCodeAt(index);
+
+                            if (next >= Chars.Zero && next <= Chars.Seven) {
+                                parser.lastValue = next;
+                                code = code * 8 + (next - Chars.Zero);
+                                index++;
+                                column++;
+                            }
+                        }
+
+                        parser.index = index - 1;
+                        parser.column = column - 1;
+                    }
+                }
+
+                return code;
+            }
+
+        case Chars.Four:
+        case Chars.Five:
+        case Chars.Six:
+        case Chars.Seven:
+            {
+                // 1 to 2 octal digits
+                if (context & Context.Strict) return Escape.StrictOctal;
+                let code = first - Chars.Zero;
+                const index = parser.index + 1;
+                const column = parser.column + 1;
+
+                if (index < parser.source.length) {
+                    const next = parser.source.charCodeAt(index);
+
+                    if (next >= Chars.Zero && next <= Chars.Seven) {
+                        code = code * 8 + (next - Chars.Zero);
+                        parser.lastValue = next;
+                        parser.index = index;
+                        parser.column = column;
+                    }
+                }
+
+                return code;
+            }
+
+            // `8`, `9` (invalid escapes)
+        case Chars.Eight:
+        case Chars.Nine:
+            return Escape.EightOrNine;
+
+            // ASCII escapes
+        case Chars.LowerX:
+            {
+                const ch1 = parser.lastValue = readNext(parser, first);
+                const hi = toHex(ch1);
+                if (hi < 0) return Escape.InvalidHex;
+                const ch2 = parser.lastValue = readNext(parser, ch1);
+                const lo = toHex(ch2);
+                if (lo < 0) return Escape.InvalidHex;
+
+                return hi << 4 | lo;
+            }
+
+            // UCS-2/Unicode escapes
+        case Chars.LowerU:
+            {
+                let ch = parser.lastValue = readNext(parser, first);
+                if (ch === Chars.LeftBrace) {
+                    ch = parser.lastValue = readNext(parser, ch);
+                    let code = toHex(ch);
+                    if (code < 0) return Escape.InvalidHex;
+
+                    ch = parser.lastValue = readNext(parser, ch);
+                    while (ch !== Chars.RightBrace) {
+                        const digit = toHex(ch);
+                        if (digit < 0) return Escape.InvalidHex;
+                        code = code * 16 + digit;
+                        // Code point out of bounds
+                        if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
+                        ch = parser.lastValue = readNext(parser, ch);
+                    }
+
+                    return code;
+                } else {
+                    // \uNNNN
+                    let codePoint = toHex(ch);
+                    if (codePoint < 0) return Escape.InvalidHex;
+
+                    for (let i = 0; i < 3; i++) {
+                        ch = parser.lastValue = readNext(parser, ch);
+                        const digit = toHex(ch);
+                        if (digit < 0) return Escape.InvalidHex;
+                        codePoint = codePoint * 16 + digit;
+                    }
+
+                    return codePoint;
+                }
+            }
+
+        default:
+            return nextUnicodeChar(parser);
+    }
+}
+
+/**
+ * Throws a string error for either string or template literal
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+function throwStringError(parser: Parser, context: Context, code: Escape): void {
+    switch (code) {
+        case Escape.Empty:
+            return;
+
+        case Escape.StrictOctal:
+            report(parser, context & Context.TaggedTemplate ?
+                Errors.TemplateOctalLiteral :
+                Errors.StrictOctalEscape);
+        case Escape.EightOrNine:
+            report(parser, Errors.InvalidEightAndNine);
+
+        case Escape.InvalidHex:
+            report(parser, Errors.InvalidHexEscapeSequence);
+
+        case Escape.OutOfRange:
+            report(parser, Errors.UnicodeOutOfRange);
+        default:
+            // ignore
+    }
+}
+
+/**
+ * Scan a string token.
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+export function scanString(parser: Parser, context: Context, quote: number): Token {
+    const { index: start, lastValue } = parser;
+    let ret = '';
+
+    let ch = readNext(parser, quote);
+    while (ch !== quote) {
+        switch (ch) {
+            case Chars.CarriageReturn:
+            case Chars.LineFeed:
+                report(parser, Errors.UnterminatedString);
+            case Chars.LineSeparator:
+            case Chars.ParagraphSeparator:
+                // Stage 3 proposal
+                if (context & Context.OptionsNext) advance(parser);
+                report(parser, Errors.UnterminatedString);
+
+            case Chars.Backslash:
+                ch = readNext(parser, ch);
+
+                if (ch >= 128) {
+                    ret += fromCodePoint(ch);
+                } else {
+                    parser.lastValue = ch;
+                    const code = scanEscapeSequence(parser, context, ch);
+
+                    if (code >= 0) ret += fromCodePoint(code);
+                    else throwStringError(parser, context, code as Escape);
+                    ch = parser.lastValue;
+                }
+                break;
+
+            default:
+                ret += fromCodePoint(ch);
+        }
+
+        ch = readNext(parser, ch);
+    }
+
+    advance(parser);
+
+    storeRaw(parser, start);
+    parser.tokenValue = ret;
+    parser.lastValue = lastValue;
+    return Token.StringLiteral;
+}
+
+/**
+ * Scan looser template segment
+ *
+ * @param {Parser} Parser instance
+ * @param {context} codepoint
+ */
+function scanLooserTemplateSegment(parser: Parser, ch: number): number {
+    while (ch !== Chars.Backtick) {
+
+        if (ch === Chars.Dollar) {
+            const index = parser.index + 1;
+            if (index < parser.source.length &&
+                parser.source.charCodeAt(index) === Chars.LeftBrace) {
+                parser.index = index;
+                parser.column++;
+                return -ch;
+            }
+        }
+
+        // Skip '\' and continue to scan the template token to search
+        // for the end, without validating any escape sequences
+        ch = readNext(parser, ch);
+    }
+
+    return ch;
+}
+
+/**
+ * Consumes template brace
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
+export function consumeTemplateBrace(parser: Parser, context: Context): Token {
+    if (!hasNext(parser)) report(parser, Errors.UnterminatedTemplate);
+    // Upon reaching a '}', consume it and rewind the scanner state
+    parser.index--;
+    parser.column--;
+    return scanTemplate(parser, context, Chars.RightBrace);
+}
+
+/**
+ * Scan template
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ * @param {first} Codepoint
+ */
+export function scanTemplate(parser: Parser, context: Context, first: number): Token {
+    const { index: start, lastValue } = parser;
+    let tail = true;
+    let ret: string | void = '';
+
+    let ch = readNext(parser, first);
+
+    loop:
+        while (ch !== Chars.Backtick) {
+
+            switch (ch) {
+                // Break after a literal `${` (thus the dedicated code path).
+                case Chars.Dollar:
+                    {
+                        const index = parser.index + 1;
+                        if (index < parser.source.length &&
+                            parser.source.charCodeAt(index) === Chars.LeftBrace) {
+                            parser.index = index;
+                            parser.column++;
+                            tail = false;
+                            break loop;
+                        }
+                        ret += '$';
+                        break;
+                    }
+
+                case Chars.Backslash:
+                    ch = readNext(parser, ch);
+
+                    if (ch >= 128) {
+                        ret += fromCodePoint(ch);
+                    } else {
+                        parser.lastValue = ch;
+                        const code = scanEscapeSequence(parser, context | Context.Strict, ch);
+
+                        if (code >= 0) {
+                            ret += fromCodePoint(code);
+                        } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+                            ret = undefined;
+                            ch = scanLooserTemplateSegment(parser, parser.lastValue);
+                            if (ch < 0) {
+                                ch = -ch;
+                                tail = false;
+                            }
+                            break loop;
+                        } else {
+                            throwStringError(parser, context | Context.TaggedTemplate, code as Escape);
+                        }
+                        ch = parser.lastValue;
+                    }
+
+                    break;
+
+                case Chars.CarriageReturn:
+                    if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) {
+                        if (ret != null) ret += fromCodePoint(ch);
+                        ch = nextChar(parser);
+                        parser.index++;
+                    }
+                    // falls through
+
+                case Chars.LineFeed:
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    parser.column = -1;
+                    parser.line++;
+                    // falls through
+
+                default:
+                    if (ret != null) ret += fromCodePoint(ch);
+            }
+
+            ch = readNext(parser, ch);
+        }
+
+    advance(parser);
+    parser.tokenValue = ret;
+    parser.lastValue = lastValue;
+    if (tail) {
+        parser.tokenRaw = parser.source.slice(start + 1, parser.index - 1);
+        return Token.TemplateTail;
+    } else {
+        parser.tokenRaw = parser.source.slice(start + 1, parser.index - 2);
+        return Token.TemplateCont;
+    }
+}
+export function scanRegularExpression(parser: Parser, context: Context): Token {
+
+    const bodyStart = parser.index;
+
+    let preparseState = RegexState.Empty;
+
+    loop:
+        while (true) {
+            const ch = nextChar(parser);
+            advance(parser);
+
+            if (preparseState & RegexState.Escape) {
+                preparseState &= ~RegexState.Escape;
+            } else {
+                switch (ch) {
+                    case Chars.Slash:
+                        if (!preparseState) break loop;
+                        else break;
+                    case Chars.Backslash:
+                        preparseState |= RegexState.Escape;
+                        break;
+                    case Chars.LeftBracket:
+                        preparseState |= RegexState.Class;
+                        break;
+                    case Chars.RightBracket:
+                        preparseState &= RegexState.Escape;
+                        break;
+                    case Chars.CarriageReturn:
+                    case Chars.LineFeed:
+                    case Chars.LineSeparator:
+                    case Chars.ParagraphSeparator:
+                        report(parser, Errors.UnterminatedRegExp);
+                    default: // ignore
+                }
+            }
+
+            if (!hasNext(parser)) {
+                report(parser, Errors.UnterminatedRegExp);
+            }
+        }
+
+    const bodyEnd = parser.index - 1;
+
+    const flags = validateFlags(parser, context);
+
+    const pattern = parser.source.slice(bodyStart, bodyEnd);
+
+    parser.tokenRegExp = { pattern, flags };
+
+    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
+
+    parser.tokenValue = validate(parser, pattern, flags);
+
+    return Token.RegularExpression;
+}
+
+/**
+* Validate a regular expression flags, and return it.
+*
+* @param parser Parser instance
+* @param context Context masks
+*/
+
+function validateFlags(parser: Parser, context: Context): string {
+
+    let mask = RegexFlags.Empty;
+
+    const { index: start } = parser;
+
+    loop:
+        while (hasNext(parser)) {
+            const code = nextChar(parser);
+
+            switch (code) {
+                case Chars.LowerG:
+
+                    if (mask & RegexFlags.Global) report(parser, Errors.DuplicateRegExpFlag, 'g');
+                    mask |= RegexFlags.Global;
+                    break;
+
+                case Chars.LowerI:
+                    if (mask & RegexFlags.IgnoreCase) report(parser, Errors.DuplicateRegExpFlag, 'i');
+                    mask |= RegexFlags.IgnoreCase;
+                    break;
+
+                case Chars.LowerM:
+                    if (mask & RegexFlags.Multiline) report(parser, Errors.DuplicateRegExpFlag, 'm');
+                    mask |= RegexFlags.Multiline;
+                    break;
+
+                case Chars.LowerU:
+                    if (mask & RegexFlags.Unicode) report(parser, Errors.DuplicateRegExpFlag, 'u');
+                    mask |= RegexFlags.Unicode;
+                    break;
+
+                case Chars.LowerY:
+                    if (mask & RegexFlags.Sticky) report(parser, Errors.DuplicateRegExpFlag, 'y');
+                    mask |= RegexFlags.Sticky;
+                    break;
+
+                case Chars.LowerS:
+                    if (mask & RegexFlags.DotAll) report(parser, Errors.DuplicateRegExpFlag, 's');
+                    mask |= RegexFlags.DotAll;
+                    break;
+
+                default:
+                    if (!isIdentifierPart(code)) break loop;
+                    report(parser, Errors.UnexpectedTokenRegExpFlag, fromCodePoint(code));
+            }
+
+            advance(parser);
+        }
+
+    return parser.source.slice(start, parser.index);
+}
+
+/**
+ * Validates regular expressions
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ * @param {first} Codepoint
+ */
+function validate(parser: Parser, pattern: string, flags: string) {
+    try {
+        RegExp(pattern);
+    } catch (e) {
+        report(parser, Errors.Unexpected);
+    }
+
+    try {
+        return new RegExp(pattern, flags);
+    } catch (e) {
+        return undefined;
+    }
 }

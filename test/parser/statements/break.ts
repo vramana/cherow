@@ -333,419 +333,428 @@ describe('Statements - Break', () => {
             expected: {
                 type: 'Program',
                 start: 0,
-                end: 222,
+                end: 221,
                 loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 11,
-                        column: 13
-                    }
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 11,
+                    column: 13
+                  }
                 },
-                body: [{
+                body: [
+                  {
                     type: 'ExpressionStatement',
                     start: 0,
-                    end: 222,
+                    end: 221,
                     loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 11,
-                            column: 13
-                        }
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 11,
+                        column: 13
+                      }
                     },
                     expression: {
-                        type: 'CallExpression',
-                        start: 0,
-                        end: 221,
+                      type: 'CallExpression',
+                      start: 0,
+                      end: 220,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
+                        },
+                        end: {
+                          line: 11,
+                          column: 12
+                        }
+                      },
+                      callee: {
+                        type: 'FunctionExpression',
+                        start: 1,
+                        end: 217,
                         loc: {
+                          start: {
+                            line: 1,
+                            column: 1
+                          },
+                          end: {
+                            line: 11,
+                            column: 9
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 11,
+                          end: 217,
+                          loc: {
                             start: {
-                                line: 1,
-                                column: 0
+                              line: 1,
+                              column: 11
                             },
                             end: {
-                                line: 11,
-                                column: 12
+                              line: 11,
+                              column: 9
                             }
-                        },
-                        callee: {
-                            type: 'FunctionExpression',
-                            start: 1,
-                            end: 218,
-                            loc: {
+                          },
+                          body: [
+                            {
+                              type: 'LabeledStatement',
+                              start: 21,
+                              end: 207,
+                              loc: {
                                 start: {
-                                    line: 1,
-                                    column: 1
+                                  line: 2,
+                                  column: 8
                                 },
                                 end: {
-                                    line: 11,
-                                    column: 9
+                                  line: 10,
+                                  column: 9
                                 }
-                            },
-                            id: null,
-                            generator: false,
-                            expression: false,
-                            async: false,
-                            params: [],
-                            body: {
-                                type: 'BlockStatement',
-                                start: 11,
-                                end: 218,
+                              },
+                              body: {
+                                type: 'ForStatement',
+                                start: 27,
+                                end: 207,
                                 loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 14
+                                  },
+                                  end: {
+                                    line: 10,
+                                    column: 9
+                                  }
+                                },
+                                init: null,
+                                test: null,
+                                update: null,
+                                body: {
+                                  type: 'BlockStatement',
+                                  start: 34,
+                                  end: 207,
+                                  loc: {
                                     start: {
-                                        line: 1,
-                                        column: 11
+                                      line: 2,
+                                      column: 21
                                     },
                                     end: {
-                                        line: 11,
-                                        column: 9
+                                      line: 10,
+                                      column: 9
                                     }
-                                },
-                                body: [{
-                                    type: 'LabeledStatement',
-                                    start: 21,
-                                    end: 208,
-                                    loc: {
+                                  },
+                                  body: [
+                                    {
+                                      type: 'TryStatement',
+                                      start: 48,
+                                      end: 197,
+                                      loc: {
                                         start: {
-                                            line: 2,
-                                            column: 8
+                                          line: 3,
+                                          column: 12
                                         },
                                         end: {
-                                            line: 10,
-                                            column: 9
+                                          line: 9,
+                                          column: 13
                                         }
-                                    },
-                                    body: {
-                                        type: 'ForStatement',
-                                        start: 27,
-                                        end: 208,
+                                      },
+                                      block: {
+                                        type: 'BlockStatement',
+                                        start: 51,
+                                        end: 146,
                                         loc: {
-                                            start: {
-                                                line: 2,
-                                                column: 14
-                                            },
-                                            end: {
-                                                line: 10,
-                                                column: 9
-                                            }
+                                          start: {
+                                            line: 3,
+                                            column: 15
+                                          },
+                                          end: {
+                                            line: 7,
+                                            column: 13
+                                          }
                                         },
-                                        init: null,
-                                        test: null,
-                                        update: null,
-                                        body: {
-                                            type: 'BlockStatement',
-                                            start: 34,
-                                            end: 208,
+                                        body: [
+                                          {
+                                            type: 'ExpressionStatement',
+                                            start: 69,
+                                            end: 73,
                                             loc: {
+                                              start: {
+                                                line: 4,
+                                                column: 16
+                                              },
+                                              end: {
+                                                line: 4,
+                                                column: 20
+                                              }
+                                            },
+                                            expression: {
+                                              type: 'UpdateExpression',
+                                              start: 69,
+                                              end: 72,
+                                              loc: {
                                                 start: {
-                                                    line: 2,
-                                                    column: 21
+                                                  line: 4,
+                                                  column: 16
                                                 },
                                                 end: {
-                                                    line: 10,
-                                                    column: 9
+                                                  line: 4,
+                                                  column: 19
                                                 }
-                                            },
-                                            body: [{
-                                                type: 'TryStatement',
-                                                start: 48,
-                                                end: 197,
+                                              },
+                                              operator: '++',
+                                              prefix: false,
+                                              argument: {
+                                                type: 'Identifier',
+                                                start: 69,
+                                                end: 70,
                                                 loc: {
-                                                    start: {
-                                                        line: 3,
-                                                        column: 12
-                                                    },
-                                                    end: {
-                                                        line: 9,
-                                                        column: 13
-                                                    }
+                                                  start: {
+                                                    line: 4,
+                                                    column: 16
+                                                  },
+                                                  end: {
+                                                    line: 4,
+                                                    column: 17
+                                                  }
                                                 },
-                                                block: {
-                                                    type: 'BlockStatement',
-                                                    start: 51,
-                                                    end: 146,
-                                                    loc: {
-                                                        start: {
-                                                            line: 3,
-                                                            column: 15
-                                                        },
-                                                        end: {
-                                                            line: 7,
-                                                            column: 13
-                                                        }
-                                                    },
-                                                    body: [{
-                                                            type: 'ExpressionStatement',
-                                                            start: 69,
-                                                            end: 73,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 4,
-                                                                    column: 16
-                                                                },
-                                                                end: {
-                                                                    line: 4,
-                                                                    column: 20
-                                                                }
-                                                            },
-                                                            expression: {
-                                                                type: 'UpdateExpression',
-                                                                start: 69,
-                                                                end: 72,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 4,
-                                                                        column: 16
-                                                                    },
-                                                                    end: {
-                                                                        line: 4,
-                                                                        column: 19
-                                                                    }
-                                                                },
-                                                                operator: '++',
-                                                                prefix: false,
-                                                                argument: {
-                                                                    type: 'Identifier',
-                                                                    start: 69,
-                                                                    end: 70,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 4,
-                                                                            column: 16
-                                                                        },
-                                                                        end: {
-                                                                            line: 4,
-                                                                            column: 17
-                                                                        }
-                                                                    },
-                                                                    name: 'x'
-                                                                }
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'IfStatement',
-                                                            start: 90,
-                                                            end: 107,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 5,
-                                                                    column: 16
-                                                                },
-                                                                end: {
-                                                                    line: 5,
-                                                                    column: 33
-                                                                }
-                                                            },
-                                                            test: {
-                                                                type: 'BinaryExpression',
-                                                                start: 93,
-                                                                end: 99,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 19
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 25
-                                                                    }
-                                                                },
-                                                                left: {
-                                                                    type: 'Identifier',
-                                                                    start: 93,
-                                                                    end: 94,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 19
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 20
-                                                                        }
-                                                                    },
-                                                                    name: 'x'
-                                                                },
-                                                                operator: '===',
-                                                                right: {
-                                                                    type: 'Literal',
-                                                                    start: 97,
-                                                                    end: 99,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 23
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 25
-                                                                        }
-                                                                    },
-                                                                    value: 10,
-                                                                    raw: '10'
-                                                                }
-                                                            },
-                                                            consequent: {
-                                                                type: 'ReturnStatement',
-                                                                start: 100,
-                                                                end: 107,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 26
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 33
-                                                                    }
-                                                                },
-                                                                argument: null
-                                                            },
-                                                            alternate: null
-                                                        },
-                                                        {
-                                                            type: 'ThrowStatement',
-                                                            start: 124,
-                                                            end: 132,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 6,
-                                                                    column: 16
-                                                                },
-                                                                end: {
-                                                                    line: 6,
-                                                                    column: 24
-                                                                }
-                                                            },
-                                                            argument: {
-                                                                type: 'Literal',
-                                                                start: 130,
-                                                                end: 131,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 6,
-                                                                        column: 22
-                                                                    },
-                                                                    end: {
-                                                                        line: 6,
-                                                                        column: 23
-                                                                    }
-                                                                },
-                                                                value: 1,
-                                                                raw: '1'
-                                                            }
-                                                        }
-                                                    ]
+                                                name: 'x'
+                                              }
+                                            }
+                                          },
+                                          {
+                                            type: 'IfStatement',
+                                            start: 90,
+                                            end: 107,
+                                            loc: {
+                                              start: {
+                                                line: 5,
+                                                column: 16
+                                              },
+                                              end: {
+                                                line: 5,
+                                                column: 33
+                                              }
+                                            },
+                                            test: {
+                                              type: 'BinaryExpression',
+                                              start: 93,
+                                              end: 99,
+                                              loc: {
+                                                start: {
+                                                  line: 5,
+                                                  column: 19
                                                 },
-                                                handler: {
-                                                    type: 'CatchClause',
-                                                    start: 147,
-                                                    end: 197,
-                                                    loc: {
-                                                        start: {
-                                                            line: 7,
-                                                            column: 14
-                                                        },
-                                                        end: {
-                                                            line: 9,
-                                                            column: 13
-                                                        }
-                                                    },
-                                                    param: {
-                                                        type: 'Identifier',
-                                                        start: 153,
-                                                        end: 154,
-                                                        loc: {
-                                                            start: {
-                                                                line: 7,
-                                                                column: 20
-                                                            },
-                                                            end: {
-                                                                line: 7,
-                                                                column: 21
-                                                            }
-                                                        },
-                                                        name: 'e'
-                                                    },
-                                                    body: {
-                                                        type: 'BlockStatement',
-                                                        start: 155,
-                                                        end: 197,
-                                                        loc: {
-                                                            start: {
-                                                                line: 7,
-                                                                column: 22
-                                                            },
-                                                            end: {
-                                                                line: 9,
-                                                                column: 13
-                                                            }
-                                                        },
-                                                        body: [{
-                                                            type: 'BreakStatement',
-                                                            start: 173,
-                                                            end: 183,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 8,
-                                                                    column: 16
-                                                                },
-                                                                end: {
-                                                                    line: 8,
-                                                                    column: 26
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 179,
-                                                                end: 182,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 8,
-                                                                        column: 22
-                                                                    },
-                                                                    end: {
-                                                                        line: 8,
-                                                                        column: 25
-                                                                    }
-                                                                },
-                                                                name: 'FOR'
-                                                            }
-                                                        }]
-                                                    }
+                                                end: {
+                                                  line: 5,
+                                                  column: 25
+                                                }
+                                              },
+                                              left: {
+                                                type: 'Identifier',
+                                                start: 93,
+                                                end: 94,
+                                                loc: {
+                                                  start: {
+                                                    line: 5,
+                                                    column: 19
+                                                  },
+                                                  end: {
+                                                    line: 5,
+                                                    column: 20
+                                                  }
                                                 },
-                                                finalizer: null
-                                            }]
-                                        }
-                                    },
-                                    label: {
-                                        type: 'Identifier',
-                                        start: 21,
-                                        end: 24,
+                                                name: 'x'
+                                              },
+                                              operator: '===',
+                                              right: {
+                                                type: 'Literal',
+                                                start: 97,
+                                                end: 99,
+                                                loc: {
+                                                  start: {
+                                                    line: 5,
+                                                    column: 23
+                                                  },
+                                                  end: {
+                                                    line: 5,
+                                                    column: 25
+                                                  }
+                                                },
+                                                value: 10,
+                                                raw: '10'
+                                              }
+                                            },
+                                            consequent: {
+                                              type: 'ReturnStatement',
+                                              start: 100,
+                                              end: 107,
+                                              loc: {
+                                                start: {
+                                                  line: 5,
+                                                  column: 26
+                                                },
+                                                end: {
+                                                  line: 5,
+                                                  column: 33
+                                                }
+                                              },
+                                              argument: null
+                                            },
+                                            alternate: null
+                                          },
+                                          {
+                                            type: 'ThrowStatement',
+                                            start: 124,
+                                            end: 132,
+                                            loc: {
+                                              start: {
+                                                line: 6,
+                                                column: 16
+                                              },
+                                              end: {
+                                                line: 6,
+                                                column: 24
+                                              }
+                                            },
+                                            argument: {
+                                              type: 'Literal',
+                                              start: 130,
+                                              end: 131,
+                                              loc: {
+                                                start: {
+                                                  line: 6,
+                                                  column: 22
+                                                },
+                                                end: {
+                                                  line: 6,
+                                                  column: 23
+                                                }
+                                              },
+                                              value: 1,
+                                              raw: '1'
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      handler: {
+                                        type: 'CatchClause',
+                                        start: 147,
+                                        end: 197,
                                         loc: {
+                                          start: {
+                                            line: 7,
+                                            column: 14
+                                          },
+                                          end: {
+                                            line: 9,
+                                            column: 13
+                                          }
+                                        },
+                                        param: {
+                                          type: 'Identifier',
+                                          start: 153,
+                                          end: 154,
+                                          loc: {
                                             start: {
-                                                line: 2,
-                                                column: 8
+                                              line: 7,
+                                              column: 20
                                             },
                                             end: {
-                                                line: 2,
-                                                column: 11
+                                              line: 7,
+                                              column: 21
                                             }
+                                          },
+                                          name: 'e'
                                         },
-                                        name: 'FOR'
+                                        body: {
+                                          type: 'BlockStatement',
+                                          start: 155,
+                                          end: 197,
+                                          loc: {
+                                            start: {
+                                              line: 7,
+                                              column: 22
+                                            },
+                                            end: {
+                                              line: 9,
+                                              column: 13
+                                            }
+                                          },
+                                          body: [
+                                            {
+                                              type: 'BreakStatement',
+                                              start: 173,
+                                              end: 183,
+                                              loc: {
+                                                start: {
+                                                  line: 8,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 8,
+                                                  column: 26
+                                                }
+                                              },
+                                              label: {
+                                                type: 'Identifier',
+                                                start: 179,
+                                                end: 182,
+                                                loc: {
+                                                  start: {
+                                                    line: 8,
+                                                    column: 22
+                                                  },
+                                                  end: {
+                                                    line: 8,
+                                                    column: 25
+                                                  }
+                                                },
+                                                name: 'FOR'
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      finalizer: null
                                     }
-                                }]
+                                  ]
+                                }
+                              },
+                              label: {
+                                type: 'Identifier',
+                                start: 21,
+                                end: 24,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 11
+                                  }
+                                },
+                                name: 'FOR'
+                              }
                             }
-                        },
-                        arguments: []
+                          ]
+                        }
+                      },
+                      arguments: []
                     }
-                }],
+                  }
+                ],
                 sourceType: 'script'
-            }
+              }
         });
 
         pass(`LABEL_OUT : var x=0, y=0, xx=0, yy=0;
@@ -797,1189 +806,1196 @@ function OUT_FUNC(){}
             expected: {
                 type: 'Program',
                 start: 0,
-                end: 603,
+                end: 563,
                 loc: {
-                    start: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 23,
+                    column: 13
+                  }
+                },
+                body: [
+                  {
+                    type: 'LabeledStatement',
+                    start: 0,
+                    end: 37,
+                    loc: {
+                      start: {
                         line: 1,
                         column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 37
+                      }
                     },
-                    end: {
+                    body: {
+                      type: 'VariableDeclaration',
+                      start: 12,
+                      end: 37,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 37
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 16,
+                          end: 19,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 16
+                            },
+                            end: {
+                              line: 1,
+                              column: 19
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 16,
+                            end: 17,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 16
+                              },
+                              end: {
+                                line: 1,
+                                column: 17
+                              }
+                            },
+                            name: 'x'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 18,
+                            end: 19,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 18
+                              },
+                              end: {
+                                line: 1,
+                                column: 19
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 21,
+                          end: 24,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 21
+                            },
+                            end: {
+                              line: 1,
+                              column: 24
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 21,
+                            end: 22,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 21
+                              },
+                              end: {
+                                line: 1,
+                                column: 22
+                              }
+                            },
+                            name: 'y'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 23,
+                            end: 24,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 23
+                              },
+                              end: {
+                                line: 1,
+                                column: 24
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 26,
+                          end: 30,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 26
+                            },
+                            end: {
+                              line: 1,
+                              column: 30
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 26,
+                            end: 28,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 26
+                              },
+                              end: {
+                                line: 1,
+                                column: 28
+                              }
+                            },
+                            name: 'xx'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 29,
+                            end: 30,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 29
+                              },
+                              end: {
+                                line: 1,
+                                column: 30
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 32,
+                          end: 36,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 32
+                            },
+                            end: {
+                              line: 1,
+                              column: 36
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 32,
+                            end: 34,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 32
+                              },
+                              end: {
+                                line: 1,
+                                column: 34
+                              }
+                            },
+                            name: 'yy'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 35,
+                            end: 36,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 35
+                              },
+                              end: {
+                                line: 1,
+                                column: 36
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'var'
+                    },
+                    label: {
+                      type: 'Identifier',
+                      start: 0,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      name: 'LABEL_OUT'
+                    }
+                  },
+                  {
+                    type: 'ExpressionStatement',
+                    start: 46,
+                    end: 563,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 8
+                      },
+                      end: {
                         line: 23,
                         column: 13
-                    }
-                },
-                body: [{
-                        type: 'LabeledStatement',
-                        start: 0,
-                        end: 37,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 37
-                            }
-                        },
-                        body: {
-                            type: 'VariableDeclaration',
-                            start: 12,
-                            end: 37,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 12
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 37
-                                }
-                            },
-                            declarations: [{
-                                    type: 'VariableDeclarator',
-                                    start: 16,
-                                    end: 19,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 16
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 19
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 16,
-                                        end: 17,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 16
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 17
-                                            }
-                                        },
-                                        name: 'x'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 18,
-                                        end: 19,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 18
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 19
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 21,
-                                    end: 24,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 21
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 24
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 21,
-                                        end: 22,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 21
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 22
-                                            }
-                                        },
-                                        name: 'y'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 23,
-                                        end: 24,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 23
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 24
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 26,
-                                    end: 30,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 26
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 30
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 26,
-                                        end: 28,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 26
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 28
-                                            }
-                                        },
-                                        name: 'xx'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 29,
-                                        end: 30,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 29
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 30
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 32,
-                                    end: 36,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 32
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 36
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 32,
-                                        end: 34,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 32
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 34
-                                            }
-                                        },
-                                        name: 'yy'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 35,
-                                        end: 36,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 35
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 36
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                }
-                            ],
-                            kind: 'var'
-                        },
-                        label: {
-                            type: 'Identifier',
-                            start: 0,
-                            end: 9,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 9
-                                }
-                            },
-                            name: 'LABEL_OUT'
-                        }
+                      }
                     },
-                    {
-                        type: 'ExpressionStatement',
-                        start: 46,
-                        end: 603,
+                    expression: {
+                      type: 'CallExpression',
+                      start: 46,
+                      end: 562,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 8
+                        },
+                        end: {
+                          line: 23,
+                          column: 12
+                        }
+                      },
+                      callee: {
+                        type: 'FunctionExpression',
+                        start: 47,
+                        end: 559,
                         loc: {
+                          start: {
+                            line: 2,
+                            column: 9
+                          },
+                          end: {
+                            line: 23,
+                            column: 9
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 57,
+                          end: 559,
+                          loc: {
                             start: {
-                                line: 2,
-                                column: 8
+                              line: 2,
+                              column: 19
                             },
                             end: {
-                                line: 23,
-                                column: 13
+                              line: 23,
+                              column: 9
                             }
-                        },
-                        expression: {
-                            type: 'CallExpression',
-                            start: 46,
-                            end: 602,
-                            loc: {
+                          },
+                          body: [
+                            {
+                              type: 'LabeledStatement',
+                              start: 67,
+                              end: 449,
+                              loc: {
                                 start: {
-                                    line: 2,
-                                    column: 8
+                                  line: 3,
+                                  column: 8
                                 },
                                 end: {
-                                    line: 23,
-                                    column: 12
+                                  line: 16,
+                                  column: 19
                                 }
-                            },
-                            callee: {
-                                type: 'FunctionExpression',
-                                start: 47,
-                                end: 599,
+                              },
+                              body: {
+                                type: 'DoWhileStatement',
+                                start: 83,
+                                end: 449,
                                 loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 24
+                                  },
+                                  end: {
+                                    line: 16,
+                                    column: 19
+                                  }
+                                },
+                                body: {
+                                  type: 'BlockStatement',
+                                  start: 86,
+                                  end: 439,
+                                  loc: {
                                     start: {
-                                        line: 2,
-                                        column: 9
+                                      line: 3,
+                                      column: 27
                                     },
                                     end: {
-                                        line: 23,
-                                        column: 9
+                                      line: 16,
+                                      column: 9
                                     }
-                                },
-                                id: null,
-                                generator: false,
-                                expression: false,
-                                async: false,
-                                params: [],
-                                body: {
-                                    type: 'BlockStatement',
-                                    start: 57,
-                                    end: 599,
-                                    loc: {
+                                  },
+                                  body: [
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 100,
+                                      end: 115,
+                                      loc: {
                                         start: {
-                                            line: 2,
-                                            column: 19
+                                          line: 4,
+                                          column: 12
                                         },
                                         end: {
-                                            line: 23,
-                                            column: 9
+                                          line: 4,
+                                          column: 27
                                         }
-                                    },
-                                    body: [{
-                                            type: 'LabeledStatement',
-                                            start: 67,
-                                            end: 473,
+                                      },
+                                      body: {
+                                        type: 'ExpressionStatement',
+                                        start: 111,
+                                        end: 115,
+                                        loc: {
+                                          start: {
+                                            line: 4,
+                                            column: 23
+                                          },
+                                          end: {
+                                            line: 4,
+                                            column: 27
+                                          }
+                                        },
+                                        expression: {
+                                          type: 'UpdateExpression',
+                                          start: 111,
+                                          end: 114,
+                                          loc: {
+                                            start: {
+                                              line: 4,
+                                              column: 23
+                                            },
+                                            end: {
+                                              line: 4,
+                                              column: 26
+                                            }
+                                          },
+                                          operator: '++',
+                                          prefix: false,
+                                          argument: {
+                                            type: 'Identifier',
+                                            start: 111,
+                                            end: 112,
                                             loc: {
+                                              start: {
+                                                line: 4,
+                                                column: 23
+                                              },
+                                              end: {
+                                                line: 4,
+                                                column: 24
+                                              }
+                                            },
+                                            name: 'x'
+                                          }
+                                        }
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 100,
+                                        end: 108,
+                                        loc: {
+                                          start: {
+                                            line: 4,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 4,
+                                            column: 20
+                                          }
+                                        },
+                                        name: 'LABEL_IN'
+                                      }
+                                    },
+                                    {
+                                      type: 'IfStatement',
+                                      start: 128,
+                                      end: 145,
+                                      loc: {
+                                        start: {
+                                          line: 5,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 5,
+                                          column: 29
+                                        }
+                                      },
+                                      test: {
+                                        type: 'BinaryExpression',
+                                        start: 131,
+                                        end: 137,
+                                        loc: {
+                                          start: {
+                                            line: 5,
+                                            column: 15
+                                          },
+                                          end: {
+                                            line: 5,
+                                            column: 21
+                                          }
+                                        },
+                                        left: {
+                                          type: 'Identifier',
+                                          start: 131,
+                                          end: 132,
+                                          loc: {
+                                            start: {
+                                              line: 5,
+                                              column: 15
+                                            },
+                                            end: {
+                                              line: 5,
+                                              column: 16
+                                            }
+                                          },
+                                          name: 'x'
+                                        },
+                                        operator: '===',
+                                        right: {
+                                          type: 'Literal',
+                                          start: 135,
+                                          end: 137,
+                                          loc: {
+                                            start: {
+                                              line: 5,
+                                              column: 19
+                                            },
+                                            end: {
+                                              line: 5,
+                                              column: 21
+                                            }
+                                          },
+                                          value: 10,
+                                          raw: '10'
+                                        }
+                                      },
+                                      consequent: {
+                                        type: 'ReturnStatement',
+                                        start: 138,
+                                        end: 145,
+                                        loc: {
+                                          start: {
+                                            line: 5,
+                                            column: 22
+                                          },
+                                          end: {
+                                            line: 5,
+                                            column: 29
+                                          }
+                                        },
+                                        argument: null
+                                      },
+                                      alternate: null
+                                    },
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 158,
+                                      end: 361,
+                                      loc: {
+                                        start: {
+                                          line: 6,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 11,
+                                          column: 24
+                                        }
+                                      },
+                                      body: {
+                                        type: 'DoWhileStatement',
+                                        start: 178,
+                                        end: 361,
+                                        loc: {
+                                          start: {
+                                            line: 6,
+                                            column: 32
+                                          },
+                                          end: {
+                                            line: 11,
+                                            column: 24
+                                          }
+                                        },
+                                        body: {
+                                          type: 'BlockStatement',
+                                          start: 181,
+                                          end: 350,
+                                          loc: {
+                                            start: {
+                                              line: 6,
+                                              column: 35
+                                            },
+                                            end: {
+                                              line: 11,
+                                              column: 13
+                                            }
+                                          },
+                                          body: [
+                                            {
+                                              type: 'LabeledStatement',
+                                              start: 199,
+                                              end: 222,
+                                              loc: {
                                                 start: {
-                                                    line: 3,
-                                                    column: 8
+                                                  line: 7,
+                                                  column: 16
                                                 },
                                                 end: {
-                                                    line: 16,
-                                                    column: 19
+                                                  line: 7,
+                                                  column: 39
                                                 }
-                                            },
-                                            body: {
-                                                type: 'DoWhileStatement',
-                                                start: 83,
-                                                end: 473,
+                                              },
+                                              body: {
+                                                type: 'ExpressionStatement',
+                                                start: 217,
+                                                end: 222,
                                                 loc: {
+                                                  start: {
+                                                    line: 7,
+                                                    column: 34
+                                                  },
+                                                  end: {
+                                                    line: 7,
+                                                    column: 39
+                                                  }
+                                                },
+                                                expression: {
+                                                  type: 'UpdateExpression',
+                                                  start: 217,
+                                                  end: 221,
+                                                  loc: {
                                                     start: {
-                                                        line: 3,
-                                                        column: 24
+                                                      line: 7,
+                                                      column: 34
                                                     },
                                                     end: {
-                                                        line: 16,
-                                                        column: 19
+                                                      line: 7,
+                                                      column: 38
                                                     }
-                                                },
-                                                body: {
-                                                    type: 'BlockStatement',
-                                                    start: 86,
-                                                    end: 463,
+                                                  },
+                                                  operator: '++',
+                                                  prefix: false,
+                                                  argument: {
+                                                    type: 'Identifier',
+                                                    start: 217,
+                                                    end: 219,
                                                     loc: {
-                                                        start: {
-                                                            line: 3,
-                                                            column: 27
-                                                        },
-                                                        end: {
-                                                            line: 16,
-                                                            column: 9
-                                                        }
+                                                      start: {
+                                                        line: 7,
+                                                        column: 34
+                                                      },
+                                                      end: {
+                                                        line: 7,
+                                                        column: 36
+                                                      }
                                                     },
-                                                    body: [{
-                                                            type: 'LabeledStatement',
-                                                            start: 100,
-                                                            end: 115,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 4,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 4,
-                                                                    column: 27
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'ExpressionStatement',
-                                                                start: 111,
-                                                                end: 115,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 4,
-                                                                        column: 23
-                                                                    },
-                                                                    end: {
-                                                                        line: 4,
-                                                                        column: 27
-                                                                    }
-                                                                },
-                                                                expression: {
-                                                                    type: 'UpdateExpression',
-                                                                    start: 111,
-                                                                    end: 114,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 4,
-                                                                            column: 23
-                                                                        },
-                                                                        end: {
-                                                                            line: 4,
-                                                                            column: 26
-                                                                        }
-                                                                    },
-                                                                    operator: '++',
-                                                                    prefix: false,
-                                                                    argument: {
-                                                                        type: 'Identifier',
-                                                                        start: 111,
-                                                                        end: 112,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 4,
-                                                                                column: 23
-                                                                            },
-                                                                            end: {
-                                                                                line: 4,
-                                                                                column: 24
-                                                                            }
-                                                                        },
-                                                                        name: 'x'
-                                                                    }
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 100,
-                                                                end: 108,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 4,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 4,
-                                                                        column: 20
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_IN'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'IfStatement',
-                                                            start: 128,
-                                                            end: 145,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 5,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 5,
-                                                                    column: 29
-                                                                }
-                                                            },
-                                                            test: {
-                                                                type: 'BinaryExpression',
-                                                                start: 131,
-                                                                end: 137,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 15
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 21
-                                                                    }
-                                                                },
-                                                                left: {
-                                                                    type: 'Identifier',
-                                                                    start: 131,
-                                                                    end: 132,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 15
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 16
-                                                                        }
-                                                                    },
-                                                                    name: 'x'
-                                                                },
-                                                                operator: '===',
-                                                                right: {
-                                                                    type: 'Literal',
-                                                                    start: 135,
-                                                                    end: 137,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 19
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 21
-                                                                        }
-                                                                    },
-                                                                    value: 10,
-                                                                    raw: '10'
-                                                                }
-                                                            },
-                                                            consequent: {
-                                                                type: 'ReturnStatement',
-                                                                start: 138,
-                                                                end: 145,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 22
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                argument: null
-                                                            },
-                                                            alternate: null
-                                                        },
-                                                        {
-                                                            type: 'LabeledStatement',
-                                                            start: 158,
-                                                            end: 361,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 6,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 11,
-                                                                    column: 24
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'DoWhileStatement',
-                                                                start: 178,
-                                                                end: 361,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 6,
-                                                                        column: 32
-                                                                    },
-                                                                    end: {
-                                                                        line: 11,
-                                                                        column: 24
-                                                                    }
-                                                                },
-                                                                body: {
-                                                                    type: 'BlockStatement',
-                                                                    start: 181,
-                                                                    end: 350,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 6,
-                                                                            column: 35
-                                                                        },
-                                                                        end: {
-                                                                            line: 11,
-                                                                            column: 13
-                                                                        }
-                                                                    },
-                                                                    body: [{
-                                                                            type: 'LabeledStatement',
-                                                                            start: 199,
-                                                                            end: 222,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 7,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 7,
-                                                                                    column: 39
-                                                                                }
-                                                                            },
-                                                                            body: {
-                                                                                type: 'ExpressionStatement',
-                                                                                start: 217,
-                                                                                end: 222,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 7,
-                                                                                        column: 34
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 7,
-                                                                                        column: 39
-                                                                                    }
-                                                                                },
-                                                                                expression: {
-                                                                                    type: 'UpdateExpression',
-                                                                                    start: 217,
-                                                                                    end: 221,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 7,
-                                                                                            column: 34
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 7,
-                                                                                            column: 38
-                                                                                        }
-                                                                                    },
-                                                                                    operator: '++',
-                                                                                    prefix: false,
-                                                                                    argument: {
-                                                                                        type: 'Identifier',
-                                                                                        start: 217,
-                                                                                        end: 219,
-                                                                                        loc: {
-                                                                                            start: {
-                                                                                                line: 7,
-                                                                                                column: 34
-                                                                                            },
-                                                                                            end: {
-                                                                                                line: 7,
-                                                                                                column: 36
-                                                                                            }
-                                                                                        },
-                                                                                        name: 'xx'
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 199,
-                                                                                end: 214,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 7,
-                                                                                        column: 16
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 7,
-                                                                                        column: 31
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_IN_NESTED'
-                                                                            }
-                                                                        },
-                                                                        {
-                                                                            type: 'IfStatement',
-                                                                            start: 239,
-                                                                            end: 257,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 8,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 8,
-                                                                                    column: 34
-                                                                                }
-                                                                            },
-                                                                            test: {
-                                                                                type: 'BinaryExpression',
-                                                                                start: 242,
-                                                                                end: 249,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 8,
-                                                                                        column: 19
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 8,
-                                                                                        column: 26
-                                                                                    }
-                                                                                },
-                                                                                left: {
-                                                                                    type: 'Identifier',
-                                                                                    start: 242,
-                                                                                    end: 244,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 8,
-                                                                                            column: 19
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 8,
-                                                                                            column: 21
-                                                                                        }
-                                                                                    },
-                                                                                    name: 'xx'
-                                                                                },
-                                                                                operator: '===',
-                                                                                right: {
-                                                                                    type: 'Literal',
-                                                                                    start: 247,
-                                                                                    end: 249,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 8,
-                                                                                            column: 24
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 8,
-                                                                                            column: 26
-                                                                                        }
-                                                                                    },
-                                                                                    value: 10,
-                                                                                    raw: '10'
-                                                                                }
-                                                                            },
-                                                                            consequent: {
-                                                                                type: 'ReturnStatement',
-                                                                                start: 250,
-                                                                                end: 257,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 8,
-                                                                                        column: 27
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 8,
-                                                                                        column: 34
-                                                                                    }
-                                                                                },
-                                                                                argument: null
-                                                                            },
-                                                                            alternate: null
-                                                                        },
-                                                                        {
-                                                                            type: 'BreakStatement',
-                                                                            start: 274,
-                                                                            end: 294,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 9,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 9,
-                                                                                    column: 36
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 280,
-                                                                                end: 293,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 9,
-                                                                                        column: 22
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 9,
-                                                                                        column: 35
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_DO_LOOP'
-                                                                            }
-                                                                        },
-                                                                        {
-                                                                            type: 'LabeledStatement',
-                                                                            start: 311,
-                                                                            end: 336,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 10,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 10,
-                                                                                    column: 41
-                                                                                }
-                                                                            },
-                                                                            body: {
-                                                                                type: 'ExpressionStatement',
-                                                                                start: 331,
-                                                                                end: 336,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 10,
-                                                                                        column: 36
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 10,
-                                                                                        column: 41
-                                                                                    }
-                                                                                },
-                                                                                expression: {
-                                                                                    type: 'UpdateExpression',
-                                                                                    start: 331,
-                                                                                    end: 335,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 10,
-                                                                                            column: 36
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 10,
-                                                                                            column: 40
-                                                                                        }
-                                                                                    },
-                                                                                    operator: '++',
-                                                                                    prefix: false,
-                                                                                    argument: {
-                                                                                        type: 'Identifier',
-                                                                                        start: 331,
-                                                                                        end: 333,
-                                                                                        loc: {
-                                                                                            start: {
-                                                                                                line: 10,
-                                                                                                column: 36
-                                                                                            },
-                                                                                            end: {
-                                                                                                line: 10,
-                                                                                                column: 38
-                                                                                            }
-                                                                                        },
-                                                                                        name: 'yy'
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 311,
-                                                                                end: 328,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 10,
-                                                                                        column: 16
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 10,
-                                                                                        column: 33
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_IN_NESTED_2'
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                test: {
-                                                                    type: 'Literal',
-                                                                    start: 358,
-                                                                    end: 359,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 11,
-                                                                            column: 21
-                                                                        },
-                                                                        end: {
-                                                                            line: 11,
-                                                                            column: 22
-                                                                        }
-                                                                    },
-                                                                    value: 0,
-                                                                    raw: '0'
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 158,
-                                                                end: 175,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 6,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 6,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_NESTED_LOOP'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'LabeledStatement',
-                                                            start: 387,
-                                                            end: 404,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 13,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 13,
-                                                                    column: 29
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'ExpressionStatement',
-                                                                start: 400,
-                                                                end: 404,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 13,
-                                                                        column: 25
-                                                                    },
-                                                                    end: {
-                                                                        line: 13,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                expression: {
-                                                                    type: 'UpdateExpression',
-                                                                    start: 400,
-                                                                    end: 403,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 13,
-                                                                            column: 25
-                                                                        },
-                                                                        end: {
-                                                                            line: 13,
-                                                                            column: 28
-                                                                        }
-                                                                    },
-                                                                    operator: '++',
-                                                                    prefix: false,
-                                                                    argument: {
-                                                                        type: 'Identifier',
-                                                                        start: 400,
-                                                                        end: 401,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 13,
-                                                                                column: 25
-                                                                            },
-                                                                            end: {
-                                                                                line: 13,
-                                                                                column: 26
-                                                                            }
-                                                                        },
-                                                                        name: 'y'
-                                                                    }
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 387,
-                                                                end: 397,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 13,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 13,
-                                                                        column: 22
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_IN_2'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'FunctionDeclaration',
-                                                            start: 430,
-                                                            end: 453,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 15,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 15,
-                                                                    column: 35
-                                                                }
-                                                            },
-                                                            id: {
-                                                                type: 'Identifier',
-                                                                start: 439,
-                                                                end: 449,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 15,
-                                                                        column: 21
-                                                                    },
-                                                                    end: {
-                                                                        line: 15,
-                                                                        column: 31
-                                                                    }
-                                                                },
-                                                                name: 'IN_DO_FUNC'
-                                                            },
-                                                            generator: false,
-                                                            expression: false,
-                                                            async: false,
-                                                            params: [],
-                                                            body: {
-                                                                type: 'BlockStatement',
-                                                                start: 451,
-                                                                end: 453,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 15,
-                                                                        column: 33
-                                                                    },
-                                                                    end: {
-                                                                        line: 15,
-                                                                        column: 35
-                                                                    }
-                                                                },
-                                                                body: []
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                test: {
-                                                    type: 'Literal',
-                                                    start: 470,
-                                                    end: 471,
-                                                    loc: {
-                                                        start: {
-                                                            line: 16,
-                                                            column: 16
-                                                        },
-                                                        end: {
-                                                            line: 16,
-                                                            column: 17
-                                                        }
-                                                    },
-                                                    value: 0,
-                                                    raw: '0'
+                                                    name: 'xx'
+                                                  }
                                                 }
-                                            },
-                                            label: {
+                                              },
+                                              label: {
                                                 type: 'Identifier',
-                                                start: 67,
-                                                end: 80,
+                                                start: 199,
+                                                end: 214,
                                                 loc: {
+                                                  start: {
+                                                    line: 7,
+                                                    column: 16
+                                                  },
+                                                  end: {
+                                                    line: 7,
+                                                    column: 31
+                                                  }
+                                                },
+                                                name: 'LABEL_IN_NESTED'
+                                              }
+                                            },
+                                            {
+                                              type: 'IfStatement',
+                                              start: 239,
+                                              end: 257,
+                                              loc: {
+                                                start: {
+                                                  line: 8,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 8,
+                                                  column: 34
+                                                }
+                                              },
+                                              test: {
+                                                type: 'BinaryExpression',
+                                                start: 242,
+                                                end: 249,
+                                                loc: {
+                                                  start: {
+                                                    line: 8,
+                                                    column: 19
+                                                  },
+                                                  end: {
+                                                    line: 8,
+                                                    column: 26
+                                                  }
+                                                },
+                                                left: {
+                                                  type: 'Identifier',
+                                                  start: 242,
+                                                  end: 244,
+                                                  loc: {
                                                     start: {
-                                                        line: 3,
-                                                        column: 8
+                                                      line: 8,
+                                                      column: 19
                                                     },
                                                     end: {
-                                                        line: 3,
-                                                        column: 21
+                                                      line: 8,
+                                                      column: 21
                                                     }
+                                                  },
+                                                  name: 'xx'
+                                                },
+                                                operator: '===',
+                                                right: {
+                                                  type: 'Literal',
+                                                  start: 247,
+                                                  end: 249,
+                                                  loc: {
+                                                    start: {
+                                                      line: 8,
+                                                      column: 24
+                                                    },
+                                                    end: {
+                                                      line: 8,
+                                                      column: 26
+                                                    }
+                                                  },
+                                                  value: 10,
+                                                  raw: '10'
+                                                }
+                                              },
+                                              consequent: {
+                                                type: 'ReturnStatement',
+                                                start: 250,
+                                                end: 257,
+                                                loc: {
+                                                  start: {
+                                                    line: 8,
+                                                    column: 27
+                                                  },
+                                                  end: {
+                                                    line: 8,
+                                                    column: 34
+                                                  }
+                                                },
+                                                argument: null
+                                              },
+                                              alternate: null
+                                            },
+                                            {
+                                              type: 'BreakStatement',
+                                              start: 274,
+                                              end: 294,
+                                              loc: {
+                                                start: {
+                                                  line: 9,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 9,
+                                                  column: 36
+                                                }
+                                              },
+                                              label: {
+                                                type: 'Identifier',
+                                                start: 280,
+                                                end: 293,
+                                                loc: {
+                                                  start: {
+                                                    line: 9,
+                                                    column: 22
+                                                  },
+                                                  end: {
+                                                    line: 9,
+                                                    column: 35
+                                                  }
                                                 },
                                                 name: 'LABEL_DO_LOOP'
-                                            }
-                                        },
-                                        {
-                                            type: 'LabeledStatement',
-                                            start: 491,
-                                            end: 550,
-                                            loc: {
+                                              }
+                                            },
+                                            {
+                                              type: 'LabeledStatement',
+                                              start: 311,
+                                              end: 336,
+                                              loc: {
                                                 start: {
-                                                    line: 18,
-                                                    column: 8
+                                                  line: 10,
+                                                  column: 16
                                                 },
                                                 end: {
-                                                    line: 20,
-                                                    column: 19
+                                                  line: 10,
+                                                  column: 41
                                                 }
-                                            },
-                                            body: {
-                                                type: 'DoWhileStatement',
-                                                start: 512,
-                                                end: 550,
+                                              },
+                                              body: {
+                                                type: 'ExpressionStatement',
+                                                start: 331,
+                                                end: 336,
                                                 loc: {
+                                                  start: {
+                                                    line: 10,
+                                                    column: 36
+                                                  },
+                                                  end: {
+                                                    line: 10,
+                                                    column: 41
+                                                  }
+                                                },
+                                                expression: {
+                                                  type: 'UpdateExpression',
+                                                  start: 331,
+                                                  end: 335,
+                                                  loc: {
                                                     start: {
-                                                        line: 18,
-                                                        column: 29
+                                                      line: 10,
+                                                      column: 36
                                                     },
                                                     end: {
-                                                        line: 20,
-                                                        column: 19
+                                                      line: 10,
+                                                      column: 40
                                                     }
-                                                },
-                                                body: {
-                                                    type: 'BlockStatement',
-                                                    start: 515,
-                                                    end: 540,
+                                                  },
+                                                  operator: '++',
+                                                  prefix: false,
+                                                  argument: {
+                                                    type: 'Identifier',
+                                                    start: 331,
+                                                    end: 333,
                                                     loc: {
-                                                        start: {
-                                                            line: 18,
-                                                            column: 32
-                                                        },
-                                                        end: {
-                                                            line: 20,
-                                                            column: 9
-                                                        }
+                                                      start: {
+                                                        line: 10,
+                                                        column: 36
+                                                      },
+                                                      end: {
+                                                        line: 10,
+                                                        column: 38
+                                                      }
                                                     },
-                                                    body: [{
-                                                        type: 'EmptyStatement',
-                                                        start: 529,
-                                                        end: 530,
-                                                        loc: {
-                                                            start: {
-                                                                line: 19,
-                                                                column: 12
-                                                            },
-                                                            end: {
-                                                                line: 19,
-                                                                column: 13
-                                                            }
-                                                        }
-                                                    }]
-                                                },
-                                                test: {
-                                                    type: 'Literal',
-                                                    start: 547,
-                                                    end: 548,
-                                                    loc: {
-                                                        start: {
-                                                            line: 20,
-                                                            column: 16
-                                                        },
-                                                        end: {
-                                                            line: 20,
-                                                            column: 17
-                                                        }
-                                                    },
-                                                    value: 0,
-                                                    raw: '0'
+                                                    name: 'yy'
+                                                  }
                                                 }
-                                            },
-                                            label: {
+                                              },
+                                              label: {
                                                 type: 'Identifier',
-                                                start: 491,
-                                                end: 509,
+                                                start: 311,
+                                                end: 328,
                                                 loc: {
-                                                    start: {
-                                                        line: 18,
-                                                        column: 8
-                                                    },
-                                                    end: {
-                                                        line: 18,
-                                                        column: 26
-                                                    }
+                                                  start: {
+                                                    line: 10,
+                                                    column: 16
+                                                  },
+                                                  end: {
+                                                    line: 10,
+                                                    column: 33
+                                                  }
                                                 },
-                                                name: 'LABEL_ANOTHER_LOOP'
+                                                name: 'LABEL_IN_NESTED_2'
+                                              }
                                             }
+                                          ]
                                         },
-                                        {
-                                            type: 'FunctionDeclaration',
-                                            start: 568,
-                                            end: 589,
-                                            loc: {
-                                                start: {
-                                                    line: 22,
-                                                    column: 8
-                                                },
-                                                end: {
-                                                    line: 22,
-                                                    column: 29
-                                                }
+                                        test: {
+                                          type: 'Literal',
+                                          start: 358,
+                                          end: 359,
+                                          loc: {
+                                            start: {
+                                              line: 11,
+                                              column: 21
                                             },
-                                            id: {
-                                                type: 'Identifier',
-                                                start: 577,
-                                                end: 585,
-                                                loc: {
-                                                    start: {
-                                                        line: 22,
-                                                        column: 17
-                                                    },
-                                                    end: {
-                                                        line: 22,
-                                                        column: 25
-                                                    }
-                                                },
-                                                name: 'OUT_FUNC'
-                                            },
-                                            generator: false,
-                                            expression: false,
-                                            async: false,
-                                            params: [],
-                                            body: {
-                                                type: 'BlockStatement',
-                                                start: 587,
-                                                end: 589,
-                                                loc: {
-                                                    start: {
-                                                        line: 22,
-                                                        column: 27
-                                                    },
-                                                    end: {
-                                                        line: 22,
-                                                        column: 29
-                                                    }
-                                                },
-                                                body: []
+                                            end: {
+                                              line: 11,
+                                              column: 22
                                             }
+                                          },
+                                          value: 0,
+                                          raw: '0'
                                         }
-                                    ]
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 158,
+                                        end: 175,
+                                        loc: {
+                                          start: {
+                                            line: 6,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 6,
+                                            column: 29
+                                          }
+                                        },
+                                        name: 'LABEL_NESTED_LOOP'
+                                      }
+                                    },
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 375,
+                                      end: 392,
+                                      loc: {
+                                        start: {
+                                          line: 13,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 13,
+                                          column: 29
+                                        }
+                                      },
+                                      body: {
+                                        type: 'ExpressionStatement',
+                                        start: 388,
+                                        end: 392,
+                                        loc: {
+                                          start: {
+                                            line: 13,
+                                            column: 25
+                                          },
+                                          end: {
+                                            line: 13,
+                                            column: 29
+                                          }
+                                        },
+                                        expression: {
+                                          type: 'UpdateExpression',
+                                          start: 388,
+                                          end: 391,
+                                          loc: {
+                                            start: {
+                                              line: 13,
+                                              column: 25
+                                            },
+                                            end: {
+                                              line: 13,
+                                              column: 28
+                                            }
+                                          },
+                                          operator: '++',
+                                          prefix: false,
+                                          argument: {
+                                            type: 'Identifier',
+                                            start: 388,
+                                            end: 389,
+                                            loc: {
+                                              start: {
+                                                line: 13,
+                                                column: 25
+                                              },
+                                              end: {
+                                                line: 13,
+                                                column: 26
+                                              }
+                                            },
+                                            name: 'y'
+                                          }
+                                        }
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 375,
+                                        end: 385,
+                                        loc: {
+                                          start: {
+                                            line: 13,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 13,
+                                            column: 22
+                                          }
+                                        },
+                                        name: 'LABEL_IN_2'
+                                      }
+                                    },
+                                    {
+                                      type: 'FunctionDeclaration',
+                                      start: 406,
+                                      end: 429,
+                                      loc: {
+                                        start: {
+                                          line: 15,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 15,
+                                          column: 35
+                                        }
+                                      },
+                                      id: {
+                                        type: 'Identifier',
+                                        start: 415,
+                                        end: 425,
+                                        loc: {
+                                          start: {
+                                            line: 15,
+                                            column: 21
+                                          },
+                                          end: {
+                                            line: 15,
+                                            column: 31
+                                          }
+                                        },
+                                        name: 'IN_DO_FUNC'
+                                      },
+                                      generator: false,
+                                      expression: false,
+                                      async: false,
+                                      params: [],
+                                      body: {
+                                        type: 'BlockStatement',
+                                        start: 427,
+                                        end: 429,
+                                        loc: {
+                                          start: {
+                                            line: 15,
+                                            column: 33
+                                          },
+                                          end: {
+                                            line: 15,
+                                            column: 35
+                                          }
+                                        },
+                                        body: []
+                                      }
+                                    }
+                                  ]
+                                },
+                                test: {
+                                  type: 'Literal',
+                                  start: 446,
+                                  end: 447,
+                                  loc: {
+                                    start: {
+                                      line: 16,
+                                      column: 16
+                                    },
+                                    end: {
+                                      line: 16,
+                                      column: 17
+                                    }
+                                  },
+                                  value: 0,
+                                  raw: '0'
                                 }
+                              },
+                              label: {
+                                type: 'Identifier',
+                                start: 67,
+                                end: 80,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 21
+                                  }
+                                },
+                                name: 'LABEL_DO_LOOP'
+                              }
                             },
-                            arguments: []
+                            {
+                              type: 'LabeledStatement',
+                              start: 459,
+                              end: 518,
+                              loc: {
+                                start: {
+                                  line: 18,
+                                  column: 8
+                                },
+                                end: {
+                                  line: 20,
+                                  column: 19
+                                }
+                              },
+                              body: {
+                                type: 'DoWhileStatement',
+                                start: 480,
+                                end: 518,
+                                loc: {
+                                  start: {
+                                    line: 18,
+                                    column: 29
+                                  },
+                                  end: {
+                                    line: 20,
+                                    column: 19
+                                  }
+                                },
+                                body: {
+                                  type: 'BlockStatement',
+                                  start: 483,
+                                  end: 508,
+                                  loc: {
+                                    start: {
+                                      line: 18,
+                                      column: 32
+                                    },
+                                    end: {
+                                      line: 20,
+                                      column: 9
+                                    }
+                                  },
+                                  body: [
+                                    {
+                                      type: 'EmptyStatement',
+                                      start: 497,
+                                      end: 498,
+                                      loc: {
+                                        start: {
+                                          line: 19,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 19,
+                                          column: 13
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                test: {
+                                  type: 'Literal',
+                                  start: 515,
+                                  end: 516,
+                                  loc: {
+                                    start: {
+                                      line: 20,
+                                      column: 16
+                                    },
+                                    end: {
+                                      line: 20,
+                                      column: 17
+                                    }
+                                  },
+                                  value: 0,
+                                  raw: '0'
+                                }
+                              },
+                              label: {
+                                type: 'Identifier',
+                                start: 459,
+                                end: 477,
+                                loc: {
+                                  start: {
+                                    line: 18,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 18,
+                                    column: 26
+                                  }
+                                },
+                                name: 'LABEL_ANOTHER_LOOP'
+                              }
+                            },
+                            {
+                              type: 'FunctionDeclaration',
+                              start: 528,
+                              end: 549,
+                              loc: {
+                                start: {
+                                  line: 22,
+                                  column: 8
+                                },
+                                end: {
+                                  line: 22,
+                                  column: 29
+                                }
+                              },
+                              id: {
+                                type: 'Identifier',
+                                start: 537,
+                                end: 545,
+                                loc: {
+                                  start: {
+                                    line: 22,
+                                    column: 17
+                                  },
+                                  end: {
+                                    line: 22,
+                                    column: 25
+                                  }
+                                },
+                                name: 'OUT_FUNC'
+                              },
+                              generator: false,
+                              expression: false,
+                              async: false,
+                              params: [],
+                              body: {
+                                type: 'BlockStatement',
+                                start: 547,
+                                end: 549,
+                                loc: {
+                                  start: {
+                                    line: 22,
+                                    column: 27
+                                  },
+                                  end: {
+                                    line: 22,
+                                    column: 29
+                                  }
+                                },
+                                body: []
+                              }
+                            }
+                          ]
                         }
+                      },
+                      arguments: []
                     }
+                  }
                 ],
                 sourceType: 'script'
-            }
+              }
         });
 
         pass(`LABEL_OUT : var x=0, y=0, xx=0, yy=0;
@@ -2031,1189 +2047,1196 @@ function OUT_FUNC(){}
             expected: {
                 type: 'Program',
                 start: 0,
-                end: 607,
+                end: 567,
                 loc: {
-                    start: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 23,
+                    column: 13
+                  }
+                },
+                body: [
+                  {
+                    type: 'LabeledStatement',
+                    start: 0,
+                    end: 37,
+                    loc: {
+                      start: {
                         line: 1,
                         column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 37
+                      }
                     },
-                    end: {
+                    body: {
+                      type: 'VariableDeclaration',
+                      start: 12,
+                      end: 37,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 37
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 16,
+                          end: 19,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 16
+                            },
+                            end: {
+                              line: 1,
+                              column: 19
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 16,
+                            end: 17,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 16
+                              },
+                              end: {
+                                line: 1,
+                                column: 17
+                              }
+                            },
+                            name: 'x'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 18,
+                            end: 19,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 18
+                              },
+                              end: {
+                                line: 1,
+                                column: 19
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 21,
+                          end: 24,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 21
+                            },
+                            end: {
+                              line: 1,
+                              column: 24
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 21,
+                            end: 22,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 21
+                              },
+                              end: {
+                                line: 1,
+                                column: 22
+                              }
+                            },
+                            name: 'y'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 23,
+                            end: 24,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 23
+                              },
+                              end: {
+                                line: 1,
+                                column: 24
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 26,
+                          end: 30,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 26
+                            },
+                            end: {
+                              line: 1,
+                              column: 30
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 26,
+                            end: 28,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 26
+                              },
+                              end: {
+                                line: 1,
+                                column: 28
+                              }
+                            },
+                            name: 'xx'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 29,
+                            end: 30,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 29
+                              },
+                              end: {
+                                line: 1,
+                                column: 30
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclarator',
+                          start: 32,
+                          end: 36,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 32
+                            },
+                            end: {
+                              line: 1,
+                              column: 36
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 32,
+                            end: 34,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 32
+                              },
+                              end: {
+                                line: 1,
+                                column: 34
+                              }
+                            },
+                            name: 'yy'
+                          },
+                          init: {
+                            type: 'Literal',
+                            start: 35,
+                            end: 36,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 35
+                              },
+                              end: {
+                                line: 1,
+                                column: 36
+                              }
+                            },
+                            value: 0,
+                            raw: '0'
+                          }
+                        }
+                      ],
+                      kind: 'var'
+                    },
+                    label: {
+                      type: 'Identifier',
+                      start: 0,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      name: 'LABEL_OUT'
+                    }
+                  },
+                  {
+                    type: 'ExpressionStatement',
+                    start: 46,
+                    end: 567,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 8
+                      },
+                      end: {
                         line: 23,
                         column: 13
-                    }
-                },
-                body: [{
-                        type: 'LabeledStatement',
-                        start: 0,
-                        end: 37,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 37
-                            }
-                        },
-                        body: {
-                            type: 'VariableDeclaration',
-                            start: 12,
-                            end: 37,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 12
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 37
-                                }
-                            },
-                            declarations: [{
-                                    type: 'VariableDeclarator',
-                                    start: 16,
-                                    end: 19,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 16
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 19
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 16,
-                                        end: 17,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 16
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 17
-                                            }
-                                        },
-                                        name: 'x'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 18,
-                                        end: 19,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 18
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 19
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 21,
-                                    end: 24,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 21
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 24
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 21,
-                                        end: 22,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 21
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 22
-                                            }
-                                        },
-                                        name: 'y'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 23,
-                                        end: 24,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 23
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 24
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 26,
-                                    end: 30,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 26
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 30
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 26,
-                                        end: 28,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 26
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 28
-                                            }
-                                        },
-                                        name: 'xx'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 29,
-                                        end: 30,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 29
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 30
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                },
-                                {
-                                    type: 'VariableDeclarator',
-                                    start: 32,
-                                    end: 36,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 32
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 36
-                                        }
-                                    },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 32,
-                                        end: 34,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 32
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 34
-                                            }
-                                        },
-                                        name: 'yy'
-                                    },
-                                    init: {
-                                        type: 'Literal',
-                                        start: 35,
-                                        end: 36,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 35
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 36
-                                            }
-                                        },
-                                        value: 0,
-                                        raw: '0'
-                                    }
-                                }
-                            ],
-                            kind: 'var'
-                        },
-                        label: {
-                            type: 'Identifier',
-                            start: 0,
-                            end: 9,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 9
-                                }
-                            },
-                            name: 'LABEL_OUT'
-                        }
+                      }
                     },
-                    {
-                        type: 'ExpressionStatement',
-                        start: 46,
-                        end: 607,
+                    expression: {
+                      type: 'CallExpression',
+                      start: 46,
+                      end: 566,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 8
+                        },
+                        end: {
+                          line: 23,
+                          column: 12
+                        }
+                      },
+                      callee: {
+                        type: 'FunctionExpression',
+                        start: 47,
+                        end: 563,
                         loc: {
+                          start: {
+                            line: 2,
+                            column: 9
+                          },
+                          end: {
+                            line: 23,
+                            column: 9
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 57,
+                          end: 563,
+                          loc: {
                             start: {
-                                line: 2,
-                                column: 8
+                              line: 2,
+                              column: 19
                             },
                             end: {
-                                line: 23,
-                                column: 13
+                              line: 23,
+                              column: 9
                             }
-                        },
-                        expression: {
-                            type: 'CallExpression',
-                            start: 46,
-                            end: 606,
-                            loc: {
+                          },
+                          body: [
+                            {
+                              type: 'LabeledStatement',
+                              start: 67,
+                              end: 453,
+                              loc: {
                                 start: {
-                                    line: 2,
-                                    column: 8
+                                  line: 3,
+                                  column: 8
                                 },
                                 end: {
-                                    line: 23,
-                                    column: 12
+                                  line: 16,
+                                  column: 19
                                 }
-                            },
-                            callee: {
-                                type: 'FunctionExpression',
-                                start: 47,
-                                end: 603,
+                              },
+                              body: {
+                                type: 'DoWhileStatement',
+                                start: 83,
+                                end: 453,
                                 loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 24
+                                  },
+                                  end: {
+                                    line: 16,
+                                    column: 19
+                                  }
+                                },
+                                body: {
+                                  type: 'BlockStatement',
+                                  start: 86,
+                                  end: 443,
+                                  loc: {
                                     start: {
-                                        line: 2,
-                                        column: 9
+                                      line: 3,
+                                      column: 27
                                     },
                                     end: {
-                                        line: 23,
-                                        column: 9
+                                      line: 16,
+                                      column: 9
                                     }
-                                },
-                                id: null,
-                                generator: false,
-                                expression: false,
-                                async: false,
-                                params: [],
-                                body: {
-                                    type: 'BlockStatement',
-                                    start: 57,
-                                    end: 603,
-                                    loc: {
+                                  },
+                                  body: [
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 100,
+                                      end: 115,
+                                      loc: {
                                         start: {
-                                            line: 2,
-                                            column: 19
+                                          line: 4,
+                                          column: 12
                                         },
                                         end: {
-                                            line: 23,
-                                            column: 9
+                                          line: 4,
+                                          column: 27
                                         }
+                                      },
+                                      body: {
+                                        type: 'ExpressionStatement',
+                                        start: 111,
+                                        end: 115,
+                                        loc: {
+                                          start: {
+                                            line: 4,
+                                            column: 23
+                                          },
+                                          end: {
+                                            line: 4,
+                                            column: 27
+                                          }
+                                        },
+                                        expression: {
+                                          type: 'UpdateExpression',
+                                          start: 111,
+                                          end: 114,
+                                          loc: {
+                                            start: {
+                                              line: 4,
+                                              column: 23
+                                            },
+                                            end: {
+                                              line: 4,
+                                              column: 26
+                                            }
+                                          },
+                                          operator: '++',
+                                          prefix: false,
+                                          argument: {
+                                            type: 'Identifier',
+                                            start: 111,
+                                            end: 112,
+                                            loc: {
+                                              start: {
+                                                line: 4,
+                                                column: 23
+                                              },
+                                              end: {
+                                                line: 4,
+                                                column: 24
+                                              }
+                                            },
+                                            name: 'x'
+                                          }
+                                        }
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 100,
+                                        end: 108,
+                                        loc: {
+                                          start: {
+                                            line: 4,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 4,
+                                            column: 20
+                                          }
+                                        },
+                                        name: 'LABEL_IN'
+                                      }
                                     },
-                                    body: [{
-                                            type: 'LabeledStatement',
-                                            start: 67,
-                                            end: 477,
-                                            loc: {
-                                                start: {
-                                                    line: 3,
-                                                    column: 8
-                                                },
-                                                end: {
-                                                    line: 16,
-                                                    column: 19
-                                                }
-                                            },
-                                            body: {
-                                                type: 'DoWhileStatement',
-                                                start: 83,
-                                                end: 477,
-                                                loc: {
-                                                    start: {
-                                                        line: 3,
-                                                        column: 24
-                                                    },
-                                                    end: {
-                                                        line: 16,
-                                                        column: 19
-                                                    }
-                                                },
-                                                body: {
-                                                    type: 'BlockStatement',
-                                                    start: 86,
-                                                    end: 467,
-                                                    loc: {
-                                                        start: {
-                                                            line: 3,
-                                                            column: 27
-                                                        },
-                                                        end: {
-                                                            line: 16,
-                                                            column: 9
-                                                        }
-                                                    },
-                                                    body: [{
-                                                            type: 'LabeledStatement',
-                                                            start: 100,
-                                                            end: 115,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 4,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 4,
-                                                                    column: 27
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'ExpressionStatement',
-                                                                start: 111,
-                                                                end: 115,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 4,
-                                                                        column: 23
-                                                                    },
-                                                                    end: {
-                                                                        line: 4,
-                                                                        column: 27
-                                                                    }
-                                                                },
-                                                                expression: {
-                                                                    type: 'UpdateExpression',
-                                                                    start: 111,
-                                                                    end: 114,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 4,
-                                                                            column: 23
-                                                                        },
-                                                                        end: {
-                                                                            line: 4,
-                                                                            column: 26
-                                                                        }
-                                                                    },
-                                                                    operator: '++',
-                                                                    prefix: false,
-                                                                    argument: {
-                                                                        type: 'Identifier',
-                                                                        start: 111,
-                                                                        end: 112,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 4,
-                                                                                column: 23
-                                                                            },
-                                                                            end: {
-                                                                                line: 4,
-                                                                                column: 24
-                                                                            }
-                                                                        },
-                                                                        name: 'x'
-                                                                    }
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 100,
-                                                                end: 108,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 4,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 4,
-                                                                        column: 20
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_IN'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'IfStatement',
-                                                            start: 128,
-                                                            end: 145,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 5,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 5,
-                                                                    column: 29
-                                                                }
-                                                            },
-                                                            test: {
-                                                                type: 'BinaryExpression',
-                                                                start: 131,
-                                                                end: 137,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 15
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 21
-                                                                    }
-                                                                },
-                                                                left: {
-                                                                    type: 'Identifier',
-                                                                    start: 131,
-                                                                    end: 132,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 15
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 16
-                                                                        }
-                                                                    },
-                                                                    name: 'x'
-                                                                },
-                                                                operator: '===',
-                                                                right: {
-                                                                    type: 'Literal',
-                                                                    start: 135,
-                                                                    end: 137,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 5,
-                                                                            column: 19
-                                                                        },
-                                                                        end: {
-                                                                            line: 5,
-                                                                            column: 21
-                                                                        }
-                                                                    },
-                                                                    value: 10,
-                                                                    raw: '10'
-                                                                }
-                                                            },
-                                                            consequent: {
-                                                                type: 'ReturnStatement',
-                                                                start: 138,
-                                                                end: 145,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 5,
-                                                                        column: 22
-                                                                    },
-                                                                    end: {
-                                                                        line: 5,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                argument: null
-                                                            },
-                                                            alternate: null
-                                                        },
-                                                        {
-                                                            type: 'LabeledStatement',
-                                                            start: 158,
-                                                            end: 365,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 6,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 11,
-                                                                    column: 24
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'DoWhileStatement',
-                                                                start: 178,
-                                                                end: 365,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 6,
-                                                                        column: 32
-                                                                    },
-                                                                    end: {
-                                                                        line: 11,
-                                                                        column: 24
-                                                                    }
-                                                                },
-                                                                body: {
-                                                                    type: 'BlockStatement',
-                                                                    start: 181,
-                                                                    end: 354,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 6,
-                                                                            column: 35
-                                                                        },
-                                                                        end: {
-                                                                            line: 11,
-                                                                            column: 13
-                                                                        }
-                                                                    },
-                                                                    body: [{
-                                                                            type: 'LabeledStatement',
-                                                                            start: 199,
-                                                                            end: 222,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 7,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 7,
-                                                                                    column: 39
-                                                                                }
-                                                                            },
-                                                                            body: {
-                                                                                type: 'ExpressionStatement',
-                                                                                start: 217,
-                                                                                end: 222,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 7,
-                                                                                        column: 34
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 7,
-                                                                                        column: 39
-                                                                                    }
-                                                                                },
-                                                                                expression: {
-                                                                                    type: 'UpdateExpression',
-                                                                                    start: 217,
-                                                                                    end: 221,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 7,
-                                                                                            column: 34
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 7,
-                                                                                            column: 38
-                                                                                        }
-                                                                                    },
-                                                                                    operator: '++',
-                                                                                    prefix: false,
-                                                                                    argument: {
-                                                                                        type: 'Identifier',
-                                                                                        start: 217,
-                                                                                        end: 219,
-                                                                                        loc: {
-                                                                                            start: {
-                                                                                                line: 7,
-                                                                                                column: 34
-                                                                                            },
-                                                                                            end: {
-                                                                                                line: 7,
-                                                                                                column: 36
-                                                                                            }
-                                                                                        },
-                                                                                        name: 'xx'
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 199,
-                                                                                end: 214,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 7,
-                                                                                        column: 16
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 7,
-                                                                                        column: 31
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_IN_NESTED'
-                                                                            }
-                                                                        },
-                                                                        {
-                                                                            type: 'IfStatement',
-                                                                            start: 239,
-                                                                            end: 257,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 8,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 8,
-                                                                                    column: 34
-                                                                                }
-                                                                            },
-                                                                            test: {
-                                                                                type: 'BinaryExpression',
-                                                                                start: 242,
-                                                                                end: 249,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 8,
-                                                                                        column: 19
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 8,
-                                                                                        column: 26
-                                                                                    }
-                                                                                },
-                                                                                left: {
-                                                                                    type: 'Identifier',
-                                                                                    start: 242,
-                                                                                    end: 244,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 8,
-                                                                                            column: 19
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 8,
-                                                                                            column: 21
-                                                                                        }
-                                                                                    },
-                                                                                    name: 'xx'
-                                                                                },
-                                                                                operator: '===',
-                                                                                right: {
-                                                                                    type: 'Literal',
-                                                                                    start: 247,
-                                                                                    end: 249,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 8,
-                                                                                            column: 24
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 8,
-                                                                                            column: 26
-                                                                                        }
-                                                                                    },
-                                                                                    value: 10,
-                                                                                    raw: '10'
-                                                                                }
-                                                                            },
-                                                                            consequent: {
-                                                                                type: 'ReturnStatement',
-                                                                                start: 250,
-                                                                                end: 257,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 8,
-                                                                                        column: 27
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 8,
-                                                                                        column: 34
-                                                                                    }
-                                                                                },
-                                                                                argument: null
-                                                                            },
-                                                                            alternate: null
-                                                                        },
-                                                                        {
-                                                                            type: 'BreakStatement',
-                                                                            start: 274,
-                                                                            end: 298,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 9,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 9,
-                                                                                    column: 40
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 280,
-                                                                                end: 297,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 9,
-                                                                                        column: 22
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 9,
-                                                                                        column: 39
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_NESTED_LOOP'
-                                                                            }
-                                                                        },
-                                                                        {
-                                                                            type: 'LabeledStatement',
-                                                                            start: 315,
-                                                                            end: 340,
-                                                                            loc: {
-                                                                                start: {
-                                                                                    line: 10,
-                                                                                    column: 16
-                                                                                },
-                                                                                end: {
-                                                                                    line: 10,
-                                                                                    column: 41
-                                                                                }
-                                                                            },
-                                                                            body: {
-                                                                                type: 'ExpressionStatement',
-                                                                                start: 335,
-                                                                                end: 340,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 10,
-                                                                                        column: 36
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 10,
-                                                                                        column: 41
-                                                                                    }
-                                                                                },
-                                                                                expression: {
-                                                                                    type: 'UpdateExpression',
-                                                                                    start: 335,
-                                                                                    end: 339,
-                                                                                    loc: {
-                                                                                        start: {
-                                                                                            line: 10,
-                                                                                            column: 36
-                                                                                        },
-                                                                                        end: {
-                                                                                            line: 10,
-                                                                                            column: 40
-                                                                                        }
-                                                                                    },
-                                                                                    operator: '++',
-                                                                                    prefix: false,
-                                                                                    argument: {
-                                                                                        type: 'Identifier',
-                                                                                        start: 335,
-                                                                                        end: 337,
-                                                                                        loc: {
-                                                                                            start: {
-                                                                                                line: 10,
-                                                                                                column: 36
-                                                                                            },
-                                                                                            end: {
-                                                                                                line: 10,
-                                                                                                column: 38
-                                                                                            }
-                                                                                        },
-                                                                                        name: 'yy'
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            label: {
-                                                                                type: 'Identifier',
-                                                                                start: 315,
-                                                                                end: 332,
-                                                                                loc: {
-                                                                                    start: {
-                                                                                        line: 10,
-                                                                                        column: 16
-                                                                                    },
-                                                                                    end: {
-                                                                                        line: 10,
-                                                                                        column: 33
-                                                                                    }
-                                                                                },
-                                                                                name: 'LABEL_IN_NESTED_2'
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                test: {
-                                                                    type: 'Literal',
-                                                                    start: 362,
-                                                                    end: 363,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 11,
-                                                                            column: 21
-                                                                        },
-                                                                        end: {
-                                                                            line: 11,
-                                                                            column: 22
-                                                                        }
-                                                                    },
-                                                                    value: 0,
-                                                                    raw: '0'
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 158,
-                                                                end: 175,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 6,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 6,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_NESTED_LOOP'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'LabeledStatement',
-                                                            start: 391,
-                                                            end: 408,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 13,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 13,
-                                                                    column: 29
-                                                                }
-                                                            },
-                                                            body: {
-                                                                type: 'ExpressionStatement',
-                                                                start: 404,
-                                                                end: 408,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 13,
-                                                                        column: 25
-                                                                    },
-                                                                    end: {
-                                                                        line: 13,
-                                                                        column: 29
-                                                                    }
-                                                                },
-                                                                expression: {
-                                                                    type: 'UpdateExpression',
-                                                                    start: 404,
-                                                                    end: 407,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 13,
-                                                                            column: 25
-                                                                        },
-                                                                        end: {
-                                                                            line: 13,
-                                                                            column: 28
-                                                                        }
-                                                                    },
-                                                                    operator: '++',
-                                                                    prefix: false,
-                                                                    argument: {
-                                                                        type: 'Identifier',
-                                                                        start: 404,
-                                                                        end: 405,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 13,
-                                                                                column: 25
-                                                                            },
-                                                                            end: {
-                                                                                line: 13,
-                                                                                column: 26
-                                                                            }
-                                                                        },
-                                                                        name: 'y'
-                                                                    }
-                                                                }
-                                                            },
-                                                            label: {
-                                                                type: 'Identifier',
-                                                                start: 391,
-                                                                end: 401,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 13,
-                                                                        column: 12
-                                                                    },
-                                                                    end: {
-                                                                        line: 13,
-                                                                        column: 22
-                                                                    }
-                                                                },
-                                                                name: 'LABEL_IN_2'
-                                                            }
-                                                        },
-                                                        {
-                                                            type: 'FunctionDeclaration',
-                                                            start: 434,
-                                                            end: 457,
-                                                            loc: {
-                                                                start: {
-                                                                    line: 15,
-                                                                    column: 12
-                                                                },
-                                                                end: {
-                                                                    line: 15,
-                                                                    column: 35
-                                                                }
-                                                            },
-                                                            id: {
-                                                                type: 'Identifier',
-                                                                start: 443,
-                                                                end: 453,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 15,
-                                                                        column: 21
-                                                                    },
-                                                                    end: {
-                                                                        line: 15,
-                                                                        column: 31
-                                                                    }
-                                                                },
-                                                                name: 'IN_DO_FUNC'
-                                                            },
-                                                            generator: false,
-                                                            expression: false,
-                                                            async: false,
-                                                            params: [],
-                                                            body: {
-                                                                type: 'BlockStatement',
-                                                                start: 455,
-                                                                end: 457,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 15,
-                                                                        column: 33
-                                                                    },
-                                                                    end: {
-                                                                        line: 15,
-                                                                        column: 35
-                                                                    }
-                                                                },
-                                                                body: []
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                test: {
-                                                    type: 'Literal',
-                                                    start: 474,
-                                                    end: 475,
-                                                    loc: {
-                                                        start: {
-                                                            line: 16,
-                                                            column: 16
-                                                        },
-                                                        end: {
-                                                            line: 16,
-                                                            column: 17
-                                                        }
-                                                    },
-                                                    value: 0,
-                                                    raw: '0'
-                                                }
-                                            },
-                                            label: {
-                                                type: 'Identifier',
-                                                start: 67,
-                                                end: 80,
-                                                loc: {
-                                                    start: {
-                                                        line: 3,
-                                                        column: 8
-                                                    },
-                                                    end: {
-                                                        line: 3,
-                                                        column: 21
-                                                    }
-                                                },
-                                                name: 'LABEL_DO_LOOP'
-                                            }
+                                    {
+                                      type: 'IfStatement',
+                                      start: 128,
+                                      end: 145,
+                                      loc: {
+                                        start: {
+                                          line: 5,
+                                          column: 12
                                         },
-                                        {
-                                            type: 'LabeledStatement',
-                                            start: 495,
-                                            end: 554,
-                                            loc: {
-                                                start: {
-                                                    line: 18,
-                                                    column: 8
-                                                },
-                                                end: {
-                                                    line: 20,
-                                                    column: 19
-                                                }
-                                            },
-                                            body: {
-                                                type: 'DoWhileStatement',
-                                                start: 516,
-                                                end: 554,
-                                                loc: {
-                                                    start: {
-                                                        line: 18,
-                                                        column: 29
-                                                    },
-                                                    end: {
-                                                        line: 20,
-                                                        column: 19
-                                                    }
-                                                },
-                                                body: {
-                                                    type: 'BlockStatement',
-                                                    start: 519,
-                                                    end: 544,
-                                                    loc: {
-                                                        start: {
-                                                            line: 18,
-                                                            column: 32
-                                                        },
-                                                        end: {
-                                                            line: 20,
-                                                            column: 9
-                                                        }
-                                                    },
-                                                    body: [{
-                                                        type: 'EmptyStatement',
-                                                        start: 533,
-                                                        end: 534,
-                                                        loc: {
-                                                            start: {
-                                                                line: 19,
-                                                                column: 12
-                                                            },
-                                                            end: {
-                                                                line: 19,
-                                                                column: 13
-                                                            }
-                                                        }
-                                                    }]
-                                                },
-                                                test: {
-                                                    type: 'Literal',
-                                                    start: 551,
-                                                    end: 552,
-                                                    loc: {
-                                                        start: {
-                                                            line: 20,
-                                                            column: 16
-                                                        },
-                                                        end: {
-                                                            line: 20,
-                                                            column: 17
-                                                        }
-                                                    },
-                                                    value: 0,
-                                                    raw: '0'
-                                                }
-                                            },
-                                            label: {
-                                                type: 'Identifier',
-                                                start: 495,
-                                                end: 513,
-                                                loc: {
-                                                    start: {
-                                                        line: 18,
-                                                        column: 8
-                                                    },
-                                                    end: {
-                                                        line: 18,
-                                                        column: 26
-                                                    }
-                                                },
-                                                name: 'LABEL_ANOTHER_LOOP'
-                                            }
-                                        },
-                                        {
-                                            type: 'FunctionDeclaration',
-                                            start: 572,
-                                            end: 593,
-                                            loc: {
-                                                start: {
-                                                    line: 22,
-                                                    column: 8
-                                                },
-                                                end: {
-                                                    line: 22,
-                                                    column: 29
-                                                }
-                                            },
-                                            id: {
-                                                type: 'Identifier',
-                                                start: 581,
-                                                end: 589,
-                                                loc: {
-                                                    start: {
-                                                        line: 22,
-                                                        column: 17
-                                                    },
-                                                    end: {
-                                                        line: 22,
-                                                        column: 25
-                                                    }
-                                                },
-                                                name: 'OUT_FUNC'
-                                            },
-                                            generator: false,
-                                            expression: false,
-                                            async: false,
-                                            params: [],
-                                            body: {
-                                                type: 'BlockStatement',
-                                                start: 591,
-                                                end: 593,
-                                                loc: {
-                                                    start: {
-                                                        line: 22,
-                                                        column: 27
-                                                    },
-                                                    end: {
-                                                        line: 22,
-                                                        column: 29
-                                                    }
-                                                },
-                                                body: []
-                                            }
+                                        end: {
+                                          line: 5,
+                                          column: 29
                                         }
-                                    ]
+                                      },
+                                      test: {
+                                        type: 'BinaryExpression',
+                                        start: 131,
+                                        end: 137,
+                                        loc: {
+                                          start: {
+                                            line: 5,
+                                            column: 15
+                                          },
+                                          end: {
+                                            line: 5,
+                                            column: 21
+                                          }
+                                        },
+                                        left: {
+                                          type: 'Identifier',
+                                          start: 131,
+                                          end: 132,
+                                          loc: {
+                                            start: {
+                                              line: 5,
+                                              column: 15
+                                            },
+                                            end: {
+                                              line: 5,
+                                              column: 16
+                                            }
+                                          },
+                                          name: 'x'
+                                        },
+                                        operator: '===',
+                                        right: {
+                                          type: 'Literal',
+                                          start: 135,
+                                          end: 137,
+                                          loc: {
+                                            start: {
+                                              line: 5,
+                                              column: 19
+                                            },
+                                            end: {
+                                              line: 5,
+                                              column: 21
+                                            }
+                                          },
+                                          value: 10,
+                                          raw: '10'
+                                        }
+                                      },
+                                      consequent: {
+                                        type: 'ReturnStatement',
+                                        start: 138,
+                                        end: 145,
+                                        loc: {
+                                          start: {
+                                            line: 5,
+                                            column: 22
+                                          },
+                                          end: {
+                                            line: 5,
+                                            column: 29
+                                          }
+                                        },
+                                        argument: null
+                                      },
+                                      alternate: null
+                                    },
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 158,
+                                      end: 365,
+                                      loc: {
+                                        start: {
+                                          line: 6,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 11,
+                                          column: 24
+                                        }
+                                      },
+                                      body: {
+                                        type: 'DoWhileStatement',
+                                        start: 178,
+                                        end: 365,
+                                        loc: {
+                                          start: {
+                                            line: 6,
+                                            column: 32
+                                          },
+                                          end: {
+                                            line: 11,
+                                            column: 24
+                                          }
+                                        },
+                                        body: {
+                                          type: 'BlockStatement',
+                                          start: 181,
+                                          end: 354,
+                                          loc: {
+                                            start: {
+                                              line: 6,
+                                              column: 35
+                                            },
+                                            end: {
+                                              line: 11,
+                                              column: 13
+                                            }
+                                          },
+                                          body: [
+                                            {
+                                              type: 'LabeledStatement',
+                                              start: 199,
+                                              end: 222,
+                                              loc: {
+                                                start: {
+                                                  line: 7,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 7,
+                                                  column: 39
+                                                }
+                                              },
+                                              body: {
+                                                type: 'ExpressionStatement',
+                                                start: 217,
+                                                end: 222,
+                                                loc: {
+                                                  start: {
+                                                    line: 7,
+                                                    column: 34
+                                                  },
+                                                  end: {
+                                                    line: 7,
+                                                    column: 39
+                                                  }
+                                                },
+                                                expression: {
+                                                  type: 'UpdateExpression',
+                                                  start: 217,
+                                                  end: 221,
+                                                  loc: {
+                                                    start: {
+                                                      line: 7,
+                                                      column: 34
+                                                    },
+                                                    end: {
+                                                      line: 7,
+                                                      column: 38
+                                                    }
+                                                  },
+                                                  operator: '++',
+                                                  prefix: false,
+                                                  argument: {
+                                                    type: 'Identifier',
+                                                    start: 217,
+                                                    end: 219,
+                                                    loc: {
+                                                      start: {
+                                                        line: 7,
+                                                        column: 34
+                                                      },
+                                                      end: {
+                                                        line: 7,
+                                                        column: 36
+                                                      }
+                                                    },
+                                                    name: 'xx'
+                                                  }
+                                                }
+                                              },
+                                              label: {
+                                                type: 'Identifier',
+                                                start: 199,
+                                                end: 214,
+                                                loc: {
+                                                  start: {
+                                                    line: 7,
+                                                    column: 16
+                                                  },
+                                                  end: {
+                                                    line: 7,
+                                                    column: 31
+                                                  }
+                                                },
+                                                name: 'LABEL_IN_NESTED'
+                                              }
+                                            },
+                                            {
+                                              type: 'IfStatement',
+                                              start: 239,
+                                              end: 257,
+                                              loc: {
+                                                start: {
+                                                  line: 8,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 8,
+                                                  column: 34
+                                                }
+                                              },
+                                              test: {
+                                                type: 'BinaryExpression',
+                                                start: 242,
+                                                end: 249,
+                                                loc: {
+                                                  start: {
+                                                    line: 8,
+                                                    column: 19
+                                                  },
+                                                  end: {
+                                                    line: 8,
+                                                    column: 26
+                                                  }
+                                                },
+                                                left: {
+                                                  type: 'Identifier',
+                                                  start: 242,
+                                                  end: 244,
+                                                  loc: {
+                                                    start: {
+                                                      line: 8,
+                                                      column: 19
+                                                    },
+                                                    end: {
+                                                      line: 8,
+                                                      column: 21
+                                                    }
+                                                  },
+                                                  name: 'xx'
+                                                },
+                                                operator: '===',
+                                                right: {
+                                                  type: 'Literal',
+                                                  start: 247,
+                                                  end: 249,
+                                                  loc: {
+                                                    start: {
+                                                      line: 8,
+                                                      column: 24
+                                                    },
+                                                    end: {
+                                                      line: 8,
+                                                      column: 26
+                                                    }
+                                                  },
+                                                  value: 10,
+                                                  raw: '10'
+                                                }
+                                              },
+                                              consequent: {
+                                                type: 'ReturnStatement',
+                                                start: 250,
+                                                end: 257,
+                                                loc: {
+                                                  start: {
+                                                    line: 8,
+                                                    column: 27
+                                                  },
+                                                  end: {
+                                                    line: 8,
+                                                    column: 34
+                                                  }
+                                                },
+                                                argument: null
+                                              },
+                                              alternate: null
+                                            },
+                                            {
+                                              type: 'BreakStatement',
+                                              start: 274,
+                                              end: 298,
+                                              loc: {
+                                                start: {
+                                                  line: 9,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 9,
+                                                  column: 40
+                                                }
+                                              },
+                                              label: {
+                                                type: 'Identifier',
+                                                start: 280,
+                                                end: 297,
+                                                loc: {
+                                                  start: {
+                                                    line: 9,
+                                                    column: 22
+                                                  },
+                                                  end: {
+                                                    line: 9,
+                                                    column: 39
+                                                  }
+                                                },
+                                                name: 'LABEL_NESTED_LOOP'
+                                              }
+                                            },
+                                            {
+                                              type: 'LabeledStatement',
+                                              start: 315,
+                                              end: 340,
+                                              loc: {
+                                                start: {
+                                                  line: 10,
+                                                  column: 16
+                                                },
+                                                end: {
+                                                  line: 10,
+                                                  column: 41
+                                                }
+                                              },
+                                              body: {
+                                                type: 'ExpressionStatement',
+                                                start: 335,
+                                                end: 340,
+                                                loc: {
+                                                  start: {
+                                                    line: 10,
+                                                    column: 36
+                                                  },
+                                                  end: {
+                                                    line: 10,
+                                                    column: 41
+                                                  }
+                                                },
+                                                expression: {
+                                                  type: 'UpdateExpression',
+                                                  start: 335,
+                                                  end: 339,
+                                                  loc: {
+                                                    start: {
+                                                      line: 10,
+                                                      column: 36
+                                                    },
+                                                    end: {
+                                                      line: 10,
+                                                      column: 40
+                                                    }
+                                                  },
+                                                  operator: '++',
+                                                  prefix: false,
+                                                  argument: {
+                                                    type: 'Identifier',
+                                                    start: 335,
+                                                    end: 337,
+                                                    loc: {
+                                                      start: {
+                                                        line: 10,
+                                                        column: 36
+                                                      },
+                                                      end: {
+                                                        line: 10,
+                                                        column: 38
+                                                      }
+                                                    },
+                                                    name: 'yy'
+                                                  }
+                                                }
+                                              },
+                                              label: {
+                                                type: 'Identifier',
+                                                start: 315,
+                                                end: 332,
+                                                loc: {
+                                                  start: {
+                                                    line: 10,
+                                                    column: 16
+                                                  },
+                                                  end: {
+                                                    line: 10,
+                                                    column: 33
+                                                  }
+                                                },
+                                                name: 'LABEL_IN_NESTED_2'
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        test: {
+                                          type: 'Literal',
+                                          start: 362,
+                                          end: 363,
+                                          loc: {
+                                            start: {
+                                              line: 11,
+                                              column: 21
+                                            },
+                                            end: {
+                                              line: 11,
+                                              column: 22
+                                            }
+                                          },
+                                          value: 0,
+                                          raw: '0'
+                                        }
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 158,
+                                        end: 175,
+                                        loc: {
+                                          start: {
+                                            line: 6,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 6,
+                                            column: 29
+                                          }
+                                        },
+                                        name: 'LABEL_NESTED_LOOP'
+                                      }
+                                    },
+                                    {
+                                      type: 'LabeledStatement',
+                                      start: 379,
+                                      end: 396,
+                                      loc: {
+                                        start: {
+                                          line: 13,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 13,
+                                          column: 29
+                                        }
+                                      },
+                                      body: {
+                                        type: 'ExpressionStatement',
+                                        start: 392,
+                                        end: 396,
+                                        loc: {
+                                          start: {
+                                            line: 13,
+                                            column: 25
+                                          },
+                                          end: {
+                                            line: 13,
+                                            column: 29
+                                          }
+                                        },
+                                        expression: {
+                                          type: 'UpdateExpression',
+                                          start: 392,
+                                          end: 395,
+                                          loc: {
+                                            start: {
+                                              line: 13,
+                                              column: 25
+                                            },
+                                            end: {
+                                              line: 13,
+                                              column: 28
+                                            }
+                                          },
+                                          operator: '++',
+                                          prefix: false,
+                                          argument: {
+                                            type: 'Identifier',
+                                            start: 392,
+                                            end: 393,
+                                            loc: {
+                                              start: {
+                                                line: 13,
+                                                column: 25
+                                              },
+                                              end: {
+                                                line: 13,
+                                                column: 26
+                                              }
+                                            },
+                                            name: 'y'
+                                          }
+                                        }
+                                      },
+                                      label: {
+                                        type: 'Identifier',
+                                        start: 379,
+                                        end: 389,
+                                        loc: {
+                                          start: {
+                                            line: 13,
+                                            column: 12
+                                          },
+                                          end: {
+                                            line: 13,
+                                            column: 22
+                                          }
+                                        },
+                                        name: 'LABEL_IN_2'
+                                      }
+                                    },
+                                    {
+                                      type: 'FunctionDeclaration',
+                                      start: 410,
+                                      end: 433,
+                                      loc: {
+                                        start: {
+                                          line: 15,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 15,
+                                          column: 35
+                                        }
+                                      },
+                                      id: {
+                                        type: 'Identifier',
+                                        start: 419,
+                                        end: 429,
+                                        loc: {
+                                          start: {
+                                            line: 15,
+                                            column: 21
+                                          },
+                                          end: {
+                                            line: 15,
+                                            column: 31
+                                          }
+                                        },
+                                        name: 'IN_DO_FUNC'
+                                      },
+                                      generator: false,
+                                      expression: false,
+                                      async: false,
+                                      params: [],
+                                      body: {
+                                        type: 'BlockStatement',
+                                        start: 431,
+                                        end: 433,
+                                        loc: {
+                                          start: {
+                                            line: 15,
+                                            column: 33
+                                          },
+                                          end: {
+                                            line: 15,
+                                            column: 35
+                                          }
+                                        },
+                                        body: []
+                                      }
+                                    }
+                                  ]
+                                },
+                                test: {
+                                  type: 'Literal',
+                                  start: 450,
+                                  end: 451,
+                                  loc: {
+                                    start: {
+                                      line: 16,
+                                      column: 16
+                                    },
+                                    end: {
+                                      line: 16,
+                                      column: 17
+                                    }
+                                  },
+                                  value: 0,
+                                  raw: '0'
                                 }
+                              },
+                              label: {
+                                type: 'Identifier',
+                                start: 67,
+                                end: 80,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 21
+                                  }
+                                },
+                                name: 'LABEL_DO_LOOP'
+                              }
                             },
-                            arguments: []
+                            {
+                              type: 'LabeledStatement',
+                              start: 463,
+                              end: 522,
+                              loc: {
+                                start: {
+                                  line: 18,
+                                  column: 8
+                                },
+                                end: {
+                                  line: 20,
+                                  column: 19
+                                }
+                              },
+                              body: {
+                                type: 'DoWhileStatement',
+                                start: 484,
+                                end: 522,
+                                loc: {
+                                  start: {
+                                    line: 18,
+                                    column: 29
+                                  },
+                                  end: {
+                                    line: 20,
+                                    column: 19
+                                  }
+                                },
+                                body: {
+                                  type: 'BlockStatement',
+                                  start: 487,
+                                  end: 512,
+                                  loc: {
+                                    start: {
+                                      line: 18,
+                                      column: 32
+                                    },
+                                    end: {
+                                      line: 20,
+                                      column: 9
+                                    }
+                                  },
+                                  body: [
+                                    {
+                                      type: 'EmptyStatement',
+                                      start: 501,
+                                      end: 502,
+                                      loc: {
+                                        start: {
+                                          line: 19,
+                                          column: 12
+                                        },
+                                        end: {
+                                          line: 19,
+                                          column: 13
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                test: {
+                                  type: 'Literal',
+                                  start: 519,
+                                  end: 520,
+                                  loc: {
+                                    start: {
+                                      line: 20,
+                                      column: 16
+                                    },
+                                    end: {
+                                      line: 20,
+                                      column: 17
+                                    }
+                                  },
+                                  value: 0,
+                                  raw: '0'
+                                }
+                              },
+                              label: {
+                                type: 'Identifier',
+                                start: 463,
+                                end: 481,
+                                loc: {
+                                  start: {
+                                    line: 18,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 18,
+                                    column: 26
+                                  }
+                                },
+                                name: 'LABEL_ANOTHER_LOOP'
+                              }
+                            },
+                            {
+                              type: 'FunctionDeclaration',
+                              start: 532,
+                              end: 553,
+                              loc: {
+                                start: {
+                                  line: 22,
+                                  column: 8
+                                },
+                                end: {
+                                  line: 22,
+                                  column: 29
+                                }
+                              },
+                              id: {
+                                type: 'Identifier',
+                                start: 541,
+                                end: 549,
+                                loc: {
+                                  start: {
+                                    line: 22,
+                                    column: 17
+                                  },
+                                  end: {
+                                    line: 22,
+                                    column: 25
+                                  }
+                                },
+                                name: 'OUT_FUNC'
+                              },
+                              generator: false,
+                              expression: false,
+                              async: false,
+                              params: [],
+                              body: {
+                                type: 'BlockStatement',
+                                start: 551,
+                                end: 553,
+                                loc: {
+                                  start: {
+                                    line: 22,
+                                    column: 27
+                                  },
+                                  end: {
+                                    line: 22,
+                                    column: 29
+                                  }
+                                },
+                                body: []
+                              }
+                            }
+                          ]
                         }
+                      },
+                      arguments: []
                     }
+                  }
                 ],
                 sourceType: 'script'
-            }
+              }
         });
         pass(`
   loop:
@@ -3238,222 +3261,231 @@ function OUT_FUNC(){}
                 start: 0,
                 end: 126,
                 loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 8,
-                        column: 5
-                    }
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 8,
+                    column: 5
+                  }
                 },
-                body: [{
+                body: [
+                  {
                     type: 'LabeledStatement',
                     start: 0,
                     end: 126,
                     loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 8,
-                            column: 5
-                        }
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 8,
+                        column: 5
+                      }
                     },
                     body: {
-                        type: 'WhileStatement',
-                        start: 10,
+                      type: 'WhileStatement',
+                      start: 10,
+                      end: 126,
+                      loc: {
+                        start: {
+                          line: 2,
+                          column: 4
+                        },
+                        end: {
+                          line: 8,
+                          column: 5
+                        }
+                      },
+                      test: {
+                        type: 'Literal',
+                        start: 17,
+                        end: 21,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 11
+                          },
+                          end: {
+                            line: 2,
+                            column: 15
+                          }
+                        },
+                        value: true,
+                        raw: 'true'
+                      },
+                      body: {
+                        type: 'BlockStatement',
+                        start: 23,
                         end: 126,
                         loc: {
-                            start: {
-                                line: 2,
-                                column: 4
-                            },
-                            end: {
-                                line: 8,
-                                column: 5
-                            }
+                          start: {
+                            line: 2,
+                            column: 17
+                          },
+                          end: {
+                            line: 8,
+                            column: 5
+                          }
                         },
-                        test: {
-                            type: 'Literal',
-                            start: 17,
-                            end: 21,
+                        body: [
+                          {
+                            type: 'SwitchStatement',
+                            start: 31,
+                            end: 120,
                             loc: {
+                              start: {
+                                line: 3,
+                                column: 6
+                              },
+                              end: {
+                                line: 7,
+                                column: 7
+                              }
+                            },
+                            discriminant: {
+                              type: 'Literal',
+                              start: 39,
+                              end: 40,
+                              loc: {
                                 start: {
-                                    line: 2,
-                                    column: 11
+                                  line: 3,
+                                  column: 14
                                 },
                                 end: {
-                                    line: 2,
-                                    column: 15
+                                  line: 3,
+                                  column: 15
                                 }
+                              },
+                              value: 1,
+                              raw: '1'
                             },
-                            value: true,
-                            raw: 'true'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 23,
-                            end: 126,
-                            loc: {
-                                start: {
-                                    line: 2,
-                                    column: 17
-                                },
-                                end: {
-                                    line: 8,
-                                    column: 5
-                                }
-                            },
-                            body: [{
-                                type: 'SwitchStatement',
-                                start: 31,
-                                end: 120,
+                            cases: [
+                              {
+                                type: 'SwitchCase',
+                                start: 52,
+                                end: 73,
                                 loc: {
+                                  start: {
+                                    line: 4,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 4,
+                                    column: 29
+                                  }
+                                },
+                                consequent: [
+                                  {
+                                    type: 'ContinueStatement',
+                                    start: 64,
+                                    end: 73,
+                                    loc: {
+                                      start: {
+                                        line: 4,
+                                        column: 20
+                                      },
+                                      end: {
+                                        line: 4,
+                                        column: 29
+                                      }
+                                    },
+                                    label: null
+                                  }
+                                ],
+                                test: {
+                                  type: 'Identifier',
+                                  start: 57,
+                                  end: 62,
+                                  loc: {
                                     start: {
-                                        line: 3,
-                                        column: 6
+                                      line: 4,
+                                      column: 13
                                     },
                                     end: {
-                                        line: 7,
-                                        column: 7
+                                      line: 4,
+                                      column: 18
                                     }
+                                  },
+                                  name: 'janie'
+                                }
+                              },
+                              {
+                                type: 'SwitchCase',
+                                start: 82,
+                                end: 112,
+                                loc: {
+                                  start: {
+                                    line: 5,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 6,
+                                    column: 21
+                                  }
                                 },
-                                discriminant: {
-                                    type: 'Literal',
-                                    start: 39,
-                                    end: 40,
+                                consequent: [
+                                  {
+                                    type: 'BreakStatement',
+                                    start: 101,
+                                    end: 112,
                                     loc: {
+                                      start: {
+                                        line: 6,
+                                        column: 10
+                                      },
+                                      end: {
+                                        line: 6,
+                                        column: 21
+                                      }
+                                    },
+                                    label: {
+                                      type: 'Identifier',
+                                      start: 107,
+                                      end: 111,
+                                      loc: {
                                         start: {
-                                            line: 3,
-                                            column: 14
+                                          line: 6,
+                                          column: 16
                                         },
                                         end: {
-                                            line: 3,
-                                            column: 15
+                                          line: 6,
+                                          column: 20
                                         }
-                                    },
-                                    value: 1,
-                                    raw: '1'
-                                },
-                                cases: [{
-                                        type: 'SwitchCase',
-                                        start: 52,
-                                        end: 73,
-                                        loc: {
-                                            start: {
-                                                line: 4,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 4,
-                                                column: 29
-                                            }
-                                        },
-                                        consequent: [{
-                                            type: 'ContinueStatement',
-                                            start: 64,
-                                            end: 73,
-                                            loc: {
-                                                start: {
-                                                    line: 4,
-                                                    column: 20
-                                                },
-                                                end: {
-                                                    line: 4,
-                                                    column: 29
-                                                }
-                                            },
-                                            label: null
-                                        }],
-                                        test: {
-                                            type: 'Identifier',
-                                            start: 57,
-                                            end: 62,
-                                            loc: {
-                                                start: {
-                                                    line: 4,
-                                                    column: 13
-                                                },
-                                                end: {
-                                                    line: 4,
-                                                    column: 18
-                                                }
-                                            },
-                                            name: 'janie'
-                                        }
-                                    },
-                                    {
-                                        type: 'SwitchCase',
-                                        start: 82,
-                                        end: 112,
-                                        loc: {
-                                            start: {
-                                                line: 5,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 6,
-                                                column: 21
-                                            }
-                                        },
-                                        consequent: [{
-                                            type: 'BreakStatement',
-                                            start: 101,
-                                            end: 112,
-                                            loc: {
-                                                start: {
-                                                    line: 6,
-                                                    column: 10
-                                                },
-                                                end: {
-                                                    line: 6,
-                                                    column: 21
-                                                }
-                                            },
-                                            label: {
-                                                type: 'Identifier',
-                                                start: 107,
-                                                end: 111,
-                                                loc: {
-                                                    start: {
-                                                        line: 6,
-                                                        column: 16
-                                                    },
-                                                    end: {
-                                                        line: 6,
-                                                        column: 20
-                                                    }
-                                                },
-                                                name: 'loop'
-                                            }
-                                        }],
-                                        test: null
+                                      },
+                                      name: 'loop'
                                     }
-                                ]
-                            }]
-                        }
+                                  }
+                                ],
+                                test: null
+                              }
+                            ]
+                          }
+                        ]
+                      }
                     },
                     label: {
-                        type: 'Identifier',
-                        start: 0,
-                        end: 4,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 4
-                            }
+                      type: 'Identifier',
+                      start: 0,
+                      end: 4,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
                         },
-                        name: 'loop'
+                        end: {
+                          line: 1,
+                          column: 4
+                        }
+                      },
+                      name: 'loop'
                     }
-                }],
+                  }
+                ],
                 sourceType: 'script'
-            }
+              }
         });
 
         pass(`while (true) { break }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
