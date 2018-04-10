@@ -134,8 +134,7 @@ function parseFunctionOrClassDeclarationName(parser: Parser, context: Context): 
     if (token !== Token.LeftParen) {
 
         id = parseBindingIdentifier(parser, context);
-    }
-    else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
+    } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
     return id as any;
 }
 

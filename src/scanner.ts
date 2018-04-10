@@ -34,7 +34,6 @@ import {
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-punctuatorss)
  * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
-
  *
  * @param parser Parser instance
  * @param context Context masks
@@ -767,7 +766,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
         report(parser, Errors.Unexpected);
     }
 
-    return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value) : parseInt(value), !!(state & NumericState.BigInt));
+    return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value) : parseInt(value, 10), !!(state & NumericState.BigInt));
 }
 
 /**
@@ -1036,7 +1035,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                 let column = parser.column + 1;
 
                 if (index < parser.source.length) {
-                    const next = parser.source.charCodeAt(index);
+                    let next = parser.source.charCodeAt(index);
 
                     if (next < Chars.Zero || next > Chars.Seven) {
 
@@ -1054,7 +1053,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                         column++;
 
                         if (index < parser.source.length) {
-                            const next = parser.source.charCodeAt(index);
+                            next = parser.source.charCodeAt(index);
                             if (next >= Chars.Zero && next <= Chars.Seven) {
                                 parser.lastValue = next;
                                 code = code * 8 + (next - Chars.Zero);
@@ -1432,11 +1431,11 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 }
 
 /**
-* Validate a regular expression flags, and return it.
-*
-* @param parser Parser instance
-* @param context Context masks
-*/
+ * Validate a regular expression flags, and return it.
+ *
+ * @param parser Parser instance
+ * @param context Context masks
+ */
 
 function validateFlags(parser: Parser, context: Context): string {
 

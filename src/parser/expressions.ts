@@ -1203,7 +1203,7 @@ function parseFunctionOrClassExpressionName(parser: Parser, context: Context, st
 
 function parseComputedPropertyName(parser: Parser, context: Context): ESTree.Expression {
     expect(parser, context, Token.LeftBracket);
-    //if (context & Context.Yield && parser.token & Token.IsYield) tolerant(parser, context, Errors.YieldInParameter);
+    // if (context & Context.Yield && parser.token & Token.IsYield) tolerant(parser, context, Errors.YieldInParameter);
     const key = parseAssignmentExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightBracket);
     return key;
