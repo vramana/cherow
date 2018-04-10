@@ -1,8 +1,8 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { parseModule, parseScript } from '../../src//cherow';
-import { Context } from '../../src/utilities';
-import * as ESTree from '../../src/estree';
+import { parseModule, parseScript } from '../../../src//cherow';
+import { Context } from '../../../src/utilities';
+import * as ESTree from '../../../src/estree';
 
 describe('Cherow - API', () => {
 
