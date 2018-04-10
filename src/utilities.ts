@@ -540,9 +540,6 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             reinterpret(parser, context, node.argument);
             break;
         case 'AssignmentExpression':
-            if (node.operator !== '=') {
-                return report(parser, Errors.Unexpected);
-            }
             node.type = 'AssignmentPattern';
             delete node.operator; // operator is not relevant for assignment pattern
             reinterpret(parser, context, node.left); // recursive descent
@@ -553,7 +550,7 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             // Fall through
 
         default:
-            report(parser, Errors.Unexpected);
+            report(parser, context & Context.InParameter ? Errors.NotBindable : Errors.NotAssignable, node.type);
     }
 };
 

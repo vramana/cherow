@@ -81,7 +81,13 @@ export const enum Errors {
     InvalidDestructuringTarget,
     UnexpectedSurrogate,
     InvalidUnicodeEscapeSequence,
-    TemplateOctalLiteral
+    TemplateOctalLiteral,
+    NotAssignable,
+    NotBindable,
+    ParamAfterRest,
+    LineBreakAfterArrow,
+    NoCatchOrFinally,
+    NewlineAfterThrow
 }
 
 export const ErrorMessages: {
@@ -168,6 +174,12 @@ export const ErrorMessages: {
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.InvalidUnicodeEscapeSequence]: 'Invalid Unicode escape sequence',
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
+    [Errors.NotAssignable]: '\'%0\' is not a valid assignment left hand side',
+    [Errors.NotBindable]: '\'%0\' can not be treated as an actual binding pattern',
+    [Errors.ParamAfterRest]: 'Rest parameter must be last formal parameter',
+    [Errors.LineBreakAfterArrow]: 'No line break is allowed after \'=>\'',
+    [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',
+    [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
 };
 
 /**

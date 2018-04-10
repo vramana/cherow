@@ -106,6 +106,8 @@ describe('Module - Import', () => {
           'import { foo as bar, ',
           'import { foo as switch } from "module";',
           'import { foo, , } from "module";',
+          `for (const y in [])
+          import v from './foo`
       ];
 
       for (const arg of failures) {

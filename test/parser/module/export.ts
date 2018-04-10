@@ -20,6 +20,8 @@ describe('Module - Export', () => {
             'class C { *method() { export default null; } }',
             `for (const x = 0; false;)
             export default null;`,
+            'switch(0) { case 1: export default null; default: }',
+            'switch(0) { case 1: export default null; default: }',
             'export }',
             'var foo, bar; export { foo bar };',
             'export { , };',

@@ -13,7 +13,7 @@ import {
 
 /**
  * Creates the parser object
- * 
+ *
  * @param source The source coode to parser
  * @param sourceFile Optional source file info to be attached in every node
  * @param delegate  Optional callback function to be invoked for each syntax node (as the node is constructed)
@@ -60,12 +60,12 @@ export function createParser(
         errorLocation: undefined,
         delegate: delegate,
         errors: [],
-    }
+    };
 }
 
 /**
  * Creating the parser
- * 
+ *
  * @param source The source coode to parser
  * @param options The parser options
  * @param context Context masks
@@ -102,7 +102,7 @@ export function parse(source: string, options: Options | void, context: Context)
         // Create a top-level comments array containing all comments
         if (!!options.comments) context |= Context.OptionsComments;
         // The flag to enable implied strict mode
-        if (options.impliedStrict) context |= Context.OptionsImpliedStrict
+        if (options.impliedStrict) context |= Context.OptionsImpliedStrict;
         // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
         if (typeof options.delegate === 'function') {
             context |= Context.OptionsDelegate;

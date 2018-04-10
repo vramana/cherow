@@ -70,7 +70,9 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
-    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
+    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) {
+        tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
+    }
     const id = parseFunctionOrClassDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {

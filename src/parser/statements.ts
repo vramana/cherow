@@ -286,7 +286,7 @@ export function parseTryStatement(parser: Parser, context: Context) {
     const block = parseBlockStatement(parser, context);
     const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
-    if (!handler && !finalizer) tolerant(parser, context, Errors.Unexpected);
+    if (!handler && !finalizer) tolerant(parser, context, Errors.NoCatchOrFinally);
     return finishNode(context, parser, pos, {
         type: 'TryStatement',
         block,
@@ -346,7 +346,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
 export function parseThrowStatement(parser: Parser, context: Context) {
     const pos = getLocation(parser);
     expect(parser, context, Token.ThrowKeyword);
-    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.Unexpected);
+    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.NewlineAfterThrow);
     const argument: ESTree.Expression = parseExpression(parser, context | Context.AllowIn);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -726,7 +726,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         type = 'ForOfStatement';
         if (init) {
             if (!(parser.flags & Flags.AllowDestructuring) || init.type === 'AssignmentExpression') {
-                tolerant(parser, context, Errors.Unexpected);
+                tolerant(parser, context, Errors.NotAssignable);
             }
             reinterpret(parser, context, init);
         } else init = variableStatement;
@@ -736,7 +736,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
     } else if (consume(parser, context, Token.InKeyword)) {
 
         if (init) {
-            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.Unexpected);
+            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.NotAssignable);
             reinterpret(parser, context, init);
         } else init = variableStatement;
 
