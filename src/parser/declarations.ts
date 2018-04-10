@@ -3,7 +3,7 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
-import { Parser } from './parser';
+import { Parser } from '../types';
 import {
     parseClassBodyAndElementList,
     parseLeftHandSideExpression

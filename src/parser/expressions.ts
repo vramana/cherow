@@ -4,8 +4,7 @@ import { Token, tokenDesc } from '../token';
 import { scanRegularExpression, consumeTemplateBrace } from '../scanner';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
-import { Parser } from './parser';
-import { Options, Location } from '../types';
+import { Options, Location, Parser } from '../types';
 import { parseStatementListItem } from './statements';
 import {
     expect,

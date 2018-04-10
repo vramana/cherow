@@ -1,8 +1,7 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { Errors, report } from '../errors';
-import { Location } from '../types';
-import { Parser } from './parser';
+import { Location, Parser } from '../types';
 import { parseBindingIdentifier } from './pattern';
 import {
     parseStatementListItem,

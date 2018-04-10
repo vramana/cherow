@@ -15,6 +15,11 @@ describe('Module - Export', () => {
             'var a; export { a, ;',
             'var a; export { a as };',
             'var a, b; export { a as , b};',
+            'class C { method() { export default null; } }',
+            '{ export default null; }',
+            'class C { *method() { export default null; } }',
+            `for (const x = 0; false;)
+            export default null;`,
             'export }',
             'var foo, bar; export { foo bar };',
             'export { , };',

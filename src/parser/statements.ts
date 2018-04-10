@@ -2,8 +2,7 @@ import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern } from './pattern';
-import { Location, ForStatementType } from '../types';
-import { Parser } from './parser';
+import { Location, ForStatementType, Parser } from '../types';
 import {
     parseFunctionDeclaration,
     parseVariableDeclarationList,

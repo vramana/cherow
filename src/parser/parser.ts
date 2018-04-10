@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import {  Options, Delegate, Location } from '../types';
+import {  Options, Delegate, Location, Parser } from '../types';
 import { parseStatementListItem } from './statements';
 import { parseModuleItemList } from './module';
 import {
@@ -11,87 +11,49 @@ import {
     parseDirective
 } from '../utilities';
 
-export class Parser {
-
-    // The source code to parse
-    public readonly source: string;
-
-    // Current position
-    public index: number;
-
-    // Current line position
-    public line: number;
-
-    // Current column position
-    public column: number;
-
-    // Start position  before current token
-    public startIndex: number;
-
-    // Start position column before current token
-    public startColumn: number;
-
-    // Start position line before current token
-    public startLine: number;
-
-    // End position after parsing after current token
-    public lastIndex: number;
-
-    // End column position after current token
-    public lastColumn: number;
-
-    // End line position after current token
-    public lastLine: number;
-
-    // Pending cover grammar errors
-    public pendingExpressionError: any;
-
-    // Mutable parser flags
-    public flags: Flags;
-
-    // Mutable parser flags
-    public sourceFile: string | void;
-
-    public labelSet: any;
-
-    public comments: any[];
-    public tokenValue: any;
-    public tokenRaw: string;
-    public lastValue: number;
-    public parsingContext: any;
-    public tokenRegExp: undefined;
-    public token: Token;
-    public errorLocation: Location | void;
-    public delegate: Delegate | void;
-    public errors: any[];
-
-    constructor(source: string, sourceFile: string | void, delegate: Delegate | void) {
-        this.source = source;
-        this.comments = [];
-        this.sourceFile = sourceFile;
-        this.flags = Flags.AllowDestructuring;
-        this.index = 0;
-        this.line = 1;
-        this.column = 0;
-        this.startIndex = 0;
-        this.startColumn = 0;
-        this.startLine = 1;
-        this.lastIndex = 0;
-        this.lastColumn = 0;
-        this.lastLine = 0;
-        this.tokenRaw = '';
-        this.lastValue = 0;
-        this.parsingContext = 0;
-        this.token = 0;
-        this.pendingExpressionError = undefined;
-        this.tokenRegExp = undefined;
-        this.tokenValue = undefined;
-        this.labelSet = undefined;
-        this.errorLocation = undefined;
-        this.delegate = delegate;
-        this.errors = [];
+/**
+ * Creates the parser object
+ * 
+ * @param source The source coode to parser
+ * @param sourceFile Optional source file info to be attached in every node
+ * @param delegate  Optional callback function to be invoked for each syntax node (as the node is constructed)
+ */
+  export function createParserObj(source: string, sourceFile: string | void, delegate: Delegate | void): Parser {
+    return  {
+        source: source,
+        comments: [],
+        sourceFile: sourceFile,
+        flags: Flags.AllowDestructuring,
+        index: 0,
+        line: 1,
+        column: 0,
+        startIndex: 0,
+        startColumn: 0,
+        startLine: 1,
+        lastIndex: 0,
+        lastColumn: 0,
+        lastLine: 0,
+        tokenRaw: '',
+        lastValue: 0,
+        parsingContext: 0,
+        token: 0,
+        pendingExpressionError: undefined,
+        tokenRegExp: undefined,
+        tokenValue: undefined,
+        labelSet: undefined,
+        errorLocation: undefined,
+        delegate: delegate,
+        errors: [],
     }
-}
+  }
+  
+  /**
+   * Creating the parser
+   * 
+   * @param source The source coode to parser
+   * @param options The parser options
+   * @param context Context masks
+   */
 
 export function parse(source: string, options: Options | void, context: Context): ESTree.Program {
 
@@ -113,15 +75,14 @@ export function parse(source: string, options: Options | void, context: Context)
         if (!!options.source) sourceFile = options.source;
         if (!!options.comments) context |= Context.OptionsComments;
 
-        if (options.impliedStrict) context |= Context.OptionsImpliedStrict;
-        // TODO! Refactor!
-        if (typeof options.delegate === 'function') {
-            delegate = options.delegate;
-            context |= Context.OptionsDelegate;
-        }
+        if (options.impliedStrict) context |= Context.OptionsImpliedStrict
+        
+        delegate = (typeof options.delegate === 'function') ? options.delegate : undefined;
+
+        if (delegate) context |= Context.OptionsDelegate;
     }
 
-    const parser = new Parser(source, sourceFile, delegate);
+    const parser = createParserObj(source, sourceFile, delegate);
 
     const body = context & Context.Module ? parseModuleItemList(parser, context) : parseStatementList(parser, context);
 
