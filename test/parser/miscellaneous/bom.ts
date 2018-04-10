@@ -24,7 +24,7 @@ describe('Miscellaneous - BOM', () => {
         }
 });
 
-pass(`BOM before an identifier`, Context.OptionsRaw, {
+   pass(`BOM before an identifier`, Context.OptionsRaw, {
     source: '\uFFEFfoo',
     expected: {
           body: [

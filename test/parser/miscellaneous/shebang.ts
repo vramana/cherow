@@ -20,7 +20,7 @@ describe('Miscellaneous - Shebang', () => {
         fail('\uFFEF#!/foo/bar/baz -abc\n# foo', Context.OptionsShebang, {
             source: '\uFFEF#!/foo/bar/baz -abc\n# foo',
         });
-    
+
     });
 
     describe('Pass', () => {
@@ -28,217 +28,217 @@ describe('Miscellaneous - Shebang', () => {
         pass('\uFFEF#!/foo/bar/baz -abc\u2028! foo', Context.OptionsShebang | Context.Strict | Context.Module | Context.OptionsRanges, {
             source: '\uFFEF#!/foo/bar/baz -abc\u2028! foo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "end": 26,
-                      "expression": {
-                        "argument": {
-                          "end": 26,
-                          "name": "foo",
-                         "start": 23,
-                          "type": "Identifier"
+                      end: 26,
+                      expression: {
+                        argument: {
+                          end: 26,
+                          name: 'foo',
+                         start: 23,
+                          type: 'Identifier'
                         },
-                        "end": 26,
-                        "operator": "!",
-                        "prefix": true,
-                        "start": 0,
-                        "type": "UnaryExpression",
+                        end: 26,
+                        operator: '!',
+                        prefix: true,
+                        start: 0,
+                        type: 'UnaryExpression',
                       },
-                      "start": 0,
-                      "type": "ExpressionStatement",
+                      start: 0,
+                      type: 'ExpressionStatement',
                     },
                   ],
-                  "end": 26,
-                  "sourceType": "module",
-                  "start": 0,
-                  "type": "Program"
+                  end: 26,
+                  sourceType: 'module',
+                  start: 0,
+                  type: 'Program'
                 }
         });
 
         pass('\uFFEF#!/foo/bar/baz -abc\n! foo', Context.OptionsShebang, {
             source: '\uFFEF#!/foo/bar/baz -abc\n! foo',
             expected: {
-        "body": [
+        body: [
          {
-            "expression": {
-              "argument": {
-                "name": "foo",
-                "type": "Identifier"
+            expression: {
+              argument: {
+                name: 'foo',
+                type: 'Identifier'
               },
-              "operator": "!",
-              "prefix": true,
-              "type": "UnaryExpression"
+              operator: '!',
+              prefix: true,
+              type: 'UnaryExpression'
             },
-            "type": "ExpressionStatement",
+            type: 'ExpressionStatement',
           },
         ],
-        "sourceType": "script",
-        "type": "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
         });
 
         pass('\uFFEF#!/foo/bar/baz -abc\n# foo', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\n#! foo',
             expected: {
-                  "body": [],
-                  "sourceType": "script",
-                  "type": "Program"
+                  body: [],
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
-    pass('#!/foo/bar/baz -abc\r\n', Context.OptionsShebang, {
+        pass('#!/foo/bar/baz -abc\r\n', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\r\n',
             expected: {
-                  "body": [],
-                  "sourceType": "script",
-                  "type": "Program"
+                  body: [],
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
         pass('\uFFEF#!/foo/bar/baz -abc\nfoo', Context.OptionsShebang, {
             source: '\uFFEF#!/foo/bar/baz -abc\nfoo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "name": "foo",
-                        "type": "Identifier"
+                      expression: {
+                        name: 'foo',
+                        type: 'Identifier'
                       },
-                      "type": "ExpressionStatement",
+                      type: 'ExpressionStatement',
                     },
                  ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
-        
+
         pass('\uFFEF#!/foo/bar/baz -abc\u2029! foo', Context.OptionsShebang, {
             source: '\uFFEF#!/foo/bar/baz -abc\u2029! foo',
             expected: {
-        "body": [
+        body: [
           {
-            "expression": {
-              "argument": {
-                "name": "foo",
-                "type": "Identifier"
+            expression: {
+              argument: {
+                name: 'foo',
+                type: 'Identifier'
               },
-              "operator": "!",
-              "prefix": true,
-              "type": "UnaryExpression"
+              operator: '!',
+              prefix: true,
+              type: 'UnaryExpression'
            },
-            "type": "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        "sourceType": "script",
-        "type": "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
         });
 
         pass('#!/foo/bar/baz -abc\rfoo', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\rfoo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "name": "foo",
-                        "type": "Identifier",
+                      expression: {
+                        name: 'foo',
+                        type: 'Identifier',
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass('#!/foo/bar/baz -abc\r\nfoo', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\r\nfoo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "name": "foo",
-                        "type": "Identifier",
+                      expression: {
+                        name: 'foo',
+                        type: 'Identifier',
                       },
-                      "type": "ExpressionStatement",
+                      type: 'ExpressionStatement',
                     }
                   ],
-                 "sourceType": "script",
-                  "type": "Program"
+                 sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass('#!/foo/bar/baz -abc\u2028', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\u2028',
             expected: {
-                  "body": [],
-                  "sourceType": "script",
-                  "type": "Program"
+                  body: [],
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass('#!/foo/bar/baz -abc\u2028! foo', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\u2028! foo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "argument": {
-                          "name": "foo",
-                          "type": "Identifier"
+                      expression: {
+                        argument: {
+                          name: 'foo',
+                          type: 'Identifier'
                         },
-                        "operator": "!",
-                        "prefix": true,
-                        "type": "UnaryExpression"
+                        operator: '!',
+                        prefix: true,
+                        type: 'UnaryExpression'
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass( '#!/foo/bar/baz -abc\n! foo', Context.OptionsShebang, {
             source:  '#!/foo/bar/baz -abc\n! foo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "argument": {
-                          "name": "foo",
-                          "type": "Identifier"
+                      expression: {
+                        argument: {
+                          name: 'foo',
+                          type: 'Identifier'
                         },
-                        "operator": "!",
-                        "prefix": true,
-                        "type": "UnaryExpression"
+                        operator: '!',
+                        prefix: true,
+                        type: 'UnaryExpression'
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass('#!/foo/bar/baz -abc\n! foo', Context.OptionsShebang, {
             source: '#!/foo/bar/baz -abc\n! foo',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "expression": {
-                        "argument": {
-                          "name": "foo",
-                          "type": "Identifier",
+                      expression: {
+                        argument: {
+                          name: 'foo',
+                          type: 'Identifier',
                        },
-                        "operator": "!",
-                        "prefix": true,
-                        "type": "UnaryExpression",
+                        operator: '!',
+                        prefix: true,
+                        type: 'UnaryExpression',
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
     });

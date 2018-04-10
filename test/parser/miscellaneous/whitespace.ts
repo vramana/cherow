@@ -10,7 +10,7 @@ describe('Miscellaneous - Whitespace', () => {
     });
 
     describe('Pass', () => {
-        
+
         pass(`spaces`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
             source: '        ',
             expected: {
@@ -31,8 +31,8 @@ describe('Miscellaneous - Whitespace', () => {
                   type: 'Program'
                 }
         });
-    
-      pass(`tabs`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+
+        pass(`tabs`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
             source: '\t\t\t\t\t\t\t\t',
             expected: {
                   body: [],
@@ -75,7 +75,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-  pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
         source: '\n\n\n\n\n\n\n\n',
         expected: {
               body: [],
@@ -96,7 +96,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-  pass(`keep locations correct after CRLF`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`keep locations correct after CRLF`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
       source: 'a\r\nb',
       expected: {
         type: 'Program',
@@ -179,7 +179,7 @@ describe('Miscellaneous - Whitespace', () => {
     }
   });
 
-  pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '\n\n\n\n\n\n\n\n',
     expected: {
           body: [],
@@ -200,7 +200,7 @@ describe('Miscellaneous - Whitespace', () => {
         }
 });
 
-pass(`single-line block on line of HTML close after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`single-line block on line of HTML close after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: `  \t /*\n*/ /* optional SingleLineDelimitedCommentSequence */  \n
     --> the comment extends to these characters\n `,
     expected: {
@@ -222,7 +222,7 @@ pass(`single-line block on line of HTML close after line feed`, Context.OptionsR
         }
 });
 
-pass(`multiple HTML single line comments with \n`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`multiple HTML single line comments with \n`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t <!-- foo bar\n <!-- baz \n <!--',
     expected: {
           body: [],
@@ -243,7 +243,7 @@ pass(`multiple HTML single line comments with \n`, Context.OptionsRaw | Context.
         }
 });
 
-pass(`single HTML close comment after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`single HTML close comment after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t \n--> ',
     expected: {
           body: [],
@@ -264,7 +264,7 @@ pass(`single HTML close comment after line feed`, Context.OptionsRaw | Context.O
         }
 });
 
-pass(`line of single HTML close comment after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`line of single HTML close comment after line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '   \t \r--> the comment extends to these characters\r  ',
     expected: {
           body: [],
@@ -285,7 +285,7 @@ pass(`line of single HTML close comment after line feed`, Context.OptionsRaw | C
         }
 });
 
-pass(`multiline comments with carriage return`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`multiline comments with carriage return`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t /* foo * /* bar \r */  ',
     expected: {
           body: [],
@@ -306,7 +306,7 @@ pass(`multiline comments with carriage return`, Context.OptionsRaw | Context.Opt
         }
 });
 
-pass(`multiline comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`multiline comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t /* foo * /* bar \n */  ',
     expected: {
           body: [],
@@ -327,7 +327,7 @@ pass(`multiline comments with line feed`, Context.OptionsRaw | Context.OptionsLo
         }
 });
 
-pass(`multiple single line comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`multiple single line comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t // foo bar${lt} // baz \n // ',
     expected: {
           body: [],
@@ -348,7 +348,7 @@ pass(`multiple single line comments with line feed`, Context.OptionsRaw | Contex
         }
 });
 
-pass(`multiple multiline comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`multiple multiline comments with line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '  \t /* foo bar${lt} *//* baz*/ \n /**/',
     expected: {
           body: [],
@@ -369,7 +369,7 @@ pass(`multiple multiline comments with line feed`, Context.OptionsRaw | Context.
         }
 });
 
-pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`line feed`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '\r\r\r\r\r\r\r\r',
     expected: {
           body: [],
@@ -445,7 +445,7 @@ pass(`var source = '{0\x0A1\x0D2\u20283\u20294}';`, Context.OptionsRaw, {
     }
 });*/
 
-pass(`line separators`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`line separators`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '\u2028\u2028\u2028\u2028\u2028\u2028\u2028\u2028',
     expected: {
           body: [],
@@ -466,7 +466,7 @@ pass(`line separators`, Context.OptionsRaw | Context.OptionsLoc | Context.Option
         }
 });
 
-pass(`paragraph separators`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+    pass(`paragraph separators`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '\u2029\u2029\u2029\u2029\u2029\u2029\u2029\u2029',
     expected: {
           body: [],

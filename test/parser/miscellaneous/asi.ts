@@ -6,7 +6,7 @@ import { parse } from '../../../src/parser/parser';
 describe('Miscellaneous - ASI', () => {
 
     describe('Failures', () => {
-   
+
     // Added this tests so we can check for both 'sloppy mode' and 'strict mode' and 'module code. It's
     // not needed, just did it to make sure, because Test262 was complaining we didn't fail on this
     const invalidSyntax = [
@@ -22,7 +22,7 @@ describe('Miscellaneous - ASI', () => {
       else c=d`,
       `{} * 1`,
       `for(
-    
+
         ;) {
           break;
         }`,
@@ -40,7 +40,7 @@ describe('Miscellaneous - ASI', () => {
       }`,
         `do
         while (false)`,
-        `do {}; 
+        `do {};
         while (false)`,
         `
         var x=0, y=0;
@@ -67,7 +67,7 @@ describe('Miscellaneous - ASI', () => {
         });
     });
     }
-      fail(`Variable1 \n ++ \n ++ \n Variable2 construction`, Context.Empty, {
+    fail(`Variable1 \n ++ \n ++ \n Variable2 construction`, Context.Empty, {
         source: `var x=0, y=0;
         var z=
         x
@@ -76,7 +76,7 @@ describe('Miscellaneous - ASI', () => {
         y`,
     });
 
-      fail(`for header is (\n false \n)`, Context.Empty, {
+    fail(`for header is (\n false \n)`, Context.Empty, {
       source: `for(
         false
     ) {
@@ -84,28 +84,28 @@ describe('Miscellaneous - ASI', () => {
     }`
     });
 
-      fail(`for header is (\n semicolon false)`, Context.Empty, {
+    fail(`for header is (\n semicolon false)`, Context.Empty, {
       source: `for(
         ;false) {
           break;
         }`,
     });
 
-      fail(`for(false;false;;false) { break; }`, Context.Empty, {
+    fail(`for(false;false;;false) { break; }`, Context.Empty, {
             source: `for(false;false;;false) {
                 break;
               }`,
         });
 
-      fail(`\n while(false)`, Context.Empty, {
+    fail(`\n while(false)`, Context.Empty, {
             source: `\n while(false)`,
         });
 
-      fail(`invalid Do-While Statement ASI`, Context.Empty, {
+    fail(`invalid Do-While Statement ASI`, Context.Empty, {
         source: `do {}; \n while(false)`,
       });
 
-      fail(`for header is (false \n false \n)`, Context.Empty, {
+    fail(`for header is (false \n false \n)`, Context.Empty, {
         source: `for(false
           false
       ) {
@@ -113,7 +113,7 @@ describe('Miscellaneous - ASI', () => {
       }`,
       });
 
-      fail(`var a=1,b=2,c=3,d;
+    fail(`var a=1,b=2,c=3,d;
         if(a>b)
         else c=d`, Context.Empty, {
             source: `var a=1,b=2,c=3,d;
@@ -121,61 +121,61 @@ describe('Miscellaneous - ASI', () => {
             else c=d`,
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('{} * 1', Context.Empty, {
+    fail('{} * 1', Context.Empty, {
             source: '{} * 1',
         });
 
-      fail('({};) * 1', Context.Empty, {
+    fail('({};) * 1', Context.Empty, {
             source: '({};) * 1',
         });
 
-      fail(`{}
+    fail(`{}
         * 1`, Context.Empty, {
             source: `{}
             * 1`,
         });
 
-      fail('{1 2} 3', Context.Empty, {
+    fail('{1 2} 3', Context.Empty, {
             source: '{1 2} 3',
         });
 
-      fail('if (false) x = 1 else x = -1', Context.Empty, {
+    fail('if (false) x = 1 else x = -1', Context.Empty, {
             source: 'if (false) x = 1 else x = -1',
         });
 
-      fail(`try {
+    fail(`try {
             throw
             1;
           } catch(e) {
@@ -187,7 +187,7 @@ describe('Miscellaneous - ASI', () => {
               }`,
         });
 
-      fail(`var x = 0;
+    fail(`var x = 0;
         x
         ++;`, Context.Empty, {
             source: `var x = 0;
@@ -195,7 +195,7 @@ describe('Miscellaneous - ASI', () => {
             ++;`,
         });
 
-      fail(`var x = 1;
+    fail(`var x = 1;
         x
         --;`, Context.Empty, {
             source: `var x = 1;
@@ -203,7 +203,7 @@ describe('Miscellaneous - ASI', () => {
             --;`,
         });
 
-      fail(`for(;
+    fail(`for(;
         ) {
           break;
         }`, Context.Empty, {
@@ -213,7 +213,7 @@ describe('Miscellaneous - ASI', () => {
         }`,
         });
 
-      fail(`for(
+    fail(`for(
             false
         ;) {
           break;
@@ -225,7 +225,7 @@ describe('Miscellaneous - ASI', () => {
             }`,
         });
 
-      fail(`for(
+    fail(`for(
             ;
         ) {
           break;
@@ -237,7 +237,7 @@ describe('Miscellaneous - ASI', () => {
             }`,
         });
 
-      fail(`for(
+    fail(`for(
 
         ) {
           break;
@@ -249,7 +249,7 @@ describe('Miscellaneous - ASI', () => {
             }`,
         });
 
-      fail(`for(
+    fail(`for(
             false
         ) {
           break;
@@ -261,7 +261,7 @@ describe('Miscellaneous - ASI', () => {
             }`,
         });
 
-      fail(`for(false
+    fail(`for(false
             false
         ) {
           break;
@@ -273,7 +273,7 @@ describe('Miscellaneous - ASI', () => {
             }`,
         });
 
-      fail(`for(false;false;;false) {
+    fail(`for(false;false;;false) {
             break;
           }`, Context.Empty, {
             source: `for(false;false;;false) {
@@ -281,13 +281,13 @@ describe('Miscellaneous - ASI', () => {
               }`,
         });
 
-      fail(`do
+    fail(`do
         while (false)`, Context.Empty, {
             source: `do
             while (false)`,
         });
 
-      fail(`do
+    fail(`do
 
         while (false)`, Context.Empty, {
             source: `do
@@ -295,7 +295,7 @@ describe('Miscellaneous - ASI', () => {
             while (false)`,
         });
 
-      fail(`do {};
+    fail(`do {};
         while (false)`, Context.Empty, {
             source: `do {};
             while (false)`,

@@ -8,184 +8,184 @@ describe('Cherow - API', () => {
 
 it('should parse module code', () => {
     assert.match(parseModule('foo'), {
-          "body": [
+          body: [
             {
-              "expression": {
-                "name": "foo",
-                "type": "Identifier"
+              expression: {
+                name: 'foo',
+                type: 'Identifier'
               },
-              "type": "ExpressionStatement"
+              type: 'ExpressionStatement'
             },
           ],
-          "sourceType": "module",
-          "type": "Program"
+          sourceType: 'module',
+          type: 'Program'
         });
 });
 
 it('should parse with rawIdentifier option', () => {
     assert.match(parseModule('foo', { rawIdentifier: true }) as any, {
-          "body": [
+          body: [
             {
-              "expression": {
-                "name": "foo",
-                "type": "Identifier",
-                "raw": "foo"
+              expression: {
+                name: 'foo',
+                type: 'Identifier',
+                raw: 'foo'
               },
-              "type": "ExpressionStatement"
+              type: 'ExpressionStatement'
             },
           ],
-          "sourceType": "module",
-          "type": "Program"
+          sourceType: 'module',
+          type: 'Program'
         });
 });
 
 it('should parse with raw option', () => {
   assert.match(parseModule('1', { raw: true }) as any, {
-      "body": [
+      body: [
         {
-          "expression": {
-            "raw": "1",
-            "type": "Literal",
-            "value": 1,
+          expression: {
+            raw: '1',
+            type: 'Literal',
+            value: 1,
           },
-          "type": "ExpressionStatement"
+          type: 'ExpressionStatement'
         },
       ],
-      "sourceType": "module",
-      "type": "Program"
+      sourceType: 'module',
+      type: 'Program'
     });
 });
 
 it('should parse with globalReturn option', () => {
-  assert.match(parseModule('return', { globalReturn: true }) as any, 
+  assert.match(parseModule('return', { globalReturn: true }) as any,
   {
-    "body": [
+    body: [
       {
-        "argument": null,
-        "type": "ReturnStatement",
+        argument: null,
+        type: 'ReturnStatement',
       },
     ],
-    "sourceType": "module",
-    "type": "Program"
+    sourceType: 'module',
+    type: 'Program'
   });
 });
 
 it('should parse with source option', () => {
-  assert.match(parseModule('1', { loc: true, source: 'icefapper' }) as any, 
+  assert.match(parseModule('1', { loc: true, source: 'icefapper' }) as any,
   {
-      "body": [
+      body: [
         {
-          "expression": {
-            "loc": {
-             "end": {
-                "column": 1,
-                "line": 1,
+          expression: {
+            loc: {
+             end: {
+                column: 1,
+                line: 1,
               },
-              "source": "icefapper",
-             "start": {
-                "column": 0,
-                "line": 1,
+              source: 'icefapper',
+             start: {
+                column: 0,
+                line: 1,
               }
             },
-            "type": "Literal",
-            "value": 1,
+            type: 'Literal',
+            value: 1,
           },
-          "loc": {
-            "end": {
-              "column": 1,
-              "line": 1,
+          loc: {
+            end: {
+              column: 1,
+              line: 1,
             },
-            "source": "icefapper",
-            "start": {
-              "column": 0,
-              "line": 1,
+            source: 'icefapper',
+            start: {
+              column: 0,
+              line: 1,
             }
          },
-          "type": "ExpressionStatement",
+          type: 'ExpressionStatement',
        },
       ],
-      "loc": {
-        "end": {
-          "column": 1,
-          "line": 1,
+      loc: {
+        end: {
+          column: 1,
+          line: 1,
         },
-        "source": "icefapper",
-        "start": {
-          "column": 0,
-          "line": 1
+        source: 'icefapper',
+        start: {
+          column: 0,
+          line: 1
         }
      },
-      "sourceType": "module",
-      "type": "Program"
+      sourceType: 'module',
+      type: 'Program'
     });
 });
 
 it('should parse with loc option', () => {
-  assert.match(parseModule('1', { loc: true }) as any, 
+  assert.match(parseModule('1', { loc: true }) as any,
   {
-      "body": [
+      body: [
         {
-          "expression": {
-            "loc": {
-              "end": {
-                "column": 1,
-                "line": 1,
+          expression: {
+            loc: {
+              end: {
+                column: 1,
+                line: 1,
              },
-              "start": {
-                "column": 0,
-                "line": 1,
+              start: {
+                column: 0,
+                line: 1,
               }
            },
-            "type": "Literal",
-            "value": 1,
+            type: 'Literal',
+            value: 1,
           },
-          "loc": {
-            "end": {
-              "column": 1,
-              "line": 1,
+          loc: {
+            end: {
+              column: 1,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             },
           },
-          "type": "ExpressionStatement"
+          type: 'ExpressionStatement'
         },
       ],
-      "loc": {
-        "end": {
-          "column": 1,
-          "line": 1,
+      loc: {
+        end: {
+          column: 1,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1
+        start: {
+          column: 0,
+          line: 1
         },
       },
-      "sourceType": "module",
-      "type": "Program"
+      sourceType: 'module',
+      type: 'Program'
     });
 });
 
 it('should parse with ranges option', () => {
   assert.match(parseModule('1', { ranges: true }) as any, {
-      "body": [
+      body: [
        {
-          "end": 1,
-          "expression": {
-            "end": 1,
-            "start": 0,
-            "type": "Literal",
-            "value": 1,
+          end: 1,
+          expression: {
+            end: 1,
+            start: 0,
+            type: 'Literal',
+            value: 1,
           },
-          "start": 0,
-          "type": "ExpressionStatement",
+          start: 0,
+          type: 'ExpressionStatement',
         },
       ],
-      "end": 1,
-      "sourceType": "module",
-      "start": 0,
-      "type": "Program",
+      end: 1,
+      sourceType: 'module',
+      start: 0,
+      type: 'Program',
     });
 });
 

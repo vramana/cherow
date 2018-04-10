@@ -26,7 +26,7 @@ describe('Miscellaneous - Identifiers', () => {
       fail('var typeof = 123;', Context.Empty, {
         source: 'var typeof = 123;',
       });
-            
+
       fail('export var await;', Context.Strict | Context.Module, {
           source: 'export var await;',
           line: 1,

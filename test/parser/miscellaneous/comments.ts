@@ -14,12 +14,12 @@ describe('Miscellaneous - Comments', () => {
             x*/`,
     });
 
-    fail(`/* 
+    fail(`/*
     var
     /* x */
     = 1;
     */`, Context.Empty, {
-        source: `/* 
+        source: `/*
         var
         /* x */
         = 1;

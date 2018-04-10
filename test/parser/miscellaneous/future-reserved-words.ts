@@ -6,7 +6,7 @@ import { parse } from '../../../src/parser/parser';
 describe('Miscellaneous - Future reserved words', () => {
 
     describe('Failure', () => {
-        
+
         const invalidStrictSyntax = [
             'var package = 1;',
             'var private = 1;',
@@ -39,7 +39,7 @@ describe('Miscellaneous - Future reserved words', () => {
             'var super = 1;',
             'var class = 1;',
             'var class = 1;',
-        
+
         ];
 
         for (const arg of invalidSyntax) {

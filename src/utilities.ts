@@ -797,7 +797,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
-    
+
     report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 

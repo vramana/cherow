@@ -84,7 +84,7 @@ describe('Expressions - Rest', () => {
         source: '[a, ...(b = c)] = 0',
       });
 
-      fail('function f(a, ...b, c) {}', Context.Empty, {
+    fail('function f(a, ...b, c) {}', Context.Empty, {
         source: 'function f(a, ...b, c) {}',
       });
   });
@@ -121,7 +121,7 @@ describe('Expressions - Rest', () => {
               });
           });
       }
-    
+
       pass('function f(...b) {};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'function f(...b) {};',
           expected: {

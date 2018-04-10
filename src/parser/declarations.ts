@@ -68,10 +68,10 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
         if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
             tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
         }
-    
+
         isGenerator = ModifierState.Generator;
     }
-    
+
     const id = parseFunctionDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -98,7 +98,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     const pos = getLocation(parser);
     expect(parser, context, Token.AsyncKeyword);
     expect(parser, context, Token.FunctionKeyword);
-    let isAwait = ModifierState.Await;
+    const isAwait = ModifierState.Await;
     let isGenerator = ModifierState.None;
     if (consume(parser, context, Token.Multiply)) {
         if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
@@ -140,7 +140,7 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
     if (token !== Token.LeftParen) {
         id = parseBindingIdentifier(parser, context);
     } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
-    return id as any;
+    return id as ESTree.Identifier;
 }
 
 /**
