@@ -315,7 +315,7 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
  * @param context Context masks
  */
 export function scanPrivateName(parser: Parser, context: Context): Token {
-    if ( /*!(context & Context.InClass) || */ !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
+    if (!(context & Context.InClass) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
     if (context & Context.Module) report(parser, Errors.Unexpected);
@@ -797,7 +797,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
-
+    
     report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 

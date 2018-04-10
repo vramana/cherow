@@ -8,7 +8,6 @@ import {
     parseClassBodyAndElementList,
     parseLeftHandSideExpression
 } from './expressions';
-
 import {
     Flags,
     hasBit,
@@ -37,24 +36,19 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
     const { token } = parser;
-    let id: ESTree.Identifier | null = null;
-    if (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) {
-        id = parseFunctionOrClassDeclarationName(parser, context | Context.Strict);
-        // Class statements must have a bound name
-    } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
+    const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier)) ? null : parseBindingIdentifier(parser, context | Context.Strict);
     let state = ObjectState.None;
     let superClass: ESTree.Expression | null = null;
-
     if (consume(parser, context, Token.ExtendsKeyword)) {
-            superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
-            state |= ObjectState.Heritage;
-        }
+        superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
+        state |= ObjectState.Heritage;
+    }
 
     return finishNode(context, parser, pos, {
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier  | Context.Strict, state)
+        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state)
     });
 }
 
@@ -69,10 +63,15 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
 export function parseFunctionDeclaration(parser: Parser, context: Context): ESTree.FunctionDeclaration {
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
-    const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
-    if (!(context & Context.InFunctionBody) && isGenerator & ModifierState.Generator && context & Context.AllowSingleStatement) {
-        tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
+    let isGenerator = ModifierState.None;
+    if (consume(parser, context, Token.Multiply)) {
+        if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
+            tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
+        }
+    
+        isGenerator = ModifierState.Generator;
     }
+    
     const id = parseFunctionOrClassDeclarationName(parser, context);
     const { params,  body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -99,9 +98,17 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     const pos = getLocation(parser);
     expect(parser, context, Token.AsyncKeyword);
     expect(parser, context, Token.FunctionKeyword);
-    const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
+    let isAwait = ModifierState.Await;
+    let isGenerator = ModifierState.None;
+    if (consume(parser, context, Token.Multiply)) {
+        if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
+            tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
+        }
+    
+        isGenerator = ModifierState.Generator;
+    }
     const id = parseFunctionOrClassDeclarationName(parser, context);
-    const { params, body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.RequireIdentifier), isGenerator | ModifierState.Await, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.RequireIdentifier), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
@@ -132,7 +139,6 @@ function parseFunctionOrClassDeclarationName(parser: Parser, context: Context): 
         parser.flags |= Flags.StrictEvalArguments;
     }
     if (token !== Token.LeftParen) {
-
         id = parseBindingIdentifier(parser, context);
     } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
     return id as any;
