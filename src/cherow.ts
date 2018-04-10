@@ -30,3 +30,19 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
 }
 
 export const version = '__VERSION__';
+
+export { ESTree };
+export * from './parser/declarations';
+export * from './parser/expressions';
+export * from './parser/module';
+export * from './parser/parser';
+export * from './parser/pattern';
+export * from './parser/statements';
+export * from './chars';
+export * from './comments';
+export * from './errors';
+export * from './scanner';
+export * from './token';
+export * from './types';
+export * from './unicode';
+export * from './utilities';
