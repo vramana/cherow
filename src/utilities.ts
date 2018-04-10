@@ -270,9 +270,9 @@ export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
  * @param t Token
  * @param Err Errors
  */
-export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.Unexpected): void {
+export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): void {
     if (parser.token !== t) {
-        return report(parser, err);
+        return report(parser, err, tokenDesc(parser.token));
     }
     nextToken(parser, context);
 }
@@ -316,7 +316,7 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
  */
 export function scanPrivateName(parser: Parser, context: Context): Token {
     if ( /*!(context & Context.InClass) || */ !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
-        report(parser, Errors.Unexpected);
+        report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
     if (context & Context.Module) report(parser, Errors.Unexpected);
     return Token.Hash;
@@ -550,7 +550,7 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             // Fall through
 
         default:
-            report(parser, context & Context.InParameter ? Errors.NotBindable : Errors.NotAssignable, node.type);
+            report(parser, context & Context.InParameter ? Errors.NotBindable : Errors.InvalidDestructuringTarget, node.type);
     }
 };
 
@@ -797,9 +797,8 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
-    // tslint:disable-next-line:no-console
-    console.log(tokenDesc(parser.token));
-    report(parser, Errors.Unexpected);
+
+    report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 
 // https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive

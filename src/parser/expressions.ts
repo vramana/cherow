@@ -154,7 +154,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
         if (context & Context.Strict && isEvalOrArguments((expr as ESTree.Identifier).name)) {
             tolerant(parser, context, Errors.StrictLHSAssignment);
         } else if (consume(parser, context, Token.Assign)) {
-            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.NotAssignable);
+            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.InvalidDestructuringTarget);
             // Only re-interpret if not inside a formal parameter list
             if (!(context & Context.InParameter)) reinterpret(parser, context, expr);
             if (parser.token & Token.IsAwait) {

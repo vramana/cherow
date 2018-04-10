@@ -726,7 +726,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         type = 'ForOfStatement';
         if (init) {
             if (!(parser.flags & Flags.AllowDestructuring) || init.type === 'AssignmentExpression') {
-                tolerant(parser, context, Errors.NotAssignable);
+                tolerant(parser, context, Errors.InvalidDestructuringTarget);
             }
             reinterpret(parser, context, init);
         } else init = variableStatement;
@@ -736,7 +736,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
     } else if (consume(parser, context, Token.InKeyword)) {
 
         if (init) {
-            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.NotAssignable);
+            if (!(parser.flags & Flags.AllowDestructuring)) tolerant(parser, context, Errors.InvalidDestructuringTarget);
             reinterpret(parser, context, init);
         } else init = variableStatement;
 
