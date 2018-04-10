@@ -797,6 +797,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
+    // tslint:disable-next-line:no-console
     console.log(tokenDesc(parser.token));
     report(parser, Errors.Unexpected);
 }

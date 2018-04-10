@@ -3,14 +3,14 @@ import { Flags } from './utilities';
 import { Token } from './token';
 
 /**
-   ForStatement types.
-*/
+ * ForStatement types.
+ */
 
 export type ForStatementType = 'ForStatement' | 'ForOfStatement' | 'ForInStatement';
 
 /**
-   Comment types.
-*/
+ * Comment types.
+ */
 
 export type CommentType = 'MultiLine' | 'SingleLine' | 'SheBang' | 'HTMLOpen' | 'HTMLClose';
 
