@@ -239,7 +239,7 @@ export function finishNode < T extends ESTree.Node >(
             node.loc.source = parser.sourceFile;
         }
     }
-    
+
     if (context & Context.OptionsDelegate) {
         (parser.delegate as Delegate)(node, meta.index, parser.index);
     }

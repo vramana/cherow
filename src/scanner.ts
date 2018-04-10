@@ -427,7 +427,7 @@ export function scan(parser: Parser, context: Context): Token {
                 {
                     advance(parser);
                     if (!hasNext(parser)) return Token.GreaterThan;
-                    const next = nextChar(parser);
+                    let next = nextChar(parser);
 
                     if (next === Chars.EqualSign) {
                         advance(parser);
@@ -437,10 +437,9 @@ export function scan(parser: Parser, context: Context): Token {
                     if (next !== Chars.GreaterThan) return Token.GreaterThan;
                     advance(parser);
 
-                    if (hasNext(parser)) {
-                        const next = nextChar(parser);
+                    next = nextChar(parser);
 
-                        if (next === Chars.GreaterThan) {
+                    if (next === Chars.GreaterThan) {
                             advance(parser);
                             if (consumeOpt(parser, Chars.EqualSign)) {
                                 return Token.LogicalShiftRightAssign;
@@ -451,8 +450,6 @@ export function scan(parser: Parser, context: Context): Token {
                             advance(parser);
                             return Token.ShiftRightAssign;
                         }
-                    }
-
                     return Token.ShiftRight;
                 }
 
@@ -665,7 +662,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
                 let code = 0;
 
                 parser.flags |= Flags.Octal;
-                
+
                 // Implicit octal, unless there is a non-octal digit.
                 // (Annex B.1.1 on Numeric Literals)
                 while (index < parser.source.length) {
@@ -1040,7 +1037,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
 
                 if (index < parser.source.length) {
                     const next = parser.source.charCodeAt(index);
-            
+
                     if (next < Chars.Zero || next > Chars.Seven) {
 
                         // Strict mode code allows only \0, then a non-digit.
@@ -1188,7 +1185,7 @@ function throwStringError(parser: Parser, context: Context, code: Escape): void 
 
 /**
  * Scan a string literal
- * 
+ *
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
  * @param {Parser} Parser instance
