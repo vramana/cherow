@@ -407,6 +407,15 @@ describe('Miscellaneous - Early errors', () => {
             '"use strict"; function a(...yield) {}',
             'break a;',
             '"use strict"; eval = 42;',
+            
+            // Arrow function
+
+            `var af = x
+            => x;`,
+            `"use strict"; var af = package => 1;`,
+            'var af = ...x => x;',
+            '"use strict"; var af = (arguments) => 1;',
+            '"use strict" var af = (yield) => 1;',
 
             // Async functions
 

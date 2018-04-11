@@ -15,6 +15,10 @@ describe('Statements - If', () => {
         fail('if(1)class A{}', Context.Empty, {
             source: 'if(1)class A{}',
         });
+        
+        fail('if (true) class C {} else class D {}', Context.Empty, {
+            source: 'if (true) class C {} else class D {}',
+        });
 
         fail('if true;', Context.Empty, {
             source: 'if true;',

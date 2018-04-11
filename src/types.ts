@@ -70,6 +70,9 @@ export interface Options {
 
     // Enable tolerant mode
     tolerant?: boolean;
+    
+    // Enables method that should be bypassed when running on NodeJS
+    node?: boolean
 }
 
 /**

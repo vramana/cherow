@@ -31,7 +31,6 @@ import {
     isEndOfCaseOrDefaultClauses,
     nextTokenIsFuncKeywordOnSameLine,
     nextTokenIsLeftParenOrPeriod,
-    allowExpressionCoverGrammar,
     hasLabel,
     addLabel,
     popLabel,
@@ -458,17 +457,14 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
  * @param parser  Parser instance
  * @param context Context masks
  */
-
+ 
 export function parseBlockStatement(parser: Parser, context: Context): ESTree.BlockStatement {
     const pos = getLocation(parser);
     const body: ESTree.Statement[] = [];
-
     expect(parser, context, Token.LeftBrace);
-
     while (parser.token !== Token.RightBrace) {
-        body.push(allowExpressionCoverGrammar(parser, context, parseStatementListItem));
+        body.push(parseStatementListItem(parser, context));
     }
-
     expect(parser, context, Token.RightBrace);
 
     return finishNode(context, parser, pos, {
@@ -488,7 +484,9 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
 
 export function parseReturnStatement(parser: Parser, context: Context): ESTree.ReturnStatement {
     const pos = getLocation(parser);
-    if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) tolerant(parser, context, Errors.IllegalReturn);
+    if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) {
+        tolerant(parser, context, Errors.IllegalReturn);
+    }
     expect(parser, context, Token.ReturnKeyword);
     const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine) ?
         parseExpression(parser, context & ~Context.InFunctionBody | Context.AllowIn) :
@@ -590,7 +588,8 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
 export function parseCaseOrDefaultClauses(parser: Parser, context: Context): ESTree.SwitchCase {
     const pos = getLocation(parser);
     let seenDefault = consume(parser, context, Token.DefaultKeyword);
-    const test = !seenDefault && consume(parser, context, Token.CaseKeyword) ? parseExpression(parser, context | Context.AllowIn) : null;
+    const test = !seenDefault && consume(parser, context, Token.CaseKeyword) 
+        ? parseExpression(parser, context | Context.AllowIn) : null;
 
     expect(parser, context, Token.Colon);
 

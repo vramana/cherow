@@ -11,6 +11,10 @@ describe('Expressions - Let', () => {
       fail('let let', Context.Empty, {
           source: 'let let',
       });
+      
+      fail('label: let x;', Context.Empty, {
+        source: 'label: let x;',
+      });
 
       fail('let {a: o.a} = obj;', Context.Empty, {
           source: 'let {a: o.a} = obj;',

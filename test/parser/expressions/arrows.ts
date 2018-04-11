@@ -383,7 +383,11 @@ describe('Expressions - Arrows', () => {
         fail('((x)) => a', Context.Empty, {
             source: '((x)) => a',
         });
-
+        
+        fail('var af = enum => 1;', Context.Empty, {
+            source: 'var af = enum => 1;',
+        });
+        
         fail('(x, (y, z)) => a', Context.Empty, {
             source: '(x, (y, z)) => a',
         });

@@ -103,6 +103,8 @@ export function parse(source: string, options: Options | void, context: Context)
         if (!!options.comments) context |= Context.OptionsComments;
         // The flag to enable implied strict mode
         if (options.impliedStrict) context |= Context.OptionsImpliedStrict;
+        // The flag to set to bypass methods in Node
+        if (options.node) context |= Context.OptionsNode;
         // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
         if (typeof options.delegate === 'function') {
             context |= Context.OptionsDelegate;

@@ -112,6 +112,7 @@ There is a second argument to both methods that allows you to specify various op
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `raw`             | Attach raw property to each literal node    |
 | `rawIdentifier`   | Attach raw property to each identifier node    |
+| `node`            | Allow to bypass scoping when run in a NodejS environment |
 
 # Modules
 

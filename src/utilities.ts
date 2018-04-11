@@ -28,23 +28,24 @@ export const enum Context {
     OptionsShebang          = 1 << 10,
     OptionsRawidentifiers   = 1 << 11,
     OptionsTolerant         = 1 << 12,
-    Strict                  = 1 << 13,
-    Module                  = 1 << 14,
-    TaggedTemplate          = 1 << 15,
-    InClass                 = 1 << 16,
-    AllowIn                 = 1 << 17,
-    Async                   = 1 << 18,
-    Yield                   = 1 << 19,
-    InParameter             = 1 << 20,
-    IsReserved              = 1 << 21,
-    InFunctionBody          = 1 << 22,
-    AllowSingleStatement    = 1 << 23,
-    BlockScope              = 1 << 24,
-    ForStatement            = 1 << 25,
-    RequireIdentifier       = 1 << 26,
-    Method                  = 1 << 27,
-    AllowSuperProperty      = 1 << 28,
-    InParen                 = 1 << 29
+    OptionsNode             = 1 << 13,
+    Strict                  = 1 << 14,
+    Module                  = 1 << 15,
+    TaggedTemplate          = 1 << 16,
+    InClass                 = 1 << 17,
+    AllowIn                 = 1 << 18,
+    Async                   = 1 << 19,
+    Yield                   = 1 << 20,
+    InParameter             = 1 << 21,
+    IsReserved              = 1 << 22,
+    InFunctionBody          = 1 << 23,
+    AllowSingleStatement    = 1 << 24,
+    BlockScope              = 1 << 25,
+    ForStatement            = 1 << 26,
+    RequireIdentifier       = 1 << 27,
+    Method                  = 1 << 28,
+    AllowSuperProperty      = 1 << 29,
+    InParen                 = 1 << 30
 }
 
 // Mutual parser flags
@@ -342,23 +343,6 @@ export function consumeSemicolon(parser: Parser, context: Context): boolean {
         Errors.AwaitOutsideAsync :
         Errors.UnexpectedToken, tokenDesc(token));
     return false;
-}
-
-/**
- * Allow destructuring and binding. Used for block statement at
- * Toplevel
- *
- * @param parser Parser state
- * @param context Context mask
- * @param callback Callback function
- */
-export function allowExpressionCoverGrammar < T >(
-    parser: Parser,
-    context: Context,
-    callback: (parser: Parser, context: Context) => T
-) {
-    parser.flags |= (Flags.AllowDestructuring | Flags.AllowBinding);
-    return callback(parser, context);
 }
 
 /**
