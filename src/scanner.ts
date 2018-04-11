@@ -46,16 +46,15 @@ export function scan(parser: Parser, context: Context): Token {
 
     while (hasNext(parser)) {
 
+        const { index } = parser;
+
         if (context & Context.OptionsRanges && !(state & ScannerState.LineStart)) {
-            parser.startIndex = parser.index;
+            parser.startIndex = index;
             parser.startColumn = parser.column;
             parser.startLine = parser.line;
         }
 
-        let first = nextChar(parser);
-
-        if (first >= 128) first = nextUnicodeChar(parser);
-
+        let first = parser.source.charCodeAt(index);
         switch (first) {
 
             case Chars.CarriageReturn:
@@ -68,12 +67,12 @@ export function scan(parser: Parser, context: Context): Token {
                 state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
                 break;
 
-            case Chars.LineSeparator:
-            case Chars.ParagraphSeparator:
-                state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
-                advanceNewline(parser);
-                break;
-
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
+                    advanceNewline(parser);
+                    break;
+    
             case Chars.ByteOrderMark:
             case Chars.Tab:
             case Chars.VerticalTab:
@@ -545,8 +544,16 @@ export function scan(parser: Parser, context: Context): Token {
             case Chars.LowerY:
             case Chars.LowerZ:
                 return scanIdentifier(parser, context);
-
             default:
+                if (first >= 0xD800 && first <= 0xDBFF) {
+                    const lo = parser.source.charCodeAt(index + 1);
+                    if (lo >= 0xDC00 && lo <= 0xDFFF) {
+                        parser.apValue = first = 0x10000 + (((first & 0x3FF) << 10) | lo & 0x3FF);
+                    } else {
+                        report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
+                    }
+                }
+
                 if (isValidIdentifierStart(first)) return scanIdentifier(parser, context);
                 report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
         }
@@ -879,6 +886,11 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
 export function scanIdentifier(parser: Parser, context: Context): Token {
     let start = parser.index;
     let ret: string = '';
+    if (parser.apValue) {
+        parser.apValue = 0;
+        parser.index+=2;
+        parser.column+=2;
+    }
     loop:
         while (hasNext(parser)) {
             const ch = nextChar(parser);

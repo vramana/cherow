@@ -128,6 +128,7 @@ export interface Parser {
     token: Token;
     delegate: Delegate | void;
     errors: any[];
+    apValue: number;
 }
 
 /**
