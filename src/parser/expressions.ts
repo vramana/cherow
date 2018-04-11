@@ -162,12 +162,12 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             if (context & Context.InParen) parser.flags |= Flags.SimpleParameterList;
 
             if (parser.token & Token.IsAwait) {
-                recordError(parser, Errors.AwaitBindingIdentifier);
+                recordError(parser);
                 parser.flags |= Flags.HasAwait;
             } else if (context & Context.InParen &&
                 context & (Context.Strict | Context.Yield) &&
                 parser.token & Token.IsYield) {
-                recordError(parser, Errors.YieldBindingIdentifier);
+                recordError(parser);
                 parser.flags |= Flags.HasYield;
             }
         } else {
@@ -996,10 +996,10 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                 const sequencepos = getLocation(parser);
 
                 if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                    recordError(parser, Errors.StrictEvalArguments);
+                    recordError(parser);
                     state |= CoverParenthesizedState.HasEvalOrArguments;
                 } else if (hasBit(parser.token, Token.FutureReserved)) {
-                    recordError(parser, Errors.UnexpectedStrictReserved);
+                    recordError(parser);
                     state |= CoverParenthesizedState.HasReservedWords;
                 }
 
@@ -1042,10 +1042,10 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                             default:
                                 {
                                     if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                                        recordError(parser, Errors.StrictEvalArguments);
+                                        recordError(parser);
                                         state |= CoverParenthesizedState.HasEvalOrArguments;
                                     } else if (hasBit(parser.token, Token.FutureReserved)) {
-                                        recordError(parser, Errors.UnexpectedStrictReserved);
+                                        recordError(parser);
                                         state |= CoverParenthesizedState.HasReservedWords;
                                     }
                                     if (parser.token & Token.IsBindingPattern) {
@@ -1344,7 +1344,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             if (state & ObjectState.Async || !isIdentifier(context, t)) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(t));
             } else if (context & (Context.Strict | Context.Yield) && t & Token.IsYield) {
-                recordError(parser, Errors.YieldBindingIdentifier);
+                recordError(parser);
                 parser.flags |= Flags.HasYield;
             }
 
@@ -1352,7 +1352,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
 
             if (consume(parser, context, Token.Assign)) {
                 if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
-                    recordError(parser, Errors.YieldBindingIdentifier);
+                    recordError(parser);
                     parser.flags |= Flags.HasYield;
                 }
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
@@ -1366,7 +1366,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) tolerant(parser, context, Errors.UnexpectedReserved);
-                    recordError(parser, Errors.AwaitBindingIdentifier);
+                    recordError(parser);
                     parser.flags |= Flags.HasAwait;
                 }
                 value = key;

@@ -87,7 +87,8 @@ export const enum Errors {
     LineBreakAfterArrow,
     NoCatchOrFinally,
     NewlineAfterThrow,
-    ParamDupe
+    ParamDupe,
+    UnexpectedAsBinding,
 }
 
 export const ErrorMessages: {
@@ -180,6 +181,7 @@ export const ErrorMessages: {
     [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',
     [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
     [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
+    [Errors.UnexpectedAsBinding]: 'Unexpected token \'%0\' before imported binding name',
 };
 
 /**
@@ -236,8 +238,7 @@ function getErrorLocation(parser: Parser) {
  */
 export function report(parser: Parser, type: Errors, ...params: string[]) {
     const { index, line, column } = getErrorLocation(parser);
-    type = parser.errorLocation ? parser.errorLocation.error : type;
-    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+        const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, Context.Empty, index, line, column, errorMessage);
 }
 
@@ -252,7 +253,6 @@ export function report(parser: Parser, type: Errors, ...params: string[]) {
  */
 export function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]) {
     const { index, line, column } = getErrorLocation(parser);
-    type = parser.errorLocation ? parser.errorLocation.error : type;
     const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, context, index, line, column, errorMessage);
 }

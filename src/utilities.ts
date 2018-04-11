@@ -825,9 +825,8 @@ export function isEvalOrArguments(value: string): boolean {
     return value === 'eval' || value === 'arguments';
 }
 
-export function recordError(parser: Parser, error: Errors) {
+export function recordError(parser: Parser) {
     parser.errorLocation = {
-        error,
         line: parser.line,
         column: parser.column,
         index: parser.index,

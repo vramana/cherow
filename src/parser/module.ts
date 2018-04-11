@@ -29,7 +29,8 @@ import {
     lookahead,
     parseDirective,
     nextTokenIsFuncKeywordOnSameLine,
-    nextTokenIsLeftParenOrPeriod
+    nextTokenIsLeftParenOrPeriod,
+    recordError
 } from '../utilities';
 
 // 15.2 Modules
@@ -120,7 +121,10 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                 let hasReservedWord = false;
 
                 while (parser.token !== Token.RightBrace) {
-                    if (parser.token & Token.Reserved) hasReservedWord = true;
+                    if (parser.token & Token.Reserved) {
+                        hasReservedWord = true;
+                        recordError(parser);
+                    }
                     specifiers.push(parseNamedExportDeclaration(parser, context));
                     if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
                 }
@@ -206,6 +210,9 @@ function parseExportAllDeclaration(parser: Parser, context: Context, pos: Locati
  */
 function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.ExportSpecifier {
     const pos = getLocation(parser);
+    // ExportSpecifier :
+    // IdentifierName
+    // IdentifierName as IdentifierName
     const local = parseIdentifierName(parser, context, parser.token);
     const exported = consume(parser, context, Token.AsKeyword)
         ? parseIdentifierName(parser, context, parser.token)
@@ -250,7 +257,7 @@ function parseExportDefault(parser: Parser, context: Context, pos: Location): ES
         case Token.AsyncKeyword:
             declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | Context.RequireIdentifier);
             break;
-            // falls through
+
         default:
             {
                 // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
@@ -426,7 +433,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
-    expect(parser, context, Token.AsKeyword);
+    expect(parser, context, Token.AsKeyword, Errors.UnexpectedAsBinding);
     const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {
         type: 'ImportNamespaceSpecifier',
