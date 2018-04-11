@@ -545,15 +545,7 @@ export function scan(parser: Parser, context: Context): Token {
             case Chars.LowerZ:
                 return scanIdentifier(parser, context);
             default:
-                if (first >= 0xD800 && first <= 0xDBFF) {
-                    const lo = parser.source.charCodeAt(index + 1);
-                    if (lo >= 0xDC00 && lo <= 0xDFFF) {
-                        parser.apValue = first = 0x10000 + (((first & 0x3FF) << 10) | lo & 0x3FF);
-                    } else {
-                        report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
-                    }
-                }
-
+                first = nextUnicodeChar(parser);
                 if (isValidIdentifierStart(first)) return scanIdentifier(parser, context);
                 report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
         }
@@ -893,18 +885,23 @@ export function scanIdentifier(parser: Parser, context: Context): Token {
     }
     loop:
         while (hasNext(parser)) {
-            const ch = nextChar(parser);
+            const index = parser.index;
+            let ch = parser.source.charCodeAt(index);
             switch (ch) {
 
                 case Chars.Backslash:
-                    const index = parser.index;
                     ret += parser.source.slice(start, index);
                     ret += scanUnicodeCodePointEscape(parser, context);
                     start = parser.index;
                     break;
 
                 default:
-                    if (!isIdentifierPart(ch)) break loop;
+                    if (ch >= 0xD800 && ch <= 0xDBFF) {
+                        const lo = parser.source.charCodeAt(index+1);
+                        ch = (ch & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+                        if (!isIdentifierPart(ch)) break loop;
+                        advance(parser);
+                    } else if(!isIdentifierPart(ch)) break loop
                     advance(parser);
             }
         }

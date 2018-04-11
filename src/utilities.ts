@@ -470,7 +470,7 @@ export function nextUnicodeChar(parser: Parser) {
     if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
     const lo = parser.source.charCodeAt(index + 1);
     if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
-    return Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF;
+    return (parser.apValue/*TODO: get rid of this*/ = Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF);
 }
 
 /**
