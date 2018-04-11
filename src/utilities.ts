@@ -474,6 +474,29 @@ export function nextUnicodeChar(parser: Parser) {
 }
 
 /**
+ * Validates function params
+ * 
+ * Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar 
+ * object on the parser object itself. Then push / set the tokenValue to
+ * it an use an bitmask to mark it as an 'variable' not 'blockscope'. Then when
+ * implementing lexical scoping, you can use that for validation. 
+ * 
+ * @param parser  Parser instance
+ * @param context Context masks
+ * @param params Array of token values
+ */
+
+export function validateParams(parser: Parser, context: Context, params: string[]) {
+    const paramSet: any = new Map();
+    for (let i = 0; i < params.length; i++) {
+        const key = '@' + params[i];
+        if (paramSet.get(key)) {
+        report(parser, Errors.ParamDupe);
+        } else paramSet.set(key, true);
+    }
+}
+
+/**
  * Reinterpret various expressions as pattern
  * This Is only used for assignment and arrow parameter list
  *

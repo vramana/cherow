@@ -86,7 +86,8 @@ export const enum Errors {
     ParamAfterRest,
     LineBreakAfterArrow,
     NoCatchOrFinally,
-    NewlineAfterThrow
+    NewlineAfterThrow,
+    ParamDupe
 }
 
 export const ErrorMessages: {
@@ -178,6 +179,7 @@ export const ErrorMessages: {
     [Errors.LineBreakAfterArrow]: 'No line break is allowed after \'=>\'',
     [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',
     [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
+    [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
 };
 
 /**

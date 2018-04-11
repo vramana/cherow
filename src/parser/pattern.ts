@@ -28,10 +28,8 @@ import {
  * @param parser  Parser instance
  * @param context Context masks
  */
-export function parseBindingIdentifierOrPattern(parser: Parser, context: Context): ESTree.Node {
-    const {
-        token
-    } = parser;
+export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: any[] = []): ESTree.Node {
+    const { token } = parser;
 
     if (token & Token.IsBindingPattern) {
         if (token === Token.LeftBracket) return parseArrayAssignmentPattern(parser, context);
@@ -43,7 +41,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
     } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
         tolerant(parser, context, Errors.YieldBindingIdentifier);
     }
-
+    args.push(parser.tokenValue)
     return parseBindingIdentifier(parser, context);
 }
 

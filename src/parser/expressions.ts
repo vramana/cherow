@@ -38,7 +38,8 @@ import {
     isEvalOrArguments,
     nextTokenisIdentifierOrParen,
     recordError,
-    CoverCallState
+    CoverCallState,
+    validateParams
 } from '../utilities';
 
 /**
@@ -1431,7 +1432,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
  * @param {context} Context masks
  */
 
-function parseArrowFunction(parser: Parser, context: Context, pos: any, params: any): ESTree.ArrowFunctionExpression {
+function parseArrowFunction(parser: Parser, context: Context, pos: any, params: string[]): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterArrow);
     expect(parser, context, Token.Arrow);
@@ -1498,13 +1499,11 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  */
 
 export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
-
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
-    const body = parseFunctionBody(parser, context | Context.InFunctionBody);
-    return {
-        params: paramList,
-        body
-    };
+    const args = paramList.args;
+    const params = paramList.params;
+    const body = parseFunctionBody(parser, context | Context.InFunctionBody, args);
+    return { params, body };
 }
 
 /**
@@ -1516,7 +1515,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
  * @param {context} Context masks
  */
 
-export function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatement {
+export function parseFunctionBody(parser: Parser, context: Context, params: any): ESTree.BlockStatement {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const body: ESTree.Statement[] = [];
@@ -1543,6 +1542,10 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
             }
             context |= Context.Strict;
         }
+    }
+    
+    if (context & Context.Strict) {
+        validateParams(parser, context, params);
     }
 
     parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments);
@@ -1578,12 +1581,12 @@ export function parseFormalParameters(
     parser: Parser,
     context: Context,
     state: ObjectState
-): ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] {
+): any {
 
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
     expect(parser, context, Token.LeftParen);
-
+    let args: string[] = [];
     const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
 
     while (parser.token !== Token.RightParen) {
@@ -1594,7 +1597,7 @@ export function parseFormalParameters(
             break;
         }
 
-        params.push(parseFormalParameterList(parser, context));
+        params.push(parseFormalParameterList(parser, context, args));
         if (!consume(parser, context, Token.Comma)) break;
         if (parser.token === Token.RightParen) break;
     }
@@ -1609,7 +1612,7 @@ export function parseFormalParameters(
 
     expect(parser, context, Token.RightParen);
 
-    return params;
+    return { params, args }
 }
 
 /**
@@ -1621,7 +1624,7 @@ export function parseFormalParameters(
  * @param {context} Context masks
  */
 
-export function parseFormalParameterList(parser: Parser, context: Context): any {
+export function parseFormalParameterList(parser: Parser, context: Context, args: string[]): any {
 
     const pos = getLocation(parser);
 
@@ -1638,7 +1641,7 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
         parser.flags |= Flags.SimpleParameterList;
     }
 
-    const left: any = parseBindingIdentifierOrPattern(parser, context);
+    const left: any = parseBindingIdentifierOrPattern(parser, context, args);
     if (!consume(parser, context, Token.Assign)) return left;
 
     if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {

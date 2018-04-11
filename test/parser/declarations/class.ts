@@ -189,6 +189,8 @@ describe('Declarations - Class', () => {
       'class name { *get x() {} }',
       'class name { *set x(_) {} }',
       'class name { *static m() {} }',
+      'class name { foo(a, a) { "use strict"; } }',
+      '"use strict"; class name { foo(a, a) {} }',
         ];
 
         for (const arg of invalidDeclarations) {
