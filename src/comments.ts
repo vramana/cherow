@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
-import { Errors, report } from './errors';
+import { Errors, report, tolerant } from './errors';
 import { Parser, Options, CommentType } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
@@ -107,7 +107,7 @@ export function skipMultiLineComment(parser: Parser, context: Context, state: Sc
         }
     }
 
-    report(parser, Errors.UnterminatedComment);
+    tolerant(parser, context, Errors.UnterminatedComment);
 }
 
 export function addComment(parser: Parser, context: Context, type: any, state: ScannerState, start: number) {

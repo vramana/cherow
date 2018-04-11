@@ -41,7 +41,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
     } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
         tolerant(parser, context, Errors.YieldBindingIdentifier);
     }
-    args.push(parser.tokenValue)
+    args.push(parser.tokenValue);
     return parseBindingIdentifier(parser, context);
 }
 

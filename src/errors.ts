@@ -198,6 +198,7 @@ export function constructError(parser: Parser, context: Context, index: number, 
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
     );
+
     error.index = index;
     error.line = line;
     error.column = column;
@@ -253,5 +254,5 @@ export function tolerant(parser: Parser, context: Context, type: Errors, ...para
     const { index, line, column } = getErrorLocation(parser);
     type = parser.errorLocation ? parser.errorLocation.error : type;
     const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-    constructError(parser, Context.Empty, index, line, column, errorMessage);
+    constructError(parser, context, index, line, column, errorMessage);
 }

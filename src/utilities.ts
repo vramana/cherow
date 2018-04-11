@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
-import { Errors, report } from './errors';
+import { Errors, report, tolerant } from './errors';
 import { Parser, Delegate } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
@@ -475,12 +475,12 @@ export function nextUnicodeChar(parser: Parser) {
 
 /**
  * Validates function params
- * 
- * Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar 
+ *
+ * Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar
  * object on the parser object itself. Then push / set the tokenValue to
  * it an use an bitmask to mark it as an 'variable' not 'blockscope'. Then when
- * implementing lexical scoping, you can use that for validation. 
- * 
+ * implementing lexical scoping, you can use that for validation.
+ *
  * @param parser  Parser instance
  * @param context Context masks
  * @param params Array of token values
@@ -491,7 +491,7 @@ export function validateParams(parser: Parser, context: Context, params: string[
     for (let i = 0; i < params.length; i++) {
         const key = '@' + params[i];
         if (paramSet.get(key)) {
-        report(parser, Errors.ParamDupe);
+        tolerant(parser, context, Errors.ParamDupe);
         } else paramSet.set(key, true);
     }
 }
@@ -805,7 +805,6 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
-    
     report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 

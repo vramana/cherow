@@ -227,7 +227,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
     const test = parseExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     const consequent = parseConsequentOrAlternate(parser, context);
-    let alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
+    const alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
     return finishNode(context, parser, pos, {
         type: 'IfStatement',
         test,
@@ -302,8 +302,8 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
     const pos = getLocation(parser);
     expect(parser, context, Token.CatchKeyword);
     let param = null;
-    if (context & Context.OptionsNext 
-        ? consume(parser, context, Token.LeftParen) 
+    if (context & Context.OptionsNext
+        ? consume(parser, context, Token.LeftParen)
         : expect(parser, context, Token.LeftParen)) {
         param = parseBindingIdentifierOrPattern(parser, context);
         expect(parser, context, Token.RightParen);
@@ -457,7 +457,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
  * @param parser  Parser instance
  * @param context Context masks
  */
- 
+
 export function parseBlockStatement(parser: Parser, context: Context): ESTree.BlockStatement {
     const pos = getLocation(parser);
     const body: ESTree.Statement[] = [];
@@ -588,7 +588,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
 export function parseCaseOrDefaultClauses(parser: Parser, context: Context): ESTree.SwitchCase {
     const pos = getLocation(parser);
     let seenDefault = consume(parser, context, Token.DefaultKeyword);
-    const test = !seenDefault && consume(parser, context, Token.CaseKeyword) 
+    const test = !seenDefault && consume(parser, context, Token.CaseKeyword)
         ? parseExpression(parser, context | Context.AllowIn) : null;
 
     expect(parser, context, Token.Colon);

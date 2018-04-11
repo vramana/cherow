@@ -226,7 +226,7 @@ function parseConditionalExpression(parser: Parser, context: Context, pos: any):
  * @see [Link](https://tc39.github.io/ecma262/#sec-binary-logical-operators)
  * @see [Link](https://tc39.github.io/ecma262/#sec-relational-operators)
  * @see [Link](https://tc39.github.io/ecma262/#sec-multiplicative-operators)
- * 
+ *
  * @param parser Parser instance
  * @param context Context masks
  * @param minPrec Minimum precedence value
@@ -249,7 +249,7 @@ function parseBinaryExpression(
         const t = parser.token;
         if (bit && t === Token.InKeyword) break;
         const prec = t & Token.Precedence;
-        
+
         const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
         // When the next token is no longer a binary operator, it's potentially the
         // start of an expression, so we break the loop
@@ -482,7 +482,7 @@ function parseMemberExpression(
                     tag: expr,
                     quasi: parseTemplate(parser, context | Context.TaggedTemplate)
                 });
-    
+
                 continue;
             }
         }
@@ -847,7 +847,7 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
  */
 function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
-    let { token } = parser;
+    const { token } = parser;
     const raw = tokenDesc(token);
 
     nextToken(parser, context);
@@ -1107,7 +1107,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     let id: ESTree.Identifier | null = null;
-    let { token } = parser;
+    const { token } = parser;
 
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (hasBit(token, Token.IsEvalOrArguments)) {
@@ -1147,7 +1147,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
-    let { token } = parser;
+    const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
 
         if (hasBit(token, Token.IsEvalOrArguments)) {
@@ -1457,7 +1457,7 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 
 function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
 
-    let { token } = parser;
+    const { token } = parser;
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
@@ -1484,15 +1484,12 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @param Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState){
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
     const body = parseFunctionBody(parser, context | Context.InFunctionBody, args);
-    return {
-        params,
-        body
-    };
+    return { params, body };
 }
 
 /**
@@ -1505,13 +1502,14 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
  */
 
 export function parseFunctionBody(parser: Parser, context: Context, params: any): ESTree.BlockStatement {
+    // Note! The 'params' has an 'any' type now because it's really shouldn't be there. This should have been
+    // on the parser object instead. So for now the 'params' arg are only used within the
+    // 'parseFormalListAndBody' method, and not within the arrow function body.
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
+
     const body: ESTree.Statement[] = [];
-    const { labelSet } = parser;
-    parser.labelSet = {};
-    const savedFlags = parser.flags;
-    parser.flags &= ~(Flags.Switch | Flags.Iteration);
+
     while (parser.token === Token.StringLiteral) {
 
         const item: ESTree.Statement = parseDirective(parser, context);
@@ -1520,6 +1518,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
         if (!isPrologueDirective(item)) break;
 
         if (item.expression.value === 'use strict') {
+            // See: https://tc39.github.io/ecma262/#sec-function-definitions-static-semantics-early-errors
             if (parser.flags & Flags.SimpleParameterList) {
                 tolerant(parser, context, Errors.IllegalUseStrict);
             } else if (parser.flags & Flags.StrictReserved) {
@@ -1537,7 +1536,15 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
         validateParams(parser, context, params);
     }
 
-    parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments);
+    const { labelSet } = parser;
+
+    parser.labelSet = {};
+
+    const savedFlags = parser.flags;
+
+    // Here we need to unset the 'StrictFunctionName' and 'StrictEvalArguments' masks
+    // to avoid conflicts in nested functions
+    parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments | Flags.Switch | Flags.Iteration);
 
     while (parser.token !== Token.RightBrace) {
         body.push(parseStatementListItem(parser, context));
@@ -1575,7 +1582,7 @@ export function parseFormalParameters(
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
     expect(parser, context, Token.LeftParen);
-    let args: string[] = [];
+    const args: string[] = [];
     const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
 
     while (parser.token !== Token.RightParen) {
@@ -1601,10 +1608,7 @@ export function parseFormalParameters(
 
     expect(parser, context, Token.RightParen);
 
-    return {
-        params,
-        args
-    }
+    return { params, args };
 }
 
 /**
@@ -1661,7 +1665,7 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
-    let { token } = parser;
+    const { token } = parser;
     let state = ObjectState.None;
     if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
@@ -1991,7 +1995,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
  */
 
 function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    let { token } = parser;
+    const { token } = parser;
     if (context & Context.OptionsNext && token === Token.ImportKeyword) {
         // Invalid: '"new import(x)"'
         if (lookahead(parser, context, nextTokenIsLeftParen)) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
@@ -2015,7 +2019,7 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
 
     expect(parser, context, Token.SuperKeyword);
 
-    let { token } = parser;
+    const { token } = parser;
 
     if (token === Token.LeftParen) {
         // The super property has to be within a class constructor
