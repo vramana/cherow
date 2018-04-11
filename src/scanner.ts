@@ -904,9 +904,7 @@ export function scanIdentifier(parser: Parser, context: Context): Token {
                     break;
 
                 default:
-                    if (ch >= Chars.LeadSurrogateMin && ch <= Chars.TrailSurrogateMax) {
-                        nextUnicodeChar(parser);
-                    } else if (!isIdentifierPart(ch)) break loop;
+                    if (!isIdentifierPart(ch)) break loop;
                     advance(parser);
             }
         }
