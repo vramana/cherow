@@ -172,7 +172,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     const { tokenValue } = parser;
     if (!(parser.flags & Flags.NewLine) && (parser.token & (Token.IsIdentifier | Token.Keyword))) {
         label = parseIdentifier(parser, context);
-        validateBreakOrContinueLabel(parser, tokenValue, /* isContinue */ true);
+        validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ true);
     }
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -199,7 +199,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
     const { tokenValue } = parser;
     if (!(parser.flags & Flags.NewLine) && (parser.token & (Token.IsIdentifier | Token.Keyword))) {
         label = parseIdentifier(parser, context);
-        validateBreakOrContinueLabel(parser, tokenValue, /* isContinue */ false);
+        validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ false);
     } else if (!(parser.flags & Flags.AllowBreakOrContinue)) {
         tolerant(parser, context, Errors.InvalidNestedStatement, 'break');
     }

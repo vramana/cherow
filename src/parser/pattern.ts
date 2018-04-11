@@ -158,7 +158,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
             break;
         }
         properties.push(parseBindingProperty(parser, context));
-        if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma, Errors.InvalidElisonInObjPropList);
+        if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
     }
 
     expect(parser, context, Token.RightBrace);

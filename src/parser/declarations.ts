@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc } from '../token';
-import { Errors, report, tolerant } from '../errors';
+import { Token, tokenDesc, } from '../token';
+import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
 import { Parser, Location } from '../types';

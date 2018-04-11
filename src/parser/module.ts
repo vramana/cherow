@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
+import { Errors, report, tolerant } from '../errors';
 import { Location, Parser } from '../types';
 import { parseBindingIdentifier } from './pattern';
 import {
@@ -130,7 +130,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                 if (parser.token === Token.FromKeyword) {
                     source = parseModuleSpecifier(parser, context);
                 } else if (hasReservedWord) {
-                    report(parser, Errors.UnexpectedReserved);
+                    tolerant(parser, context, Errors.UnexpectedReserved);
                 }
 
                 consumeSemicolon(parser, context);
@@ -330,7 +330,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
                             parseNamedImports(parser, context, specifiers);
                             break;
                         default:
-                            report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
+                            tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
                     }
                 }
 
@@ -399,10 +399,10 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
         local = parseBindingIdentifier(parser, context);
     } else {
         if ((token & Token.Reserved) === Token.Reserved) {
-            report(parser, Errors.UnexpectedReserved);
+            tolerant(parser, context, Errors.UnexpectedReserved);
         }
         if ((token & Token.IsEvalOrArguments) === Token.IsEvalOrArguments) {
-            report(parser, Errors.StrictEvalArguments);
+            tolerant(parser, context, Errors.StrictEvalArguments);
         }
         local = imported;
     }

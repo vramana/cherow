@@ -165,10 +165,10 @@ export const enum ObjectState {
  * @param label label
  * @param isContinue true if validation continue statement
  */
-export function validateBreakOrContinueLabel(parser: Parser, label: string, isContinue: boolean = false) {
+export function validateBreakOrContinueLabel(parser: Parser, context: Context, label: string, isContinue: boolean = false) {
     const state = hasLabel(parser, label);
-    if (!state) report(parser, Errors.UnknownLabel, label);
-    if (isContinue && !(state & Labels.Nested)) report(parser, Errors.IllegalContinue, label);
+    if (!state) tolerant(parser, context, Errors.UnknownLabel, label);
+    if (isContinue && !(state & Labels.Nested)) tolerant(parser, context, Errors.IllegalContinue, label);
 }
 
 /**
@@ -542,7 +542,7 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             if (node.argument.type !== 'ArrayExpression' &&
                 node.argument.type !== 'ObjectExpression' &&
                 !isValidSimpleAssignmentTarget(node.argument)) {
-                report(parser, Errors.RestDefaultInitializer);
+                tolerant(parser, context, Errors.RestDefaultInitializer);
               }
 
             reinterpret(parser, context, node.argument);
@@ -558,7 +558,7 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             // Fall through
 
         default:
-            report(parser, context & Context.InParameter ? Errors.NotBindable : Errors.InvalidDestructuringTarget, node.type);
+            tolerant(parser, context, context & Context.InParameter ? Errors.NotBindable : Errors.InvalidDestructuringTarget, node.type);
     }
 };
 
@@ -781,10 +781,10 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
 
         // Module code is also "strict mode code"
         if (context & Context.Module && token & Token.IsAwait) {
-            report(parser, Errors.DisallowedInContext, tokenDesc(token));
+            tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
         }
 
-        if (token & Token.IsYield) report(parser, Errors.DisallowedInContext, tokenDesc(token));
+        if (token & Token.IsYield) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
 
         if ((token & Token.IsIdentifier) === Token.IsIdentifier ||
             (token & Token.Contextual) === Token.Contextual) {
@@ -795,9 +795,9 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
     }
 
     if (context & Context.Yield && token & Token.IsYield) {
-        report(parser, Errors.DisallowedInContext, tokenDesc(token));
+        tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
     } else if (context & Context.Async && token & Token.IsAwait) {
-        report(parser, Errors.DisallowedInContext, tokenDesc(token));
+        tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
     }
 
     if ((token & Token.IsIdentifier) === Token.IsIdentifier ||
