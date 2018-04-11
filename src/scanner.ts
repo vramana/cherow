@@ -67,11 +67,11 @@ export function scan(parser: Parser, context: Context): Token {
                 state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
                 break;
 
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
-                    advanceNewline(parser);
-                    break;
+            case Chars.LineSeparator:
+            case Chars.ParagraphSeparator:
+                state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
+                advanceNewline(parser);
+                break;
     
             case Chars.ByteOrderMark:
             case Chars.Tab:
