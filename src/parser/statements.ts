@@ -197,9 +197,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
     let label: ESTree.Identifier | undefined | null = null;
     // Use 'tokenValue' to avoid accessing another object shape which in turn can lead to
     // a "'deopt" when getting the identifier value (*if any*)
-    const {
-        tokenValue
-    } = parser;
+    const { tokenValue } = parser;
     if (!(parser.flags & Flags.NewLine) && (parser.token & (Token.IsIdentifier | Token.Keyword))) {
         label = parseIdentifier(parser, context);
         validateBreakOrContinueLabel(parser, tokenValue, /* isContinue */ false);
@@ -230,10 +228,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
     const test = parseExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     const consequent = parseConsequentOrAlternate(parser, context);
-    let alternate = null;
-    if (consume(parser, context, Token.ElseKeyword)) {
-        alternate = parseConsequentOrAlternate(parser, context);
-    }
+    let alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
     return finishNode(context, parser, pos, {
         type: 'IfStatement',
         test,
@@ -305,23 +300,12 @@ export function parseTryStatement(parser: Parser, context: Context) {
  */
 
 export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchClause {
-
     const pos = getLocation(parser);
-
     expect(parser, context, Token.CatchKeyword);
-
     let param = null;
-    let hasBinding;
-
-    // Optional catch binding - Stage 3 proposal
-    if (context & Context.OptionsNext) {
-        hasBinding = consume(parser, context, Token.LeftParen);
-    } else {
-        hasBinding = true;
-        expect(parser, context, Token.LeftParen);
-    }
-
-    if (hasBinding) {
+    if (context & Context.OptionsNext 
+        ? consume(parser, context, Token.LeftParen) 
+        : expect(parser, context, Token.LeftParen)) {
         param = parseBindingIdentifierOrPattern(parser, context);
         expect(parser, context, Token.RightParen);
     }

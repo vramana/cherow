@@ -270,11 +270,12 @@ export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
  * @param t Token
  * @param Err Errors
  */
-export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): void {
+export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): boolean {
     if (parser.token !== t) {
-        return report(parser, err, tokenDesc(parser.token));
+       report(parser, err, tokenDesc(parser.token));
     }
     nextToken(parser, context);
+    return true;
 }
 
 /**
@@ -797,7 +798,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
         (token & Token.FutureReserved) === Token.FutureReserved) {
         return parseIdentifier(parser, context);
     }
-
+    
     report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 

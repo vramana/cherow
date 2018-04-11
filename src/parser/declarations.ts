@@ -68,7 +68,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
 
         isGenerator = ModifierState.Generator;
     }
-    return parseFunctionDeclartionBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator, pos);
+    return parseFunctionDeclarationBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator, pos);
 }
 
 /**
@@ -82,7 +82,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
  * @param state Modifier state
  * @param pos Current location
  */
-function parseFunctionDeclartionBody(parser: Parser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
+function parseFunctionDeclarationBody(parser: Parser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
     const id = parseFunctionDeclarationName(parser, context);
     const { params, body } = swapContext(parser, context & ~Context.RequireIdentifier, state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -118,7 +118,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
         isGenerator = ModifierState.Generator;
     }
 
-    return parseFunctionDeclartionBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, pos);
+    return parseFunctionDeclarationBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, pos);
 }
 
 /**
