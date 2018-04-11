@@ -89,6 +89,7 @@ export const enum Errors {
     NewlineAfterThrow,
     ParamDupe,
     UnexpectedAsBinding,
+    LabelNoColon
 }
 
 export const ErrorMessages: {
@@ -182,6 +183,8 @@ export const ErrorMessages: {
     [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
     [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
     [Errors.UnexpectedAsBinding]: 'Unexpected token \'%0\' before imported binding name',
+    [Errors.LabelNoColon]: 'Labels must be followed by a \':\'',
+    
 };
 
 /**

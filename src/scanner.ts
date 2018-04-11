@@ -1498,12 +1498,7 @@ function validateFlags(parser: Parser, context: Context): string {
  * @param {first} Codepoint
  */
 function validate(parser: Parser, pattern: string, flags: string) {
-    try {
-        RegExp(pattern);
-    } catch (e) {
-        report(parser, Errors.Unexpected);
-    }
-
+  
     try {
         return new RegExp(pattern, flags);
     } catch (e) {

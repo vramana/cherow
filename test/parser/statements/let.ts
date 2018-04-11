@@ -7,36 +7,47 @@ describe('Expressions - Let', () => {
 
     describe('Failure', () => {
 
-      // Acorn issue: https://github.com/acornjs/acorn/issues/586
-      fail('let let', Context.Empty, {
-          source: 'let let',
-      });
-      
-      fail('label: let x;', Context.Empty, {
-        source: 'label: let x;',
-      });
-
-      fail('let {a: o.a} = obj;', Context.Empty, {
-          source: 'let {a: o.a} = obj;',
-      });
-
-      fail('let let', Context.Empty, {
-          source: 'let let',
-      });
-
-      fail('let default', Context.Empty, {
-          source: 'let default',
-      });
-
-      fail('let test = 2, let = 1;', Context.Empty, {
-          source: 'let test = 2, let = 1;',
-      });
-
-      // 'let' should not be an allowed name in destructuring let declarations
-      fail('let [a, let, b] = [1, 2, 3];', Context.Empty, {
-          source: 'let [a, let, b] = [1, 2, 3];',
-      });
-
+        const invalidSyntax = [
+            `let
+            let;`,
+            'for (;false;) let x = 1;',
+            'do let x; while (false)',
+            'if (true) {} else let x;',
+            'if (true) let x;',
+            'label: let x;',
+            'while (false) let x;',
+            `let  // start of a LexicalDeclaration, *not* an ASI opportunity
+            let = "irrelevant initializer";`,
+             // Acorn issue: https://github.com/acornjs/acorn/issues/586
+            'let let',
+            'label: let x;',
+            'let {a: o.a} = obj;',
+            'let default',
+            'let test = 2, let = 1;',
+            'do let x = 1; while (false)',
+            'if (true) {} else let x = 1;',
+            'if (true) let x = 1;',
+            'do let x; while (false)',
+            'let [...x = []] = [];',
+            'if (true) {} else let x;',
+            'let [...[ x ] = []] = [];',
+            'let [...[ x ] = []] = [];',
+            'let [...{ x } = []] = [];',
+            'let [...x, y] = [1, 2, 3];',
+            'let [...{ x }, y] = [1, 2, 3];',
+            'let [...x = []] = [];',
+            // 'let' should not be an allowed name in destructuring let declarations
+            'let [a, let, b] = [1, 2, 3];',
+        ];
+  
+        for (const arg of invalidSyntax) {
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
+ 
       fail(`do let
       [x] = 0
       while (false);`, Context.Empty, {
@@ -67,78 +78,37 @@ describe('Expressions - Let', () => {
   yield 0;`, Context.Empty, {
             source: `let
   yield 0;`,
-        });
-
-      fail('do let x = 1; while (false)', Context.Empty, {
-            source: 'do let x = 1; while (false)',
-        });
-
-      fail('if (true) {} else let x = 1;', Context.Empty, {
-            source: 'if (true) {} else let x = 1;',
-        });
-
-      fail('if (true) let x = 1;', Context.Empty, {
-            source: 'if (true) let x = 1;',
-        });
-
-      fail('label: let x = 1;', Context.Empty, {
-            source: 'label: let x = 1;',
-        });
-
-      fail('do let x; while (false)', Context.Empty, {
-            source: 'do let x; while (false)',
-        });
-
-      fail('if (true) {} else let x;', Context.Empty, {
-            source: 'if (true) {} else let x;',
-        });
-
-      fail('while (false) let x;', Context.Empty, {
-            source: 'while (false) let x;',
-        });
-
-      fail('let [...x = []] = [];', Context.Empty, {
-            source: 'let [...x = []] = [];',
-        });
-
-      fail('let [...[ x ] = []] = [];', Context.Empty, {
-            source: 'let [...[ x ] = []] = [];',
-        });
-
-      fail('let [...x = []] = [];', Context.Empty, {
-            source: 'let [...x = []] = [];',
-        });
-
-      fail('let [...[ x ] = []] = [];', Context.Empty, {
-            source: 'let [...[ x ] = []] = [];',
-        });
-
-      fail('let [...x = []] = [];', Context.Empty, {
-            source: 'let [...x = []] = [];',
-        });
-
-      fail('let [...[ x ] = []] = [];', Context.Empty, {
-            source: 'let [...[ x ] = []] = [];',
-        });
-
-      fail('let [...{ x } = []] = [];', Context.Empty, {
-            source: 'let [...{ x } = []] = [];',
-        });
-
-      fail('let [...[x], y] = [1, 2, 3];', Context.Empty, {
-            source: 'let [...[x], y] = [1, 2, 3];',
-        });
-
-      fail('let [...x, y] = [1, 2, 3];', Context.Empty, {
-            source: 'let [...x, y] = [1, 2, 3];',
-        });
-
-      fail('let [...{ x }, y] = [1, 2, 3];', Context.Empty, {
-            source: 'let [...{ x }, y] = [1, 2, 3];',
-        });
+        });   
     });
 
     describe('Pass', () => {
+
+    // Testing lexical scoping in sloppy mode
+    const lexivalScoping = [
+        'let = 1;', 
+        'for(let = 1;;){}'
+    ];
+    
+    for (const arg of lexivalScoping) {
+
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`function f() {${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`function f() {${arg}}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
 
       pass(`let {x, y = x + 1} = { x : 42 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {x, y = x + 1} = { x : 42 };`,
