@@ -43,20 +43,20 @@ export function scan(parser: Parser, context: Context): Token {
 
     parser.flags &= ~Flags.NewLine;
     
-    let lineStart = parser.index === 0;
+    const lineStart = parser.index === 0;
+    
     let state = ScannerState.None;
 
-    while (hasNext(parser)) {
+    while (parser.index >= 0 && hasNext(parser)) {
 
-        const { index } = parser;
-
-        if (context & Context.OptionsRanges && !lineStart) {
-            parser.startIndex = index;
+        if (!lineStart) {
+            parser.startIndex = parser.index;
             parser.startColumn = parser.column;
             parser.startLine = parser.line;
         }
 
-        let first = parser.source.charCodeAt(index);
+        let first = nextChar(parser);
+
         if (first >= 128) {
             switch (first) {
                 case Chars.LineSeparator:
