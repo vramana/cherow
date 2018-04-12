@@ -44,10 +44,10 @@ export function scan(parser: Parser, context: Context): Token {
     parser.flags &= ~Flags.NewLine;
     
     const lineStart = parser.index === 0;
-    
+
     let state = ScannerState.None;
 
-    while (parser.index >= 0 && hasNext(parser)) {
+    while (hasNext(parser)) {
 
         if (!lineStart) {
             parser.startIndex = parser.index;
