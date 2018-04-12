@@ -546,7 +546,7 @@ export function scan(parser: Parser, context: Context): Token {
                 return scanIdentifier(parser, context);
             default:
                 first = nextUnicodeChar(parser);
-                if (isValidIdentifierStart(first)) return scanIdentifier(parser, context);
+                if (isValidIdentifierStart(first)) return scanIdentifier(parser, context, first);
                 report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
         }
     }
@@ -875,13 +875,12 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
  * @param {context} Context masks
  */
 
-export function scanIdentifier(parser: Parser, context: Context): Token {
+export function scanIdentifier(parser: Parser, context: Context, first?: number): Token {
     let start = parser.index;
     let ret: string = '';
-    if (parser.apValue) {
-        parser.apValue = 0;
-        parser.index+=2;
-        parser.column+=2;
+    if (first && first > 0xFFFF) {
+        parser.index += 2;
+        parser.column += 2;
     }
     loop:
         while (hasNext(parser)) {
