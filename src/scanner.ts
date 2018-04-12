@@ -544,7 +544,7 @@ export function scan(parser: Parser, context: Context): Token {
             case Chars.LowerX:
             case Chars.LowerY:
             case Chars.LowerZ:
-                return scanIdentifier(parser, context);
+                return scanIdentifier(parser, context, first);
             default:
                 first = nextUnicodeChar(parser);
                 if (isValidIdentifierStart(first)) return scanIdentifier(parser, context, first);
