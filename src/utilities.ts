@@ -90,8 +90,6 @@ export const enum ScannerState {
     NewLine     = 1 << 0,
     SameLine    = 1 << 1,
     LastIsCR    = 1 << 2,
-    LineStart   = 1 << 3,
-    Terminated  = 1 << 4
 }
 
 export const enum ModifierState {

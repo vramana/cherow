@@ -42,14 +42,15 @@ import {
 export function scan(parser: Parser, context: Context): Token {
 
     parser.flags &= ~Flags.NewLine;
-
-    let state = parser.index === 0 ? ScannerState.LineStart : ScannerState.None;
+    
+    let lineStart = parser.index === 0;
+    let state = ScannerState.None;
 
     while (hasNext(parser)) {
 
         const { index } = parser;
 
-        if (context & Context.OptionsRanges && !(state & ScannerState.LineStart)) {
+        if (context & Context.OptionsRanges && !lineStart) {
             parser.startIndex = index;
             parser.startColumn = parser.column;
             parser.startLine = parser.line;
@@ -185,7 +186,7 @@ export function scan(parser: Parser, context: Context): Token {
                             case Chars.Hyphen:
                                 {
                                     advance(parser);
-                                    if (state & (ScannerState.LineStart | ScannerState.NewLine) &&
+                                    if ((state & ScannerState.NewLine || lineStart) &&
                                         nextChar(parser) === Chars.GreaterThan) {
                                         if (!(context & Context.Module)) {
                                             advance(parser);
@@ -348,7 +349,7 @@ export function scan(parser: Parser, context: Context): Token {
                         const next = parser.source.charCodeAt(index);
     
                         if (context & Context.OptionsShebang &&
-                            state & ScannerState.LineStart &&
+                            lineStart &&
                             next === Chars.Exclamation) {
                             parser.index = index + 1;
                             skipSingleLineComment(parser, context, ScannerState.None, 'SheBang');
