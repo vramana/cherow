@@ -26,7 +26,8 @@ import {
     Escape,
     RegexFlags,
     RegexState,
-    NumericState
+    NumericState,
+    advanceOnMaybeAstral
 } from './utilities';
 
 /**
@@ -878,10 +879,7 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
 export function scanIdentifier(parser: Parser, context: Context, first?: number): Token {
     let start = parser.index;
     let ret: string = '';
-    if (first && first > 0xFFFF) {
-        parser.index += 2;
-        parser.column += 2;
-    }
+    if (first) advanceOnMaybeAstral(parser, first);
     loop:
         while (hasNext(parser)) {
             const index = parser.index;
@@ -898,10 +896,9 @@ export function scanIdentifier(parser: Parser, context: Context, first?: number)
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
                         const lo = parser.source.charCodeAt(index+1);
                         ch = (ch & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-                        if (!isIdentifierPart(ch)) break loop;
-                        advance(parser);
-                    } else if(!isIdentifierPart(ch)) break loop
-                    advance(parser);
+                    }
+                    if (!isIdentifierPart(ch)) break loop;
+                    advanceOnMaybeAstral(parser, ch);
             }
         }
     if (start < parser.index) ret += parser.source.slice(start, parser.index);
@@ -940,7 +937,7 @@ function scanUnicodeCodePointEscape(parser: Parser, context: Context): string | 
 
         const code = scanIdentifierUnicodeEscape(parser);
 
-        if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
+        if (code >= Chars.LeadSurrogateMin && code <= Chars.LeadSurrogateMax) {
             report(parser, Errors.UnexpectedSurrogate);
         }
 
@@ -1156,7 +1153,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
             }
 
         default:
-            return nextUnicodeChar(parser);
+            return nextChar(parser);
     }
 }
 

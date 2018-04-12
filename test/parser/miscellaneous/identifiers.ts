@@ -2145,7 +2145,7 @@ describe('Miscellaneous - Identifiers', () => {
                                      },
                                      end: {
                                          line: 1,
-                                         column: 8
+                                         column: 6
                                      }
                                  }
                              },
@@ -2158,7 +2158,7 @@ describe('Miscellaneous - Identifiers', () => {
                                  },
                                  end: {
                                      line: 1,
-                                     column: 8
+                                     column: 6
                                  }
                              }
                          }
@@ -2173,7 +2173,7 @@ describe('Miscellaneous - Identifiers', () => {
                          },
                          end: {
                              line: 1,
-                             column: 9
+                             column: 7
                          }
                      }
                  }
@@ -2188,7 +2188,7 @@ describe('Miscellaneous - Identifiers', () => {
                  },
                  end: {
                      line: 1,
-                     column: 9
+                     column: 7
                  }
              }
          }

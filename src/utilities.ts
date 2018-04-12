@@ -449,6 +449,11 @@ export function advance(parser: Parser) {
     parser.column++;
 }
 
+export function advanceOnMaybeAstral(parser: Parser, ch: number) {
+    advance(parser);
+    if (ch > 0xFFFF) parser.index++;
+}
+
 /**
  * Return the next codepoint in the stream by index
  *
