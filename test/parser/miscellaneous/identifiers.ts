@@ -55,6 +55,18 @@ describe('Miscellaneous - Identifiers', () => {
       fail('var @', Context.Empty, {
           source: 'var @',
       });
+
+      fail('var 🀒', Context.Empty, {
+          source: 'var 🀒',
+      });
+
+    //   fail("var source = '\uD800!';", Context.Empty, {
+    //       source: "source = '\uD800!';",
+    //   });
+
+      fail('var cla\u{73}s = 123;', Context.Empty, {
+          source: 'var cla\u{73}s = 123;',
+      });
   });
 
   describe('Pass', () => {
@@ -2181,6 +2193,654 @@ describe('Miscellaneous - Identifiers', () => {
              sourceType: 'script',
              start: 0,
              end: 9,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 7
+                 }
+             }
+         }
+      });
+
+      pass('var \uD83B\uDE00', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+        source: 'var \uD83B\uDE00',
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: null,
+                            id: {
+                                type: 'Identifier',
+                                name: '\uD83B\uDE00',
+                                start: 4,
+                                end: 6,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 6,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'var',
+                    start: 0,
+                    end: 6,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 5
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 6,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 5
+                }
+            }
+        }
+      });
+
+      pass('var \u{1EE00}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var \u{1EE00}',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '\u{1EE00}',
+                                 start: 4,
+                                 end: 6,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 5
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 6,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 5
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 6,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 5
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 6,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 5
+                 }
+             }
+         }
+      });
+
+      pass('var _\u{1EE03}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var _\u{1EE03}',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '_\u{1EE03}',
+                                 start: 4,
+                                 end: 7,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 6
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 7,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 6
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 7,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 6
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 7,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 6
+                 }
+             }
+         }
+      });
+
+      pass('var \u{1EE0A}\u{1EE0B}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var \u{1EE0A}\u{1EE0B}',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '\u{1EE0A}\u{1EE0B}',
+                                 start: 4,
+                                 end: 8,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 6
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 8,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 6
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 8,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 6
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 8,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 6
+                 }
+             }
+         }
+      });
+
+      pass('var \u{1EE06}_$', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var \u{1EE06}_$',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '\u{1EE06}_$',
+                                 start: 4,
+                                 end: 8,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 7
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 8,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 7
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 8,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 7
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 8,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 7
+                 }
+             }
+         }
+      });
+
+      pass('var 𞸀', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var 𞸀',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '𞸀',
+                                 start: 4,
+                                 end: 6,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 5
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 6,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 5
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 6,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 5
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 6,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 5
+                 }
+             }
+         }
+      });
+
+      pass('var _𞸃', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var _𞸃',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '_𞸃',
+                                 start: 4,
+                                 end: 7,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 6
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 7,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 6
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 7,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 6
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 7,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 6
+                 }
+             }
+         }
+      });
+
+      pass('var 𞸊𞸋', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var 𞸊𞸋',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '𞸊𞸋',
+                                 start: 4,
+                                 end: 8,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 6
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 8,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 6
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 8,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 6
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 8,
+             loc: {
+                 start: {
+                     line: 1,
+                     column: 0
+                 },
+                 end: {
+                     line: 1,
+                     column: 6
+                 }
+             }
+         }
+      });
+
+      pass('var 𞸆_$', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.OptionsNext, {
+         source: 'var 𞸆_$',
+         expected: {
+             type: 'Program',
+             body: [
+                 {
+                     type: 'VariableDeclaration',
+                     declarations: [
+                         {
+                             type: 'VariableDeclarator',
+                             init: null,
+                             id: {
+                                 type: 'Identifier',
+                                 name: '𞸆_$',
+                                 start: 4,
+                                 end: 8,
+                                 loc: {
+                                     start: {
+                                         line: 1,
+                                         column: 4
+                                     },
+                                     end: {
+                                         line: 1,
+                                         column: 7
+                                     }
+                                 }
+                             },
+                             start: 4,
+                             end: 8,
+                             loc: {
+                                 start: {
+                                     line: 1,
+                                     column: 4
+                                 },
+                                 end: {
+                                     line: 1,
+                                     column: 7
+                                 }
+                             }
+                         }
+                     ],
+                     kind: 'var',
+                     start: 0,
+                     end: 8,
+                     loc: {
+                         start: {
+                             line: 1,
+                             column: 0
+                         },
+                         end: {
+                             line: 1,
+                             column: 7
+                         }
+                     }
+                 }
+             ],
+             sourceType: 'script',
+             start: 0,
+             end: 8,
              loc: {
                  start: {
                      line: 1,
