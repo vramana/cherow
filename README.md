@@ -19,6 +19,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~43 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Lightweight - 62 KB minified
+* Regular Expression validator
 
 ## ESNext features
 
@@ -130,6 +131,25 @@ function doWhatYouWant(parser, context) {
 
     // ...
 }
+
+```
+
+# Regular Expression validation
+
+Cherow let you validate regular expression as an stand-alone module, and not dependent on parsing any AST nodes.
+
+Here is how you do it:
+
+```js
+    import { validateRegExp, RegexpState } from 'cherow';
+
+    // without unicode
+
+    validateRegExp('/=*$/'); // returns either true or false
+
+    // with unicode
+
+    validateRegExp('/=*$/', RegexpState.Unicode); // returns either true or false
 
 ```
 
