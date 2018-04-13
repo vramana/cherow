@@ -52,6 +52,8 @@ export function createParser(
         token: Token.EndOfSource,
         tokenRaw: '',
         lastValue: 0,
+        numCapturingParens: 0,
+        maxBackReference: 0,
         comments: [],
         sourceFile: sourceFile,
         tokenRegExp: undefined,

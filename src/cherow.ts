@@ -3,6 +3,7 @@ import * as ESTree from './estree';
 import * as Parser from './parser/index';
 import { Options } from './types';
 import { Context } from './utilities';
+import { validateRegExp } from './regExp';
 
 /**
  * Parse script code
@@ -28,6 +29,10 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
 
 export function parseModule(source: string, options?: Options): ESTree.Program {
     return parse(source, options, Context.Strict | Context.Module);
+}
+
+ export function validateRegularExpression(source: string, isUnicode: boolean): boolean {
+    return validateRegExp(source, isUnicode);
 }
 
 export const version = '__VERSION__';

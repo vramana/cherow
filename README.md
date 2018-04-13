@@ -143,7 +143,7 @@ NodeJS have.
 Here is how you do a stand-alone validation:
 
 ```js
-    import { validateRegExp, RegexpState } from 'cherow';
+    import { validateRegularExpression } from 'cherow';
 
     // without unicode
 
@@ -151,7 +151,7 @@ Here is how you do a stand-alone validation:
 
     // with unicode
 
-    validateRegExp('/=*$/', RegexpState.Unicode); // returns either true or false
+    validateRegExp('/=*$/', true); // returns either true or false
 
 ```
 
