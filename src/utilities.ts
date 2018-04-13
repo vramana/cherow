@@ -841,3 +841,12 @@ export function readNext(parser: Parser, prev: number): number {
     if (!hasNext(parser)) report(parser, Errors.UnicodeOutOfRange);
     return nextUnicodeChar(parser);
 }
+
+
+export function nextRegExpUnicodeChar(parser: Parser, index: number = parser.index) {
+    const { source } = parser;
+    const hi = parser.source.charCodeAt(index);
+    if (hi <= 0xD7FF || hi >= 0xE000) return hi;
+    const lo = source.charCodeAt(index + 1);
+    return Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF;
+}
