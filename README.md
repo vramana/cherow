@@ -16,10 +16,10 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Conforms to the standard ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification 
 * Supports Stage 3 proposals via option
 * Optionally track syntactic node locations
+* Optionally validate regular expressions (*or bypass it*)
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~43 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Lightweight - 62 KB minified
-* Regular Expression validator (*optional*)
 
 ## ESNext features
 
