@@ -89,7 +89,19 @@ export const enum Errors {
     NewlineAfterThrow,
     ParamDupe,
     UnexpectedAsBinding,
-    LabelNoColon
+    LabelNoColon,
+    UnmatchedRightParen,
+    LoneQuantifierBrackets,
+    InvalidEscape,
+    NothingToRepeat,
+    InvalidQuantifier,
+    InvalidGroup,
+    UnterminatedGroup,
+    NumbersOutOfOrder,
+    UnterminatedCharacterClass,
+    InvalidCharacterClass,
+    InvalidRangeInCharacterClass,
+    InvalidClassEscape
 }
 
 export const ErrorMessages: {
@@ -184,7 +196,19 @@ export const ErrorMessages: {
     [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
     [Errors.UnexpectedAsBinding]: 'Unexpected token \'%0\' before imported binding name',
     [Errors.LabelNoColon]: 'Labels must be followed by a \':\'',
-    
+    [Errors.UnmatchedRightParen]: 'Unmatched \')\' in regular expression',
+    [Errors.LoneQuantifierBrackets]: 'Lone quantifier brackets',
+    [Errors.InvalidEscape]: 'Invalid escape',
+    [Errors.InvalidClassEscape]: 'Invalid class escape',
+    [Errors.NothingToRepeat]: 'Nothing to repeat',
+    [Errors.InvalidQuantifier]: 'Invalid quantifier',
+    [Errors.InvalidGroup]: 'Invalid regexp group',
+    [Errors.UnterminatedGroup]: 'Unterminated regexp group',
+    [Errors.NumbersOutOfOrder]: 'Numbers out of order in {} quantifier',
+    [Errors.UnterminatedCharacterClass]: 'Unterminated character class',
+    [Errors.InvalidCharacterClass]: 'Invalid character class',
+    [Errors.InvalidRangeInCharacterClass]: 'Invalid range in character class',
+    [Errors.UnterminatedCharacterClass]: 'Unterminated character class',
 };
 
 /**

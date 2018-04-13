@@ -1436,31 +1436,10 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     const bodyEnd = parser.index - 1;
 
-    const flags = validateFlags(parser, context);
-
-    const pattern = parser.source.slice(bodyStart, bodyEnd);
-
-    parser.tokenRegExp = { pattern, flags };
-
-    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
-
-    parser.tokenValue = validate(parser, pattern, flags);
-
-    return Token.RegularExpression;
-}
-
-/**
- * Validate a regular expression flags, and return it.
- *
- * @param parser Parser instance
- * @param context Context masks
- */
-
-function validateFlags(parser: Parser, context: Context): string {
-
+    
     let mask = RegexFlags.Empty;
 
-    const { index: start } = parser;
+    const { index: flagStart } = parser;
 
     loop:
         while (hasNext(parser)) {
@@ -1506,7 +1485,17 @@ function validateFlags(parser: Parser, context: Context): string {
             advance(parser);
         }
 
-    return parser.source.slice(start, parser.index);
+    const flags = parser.source.slice(flagStart, parser.index);
+
+    const pattern = parser.source.slice(bodyStart, bodyEnd);
+
+    parser.tokenRegExp = { pattern, flags };
+
+    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
+
+    parser.tokenValue = validate(parser, pattern, context, bodyStart, !!(mask & RegexFlags.Unicode), flags);
+
+    return Token.RegularExpression;
 }
 
 /**
@@ -1516,7 +1505,24 @@ function validateFlags(parser: Parser, context: Context): string {
  * @param {context} Context masks
  * @param {first} Codepoint
  */
-function validate(parser: Parser, pattern: string, flags: string) {
+function validate(parser: Parser, pattern: string, context: Context, start: number, isUnicode: boolean, flags: string) {
+    
+    try {
+        RegExp(pattern);
+    } catch (e) {
+        report(parser, Errors.UnterminatedRegExp);
+    }
+    /*if (context & Context.OptionsNode) {
+      
+    } else {
+        const { index } = parser;
+        
+        // Super un-optimized, but works!
+        parser.index = start
+        validatePattern(parser, isUnicode);
+        parser.index = index;
+    }*/
+
     try {
         return new RegExp(pattern, flags);
     } catch (e) {

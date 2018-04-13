@@ -1,8 +1,8 @@
-import { isIdentifierPart, fromCodePoint, Context } from './utilities';
+import { isIdentifierPart, fromCodePoint, hasNext, consumeOpt, advance } from './utilities';
 import { Chars } from './chars';
 import { isValidIdentifierStart, isValidIdentifierPart } from "./unicode"
 import { Errors, ErrorMessages } from './errors';
-import { createParser } from './parser/index';
+import { createParser } from './parser/parser';
 import { Parser } from './types';
 
 /**
@@ -14,7 +14,8 @@ import { Parser } from './types';
 
 export function validateRegExp(source: string, isUnicode: boolean): boolean {
     const parser = createParser(source, undefined, undefined);
-    return validatePattern(parser, Context.Empty, isUnicode);
+    validatePattern(parser, isUnicode);
+    return true;
 }
 
 /**
@@ -23,8 +24,7 @@ export function validateRegExp(source: string, isUnicode: boolean): boolean {
  * @param Parser Parser instance
  * @param isUnicode true if unicode.
  */
-export function validatePattern(parser: Parser, context: Context, isUnicode: boolean): boolean {
-    // Note: If the 'node' option is on, we return false and use the native 'RegExp'
-    if (context & Context.OptionsNode) return false;
+export function validatePattern(parser: Parser, isUnicode: boolean): boolean {
     return false;
-}
+}    
+ 
