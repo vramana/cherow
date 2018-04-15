@@ -225,3 +225,66 @@ export function parseQuantifier(parser: Parser, context: ValidatorState) {
     consumeOpt(parser, Chars.QuestionMark)
     return true;
 }
+
+
+/**
+ * Parse assertion
+ * 
+ * @param parser Parser context
+ * @param context Validator context masks
+ */
+
+function parseAssertion(parser: Parser, context: ValidatorState): boolean {
+    // TODO! Use a global mutual Flag!
+    parser.isQuantifiable = false
+    let { start: index, source } = parser;
+
+    switch (source.charCodeAt(index)) {
+
+        // `^', `$'
+        case Chars.Caret:
+        case Chars.Dollar:
+            parser.start++;
+            return true;
+
+        // `\'
+        case Chars.Backslash:
+            {
+                index++;
+                const next = source.charCodeAt(index);
+                if (next === Chars.LowerB || next === Chars.UpperB) {
+                    parser.start = index;
+                    return true;
+                }
+                return false;
+            }
+
+        // `('
+        case Chars.LeftParen:
+            {
+                index++;
+                let next = source.charCodeAt(index);
+                if (next === Chars.QuestionMark) {
+                    index++;
+                    let lookbehind = false;
+                    if (source.charCodeAt(index) === Chars.LessThan) {
+                        index++;
+                        lookbehind = true;
+                    }
+                    next = source.charCodeAt(index);
+                    if (next === Chars.EqualSign || next === Chars.Exclamation) {
+                        parser.start = index + 1;
+                        parseDisjunction(parser, context)
+                        if (!consumeOpt(parser, Chars.RightParen)) {
+                            report(Errors.UnterminatedGroup);
+                        }
+                        parser.isQuantifiable = !lookbehind
+                        return true
+                    }
+                }
+            }
+
+        default:
+            return false;
+    }
+}
