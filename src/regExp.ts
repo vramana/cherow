@@ -69,3 +69,53 @@ export function parsePattern(
     // To be added
     // }
 }
+
+/**
+ * Parses strict identity escape
+ * 
+ * @see [Link](https://tc39.github.io/ecma262/#prod-IdentityEscape)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-SyntaxCharacter)
+ * 
+ * 
+ * @param parser Parser context
+ * @param context Validator context masks
+ */
+function parseIdentityEscape(parser: Parser, context: ValidatorState): boolean {
+
+    const ch = nextChar(parser, context);
+
+    if (context & ValidatorState.Unicode) {
+
+        switch (ch) {
+            case Chars.Caret:
+            case Chars.Dollar:
+            case Chars.Backslash:
+            case Chars.Period:
+            case Chars.Asterisk:
+            case Chars.Plus:
+            case Chars.QuestionMark:
+            case Chars.LeftParen:
+            case Chars.RightParen:
+            case Chars.LeftBracket:
+            case Chars.RightBracket:
+            case Chars.LeftBrace:
+            case Chars.RightBrace:
+            case Chars.VerticalBar:
+            case Chars.Slash:
+                advance(parser);
+                return true;
+            default:
+                return false;
+        }
+    } else {
+
+        switch (ch) {
+            case Chars.LowerC:
+            case Chars.LowerK:
+                return false
+            default:
+                advance(parser)
+                return true
+        }
+    }
+}
