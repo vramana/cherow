@@ -119,3 +119,55 @@ function parseIdentityEscape(parser: Parser, context: ValidatorState): boolean {
         }
     }
 }
+
+/**
+ * Parses character escape
+ * 
+ * @see [Link](https://tc39.github.io/ecma262/#prod-CharacterEscape)
+ * 
+ * @param parser Parser context
+ * @param context Validator context masks
+ */
+
+function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean {
+
+    const { start } = parser;
+
+    switch (nextChar(parser, context)) {
+        
+    // 'c'
+    case Chars.LowerC:
+        {
+            const index = start + 1;
+            const next = parser.source.charCodeAt(index);
+            if (!isControlLetter(next)) return false;
+            return true
+        }
+
+    // '0'
+    case Chars.Zero: {
+            const index = start + 1;
+            const next = parser.source.charCodeAt(index);
+            // [lookahead ∉ DecimalDigit]
+            if (isDecimalDigit(next)) return false;    
+            advance(parser);
+            return true
+        }
+    case Chars.LowerF:
+    case Chars.UpperF:
+    case Chars.LowerN:
+    case Chars.UpperN:
+    case Chars.LowerR:
+    case Chars.UpperR:
+    case Chars.LowerT:
+    case Chars.UpperT:
+    case Chars.LowerV:
+    case Chars.UpperV: {
+      advance(parser);
+      return true;
+    }
+
+    default:
+     // Note! To be added soon...!
+    }
+}
