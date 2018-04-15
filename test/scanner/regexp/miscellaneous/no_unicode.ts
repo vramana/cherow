@@ -4,9 +4,9 @@ import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
-describe.skip('Regular expressions', () => {
+describe('Regular expressions', () => {
 
-    describe.skip('Failure', () => {
+    describe('Failure', () => {
 
         const invalidSyntax = [
             '/(?/',
@@ -86,7 +86,7 @@ describe.skip('Regular expressions', () => {
         }
     });
 
-    describe.skip('Pass', () => {
+    describe('Pass', () => {
 
         const validSyntax = [
             '/{1}/',
@@ -204,6 +204,7 @@ describe.skip('Regular expressions', () => {
             '/(.?)(.?)/',
             '/(?:ab)*/',
             '/(?:)/',
+            '/hello icefapper/',
             '/(b)*/',
             '/a()\\1/',
             '/\\c//flipperwald',
