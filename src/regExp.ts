@@ -29,7 +29,7 @@ export function verifyRegExpPattern(
 ) {
     const groupNames: string[] = [];
     const referenceNames: string[] = [];
-    if (isUnicode) context |= ValidatorState.NamedGroups;
+    let context = isUnicode ? ValidatorState.Unicode : ValidatorState.Empty;
     parsePattern(parser, context, start, end, groupNames, referenceNames);
     if (!(context & ValidatorState.Unicode) && groupNames.length > 0) {
         parsePattern(parser, context & ~ValidatorState.Unicode, /* empty */ [], /* empty*/ [])
