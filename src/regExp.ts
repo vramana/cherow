@@ -201,3 +201,27 @@ function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean 
       return parseIdentityEscape(parser, context);
     }
 }
+
+/**
+ * Parse quantifier
+ * 
+ * @param parser Parser context
+ * @param context Validator context masks
+ */
+export function parseQuantifier(parser: Parser, context: ValidatorState) {
+    const { start, source } = parser;
+    switch (source.charCodeAt(start)) {
+        case Chars.Asterisk:
+        case Chars.Plus:
+        case Chars.QuestionMark:
+            parser.start = start + 1;
+            break;
+        case Chars.LeftBrace:
+            if (!parseBracedQuantifier(parser, context)) return false;
+        default:
+    }
+    
+    if (parser.start === start) return false;
+    consumeOpt(parser, Chars.QuestionMark)
+    return true;
+}
