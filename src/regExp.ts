@@ -4,6 +4,13 @@ import { isValidIdentifierStart, isValidIdentifierPart } from "./unicode"
 import { Errors, ErrorMessages } from './errors';
 import { createParser } from './parser/parser';
 import { Parser } from './types';
+
+export const enum ValidatorState {
+    Empty = 0,
+    Unicode = 1 << 0,
+    Invalid = 1 << 1,
+}
+
 /**
  * Public regular expression validator
  * 
@@ -12,7 +19,8 @@ import { Parser } from './types';
  */
 export function validateRegExp(source: string, isUnicode: boolean): boolean {
     const parser = createParser(source, undefined, undefined);
-    verifyRegExpPattern(parser, context, 0, source.length);
+    verifyRegExpPattern(parser, isUnicode, 0, source.length);
+    return true;
 }
 
 /**
@@ -20,6 +28,8 @@ export function validateRegExp(source: string, isUnicode: boolean): boolean {
  * 
  * @param Parser Parser instance
  * @param isUnicode true if unicode.
+ * @param start Start of regexp pattern
+ * @param end End of regexp pattern
  */
 export function verifyRegExpPattern(
     parser: Parser,
@@ -31,8 +41,8 @@ export function verifyRegExpPattern(
     const referenceNames: string[] = [];
     let context = isUnicode ? ValidatorState.Unicode : ValidatorState.Empty;
     parsePattern(parser, context, start, end, groupNames, referenceNames);
-    if (!(context & ValidatorState.Unicode) && groupNames.length > 0) {
-        parsePattern(parser, context & ~ValidatorState.Unicode, /* empty */ [], /* empty*/ [])
+    if (!isUnicode && groupNames.length > 0) {
+        parsePattern(parser, context & ~ValidatorState.Unicode, start, end, /* empty */ [], /* empty*/ [])
     }
 }
 
