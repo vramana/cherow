@@ -131,28 +131,54 @@ function parseIdentityEscape(parser: Parser, context: ValidatorState): boolean {
 
 function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean {
 
-    const { start } = parser;
+    const { start, source } = parser;
 
     switch (nextChar(parser, context)) {
         
     // 'c'
     case Chars.LowerC:
         {
-            const index = start + 1;
-            const next = parser.source.charCodeAt(index);
+            const next = source.charCodeAt(start + 1);
             if (!isControlLetter(next)) return false;
             return true
         }
 
     // '0'
-    case Chars.Zero: {
-            const index = start + 1;
-            const next = parser.source.charCodeAt(index);
+    case Chars.Zero: 
+        {
+            const next = source.charCodeAt(start + 1);
             // [lookahead ∉ DecimalDigit]
             if (isDecimalDigit(next)) return false;    
             advance(parser);
             return true
         }
+
+   // 'x':
+    case Chars.LowerX:
+        {
+           advance(parser);
+           if (parseHexDigitOrSequence(parser, context, 2)) return true
+           else if (context & ValidatorState.Unicode) report(Errors.InvalidEscape);
+           return false
+        }
+
+    // 'u'
+    case Chars.LowerU:
+       return eatRegExpUnicodeEscapeSequence(parser, context);
+
+    // '1' - '7'
+    case Chars.One: 
+    case Chars.Two:
+    case Chars.Three:
+    case Chars.Four:
+    case Chars.Five:
+    case Chars.Six:
+    case Chars.Seven: 
+       {
+         if (context & ValidatorState.Unicode) return false;
+         return parseImplicitOctalEscapes(parser, context)
+       }
+
     case Chars.LowerF:
     case Chars.UpperF:
     case Chars.LowerN:
@@ -168,6 +194,6 @@ function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean 
     }
 
     default:
-     // Note! To be added soon...!
+      return parseIdentityEscape(parser, context);
     }
 }
