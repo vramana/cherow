@@ -164,7 +164,7 @@ function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean 
 
     // 'u'
     case Chars.LowerU:
-       return eatRegExpUnicodeEscapeSequence(parser, context);
+       return parseRegExpUnicodeEscapeSequence(parser, context);
 
     // '1' - '7'
     case Chars.One: 
@@ -194,6 +194,10 @@ function parseCharacterEscape(parser: Parser, context: ValidatorState): boolean 
     }
 
     default:
+        // Note: I'm going to merge in the function below, so
+        // if we reach down here - return false 
+            
+        // Secind note: The unicode check will be simplified soon
       return parseIdentityEscape(parser, context);
     }
 }
