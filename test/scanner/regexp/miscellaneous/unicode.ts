@@ -7,7 +7,28 @@ import * as ESTree from '../../../../src/estree';
 describe.skip('Regular expressions', () => {
 
     describe.skip('Failure', () => {
-        const invalidUnicodeSyntax = [
+
+        const invalidEscapes = [
+            '/\\u/u',
+            '/\\u12/u',
+            '/\\ufoo/u',
+            '/\\x/u',
+            '/\\xfoo/u',
+            '/\\z/u',
+            '/\\8/u',
+            '/\\9/u',
+        ];
+
+        for (const arg of invalidEscapes) {
+
+            it(`${arg}`, () => {
+
+                t.throws(() => {
+                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                });
+            });
+        }
+        const invaidSyntax = [
             '/[\\u0000-\\S]/u',
             '/[\\u0000-\\s]/u',
             '/[\\u0000-\\D]/u',
@@ -113,9 +134,27 @@ describe.skip('Regular expressions', () => {
             '/[\\w-\\uFFFF]/u',
             '/[🌷-🌸]/u',
             '/[🌸-🌷]/u',
+            '/(?=.){1,2}/u',
+            '/\\c0/u',
+            '/(?=.)*/u',
+            '/[\\1]/u',
+            "/\\00/u",
+            '/\\09/u',
+            '/[\\w-a]/u',
+            '/[a-\\w]/u',
+            '/[\\c]/u',
+            '/[\\c0]/u',
+            '/a{/u',
+            '/a{1,/u',
+            '/{/u',
+            '/}/u',
+            '/]/u',
+            '/[\\00]/u',
+            '/[\\01]/u',
+            '/[\\09]/u',
         ];
 
-        for (const arg of invalidUnicodeSyntax) {
+        for (const arg of invaidSyntax) {
 
             it(`${arg}`, () => {
 
@@ -128,7 +167,62 @@ describe.skip('Regular expressions', () => {
 
     describe.skip('Pass', () => {
 
-        const validSyntaxWithUnicodeFlag = [
+        const validBackRef = [
+            '/([^x]+)x*\\1/',
+            '/(?<=\\1(T)x)/',
+            '/(?<=(.)\\2.*(T)x)/',
+            '/(?<=\\1.*(L)x)/',
+            '/(?<=(.)\\2.*(L)x)/',
+            '/(L)\\1/',
+            '/(aL).*\\1/',
+            '/(aL).*\\1(.)/',
+            '/(T).*\\1(.)/',
+            '/([^x]+).*\\1(.)/'
+        ];
+
+        for (const arg of validBackRef) {
+
+            it(`${arg}`, () => {
+
+                t.doesNotThrow(() => {
+                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                });
+            });
+        }
+
+        const validEscapes = [
+            '/(\u0066|\u0062)oo/',
+            '/(\u0066|\u0062)oo/u',
+            '/(\u{0066}|\u{0062})oo/u',
+            '/(\u{66}|\u{000062})oo/u',
+            '/(\\u0066|\\u0062)oo/',
+            '/(\\u{0066}|\\u{0062})oo/u',
+            '/[\u{62}-\u{00000066}]oo/u',
+            '/[\u0062-\u0066]oo/u',
+            '/[\\u0062-\\u0066]oo/',
+            '/[\\u0062-\\u0066]oo/u',
+            '/[\\[\u{62}-\u{00000066}]oo/u',
+            '/[\\[\u{0062}-\u{0066}]oo/u',
+            '/[\[\u0062-\u0066]oo/u',
+            '/\u{d800}\u{dc00}+/u',
+            '/\ud800\u{dc00}+/u',
+            '/\u{d800}\udc00+/u',
+            "/(\u{66}|\u{000062})oo/u",
+            "/(\u{0066}|\u{0062})oo/u",
+            "/\u{66}|\u{000062})oo/u",
+        ];
+
+        for (const arg of validEscapes) {
+
+            it(`${arg}`, () => {
+
+                t.doesNotThrow(() => {
+                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                });
+            });
+        }
+
+        const validSyntax = [
             '/${1,2/u',
             '/foo/u',
             '/foo|bar/u',
@@ -155,6 +249,8 @@ describe.skip('Regular expressions', () => {
             '/a{1,}?/u',
             '/a{1,2}?/u',
             '/👍🚀❇️/u',
+            '/[a\-z]/u',
+            '/[1\0a]+/u',
             '/?/u',
             '/+/u',
             '/^/u',
@@ -274,7 +370,7 @@ describe.skip('Regular expressions', () => {
             '/^\\s*|\\s*$/u',
         ];
 
-        for (const arg of validSyntaxWithUnicodeFlag) {
+        for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
 
