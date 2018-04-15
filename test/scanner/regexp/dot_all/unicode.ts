@@ -4,25 +4,11 @@ import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
-describe.skip('Lookbehind', () => {
+describe.skip('Dot all', () => {
 
     describe.skip('Failure', () => {
         const invalidSyntax = [
-            '/(?<a)/u',
-            '/(?<=a)?/u',
-            '/(?<=a)+/u',
-            '/(?<=a)*/u',
-            '/(?<=a){1}/u',
-            // Annex B 1.4.
-            '/(?<=.)*/',
-            '/(?<=.)*/u',
-            '/(?<=.)?/',
-            '/(?<=.)+/',
-            '/.(?=.){2,3}/u',
-            '/.(?<=.){2,3}/u',
-            '/.(?!.){2,3}/u',
-            '/.(?<!.){2,3}/u',
-            '/(?<=.)*/u',
+            '/\\p/u',
         ];
         for (const arg of invalidSyntax) {
 
@@ -37,13 +23,7 @@ describe.skip('Lookbehind', () => {
 
     describe.skip('Pass', () => {
         const vadlidSyntax = [
-            '/(?<=(?<a>\\w){3})f/u',
-            '/((?<=\\w{3}))f/u',
-            '/(?<a>(?<=\\w{3}))f/u',
-            '/(?<!(?<a>\\d){3})f/u',
-            '/(?<!(?<a>\\D){3})f|f/u',
-            '/(?<a>(?<!\\D{3}))f|f/u',
-            '/(?<=(?<fst>.)|(?<snd>.))/u',
+            '/^.$/u'
         ];
 
         for (const arg of vadlidSyntax) {

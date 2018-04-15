@@ -407,7 +407,7 @@ describe('Miscellaneous - Early errors', () => {
             '"use strict"; function a(...yield) {}',
             'break a;',
             '"use strict"; eval = 42;',
-            
+
             // Arrow function
 
             `var af = x

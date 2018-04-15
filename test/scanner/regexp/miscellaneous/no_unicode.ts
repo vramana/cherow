@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-//import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 

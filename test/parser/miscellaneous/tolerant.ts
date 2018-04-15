@@ -197,7 +197,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             t.doesNotThrow(() => {
                 parseScript(`${arg}`, {
                     tolerant: true
-                })
+                });
             });
         });
 

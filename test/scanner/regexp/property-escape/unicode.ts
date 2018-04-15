@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-//import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -106,7 +106,42 @@ describe.skip('Unicode property escape', () => {
             '/\\p{^General_Category=Letter}/u',
             '/\\p{General_Category:Letter}/u',
             '/\\P{General_Category:Letter}/u',
+            '/a\P{Any}a/u',
+            '/(?:a\P{Any}a|a\p{Any}a)/u',
+            '\\1(\\P{P\0[}()/',
+            '/\p{Regional_Indicator}/u',
+            '/\\p{Block = CJK}/u',
+            '/\\p{Block=cjk}/u',
+            '/\\p{bidi_c=Left_To_Right}/u',
+            '/\\p{BLK=CJK}/u',
+            '/\p{gc=Ll}/u',
+            '/\p{Block=Basic_Latin}+/u',
+            '/\p{Bidi_Class=Arabic_Letter}+/u',
+            '/\p{ccc=OV}+/u',
+            '/\p{Sentence_Break=Format}+/u',
+            '/\\p{In}/u',
+            '/\\pI/u',
+            '/\\p{I}/u',
+            '/\\p{CJK}/u',
+            '/\p{scx=Deva}/u',
+            '/(?=\P{sc=Dupl})\p{scx=Dupl}/u',
+            '/\p{scx=Grek}/u',
+            '/(?=\P{sc=Grek})\p{scx=Grek}/u',
+            '/\p{scx=Deva}/u',
+            '/\p{scx=Hani}/u',
+            '/\P{scx=Mlym}/u',
+            '/\p{scx=Takr}/u',
+            '/\p{ASCII}+/u',
+            '/\P{Assigned}+/u',
+            '/\\P{garbage}/u',
+            '/\\P{}/u',
+            '/\\P{/u',
+            '/\\P}/u',
+            '/\\PL/u',
+           '/\\pL/u',
+           '/^[\p{Lu}-\p{Ll}]+$/u'
         ];
+
         for (const arg of invalidSyntax) {
 
             it(`${arg}`, () => {
@@ -119,13 +154,36 @@ describe.skip('Unicode property escape', () => {
     });
 
     describe.skip('Pass', () => {
-        const vadlidSyntax = [
+        const validSyntax = [
             '/\\p{General_Category=Letter}/u',
             '/[\\p{Script=Hiragana}\\-\\p{Script=Katakana}]/u',
             ' /[\p{Hex}-\uFFFF]/u',
+            'a\u{d83d}a',
+            '/a[\P{Any}]a/u',
+            '/a[^\P{Any}x]a/u',
+            '/a[^\P{Any}]a/u',
+            '/^[\p{Lu}-]+$/u',
+            '/^[\P{Lu}\p{Ll}]+$/u',
+            '/^[\p{Lu}\p{Ll}]+$/u',
+            '/^[\P{Lu}\p{Ll}]+$/u',
+            '/^[\\p{Lu}-\\p{Ll}]+$/u',
+            '/[^\P{ASCII}]+/u',
+            '/[^\P{Assigned}]+/u',
+            '/\\p{Other}/u',
+            '/\\p{Cc}/u',
+            '/\\p{Control}/u',
+//            "/\p{Sm}/u",
+  //          "/\P{L}/u",
+           '/^[\p{Lu}\p{Ll}]+$/u',
+           '/^[\P{Lu}\p{Ll}]+$/u',
+           '/^[\P{Lu}]+$/u',
+           '/^[^\P{Lu}]+$/u',
+           '/^[^\p{Lu}\P{Ll}]+$/u',
+           '/^[\P{Lu}\p{Ll}]+$/u',
+
         ];
 
-        for (const arg of vadlidSyntax) {
+        for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
 

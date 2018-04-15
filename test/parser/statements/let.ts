@@ -39,7 +39,7 @@ describe('Expressions - Let', () => {
             // 'let' should not be an allowed name in destructuring let declarations
             'let [a, let, b] = [1, 2, 3];',
         ];
-  
+
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
@@ -47,8 +47,8 @@ describe('Expressions - Let', () => {
                 });
             });
         }
- 
-      fail(`do let
+
+        fail(`do let
       [x] = 0
       while (false);`, Context.Empty, {
           source: `do let
@@ -56,39 +56,39 @@ describe('Expressions - Let', () => {
           while (false);`
       });
 
-      fail(`let
+        fail(`let
             let;`, Context.Empty, {
               source: `let
               let;`,
           });
 
-      fail(`let  // start of a LexicalDeclaration, *not* an ASI opportunity
+        fail(`let  // start of a LexicalDeclaration, *not* an ASI opportunity
   let = "irrelevant initializer";`, Context.Empty, {
     source: `let  // start of a LexicalDeclaration, *not* an ASI opportunity
     let = "irrelevant initializer";`,
   });
 
-      fail(`let
+        fail(`let
   await 0;`, Context.Empty, {
             source: `let
   await 0;`,
         });
 
-      fail(`let
+        fail(`let
   yield 0;`, Context.Empty, {
             source: `let
   yield 0;`,
-        });   
+        });
     });
 
     describe('Pass', () => {
 
     // Testing lexical scoping in sloppy mode
     const lexivalScoping = [
-        'let = 1;', 
+        'let = 1;',
         'for(let = 1;;){}'
     ];
-    
+
     for (const arg of lexivalScoping) {
 
         it(`${arg}`, () => {
@@ -110,7 +110,7 @@ describe('Expressions - Let', () => {
         });
     }
 
-      pass(`let {x, y = x + 1} = { x : 42 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {x, y = x + 1} = { x : 42 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {x, y = x + 1} = { x : 42 };`,
           expected: {
               type: 'Program',
@@ -417,7 +417,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {x = y, y} = { y : 42 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {x = y, y} = { y : 42 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {x = y, y} = { y : 42 };`,
           expected: {
               type: 'Program',
@@ -691,7 +691,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {x, y = eval("x+1")} = {x:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {x, y = eval("x+1")} = {x:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {x, y = eval("x+1")} = {x:42};`,
           expected: {
               type: 'Program',
@@ -999,7 +999,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {x = function() {return y+1;}, y} = {y:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {x = function() {return y+1;}, y} = {y:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {x = function() {return y+1;}, y} = {y:42};`,
           expected: {
               type: 'Program',
@@ -1358,7 +1358,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`var { x = f(42) } = { x : 27 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`var { x = f(42) } = { x : 27 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `var { x = f(42) } = { x : 27 };`,
           expected: {
               type: 'Program',
@@ -1615,7 +1615,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let { x = y = 1 } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { x = y = 1 } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let { x = y = 1 } = {};`,
           expected: {
               type: 'Program',
@@ -1818,7 +1818,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(` let [ x = y = 1 ] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(` let [ x = y = 1 ] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let [ x = y = 1 ] = [];`,
           expected: {
               type: 'Program',
@@ -1986,7 +1986,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(` (function({ x = y = 1 }) {}({}));`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(` (function({ x = y = 1 }) {}({}));`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `(function({ x = y = 1 }) {}({}));`,
           expected: {
               type: 'Program',
@@ -2225,7 +2225,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(` (function({ x: x = y = 1 }) {}({}));`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(` (function({ x: x = y = 1 }) {}({}));`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `(function({ x: x = y = 1 }) {}({}));`,
           expected: {
               type: 'Program',
@@ -2464,7 +2464,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {foo} = {foo: 2};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {foo} = {foo: 2};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {foo} = {foo: 2};`,
           expected: {
               type: 'Program',
@@ -2656,7 +2656,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {foo=3} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.Strict | Context.Module, {
+    pass(`let {foo=3} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.Strict | Context.Module, {
           source: `let {foo=3} = {};`,
           expected: {
               type: 'Program',
@@ -2827,7 +2827,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {[foo("abc")]:x} = {abc:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {[foo("abc")]:x} = {abc:42};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {[foo("abc")]:x} = {abc:42};`,
           expected: {
               type: 'Program',
@@ -3053,7 +3053,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`var {[foo("abc")]:x} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`var {[foo("abc")]:x} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `var {[foo("abc")]:x} = {};`,
           expected: {
               type: 'Program',
@@ -3226,7 +3226,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let {[foo("abc")]:x} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {[foo("abc")]:x} = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {[foo("abc")]:x} = {};`,
           expected: {
               type: 'Program',
@@ -3399,7 +3399,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`const { [f('x')]:x, [f('y')]:y } = o;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`const { [f('x')]:x, [f('y')]:y } = o;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `const { [f('x')]:x, [f('y')]:y } = o;`,
           expected: {
               type: 'Program',
@@ -3657,7 +3657,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let [a, , c] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [a, , c] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let [a, , c] = f();`,
           expected: {
               type: 'Program',
@@ -3794,7 +3794,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let [a, , c, d] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [a, , c, d] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let [a, , c, d] = f();`,
           expected: {
               type: 'Program',
@@ -3947,7 +3947,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let [a, b, ,] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [a, b, ,] = f();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let [a, b, ,] = f();`,
           expected: {
               type: 'Program',
@@ -4084,7 +4084,7 @@ describe('Expressions - Let', () => {
             }
       });
 
-      pass(`let eval = 1, arguments = 2`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let eval = 1, arguments = 2`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let eval = 1, arguments = 2`,
           expected: {
               type: 'Program',
@@ -4220,7 +4220,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [a,,b] = c`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [a,,b] = c`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let [a,,b] = c`,
           expected: {
               type: 'Program',
@@ -4341,7 +4341,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let++;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let++;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let++;`,
           expected: {
               type: 'Program',
@@ -4411,7 +4411,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let: 34`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let: 34`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let: 34`,
           expected: {
               type: 'Program',
@@ -4496,7 +4496,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let(100)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let(100)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let(100)`,
           expected: {
               type: 'Program',
@@ -4583,7 +4583,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let {a: b} = ({});`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {a: b} = ({});`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let {a: b} = ({});`,
           expected: {
               type: 'Program',
@@ -4722,7 +4722,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let instanceof Foo`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let instanceof Foo`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let instanceof Foo`,
           expected: {
               type: 'Program',
@@ -4807,7 +4807,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let async = ""`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let async = ""`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `let async = ""`,
           expected: {
               type: 'Program',
@@ -4895,7 +4895,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [[] = function() { initCount += 1; }()] = [[23]];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [[] = function() { initCount += 1; }()] = [[23]];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [[] = function() { initCount += 1; }()] = [[23]];`,
             expected: {
                 type: 'Program',
@@ -5154,7 +5154,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [[...x] = function() {}()] = [[2, 1, 3]];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [[...x] = function() {}()] = [[2, 1, 3]];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [[...x] = function() {}()] = [[2, 1, 3]];`,
             expected: {
                 type: 'Program',
@@ -5415,7 +5415,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [x = 23] = [undefined];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [x = 23] = [undefined];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [x = 23] = [undefined];`,
             expected: {
                 type: 'Program',
@@ -5560,7 +5560,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [_, x] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [_, x] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [_, x] = [];`,
             expected: {
                 type: 'Program',
@@ -5675,7 +5675,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [, ...x] = function*() {}();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [, ...x] = function*() {}();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [, ...x] = function*() {}();`,
             expected: {
                 type: 'Program',
@@ -5827,7 +5827,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [] = function*() {}();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [] = function*() {}();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [] = function*() {}();`,
             expected: {
                 type: 'Program',
@@ -5946,7 +5946,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [...{ length }] = [1, 2, 3];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [...{ length }] = [1, 2, 3];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [...{ length }] = [1, 2, 3];`,
             expected: {
                 type: 'Program',
@@ -6160,7 +6160,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let {} = null;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {} = null;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let {} = null;`,
             expected: {
                 type: 'Program',
@@ -6244,7 +6244,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { x: y } = { x: 23 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { x: y } = { x: 23 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { x: y } = { x: 23 };`,
             expected: {
                 type: 'Program',
@@ -6428,7 +6428,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } };`,
             expected: {
                 type: 'Program',
@@ -7054,7 +7054,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let arrow = () => {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let arrow = () => {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let arrow = () => {};`,
             expected: {
                 type: 'Program',
@@ -7157,7 +7157,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let ice = function* fapper() {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let ice = function* fapper() {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let ice = function* fapper() {};`,
             expected: {
                 type: 'Program',
@@ -7275,7 +7275,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let {a, b, ...rest} = {x: 1, y: 2, a: 5, b: 3};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let {a, b, ...rest} = {x: 1, y: 2, a: 5, b: 3};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let {a, b, ...rest} = {x: 1, y: 2, a: 5, b: 3};`,
             expected: {
                 type: 'Program',
@@ -7699,7 +7699,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let {...x} = { get v() { return 2; } };`, Context.Empty, {
+    pass(`let {...x} = { get v() { return 2; } };`, Context.Empty, {
             source: `let {...x} = { get v() { return 2; } };`,
             expected: {
                 type: 'Program',
@@ -7756,7 +7756,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`,
             expected: {
                 type: 'Program',
@@ -8102,7 +8102,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { x, } = { x: 23 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { x, } = { x: 23 };`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { x, } = { x: 23 };`,
             expected: {
                 type: 'Program',
@@ -8286,7 +8286,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { ice = function* () {}, fapper = function* x() {} } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { ice = function* () {}, fapper = function* x() {} } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { ice = function* () {}, fapper = function* x() {} } = {};`,
             expected: {
                 type: 'Program',
@@ -8588,7 +8588,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let { a = (function () {}), b = (0, function() {})  } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let { a = (function () {}), b = (0, function() {})  } = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let { a = (function () {}), b = (0, function() {})  } = {};`,
             expected: {
                 type: 'Program',
@@ -8908,7 +8908,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [...[,]] = g();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [...[,]] = g();`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [...[,]] = g();`,
             expected: {
                 type: 'Program',
@@ -9039,7 +9039,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [...[]] = function*() {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [...[]] = function*() {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [...[]] = function*() {};`,
             expected: {
                 type: 'Program',
@@ -9172,7 +9172,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [];`,
             expected: {
                 type: 'Program',
@@ -9610,7 +9610,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [x = 23] = [undefined];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [x = 23] = [undefined];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [x = 23] = [undefined];`,
             expected: {
                 type: 'Program',
@@ -9755,7 +9755,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let [[,] = function* g() {}] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`let [[,] = function* g() {}] = [];`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let [[,] = function* g() {}] = [];`,
             expected: {
                 type: 'Program',
@@ -9921,7 +9921,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`switch (true) { default: let x; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`switch (true) { default: let x; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `switch (true) { default: let x; }`,
             expected: {
                 type: 'Program',
@@ -10037,7 +10037,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`switch (true) { case true: let x; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`switch (true) { case true: let x; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `switch (true) { case true: let x; }`,
             expected: {
                 type: 'Program',
@@ -10169,7 +10169,7 @@ describe('Expressions - Let', () => {
             }
         });
 
-      pass(`let x = "a";
+    pass(`let x = "a";
       let y = "b";
 
       for (let x = "c", i = 0; i < 1; i++) { let y = "d"; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
@@ -10623,7 +10623,7 @@ describe('Expressions - Let', () => {
               }
         });
 
-      pass(`let a = [];
+    pass(`let a = [];
       for (let i = 0, f = function() { return i }; i < 5; ++i) {
         a.push(f);
       }
@@ -11272,7 +11272,7 @@ describe('Expressions - Let', () => {
               }
         });
 
-      pass(`let a = [];
+    pass(`let a = [];
       for (let i = 0; a.push(function () { return i; }), i < 5; ++i) { }
       for (let k = 0; k < 5; ++k) {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `let a = [];

@@ -4,7 +4,7 @@ import { Errors, report } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 import { skipSingleLineComment, skipMultiLineComment } from './comments';
-import { validatePattern } from './regExp';
+import { validateRegExp } from './regExp';
 import {
     hasNext,
     nextChar,

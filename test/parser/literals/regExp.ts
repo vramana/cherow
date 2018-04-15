@@ -27,16 +27,16 @@ describe('Literals - Reggular expression', () => {
     describe('Failure', () => {
 
         const invalidSyntax = [
-            "/(?=/"
-        ]
+            '/(?=/'
+        ];
 
         for (const arg of invalidSyntax) {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNode)
-                })
-            })
+                    parse(`${arg}`, undefined, Context.OptionsNode);
+                });
+            });
         }
     });
 
@@ -44,16 +44,16 @@ describe('Literals - Reggular expression', () => {
 
         const invalidSyntax = [
             '/${1,2/u',
-            "/foo/u",
-            "/foo|bar/u",
-        ]
+            '/foo/u',
+            '/foo|bar/u',
+        ];
 
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNode)
-                })
-            })
+                    parse(`${arg}`, undefined, Context.OptionsNode);
+                });
+            });
         }
     });
 });

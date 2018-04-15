@@ -20,7 +20,7 @@ describe('Statements - While', () => {
         fail('while (false) let x = 1;', Context.Empty, {
             source: 'while (false) let x = 1;',
         });
-        
+
         fail('while (false) async function f() {}', Context.Empty, {
             source: 'while (false) async function f() {}',
         });

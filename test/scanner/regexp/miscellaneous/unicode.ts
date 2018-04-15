@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-//import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -17,6 +17,7 @@ describe.skip('Regular expressions', () => {
             '/\\z/u',
             '/\\8/u',
             '/\\9/u',
+            '/\u{66}|\u{000062})oo/u'
         ];
 
         for (const arg of invalidEscapes) {
@@ -138,7 +139,7 @@ describe.skip('Regular expressions', () => {
             '/\\c0/u',
             '/(?=.)*/u',
             '/[\\1]/u',
-            "/\\00/u",
+            '/\\00/u',
             '/\\09/u',
             '/[\\w-a]/u',
             '/[a-\\w]/u',
@@ -152,6 +153,20 @@ describe.skip('Regular expressions', () => {
             '/[\\00]/u',
             '/[\\01]/u',
             '/[\\09]/u',
+            '/\\1(?:.)/u',
+            '/\\1(?<=a)./u',
+            '/\\1(?<!a)./u',
+            '/[\\c]/u',
+            '/(?=.)*/u',
+            '/\\c/u',
+            '/[a-\\w]/u',
+            '/(?=(foo))?/u',
+            '/[\\c0]/u',
+            '/a{/u',
+            '/a{1,/u',
+            '/{/u',
+            '/}/u',
+            '/]/u'
         ];
 
         for (const arg of invaidSyntax) {
@@ -207,12 +222,39 @@ describe.skip('Regular expressions', () => {
             '/\u{d800}\u{dc00}+/u',
             '/\ud800\u{dc00}+/u',
             '/\u{d800}\udc00+/u',
-            "/(\u{66}|\u{000062})oo/u",
-            "/(\u{0066}|\u{0062})oo/u",
-            "/\u{66}|\u{000062})oo/u",
+            '/(\u{66}|\u{000062})oo/u',
+            '/(\u{0066}|\u{0062})oo/u',
+            '/(?:(?=(foo)))?/u',
+
         ];
 
         for (const arg of validEscapes) {
+
+            it(`${arg}`, () => {
+
+                t.doesNotThrow(() => {
+                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                });
+            });
+        }
+
+        // Character ranges
+        const validRanges = [
+            '/[A-D]/u',
+            '/[A-D]+/u',
+            '/[\u1234-\u{12345}]/u',
+            '/[\u1234-\u{12345}]/u',
+            '/\ud801+/u',
+            '/\W\WA/u',
+            '/\ud801./u',
+            '/\w/u',
+            '/.(?<!\ud800)X/u',
+            '/.(?<![\ud800-\ud900])X/u',
+            '/[^]abc/u',
+            '/(?<=(\udc01\w))X/u',
+        ];
+
+        for (const arg of validRanges) {
 
             it(`${arg}`, () => {
 
@@ -238,8 +280,16 @@ describe.skip('Regular expressions', () => {
             '/a+/u',
             '/a?/u',
             '/a{1}/u',
+            '/\\1(?<a>.)/u',
+            '/\\p{C}/u',
+            '/\b/',
+            '/\B/',
+            '/a.*?(.)\b/',
+            '/a.*?\B(.)/',
             '/[\\u0000-\\ud83c\\udf38-\\u0000]/u',
             '/[\\u0000-\\u{1f338}-\\u0000]/u',
+            '/\u00e5\u00e5\u00e5/u',
+            '/AB\u{10400}/u',
             '/a{1,}/u',
             '/a{1,2}/u',
             '/a*?/u',
@@ -251,6 +301,8 @@ describe.skip('Regular expressions', () => {
             '/👍🚀❇️/u',
             '/[a\-z]/u',
             '/[1\0a]+/u',
+            '/[\W]/',
+            '/[\w]/',
             '/?/u',
             '/+/u',
             '/^/u',

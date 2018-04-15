@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-//import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+import { ValidatorState, validateRegExp } from '../../../../src/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -68,7 +68,21 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<\\>.)/u',
             '/\\k<a>(?<a>a)/u',
             '/(?<$abc>a)\\k<$abc>/u',
-            '/(?<a>a)\\k<a>/u'
+            '/(?<a>a)\\k<a>/u',
+            '/(?<$𐒤>a)/',
+            '/(?<❤>a)/',
+            '/(?<𐒤>a)/',
+            '/(?<a\u{104A4}>.)/',
+            '/(?<a\\uD801\uDCA4>.)/',
+            '/(?<a\\uD801>.)/',
+            '/(?<a\\uDCA4>.)/',
+            //"/(?<a\\u{104A4}>.)/",
+            '/(?<a\u{104A4}>.)/',
+            '/(?<a\uD801\uDCA4>.)/u',
+            '/(?<a\u{104A4}>.)/u',
+            '(?<a\u{104A4}>.)',
+            '/\\1(?:.)/u',
+            '/\\1(?<=a)./u',
         ];
         for (const arg of invalidSyntaxUnicode) {
 
@@ -87,6 +101,7 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<=(?<a>\w){3})f/u',
             '/(?<=(?<a>\w){4})f/u',
             '/(?<=(?<a>\w)+)f/u',
+            '/(?<\u{0041}>.)/u',
             '/(?<=(?<a>\w){6})f/u',
             '/(?<a>(?<=\w{3}))f/u',
             '/((?<=\w{3}))f/u',
@@ -138,7 +153,15 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<b>.).\k<b>/u',
             '/(?<b>b)\k<a>(?<a>a)\k<b>/u',
             '/(?<b>b)\k<a>(?<a>a)\k<b>/',
-            '/(?<a>a)(?<b>b)\k<a>|(?<c>c)/u'
+            '/(?<a>a)(?<b>b)\k<a>|(?<c>c)/u',
+            '/(?<\u{0041}>.)/u',
+            '"(?<\u{0041}>.)"',
+
+            '"(?<\u{0041}>.)"',
+            '"(?<\u{0041}>.)"',
+            '"(?<\u{0041}>.)"',
+//            "(?<a\u{104A4}>.)",
+            '(?<\u{0041}>.)'
         ];
 
         for (const arg of validSyntaxUnicode) {
