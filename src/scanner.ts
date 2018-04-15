@@ -1493,7 +1493,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
 
-    parser.tokenValue = validate(parser, pattern, context, bodyStart, !!(mask & RegexFlags.Unicode), flags);
+    parser.tokenValue = validate(parser, pattern, context, bodyStart, bodyEnd, !!(mask & RegexFlags.Unicode), flags);
 
     return Token.RegularExpression;
 }
@@ -1501,11 +1501,22 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 /**
  * Validates regular expressions
  *
- * @param {Parser} Parser instance
- * @param {context} Context masks
- * @param {first} Codepoint
+  *
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param start Start of regexp pattern to validate
+ * @param end End of regexp pattern to validate
+ * @param isUnicode True if unicode
+ * @param flags Regexp flags
  */
-function validate(parser: Parser, pattern: string, context: Context, start: number, isUnicode: boolean, flags: string) {
+function validate(
+    parser: Parser, 
+    pattern: string, 
+    context: Context, 
+    start: number, 
+    end: number, 
+    isUnicode: boolean, 
+    flags: string) {
     
     try {
         RegExp(pattern);
@@ -1513,14 +1524,8 @@ function validate(parser: Parser, pattern: string, context: Context, start: numb
         report(parser, Errors.UnterminatedRegExp);
     }
     /*if (context & Context.OptionsNode) {
-      
     } else {
-        const { index } = parser;
-        
-        // Super un-optimized, but works!
-        parser.index = start
-        validatePattern(parser, isUnicode);
-        parser.index = index;
+        verifyRegExpPattern(parser, isUnicode, start, end);
     }*/
 
     try {
