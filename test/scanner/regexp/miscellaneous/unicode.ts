@@ -77,6 +77,7 @@ describe.skip('Regular expressions', () => {
             '/[\\c]/u',
             '/[\\c1]/u',
             '/[b-a]/u',
+            '/[\]]/u',
             '/\\a/u',
             '/\\u{110000}/u',
             '/\\u{20/u',
@@ -166,7 +167,11 @@ describe.skip('Regular expressions', () => {
             '/a{1,/u',
             '/{/u',
             '/}/u',
-            '/]/u'
+            '/]/u',
+            '/[\s-\d]/u',
+            '/.(?=.)?/u',
+            // Positive lookahead with quantifier
+            '/(?=.)*/u',
         ];
 
         for (const arg of invaidSyntax) {
@@ -286,6 +291,8 @@ describe.skip('Regular expressions', () => {
             '/\B/',
             '/a.*?(.)\b/',
             '/a.*?\B(.)/',
+            '/\c0/u',
+            '/[%-\d]/u',
             '/[\\u0000-\\ud83c\\udf38-\\u0000]/u',
             '/[\\u0000-\\u{1f338}-\\u0000]/u',
             '/\u00e5\u00e5\u00e5/u',
@@ -420,6 +427,17 @@ describe.skip('Regular expressions', () => {
             '/^[^\\x20-\\x7e]*$/u',
             '/^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/u',
             '/^\\s*|\\s*$/u',
+            '/[\^]/u',
+            '/[\$]/u',
+            '/[\.]/u',
+            '/[\(]/u',
+            '/[\)]/u',
+            '/^\\s*|\\s*$/u',
+            '/[\^]/u',
+            '/[\$]/u',
+            '/[\.]/u',
+            '/[\(]/u',
+            '/[\)]/u'
         ];
 
         for (const arg of validSyntax) {

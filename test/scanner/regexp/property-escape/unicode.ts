@@ -139,7 +139,33 @@ describe.skip('Unicode property escape', () => {
             '/\\P}/u',
             '/\\PL/u',
            '/\\pL/u',
-           '/^[\p{Lu}-\p{Ll}]+$/u'
+           '/^[\p{Lu}-\p{Ll}]+$/u',
+           '/\p{Sm}/u',
+           '/\P{L}/u',
+           '/^\p{scx=Java}+$/u',
+           '/^\P{Script_Extensions=Javanese}+$/u',
+           '/^\P{Script_Extensions=Java}+$/u',
+           '/^\P{scx=Javanese}+$/u',
+           '/^\P{scx=Java}+$/u',
+           '/^\p{scx=Kana}+$/u',
+           '/^\p{Script_Extensions=Sind}+$/u',
+           '/^\P{Script_Extensions=Khudawadi}+$/u',
+           '/^\p{scx=Lepcha}+$/u',
+           '/^\p{scx=Lepc}+$/u',
+           '/^\p{scx=Mahj}+$/u',
+           '/^\P{Script_Extensions=Mahajani}+$/u',
+           '/^\P{scx=Mahajani}+$/u',
+           '/^\p{scx=Mlym}+$/u',
+           '/^\P{scx=Malayalam}+$/u',
+           '/^\p{scx=Modi}+$/u',
+           '/^\p{scx=Nshu}+$/u',
+           '/^\P{Script_Extensions=Nshu}+$/u',
+           '/^\p{scx=Pauc}+$/u',
+           '/^\P{scx=Pau_Cin_Hau}+$/u',
+           '/^\p{scx=Shrd}+$/u',
+           '/^\p{scx=Warang_Citi}+$/u',
+           '/^\P{XID_Start}+$/u',
+           '/^\P{XIDS}+$/u',
         ];
 
         for (const arg of invalidSyntax) {
@@ -172,14 +198,12 @@ describe.skip('Unicode property escape', () => {
             '/\\p{Other}/u',
             '/\\p{Cc}/u',
             '/\\p{Control}/u',
-//            "/\p{Sm}/u",
-  //          "/\P{L}/u",
            '/^[\p{Lu}\p{Ll}]+$/u',
            '/^[\P{Lu}\p{Ll}]+$/u',
            '/^[\P{Lu}]+$/u',
            '/^[^\P{Lu}]+$/u',
            '/^[^\p{Lu}\P{Ll}]+$/u',
-           '/^[\P{Lu}\p{Ll}]+$/u',
+           '/^[\P{Lu}\p{Ll}]+$/u'
 
         ];
 
