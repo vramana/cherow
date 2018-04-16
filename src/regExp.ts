@@ -88,6 +88,50 @@ export function validateNamedBackReferences(parser: Parser) {
 }
 
 /**
+ * Parse property class
+ * 
+ * @param parser Parser context
+ * @param context Validator context
+ */
+function parsePropertyClass(parser: Parser, context: ValidatorState): boolean {
+
+    let { start: index, source, end } = parser;
+
+    // Invalid: '/\\p{}/u'
+    if (source.charCodeAt(index) === Chars.RightBrace) return false;
+
+    let name: string = '';
+
+    while (index !== end) {
+        let ch = source.charCodeAt(index);
+        if (!isUnicodePropertyNameCharacter(ch)) break;
+        name += fromCodePoint(ch)
+        index++;
+    }
+
+    if (source.charCodeAt(index) !== Chars.EqualSign) {
+        parser.start = index;
+        validateUnicodePropertyName(parser, context, name)
+        return true
+    }
+
+    index++; // skip '='
+
+    let value = '';
+    while (index !== end) {
+        const ch = source.charCodeAt(index);
+        if (!isUnicodePropertyValueCharacter(parser, context, ch)) break;
+        value += fromCodePoint(ch)
+        index++;
+    }
+
+    parser.start = index;
+
+    validateUnicodePropertyValue(parser, context, name, value)
+    return true
+}
+
+/**
  * Get backreference index, and returns it's value
  * 
  * @param parser Parser context
