@@ -18,7 +18,7 @@ export const enum ValidatorState {
  * @param isUnicode true if unicode.
  */
 export function validateRegExp(source: string, isUnicode: boolean): boolean {
-    const parser = createParser(source, undefined, undefined);
+    const parser: Parser = createParser(source);
     verifyRegExpPattern(parser, isUnicode, 0, source.length);
     return true;
 }
@@ -35,15 +35,15 @@ export function verifyRegExpPattern(
     parser: Parser,
     isUnicode: boolean,
     start: number,
-    end: number
-) {
+    end: number): boolean {
     const groupNames: string[] = [];
     const referenceNames: string[] = [];
     let context = isUnicode ? ValidatorState.Unicode : ValidatorState.Empty;
     parsePattern(parser, context, start, end, groupNames, referenceNames);
-    if (!isUnicode && groupNames.length > 0) {
-        parsePattern(parser, context & ~ValidatorState.Unicode, start, end, /* empty */ [], /* empty*/ [])
+    if (!(context & ValidatorState.Unicode) && parser.groupNames.length > 0) {
+        parsePattern(parser, context & ~ValidatorState.Unicode | ValidatorState.NamedGroups, start, end, /* empty */ [], /* empty */ [])
     }
+    return true;
 }
 
 /**
@@ -69,6 +69,69 @@ export function parsePattern(
     // To be added
     // }
 }
+
+/**
+ * Validates back reference names
+ * 
+ * @param parser Parser instance
+ */
+export function validateNamedBackReferences(parser: Parser) {
+    let { namedBackReferences, capturingParens, backReferenceNames, groupNames } = parser;
+    // if (parser.namedBackReferences === 0) return;
+    if (namedBackReferences > capturingParens) report(Errors.InvalidEscape);
+    for (let i = 0; i < backReferenceNames.length; i++) {
+        // TODO! Get rid if 'indexOf'
+        if (groupNames.indexOf(backReferenceNames[i]) === -1) {
+            report(Errors.InvalidNamedCaptureRef);
+        }
+    }
+}
+
+/**
+ * Get backreference index, and returns it's value
+ * 
+ * @param parser Parser context
+ */
+
+function getBackReferenceIndex(parser: Parser): number {
+    let { start, source, end } = parser;
+    let ch = source.charCodeAt(start);
+    if (ch === Chars.Zero) return 0; // Seen as 'false'
+    let value = 0;
+    while (start !== end) {
+        ch = source.charCodeAt(start);
+        if (!isDecimalDigit(ch)) break;
+        value = 10 * value + (ch - Chars.Zero)
+        start++;
+    }
+
+    return value;
+}
+
+/**
+ * Parses backreference
+ * 
+ * @see [Link](https://tc39.github.io/ecma262/#sec-atomescape)
+ * 
+ * @param parser Parser context
+ * @param context Validator context masks
+ */
+
+function parseBackReference(parser: Parser, context: ValidatorState): boolean {
+    const n = getBackReferenceIndex(parser);
+    if (n) {
+
+        if (context & ValidatorState.Unicode) {
+            if (n > parser.namedBackReferences) parser.namedBackReferences = n;
+            return true;
+        }
+
+        //  n ≤ NcapturingParens.
+        if (n <= parser.capturingParens) return true;
+    }
+    return false;
+}
+
 
 /**
  * Parses strict identity escape
