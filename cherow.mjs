@@ -446,7 +446,7 @@ function nextToken(parser, context) {
     parser.lastIndex = parser.index;
     parser.lastLine = parser.line;
     parser.lastColumn = parser.column;
-    return parser.token = scan$1(parser, context);
+    return parser.token = scan(parser, context);
 }
 var hasBit = function (mask, flags) { return (mask & flags) === flags; };
 /**
@@ -708,7 +708,7 @@ function consumeOpt(parser, code) {
 function consumeLineFeed(parser, state) {
     parser.flags |= 1 /* NewLine */;
     parser.index++;
-    if ((state & 4 /* LastIsCR */) === 0) {
+    if ((state & 2 /* LastIsCR */) === 0) {
         parser.column = 0;
         parser.line++;
     }
@@ -940,30 +940,33 @@ function readNext(parser, prev) {
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
  * @param parser Parser instance
+ * @param context Context masks
  * @param state  Scanner state
+ * @param type   Comment type
  */
 function skipSingleLineComment(parser, context, state, type) {
     var start = parser.index;
-    scan: while (hasNext(parser)) {
+    var collectable = !!(context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
+    while (hasNext(parser)) {
         switch (nextChar(parser)) {
             case 13 /* CarriageReturn */:
                 advanceNewline(parser);
-                if (hasNext(parser) && nextChar(parser) === 10 /* LineFeed */) {
-                    parser.index++;
-                }
-                break scan;
+                if (hasNext(parser) && nextChar(parser) === 10 /* LineFeed */)
+                    { parser.index++; }
+                return state | 1 /* NewLine */;
             case 10 /* LineFeed */:
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
                 advanceNewline(parser);
-                break scan;
+                if (collectable)
+                    { addComment(parser, context, type, start); }
+                return state | 1 /* NewLine */;
             default:
-                advanceAndOrSkipUC(parser);
+                advance(parser);
         }
     }
-    if (context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */)) {
-        addComment(parser, context, type, state, start);
-    }
+    if (collectable)
+        { addComment(parser, context, type, start); }
     return state;
 }
 /**
@@ -972,45 +975,46 @@ function skipSingleLineComment(parser, context, state, type) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
  * @param parser
+ * @param context Context masks
  * @param state
  */
 function skipMultiLineComment(parser, context, state) {
     var start = parser.index;
+    var collectable = !!(context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
             case 42 /* Asterisk */:
                 advance(parser);
-                state &= ~4 /* LastIsCR */;
+                state &= ~2 /* LastIsCR */;
                 if (consumeOpt(parser, 47 /* Slash */)) {
-                    if (context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */)) {
-                        addComment(parser, context, 'Multiline', state, start);
-                    }
+                    if (collectable)
+                        { addComment(parser, context, 'Multiline', start); }
                     return state;
                 }
                 break;
             // Mark multiline comments containing linebreaks as new lines
             // so we can perfectly handle edge cases like: '1/*\n*/--> a comment'
             case 13 /* CarriageReturn */:
-                state |= 1 /* NewLine */ | 4 /* LastIsCR */;
+                state |= 1 /* NewLine */ | 2 /* LastIsCR */;
                 advanceNewline(parser);
                 break;
             case 10 /* LineFeed */:
                 consumeLineFeed(parser, state);
-                state = state & ~4 /* LastIsCR */ | 1 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 1 /* NewLine */;
                 break;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
-                state = state & ~4 /* LastIsCR */ | 1 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 1 /* NewLine */;
                 advanceNewline(parser);
                 break;
             default:
-                state &= ~4 /* LastIsCR */;
-                advanceAndOrSkipUC(parser);
+                state &= ~2 /* LastIsCR */;
+                advance(parser);
         }
     }
     tolerant(parser, context, 6 /* UnterminatedComment */);
 }
-function addComment(parser, context, type, state, start) {
+function addComment(parser, context, type, start) {
     var index = parser.index;
     var startIndex = parser.startIndex;
     var startLine = parser.startLine;
@@ -1050,7 +1054,7 @@ function addComment(parser, context, type, state, start) {
  * @param parser Parser instance
  * @param context Context masks
  */
-function scan$1(parser, context) {
+function scan(parser, context) {
     parser.flags &= ~1 /* NewLine */;
     var lineStart = parser.index === 0;
     var state = 0;
@@ -1061,11 +1065,11 @@ function scan$1(parser, context) {
             parser.startLine = parser.line;
         }
         var first = nextChar(parser);
-        if (first >= 128) {
+        if (first >= 127 /* MaxAsciiCharacter */) {
             switch (first) {
                 case 8232 /* LineSeparator */:
                 case 8233 /* ParagraphSeparator */:
-                    state = state & ~4 /* LastIsCR */ | 1 /* NewLine */;
+                    state = state & ~2 /* LastIsCR */ | 1 /* NewLine */;
                     advanceNewline(parser);
                     break;
                 case 65519 /* ByteOrderMark */:
@@ -1085,41 +1089,35 @@ function scan$1(parser, context) {
                 case 8239 /* NarrowNoBreakSpace */:
                 case 8287 /* MathematicalSpace */:
                 case 12288 /* IdeographicSpace */:
-                case 65279 /* ZeroWidthNoBreakSpace */:
-                case 8204 /* ZeroWidthJoiner */:
-                case 8205 /* ZeroWidthNonJoiner */:
-                    state |= 2 /* SameLine */;
+                case 65279 /* Zwnbs */:
+                case 8205 /* Zwj */:
+                case 65279 /* Zwnbs */:
                     advance(parser);
                     break;
                 default:
-                    first = nextUnicodeChar(parser);
-                    if (isValidIdentifierStart(first))
-                        { return scanIdentifier(parser, context, first); }
-                    report(parser, 8 /* UnexpectedChar */, escapeForPrinting(nextUnicodeChar(parser)));
+                    return parseMaybeIdentifier(parser, context, first);
             }
         }
         else {
             switch (first) {
                 case 13 /* CarriageReturn */:
-                    state |= 1 /* NewLine */ | 4 /* LastIsCR */;
+                    state |= 1 /* NewLine */ | 2 /* LastIsCR */;
                     advanceNewline(parser);
                     break;
                 case 10 /* LineFeed */:
                     consumeLineFeed(parser, state);
-                    state = state & ~4 /* LastIsCR */ | 1 /* NewLine */;
+                    state = state & ~2 /* LastIsCR */ | 1 /* NewLine */;
                     break;
                 case 9 /* Tab */:
                 case 11 /* VerticalTab */:
                 case 12 /* FormFeed */:
                 case 32 /* Space */:
-                    state |= 2 /* SameLine */;
                     advance(parser);
                     break;
                 // `/`, `/=`, `/>`
                 case 47 /* Slash */:
                     {
                         advance(parser);
-                        state |= 2 /* SameLine */;
                         if (!hasNext(parser))
                             { return 150069 /* Divide */; }
                         switch (nextChar(parser)) {
@@ -1510,12 +1508,8 @@ function scan$1(parser, context) {
                 case 120 /* LowerX */:
                 case 121 /* LowerY */:
                 case 122 /* LowerZ */:
-                    return scanIdentifier(parser, context, first);
                 default:
-                    first = nextChar(parser);
-                    if (isValidIdentifierStart(first))
-                        { return scanIdentifier(parser, context, first); }
-                    report(parser, 8 /* UnexpectedChar */, escapeForPrinting(nextUnicodeChar(parser)));
+                    return scanIdentifier(parser, context, first);
             }
         }
     }
@@ -1652,7 +1646,7 @@ function scanImplicitOctalDigits(parser, context) {
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanSignedInteger(parser, context, end) {
+function scanSignedInteger(parser, end) {
     var next = nextChar(parser);
     if (next === 43 /* Plus */ || next === 45 /* Hyphen */) {
         advance(parser);
@@ -1662,7 +1656,7 @@ function scanSignedInteger(parser, context, end) {
         report(parser, 62 /* InvalidOrUnexpectedToken */);
     }
     var preNumericPart = parser.index;
-    var finalFragment = scanDecimalDigitsOrSeparator(parser, context);
+    var finalFragment = scanDecimalDigitsOrSeparator(parser);
     return parser.source.substring(end, preNumericPart) + finalFragment;
 }
 /**
@@ -1681,7 +1675,7 @@ function scanNumericLiteral(parser, context, state /* None */) {
         scanDecimalAsSmi(parser, context);
     var next = nextChar(parser);
     // I know I'm causing a bug here. The question is - will anyone figure this out?
-    if (next !== 46 /* Period */ && next !== 46 /* Period */ && !isValidIdentifierStart(next)) {
+    if (next !== 46 /* Period */ && next !== 95 /* Underscore */ && !isValidIdentifierStart(next)) {
         return assembleNumericLiteral(parser, context, value);
     }
     if (consumeOpt(parser, 46 /* Period */)) {
@@ -1689,7 +1683,7 @@ function scanNumericLiteral(parser, context, state /* None */) {
             report(parser, 60 /* ZeroDigitNumericSeparator */);
         }
         state |= 4 /* Float */;
-        value = value + '.' + scanDecimalDigitsOrSeparator(parser, context);
+        value = value + '.' + scanDecimalDigitsOrSeparator(parser);
     }
     var end = parser.index;
     if (consumeOpt(parser, 110 /* LowerN */)) {
@@ -1699,7 +1693,7 @@ function scanNumericLiteral(parser, context, state /* None */) {
     }
     if (consumeOpt(parser, 101 /* LowerE */) || consumeOpt(parser, 69 /* UpperE */)) {
         state |= 4 /* Float */;
-        value += scanSignedInteger(parser, context, end);
+        value += scanSignedInteger(parser, end);
     }
     if (isValidIdentifierStart(nextChar(parser))) {
         report(parser, 0 /* Unexpected */);
@@ -1726,7 +1720,7 @@ function scanNumericSeparator(parser, state) {
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanDecimalDigitsOrSeparator(parser, context) {
+function scanDecimalDigitsOrSeparator(parser) {
     var start = parser.index;
     var state = 0;
     var ret = '';
@@ -1819,7 +1813,7 @@ function scanIdentifier(parser, context, first) {
         switch (ch) {
             case 92 /* Backslash */:
                 ret += parser.source.slice(start, index);
-                ret += scanUnicodeCodePointEscape(parser, context);
+                ret += scanUnicodeCodePointEscape(parser);
                 start = parser.index;
                 break;
             default:
@@ -1848,12 +1842,27 @@ function scanIdentifier(parser, context, first) {
     return 67125249 /* Identifier */;
 }
 /**
+ * Scanning chars in the range 0...127, and treat them as an possible
+ * identifier. This allows subsequent checking to be faster.
+ *
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param first Code point
+ */
+function parseMaybeIdentifier(parser, context, first) {
+    first = nextUnicodeChar(parser);
+    if (!isValidIdentifierStart(first)) {
+        report(parser, 8 /* UnexpectedChar */, escapeForPrinting(first));
+    }
+    return scanIdentifier(parser, context, first);
+}
+/**
  * Scan unicode codepoint escape
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanUnicodeCodePointEscape(parser, context) {
+function scanUnicodeCodePointEscape(parser) {
     var index = parser.index;
     if (index + 5 < parser.source.length) {
         if (parser.source.charCodeAt(index + 1) !== 117 /* LowerU */) {
@@ -1889,7 +1898,7 @@ function scanIdentifierUnicodeEscape(parser) {
         var digit = toHex(ch);
         while (digit >= 0) {
             codePoint = (codePoint << 4) | digit;
-            if (codePoint > 1114111 /* LastUnicodeChar */) {
+            if (codePoint > 1114111 /* NonBMPMax */) {
                 report(parser, 0 /* Unexpected */);
             }
             advance(parser);
@@ -1949,36 +1958,32 @@ function scanEscapeSequence(parser, context, first) {
                 var code = first - 48;
                 var index = parser.index + 1;
                 var column = parser.column + 1;
-                if (index < parser.source.length) {
-                    var next = parser.source.charCodeAt(index);
-                    if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                        // Strict mode code allows only \0, then a non-digit.
-                        if (code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) {
-                            if (context & 16384 /* Strict */)
-                                { return -2 /* StrictOctal */; }
-                            parser.flags |= 128 /* Octal */;
-                        }
+                var next = parser.source.charCodeAt(index);
+                if (next < 48 /* Zero */ || next > 55 /* Seven */) {
+                    // Strict mode code allows only \0, then a non-digit.
+                    if (code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) {
+                        if (context & 16384 /* Strict */)
+                            { return -2 /* StrictOctal */; }
+                        parser.flags |= 128 /* Octal */;
                     }
-                    else if (context & 16384 /* Strict */) {
-                        return -2 /* StrictOctal */;
-                    }
-                    else {
+                }
+                else if (context & 16384 /* Strict */) {
+                    return -2 /* StrictOctal */;
+                }
+                else {
+                    parser.lastValue = next;
+                    code = code * 8 + (next - 48 /* Zero */);
+                    index++;
+                    column++;
+                    next = parser.source.charCodeAt(index);
+                    if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
                         parser.lastValue = next;
                         code = code * 8 + (next - 48 /* Zero */);
                         index++;
                         column++;
-                        if (index < parser.source.length) {
-                            next = parser.source.charCodeAt(index);
-                            if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
-                                parser.lastValue = next;
-                                code = code * 8 + (next - 48 /* Zero */);
-                                index++;
-                                column++;
-                            }
-                        }
-                        parser.index = index - 1;
-                        parser.column = column - 1;
                     }
+                    parser.index = index - 1;
+                    parser.column = column - 1;
                 }
                 return code;
             }
@@ -1993,14 +1998,12 @@ function scanEscapeSequence(parser, context, first) {
                 var code$1 = first - 48;
                 var index$1 = parser.index + 1;
                 var column$1 = parser.column + 1;
-                if (index$1 < parser.source.length) {
-                    var next$1 = parser.source.charCodeAt(index$1);
-                    if (next$1 >= 48 /* Zero */ && next$1 <= 55 /* Seven */) {
-                        code$1 = code$1 * 8 + (next$1 - 48 /* Zero */);
-                        parser.lastValue = next$1;
-                        parser.index = index$1;
-                        parser.column = column$1;
-                    }
+                var next$1 = parser.source.charCodeAt(index$1);
+                if (next$1 >= 48 /* Zero */ && next$1 <= 55 /* Seven */) {
+                    code$1 = code$1 * 8 + (next$1 - 48 /* Zero */);
+                    parser.lastValue = next$1;
+                    parser.index = index$1;
+                    parser.column = column$1;
                 }
                 return code$1;
             }
@@ -2037,7 +2040,7 @@ function scanEscapeSequence(parser, context, first) {
                             { return -4 /* InvalidHex */; }
                         code$2 = code$2 * 16 + digit;
                         // Code point out of bounds
-                        if (code$2 > 1114111 /* LastUnicodeChar */)
+                        if (code$2 > 1114111 /* NonBMPMax */)
                             { return -5 /* OutOfRange */; }
                         ch = parser.lastValue = readNext(parser, ch);
                     }
@@ -2147,8 +2150,7 @@ function scanLooserTemplateSegment(parser, ch) {
     while (ch !== 96 /* Backtick */) {
         if (ch === 36 /* Dollar */) {
             var index = parser.index + 1;
-            if (index < parser.source.length &&
-                parser.source.charCodeAt(index) === 123 /* LeftBrace */) {
+            if (parser.source.charCodeAt(index) === 123 /* LeftBrace */) {
                 parser.index = index;
                 parser.column++;
                 return -ch;
@@ -2221,7 +2223,6 @@ function scanTemplate(parser, context, first) {
                         ret = undefined;
                         ch = scanLooserTemplateSegment(parser, parser.lastValue);
                         if (ch < 0) {
-                            ch = -ch;
                             tail = false;
                         }
                         break loop;
@@ -2349,13 +2350,13 @@ function scanRegularExpression(parser, context) {
     parser.tokenRegExp = { pattern: pattern, flags: flags };
     if (context & 8 /* OptionsRaw */)
         { storeRaw(parser, parser.startIndex); }
-    parser.tokenValue = validate(parser, pattern, context, bodyStart, bodyEnd, !!(mask & 8 /* Unicode */), flags);
+    parser.tokenValue = validate(parser, pattern, flags);
     return 16388 /* RegularExpression */;
 }
 /**
  * Validates regular expressions
  *
-  *
+ *
  * @param parser Parser instance
  * @param context Context masks
  * @param start Start of regexp pattern to validate
@@ -2363,7 +2364,7 @@ function scanRegularExpression(parser, context) {
  * @param isUnicode True if unicode
  * @param flags Regexp flags
  */
-function validate(parser, pattern, context, start, end, isUnicode, flags) {
+function validate(parser, pattern, flags) {
     try {
         
     }
@@ -2614,7 +2615,7 @@ function parseUnaryExpression(parser, context) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, 42 /* StrictDelete */);
             }
-            else if (isPropertyWithPrivateFieldKey(context, argument)) {
+            if (isPropertyWithPrivateFieldKey(context, argument)) {
                 tolerant(parser, context, 43 /* DeletePrivateField */);
             }
         }
@@ -4612,12 +4613,8 @@ function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
     expect(parser, context, 19544 /* FunctionKeyword */);
     var isAwait = 2;
     var isGenerator = 0;
-    if (consume(parser, context, 150067 /* Multiply */)) {
-        if (!(context & 8388608 /* InFunctionBody */) && context & 16777216 /* AllowSingleStatement */) {
-            tolerant(parser, context, 20 /* GeneratorInSingleStatementContext */);
-        }
-        isGenerator = 1 /* Generator */;
-    }
+    if (consume(parser, context, 150067 /* Multiply */))
+        { isGenerator = 1 /* Generator */; }
     return parseFunctionDeclarationBody(parser, context & ~(16777216 /* AllowSingleStatement */ | 268435456 /* Method */ | 536870912 /* AllowSuperProperty */), isGenerator | isAwait, pos);
 }
 /**
@@ -5986,6 +5983,10 @@ var index = Object.freeze({
 });
 
 /**
+ * A list of character constants with much more human-readable names.
+ */
+
+/**
  * Parse script code
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
@@ -6007,6 +6008,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return parse(source, options, 16384 /* Strict */ | 32768 /* Module */);
 }
-var version = '1.4.0';
+var version = '1.4.3';
 
-export { parseScript, parseModule, version, estree as ESTree, index as Parser, skipSingleLineComment, skipMultiLineComment, addComment, ErrorMessages, constructError, report, tolerant, scan$1 as scan, scanHexIntegerLiteral, scanOctalOrBinary, scanImplicitOctalDigits, scanSignedInteger, scanNumericLiteral, scanNumericSeparator, scanDecimalDigitsOrSeparator, scanDecimalAsSmi, scanIdentifier, scanString, consumeTemplateBrace, scanTemplate, scanRegularExpression, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, isIdentifierPart, expect, consume, nextToken, hasBit, scanPrivateName, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, hasNext, advance, advanceOnMaybeAstral, nextChar, nextUnicodeChar, validateParams, reinterpret, advanceAndOrSkipUC, consumeOpt, consumeLineFeed, advanceNewline, fromCodePoint, toHex, storeRaw, lookahead, escapeForPrinting, isValidSimpleAssignmentTarget, getLocation, isIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, isPrologueDirective, parseAndDisallowDestructuringAndBinding, parseAndValidateIdentifier, parseDirective, isEvalOrArguments, recordError, readNext };
+export { parseScript, parseModule, version, estree as ESTree, index as Parser, skipSingleLineComment, skipMultiLineComment, addComment, ErrorMessages, constructError, report, tolerant, scan, scanHexIntegerLiteral, scanOctalOrBinary, scanImplicitOctalDigits, scanSignedInteger, scanNumericLiteral, scanNumericSeparator, scanDecimalDigitsOrSeparator, scanDecimalAsSmi, scanIdentifier, scanString, consumeTemplateBrace, scanTemplate, scanRegularExpression, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, isIdentifierPart, expect, consume, nextToken, hasBit, scanPrivateName, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, hasNext, advance, advanceOnMaybeAstral, nextChar, nextUnicodeChar, validateParams, reinterpret, advanceAndOrSkipUC, consumeOpt, consumeLineFeed, advanceNewline, fromCodePoint, toHex, storeRaw, lookahead, escapeForPrinting, isValidSimpleAssignmentTarget, getLocation, isIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, isPrologueDirective, parseAndDisallowDestructuringAndBinding, parseAndValidateIdentifier, parseDirective, isEvalOrArguments, recordError, readNext };
