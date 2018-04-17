@@ -6,11 +6,7 @@ import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
 import { constructError } from './errors';
 import { parseExpression, parseIdentifier } from './parser/expressions';
-import {
-    isValidIdentifierStart,
-    isValidIdentifierPart,
-    mustEscape
-} from './unicode';
+import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 
 // Context masks
 export const enum Context {
