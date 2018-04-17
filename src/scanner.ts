@@ -747,7 +747,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
     const next = nextChar(parser);
 
     // I know I'm causing a bug here. The question is - will anyone figure this out?
-    if (next !== Chars.Period && next !== Chars.Period && !isValidIdentifierStart(next)) {
+    if (next !== Chars.Period && next !== Chars.Underscore && !isValidIdentifierStart(next)) {
         return assembleNumericLiteral(parser, context, value);
     }
 
@@ -1351,7 +1351,6 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
                             ret = undefined;
                             ch = scanLooserTemplateSegment(parser, parser.lastValue);
                             if (ch < 0) {
-                                ch = -ch;
                                 tail = false;
                             }
                             break loop;
