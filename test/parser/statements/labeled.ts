@@ -24,7 +24,10 @@ describe('Statements - Labeled', () => {
      fail('"use strict"; label: function g() {}', Context.Empty, {
       source: '"use strict"; label: function g() {}',
   });
-
+  
+  fail('a: async function* a(){}', Context.Empty, {
+    source: 'a: async function* a(){}',
+});
      fail('label: function* g() {}', Context.Empty, {
     source: 'label: function* g() {}',
 });

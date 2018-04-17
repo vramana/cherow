@@ -111,13 +111,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     expect(parser, context, Token.FunctionKeyword);
     const isAwait = ModifierState.Await;
     let isGenerator = ModifierState.None;
-    if (consume(parser, context, Token.Multiply)) {
-        if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
-            tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
-        }
-        isGenerator = ModifierState.Generator;
-    }
-
+    if (consume(parser, context, Token.Multiply)) isGenerator = ModifierState.Generator;
     return parseFunctionDeclarationBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, pos);
 }
 

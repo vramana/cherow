@@ -22,6 +22,47 @@ it('should parse module code', () => {
         });
 });
 
+it('should parse with impliedStrict and shebang option', () => {
+  assert.match(parseScript('foo', { impliedStrict: true, skipShebang: true }), {
+        body: [
+          {
+            expression: {
+              name: 'foo',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          },
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      });
+});
+
+it('should parse with comments option', () => {
+  assert.match(parseModule('foo // bar', { comments: true, rawIdentifier: true }) as any, {
+        body: [
+          {
+            expression: {
+              name: 'foo',
+              type: 'Identifier',
+              raw: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+        ],
+        "comments": [
+              {
+               "end": 10,
+                "start": 4,
+                "type": "SingleLine",
+                "value": " bar",
+              }
+            ],
+        sourceType: 'module',
+        type: 'Program'
+      });
+});
+
 it('should parse with rawIdentifier option', () => {
     assert.match(parseModule('foo', { rawIdentifier: true }) as any, {
           body: [
@@ -39,7 +80,7 @@ it('should parse with rawIdentifier option', () => {
         });
 });
 
-it('should parse with raw option', () => {
+it('should parse with raw option - number', () => {
   assert.match(parseModule('1', { raw: true }) as any, {
       body: [
         {
@@ -56,8 +97,26 @@ it('should parse with raw option', () => {
     });
 });
 
+it('should parse with raw option - string', () => {
+  assert.match(parseModule('"a"', { raw: true }) as any, {
+      "body": [
+        {
+          "directive": "a",
+          "expression": {
+            "raw": "\"a\"",
+           "type": "Literal",
+            "value": "a",
+          },
+          "type": "ExpressionStatement"
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program",
+    });
+});
+
 it('should parse with globalReturn option', () => {
-  assert.match(parseModule('return', { globalReturn: true }) as any,
+  assert.match(parseModule('return', { globalReturn: true, next: true, globalAwait: true }) as any,
   {
     body: [
       {
@@ -121,7 +180,7 @@ it('should parse with source option', () => {
 });
 
 it('should parse with loc option', () => {
-  assert.match(parseModule('1', { loc: true }) as any,
+  assert.match(parseModule('1', { loc: true, node: true }) as any,
   {
       body: [
         {

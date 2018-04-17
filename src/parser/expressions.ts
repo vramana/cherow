@@ -308,7 +308,8 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
         if (context & Context.Strict && token === Token.DeleteKeyword) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, Errors.StrictDelete);
-            } else if (isPropertyWithPrivateFieldKey(context, argument)) {
+            } 
+            if (isPropertyWithPrivateFieldKey(context, argument)) {
                 tolerant(parser, context, Errors.DeletePrivateField);
             }
         }

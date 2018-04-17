@@ -4,6 +4,9 @@ import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
 // This tests both public fields and public static fields
+//
+// Note! This is not finished yet - still a few non-failing tests. Waiting for finale specs
+
 describe('Declarations - Class fields', () => {
 
     describe('Failures', () => {
@@ -189,6 +192,7 @@ describe('Declarations - Class fields', () => {
             '"d" = 42',
             '[f()]', //
             'x = f();',
+            'x = f( #b );',
             'a\n get',
             'get\n *a(){}',
             'a\n static',

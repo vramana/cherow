@@ -4,6 +4,8 @@ import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
 describe('Declarations - Private fields', () => {
+    
+    // TODO! This is not finished yet - still a few non-failing tests. Waiting for finale specs
 
     describe('Failure', () => {
 
