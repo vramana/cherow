@@ -93,7 +93,7 @@ export function validateNamedBackReferences(parser: Parser) {
  * @param parser Parser context
  * @param context Validator context
  */
-function parsePropertyClass(parser: Parser, context: ValidatorState): boolean {
+function parsePropertyClass(parser: Parser, context: ValidatorState) {
 
     let { start: index, source, end } = parser;
 
@@ -103,16 +103,16 @@ function parsePropertyClass(parser: Parser, context: ValidatorState): boolean {
     let name: string = '';
 
     while (index !== end) {
-        let ch = source.charCodeAt(index);
+        const ch = source.charCodeAt(index);
         if (!isUnicodePropertyNameCharacter(ch)) break;
-        name += fromCodePoint(ch)
+        name += fromCodePoint(ch);
         index++;
     }
 
     if (source.charCodeAt(index) !== Chars.EqualSign) {
         parser.start = index;
-        validateUnicodePropertyName(parser, context, name)
-        return true
+        if (!getPropertyValue(lone, name)) report(Errors.InvalidPropertyName);
+        return true;
     }
 
     index++; // skip '='
@@ -120,15 +120,37 @@ function parsePropertyClass(parser: Parser, context: ValidatorState): boolean {
     let value = '';
     while (index !== end) {
         const ch = source.charCodeAt(index);
-        if (!isUnicodePropertyValueCharacter(parser, context, ch)) break;
-        value += fromCodePoint(ch)
+        if (!isUnicodePropertyNameCharacter(ch)) break;
+        value += fromCodePoint(ch);
         index++;
     }
 
     parser.start = index;
 
-    validateUnicodePropertyValue(parser, context, name, value)
-    return true
+    if (lookupPropertyValueName(name, value)) return true;
+    report(Errors.InvalidPropertyName);
+
+}
+/**
+ * Loop up property value name
+ * 
+ * @param name Property name
+ * @param value Property value
+ */
+function lookupPropertyValueName(name: string, value: string): boolean {
+    switch (name) {
+        case 'General_Category':
+        case 'gc':
+        case 'scx':
+            return getPropertyValue(general, value);
+        case 'Script':
+        // For this 'case', we do the same as V8, and  do the property value
+        // name lookup as if the property is Script.
+        case 'Script_Extensions':
+            return getPropertyValue(script, value);
+        default:
+        return false;
+    }
 }
 
 /**
