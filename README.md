@@ -7,8 +7,6 @@
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-**Active development branch**
-
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
 ## Features
