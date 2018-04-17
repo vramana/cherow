@@ -4,7 +4,6 @@ import { Errors, report } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 import { skipSingleLineComment, skipMultiLineComment } from './comments';
-import { validateRegExp } from './regExp';
 import {
     hasNext,
     nextChar,
@@ -1522,10 +1521,6 @@ function validate(
     } catch (e) {
         report(parser, Errors.UnterminatedRegExp);
     }
-    /*if (context & Context.OptionsNode) {
-    } else {
-        verifyRegExpPattern(parser, isUnicode, start, end);
-    }*/
 
     try {
         return new RegExp(pattern, flags);
