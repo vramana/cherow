@@ -1,95 +1,27 @@
-import { writeFileSync, readdir, readFileSync, statSync } from 'fs';
-import { join, resolve, extname, basename } from 'path';
-import { parseScript, parseModule, Delegate } from '../src/cherow';
-
-import { Program } from '../src/estree';
+import * as assert from 'clean-assert';
 import * as t from 'assert';
+import { parse } from '../src/parser/parser';
+import { Context } from '../src/utilities';
+import * as ESTree from '../src/estree';
+
 export interface Opts {
     source: string;
-    expected ?: any;
-    module ?: boolean;
-    next ?: boolean;
-    raw ?: boolean;
-    ranges ?: boolean;
-    offset ?: boolean;
-    loc ?: boolean;
-    tolerate ?: boolean;
-    plugins ?: any;
-    directives ?: any;
-    jsx ?: boolean;
-    comments ?: any;
-    attach ?: any;
-    globalReturn ?: boolean;
-    impliedStrict ?: boolean;
-    attachComment ?: boolean;
-    message ?: any;
-    line ?: any;
-    column ?: any;
-    index ?: any;
-    delegate?: Delegate;
+    expected?: any;
+    line ?: number;
+    column ?: number;
 }
 
-export const pass = (name: string, opts: Opts) => {
-
-    const CherowOpts: any = {
-        module: opts.module,
-        next: opts.next,
-        raw: opts.raw,
-        loc: opts.loc,
-        plugins: opts.plugins,
-        directives: opts.directives,
-        ranges: opts.ranges,
-        globalReturn: opts.globalReturn,
-        jsx: opts.jsx,
-        impliedStrict: opts.impliedStrict,
-        comments: opts.comments,
-        tolerate: opts.tolerate,
-        offset: opts.offset,
-        delegate: opts.delegate,
-    };
-
-    it('Should pass "' + name + '"', () => {
-        opts.module ?
-            t.deepEqual(parseModule(opts.source, CherowOpts) as any, opts.expected) :
-            t.deepEqual(parseScript(opts.source, CherowOpts) as any, opts.expected);
+export const pass = (name: string, context: Context, opts: Opts) => {
+    it(name, () => {
+        const parser = parse(opts.source, undefined, context);
+        assert.match(parser, opts.expected);
     });
 };
 
-export const fail = (name: string, opts: Opts) => {
-
-    const CherowOpts: any = {
-        module: opts.module,
-        next: opts.next,
-        raw: opts.raw,
-        loc: opts.loc,
-        plugins: opts.plugins,
-        directives: opts.directives,
-        ranges: opts.ranges,
-        globalReturn: opts.globalReturn,
-        jsx: opts.jsx,
-        impliedStrict: opts.impliedStrict,
-        comments: opts.comments,
-    };
-    it('Should fail on ' + name, () => {
-        try {
-            opts.module ?
-                t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected) :
-                t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
-        } catch (e) {
-           if (opts.message) t.equal(e.description, opts.message);
-           if (opts.line) t.equal(e.lineNumber, opts.line);
-           if (opts.column)t.equal(e.column, opts.column);
-           if (opts.index)t.equal(e.index, opts.index);
-           return;
-        }
-        throw new Error('Expecting error');
+export const fail = (name: string, context: Context, opts: Opts) => {
+    it(name, () => {
+        assert.throws(SyntaxError, () => {
+            parse(opts.source, undefined, context);
+        });
     });
 };
-
-export function n(type: string, opts ?: any): any {
-    if (opts == null) return {
-        type
-    };
-    opts.type = type;
-    return opts;
-}

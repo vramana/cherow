@@ -258,7 +258,7 @@ export interface Position {
     column: number;
 }
 
-export type CommentType = 'SingleLine' | 'MultiLine' | 'HTMLOpen' | 'HTMLClose' | 'SheBang';
+export type CommentType = 'SingleLine' | 'MultiLine' | 'SingleLineHTMLClose' | 'SingleLineHTMLOpen' | 'SheBang';
 
 export interface Comment {
     type: CommentType;

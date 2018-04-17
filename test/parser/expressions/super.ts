@@ -1,0 +1,1820 @@
+import { pass, fail } from '../../test-utils';
+import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
+
+describe('Expressions - Super property', () => {
+
+  describe('Failure', () => {
+
+      const InvalidNewErrors = [
+          'new super;',
+          'new super();',
+          '() => new super;',
+          '() => new super();'
+      ];
+
+      for (const arg of InvalidNewErrors) {
+
+          it(`class C { method() { ${arg} } }`, () => {
+              t.throws(() => {
+                  parse(`class C { method() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { *method() { ${arg} } }`, () => {
+              t.throws(() => {
+                  parse(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { get x() { ${arg} } }`, () => {
+              t.throws(() => {
+                  parse(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { set x(_) { ${arg} } }`, () => {
+              t.throws(() => {
+                  parse(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`({ method() { ${arg} } })`, () => {
+              t.throws(() => {
+                  parse(`({ method() { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`(function() { ${arg} } )`, () => {
+              t.throws(() => {
+                  parse(`(function() { ${arg} } )`, undefined, Context.Empty);
+              });
+          });
+
+          it(`var f = function() { ${arg} }`, () => {
+              t.throws(() => {
+                  parse(`var f = function() { ${arg} }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`({ f: function*() {${arg} } })`, () => {
+              t.throws(() => {
+                  parse(`({ f: function*() { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`(function*() { ${arg} })`, () => {
+              t.throws(() => {
+                  parse(`(function*() { ${arg} })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`var f = function*() { ${arg} }`, () => {
+              t.throws(() => {
+                  parse(`var f = function*() { ${arg} }`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      // Testing invalid use of super property
+      const invalidSuperKeyword = [
+          'super',
+          'super = x',
+          'y = super',
+          'foo(super)',
+          'super.x',
+          'super[27]',
+          'super.x()',
+          'super[27]()',
+          'super()',
+          'new super.x',
+          'new super.x()',
+          'new super[27]',
+          'new super[27]()',
+      ];
+
+      for (const arg of invalidSuperKeyword) {
+
+          it(`${arg}`, () => {
+              t.throws(() => {
+                  parse(`${arg}`, undefined, Context.Empty);
+              });
+          });
+
+          it(`icefapper = ${arg}`, () => {
+              t.throws(() => {
+                  parse(`icefapper = ${arg}`, undefined, Context.Empty);
+              });
+          });
+
+          it(`foo(${arg})`, () => {
+              t.throws(() => {
+                  parse(`foo(${arg})`, undefined, Context.Empty);
+              });
+          });
+
+          it(`if (${arg}) {}`, () => {
+              t.throws(() => {
+                  parse(`if (${arg}) {}`, undefined, Context.Empty);
+              });
+          });
+
+          it(`if (false) {} else {${arg}}`, () => {
+              t.throws(() => {
+                  parse(`if (false) {} else {${arg}}`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { function f() {${arg}} } }`, () => {
+              t.throws(() => {
+                  parse(`class C { m() { function f() {${arg}} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`({ m() { function f() {${arg}} } })`, () => {
+              t.throws(() => {
+                  parse(`({ m() { function f() {${arg}} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`while (true) {${arg}}`, () => {
+              t.throws(() => {
+                  parse(`while (true) {${arg}}`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C extends (${arg}) {}`, () => {
+              t.throws(() => {
+                  parse(`class C extends (${arg}) {}`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      // V8
+      const invalidSuperCall = [
+          'class C { constructor() { super(); } }',
+          'class C { method() { super(); } }',
+          'class C { method() { () => super(); } }',
+          'class C { *method() { super(); } }',
+          'class C { get x() { super(); } }',
+          'class C { set x(_) { super(); } }',
+          '({ method() { super(); } })',
+          '({ *method() { super(); } })',
+          '({ get x() { super(); } })',
+          '({ set x(_) { super(); } })',
+          '({ f: function() { super(); } })',
+          '(function() { super(); })',
+          'var f = function() { super(); }',
+          '({ f: function*() { super(); } })',
+          '(function*() { super(); })',
+          'var f = function*() { super(); }',
+      ];
+
+      for (const arg of invalidSuperCall) {
+
+          it(`${arg}`, () => {
+              t.throws(() => {
+                  parse(`${arg}`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      const invalidSyntax = [
+          'super',
+          'super = x',
+          'y = super',
+          'f(super)',
+          'new super',
+          'new super()',
+          'new super(12, 45)',
+          'new new super',
+          'new new super()',
+          'new new super()()',
+      ];
+
+      for (const arg of invalidSyntax) {
+
+          it(`class C { m() { ${arg}; } }`, () => {
+              t.throws(() => {
+                  parse(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { k = ${arg}; } }`, () => {
+              t.throws(() => {
+                  parse(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { foo(${arg}); } }`, () => {
+              t.throws(() => {
+                  parse(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { () => ${arg}; } }`, () => {
+              t.throws(() => {
+                  parse(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      // super in global scope
+      fail(`() => { super(); };`, Context.Empty, {
+          source: '() => { super.foo; };',
+      });
+
+      fail(`() => { super(); };`, Context.Empty, {
+        source: '() => { super.foo; };',
+    });
+
+      fail(`super.property;`, Context.Empty, {
+      source: 'super.property;',
+    });
+
+    // Esprima issue: https://github.com/jquery/esprima/issues/1784
+      fail('!{ a() { !function* (a = super.b()){} } };', Context.Empty, {
+      source: '!{ a() { !function* (a = super.b()){} } };',
+    });
+
+      fail('!{ a() { !function* (){ super.b(); } } };', Context.Empty, {
+      source: '!{ a() { !function* (){ super.b(); } } };',
+    });
+
+      fail(`super.property;`, Context.Empty, {
+        source: 'super.property;',
+      });
+
+      fail(`class a extends b { c() { function* d(c = super.e()){} } }`, Context.Empty, {
+          source: 'class a extends b { c() { function* d(c = super.e()){} } }',
+      });
+
+      fail(`function* a(b){ super.c }`, Context.Empty, {
+          source: 'function* a(b){ super.c }',
+      });
+
+      fail(`!function* (a){ super.b }`, Context.Empty, {
+          source: '!function* (a){ super.b }',
+      });
+
+      fail(`class A extends B { constructor() { super; } }`, Context.Empty, {
+          source: 'class A extends B { constructor() { super; } }',
+      });
+
+      fail(`class A extends B { constructor() { (super)() } }`, Context.Empty, {
+          source: 'class A extends B { constructor() { (super)() } }',
+      });
+
+      fail(`!{ a() { !function* (){ super.b(); } } };`, Context.Empty, {
+          source: '!{ a() { !function* (){ super.b(); } } };',
+      });
+
+      fail(`"class A extends B { *g1() { return super() } }}`, Context.Empty, {
+          source: 'class A extends B { *g1() { return super() } }}',
+      });
+
+      fail(`function wrap() { function* foo(a = super(), b = super.foo()) { } }`, Context.Empty, {
+          source: 'function wrap() { function* foo(a = super(), b = super.foo()) { } }',
+      });
+
+      fail(`function wrap() { function foo(a = super(), b = super.foo()) {}}`, Context.Empty, {
+          source: 'function wrap() { function foo(a = super(), b = super.foo()) {}}',
+      });
+
+      fail(`class A extends B { constructor() { super; } }`, Context.Empty, {
+          source: 'class A extends B { constructor() { super; } }',
+      });
+
+      fail(`({ a() { (super).b(); } });`, Context.Empty, {
+          source: '({ a() { (super).b(); } });',
+      });
+
+      fail(`({ a() { (super).b(); } });`, Context.Empty, {
+          source: '({ a() { (super).b(); } });',
+      });
+
+      fail(`({ a() { (super).b(); } });`, Context.Empty, {
+          source: '({ a() { (super).b(); } });',
+      });
+
+      fail(`class C { m() { new super(); }  }`, Context.Empty, {
+          source: 'class C { m() { new super(); }  }',
+      });
+
+      fail(`class X { x(){super();} }`, Context.Empty, {
+          source: 'class X { x(){super();} }',
+      });
+
+      fail(`() => {super();}`, Context.Empty, {
+          source: '() => {super();}',
+      });
+
+      fail(`class X { x(){class X { constructor(){super();} }} }`, Context.Empty, {
+          source: 'class X { x(){class X { constructor(){super();} }} }',
+      });
+
+      fail(`class X { x(){class X { x(){super();} }} }`, Context.Empty, {
+          source: 'class X { x(){class X { x(){super();} }} }',
+      });
+
+      fail(`class X { x(){function x(){super();}} }`, Context.Empty, {
+          source: 'class X { x(){function x(){super();}} }',
+      });
+
+      fail(`class X { x(){function x(){super.x;}} }`, Context.Empty, {
+          source: 'class X { x(){function x(){super.x;}} }',
+      });
+
+      fail(`function x(){function x(){super();}}`, Context.Empty, {
+          source: 'function x(){function x(){super();}}',
+      });
+
+      fail(`function x(){() => {super();}}`, Context.Empty, {
+          source: 'function x(){() => {super();}}',
+      });
+
+      fail(`() => {class X { x(){super();} }}`, Context.Empty, {
+          source: '() => {class X { x(){super();} }}',
+      });
+
+      fail(`() => {() => {super();}}`, Context.Empty, {
+          source: '() => {() => {super();}}',
+      });
+
+      fail(`function x(){function x(){super();}}`, Context.Empty, {
+        source: 'function x(){function x(){super();}}',
+      });
+
+      // Acorn: https://github.com/acornjs/acorn/issues/448
+
+      fail(`class A extends B { *g1() { return super() } }`, Context.Empty, {
+          source: 'class A extends B { *g1() { return super() } }',
+      });
+
+      // fail(`class A extends B { *g2(a = 1 + (yield 2)) { } }`, Context.Empty, {
+        // source: 'class A extends B { *g2(a = 1 + (yield 2)) { } }',
+    // });
+
+      fail(`function x(){function x(){super();}}`, Context.Empty, {
+        source: 'function x(){function x(){super();}}',
+    });
+
+      fail(`function x(){function x(){super();}}`, Context.Empty, {
+      source: 'function x(){function x(){super();}}',
+  });
+
+      fail(`function* foo(a = 1 + (yield 2)) { super.foo() }`, Context.Empty, {
+    source: '`function* foo(a = 1 + (yield 2)) { super.foo() }`,',
+  });
+
+      fail(`var foo = function*(a = 1 + (yield 2)) { super.foo() }`, Context.Empty, {
+    source: '`var foo = function*(a = 1 + (yield 2)) { super.foo() }`,',
+});
+
+  });
+
+  describe('Pass', () => {
+
+      const SuperNewNoErrors = [
+          'new super.x;', 'new super.x();',
+          '() => new super.x;', '() => new super.x();'
+      ];
+
+      for (const arg of SuperNewNoErrors) {
+
+          it(`class C { constructor() { ${arg} } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { constructor() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { *method() { ${arg} } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { get x() { ${arg} } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { set x(_) { ${arg} } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`({ method() { ${arg} } })`, () => {
+              t.doesNotThrow(() => {
+                  parse(`({ method() { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`({ *method() { ${arg} } })`, () => {
+              t.doesNotThrow(() => {
+                  parse(`({ *method() { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`(class C { get x() { ${arg} } })`, () => {
+              t.doesNotThrow(() => {
+                  parse(`(class C { get x() { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+
+          it(`(class C { set x(_) { ${arg} } })`, () => {
+              t.doesNotThrow(() => {
+                  parse(`(class C { set x(_) { ${arg} } })`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      // V8
+      const validSyntax = [
+          'super.x',
+          'super[27]',
+          'new super.x',
+          'new super.x()',
+          'new super[27]',
+          'new super[27]()',
+          'z.super',
+      ];
+
+      for (const arg of validSyntax) {
+
+          it(`class C { m() { ${arg}; } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { k = ${arg}; } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { foo(${arg}); } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
+              });
+          });
+
+          it(`class C { m() { () => ${arg}; } }`, () => {
+              t.doesNotThrow(() => {
+                  parse(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      // Testing ESTree AST
+
+      pass('class a extends b { constructor() { () => { super(); } } }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class a extends b { constructor() { () => { super(); } } }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 58,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 58
+                }
+              },
+              body: [
+                {
+                  type: 'ClassDeclaration',
+                  start: 0,
+                  end: 58,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 58
+                    }
+                  },
+                  id: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 7
+                      }
+                    },
+                    name: 'a'
+                  },
+                  superClass: {
+                    type: 'Identifier',
+                    start: 16,
+                    end: 17,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 16
+                      },
+                      end: {
+                        line: 1,
+                        column: 17
+                      }
+                    },
+                    name: 'b'
+                  },
+                  body: {
+                    type: 'ClassBody',
+                    start: 18,
+                    end: 58,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 18
+                      },
+                      end: {
+                        line: 1,
+                        column: 58
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        start: 20,
+                        end: 56,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 20
+                          },
+                          end: {
+                            line: 1,
+                            column: 56
+                          }
+                        },
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          start: 20,
+                          end: 31,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 20
+                            },
+                            end: {
+                              line: 1,
+                              column: 31
+                            }
+                          },
+                          name: 'constructor'
+                        },
+                        static: false,
+                        kind: 'constructor',
+                        value: {
+                          type: 'FunctionExpression',
+                          start: 31,
+                          end: 56,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 31
+                            },
+                            end: {
+                              line: 1,
+                              column: 56
+                            }
+                          },
+                          id: null,
+                          generator: false,
+                          expression: false,
+                          async: false,
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            start: 34,
+                            end: 56,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 34
+                              },
+                              end: {
+                                line: 1,
+                                column: 56
+                              }
+                            },
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                start: 36,
+                                end: 54,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 36
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 54
+                                  }
+                                },
+                                expression: {
+                                  type: 'ArrowFunctionExpression',
+                                  start: 36,
+                                  end: 54,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 36
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 54
+                                    }
+                                  },
+                                  id: null,
+                                  generator: false,
+                                  expression: false,
+                                  async: false,
+                                  params: [],
+                                  body: {
+                                    type: 'BlockStatement',
+                                    start: 42,
+                                    end: 54,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 42
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 54
+                                      }
+                                    },
+                                    body: [
+                                      {
+                                        type: 'ExpressionStatement',
+                                        start: 44,
+                                        end: 52,
+                                        loc: {
+                                          start: {
+                                            line: 1,
+                                            column: 44
+                                          },
+                                          end: {
+                                            line: 1,
+                                            column: 52
+                                          }
+                                        },
+                                        expression: {
+                                          type: 'CallExpression',
+                                          start: 44,
+                                          end: 51,
+                                          loc: {
+                                            start: {
+                                              line: 1,
+                                              column: 44
+                                            },
+                                            end: {
+                                              line: 1,
+                                              column: 51
+                                            }
+                                          },
+                                          callee: {
+                                            type: 'Super',
+                                            start: 44,
+                                            end: 49,
+                                            loc: {
+                                              start: {
+                                                line: 1,
+                                                column: 44
+                                              },
+                                              end: {
+                                                line: 1,
+                                                column: 49
+                                              }
+                                            }
+                                          },
+                                          arguments: []
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('class C { get m() { super.x; } }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class C { get m() { super.x; } }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 32,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 32
+                }
+              },
+              body: [
+                {
+                  type: 'ClassDeclaration',
+                  start: 0,
+                  end: 32,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 32
+                    }
+                  },
+                  id: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 7
+                      }
+                    },
+                    name: 'C'
+                  },
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    start: 8,
+                    end: 32,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 8
+                      },
+                      end: {
+                        line: 1,
+                        column: 32
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        start: 10,
+                        end: 30,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 10
+                          },
+                          end: {
+                            line: 1,
+                            column: 30
+                          }
+                        },
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          start: 14,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 14
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          name: 'm'
+                        },
+                        static: false,
+                        kind: 'get',
+                        value: {
+                          type: 'FunctionExpression',
+                          start: 15,
+                          end: 30,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 15
+                            },
+                            end: {
+                              line: 1,
+                              column: 30
+                            }
+                          },
+                          id: null,
+                          generator: false,
+                          expression: false,
+                          async: false,
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            start: 18,
+                            end: 30,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 18
+                              },
+                              end: {
+                                line: 1,
+                                column: 30
+                              }
+                            },
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                start: 20,
+                                end: 28,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 20
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 28
+                                  }
+                                },
+                                expression: {
+                                  type: 'MemberExpression',
+                                  start: 20,
+                                  end: 27,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 20
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 27
+                                    }
+                                  },
+                                  object: {
+                                    type: 'Super',
+                                    start: 20,
+                                    end: 25,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 20
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 25
+                                      }
+                                    }
+                                  },
+                                  property: {
+                                    type: 'Identifier',
+                                    start: 26,
+                                    end: 27,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 26
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 27
+                                      }
+                                    },
+                                    name: 'x'
+                                  },
+                                  computed: false
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('class C { get m() {new super[27]() } }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class C { get m() {new super[27]() } }',
+          expected: {
+              type: 'Program',
+              sourceType: 'script',
+              body: [
+                  {
+                      type: 'ClassDeclaration',
+                      id: {
+                          type: 'Identifier',
+                          name: 'C',
+                          start: 6,
+                          end: 7,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 6
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 7
+                              }
+                          }
+                      },
+                      superClass: null,
+                      body: {
+                          type: 'ClassBody',
+                          body: [
+                              {
+                                  type: 'MethodDefinition',
+                                  kind: 'get',
+                                  static: false,
+                                  computed: false,
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'm',
+                                      start: 14,
+                                      end: 15,
+                                      loc: {
+                                          start: {
+                                              line: 1,
+                                              column: 14
+                                          },
+                                          end: {
+                                              line: 1,
+                                              column: 15
+                                          }
+                                      }
+                                  },
+                                  value: {
+                                      type: 'FunctionExpression',
+                                      params: [],
+                                      body: {
+                                          type: 'BlockStatement',
+                                          body: [
+                                              {
+                                                  type: 'ExpressionStatement',
+                                                  expression: {
+                                                      type: 'NewExpression',
+                                                      callee: {
+                                                          type: 'MemberExpression',
+                                                          object: {
+                                                              type: 'Super',
+                                                              start: 23,
+                                                              end: 28,
+                                                              loc: {
+                                                                  start: {
+                                                                      line: 1,
+                                                                      column: 23
+                                                                  },
+                                                                  end: {
+                                                                      line: 1,
+                                                                      column: 28
+                                                                  }
+                                                              }
+                                                          },
+                                                          computed: true,
+                                                          property: {
+                                                              type: 'Literal',
+                                                              value: 27,
+                                                              start: 29,
+                                                              end: 31,
+                                                              loc: {
+                                                                  start: {
+                                                                      line: 1,
+                                                                      column: 29
+                                                                  },
+                                                                  end: {
+                                                                      line: 1,
+                                                                      column: 31
+                                                                  }
+                                                              },
+                                                              raw: '27'
+                                                          },
+                                                          start: 19,
+                                                          end: 32,
+                                                          loc: {
+                                                              start: {
+                                                                  line: 1,
+                                                                  column: 19
+                                                              },
+                                                              end: {
+                                                                  line: 1,
+                                                                  column: 32
+                                                              }
+                                                          }
+                                                      },
+                                                      arguments: [],
+                                                      start: 19,
+                                                      end: 34,
+                                                      loc: {
+                                                          start: {
+                                                              line: 1,
+                                                              column: 19
+                                                          },
+                                                          end: {
+                                                              line: 1,
+                                                              column: 34
+                                                          }
+                                                      }
+                                                  },
+                                                  start: 19,
+                                                  end: 34,
+                                                  loc: {
+                                                      start: {
+                                                          line: 1,
+                                                          column: 19
+                                                      },
+                                                      end: {
+                                                          line: 1,
+                                                          column: 34
+                                                      }
+                                                  }
+                                              }
+                                          ],
+                                          start: 18,
+                                          end: 36,
+                                          loc: {
+                                              start: {
+                                                  line: 1,
+                                                  column: 18
+                                              },
+                                              end: {
+                                                  line: 1,
+                                                  column: 36
+                                              }
+                                          }
+                                      },
+                                      async: false,
+                                      generator: false,
+                                      expression: false,
+                                      id: null,
+                                      start: 15,
+                                      end: 36,
+                                      loc: {
+                                          start: {
+                                              line: 1,
+                                              column: 15
+                                          },
+                                          end: {
+                                              line: 1,
+                                              column: 36
+                                          }
+                                      }
+                                  },
+                                  start: 10,
+                                  end: 36,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 10
+                                      },
+                                      end: {
+                                          line: 1,
+                                          column: 36
+                                      }
+                                  }
+                              }
+                          ],
+                          start: 8,
+                          end: 38,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 8
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 38
+                              }
+                          }
+                      },
+                      start: 0,
+                      end: 38,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 0
+                          },
+                          end: {
+                              line: 1,
+                              column: 38
+                          }
+                      }
+                  }
+              ],
+              start: 0,
+              end: 38,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
+                  },
+                  end: {
+                      line: 1,
+                      column: 38
+                  }
+              }
+          }
+      });
+
+      pass('class C { set m(a) { () => z.super ; } }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class C { set m(a) { () => z.super ; } }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 40,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 40
+                }
+              },
+              body: [
+                {
+                  type: 'ClassDeclaration',
+                  start: 0,
+                  end: 40,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 40
+                    }
+                  },
+                  id: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 7
+                      }
+                    },
+                    name: 'C'
+                  },
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    start: 8,
+                    end: 40,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 8
+                      },
+                      end: {
+                        line: 1,
+                        column: 40
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        start: 10,
+                        end: 38,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 10
+                          },
+                          end: {
+                            line: 1,
+                            column: 38
+                          }
+                        },
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          start: 14,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 14
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          name: 'm'
+                        },
+                        static: false,
+                        kind: 'set',
+                        value: {
+                          type: 'FunctionExpression',
+                          start: 15,
+                          end: 38,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 15
+                            },
+                            end: {
+                              line: 1,
+                              column: 38
+                            }
+                          },
+                          id: null,
+                          generator: false,
+                          expression: false,
+                          async: false,
+                          params: [
+                            {
+                              type: 'Identifier',
+                              start: 16,
+                              end: 17,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 16
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 17
+                                }
+                              },
+                              name: 'a'
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            start: 19,
+                            end: 38,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 19
+                              },
+                              end: {
+                                line: 1,
+                                column: 38
+                              }
+                            },
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                start: 21,
+                                end: 36,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 21
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 36
+                                  }
+                                },
+                                expression: {
+                                  type: 'ArrowFunctionExpression',
+                                  start: 21,
+                                  end: 34,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 21
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 34
+                                    }
+                                  },
+                                  id: null,
+                                  generator: false,
+                                  expression: true,
+                                  async: false,
+                                  params: [],
+                                  body: {
+                                    type: 'MemberExpression',
+                                    start: 27,
+                                    end: 34,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 27
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 34
+                                      }
+                                    },
+                                    object: {
+                                      type: 'Identifier',
+                                      start: 27,
+                                      end: 28,
+                                      loc: {
+                                        start: {
+                                          line: 1,
+                                          column: 27
+                                        },
+                                        end: {
+                                          line: 1,
+                                          column: 28
+                                        }
+                                      },
+                                      name: 'z'
+                                    },
+                                    property: {
+                                      type: 'Identifier',
+                                      start: 29,
+                                      end: 34,
+                                      loc: {
+                                        start: {
+                                          line: 1,
+                                          column: 29
+                                        },
+                                        end: {
+                                          line: 1,
+                                          column: 34
+                                        }
+                                      },
+                                      name: 'super'
+                                    },
+                                    computed: false
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('class A extends B { "constructor"() { super() } }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class A extends B { "constructor"() { super() } }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 49,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 49
+                }
+              },
+              body: [
+                {
+                  type: 'ClassDeclaration',
+                  start: 0,
+                  end: 49,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 49
+                    }
+                  },
+                  id: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 7
+                      }
+                    },
+                    name: 'A'
+                  },
+                  superClass: {
+                    type: 'Identifier',
+                    start: 16,
+                    end: 17,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 16
+                      },
+                      end: {
+                        line: 1,
+                        column: 17
+                      }
+                    },
+                    name: 'B'
+                  },
+                  body: {
+                    type: 'ClassBody',
+                    start: 18,
+                    end: 49,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 18
+                      },
+                      end: {
+                        line: 1,
+                        column: 49
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        start: 20,
+                        end: 47,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 20
+                          },
+                          end: {
+                            line: 1,
+                            column: 47
+                          }
+                        },
+                        computed: false,
+                        key: {
+                          type: 'Literal',
+                          start: 20,
+                          end: 33,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 20
+                            },
+                            end: {
+                              line: 1,
+                              column: 33
+                            }
+                          },
+                          value: 'constructor',
+                          raw: '"constructor"'
+                        },
+                        static: false,
+                        kind: 'constructor',
+                        value: {
+                          type: 'FunctionExpression',
+                          start: 33,
+                          end: 47,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 33
+                            },
+                            end: {
+                              line: 1,
+                              column: 47
+                            }
+                          },
+                          id: null,
+                          generator: false,
+                          expression: false,
+                          async: false,
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            start: 36,
+                            end: 47,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 36
+                              },
+                              end: {
+                                line: 1,
+                                column: 47
+                              }
+                            },
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                start: 38,
+                                end: 45,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 38
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 45
+                                  }
+                                },
+                                expression: {
+                                  type: 'CallExpression',
+                                  start: 38,
+                                  end: 45,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 38
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 45
+                                    }
+                                  },
+                                  callee: {
+                                    type: 'Super',
+                                    start: 38,
+                                    end: 43,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 38
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 43
+                                      }
+                                    }
+                                  },
+                                  arguments: []
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+
+      pass('class A extends B { constructor(a = super()){} }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+          source: 'class A extends B { constructor(a = super()){} }',
+          expected: {
+              type: 'Program',
+              start: 0,
+              end: 48,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 48
+                }
+              },
+              body: [
+                {
+                  type: 'ClassDeclaration',
+                  start: 0,
+                  end: 48,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 48
+                    }
+                  },
+                  id: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 7
+                      }
+                    },
+                    name: 'A'
+                  },
+                  superClass: {
+                    type: 'Identifier',
+                    start: 16,
+                    end: 17,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 16
+                      },
+                      end: {
+                        line: 1,
+                        column: 17
+                      }
+                    },
+                    name: 'B'
+                  },
+                  body: {
+                    type: 'ClassBody',
+                    start: 18,
+                    end: 48,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 18
+                      },
+                      end: {
+                        line: 1,
+                        column: 48
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        start: 20,
+                        end: 46,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 20
+                          },
+                          end: {
+                            line: 1,
+                            column: 46
+                          }
+                        },
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          start: 20,
+                          end: 31,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 20
+                            },
+                            end: {
+                              line: 1,
+                              column: 31
+                            }
+                          },
+                          name: 'constructor'
+                        },
+                        static: false,
+                        kind: 'constructor',
+                        value: {
+                          type: 'FunctionExpression',
+                          start: 31,
+                          end: 46,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 31
+                            },
+                            end: {
+                              line: 1,
+                              column: 46
+                            }
+                          },
+                          id: null,
+                          generator: false,
+                          expression: false,
+                          async: false,
+                          params: [
+                            {
+                              type: 'AssignmentPattern',
+                              start: 32,
+                              end: 43,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 32
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 43
+                                }
+                              },
+                              left: {
+                                type: 'Identifier',
+                                start: 32,
+                                end: 33,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 32
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 33
+                                  }
+                                },
+                                name: 'a'
+                              },
+                              right: {
+                                type: 'CallExpression',
+                                start: 36,
+                                end: 43,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 36
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 43
+                                  }
+                                },
+                                callee: {
+                                  type: 'Super',
+                                  start: 36,
+                                  end: 41,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 36
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 41
+                                    }
+                                  }
+                                },
+                                arguments: []
+                              }
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            start: 44,
+                            end: 46,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 44
+                              },
+                              end: {
+                                line: 1,
+                                column: 46
+                              }
+                            },
+                            body: []
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              sourceType: 'script'
+            }
+      });
+  });
+});
