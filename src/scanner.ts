@@ -59,7 +59,9 @@ export function scan(parser: Parser, context: Context): Token {
         const first = nextChar(parser);
 
         if (first >= Chars.MaxAsciiCharacter) {
+
             switch (first) {
+
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
                     state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
@@ -83,9 +85,9 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.NarrowNoBreakSpace:
                 case Chars.MathematicalSpace:
                 case Chars.IdeographicSpace:
-                case Chars.ZeroWidthNoBreakSpace:
-                case Chars.ZeroWidthJoiner:
-                case Chars.ZeroWidthNonJoiner:
+                case Chars.Zwnbs:
+                case Chars.Zwj:
+                case Chars.Zwnbs:
                     advance(parser);
                     break;
 
@@ -553,9 +555,8 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.LowerX:
                 case Chars.LowerY:
                 case Chars.LowerZ:
-                    return scanIdentifier(parser, context, first);
                 default:
-                    return parseMaybeIdentifier(parser, context, first);
+                    return scanIdentifier(parser, context, first);
             }
         }
     }
@@ -997,7 +998,7 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
 
         while (digit >= 0) {
             codePoint = (codePoint << 4) | digit;
-            if (codePoint > Chars.LastUnicodeChar) {
+            if (codePoint > Chars.NonBMPMax) {
                 report(parser, Errors.Unexpected /*UndefinedUnicodeCodePoint*/ );
             }
             advance(parser);
@@ -1062,37 +1063,33 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                 let index = parser.index + 1;
                 let column = parser.column + 1;
 
-                if (index < parser.source.length) {
-                    let next = parser.source.charCodeAt(index);
+                let next = parser.source.charCodeAt(index);
 
-                    if (next < Chars.Zero || next > Chars.Seven) {
+                if (next < Chars.Zero || next > Chars.Seven) {
 
-                        // Strict mode code allows only \0, then a non-digit.
-                        if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
-                            if (context & Context.Strict) return Escape.StrictOctal;
-                            parser.flags |= Flags.Octal;
-                        }
-                    } else if (context & Context.Strict) {
-                        return Escape.StrictOctal;
-                    } else {
+                    // Strict mode code allows only \0, then a non-digit.
+                    if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
+                        if (context & Context.Strict) return Escape.StrictOctal;
+                        parser.flags |= Flags.Octal;
+                    }
+                } else if (context & Context.Strict) {
+                    return Escape.StrictOctal;
+                } else {
+                    parser.lastValue = next;
+                    code = code * 8 + (next - Chars.Zero);
+                    index++;
+                    column++;
+
+                    next = parser.source.charCodeAt(index);
+                    if (next >= Chars.Zero && next <= Chars.Seven) {
                         parser.lastValue = next;
                         code = code * 8 + (next - Chars.Zero);
                         index++;
                         column++;
-
-                        if (index < parser.source.length) {
-                            next = parser.source.charCodeAt(index);
-                            if (next >= Chars.Zero && next <= Chars.Seven) {
-                                parser.lastValue = next;
-                                code = code * 8 + (next - Chars.Zero);
-                                index++;
-                                column++;
-                            }
-                        }
-
-                        parser.index = index - 1;
-                        parser.column = column - 1;
                     }
+
+                    parser.index = index - 1;
+                    parser.column = column - 1;
                 }
 
                 return code;
@@ -1109,15 +1106,13 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                 const index = parser.index + 1;
                 const column = parser.column + 1;
 
-                if (index < parser.source.length) {
-                    const next = parser.source.charCodeAt(index);
+                const next = parser.source.charCodeAt(index);
 
-                    if (next >= Chars.Zero && next <= Chars.Seven) {
-                        code = code * 8 + (next - Chars.Zero);
-                        parser.lastValue = next;
-                        parser.index = index;
-                        parser.column = column;
-                    }
+                if (next >= Chars.Zero && next <= Chars.Seven) {
+                    code = code * 8 + (next - Chars.Zero);
+                    parser.lastValue = next;
+                    parser.index = index;
+                    parser.column = column;
                 }
 
                 return code;
@@ -1156,7 +1151,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                         if (digit < 0) return Escape.InvalidHex;
                         code = code * 16 + digit;
                         // Code point out of bounds
-                        if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
+                        if (code > Chars.NonBMPMax) return Escape.OutOfRange;
                         ch = parser.lastValue = readNext(parser, ch);
                     }
 
@@ -1276,8 +1271,7 @@ function scanLooserTemplateSegment(parser: Parser, ch: number): number {
 
         if (ch === Chars.Dollar) {
             const index = parser.index + 1;
-            if (index < parser.source.length &&
-                parser.source.charCodeAt(index) === Chars.LeftBrace) {
+            if (parser.source.charCodeAt(index) === Chars.LeftBrace) {
                 parser.index = index;
                 parser.column++;
                 return -ch;
