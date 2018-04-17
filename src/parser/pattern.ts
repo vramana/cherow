@@ -2,7 +2,7 @@ import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { Location, Parser } from '../types';
-import { parseIdentifier, parseAssignmentExpression,  parsePropertyName} from './expressions';
+import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
 import {
     expect,
     Context,

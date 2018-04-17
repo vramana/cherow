@@ -84,8 +84,7 @@ export const enum NumericState {
 export const enum ScannerState {
     None        = 0,
     NewLine     = 1 << 0,
-    SameLine    = 1 << 1,
-    LastIsCR    = 1 << 2,
+    LastIsCR    = 1 << 1,
 }
 
 export const enum ModifierState {

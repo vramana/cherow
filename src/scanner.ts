@@ -85,7 +85,6 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.ZeroWidthNoBreakSpace:
                 case Chars.ZeroWidthJoiner:
                 case Chars.ZeroWidthNonJoiner:
-                    state |= ScannerState.SameLine;
                     advance(parser);
                     break;
 
@@ -111,7 +110,6 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.VerticalTab:
                 case Chars.FormFeed:
                 case Chars.Space:
-                    state |= ScannerState.SameLine;
                     advance(parser);
                     break;
 
@@ -119,8 +117,6 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.Slash:
                     {
                         advance(parser);
-
-                        state |= ScannerState.SameLine;
 
                         if (!hasNext(parser)) return Token.Divide;
 

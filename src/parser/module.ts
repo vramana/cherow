@@ -3,9 +3,9 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { Location, Parser } from '../types';
 import { parseBindingIdentifier } from './pattern';
-import { parseStatementListItem, parseVariableStatement} from './statements';
-import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression} from './expressions';
-import {parseClassDeclaration, parseFunctionDeclaration,  parseAsyncFunctionOrAsyncGeneratorDeclaration } from './declarations';
+import { parseStatementListItem, parseVariableStatement } from './statements';
+import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression } from './expressions';
+import { parseClassDeclaration, parseFunctionDeclaration,  parseAsyncFunctionOrAsyncGeneratorDeclaration } from './declarations';
 import {
     expect,
     Context,

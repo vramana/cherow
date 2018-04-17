@@ -27,34 +27,40 @@ import {
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
  * @param parser Parser instance
+ * @param context Context masks
  * @param state  Scanner state
+ * @param type   Comment type
  */
-export function skipSingleLineComment(parser: Parser, context: Context, state: ScannerState, type: CommentType): ScannerState {
 
+export function skipSingleLineComment(
+    parser: Parser,
+    context: Context,
+    state: ScannerState,
+    type: CommentType
+): ScannerState {
     const start = parser.index;
+    const collectable = !!(context & (Context.OptionsComments | context & Context.OptionsDelegate));
+    while (hasNext(parser)) {
+        switch (nextChar(parser)) {
+            case Chars.CarriageReturn:
+                advanceNewline(parser);
+                if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) parser.index++;
+                return state | ScannerState.NewLine;
 
-    scan:
-        while (hasNext(parser)) {
-            switch (nextChar(parser)) {
-                case Chars.CarriageReturn:
-                    advanceNewline(parser);
-                    if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) {
-                        parser.index++;
-                    }
-                    break scan;
-                case Chars.LineFeed:
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    advanceNewline(parser);
-                    break scan;
-                default:
-                    advanceAndOrSkipUC(parser);
-            }
+            case Chars.LineFeed:
+            case Chars.LineSeparator:
+            case Chars.ParagraphSeparator:
+                advanceNewline(parser);
+                if (collectable) addComment(parser, context, type, state, start);
+                return state | ScannerState.NewLine;
+
+            default:
+                advance(parser);
         }
-
-    if (context & (Context.OptionsComments | context & Context.OptionsDelegate)) {
-        addComment(parser, context, type, state, start);
     }
+
+    if (collectable) addComment(parser, context, type, state, start);
+
     return state;
 }
 
@@ -64,11 +70,16 @@ export function skipSingleLineComment(parser: Parser, context: Context, state: S
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
  * @param parser
+ * @param context Context masks
  * @param state
  */
-export function skipMultiLineComment(parser: Parser, context: Context, state: ScannerState): any {
+export function skipMultiLineComment(
+    parser: Parser,
+    context: Context,
+    state: ScannerState): any {
 
     const start = parser.index;
+    const collectable = !!(context & (Context.OptionsComments | context & Context.OptionsDelegate));
 
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
@@ -76,9 +87,7 @@ export function skipMultiLineComment(parser: Parser, context: Context, state: Sc
                 advance(parser);
                 state &= ~ScannerState.LastIsCR;
                 if (consumeOpt(parser, Chars.Slash)) {
-                    if (context & (Context.OptionsComments | context & Context.OptionsDelegate)) {
-                        addComment(parser, context, 'Multiline', state, start);
-                    }
+                    if (collectable) addComment(parser, context, 'Multiline', state, start);
                     return state;
                 }
                 break;
@@ -103,7 +112,7 @@ export function skipMultiLineComment(parser: Parser, context: Context, state: Sc
 
             default:
                 state &= ~ScannerState.LastIsCR;
-                advanceAndOrSkipUC(parser);
+                advance(parser);
         }
     }
 
@@ -111,8 +120,7 @@ export function skipMultiLineComment(parser: Parser, context: Context, state: Sc
 }
 
 export function addComment(parser: Parser, context: Context, type: any, state: ScannerState, start: number) {
-    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
-
+    const {index, startIndex, startLine, startColumn, lastLine, column} = parser;
     const comment: ESTree.Comment = {
         type,
         value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
