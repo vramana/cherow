@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "04.13.20181907",
+  "version": "1.4.0",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
