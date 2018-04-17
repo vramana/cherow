@@ -1,9 +1,7 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
-import { Errors, report, tolerant } from './errors';
-import { Parser, Options, CommentType } from './types';
-import { Token, tokenDesc } from './token';
-import { scan } from './scanner';
+import { Errors, tolerant } from './errors';
+import { Parser, CommentType } from './types';
 import {
     ScannerState,
     nextChar,
@@ -11,9 +9,7 @@ import {
     advanceNewline,
     advance,
     consumeLineFeed,
-    advanceAndOrSkipUC,
     consumeOpt,
-    Flags,
     Context
 } from './utilities';
 
@@ -51,7 +47,7 @@ export function skipSingleLineComment(
             case Chars.LineSeparator:
             case Chars.ParagraphSeparator:
                 advanceNewline(parser);
-                if (collectable) addComment(parser, context, type, state, start);
+                if (collectable) addComment(parser, context, type, start);
                 return state | ScannerState.NewLine;
 
             default:
@@ -59,7 +55,7 @@ export function skipSingleLineComment(
         }
     }
 
-    if (collectable) addComment(parser, context, type, state, start);
+    if (collectable) addComment(parser, context, type, start);
 
     return state;
 }
@@ -87,7 +83,7 @@ export function skipMultiLineComment(
                 advance(parser);
                 state &= ~ScannerState.LastIsCR;
                 if (consumeOpt(parser, Chars.Slash)) {
-                    if (collectable) addComment(parser, context, 'Multiline', state, start);
+                    if (collectable) addComment(parser, context, 'Multiline', start);
                     return state;
                 }
                 break;
@@ -119,7 +115,7 @@ export function skipMultiLineComment(
     tolerant(parser, context, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, type: any, state: ScannerState, start: number) {
+export function addComment(parser: Parser, context: Context, type: any, start: number) {
     const {index, startIndex, startLine, startColumn, lastLine, column} = parser;
     const comment: ESTree.Comment = {
         type,

@@ -1,4 +1,4 @@
-import { CommentType, Comment, Node } from './estree';
+import { CommentType, Node } from './estree';
 import { Flags } from './utilities';
 import { Token } from './token';
 

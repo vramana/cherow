@@ -1,14 +1,13 @@
 import { Chars } from './chars';
 import { Parser } from './types';
 import { Errors, report } from './errors';
-import { Token, tokenDesc, descKeyword } from './token';
-import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
+import { Token, descKeyword } from './token';
+import { isValidIdentifierStart } from './unicode';
 import { skipSingleLineComment, skipMultiLineComment } from './comments';
 import {
     hasNext,
     nextChar,
     advanceNewline,
-    advanceAndOrSkipUC,
     advance,
     consumeLineFeed,
     consumeOpt,
@@ -712,7 +711,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-export function scanSignedInteger(parser: Parser, context: Context, end: number): string {
+export function scanSignedInteger(parser: Parser, end: number): string {
     let next = nextChar(parser);
 
     if (next === Chars.Plus || next === Chars.Hyphen) {
@@ -725,7 +724,7 @@ export function scanSignedInteger(parser: Parser, context: Context, end: number)
     }
 
     const preNumericPart = parser.index;
-    const finalFragment = scanDecimalDigitsOrSeparator(parser, context);
+    const finalFragment = scanDecimalDigitsOrSeparator(parser);
     return parser.source.substring(end, preNumericPart) + finalFragment;
 }
 
@@ -756,7 +755,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
             report(parser, Errors.ZeroDigitNumericSeparator);
         }
         state |= NumericState.Float;
-        value = value + '.' + scanDecimalDigitsOrSeparator(parser, context);
+        value = value + '.' + scanDecimalDigitsOrSeparator(parser);
     }
 
     const end = parser.index;
@@ -768,7 +767,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
 
     if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
         state |= NumericState.Float;
-        value += scanSignedInteger(parser, context, end);
+        value += scanSignedInteger(parser, end);
     }
 
     if (isValidIdentifierStart(nextChar(parser))) {
@@ -798,7 +797,7 @@ export function scanNumericSeparator(parser: Parser, state: NumericState): Numer
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-export function scanDecimalDigitsOrSeparator(parser: Parser, context: Context): string {
+export function scanDecimalDigitsOrSeparator(parser: Parser): string {
 
     let start = parser.index;
     let state = NumericState.None;
@@ -897,7 +896,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
 
                 case Chars.Backslash:
                     ret += parser.source.slice(start, index);
-                    ret += scanUnicodeCodePointEscape(parser, context);
+                    ret += scanUnicodeCodePointEscape(parser);
                     start = parser.index;
                     break;
 
@@ -948,7 +947,7 @@ function parseMaybeIdentifier(parser: Parser, context: Context, first: number): 
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanUnicodeCodePointEscape(parser: Parser, context: Context): string | void {
+function scanUnicodeCodePointEscape(parser: Parser): string | void {
 
     const { index } = parser;
 
@@ -1494,7 +1493,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
 
-    parser.tokenValue = validate(parser, pattern, context, bodyStart, bodyEnd, !!(mask & RegexFlags.Unicode), flags);
+    parser.tokenValue = validate(parser, pattern, flags);
 
     return Token.RegularExpression;
 }
@@ -1513,10 +1512,6 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 function validate(
     parser: Parser,
     pattern: string,
-    context: Context,
-    start: number,
-    end: number,
-    isUnicode: boolean,
     flags: string) {
 
     try {

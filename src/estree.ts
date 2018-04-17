@@ -690,7 +690,7 @@ export interface JSXSpreadChild extends _Node<'JSXSpreadChild'> {
 export interface _JSXBoundaryElement<T extends string> extends _Node<T> {
     name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
 }
-type JSXBoundaryElement = JSXOpeningElement | JSXClosingElement;
+
 
 export interface JSXOpeningElement extends _JSXBoundaryElement<'JSXOpeningElement'> {
     selfClosing: boolean;

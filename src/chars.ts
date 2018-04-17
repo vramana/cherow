@@ -1,5 +1,3 @@
-import { report } from './errors';
-
 /**
  * A list of character constants with much more human-readable names.
  */
