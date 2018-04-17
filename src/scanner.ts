@@ -39,6 +39,7 @@ import {
  * @param parser Parser instance
  * @param context Context masks
  */
+
 export function scan(parser: Parser, context: Context): Token {
 
     parser.flags &= ~Flags.NewLine;
@@ -55,9 +56,9 @@ export function scan(parser: Parser, context: Context): Token {
             parser.startLine = parser.line;
         }
 
-        let first = nextChar(parser);
+        const first = nextChar(parser);
 
-        if (first >= 128) {
+        if (first >= Chars.MaxAsciiCharacter) {
             switch (first) {
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
@@ -89,10 +90,9 @@ export function scan(parser: Parser, context: Context): Token {
                     break;
 
                 default:
-                    first = nextUnicodeChar(parser);
-                    if (isValidIdentifierStart(first)) return scanIdentifier(parser, context, first);
-                    report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
+                    return parseMaybeIdentifier(parser, context, first);
             }
+
         } else {
             switch (first) {
 
@@ -283,17 +283,17 @@ export function scan(parser: Parser, context: Context): Token {
 
                         const next = parser.source.charCodeAt(index);
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                                scanNumericLiteral(parser, context, NumericState.Float);
-                                return Token.NumericLiteral;
-                            } else if (next === Chars.Period) {
-                                index++;
-                                if (index < parser.source.length &&
-                                    parser.source.charCodeAt(index) === Chars.Period) {
-                                    parser.index = index + 1;
-                                    parser.column += 3;
-                                    return Token.Ellipsis;
-                                }
+                            scanNumericLiteral(parser, context, NumericState.Float);
+                            return Token.NumericLiteral;
+                        } else if (next === Chars.Period) {
+                            index++;
+                            if (index < parser.source.length &&
+                                parser.source.charCodeAt(index) === Chars.Period) {
+                                parser.index = index + 1;
+                                parser.column += 3;
+                                return Token.Ellipsis;
                             }
+                        }
 
                         advance(parser);
                         return Token.Period;
@@ -310,11 +310,11 @@ export function scan(parser: Parser, context: Context): Token {
                             case Chars.UpperX:
                             case Chars.LowerX:
                                 return scanHexIntegerLiteral(parser, context);
-                            // Binary number - '0b', '0B'
+                                // Binary number - '0b', '0B'
                             case Chars.UpperB:
                             case Chars.LowerB:
                                 return scanOctalOrBinary(parser, context, 2);
-                            // Octal number - '0o', '0O'
+                                // Octal number - '0o', '0O'
                             case Chars.UpperO:
                             case Chars.LowerO:
                                 return scanOctalOrBinary(parser, context, 8);
@@ -448,16 +448,16 @@ export function scan(parser: Parser, context: Context): Token {
                         next = nextChar(parser);
 
                         if (next === Chars.GreaterThan) {
-                                advance(parser);
-                                if (consumeOpt(parser, Chars.EqualSign)) {
-                                    return Token.LogicalShiftRightAssign;
-                                } else {
-                                    return Token.LogicalShiftRight;
-                                }
-                            } else if (next === Chars.EqualSign) {
-                                advance(parser);
-                                return Token.ShiftRightAssign;
+                            advance(parser);
+                            if (consumeOpt(parser, Chars.EqualSign)) {
+                                return Token.LogicalShiftRightAssign;
+                            } else {
+                                return Token.LogicalShiftRight;
                             }
+                        } else if (next === Chars.EqualSign) {
+                            advance(parser);
+                            return Token.ShiftRightAssign;
+                        }
                         return Token.ShiftRight;
                     }
 
@@ -555,12 +555,9 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.LowerZ:
                     return scanIdentifier(parser, context, first);
                 default:
-                    first = nextChar(parser);
-                    if (isValidIdentifierStart(first)) return scanIdentifier(parser, context, first);
-                    report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
+                    return parseMaybeIdentifier(parser, context, first);
             }
         }
-
     }
 
     return Token.EndOfSource;
@@ -726,7 +723,7 @@ export function scanSignedInteger(parser: Parser, context: Context, end: number)
         report(parser, Errors.InvalidOrUnexpectedToken);
     }
 
-    const preNumericPart  = parser.index;
+    const preNumericPart = parser.index;
     const finalFragment = scanDecimalDigitsOrSeparator(parser, context);
     return parser.source.substring(end, preNumericPart) + finalFragment;
 }
@@ -887,7 +884,7 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
  * @param {context} Context masks
  */
 
-export function scanIdentifier(parser: Parser, context: Context, first?: number): Token {
+export function scanIdentifier(parser: Parser, context: Context, first ?: number): Token {
     let start = parser.index;
     let ret: string = '';
     if (first) advanceOnMaybeAstral(parser, first);
@@ -928,6 +925,23 @@ export function scanIdentifier(parser: Parser, context: Context, first?: number)
 }
 
 /**
+ * Scanning chars in the range 0...127, and treat them as an possible
+ * identifier. This allows subsequent checking to be faster.
+ *
+ * @param parser Parser instance
+ * @param context Context masks
+ * @param first Code point
+ */
+
+function parseMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
+    first = nextUnicodeChar(parser);
+    if (!isValidIdentifierStart(first)) {
+        report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
+    }
+    return scanIdentifier(parser, context, first);
+}
+
+/**
  * Scan unicode codepoint escape
  *
  * @param {Parser} Parser instance
@@ -935,7 +949,7 @@ export function scanIdentifier(parser: Parser, context: Context, first?: number)
  */
 function scanUnicodeCodePointEscape(parser: Parser, context: Context): string | void {
 
-    const index = parser.index;
+    const { index } = parser;
 
     if (index + 5 < parser.source.length) {
 
@@ -1495,7 +1509,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 /**
  * Validates regular expressions
  *
-  *
+ *
  * @param parser Parser instance
  * @param context Context masks
  * @param start Start of regexp pattern to validate
