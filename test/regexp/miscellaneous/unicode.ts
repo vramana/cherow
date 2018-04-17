@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -25,7 +24,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -179,7 +178,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -205,7 +204,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -238,7 +237,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -264,7 +263,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -445,7 +444,7 @@ describe.skip('Regular expressions', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }

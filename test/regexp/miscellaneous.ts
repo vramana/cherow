@@ -1,27 +1,7 @@
-/**
- * Does a simple binary lookup on given table and eithe return true or false
- * 
- * @param table The table to search in
- * @param needle What to search for
- */
-export function getPropertyValue(table: string[], needle: string): boolean {
-    let a = 0;
-    let b = table.length - 1;
-    if (needle < table[0] || needle > table[b]) return false;
-    
-    while (a < b - 1) {
-        var c = (a + b) / 2 | 0;
-        if (needle < table[c]) {
-            b = c;
-        } else {
-            a = c;
-        }
-    }
-
-    return table[a] === needle || table[a+1] === needle;
-}
-
-// Note:! All tables are sorted in alphabetical order
+import * as t from 'assert';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
+import { Context } from '../../../../src/utilities';
+import * as ESTree from '../../../../src/estree';
 
 const general = [
     "C",
@@ -560,3 +540,29 @@ var category = [
     "punct",
     "space",
   ];
+
+  function getPropertyValue(table: string[], needle: string) {
+    let a = 0;
+    let b = table.length - 1;
+    if (needle < table[0] || needle > table[b]) return false;
+    
+    while (a < b - 1) {
+        var c = (a + b) / 2 | 0;
+        if (needle < table[c]) {
+            b = c;
+        } else {
+            a = c;
+        }
+    }
+
+    return table[a] === needle || table[a+1] === needle;
+}
+describe.skip('Regular expressions', () => {
+
+
+    it('dd', () => {
+
+        console.log(getPropertyValue(script, "Zanb"))
+    });
+    
+});

@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -9,36 +8,34 @@ describe.skip('Lookbehind', () => {
     describe.skip('Failure', () => {
         const invalidSyntax = [
             '/(?<a)/',
-            '/(?<a)/',
             '/(?<=a)?/',
             '/(?<!a)?/',
             '/(?<!a)*/',
-            '/(?<!a){1}/',
             '/(?<=a)*/',
             '/(?<=a){1}/',
             '/(?<=.)*/',
             '/(?<=.)?/',
             '/(?<=.)+/',
-            '/(?<!a)?/',
             '/(?<!a)+/',
-            '/(?<!a){1}/',
             '/(?<!a)*/',
             '/.(?<!.)?/',
-            '/.(?<=.){2,3}/;'
+            '/.(?<=.){2,3}/;',
+            "/(?<=a)+/",
+            "/(?<!a){1}/",
         ];
         for (const arg of invalidSyntax) {
 
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Empty);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }
     });
 
     describe.skip('Pass', () => {
-         const vadlidSyntax = [
+        const vadlidSyntax = [
             '/(?<=a)/',
             '/(?<!a)/',
             '/^.(?<=a)/',
@@ -168,7 +165,7 @@ describe.skip('Lookbehind', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Empty);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }

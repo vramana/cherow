@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -20,7 +19,6 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<42a>a)/',
             '/(?<:a>a)/',
             '/(?<a:>a)/',
-            '/(?<a>a)(?<a>a)/',
             '/(?<a>a)(?<b>b)(?<a>a)/',
             '/(?<\\>.)/',
             '/(?<a\\>.)/',
@@ -48,13 +46,36 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<\\u0041bc\\u0041>)\\k<\\u0041bc\\u0041>/',
             '/(?<$𐒤>a)/',
             '(?<a\u{104A4}>.)',
-        ];
+            "/(?a)/",
+            "/(?</",
+            "/(?<a)/",
+            "/(?<a>a)\\k</",
+            "/(?<>a)/",
+"/(?<aa)/",
+"/(?<42a>a)/",
+"/(?<:a>a)/",
+"/(?<a:>a)/",
+"/(?<a>a)(?<a>a)/",
+"/(?<a>a)(?<b>b)(?<a>a)/",
+"/(?<a>.)\\k/",
+"/(?<a>.)\\k<a/",
+"/(?<a>.)\\k<b>/",
+"/(?<a>a)\\k<ab>/",
+"/(?<ab>a)\\k<a>/",
+"/\\k<a>(?<ab>a)/",
+"/\\k<a(?<a>a)/",
+"/\\k<a>(?<b>x)/",
+"/\\k<a(?<a>.)/",
+"/\\k(?<a>.)/",
+"/(?<a\\uD801>.)/",
+'/(?<$𐒤>a)/',
+          ];
         for (const arg of invalidSyntax) {
 
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Empty);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }
@@ -68,10 +89,13 @@ describe.skip('RegExp named capture groups', () => {
             '/(a)/',
             '/(?:a)/',
             '/(?<a>)/',
+            '/(?<$>a)/',
+
             '/\\k/',
             '/\\k/',
             '/(?<a>)/',
             '/\\k/',
+            '/(?<π>a)/',
             '/^f\w\w(?<=\woo)/',
             '/(?<=abc)\w\w\w/',
             '/(?<=a.c)\w\w\w/',
@@ -149,15 +173,22 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<_\u200C>a)/',
             '/(?<_\u200D>a)/',
             '/(?<ಠ_ಠ>a)/',
+            '/\k<a>(?<=>)a/',
+            '/\k<a>(?<a>x)/',
+            '/\k<a>(<a>x)/',
+            '/\k<a>(?<!a)a/',
+            '/\k<a>(?<=>)a/',
+            '/\k<a>(?<=>)a/',
         ];
         for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Empty);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }
     });
 });
+

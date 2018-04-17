@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -18,9 +17,6 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<a>a)\\k<a/u',
             '/(?<a>a)\\k<a/',
             '/(?<a>a)\\k</u',
-            '/(?<a>a)\\k</u',
-            '/\\k<a>/u',
-            '/\\k<a>/u',
             '/\\k/u',
             '/(?<aa)/u',
             '/(?<42a>a)/u',
@@ -76,20 +72,48 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<a\\uD801\uDCA4>.)/',
             '/(?<a\\uD801>.)/',
             '/(?<a\\uDCA4>.)/',
-            //"/(?<a\\u{104A4}>.)/",
+            // "/(?<a\\u{104A4}>.)/",
+            "/(?<\\u0020>a)\\k<\\u0020>/u",
+            "/(?<\\u0061\\u0062\\u0063>a)\\k<abd>/u",
+            "/(?<11>a)\\k<11>/u",
             '/(?<a\u{104A4}>.)/',
             '/(?<a\uD801\uDCA4>.)/u',
             '/(?<a\u{104A4}>.)/u',
             '(?<a\u{104A4}>.)',
             '/\\1(?:.)/u',
             '/\\1(?<=a)./u',
+            
+"/(?<>a)/u",
+"/(?<aa)/u",
+"/(?<42a>a)/u",
+"/(?<:a>a)/u",
+"/(?<a:>a)/u",
+"/(?<a>a)(?<a>a)/u",
+"/(?<a>a)(?<b>b)(?<a>a)/u",
+"/\\k<a>/u",
+"/\\k<a/u",
+"/\\k/u",
+"/(?<a>.)\\k/u",
+"/(?<a>.)\\k<a/u",
+"/(?<a>.)\\k<b>/u",
+"/(?<a>a)\\k<ab>/u",
+"/(?<ab>a)\\k<a>/u",
+"/\\k<a>(?<ab>a)/u",
+"/(?<a>\\a)/u",
+"/\\1(?<=a)./u",
+"/\\1(?<!a)./u", 
+"/(?<a\\uD801>.)/u",
+"/(?<a\\u{110000}>.)/u",
+"/(?<a\\uD801>.)/u",
+"/(?<a\\uDCA4>.)/u",
+"/(?<a\u{104A4}>.)/u",
         ];
         for (const arg of invalidSyntaxUnicode) {
 
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -103,6 +127,8 @@ describe.skip('RegExp named capture groups', () => {
             '/(?<=(?<a>\w)+)f/u',
             '/(?<\u{0041}>.)/u',
             '/(?<=(?<a>\w){6})f/u',
+            '/(.)(.)|(x)/u',
+            '/(?<π>a)/',
             '/(?<a>(?<=\w{3}))f/u',
             '/((?<=\w{3}))f/u',
             '/(?<a>(?<=\w{3}))f/u',
@@ -167,9 +193,14 @@ describe.skip('RegExp named capture groups', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
     });
 });
+
+
+
+
+

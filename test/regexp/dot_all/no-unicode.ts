@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -8,14 +7,14 @@ describe.skip('Dot all', () => {
 
     describe.skip('Failure', () => {
         const invalidSyntax = [
-            '/\\p/u',
+            '/(?<$𐒤>a)/',
         ];
         for (const arg of invalidSyntax) {
 
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }
@@ -23,7 +22,13 @@ describe.skip('Dot all', () => {
 
     describe.skip('Pass', () => {
         const vadlidSyntax = [
-            '/^.$/u'
+            '/^.$/s',
+            '\u0085',
+            '\u2029',
+            '/^.$/',
+            '/(?:)/',
+            '/./s',
+            '(?<\u{0041}>.)'
         ];
 
         for (const arg of vadlidSyntax) {
@@ -31,7 +36,7 @@ describe.skip('Dot all', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, false);
                 });
             });
         }

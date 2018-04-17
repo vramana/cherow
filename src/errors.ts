@@ -101,7 +101,13 @@ export const enum Errors {
     UnterminatedCharacterClass,
     InvalidCharacterClass,
     InvalidRangeInCharacterClass,
-    InvalidClassEscape
+    InvalidClassEscape,
+    InvalidPropertyName,
+    DuplicateCaptureGroup,
+    InvalidCaptureGroup,
+    InvalidNamedCaptureRef,
+    InvalidNamedRef,
+    InvalidCaptureGroupName
 }
 
 export const ErrorMessages: {
@@ -196,6 +202,7 @@ export const ErrorMessages: {
     [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
     [Errors.UnexpectedAsBinding]: 'Unexpected token \'%0\' before imported binding name',
     [Errors.LabelNoColon]: 'Labels must be followed by a \':\'',
+
     [Errors.UnmatchedRightParen]: 'Unmatched \')\' in regular expression',
     [Errors.LoneQuantifierBrackets]: 'Lone quantifier brackets',
     [Errors.InvalidEscape]: 'Invalid escape',
@@ -208,7 +215,12 @@ export const ErrorMessages: {
     [Errors.UnterminatedCharacterClass]: 'Unterminated character class',
     [Errors.InvalidCharacterClass]: 'Invalid character class',
     [Errors.InvalidRangeInCharacterClass]: 'Invalid range in character class',
-    [Errors.UnterminatedCharacterClass]: 'Unterminated character class',
+    [Errors.InvalidPropertyName]: 'Invalid property name',
+    [Errors.DuplicateCaptureGroup]: 'Duplicate capture group name',
+    [Errors.InvalidCaptureGroup]: 'Invalid capture group',
+    [Errors.InvalidNamedCaptureRef]: 'Invalid named capture referenced',
+    [Errors.InvalidNamedRef]: 'Invalid named reference',
+    [Errors.InvalidCaptureGroupName]: 'Invalid capture group name',
 };
 
 /**
@@ -265,7 +277,7 @@ function getErrorLocation(parser: Parser) {
  */
 export function report(parser: Parser, type: Errors, ...params: string[]) {
     const { index, line, column } = getErrorLocation(parser);
-        const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, Context.Empty, index, line, column, errorMessage);
 }
 

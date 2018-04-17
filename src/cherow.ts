@@ -31,14 +31,13 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
     return parse(source, options, Context.Strict | Context.Module);
 }
 
-
 /**
  * Validate regular expression
  *
  * @param source  regular expression pattern to validate
  * @param isUnicode True if the validator should handle unicode
  */
- export function validateRegularExpression(source: string, isUnicode: boolean): boolean {
+export function validateRegularExpression(source: string, isUnicode: boolean): boolean {
     return validateRegExp(source, isUnicode);
 }
 

@@ -1,6 +1,5 @@
-import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { ValidatorState, validateRegExp } from '../../../../src/regexp';
+//import { ValidatorState, validateRegExp } from '../../../../src/regexp/regexp';
 import { Context } from '../../../../src/utilities';
 import * as ESTree from '../../../../src/estree';
 
@@ -9,9 +8,9 @@ describe.skip('Unicode property escape', () => {
     describe.skip('Failure', () => {
         const invalidSyntax = [
             '/\\p/u',
-            '/\\p/u',
             '/\\p{/u',
-            '/\\p{/u',
+            "/\\p{ASCII/u",
+//            "/[\\p{Script=Hiragana}-\\p{Script=Katakana}]/u",
             '/\\p{General_Category}/u',
             '/\\p{General_Category=}/u',
             '/\\p{General_Category/u',
@@ -43,6 +42,22 @@ describe.skip('Unicode property escape', () => {
             '/\\p{FC_NFKC_Closure}/u',
             '/\\P{FC_NFKC_Closure}/u',
             '/\\p{Full_Composition_Exclusion}/u',
+            "/\\p{Comp_Ex}/u",
+            "/\\p{Grapheme_Link}/u",
+            "/\\p{Gr_Link}/u",
+            "/\\p{Hyphen}/u",
+            "/\\p{NFD_Inert}/u",
+            "/\\p{NFDK_Inert}/u",
+            "/\\p{NFC_Inert}/u",
+            "/\\p{NFKC_Inert}/u",
+            "/\\p{Segment_Starter}/u",
+            '/\p{Alphabetic}/u',
+            '/\p{CWCF}/u',
+            '/\p{Emoji_Component}/u',
+            '/\p{Emoji_Presentation}/u',
+            '/\p{IDS_Trinary_Operator}/u',
+            '/\p{Uppercase}/u',
+            '/\p{Variation_Selector}/u',
             '/[\\p{invalid}]/u',
             '/[\\p{}]/u',
             '/[\\p{invalid}]/u',
@@ -50,8 +65,6 @@ describe.skip('Unicode property escape', () => {
             '/[\\p{]}/u',
             '/[\\p}]/u',
             '/\\P{FC_NFKC_Closure}/u',
-            '/\\p{Full_Composition_Exclusion}/u',
-            '/\\P{Full_Composition_Exclusion}/u',
             '/\\p{Grapheme_Link}/u',
             '/\\P{Grapheme_Link}/u',
             '/\\P{Hyphen}/u',
@@ -103,12 +116,19 @@ describe.skip('Unicode property escape', () => {
             '/\\P{=Letter}/u',
             '/\\P{=}/u',
             '/\\p{=}/u',
+            "/\\p{Hiragana}/u",
+            "/\\p{Bidi_Class}/u",
+            "/\\p{Bidi_C=False}/u",
+            "/\\P{Bidi_Control=Y}/u",
+            "/\\p{AHex=Yes}/u",
+            "/\\p{Composition_Exclusion}/u",
+            "/\\p{Full_Composition_Exclusion}/u",
             '/\\p{^General_Category=Letter}/u',
             '/\\p{General_Category:Letter}/u',
             '/\\P{General_Category:Letter}/u',
             '/a\P{Any}a/u',
             '/(?:a\P{Any}a|a\p{Any}a)/u',
-            '\\1(\\P{P\0[}()/',
+            '\\1(\\P{P\0[}()/u',
             '/\p{Regional_Indicator}/u',
             '/\\p{Block = CJK}/u',
             '/\\p{Block=cjk}/u',
@@ -135,10 +155,7 @@ describe.skip('Unicode property escape', () => {
             '/\P{Assigned}+/u',
             '/\\P{garbage}/u',
             '/\\P{}/u',
-            '/\\P{/u',
             '/\\P}/u',
-            '/\\PL/u',
-           '/\\pL/u',
            '/^[\p{Lu}-\p{Ll}]+$/u',
            '/\p{Sm}/u',
            '/\P{L}/u',
@@ -166,6 +183,86 @@ describe.skip('Unicode property escape', () => {
            '/^\p{scx=Warang_Citi}+$/u',
            '/^\P{XID_Start}+$/u',
            '/^\P{XIDS}+$/u',
+           "/\\p{Bidi_Class=L}+/u",
+           "/\\p{Block=}/u",
+           "/\\p{=}/u",
+           "/\\p{=L}/u",
+           "/\\p{Block=CJK=}/u",
+           "/\\p{Age=V8_0}/u",
+           "/\\p{gcm=L}/u",
+           "/\\p{InCJKUnifiedIdeographs}/u",
+           
+"/\\p{Coptic}/u",
+"/\\p{Qaac}/u",
+"/\\p{Egyp}/u",
+"/\\p{BidiClass=LeftToRight}/u",
+"/\\p{BidiC=LeftToRight}/u",
+"/\\p{bidi_c=Left_To_Right}/u",
+"/\\p{Block=CJK}/u",
+"/\\p{Block = CJK}/u",
+"/\\p{Block=cjk}/u",
+"/\\p{BLK=CJK}/u",
+"/\\p{EgyptianHieroglyphs}/u",
+"/\\p/u",
+"/\\p{garbage}/u",
+"/\\p{}/u",
+"/\\p{/u",
+"/\\p}/u",
+"/\\pL/u",
+"/\\P/u",
+"/\\P{garbage}/u",
+"/\\P{}/u",
+"/\\P{/u",
+"/\\P}/u",
+"/\\PL/u",
+"/\p{Block=ASCII}+/u",
+"/\p{Block=ASCII}+/u",
+"/\p{Block=Basic_Latin}+/u",
+"/\p{Block=Basic_Latin}+/u",
+"/\p{blk=CJK}+/u",
+"/\p{blk=CJK_Unified_Ideographs}+/u",
+"/\p{blk=CJK}+/u",
+"/\p{blk=CJK_Unified_Ideographs}+/u",
+"/\p{Block=ASCII}+/u",
+"/\p{Block=ASCII}+/u",
+"/\p{Block=Basic_Latin}+/u",
+"/\p{Block=Basic_Latin}+/u",
+"/\p{NFKD_Quick_Check=Y}+/u",
+"/\p{NFKD_QC=Yes}+/u",
+"/\p{Numeric_Type=Decimal}+/u",
+"/\p{nt=De}+/u",
+"/\p{Bidi_Class=Arabic_Letter}+/u",
+"/\p{Bidi_Class=AN}+/u",
+"/\p{ccc=OV}+/u",
+"/\p{Sentence_Break=Format}+/u",
+"/\\p{In}/u",
+"/\\pI/u",
+"/\\p{I}/u",
+"/\\p{CJK}/u",
+'/\p{Script_Extensions=Cypriot}+/u',
+'/\p{Script=Latin}+/u',
+'\p{sc=Hiragana}/u',
+'/\p{sc=Greek}/u',
+'/\p{sc=Grek}/u',
+'/\p{sc=Phnx}/u',
+'/\p{sc=Hira}/u',
+"/\\p{Other_Alphabetic}/u",
+"/\\P{OAlpha}/u",
+"/\\p{Other_Default_Ignorable_Code_Point}/u",
+"/\\P{ODI}/u",
+"/\\p{Other_Grapheme_Extend}/u",
+"/\\P{OGr_Ext}/u",
+"/\\p{Other_ID_Continue}/u",
+"/\\P{OIDC}/u",
+"/\\p{Other_ID_Start}/u",
+"/\\P{OIDS}/u",
+"/\\p{Other_Lowercase}/u",
+"/\\P{OLower}/u",
+"/\\p{Other_Math}/u",
+"/\\P{OMath}/u",
+"/\\p{Other_Uppercase}/u",
+"/\\P{OUpper}/u",
+
         ];
 
         for (const arg of invalidSyntax) {
@@ -173,7 +270,7 @@ describe.skip('Unicode property escape', () => {
             it(`${arg}`, () => {
 
                 t.throws(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
@@ -184,26 +281,34 @@ describe.skip('Unicode property escape', () => {
             '/\\p{General_Category=Letter}/u',
             '/[\\p{Script=Hiragana}\\-\\p{Script=Katakana}]/u',
             ' /[\p{Hex}-\uFFFF]/u',
+            "/\\p{General_Category=Letter}/u",
+            "/\\p{gc=L}/u",
             'a\u{d83d}a',
             '/a[\P{Any}]a/u',
             '/a[^\P{Any}x]a/u',
             '/a[^\P{Any}]a/u',
             '/^[\p{Lu}-]+$/u',
-            '/^[\P{Lu}\p{Ll}]+$/u',
-            '/^[\p{Lu}\p{Ll}]+$/u',
-            '/^[\P{Lu}\p{Ll}]+$/u',
             '/^[\\p{Lu}-\\p{Ll}]+$/u',
             '/[^\P{ASCII}]+/u',
             '/[^\P{Assigned}]+/u',
             '/\\p{Other}/u',
             '/\\p{Cc}/u',
             '/\\p{Control}/u',
-           '/^[\p{Lu}\p{Ll}]+$/u',
-           '/^[\P{Lu}\p{Ll}]+$/u',
            '/^[\P{Lu}]+$/u',
            '/^[^\P{Lu}]+$/u',
            '/^[^\p{Lu}\P{Ll}]+$/u',
-           '/^[\P{Lu}\p{Ll}]+$/u'
+           '/^[\P{Lu}\p{Ll}]+$/u',
+           '/[\P{Bidi_M}]/u',
+           "/[\\p{L}]/u",
+           "/\\p{Script=Egyptian_Hieroglyphs}/u",
+           "/\\p{Combining_Mark}/u",
+           "/\\p{C}/u",
+           "/\\p{Other}/u",
+           "/\\p{Control}/u",
+           "/\\p{M}/u",
+           "/\\p{Mark}/u",
+           "/\\p{Script=Copt}/u",
+           
 
         ];
 
@@ -212,9 +317,14 @@ describe.skip('Unicode property escape', () => {
             it(`${arg}`, () => {
 
                 t.doesNotThrow(() => {
-                    validateRegExp(`${arg}`, ValidatorState.Unicode);
+                    validateRegExp(`${arg}`, true);
                 });
             });
         }
     });
 });
+
+
+
+
+
