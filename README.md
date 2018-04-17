@@ -2,12 +2,14 @@
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
-[![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=bleeding)](https://travis-ci.org/cherow/cherow)
-[![Build status](https://ci.appveyor.com/api/projects/status/pkydnkv0deckns5l/branch/bleeding?svg=true)](https://ci.appveyor.com/project/Kflash/cherow/branch/bleeding)
+[![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
+[![Build status](https://ci.appveyor.com/api/projects/status/pkydnkv0deckns5l/branch/master?svg=true)](https://ci.appveyor.com/project/Kflash/cherow/branch/master)
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
+
+## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
 
@@ -130,16 +132,3 @@ function doWhatYouWant(parser, context) {
 }
 
 ```
-
-## Performance 
-
-
-#### Benchmark #1
-
-![Alt text](bench.png?raw=true "Title")
-
-#### Benchmark #2
-
-**Note!** This Jazzle parser couldn't parse the TypeScript library, so the results is not 100%.
-
-![Alt text](bench1.png?raw=true "Title")
