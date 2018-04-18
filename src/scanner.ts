@@ -157,6 +157,7 @@ export function scan(parser: Parser, context: Context): Token {
                         state = skipSingleLineComment(parser, context, state, 'HTMLOpen');
                         continue;
                     }
+
                     switch (nextChar(parser)) {
                         case Chars.LessThan:
                             advance(parser);
@@ -167,7 +168,19 @@ export function scan(parser: Parser, context: Context): Token {
                         case Chars.EqualSign:
                             advance(parser);
                             return Token.LessThanOrEqual;
+                        case Chars.Slash: {
+                                if (!(context & Context.OptionsJSX)) break;
+                                const index = parser.index + 1;
 
+                                // Check that it's not a comment start.
+                                if (index < parser.source.length) {
+                                    const next = parser.source.charCodeAt(index);
+                                    if (next === Chars.Asterisk || next === Chars.Slash) break;
+                                }
+
+                                advance(parser);
+                                return Token.JSXClose;
+                            }
                         default: // ignore
                             return Token.LessThan;
                     }
@@ -887,6 +900,7 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
 export function scanIdentifier(parser: Parser, context: Context, first ?: number): Token {
     let start = parser.index;
     let ret: string = '';
+
     if (first) advanceOnMaybeAstral(parser, first);
     loop:
         while (hasNext(parser)) {
@@ -936,7 +950,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
 function parseMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
-        report(parser, Errors.UnexpectedChar, escapeForPrinting(nextUnicodeChar(parser)));
+        report(parser, Errors.UnexpectedChar, escapeForPrinting(first));
     }
     return scanIdentifier(parser, context, first);
 }

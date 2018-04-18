@@ -45,7 +45,7 @@ import {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementListItem)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -84,7 +84,7 @@ export function parseStatementListItem(parser: Parser, context: Context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -141,7 +141,7 @@ export function parseStatement(parser: Parser, context: Context): any {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseEmptyStatement(parser: Parser, context: Context): ESTree.EmptyStatement {
@@ -157,7 +157,7 @@ export function parseEmptyStatement(parser: Parser, context: Context): ESTree.Em
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ContinueStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -186,7 +186,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BreakStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -216,7 +216,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-if-statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -238,7 +238,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
 
 /**
  * Parse either consequent or alternate. Supports AnnexB.
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseConsequentOrAlternate(parser: Parser, context: Context): ESTree.Node {
@@ -252,7 +252,7 @@ function parseConsequentOrAlternate(parser: Parser, context: Context): ESTree.No
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-DebuggerStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -270,7 +270,7 @@ export function parseDebuggerStatement(parser: Parser, context: Context): ESTree
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-TryStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -294,7 +294,7 @@ export function parseTryStatement(parser: Parser, context: Context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -322,7 +322,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ThrowStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -343,7 +343,7 @@ export function parseThrowStatement(parser: Parser, context: Context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseExpressionStatement(parser: Parser, context: Context): ESTree.ExpressionStatement {
@@ -362,7 +362,7 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-LabelledStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -405,7 +405,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -430,7 +430,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-grammar-notation-WhileStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -454,7 +454,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
  * @see [Link](https://tc39.github.io/ecma262/#prod-BlockStatement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Block)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -478,7 +478,7 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ReturnStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -504,7 +504,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-grammar-notation-IterationStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseIterationStatement(parser: Parser, context: Context): ESTree.Statement {
@@ -524,7 +524,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-WithStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -548,7 +548,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SwitchStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -581,7 +581,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
  * @see [Link](https://tc39.github.io/ecma262/#prod-CaseClauses)
  * @see [Link](https://tc39.github.io/ecma262/#prod-DefaultClause)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -615,7 +615,7 @@ export function parseCaseOrDefaultClauses(parser: Parser, context: Context): EST
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -640,7 +640,7 @@ export function parseVariableStatement(parser: Parser, context: Context, shouldC
  * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -656,7 +656,7 @@ function parseLetOrExpressionStatement(parser: Parser, context: Context, shouldC
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionDeclarationOrStatement(parser: Parser, context: Context): ESTree.Node {
@@ -671,7 +671,7 @@ function parseAsyncFunctionDeclarationOrStatement(parser: Parser, context: Conte
  * @see [Link](https://tc39.github.io/ecma262/#sec-for-statement)
  * @see [Link](https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 

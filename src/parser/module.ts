@@ -28,7 +28,7 @@ import {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItemList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseModuleItemList(parser: Parser, context: Context): ESTree.Statement[] {
@@ -52,7 +52,7 @@ export function parseModuleItemList(parser: Parser, context: Context): ESTree.St
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItem)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseModuleItem(parser: Parser, context: Context) {
@@ -79,7 +79,7 @@ export function parseModuleItem(parser: Parser, context: Context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExportDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseExportDeclaration(parser: Parser, context: Context): ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration {
@@ -177,7 +177,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
 /**
  * Parse export all declaration
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseExportAllDeclaration(parser: Parser, context: Context, pos: Location): ESTree.ExportAllDeclaration {
@@ -193,7 +193,7 @@ function parseExportAllDeclaration(parser: Parser, context: Context, pos: Locati
 /**
  * Parse named export declaration
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.ExportSpecifier {
@@ -219,7 +219,7 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  * @param pos Location
  */
@@ -265,7 +265,7 @@ function parseExportDefault(parser: Parser, context: Context, pos: Location): ES
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseImportDeclaration(parser: Parser, context: Context): ESTree.ImportDeclaration {
@@ -299,7 +299,7 @@ export function parseImportDeclaration(parser: Parser, context: Context): ESTree
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportClause)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -353,7 +353,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -377,7 +377,7 @@ function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -414,7 +414,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -434,7 +434,7 @@ function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifi
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal {
@@ -448,7 +448,7 @@ function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.ImportDefaultSpecifier {
@@ -465,7 +465,7 @@ function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.I
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionOrAssignmentExpression(parser: Parser, context: Context): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {

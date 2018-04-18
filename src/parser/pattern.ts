@@ -21,7 +21,7 @@ import {
 /**
  * Parses either a binding identifier or binding pattern
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: any[] = []): ESTree.Node {
@@ -46,7 +46,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -81,7 +81,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -101,7 +101,7 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context, 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser instance
+ * @param {Parser} Parser object
  * @param {context} Context masks
  */
 
@@ -139,7 +139,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
 /**
  * Parse object assignment pattern
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 
@@ -170,7 +170,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param left LHS of assignment pattern
  * @param pos Location
@@ -190,7 +190,7 @@ export function parseAssignmentPattern(parser: Parser, context: Context, left: E
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param left LHS of assignment pattern
  * @param pos Location
@@ -219,7 +219,7 @@ function parseAssignmentOrArrayAssignmentPattern(
 /**
  * Parse object binding property
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 

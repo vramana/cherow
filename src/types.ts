@@ -125,8 +125,6 @@ export interface Parser {
     tokenRaw: string;
     lastValue: number;
     tokenRegExp: any;
-    numCapturingParens: number;
-    maxBackReference: number;
     token: Token;
     delegate: Delegate | void;
     errors: any[];

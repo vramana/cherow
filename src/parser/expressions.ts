@@ -6,6 +6,7 @@ import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Options, Location, Parser } from '../types';
 import { parseStatementListItem } from './statements';
+import { parseJSXRootElement } from './jsx';
 import {
     expect,
     Context,
@@ -47,7 +48,7 @@ import {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Expression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -62,7 +63,7 @@ export function parseExpression(parser: Parser, context: Context): ESTree.Assign
 /**
  * Parse secuence expression
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -83,7 +84,7 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-YieldExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -116,7 +117,7 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -198,7 +199,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ConditionalExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -227,7 +228,7 @@ function parseConditionalExpression(parser: Parser, context: Context, pos: any):
  * @see [Link](https://tc39.github.io/ecma262/#sec-relational-operators)
  * @see [Link](https://tc39.github.io/ecma262/#sec-multiplicative-operators)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param minPrec Minimum precedence value
  * @param pos Line / Column info
@@ -272,7 +273,7 @@ function parseBinaryExpression(
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AwaitExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param {loc} pas Location info
  */
@@ -290,7 +291,7 @@ function parseAwaitExpression(parser: Parser, context: Context, pos: Location): 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-UnaryExpression)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
@@ -308,7 +309,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
         if (context & Context.Strict && token === Token.DeleteKeyword) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, Errors.StrictDelete);
-            } 
+            }
             if (isPropertyWithPrivateFieldKey(context, argument)) {
                 tolerant(parser, context, Errors.DeletePrivateField);
             }
@@ -329,14 +330,13 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-UpdateExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
 
     let prefix = false;
     let operator: Token | undefined;
-
     if (hasBit(parser.token, Token.IsUpdateOp)) {
         operator = parser.token;
         prefix = true;
@@ -373,7 +373,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 
@@ -392,7 +392,7 @@ export function parseRestElement(parser: Parser, context: Context, args: string[
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SpreadElement)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 function parseSpreadElement(parser: Parser, context: Context): any {
@@ -428,7 +428,7 @@ export function parseLeftHandSideExpression(parser: Parser, context: Context, po
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  * @param pos Location info
  * @param expr Expression
@@ -519,7 +519,7 @@ function parseCallExpression(parser: Parser, context: Context, pos: Location, ex
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-CoverCallExpressionAndAsyncArrowHead)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -560,7 +560,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
  *
  * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 
@@ -587,7 +587,7 @@ function parseArgumentList(parser: Parser, context: Context): ESTree.Expression[
  *
  * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 
@@ -650,7 +650,7 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PrimaryExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 export function parsePrimaryExpression(parser: Parser, context: Context): any {
@@ -698,6 +698,8 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplate(parser, context);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
+        case Token.LessThan:
+            if (context & Context.OptionsJSX) return parseJSXRootElement(parser, context, true);
         default:
             return parseAndValidateIdentifier(parser, context);
     }
@@ -707,7 +709,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
  * Parse 'let' as identifier in 'sloppy mode', and throws
  * in 'strict mode'  / 'module code'
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context context mask
  */
 function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifier {
@@ -730,7 +732,7 @@ function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifi
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionExpression)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Identifier)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context  context mask
  */
 function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context) {
@@ -744,7 +746,7 @@ function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Identifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -767,7 +769,7 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -795,7 +797,7 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
  * @see [Link](https://tc39.github.io/ecma262/#prod-NumericLiteral)
  * @see [Link](https://tc39.github.io/ecma262/#prod-StringLiteral)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
@@ -820,7 +822,7 @@ export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
  *
  * @see [Link](https://tc39.github.io/proposal-bigint/)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Literal {
@@ -866,7 +868,7 @@ function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree
 /**
  * Parse this expression
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -883,7 +885,7 @@ function parseThisExpression(parser: Parser, context: Context): ESTree.ThisExpre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-IdentifierName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param t token
  */
@@ -898,7 +900,7 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -920,7 +922,7 @@ function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): EST
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayLiteral)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -961,7 +963,7 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-parseCoverParenthesizedExpressionAndArrowParameterList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -1099,7 +1101,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionExpression)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -1137,7 +1139,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionExpression)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -1175,7 +1177,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
 /**
  * Shared helper function for "parseFunctionExpression" and "parseAsyncFunctionOrAsyncGeneratorExpression"
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionOrClassExpressionName(parser: Parser, context: Context, state: ModifierState): ESTree.Identifier | null {
@@ -1190,7 +1192,7 @@ function parseFunctionOrClassExpressionName(parser: Parser, context: Context, st
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ComputedPropertyName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1207,7 +1209,7 @@ function parseComputedPropertyName(parser: Parser, context: Context): ESTree.Exp
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PropertyName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1228,7 +1230,7 @@ export function parsePropertyName(parser: Parser, context: Context): any {
  *
  * @see [Link](https://tc39.github.io/proposal-object-rest-spread/#Spread)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseSpreadProperties(parser: Parser, context: Context): any {
@@ -1282,7 +1284,7 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PropertyDefinition)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1391,7 +1393,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1417,7 +1419,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1433,7 +1435,7 @@ function parseArrowFunction(parser: Parser, context: Context, pos: any, params: 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1450,7 +1452,7 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrowFunction)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1481,7 +1483,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionBody)
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameters)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1498,7 +1500,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionBody)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1569,7 +1571,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameters)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param {state} Optional objectstate. Default to none
  */
@@ -1617,7 +1619,7 @@ export function parseFormalParameters(
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameterList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1659,7 +1661,7 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1693,7 +1695,7 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassElementList)
  *
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1721,7 +1723,7 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassElement)
  * @see [Link](https://tc39.github.io/proposal-class-public-fields/)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1828,7 +1830,7 @@ function parseMethodDefinition(parser: Parser, context: Context, key: any, value
 /**
  * Parses field definition.
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1856,7 +1858,7 @@ function parseFieldDefinition(parser: Parser, context: Context, key: any, state:
 /**
  * Parse private name
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 
@@ -1874,7 +1876,7 @@ function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTr
  *
  * @see [Link](https://tc39.github.io/proposal-class-public-fields/)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parsePrivateFields(parser: Parser, context: Context, pos: Location): ESTree.FieldDefinition | ESTree.MethodDefinition {
@@ -1907,7 +1909,7 @@ function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Loc
 /**
  * Parse import expressions
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1945,7 +1947,7 @@ function parseImportExpressions(parser: Parser, context: Context, poss: Location
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1962,7 +1964,7 @@ function parseMetaProperty(parser: Parser, context: Context, meta: ESTree.Identi
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NewExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -1991,7 +1993,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -2011,7 +2013,7 @@ function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Lo
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SuperProperty)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -2043,7 +2045,7 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -2061,7 +2063,7 @@ function parseTemplateLiteral(parser: Parser, context: Context): ESTree.Template
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -2083,7 +2085,7 @@ function parseTemplateHead(parser: Parser, context: Context, cooked: string | nu
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 
@@ -2120,7 +2122,7 @@ function parseTemplate(
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 

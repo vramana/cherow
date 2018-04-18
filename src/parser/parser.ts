@@ -50,10 +50,9 @@ export function createParser(
         flags: Flags.AllowDestructuring,
         // The tokens
         token: Token.EndOfSource,
+        // Misc
         tokenRaw: '',
         lastValue: 0,
-        numCapturingParens: 0,
-        maxBackReference: 0,
         comments: [],
         sourceFile: sourceFile,
         tokenRegExp: undefined,
@@ -116,7 +115,9 @@ export function parse(source: string, options: Options | void, context: Context)
 
     const parser = createParser(source, sourceFile, delegate);
 
-    const body = context & Context.Module ? parseModuleItemList(parser, context) : parseStatementList(parser, context);
+    const body = context & Context.Module
+          ? parseModuleItemList(parser, context)
+          : parseStatementList(parser, context);
 
     const node: ESTree.Program = {
         type: 'Program',
@@ -143,7 +144,6 @@ export function parse(source: string, options: Options | void, context: Context)
         };
 
         if (sourceFile) node.loc.source = sourceFile;
-
     }
 
     if (context & Context.OptionsComments) node.comments = parser.comments;

@@ -836,3 +836,21 @@ export function readNext(parser: Parser, prev: number): number {
     if (!hasNext(parser)) report(parser, Errors.UnicodeOutOfRange);
     return nextUnicodeChar(parser);
 }
+
+// Fully qualified element name, e.g. <svg:path> returns "svg:path"
+export function isQualifiedJSXName(elementName: any): any {
+    switch (elementName.type) {
+        case 'JSXIdentifier':
+            return elementName.name;
+        case 'JSXNamespacedName':
+            return elementName.namespace + ':' + elementName.name;
+        case 'JSXMemberExpression':
+            return (
+                isQualifiedJSXName(elementName.object) + '.' +
+                isQualifiedJSXName(elementName.property)
+            );
+            /* istanbul ignore next */
+        default:
+            // ignore
+    }
+}

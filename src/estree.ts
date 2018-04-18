@@ -36,7 +36,9 @@ export interface T_Node extends T_Statement, T_Expression, T_Pattern,
     'JSXExpressionContainer': JSXExpressionContainer;
     'JSXSpreadChild': JSXSpreadChild;
     'JSXText': JSXText;
+    'JSXOpeningFragment': JSXOpeningFragment;
     'JSXOpeningElement': JSXOpeningElement;
+    'JSXClosingFragment': JSXClosingFragment;
     'JSXClosingElement': JSXClosingElement;
     'JSXAttribute': JSXAttribute;
     'JSXSpreadAttribute': JSXSpreadAttribute;
@@ -69,7 +71,9 @@ export type Node =
     | JSXSpreadChild
     | JSXText
     | JSXOpeningElement
+    | JSXOpeningFragment
     | JSXClosingElement
+    | JSXClosingFragment
     | JSXAttribute
     | JSXSpreadAttribute;
 
@@ -691,7 +695,6 @@ export interface _JSXBoundaryElement<T extends string> extends _Node<T> {
     name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
 }
 
-
 export interface JSXOpeningElement extends _JSXBoundaryElement<'JSXOpeningElement'> {
     selfClosing: boolean;
     attributes: (JSXAttribute | JSXSpreadAttribute)[];
@@ -701,6 +704,10 @@ export interface JSXText extends _Node<'JSXText'> {
     value: string;
     raw: string;
 }
+
+export interface JSXOpeningFragment extends _JSXBoundaryElement<'JSXOpeningFragment'> {}
+
+export interface JSXClosingFragment extends _JSXBoundaryElement<'JSXClosingFragment'> {}
 
 export interface JSXClosingElement extends _JSXBoundaryElement<'JSXClosingElement'> {}
 

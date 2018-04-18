@@ -90,6 +90,10 @@ export const enum Errors {
     ParamDupe,
     UnexpectedAsBinding,
     LabelNoColon,
+    NonEmptyJSXExpression,
+    ExpectedJSXClosingTag,
+    AdjacentJSXElements,
+
 }
 
 export const ErrorMessages: {
@@ -184,6 +188,9 @@ export const ErrorMessages: {
     [Errors.ParamDupe]: 'Duplicate parameter name not allowed in this context',
     [Errors.UnexpectedAsBinding]: 'Unexpected token \'%0\' before imported binding name',
     [Errors.LabelNoColon]: 'Labels must be followed by a \':\'',
+    [Errors.NonEmptyJSXExpression]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
+    [Errors.ExpectedJSXClosingTag]: 'Expected corresponding JSX closing tag for %0',
+    [Errors.AdjacentJSXElements]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
 };
 
 /**

@@ -26,7 +26,7 @@ import {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
@@ -54,7 +54,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseFunctionDeclaration(parser: Parser, context: Context): ESTree.FunctionDeclaration {
@@ -77,7 +77,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context mask
  * @param state Modifier state
  * @param pos Current location
@@ -102,7 +102,7 @@ function parseFunctionDeclarationBody(parser: Parser, context: Context, state: M
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, context: Context): ESTree.FunctionDeclaration {
@@ -120,7 +120,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
  * so we can re-use the same logic when parsing out the function name, or throw an
  * error if the 'RequireIdentifier' mask is not set
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
@@ -143,7 +143,7 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 
@@ -178,7 +178,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclarationList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 

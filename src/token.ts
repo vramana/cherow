@@ -173,6 +173,7 @@ export const enum Token {
     EnumKeyword        = 118 | Reserved,
     BigIntLiteral      = 119 | IsExpressionStart,
     At                 = 120,
+    JSXText             = 121,
 
 }
 
@@ -222,7 +223,7 @@ const KeywordDescTable = [
 
     '#',
 
-    'eval', 'arguments', 'enum', 'BigInt', '@'
+    'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText'
 ];
 
 /**
