@@ -111,6 +111,7 @@ There is a second argument to both methods that allows you to specify various op
 | `skipShebang`     | Allow to skip shebang - '#' |
 | `impliedStrict`   | Enable implied strict mode |
 | `next`            | Enable stage 3 support (*ESNext*)  |
+| `jsx`             | Enable React JSX parsing  |
 | `tolerant`        | Create a top-level error array containing all "skipped" errors |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `raw`             | Attach raw property to each literal node    |
