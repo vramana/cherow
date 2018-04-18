@@ -9,6 +9,9 @@
 
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
+~25 KB smaller code size than Acorn minified, and ~60 KB than Esprima, and around twice as fast with full support for Stage 3 proposals via option.
+
+
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
