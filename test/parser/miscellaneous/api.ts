@@ -50,12 +50,12 @@ it('should parse with comments option', () => {
             type: 'ExpressionStatement'
           },
         ],
-        comments: [
+        "comments": [
               {
-               end: 10,
-                start: 4,
-                type: 'SingleLine',
-                value: ' bar',
+               "end": 10,
+                "start": 4,
+                "type": "SingleLine",
+                "value": " bar",
               }
             ],
         sourceType: 'module',
@@ -99,19 +99,19 @@ it('should parse with raw option - number', () => {
 
 it('should parse with raw option - string', () => {
   assert.match(parseModule('"a"', { raw: true }) as any, {
-      body: [
+      "body": [
         {
-          directive: 'a',
-          expression: {
-            raw: '"a"',
-           type: 'Literal',
-            value: 'a',
+          "directive": "a",
+          "expression": {
+            "raw": "\"a\"",
+           "type": "Literal",
+            "value": "a",
           },
-          type: 'ExpressionStatement'
+          "type": "ExpressionStatement"
         },
       ],
-      sourceType: 'module',
-      type: 'Program',
+      "sourceType": "module",
+      "type": "Program",
     });
 });
 
