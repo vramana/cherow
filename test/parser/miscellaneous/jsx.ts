@@ -3,18 +3,27 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('JSX - Miscellaneous', () => {
+// Todo! Add more tests
 
-var esprima = require('esprima').parse;
+describe('JSX - Miscellaneous', () => {
     
   describe('Failure', () => {
 
     const invalidSyntax = [
         `<1/>`,
         `<div>one</div><div>two</div>`,
-        `</>`,
+        '<a foo="bar',
+        `<{...b} {...a }>{...b}</{...b}>`,
+        '<a:b.c />',
+        `</>`, // fragment
         `<div foo="foo" bar={} baz="baz"/>`,
         `<foo.bar></foo.baz>`,
+        '<aa><e></e></bbbbbbbb>;',
+        '<f><g/></ff>;',
+        '<b.b></b>;',
+        '<a[foo]></a[foo]>',
+        '<div {...props}>stuff</div {...props}>',
+        '<div></span>',
         `<a/!`,
         `<a b=: />`,
         `node = <strong></em>`,
@@ -27,15 +36,6 @@ var esprima = require('esprima').parse;
         '<foo bar={} />',
         '<Foo></Bar>',
         '<Foo bar=bar() />',
-        '<a foo="bar',
-        '<dd><e></e></dddd>;',
-        '<f><g/></ff>;',
-        '<b.b></b>;',
-        '<a[foo]></a[foo]>',
-        '<div {...props}>stuff</div {...props}>',
-        '<div></span>',
-        `<{...b} {...a }>{...b}</{...b}>`,
-        '<a:b.c />',
         //'<a>{"str";}</a>'
         '<div className"app">'
     ];
@@ -48,7 +48,6 @@ var esprima = require('esprima').parse;
             });
         });
     }
-
   });
 
   describe('Pass', () => {
@@ -64,6 +63,10 @@ var esprima = require('esprima').parse;
           '<img width={320}/>',
           `<img src='logo.png' />`,
           `<b>{1}</b>`,
+           '<div>{a}{b}</div>',
+          '<div>/text</div>',
+          '<div>{ {a} }</div>',
+          '<div>{<div {...test} />}</div>',
           `<title>{ {caption} }</title>`,
           `"use strict"; <async />`,
           `<this />`,
@@ -72,10 +75,6 @@ var esprima = require('esprima').parse;
           '<a b={" "} c=" " d="&amp;" e="&ampr;" />',
           '<a\n/>',
           '<日本語></日本語>',
-          '<div>{a}{b}</div>',
-          '<div>/text</div>',
-          '<div>{ {a} }</div>',
-          '<div>{<div {...test} />}</div>',
           '<p>foo <a href="test"> bar</a> baz</p> ;',
           '<div pre="leading" pre2="attribute" {...props}></div>',
           '<div {...props} post="attribute" />',
@@ -134,7 +133,7 @@ Three
               });
           });
       }
-
+        // Validating the AST
       pass('<Test.X></Test.X>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
         source: '<Test.X></Test.X>',
         expected: {
@@ -749,4 +748,5 @@ Three
           }
       });
   });
+    
 });
