@@ -3,14 +3,17 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('JSX - Miscellaneous', () => {
+// Todo! Add more tests
 
   describe('Failure', () => {
 
     const invalidSyntax = [
         `<1/>`,
         `<div>one</div><div>two</div>`,
-        `</>`,
+        '<a foo="bar',
+        `<{...b} {...a }>{...b}</{...b}>`,
+        '<a:b.c />',
+        `</>`, // fragment
         `<div foo="foo" bar={} baz="baz"/>`,
         `<foo.bar></foo.baz>`,
         '<path></svg:path>',
@@ -79,7 +82,6 @@ describe('JSX - Miscellaneous', () => {
             });
         });
     }
-
   });
 
   describe('Pass', () => {
@@ -129,10 +131,6 @@ describe('JSX - Miscellaneous', () => {
           '<a b={" "} c=" " d="&amp;" e="&ampr;" />',
           '<a\n/>',
           '<日本語></日本語>',
-          '<div>{a}{b}</div>',
-          '<div>/text</div>',
-          '<div>{ {a} }</div>',
-          '<div>{<div {...test} />}</div>',
           '<p>foo <a href="test"> bar</a> baz</p> ;',
           '<div pre="leading" pre2="attribute" {...props}></div>',
           '<div {...props} post="attribute" />',
@@ -1410,5 +1408,4 @@ Three
           sourceType: 'script'
         }
     });
-  });
 });
