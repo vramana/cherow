@@ -699,7 +699,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
         case Token.LessThan:
-            if (context & Context.OptionsJSX) return parseJSXRootElement(parser, context, true);
+            if (context & Context.OptionsJSX) return parseJSXRootElement(parser, context | Context.InExpression);
         default:
             return parseAndValidateIdentifier(parser, context);
     }

@@ -90,8 +90,6 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.raw) context |= Context.OptionsRaw;
         // The flag to allow return in the global scope
         if (options.globalReturn) context |= Context.OptionsGlobalReturn;
-        // The flag to allow 'await' in the global scope
-        if (options.globalAwait) context |= Context.OptionsGlobalAwait;
         // The flag to allow to skip shebang - '#'
         if (options.skipShebang) context |= Context.OptionsShebang;
         // Attach raw property to each identifier node

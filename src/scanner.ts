@@ -448,7 +448,11 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.GreaterThan:
                     {
                         advance(parser);
+
                         if (!hasNext(parser)) return Token.GreaterThan;
+
+                        if (context & Context.InExpression) return Token.GreaterThan;
+
                         let next = nextChar(parser);
 
                         if (next === Chars.EqualSign) {

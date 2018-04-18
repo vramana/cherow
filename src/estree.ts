@@ -164,6 +164,7 @@ export interface T_Expression {
     'MetaProperty': MetaProperty;
     'AwaitExpression': AwaitExpression;
     'JSXElement': JSXElement;
+    'JSXFragment': JSXFragment;
 }
 
 export type Expression =
@@ -194,7 +195,9 @@ export type Expression =
     | ClassExpression
     | MetaProperty
     | AwaitExpression
-    | JSXElement;
+    | JSXElement
+    | JSXFragment;
+
 export interface _Pattern<T extends string> extends _Node<T> {}
 export interface T_Pattern {
     'Identifier': Identifier;
@@ -720,6 +723,11 @@ export interface JSXSpreadAttribute extends _Node<'JSXSpreadAttribute'> {
     argument: Expression;
 }
 
+export interface JSXFragment extends _Expression<'JSXFragment'> {
+    openingElement: JSXOpeningFragment;
+    children: (JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement)[];
+    closingFragment: JSXClosingFragment | null;
+}
 export interface JSXElement extends _Expression<'JSXElement'> {
     openingElement: JSXOpeningElement;
     children: (JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement)[];

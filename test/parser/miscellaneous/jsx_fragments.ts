@@ -19,8 +19,8 @@ describe('JSX - Fragments', () => {
       `<><span>1</span><><span>2.1</span><span>2.2</span></><span>3</span></>;`,
       `<><span> hi </span> <div>bye</div> </>`,
       `<
-        // comment1
-        /* comment2 */
+        // SingleLine
+        /* MultiLine */
         >
          <div></div>
           <div></div>
@@ -28,10 +28,17 @@ describe('JSX - Fragments', () => {
         `<>
         <>
           <>
-           super deep
+           Ghost!
           </>
         </>
       </>`,
+      `<>
+      <>
+        <>
+          super deep
+        </>
+      </>
+    </>`,
     ];
     for (const arg of validSyntax) {
 

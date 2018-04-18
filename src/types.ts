@@ -62,9 +62,6 @@ export interface Options {
     // The flag to allow return in the global scope
     globalReturn ?: boolean;
 
-    // The flag to allow 'await' in the global scope
-    globalAwait ?: boolean;
-
     // The flag to allow to skip shebang - '#'
     skipShebang ?: boolean;
 

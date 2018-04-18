@@ -5,8 +5,6 @@ import { parse } from '../../../src/parser/parser';
 
 describe('JSX - Miscellaneous', () => {
 
-var esprima = require('esprima').parse;
-    
   describe('Failure', () => {
 
     const invalidSyntax = [
@@ -15,10 +13,13 @@ var esprima = require('esprima').parse;
         `</>`,
         `<div foo="foo" bar={} baz="baz"/>`,
         `<foo.bar></foo.baz>`,
+        '<path></svg:path>',
+        'node = <strong></em>',
+//        '<a>',
         `<a/!`,
+        '<img src={}>',
         `<a b=: />`,
-        `node = <strong></em>`,
-        //`<svg:path></svg:circle>`,
+        `<svg:path></svg:circle>`,
         `<xyz. />`,
         `<.abc />`,
         `<:path />`,
@@ -28,6 +29,7 @@ var esprima = require('esprima').parse;
         '<Foo></Bar>',
         '<Foo bar=bar() />',
         '<a foo="bar',
+        '<a b=: />',
         '<dd><e></e></dddd>;',
         '<f><g/></ff>;',
         '<b.b></b>;',
@@ -36,8 +38,37 @@ var esprima = require('esprima').parse;
         '<div></span>',
         `<{...b} {...a }>{...b}</{...b}>`,
         '<a:b.c />',
-        //'<a>{"str";}</a>'
-        '<div className"app">'
+        //'<a>{"str";}</a>',
+        '<div className"app">',
+        '</>',
+        '<a: />',
+        '<:a />',
+        '<a b=d />',
+        '<a></b>',
+        '<a foo="bar',
+        '<a:b></b>',
+        '<a:b.c></a:b.c>',
+        '<a.b:c></a.b:c>',
+        '<a.b.c></a>',
+        '<.a></.a>',
+        '<a.></a.>',
+        '<a[foo]></a[foo]>',
+        '<a[\'foo\']></a[\'foo\']>',
+        //'<a><a />',
+        '<a b={}>',
+        'var x = <div>one</div><div>two</div>;',
+        'var x = <div>one</div> /* intervening comment */ <div>two</div>;',
+        '<span className="a", id="b" />',
+        '<div className"app">',
+        '<div {props} />',
+        '<div>stuff</div {...props}>',
+        '<div {...props}>stuff</div {...props}>',
+        //'<a>></a>',
+//        '<a> ></a>',
+        '<a b=}>',
+        '<a b=<}>',
+  //      '<a>}</a>',
+        '<a .../*hai*/asdf/>',
     ];
 
     for (const arg of invalidSyntax) {
@@ -64,9 +95,35 @@ var esprima = require('esprima').parse;
           '<img width={320}/>',
           `<img src='logo.png' />`,
           `<b>{1}</b>`,
+          '<a />',
+          '<n:a n:v />',
+          '<a n:foo="bar"> {value} <b><c /></b></a>',
+          '<a b={" "} c=" " d="&amp;" e="id=1&group=2" f="&#123456789" g="&#123*;" h="&#x;" />',
+          '<a b="&notanentity;" />',
+          '<a\n/>',
+          '<日本語></日本語>',
+          '<AbC-def\n  test="&#x0026;&#38;">\nbar\nbaz\r\n</AbC-def>',
+          '<a b={x ? <c /> : <d />} />',
+          '<a>{}</a>',
+          '<a>{\r\n}</a>',
+          '<a>{/* this is a comment */}</a>',
+          '<a>{/* this\nis\na\nmulti-line\ncomment */}</a>',
+          '<div>@test content</div>',
+          '<div><br />7x invalid-js-identifier</div>',
+          '<LeftRight left=<a /> right=<b>monkeys</b> />',
+          '<a.b></a.b>',
+          '<a.b.c></a.b.c>',
+          '(<div />) < x;',
+          '<div {...props} />',
+          '<div {...props} post="attribute" />',
+          '<div pre="leading" pre2="attribute" {...props}></div>',
+          '<a>    </a>',
+          '<a>= == =</a>',
           `<title>{ {caption} }</title>`,
           `"use strict"; <async />`,
           `<this />`,
+          `<Foo:Bar />;
+          <Foo:Bar></Foo:Bar>`,
           '<n:a n:v />',
           '<a n:foo="bar"> {value} <b><c /></b></a>',
           '<a b={" "} c=" " d="&amp;" e="&ampr;" />',
@@ -100,14 +157,14 @@ baz
           `var component = <Component {...props} />;`,
           `<a:b><a:b></a:b></a:b>;`,
           `<a:b></a:b>;`,
-          '<america state=<usa.california></usa.california> />',
+          '<foo bar=<baz.zoo></baz.zoo> />',
           '<a href="/" />',
           '<a href={link}></a>',
           '<span {... style}></span>',
           '<adele>{/* Hello from this side */}</adele>',
           '<body>{}</body>',
           'var el = ( <span /> )',
-          //'<SolarSystem.Earth.America.USA.California.mountain-view />',
+          '<A.B.C.D.E.foo-bar />',
           '<a>  <b><c/></b> </a>',
           `<em>
 One
@@ -122,9 +179,7 @@ Three
 />`,
           '<a>{`${1}`}</a>',
           'function *g() { yield <h1>Hello</h1> }',
-          `function*it(){
-    yield <a></a>;
-}`,
+          `function*it(){ yield <a></a>; }`,
       ];
       for (const arg of validSyntax) {
 
@@ -134,6 +189,219 @@ Three
               });
           });
       }
+
+      pass('<a b={x ? <c /> : <d />} />', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<a b={x ? <c /> : <d />} />',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 27,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 27,
+                expression: {
+                  type: 'JSXElement',
+                  start: 0,
+                  end: 27,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 0,
+                    end: 27,
+                    attributes: [
+                      {
+                        type: 'JSXAttribute',
+                        start: 3,
+                        end: 24,
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 3,
+                          end: 4,
+                          name: 'b'
+                        },
+                        value: {
+                          type: 'JSXExpressionContainer',
+                          start: 5,
+                          end: 24,
+                          expression: {
+                            type: 'ConditionalExpression',
+                            start: 6,
+                            end: 23,
+                            test: {
+                              type: 'Identifier',
+                              start: 6,
+                              end: 7,
+                              name: 'x'
+                            },
+                            consequent: {
+                              type: 'JSXElement',
+                              start: 10,
+                              end: 15,
+                              openingElement: {
+                                type: 'JSXOpeningElement',
+                                start: 10,
+                                end: 15,
+                                attributes: [],
+                                name: {
+                                  type: 'JSXIdentifier',
+                                  start: 11,
+                                  end: 12,
+                                  name: 'c'
+                                },
+                                selfClosing: true
+                              },
+                              closingElement: null,
+                              children: []
+                            },
+                            alternate: {
+                              type: 'JSXElement',
+                              start: 18,
+                              end: 23,
+                              openingElement: {
+                                type: 'JSXOpeningElement',
+                                start: 18,
+                                end: 23,
+                                attributes: [],
+                                name: {
+                                  type: 'JSXIdentifier',
+                                  start: 19,
+                                  end: 20,
+                                  name: 'd'
+                                },
+                                selfClosing: true
+                              },
+                              closingElement: null,
+                              children: []
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 1,
+                      end: 2,
+                      name: 'a'
+                    },
+                    selfClosing: true
+                  },
+                  closingElement: null,
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('<img width={320}/>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<img width={320}/>',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 18,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 18,
+                expression: {
+                  type: 'JSXElement',
+                  start: 0,
+                  end: 18,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 0,
+                    end: 18,
+                    attributes: [
+                      {
+                        type: 'JSXAttribute',
+                        start: 5,
+                        end: 16,
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 5,
+                          end: 10,
+                          name: 'width'
+                        },
+                        value: {
+                          type: 'JSXExpressionContainer',
+                          start: 11,
+                          end: 16,
+                          expression: {
+                            type: 'Literal',
+                            start: 12,
+                            end: 15,
+                            value: 320,
+                            raw: '320'
+                          }
+                        }
+                      }
+                    ],
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 1,
+                      end: 4,
+                      name: 'img'
+                    },
+                    selfClosing: true
+                  },
+                  closingElement: null,
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('<日本語></日本語>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<日本語></日本語>',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 11,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 11,
+                expression: {
+                  type: 'JSXElement',
+                  start: 0,
+                  end: 11,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 0,
+                    end: 5,
+                    attributes: [],
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 1,
+                      end: 4,
+                      name: '日本語'
+                    },
+                    selfClosing: false
+                  },
+                  closingElement: {
+                    type: 'JSXClosingElement',
+                    start: 5,
+                    end: 11,
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 7,
+                      end: 10,
+                      name: '日本語'
+                    }
+                  },
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
 
       pass('<Test.X></Test.X>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
         source: '<Test.X></Test.X>',
@@ -196,6 +464,308 @@ Three
                       }
                     }
                   },
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      // Parses with raw identifiers options
+      pass('<div><br />7x invalid-js-identifier</div>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+            source: '<div><br />7x invalid-js-identifier</div>',
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 41,
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 0,
+                    end: 41,
+                    expression: {
+                      type: 'JSXElement',
+                      start: 0,
+                      end: 41,
+                      openingElement: {
+                        type: 'JSXOpeningElement',
+                        start: 0,
+                        end: 5,
+                        attributes: [],
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 1,
+                          end: 4,
+                          name: 'div'
+                        },
+                        selfClosing: false
+                      },
+                      closingElement: {
+                        type: 'JSXClosingElement',
+                        start: 35,
+                        end: 41,
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 37,
+                          end: 40,
+                          name: 'div'
+                        }
+                      },
+                      children: [
+                        {
+                          type: 'JSXElement',
+                          start: 5,
+                          end: 11,
+                          openingElement: {
+                            type: 'JSXOpeningElement',
+                            start: 5,
+                            end: 11,
+                            attributes: [],
+                            name: {
+                              type: 'JSXIdentifier',
+                              start: 6,
+                              end: 8,
+                              name: 'br'
+                            },
+                            selfClosing: true
+                          },
+                          closingElement: null,
+                          children: []
+                        },
+                        {
+                          type: 'JSXText',
+                          start: 11,
+                          end: 35,
+                          value: '7x invalid-js-identifier',
+                          raw: '7x invalid-js-identifier'
+                        }
+                      ]
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+      });
+
+      pass('<a.b></a.b>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<a.b></a.b>',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 11,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 11,
+                expression: {
+                  type: 'JSXElement',
+                  start: 0,
+                  end: 11,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 0,
+                    end: 5,
+                    attributes: [],
+                    name: {
+                      type: 'JSXMemberExpression',
+                      start: 1,
+                      end: 4,
+                      object: {
+                        type: 'JSXIdentifier',
+                        start: 1,
+                        end: 2,
+                        name: 'a'
+                      },
+                      property: {
+                        type: 'JSXIdentifier',
+                        start: 3,
+                        end: 4,
+                        name: 'b'
+                      }
+                    },
+                    selfClosing: false
+                  },
+                  closingElement: {
+                    type: 'JSXClosingElement',
+                    start: 5,
+                    end: 11,
+                    name: {
+                      type: 'JSXMemberExpression',
+                      start: 7,
+                      end: 10,
+                      object: {
+                        type: 'JSXIdentifier',
+                        start: 7,
+                        end: 8,
+                        name: 'a'
+                      },
+                      property: {
+                        type: 'JSXIdentifier',
+                        start: 9,
+                        end: 10,
+                        name: 'b'
+                      }
+                    }
+                  },
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('<LeftRight left=<a /> right=<b>monkeys</b> />', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<LeftRight left=<a /> right=<b>monkeys</b> />',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 45,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 45,
+                expression: {
+                  type: 'JSXElement',
+                  start: 0,
+                  end: 45,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 0,
+                    end: 45,
+                    attributes: [
+                      {
+                        type: 'JSXAttribute',
+                        start: 11,
+                        end: 21,
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 11,
+                          end: 15,
+                          name: 'left'
+                        },
+                        value: {
+                          type: 'JSXElement',
+                          start: 16,
+                          end: 21,
+                          openingElement: {
+                            type: 'JSXOpeningElement',
+                            start: 16,
+                            end: 21,
+                            attributes: [],
+                            name: {
+                              type: 'JSXIdentifier',
+                              start: 17,
+                              end: 18,
+                              name: 'a'
+                            },
+                            selfClosing: true
+                          },
+                          closingElement: null,
+                          children: []
+                        }
+                      },
+                      {
+                        type: 'JSXAttribute',
+                        start: 22,
+                        end: 42,
+                        name: {
+                          type: 'JSXIdentifier',
+                          start: 22,
+                          end: 27,
+                          name: 'right'
+                        },
+                        value: {
+                          type: 'JSXElement',
+                          start: 28,
+                          end: 42,
+                          openingElement: {
+                            type: 'JSXOpeningElement',
+                            start: 28,
+                            end: 31,
+                            attributes: [],
+                            name: {
+                              type: 'JSXIdentifier',
+                              start: 29,
+                              end: 30,
+                              name: 'b'
+                            },
+                            selfClosing: false
+                          },
+                          closingElement: {
+                            type: 'JSXClosingElement',
+                            start: 38,
+                            end: 42,
+                            name: {
+                              type: 'JSXIdentifier',
+                              start: 40,
+                              end: 41,
+                              name: 'b'
+                            }
+                          },
+                          children: [
+                            {
+                              type: 'JSXText',
+                              start: 31,
+                              end: 38,
+                              value: 'monkeys',
+                              raw: 'monkeys'
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 1,
+                      end: 10,
+                      name: 'LeftRight'
+                    },
+                    selfClosing: true
+                  },
+                  closingElement: null,
+                  children: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      // Parses with raw identifiers options
+      pass('(<div />)', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw | Context.OptionsRawidentifiers, {
+        source: '(<div />)',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 9,
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 9,
+                expression: {
+                  type: 'JSXElement',
+                  start: 1,
+                  end: 8,
+                  openingElement: {
+                    type: 'JSXOpeningElement',
+                    start: 1,
+                    end: 8,
+                    attributes: [],
+                    name: {
+                      type: 'JSXIdentifier',
+                      start: 2,
+                      end: 5,
+                      name: 'div',
+                      raw: 'div'
+                    },
+                    selfClosing: true
+                  },
+                  closingElement: null,
                   children: []
                 }
               }
@@ -748,5 +1318,97 @@ Three
               sourceType: 'script'
           }
       });
+
+      pass('<SolarSystem.Earth.America.USA.California.mountain-view />', Context.OptionsJSX | Context.OptionsRanges, {
+        source: '<SolarSystem.Earth.America.USA.California.mountain-view />',
+        expected: {
+          type: 'Program',
+          start: 0,
+          end: 58,
+          body: [
+            {
+              type: 'ExpressionStatement',
+              start: 0,
+              end: 58,
+              expression: {
+                type: 'JSXElement',
+                start: 0,
+                end: 58,
+                openingElement: {
+                  type: 'JSXOpeningElement',
+                  start: 0,
+                  end: 58,
+                  attributes: [],
+                  name: {
+                    type: 'JSXMemberExpression',
+                    start: 1,
+                    end: 55,
+                    object: {
+                      type: 'JSXMemberExpression',
+                      start: 1,
+                      end: 41,
+                      object: {
+                        type: 'JSXMemberExpression',
+                        start: 1,
+                        end: 30,
+                        object: {
+                          type: 'JSXMemberExpression',
+                          start: 1,
+                          end: 26,
+                          object: {
+                            type: 'JSXMemberExpression',
+                            start: 1,
+                            end: 18,
+                            object: {
+                              type: 'JSXIdentifier',
+                              start: 1,
+                              end: 12,
+                              name: 'SolarSystem'
+                            },
+                            property: {
+                              type: 'JSXIdentifier',
+                              start: 13,
+                              end: 18,
+                              name: 'Earth'
+                            }
+                          },
+                          property: {
+                            type: 'JSXIdentifier',
+                            start: 19,
+                            end: 26,
+                            name: 'America'
+                          }
+                        },
+                        property: {
+                          type: 'JSXIdentifier',
+                          start: 27,
+                          end: 30,
+                          name: 'USA'
+                        }
+                      },
+                      property: {
+                        type: 'JSXIdentifier',
+                        start: 31,
+                        end: 41,
+                        name: 'California'
+                      }
+                    },
+                    property: {
+                      type: 'JSXIdentifier',
+                      start: 42,
+                      end: 55,
+                      name: 'mountain-view'
+                    }
+                  },
+                  selfClosing: true
+                },
+                closingElement: null,
+                children: []
+              }
+            }
+          ],
+          sourceType: 'script'
+        }
+    });
   });
 });
