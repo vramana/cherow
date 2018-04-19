@@ -69,6 +69,8 @@ describe('Failure', () => {
         '<a b=}>',
         '<a b=<}>',
         '<a .../*hai*/asdf/>',
+        '<a[b.c] d={e.f} />;',
+        `</div><li>Item 1</li><li>Item 1</li></div>`,
     ];
 
     for (const arg of invalidSyntax) {
@@ -104,7 +106,29 @@ describe('Pass', () => {
           `<div {...c}> {...children}{a}{...b}</div>`,
           `<svg:path/>`,
           `<svg:path></svg:path>`,
+          `<MyButton color="blue" shadowSize={2}> Click Me </MyButton>`,
+          `<div className="sidebar" />`,
+          `function a() { return <b.c d="e" />; }`,
           `<a>{}</a>`,
+          `<div><li>Item 1</li><li>Item 1</li></div>`,
+          `<div style={{color: 'red', fontWeight: 'bold'}} />`,
+          ` <h1>Hello {data.target}</h1>`,
+          `<div style={{ height: '100%' }} onMouseMove={this.handleMouseMove}>
+          <h1>Move the mouse around!</h1>
+          <p>The current mouse position is ({this.state.x}, {this.state.y})</p>
+        </div>`,
+        `<Mouse>
+        {mouse => (
+          <p>The mouse position is {mouse.x}, {mouse.y}</p>
+        )}
+      </Mouse>`,
+      `class Greeting extends React.Component {
+        render() {
+          return <h1>Hello, {this.props.name}</h1>;
+        }
+      }`,
+        `<img src="/cat.jpg" style={{ position: 'absolute', left: mouse.x, top: mouse.y }} />`,
+          '<MyComponent>Hello world!</MyComponent>',
           `<Test.X></Test.X>`,
           `<span {... style}></span>`,
           `<input disabled />`,
@@ -196,6 +220,27 @@ Three
           '<a>{`${1}`}</a>',
           'function *g() { yield <h1>Hello</h1> }',
           `function*it(){ yield <a></a>; }`,
+          `class SayHello extends React.Component {
+            constructor(props) {
+              super(props);
+              this.state = {message: 'Hello!'};
+              // This line is important!
+              this.handleClick = this.handleClick.bind(this);
+            }
+
+            handleClick() {
+              alert(this.state.message);
+            }
+
+            render() {
+              // Because "this.handleClick" is bound, we can use it as an event handler.
+              return (
+                <button onClick={this.handleClick}>
+                  Say hello
+                </button>
+              );
+            }
+          }`
       ];
       for (const arg of validSyntax) {
 

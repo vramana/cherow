@@ -20,7 +20,8 @@ import {
     nextToken,
     isQualifiedJSXName,
     fromCodePoint,
-    readNext
+    readNext,
+    parseExpressionCoverGrammar
 } from '../utilities';
 
 // JSX Specification
@@ -310,6 +311,7 @@ export function parseJSXAttributeName(parser: Parser, context: Context): ESTree.
  */
 
 export function parseJSXAttributeValue(parser: Parser, context: Context): any {
+
     switch (scanJSXAttributeValue(parser, context)) {
         case Token.StringLiteral:
             return parseLiteral(parser, context);
@@ -432,7 +434,7 @@ export function parseJSXExpressionAttribute(parser: Parser, context: Context): E
     expect(parser, context, Token.LeftBrace);
     // Note: JSX Expressions can't be empty
     if (parser.token === Token.RightBrace) report(parser, Errors.NonEmptyJSXExpression);
-    const expression = parseAssignmentExpression(parser, context);
+    const expression = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
