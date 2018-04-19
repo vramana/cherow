@@ -96,6 +96,12 @@ describe('Pass', () => {
         '<a> ></a>',
         '<a>}</a>',
           '<div />',
+          // Acorn JSX issue: https://github.com/RReverser/acorn-jsx/issues/82
+          'function* test() { yield <Hey />;    }',
+          'function* test() { yield (<Hey />); }',
+          // Acorn JSX issue: https://github.com/RReverser/acorn-jsx/issues/75
+          '<div>{...children}</div>',
+          `<div {...c}> {...children}{a}{...b}</div>`,
           `<svg:path/>`,
           `<svg:path></svg:path>`,
           `<a>{}</a>`,
@@ -104,6 +110,7 @@ describe('Pass', () => {
           `<input disabled />`,
           '<img width={320}/>',
           `<img src='logo.png' />`,
+          'let child = <img src={url} key="img" />;',
           `<b>{1}</b>`,
           '<a />',
           '<n:a n:v />',
@@ -115,6 +122,7 @@ describe('Pass', () => {
           '<AbC-def\n  test="&#x0026;&#38;">\nbar\nbaz\r\n</AbC-def>',
           '<a b={x ? <c /> : <d />} />',
           '<a>{}</a>',
+          'const foo = () => <x />; ',
           '<a>{\r\n}</a>',
           '<a>{/* this is a comment */}</a>',
           '<a>{/* this\nis\na\nmulti-line\ncomment */}</a>',
@@ -132,6 +140,8 @@ describe('Pass', () => {
           `<title>{ {caption} }</title>`,
           `"use strict"; <async />`,
           `<this />`,
+          `var src = "<div title='café'></div>";`,
+          `<Switch checkedChildren="开" unCheckedChildren={'关'} />`,
           `<Foo:Bar />;
           <Foo:Bar></Foo:Bar>`,
           '<n:a n:v />',
