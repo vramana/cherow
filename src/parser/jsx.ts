@@ -46,9 +46,7 @@ export function parseJSXRootElement(
     if (isFragment) {
         openingElement = parseJSXOpeningFragment(parser, context, pos);
     } else {
-
         const name = parseJSXElementName(parser, context);
-
         const attributes = parseJSXAttributes(parser, context);
         selfClosing = consume(parser, context, Token.Divide);
         openingElement = parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos);
@@ -81,7 +79,7 @@ export function parseJSXRootElement(
  * @param attributes Element attributes
  * @param selfClosing True if this is a selfclosing JSX Element
  * @param pos Line / Column tracking
-  */
+ */
 export function parseJSXOpeningElement(
     parser: Parser,
     context: Context,
@@ -90,7 +88,7 @@ export function parseJSXOpeningElement(
     selfClosing: boolean,
     pos: Location
 ): any {
-    if (selfClosing && context & Context.InExpression) expect(parser, context, Token.GreaterThan);
+    if (context & Context.InExpression && selfClosing) expect(parser, context, Token.GreaterThan);
     else nextJSXToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningElement',
@@ -150,9 +148,8 @@ export function nextJSXToken(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 export function scanJSXToken(parser: Parser, context: Context): Token {
-
+    if (!hasNext(parser)) return Token.EndOfSource
     parser.lastIndex = parser.startIndex = parser.index;
-
     const char = nextChar(parser);
     if (char === Chars.LessThan) {
         advance(parser);
@@ -163,9 +160,10 @@ export function scanJSXToken(parser: Parser, context: Context): Token {
     }
 
     while (hasNext(parser)) {
+        advance(parser);
         const next = nextChar(parser);
         if (next === Chars.LeftBrace || next === Chars.LessThan) break;
-        advance(parser);
+
     }
     return Token.JSXText;
 }
@@ -223,6 +221,8 @@ export function parseJSXChild(parser: Parser, context: Context) {
             return parseJSXExpression(parser, context & ~Context.InExpression);
         case Token.LessThan:
             return parseJSXRootElement(parser, context & ~Context.InExpression);
+        default:
+            report(parser, Errors.Unexpected);
     }
 }
 
@@ -315,10 +315,8 @@ export function parseJSXAttributeValue(parser: Parser, context: Context): any {
             return parseLiteral(parser, context);
         case Token.LeftBrace:
             return parseJSXExpressionAttribute(parser, context | Context.InExpression);
-
         default:
             return parseJSXRootElement(parser, context | Context.InExpression);
-
     }
 }
 /**
@@ -447,7 +445,7 @@ export function parseJSXExpressionAttribute(parser: Parser, context: Context): a
  * @param parser Parser object
  * @param context Context masks
  * @param pos Line / Column location
-  */
+ */
 
 export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
     const pos = getLocation(parser);
@@ -486,7 +484,7 @@ export function parseJSXClosingFragment(parser: Parser, context: Context) {
  * @param parser Parser object
  * @param context Context masks
  * @param pos Line / Column location
-  */
+ */
 export function parseJSXClosingElement(parser: Parser, context: Context): ESTree.JSXClosingElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.JSXClose);
@@ -570,7 +568,7 @@ export function scanJSXIdentifier(parser: Parser, context: Context): Token {
         const firstCharPosition = parser.index;
         let ch = nextChar(parser);
         while (hasNext(parser) && (ch === Chars.Hyphen || (isValidIdentifierPart(ch)))) {
-          ch = readNext(parser, ch);
+            ch = readNext(parser, ch);
         }
         parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);
     }

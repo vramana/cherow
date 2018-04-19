@@ -18,7 +18,7 @@ import { parse } from '../../../src/parser/parser';
         `<foo.bar></foo.baz>`,
         '<path></svg:path>',
         'node = <strong></em>',
-//        '<a>',
+        '<a>',
         `<a/!`,
         '<img src={}>',
         `<a b=: />`,
@@ -57,7 +57,7 @@ import { parse } from '../../../src/parser/parser';
         '<a.></a.>',
         '<a[foo]></a[foo]>',
         '<a[\'foo\']></a[\'foo\']>',
-        //'<a><a />',
+        '<a><a />',
         '<a b={}>',
         'var x = <div>one</div><div>two</div>;',
         'var x = <div>one</div> /* intervening comment */ <div>two</div>;',
@@ -66,11 +66,8 @@ import { parse } from '../../../src/parser/parser';
         '<div {props} />',
         '<div>stuff</div {...props}>',
         '<div {...props}>stuff</div {...props}>',
-        //'<a>></a>',
-//        '<a> ></a>',
         '<a b=}>',
         '<a b=<}>',
-  //      '<a>}</a>',
         '<a .../*hai*/asdf/>',
     ];
 
@@ -87,6 +84,9 @@ import { parse } from '../../../src/parser/parser';
   describe('Pass', () => {
 
       const validSyntax = [
+        '<a>></a>',
+        '<a> ></a>',
+        '<a>}</a>',
           '<div />',
           `<svg:path/>`,
           `<svg:path></svg:path>`,
@@ -1408,4 +1408,6 @@ Three
           sourceType: 'script'
         }
     });
+
+
 });
