@@ -2,7 +2,7 @@ import * as ESTree from '../estree';
 import { Chars } from '../chars';
 import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
-import { Errors, report } from '../errors';
+import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart, isValidIdentifierStart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
 import {
@@ -36,7 +36,7 @@ import {
 export function parseJSXRootElement(
     parser: Parser,
     context: Context
-): any {
+): ESTree.JSXElement | ESTree.JSXFragment {
     const pos = getLocation(parser);
     let children: ESTree.JSXElement[] = [];
     let closingElement = null;
@@ -62,6 +62,7 @@ export function parseJSXRootElement(
         const close = isQualifiedJSXName(closingElement.name);
         if (open !== close) report(parser, Errors.ExpectedJSXClosingTag, close);
     }
+
     return finishNode(context, parser, pos, {
         type: 'JSXElement',
         children,
@@ -88,7 +89,7 @@ export function parseJSXOpeningElement(
     selfClosing: boolean,
     pos: Location
 ): any {
-    if (context & Context.InExpression && selfClosing) expect(parser, context, Token.GreaterThan);
+    if (context & Context.InJSXChild && selfClosing) expect(parser, context, Token.GreaterThan);
     else nextJSXToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningElement',
@@ -218,9 +219,9 @@ export function parseJSXChild(parser: Parser, context: Context) {
         case Token.JSXText:
             return parseJSXText(parser, context);
         case Token.LeftBrace:
-            return parseJSXExpression(parser, context & ~Context.InExpression);
+            return parseJSXExpression(parser, context & ~Context.InJSXChild);
         case Token.LessThan:
-            return parseJSXRootElement(parser, context & ~Context.InExpression);
+            return parseJSXRootElement(parser, context & ~Context.InJSXChild);
         default:
             report(parser, Errors.Unexpected);
     }
@@ -253,8 +254,7 @@ export function parseJSXSpreadAttribute(parser: Parser, context: Context): ESTre
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     expect(parser, context, Token.Ellipsis);
-    const expression = parseExpression(parser, context);
-
+    const expression = parseExpressionCoverGrammar(parser, context & ~Context.InJSXChild, parseAssignmentExpression);
     expect(parser, context, Token.RightBrace);
 
     return finishNode(context, parser, pos, {
@@ -315,9 +315,12 @@ export function parseJSXAttributeValue(parser: Parser, context: Context): any {
         case Token.StringLiteral:
             return parseLiteral(parser, context);
         case Token.LeftBrace:
-            return parseJSXExpressionAttribute(parser, context | Context.InExpression);
+            return parseJSXExpressionContainer(parser, context | Context.InJSXChild);
+            case Token.LessThan:
+            return parseJSXRootElement(parser, context | Context.InJSXChild);
         default:
-            return parseJSXRootElement(parser, context | Context.InExpression);
+            tolerant(parser, context, Errors.InvalidJSXAttributeValue);
+            
     }
 }
 /**
@@ -422,18 +425,18 @@ export function parseJSXSpreadChild(parser: Parser, context: Context): ESTree.JS
 }
 
 /**
- * Parses JSX Expression attribute
+ * Parses JSX Expression container
  *
  * @param parser Parser object
  * @param context Context masks
  */
 
-export function parseJSXExpressionAttribute(parser: Parser, context: Context): ESTree.JSXExpressionContainer {
+export function parseJSXExpressionContainer(parser: Parser, context: Context): ESTree.JSXExpressionContainer {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     // Note: JSX Expressions can't be empty
-    if (parser.token === Token.RightBrace) report(parser, Errors.NonEmptyJSXExpression);
-    const expression = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
+    if (parser.token === Token.RightBrace) tolerant(parser, context, Errors.NonEmptyJSXExpression);
+    const expression = parseExpressionCoverGrammar(parser, context & ~Context.InJSXChild, parseAssignmentExpression);
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
@@ -491,7 +494,7 @@ export function parseJSXClosingElement(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     expect(parser, context, Token.JSXClose);
     const name = parseJSXElementName(parser, context);
-    if (context & Context.InExpression) expect(parser, context, Token.GreaterThan);
+    if (context & Context.InJSXChild) expect(parser, context, Token.GreaterThan);
     else nextJSXToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'JSXClosingElement',
@@ -509,7 +512,9 @@ export function parseJSXClosingElement(parser: Parser, context: Context): ESTree
 export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSXIdentifier {
     const { token, tokenValue: name, tokenRaw: raw } = parser;
 
-    if (!(token & (Token.IsIdentifier | Token.Keyword))) report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
+    if (!(token & (Token.IsIdentifier | Token.Keyword))) {
+        tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+    }
 
     const pos = getLocation(parser);
     nextToken(parser, context);

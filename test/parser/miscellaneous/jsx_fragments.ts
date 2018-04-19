@@ -3,7 +3,7 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('JSX - Fragments', () => {
+describe('Miscellaneous - JSX Fragments', () => {
 
   describe('Failure', () => {});
 

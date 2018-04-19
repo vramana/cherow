@@ -41,7 +41,7 @@ export const enum Context {
     Method                  = 1 << 27,
     AllowSuperProperty      = 1 << 28,
     InParen                 = 1 << 29,
-    InExpression            = 1 << 30
+    InJSXChild              = 1 << 30
 }
 
 // Mutual parser flags

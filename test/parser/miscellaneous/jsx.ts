@@ -3,9 +3,7 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-// Todo! Add more tests
-
-describe('Failure', () => {
+describe('Miscellaneous - JSX', () => {
 
     const invalidSyntax = [
         `<1/>`,
@@ -21,12 +19,13 @@ describe('Failure', () => {
         '<a>',
         `<a/!`,
         '<img src={}>',
+        '<div></div><div></div>' ,
         `<a b=: />`,
         `<svg:path></svg:circle>`,
+        'var x = <div>one</div><div>two</div>',
         `<xyz. />`,
         `<.abc />`,
         `<:path />`,
-        //'<\\u{2F804}></\\u{2F804}>',
         '<foo bar="',
         '<foo bar={} />',
         '<Foo></Bar>',
@@ -41,7 +40,7 @@ describe('Failure', () => {
         '<div></span>',
         `<{...b} {...a }>{...b}</{...b}>`,
         '<a:b.c />',
-        //'<a>{"str";}</a>',
+        '<a>{"str";}</a>',
         '<div className"app">',
         '</>',
         '<a: />',
@@ -110,6 +109,7 @@ describe('Pass', () => {
           `<div className="sidebar" />`,
           `function a() { return <b.c d="e" />; }`,
           `<a>{}</a>`,
+          '<div>{0}</div>;',
           `<div><li>Item 1</li><li>Item 1</li></div>`,
           `<div style={{color: 'red', fontWeight: 'bold'}} />`,
           ` <h1>Hello {data.target}</h1>`,
@@ -122,6 +122,12 @@ describe('Pass', () => {
           <p>The mouse position is {mouse.x}, {mouse.y}</p>
         )}
       </Mouse>`,
+      '<Foo> {true} </Foo>',
+      'const El = (props) => ( <div>props.x</div>);',
+      '<Component {...props} y={1} />',
+      '<Component {...{...props, y: 1 }} />',
+      "<Test {...{a: 'foo'}} {...{b: 123}} />;",
+      '<View {...this.props} {...this.state} />',
       `class Greeting extends React.Component {
         render() {
           return <h1>Hello, {this.props.name}</h1>;
@@ -130,6 +136,8 @@ describe('Pass', () => {
         `<img src="/cat.jpg" style={{ position: 'absolute', left: mouse.x, top: mouse.y }} />`,
           '<MyComponent>Hello world!</MyComponent>',
           `<Test.X></Test.X>`,
+          '<a>{ }</a>',
+          '<a>{b}</a>',
           `<span {... style}></span>`,
           `<input disabled />`,
           '<img width={320}/>',
@@ -258,6 +266,66 @@ Three
       });
   });
       }
+
+      pass('<b>{1}</b>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
+        source: '<b>{1}</b>',
+        expected: {
+          "type": "Program",
+          "start": 0,
+          "end": 10,
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "start": 0,
+              "end": 10,
+              "expression": {
+                "type": "JSXElement",
+                "start": 0,
+                "end": 10,
+                "openingElement": {
+                  "type": "JSXOpeningElement",
+                  "start": 0,
+                  "end": 3,
+                  "attributes": [],
+                  "name": {
+                    "type": "JSXIdentifier",
+                    "start": 1,
+                    "end": 2,
+                    "name": "b"
+                  },
+                  "selfClosing": false
+                },
+                "closingElement": {
+                  "type": "JSXClosingElement",
+                  "start": 6,
+                  "end": 10,
+                  "name": {
+                    "type": "JSXIdentifier",
+                    "start": 8,
+                    "end": 9,
+                    "name": "b"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "JSXExpressionContainer",
+                    "start": 3,
+                    "end": 6,
+                    "expression": {
+                      "type": "Literal",
+                      "start": 4,
+                      "end": 5,
+                      "value": 1,
+                      "raw": "1"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "sourceType": "script"
+        }
+      });
 
       pass('<a b={x ? <c /> : <d />} />', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
         source: '<a b={x ? <c /> : <d />} />',

@@ -451,7 +451,7 @@ export function scan(parser: Parser, context: Context): Token {
 
                         if (!hasNext(parser)) return Token.GreaterThan;
 
-                        if (context & Context.InExpression) return Token.GreaterThan;
+                        if (context & Context.InJSXChild) return Token.GreaterThan;
 
                         let next = nextChar(parser);
 
