@@ -5,7 +5,7 @@ import { parse } from '../../../src/parser/parser';
 
 // Todo! Add more tests
 
-  describe('Failure', () => {
+describe('Failure', () => {
 
     const invalidSyntax = [
         `<1/>`,
@@ -73,15 +73,23 @@ import { parse } from '../../../src/parser/parser';
 
     for (const arg of invalidSyntax) {
 
-        it(`${arg}`, () => {
-            t.throws(() => {
-                parse(`${arg}`, undefined, Context.OptionsJSX);
-            });
+       // Sloppy mode
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parse(`${arg}`, undefined, Context.OptionsJSX);
         });
+    });
+
+    // Module Code
+      it(`${arg}`, () => {
+      t.throws(() => {
+          parse(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
+      });
+  });
     }
   });
 
-  describe('Pass', () => {
+describe('Pass', () => {
 
       const validSyntax = [
         '<a>></a>',
@@ -181,11 +189,19 @@ Three
       ];
       for (const arg of validSyntax) {
 
-          it(`${arg}`, () => {
-              t.doesNotThrow(() => {
-                  parse(`${arg}`, undefined, Context.OptionsJSX);
-              });
-          });
+        // Sloppy mode
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parse(`${arg}`, undefined, Context.OptionsJSX);
+        });
+    });
+
+    // Module Code
+      it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+          parse(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
+      });
+  });
       }
 
       pass('<a b={x ? <c /> : <d />} />', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
@@ -1408,6 +1424,5 @@ Three
           sourceType: 'script'
         }
     });
-
 
 });

@@ -148,7 +148,7 @@ export function nextJSXToken(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 export function scanJSXToken(parser: Parser, context: Context): Token {
-    if (!hasNext(parser)) return Token.EndOfSource
+    if (!hasNext(parser)) return Token.EndOfSource;
     parser.lastIndex = parser.startIndex = parser.index;
     const char = nextChar(parser);
     if (char === Chars.LessThan) {
@@ -427,10 +427,11 @@ export function parseJSXSpreadChild(parser: Parser, context: Context): ESTree.JS
  * @param context Context masks
  */
 
-export function parseJSXExpressionAttribute(parser: Parser, context: Context): any {
+export function parseJSXExpressionAttribute(parser: Parser, context: Context): ESTree.JSXExpressionContainer {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
-    if (parser.token === Token.RightBrace) report(parser, Errors.Unexpected);
+    // Note: JSX Expressions can't be empty
+    if (parser.token === Token.RightBrace) report(parser, Errors.NonEmptyJSXExpression);
     const expression = parseAssignmentExpression(parser, context);
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
@@ -469,7 +470,7 @@ export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSX
  * @param context Context masks
  */
 
-export function parseJSXClosingFragment(parser: Parser, context: Context) {
+export function parseJSXClosingFragment(parser: Parser, context: Context): ESTree.JSXClosingFragment {
     const pos = getLocation(parser);
     expect(parser, context, Token.JSXClose);
     expect(parser, context, Token.GreaterThan);

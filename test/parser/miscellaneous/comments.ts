@@ -13,6 +13,35 @@ describe('Miscellaneous - Comments', () => {
         source: `// var /*
             x*/`,
     });
+    // `html comment + jsx
+    fail(`</`, Context.OptionsJSX, {
+        source: `</`
+    });
+    // MultiLineComment inside jsx opening tag
+    fail(`</*`, Context.OptionsJSX, {
+        source: `</*`
+    });
+    // single line comment inside jsx opening tag
+    fail(`<// single`, Context.OptionsJSX, {
+        source: `<// single`
+    });
+
+    // `html comment + jsx - module code
+    fail(`</`, Context.OptionsJSX, {
+        source: `</`
+    });
+    // MultiLineComment inside jsx opening tag  - module code
+    fail(`</*`, Context.OptionsJSX | Context.Strict | Context.Module, {
+        source: `</*`
+    });
+    // single line comment inside jsx opening tag  - module code
+    fail(`<// single`, Context.OptionsJSX | Context.Strict | Context.Module, {
+        source: `<// single`
+    });
+
+    fail(`single and multi line comments used together`, Context.OptionsJSX | Context.Strict | Context.Module, {
+        source: `<!-- HTML comment`
+    });
 
     fail(`/*
     var

@@ -41,12 +41,19 @@ describe('JSX - Fragments', () => {
     </>`,
     ];
     for (const arg of validSyntax) {
-
+      // Sloppy mode
       it(`${arg}`, () => {
           t.doesNotThrow(() => {
               parse(`${arg}`, undefined, Context.OptionsJSX);
           });
       });
+
+      // Module Code
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parse(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
+        });
+    });
     }
 
 });
