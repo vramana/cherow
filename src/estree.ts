@@ -725,7 +725,7 @@ export interface JSXSpreadAttribute extends _Node<'JSXSpreadAttribute'> {
 
 export interface JSXFragment extends _Expression<'JSXFragment'> {
     openingElement: JSXOpeningFragment;
-    children: (JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement)[];
+    children: (JSXText | JSXExpressionContainer | JSXSpreadChild | JSXFragment)[];
     closingFragment: JSXClosingFragment | null;
 }
 export interface JSXElement extends _Expression<'JSXElement'> {

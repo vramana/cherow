@@ -53,10 +53,9 @@ export function parseJSXRootElement(
         openingElement = parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos);
     }
 
-    if (isFragment) {
-        openingElement;
-        return parseJSXFragment(parser, context, openingElement, pos);
-    } else if (!selfClosing) {
+    if (isFragment)  return parseJSXFragment(parser, context, openingElement, pos);
+    
+    if (!selfClosing) {
         children = parseJSXChildren(parser, context);
         closingElement = parseJSXClosingElement(parser, context);
         const open = isQualifiedJSXName(openingElement.name);
@@ -176,8 +175,8 @@ export function scanJSXToken(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 
-export function parseJSXChildren(parser: Parser, context: Context): any {
-    const children: any = [];
+export function parseJSXChildren(parser: Parser, context: Context): any[] {
+    const children: any[] = [];
     while (parser.token !== Token.JSXClose) {
         children.push(parseJSXChild(parser, context));
     }
@@ -234,7 +233,7 @@ export function parseJSXChild(parser: Parser, context: Context) {
  * @param context Context masks
  */
 
-export function parseJSXAttributes(parser: Parser, context: Context) {
+export function parseJSXAttributes(parser: Parser, context: Context): any[] {
     const attributes: ESTree.JSXAttribute[] = [];
     while (hasNext(parser)) {
         if (parser.token === Token.Divide || parser.token === Token.GreaterThan) break;
@@ -456,7 +455,7 @@ export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSX
     if (parser.token === Token.Ellipsis) return parseJSXSpreadChild(parser, context);
     const expression = parser.token === Token.RightBrace ?
         parseJSXEmptyExpression(parser, context) :
-        parseAssignmentExpression(parser, context);
+        parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
     nextJSXToken(parser, context);
 
     return finishNode(context, parser, pos, {
