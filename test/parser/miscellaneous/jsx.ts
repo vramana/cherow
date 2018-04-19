@@ -40,7 +40,6 @@ describe('Miscellaneous - JSX', () => {
         '<div></span>',
         `<{...b} {...a }>{...b}</{...b}>`,
         '<a:b.c />',
-        '<a>{"str";}</a>',
         '<div className"app">',
         '</>',
         '<a: />',
@@ -126,7 +125,7 @@ describe('Pass', () => {
       'const El = (props) => ( <div>props.x</div>);',
       '<Component {...props} y={1} />',
       '<Component {...{...props, y: 1 }} />',
-      "<Test {...{a: 'foo'}} {...{b: 123}} />;",
+      '<Test {...{a: \'foo\'}} {...{b: 123}} />;',
       '<View {...this.props} {...this.state} />',
       `class Greeting extends React.Component {
         render() {
@@ -270,60 +269,60 @@ Three
       pass('<b>{1}</b>', Context.OptionsJSX | Context.OptionsRanges | Context.OptionsRaw, {
         source: '<b>{1}</b>',
         expected: {
-          "type": "Program",
-          "start": 0,
-          "end": 10,
-          "body": [
+          type: 'Program',
+          start: 0,
+          end: 10,
+          body: [
             {
-              "type": "ExpressionStatement",
-              "start": 0,
-              "end": 10,
-              "expression": {
-                "type": "JSXElement",
-                "start": 0,
-                "end": 10,
-                "openingElement": {
-                  "type": "JSXOpeningElement",
-                  "start": 0,
-                  "end": 3,
-                  "attributes": [],
-                  "name": {
-                    "type": "JSXIdentifier",
-                    "start": 1,
-                    "end": 2,
-                    "name": "b"
+              type: 'ExpressionStatement',
+              start: 0,
+              end: 10,
+              expression: {
+                type: 'JSXElement',
+                start: 0,
+                end: 10,
+                openingElement: {
+                  type: 'JSXOpeningElement',
+                  start: 0,
+                  end: 3,
+                  attributes: [],
+                  name: {
+                    type: 'JSXIdentifier',
+                    start: 1,
+                    end: 2,
+                    name: 'b'
                   },
-                  "selfClosing": false
+                  selfClosing: false
                 },
-                "closingElement": {
-                  "type": "JSXClosingElement",
-                  "start": 6,
-                  "end": 10,
-                  "name": {
-                    "type": "JSXIdentifier",
-                    "start": 8,
-                    "end": 9,
-                    "name": "b"
+                closingElement: {
+                  type: 'JSXClosingElement',
+                  start: 6,
+                  end: 10,
+                  name: {
+                    type: 'JSXIdentifier',
+                    start: 8,
+                    end: 9,
+                    name: 'b'
                   }
                 },
-                "children": [
+                children: [
                   {
-                    "type": "JSXExpressionContainer",
-                    "start": 3,
-                    "end": 6,
-                    "expression": {
-                      "type": "Literal",
-                      "start": 4,
-                      "end": 5,
-                      "value": 1,
-                      "raw": "1"
+                    type: 'JSXExpressionContainer',
+                    start: 3,
+                    end: 6,
+                    expression: {
+                      type: 'Literal',
+                      start: 4,
+                      end: 5,
+                      value: 1,
+                      raw: '1'
                     }
                   }
                 ]
               }
             }
           ],
-          "sourceType": "script"
+          sourceType: 'script'
         }
       });
 

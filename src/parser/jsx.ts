@@ -54,7 +54,7 @@ export function parseJSXRootElement(
     }
 
     if (isFragment)  return parseJSXFragment(parser, context, openingElement, pos);
-    
+
     if (!selfClosing) {
         children = parseJSXChildren(parser, context);
         closingElement = parseJSXClosingElement(parser, context);
@@ -320,7 +320,7 @@ export function parseJSXAttributeValue(parser: Parser, context: Context): any {
             return parseJSXRootElement(parser, context | Context.InJSXChild);
         default:
             tolerant(parser, context, Errors.InvalidJSXAttributeValue);
-            
+
     }
 }
 /**
