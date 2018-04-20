@@ -1520,9 +1520,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
             // See: https://tc39.github.io/ecma262/#sec-function-definitions-static-semantics-early-errors
             if (parser.flags & Flags.SimpleParameterList) {
                 tolerant(parser, context, Errors.IllegalUseStrict);
-            } else if (parser.flags & Flags.StrictReserved) {
-                tolerant(parser, context, Errors.UnexpectedStrictReserved);
-            } else if (parser.flags & Flags.StrictFunctionName) {
+            } else if (parser.flags & (Flags.StrictReserved | Flags.StrictFunctionName)) {
                 tolerant(parser, context, Errors.UnexpectedStrictReserved);
             } else if (parser.flags & Flags.StrictEvalArguments) {
                 tolerant(parser, context, Errors.StrictEvalArguments);

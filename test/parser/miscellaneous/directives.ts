@@ -39,7 +39,8 @@ describe('Miscellaneous - Directives', () => {
             '\'random\\uax foo\'',
             '\'random\\u0au foo\'',
             'function foo() { "use strict"; with (a) b = c; }',
-            '"use strict"; function foo() { with (a) b = c; }'
+            '"use strict"; function foo() { with (a) b = c; }',
+            '(a = () => { "use strict"; foo }) => { "use strict" }',
         ];
 
         for (const arg of InvalidSyntax) {
@@ -67,23 +68,41 @@ describe('Miscellaneous - Directives', () => {
             '"use some future directive";',
             '"use some future directive"; "use strict";',
             '"Hello\\312World"',
-            "\"use strict\"",
-            "'use\\x20strict'",
-            "\"use\\x20strict\"",
-            "'use asm'",
-            "'use asm'; 'use strict'",
-            "'use asm' \n 'use strict'",
-            "\"use asm\" \n \"use strict\"",
-            "'use asm' \r 'use strict'",
-            "\"use asm\" \r \"use strict\"",
-            "'use asm' \r\n 'use strict'",
-            "\"use asm\" \r\n \"use strict\"",
-            "'use asm' \u2028 'use strict'",
-            "\"use asm\" \u2028 \"use strict\"",
-            "'use asm' \u2029 'use strict'",
-            "\"use asm\" \u2029 \"use strict\"",
+            '"use strict"',
+            '\'use\\x20strict\'',
+            '"use\\x20strict"',
+            '\'use asm\'',
+            '\'use asm\'; \'use strict\'',
+            '\'use asm\' \n \'use strict\'',
+            '"use asm" \n "use strict"',
+            '\'use asm\' \r \'use strict\'',
+            '"use asm" \r "use strict"',
+            '\'use asm\' \r\n \'use strict\'',
+            '"use asm" \r\n "use strict"',
+            '\'use asm\' \u2028 \'use strict\'',
+            '"use asm" \u2028 "use strict"',
+            '\'use asm\' \u2029 \'use strict\'',
+            '"use asm" \u2029 "use strict"',
             'function foo() { "use \\u0020strict"; with (a) b = c; }',
-            '"use \\u0020strict"; function foo() { with (a) b = c; }'
+            '"use \\u0020strict"; function foo() { with (a) b = c; }',
+            '"use strict"\n foo',
+            '\'use strict\'; foo',
+            'function foo() { "use strict"\n bar }',
+            '!function foo() { "use strict"\n bar }',
+            '() => { "use strict"\n foo }',
+            '() => "use strict"',
+            '({ wrap() { "use strict"; foo } })',
+            '"\\u0075se strict"',
+            '"use asm"; "use strict"; foo',
+            'function wrap() { "use asm"; "use strict"; foo }',
+            '"use strict"; foo; "use asm"',
+            'function wrap() { "use asm"; foo; "use strict" }',
+            '{ "use strict"; }',
+            'function wrap() { { "use strict" } foo }',
+            '("use strict"); foo',
+            'function wrap() { ("use strict"); foo }',
+            'function a() { "use strict" } "use strict"; foo',
+            'function a(a = function() { "use strict"; foo }) { "use strict" }'
         ];
 
         for (const arg of validSyntax) {
@@ -101,33 +120,32 @@ describe('Miscellaneous - Directives', () => {
             });
         }
 
-
-        pass( "\"use asm\" \u2029 \"use strict\"", Context.Empty, {
-            source:  "\"use asm\" \u2029 \"use strict\"",
+        pass( '"use asm" \u2029 "use strict"', Context.Empty, {
+            source:  '"use asm" \u2029 "use strict"',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "directive": "use asm",
-                      "expression": {
-                        "type": "Literal",
-                        "value": "use asm",
+                      directive: 'use asm',
+                      expression: {
+                        type: 'Literal',
+                        value: 'use asm',
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     },
                     {
-                     "directive": "use strict",
-                      "expression": {
-                        "type": "Literal",
-                       "value": "use strict",
+                     directive: 'use strict',
+                      expression: {
+                        type: 'Literal',
+                       value: 'use strict',
                       },
-                      "type": "ExpressionStatement",
+                      type: 'ExpressionStatement',
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program",
+                  sourceType: 'script',
+                  type: 'Program',
                 }
         });
-      
+
         pass('"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"', Context.Empty, {
             source: '"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"',
             expected: {
@@ -1057,96 +1075,96 @@ describe('Miscellaneous - Directives', () => {
         pass('function foo() { "use \\u0020strict"; with (a) b = c; }', Context.Empty, {
             source: 'function foo() { "use \\u0020strict"; with (a) b = c; }',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "async": false,
-                      "body": {
-                        "body": [
+                      async: false,
+                      body: {
+                        body: [
                           {
-                            "directive": "use \\u0020strict",
-                            "expression": {
-                              "type": "Literal",
-                              "value": "use  strict",
+                            directive: 'use \\u0020strict',
+                            expression: {
+                              type: 'Literal',
+                              value: 'use  strict',
                             },
-                            "type": "ExpressionStatement",
+                            type: 'ExpressionStatement',
                           },
                          {
-                            "body": {
-                              "expression": {
-                                "left": {
-                                  "name": "b",
-                                  "type": "Identifier",
+                            body: {
+                              expression: {
+                                left: {
+                                  name: 'b',
+                                  type: 'Identifier',
                                 },
-                                "operator": "=",
-                                "right": {
-                                  "name": "c",
-                                  "type": "Identifier",
+                                operator: '=',
+                                right: {
+                                  name: 'c',
+                                  type: 'Identifier',
                                 },
-                                "type": "AssignmentExpression",
+                                type: 'AssignmentExpression',
                               },
-                              "type": "ExpressionStatement",
+                              type: 'ExpressionStatement',
                             },
-                            "object": {
-                              "name": "a",
-                              "type": "Identifier",
+                            object: {
+                              name: 'a',
+                              type: 'Identifier',
                             },
-                            "type": "WithStatement",
+                            type: 'WithStatement',
                           },
                         ],
-                        "type": "BlockStatement",
+                        type: 'BlockStatement',
                       },
-                      "expression": false,
-                      "generator": false,
-                      "id": {
-                        "name": "foo",
-                        "type": "Identifier",
+                      expression: false,
+                      generator: false,
+                      id: {
+                        name: 'foo',
+                        type: 'Identifier',
                       },
-                      "params": [],
-                      "type": "FunctionDeclaration",
+                      params: [],
+                      type: 'FunctionDeclaration',
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
         pass('"use\x20strict"; with (a) b = c;', Context.Empty, {
             source: '"use \\u0020strict"; with (a) b = c;',
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "directive": "use \\u0020strict",
-                     "expression": {
-                        "type": "Literal",
-                        "value": "use  strict",
+                      directive: 'use \\u0020strict',
+                     expression: {
+                        type: 'Literal',
+                        value: 'use  strict',
                       },
-                      "type": "ExpressionStatement"
+                      type: 'ExpressionStatement'
                     },
                     {
-                      "body": {
-                        "expression": {
-                          "left": {
-                            "name": "b",
-                            "type": "Identifier",
+                      body: {
+                        expression: {
+                          left: {
+                            name: 'b',
+                            type: 'Identifier',
                           },
-                          "operator": "=",
-                          "right": {
-                            "name": "c",
-                            "type": "Identifier",
+                          operator: '=',
+                          right: {
+                            name: 'c',
+                            type: 'Identifier',
                           },
-                          "type": "AssignmentExpression",
+                          type: 'AssignmentExpression',
                         },
-                        "type": "ExpressionStatement",
+                        type: 'ExpressionStatement',
                       },
-                      "object": {
-                        "name": "a",
-                        "type": "Identifier",
+                      object: {
+                        name: 'a',
+                        type: 'Identifier',
                       },
-                      "type": "WithStatement"
+                      type: 'WithStatement'
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
