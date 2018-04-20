@@ -1092,11 +1092,11 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                 } else if (context & Context.Strict) {
                     return Escape.StrictOctal;
                 } else {
+                    parser.flags |= Flags.Octal;
                     parser.lastValue = next;
                     code = code * 8 + (next - Chars.Zero);
                     index++;
                     column++;
-
                     next = parser.source.charCodeAt(index);
                     if (next >= Chars.Zero && next <= Chars.Seven) {
                         parser.lastValue = next;

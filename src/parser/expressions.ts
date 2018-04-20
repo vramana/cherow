@@ -1514,7 +1514,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
     const body: ESTree.Statement[] = [];
 
     while (parser.token === Token.StringLiteral) {
-        let { tokenRaw, tokenValue} = parser;
+        const { tokenRaw, tokenValue} = parser;
         body.push(parseDirective(parser, context));
         if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
             // See: https://tc39.github.io/ecma262/#sec-function-definitions-static-semantics-early-errors
