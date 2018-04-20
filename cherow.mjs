@@ -32,7 +32,7 @@ var KeywordDescTable = [
     /* Contextual keywords */
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
     '#',
-    'eval', 'arguments', 'enum', 'BigInt', '@'
+    'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -193,6 +193,10 @@ ErrorMessages[84 /* NewlineAfterThrow */] = 'Illegal newline after throw';
 ErrorMessages[85 /* ParamDupe */] = 'Duplicate parameter name not allowed in this context';
 ErrorMessages[86 /* UnexpectedAsBinding */] = 'Unexpected token \'%0\' before imported binding name';
 ErrorMessages[87 /* LabelNoColon */] = 'Labels must be followed by a \':\'';
+ErrorMessages[88 /* NonEmptyJSXExpression */] = 'JSX attributes must only be assigned a non-empty  \'expression\'';
+ErrorMessages[89 /* ExpectedJSXClosingTag */] = 'Expected corresponding JSX closing tag for %0';
+ErrorMessages[90 /* AdjacentJSXElements */] = 'Adjacent JSX elements must be wrapped in an enclosing tag';
+ErrorMessages[91 /* InvalidJSXAttributeValue */] = 'Invalid JSX attribute value';
 /**
  * Collect line, index, and colum from either the recorded error
  * or directly from the parser and returns it
@@ -211,7 +215,7 @@ function constructError(parser, context, index, line, column, description) {
     error.line = line;
     error.column = column;
     error.description = description;
-    if (context & 4096 /* OptionsTolerant */) {
+    if (context & 2048 /* OptionsTolerant */) {
         parser.errors.push(error);
     }
     else
@@ -456,10 +460,10 @@ var hasBit = function (mask, flags) { return (mask & flags) === flags; };
  * @param context Context masks
  */
 function scanPrivateName(parser, context) {
-    if (!(context & 131072 /* InClass */) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
+    if (!(context & 65536 /* InClass */) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, 1 /* UnexpectedToken */, tokenDesc(parser.token));
     }
-    if (context & 32768 /* Module */)
+    if (context & 16384 /* Module */)
         { report(parser, 0 /* Unexpected */); }
     return 115 /* Hash */;
 }
@@ -477,7 +481,7 @@ function consumeSemicolon(parser, context) {
     if (token & 268435456 /* ASI */ || parser.flags & 1 /* NewLine */) { // EOF, '}', ';'
         return consume(parser, context, 301990417 /* Semicolon */);
     }
-    report(parser, !(context & 524288 /* Async */) && token & 2097152 /* IsAwait */ ?
+    report(parser, !(context & 262144 /* Async */) && token & 2097152 /* IsAwait */ ?
         37 /* AwaitOutsideAsync */ :
         1 /* UnexpectedToken */, tokenDesc(token));
     return false;
@@ -558,11 +562,11 @@ function restoreExpressionCoverGrammar(parser, context, callback) {
 function swapContext(parser, context, state, callback, methodState /* None */) {
     if ( methodState === void 0 ) methodState = 0;
 
-    context &= ~(524288 /* Async */ | 1048576 /* Yield */);
+    context &= ~(262144 /* Async */ | 524288 /* Yield */);
     if (state & 1 /* Generator */)
-        { context |= 1048576 /* Yield */; }
+        { context |= 524288 /* Yield */; }
     if (state & 2 /* Await */)
-        { context |= 524288 /* Async */; }
+        { context |= 262144 /* Async */; }
     return callback(parser, context, methodState);
 }
 /**
@@ -678,11 +682,11 @@ var reinterpret = function (parser, context, node) {
             reinterpret(parser, context, node.left); // recursive descent
             return;
         case 'MemberExpression':
-            if (!(context & 2097152 /* InParameter */))
+            if (!(context & 1048576 /* InParameter */))
                 { return; }
         // Fall through
         default:
-            tolerant(parser, context, context & 2097152 /* InParameter */ ? 80 /* NotBindable */ : 76 /* InvalidDestructuringTarget */, node.type);
+            tolerant(parser, context, context & 1048576 /* InParameter */ ? 80 /* NotBindable */ : 76 /* InvalidDestructuringTarget */, node.type);
     }
 };
 function advanceAndOrSkipUC(parser) {
@@ -822,8 +826,8 @@ function getLocation(parser) {
     };
 }
 function isIdentifier(context, t) {
-    if (context & 16384 /* Strict */) {
-        if (context & 32768 /* Module */ && t & 2097152 /* IsAwait */)
+    if (context & 8192 /* Strict */) {
+        if (context & 16384 /* Module */ && t & 2097152 /* IsAwait */)
             { return false; }
         if (t & 1048576 /* IsYield */)
             { return false; }
@@ -876,9 +880,9 @@ function parseAndDisallowDestructuringAndBinding(parser, context, callback) {
 }
 function parseAndValidateIdentifier(parser, context) {
     var token = parser.token;
-    if (context & 16384 /* Strict */) {
+    if (context & 8192 /* Strict */) {
         // Module code is also "strict mode code"
-        if (context & 32768 /* Module */ && token & 2097152 /* IsAwait */) {
+        if (context & 16384 /* Module */ && token & 2097152 /* IsAwait */) {
             tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
         }
         if (token & 1048576 /* IsYield */)
@@ -889,10 +893,10 @@ function parseAndValidateIdentifier(parser, context) {
         }
         report(parser, 1 /* UnexpectedToken */, tokenDesc(token));
     }
-    if (context & 1048576 /* Yield */ && token & 1048576 /* IsYield */) {
+    if (context & 524288 /* Yield */ && token & 1048576 /* IsYield */) {
         tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
     }
-    else if (context & 524288 /* Async */ && token & 2097152 /* IsAwait */) {
+    else if (context & 262144 /* Async */ && token & 2097152 /* IsAwait */) {
         tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
     }
     if ((token & 67108864 /* IsIdentifier */) === 67108864 /* IsIdentifier */ ||
@@ -906,7 +910,7 @@ function parseAndValidateIdentifier(parser, context) {
 function parseDirective(parser, context) {
     var pos = getLocation(parser);
     var directive = parser.tokenRaw.slice(1, -1);
-    var expr = parseExpression(parser, context | 262144 /* AllowIn */);
+    var expr = parseExpression(parser, context | 131072 /* AllowIn */);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -930,6 +934,23 @@ function readNext(parser, prev) {
         { report(parser, 12 /* UnicodeOutOfRange */); }
     return nextUnicodeChar(parser);
 }
+// Fully qualified element name, e.g. <svg:path> returns "svg:path"
+function isQualifiedJSXName(elementName) {
+    switch (elementName.type) {
+        case 'JSXIdentifier':
+            return elementName.name;
+        case 'JSXNamespacedName':
+            var ns = elementName;
+            return isQualifiedJSXName(ns.namespace) + ':' +
+                isQualifiedJSXName(ns.name);
+        case 'JSXMemberExpression':
+            return (isQualifiedJSXName(elementName.object) + '.' +
+                isQualifiedJSXName(elementName.property));
+        /* istanbul ignore next */
+        default:
+        // ignore
+    }
+}
 
 // 11.4 Comments
 /**
@@ -946,7 +967,7 @@ function readNext(parser, prev) {
  */
 function skipSingleLineComment(parser, context, state, type) {
     var start = parser.index;
-    var collectable = !!(context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
+    var collectable = !!(context & (256 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
             case 13 /* CarriageReturn */:
@@ -980,7 +1001,7 @@ function skipSingleLineComment(parser, context, state, type) {
  */
 function skipMultiLineComment(parser, context, state) {
     var start = parser.index;
-    var collectable = !!(context & (512 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
+    var collectable = !!(context & (256 /* OptionsComments */ | context & 32 /* OptionsDelegate */));
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
             case 42 /* Asterisk */:
@@ -1145,7 +1166,7 @@ function scan(parser, context) {
                 // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
                 case 60 /* LessThan */:
                     advance(parser); // skip `<`
-                    if (!(context & 32768 /* Module */) &&
+                    if (!(context & 16384 /* Module */) &&
                         consumeOpt(parser, 33 /* Exclamation */) &&
                         consumeOpt(parser, 45 /* Hyphen */) &&
                         consumeOpt(parser, 45 /* Hyphen */)) {
@@ -1161,6 +1182,19 @@ function scan(parser, context) {
                         case 61 /* EqualSign */:
                             advance(parser);
                             return 149309 /* LessThanOrEqual */;
+                        case 47 /* Slash */: {
+                            if (!(context & 4 /* OptionsJSX */))
+                                { break; }
+                            var index = parser.index + 1;
+                            // Check that it's not a comment start.
+                            if (index < parser.source.length) {
+                                var next = parser.source.charCodeAt(index);
+                                if (next === 42 /* Asterisk */ || next === 47 /* Slash */)
+                                    { break; }
+                            }
+                            advance(parser);
+                            return 25 /* JSXClose */;
+                        }
                         default: // ignore
                             return 149311 /* LessThan */;
                     }
@@ -1168,14 +1202,14 @@ function scan(parser, context) {
                 case 45 /* Hyphen */:
                     {
                         advance(parser); // skip `-`
-                        var next = nextChar(parser);
-                        switch (next) {
+                        var next$1 = nextChar(parser);
+                        switch (next$1) {
                             case 45 /* Hyphen */:
                                 {
                                     advance(parser);
                                     if ((state & 1 /* NewLine */ || lineStart) &&
                                         nextChar(parser) === 62 /* GreaterThan */) {
-                                        if (!(context & 32768 /* Module */)) {
+                                        if (!(context & 16384 /* Module */)) {
                                             advance(parser);
                                             state = skipSingleLineComment(parser, context, state, 'HTMLClose');
                                         }
@@ -1214,12 +1248,12 @@ function scan(parser, context) {
                 case 38 /* Ampersand */:
                     {
                         advance(parser);
-                        var next$1 = nextChar(parser);
-                        if (next$1 === 38 /* Ampersand */) {
+                        var next$2 = nextChar(parser);
+                        if (next$2 === 38 /* Ampersand */) {
                             advance(parser);
                             return 8536631 /* LogicalAnd */;
                         }
-                        if (next$1 === 61 /* EqualSign */) {
+                        if (next$2 === 61 /* EqualSign */) {
                             advance(parser);
                             return 65577 /* BitwiseAndAssign */;
                         }
@@ -1231,12 +1265,12 @@ function scan(parser, context) {
                         advance(parser);
                         if (!hasNext(parser))
                             { return 150067 /* Multiply */; }
-                        var next$2 = nextChar(parser);
-                        if (next$2 === 61 /* EqualSign */) {
+                        var next$3 = nextChar(parser);
+                        if (next$3 === 61 /* EqualSign */) {
                             advance(parser);
                             return 65572 /* MultiplyAssign */;
                         }
-                        if (next$2 !== 42 /* Asterisk */)
+                        if (next$3 !== 42 /* Asterisk */)
                             { return 150067 /* Multiply */; }
                         advance(parser);
                         if (!consumeOpt(parser, 61 /* EqualSign */))
@@ -1249,12 +1283,12 @@ function scan(parser, context) {
                         advance(parser);
                         if (!hasNext(parser))
                             { return 411951 /* Add */; }
-                        var next$3 = nextChar(parser);
-                        if (next$3 === 43 /* Plus */) {
+                        var next$4 = nextChar(parser);
+                        if (next$4 === 43 /* Plus */) {
                             advance(parser);
                             return 540699 /* Increment */;
                         }
-                        if (next$3 === 61 /* EqualSign */) {
+                        if (next$4 === 61 /* EqualSign */) {
                             advance(parser);
                             return 65570 /* AddAssign */;
                         }
@@ -1263,17 +1297,17 @@ function scan(parser, context) {
                 // `.`, `...`, `.123` (numeric literal)
                 case 46 /* Period */:
                     {
-                        var index = parser.index + 1;
-                        var next$4 = parser.source.charCodeAt(index);
-                        if (next$4 >= 48 /* Zero */ && next$4 <= 57 /* Nine */) {
+                        var index$1 = parser.index + 1;
+                        var next$5 = parser.source.charCodeAt(index$1);
+                        if (next$5 >= 48 /* Zero */ && next$5 <= 57 /* Nine */) {
                             scanNumericLiteral(parser, context, 4 /* Float */);
                             return 16386 /* NumericLiteral */;
                         }
-                        else if (next$4 === 46 /* Period */) {
-                            index++;
-                            if (index < parser.source.length &&
-                                parser.source.charCodeAt(index) === 46 /* Period */) {
-                                parser.index = index + 1;
+                        else if (next$5 === 46 /* Period */) {
+                            index$1++;
+                            if (index$1 < parser.source.length &&
+                                parser.source.charCodeAt(index$1) === 46 /* Period */) {
+                                parser.index = index$1 + 1;
                                 parser.column += 3;
                                 return 14 /* Ellipsis */;
                             }
@@ -1317,12 +1351,12 @@ function scan(parser, context) {
                 case 35 /* Hash */:
                     {
                         advance(parser);
-                        var index$1 = parser.index;
-                        var next$5 = parser.source.charCodeAt(index$1);
-                        if (context & 1024 /* OptionsShebang */ &&
+                        var index$2 = parser.index;
+                        var next$6 = parser.source.charCodeAt(index$2);
+                        if (context & 512 /* OptionsShebang */ &&
                             lineStart &&
-                            next$5 === 33 /* Exclamation */) {
-                            parser.index = index$1 + 1;
+                            next$6 === 33 /* Exclamation */) {
+                            parser.index = index$2 + 1;
                             skipSingleLineComment(parser, context, 0 /* None */, 'SheBang');
                             continue;
                         }
@@ -1376,8 +1410,8 @@ function scan(parser, context) {
                 case 61 /* EqualSign */:
                     {
                         advance(parser);
-                        var next$6 = nextChar(parser);
-                        if (next$6 === 61 /* EqualSign */) {
+                        var next$7 = nextChar(parser);
+                        if (next$7 === 61 /* EqualSign */) {
                             advance(parser);
                             if (consumeOpt(parser, 61 /* EqualSign */)) {
                                 return 149049 /* StrictEqual */;
@@ -1386,7 +1420,7 @@ function scan(parser, context) {
                                 return 149051 /* LooseEqual */;
                             }
                         }
-                        else if (next$6 === 62 /* GreaterThan */) {
+                        else if (next$7 === 62 /* GreaterThan */) {
                             advance(parser);
                             return 10 /* Arrow */;
                         }
@@ -1398,16 +1432,18 @@ function scan(parser, context) {
                         advance(parser);
                         if (!hasNext(parser))
                             { return 149312 /* GreaterThan */; }
-                        var next$7 = nextChar(parser);
-                        if (next$7 === 61 /* EqualSign */) {
+                        if (context & 1073741824 /* InJSXChild */)
+                            { return 149312 /* GreaterThan */; }
+                        var next$8 = nextChar(parser);
+                        if (next$8 === 61 /* EqualSign */) {
                             advance(parser);
                             return 149310 /* GreaterThanOrEqual */;
                         }
-                        if (next$7 !== 62 /* GreaterThan */)
+                        if (next$8 !== 62 /* GreaterThan */)
                             { return 149312 /* GreaterThan */; }
                         advance(parser);
-                        next$7 = nextChar(parser);
-                        if (next$7 === 62 /* GreaterThan */) {
+                        next$8 = nextChar(parser);
+                        if (next$8 === 62 /* GreaterThan */) {
                             advance(parser);
                             if (consumeOpt(parser, 61 /* EqualSign */)) {
                                 return 65568 /* LogicalShiftRightAssign */;
@@ -1416,7 +1452,7 @@ function scan(parser, context) {
                                 return 149571 /* LogicalShiftRight */;
                             }
                         }
-                        else if (next$7 === 61 /* EqualSign */) {
+                        else if (next$8 === 61 /* EqualSign */) {
                             advance(parser);
                             return 65567 /* ShiftRightAssign */;
                         }
@@ -1442,12 +1478,12 @@ function scan(parser, context) {
                 case 124 /* VerticalBar */:
                     {
                         advance(parser);
-                        var next$8 = nextChar(parser);
-                        if (next$8 === 124 /* VerticalBar */) {
+                        var next$9 = nextChar(parser);
+                        if (next$9 === 124 /* VerticalBar */) {
                             advance(parser);
                             return 8536376 /* LogicalOr */;
                         }
-                        else if (next$8 === 61 /* EqualSign */) {
+                        else if (next$9 === 61 /* EqualSign */) {
                             advance(parser);
                             return 65576 /* BitwiseOrAssign */;
                         }
@@ -1602,7 +1638,7 @@ function scanImplicitOctalDigits(parser, context) {
         case 54 /* Six */:
         case 55 /* Seven */:
             {
-                if (context & 16384 /* Strict */)
+                if (context & 8192 /* Strict */)
                     { report(parser, 0 /* Unexpected */); }
                 var index = parser.index;
                 var column = parser.column;
@@ -1837,7 +1873,7 @@ function scanIdentifier(parser, context, first) {
         if (token > 0)
             { return token; }
     }
-    if (context & 2048 /* OptionsRawidentifiers */)
+    if (context & 1024 /* OptionsRawidentifiers */)
         { storeRaw(parser, start); }
     return 67125249 /* Identifier */;
 }
@@ -1962,12 +1998,12 @@ function scanEscapeSequence(parser, context, first) {
                 if (next < 48 /* Zero */ || next > 55 /* Seven */) {
                     // Strict mode code allows only \0, then a non-digit.
                     if (code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) {
-                        if (context & 16384 /* Strict */)
+                        if (context & 8192 /* Strict */)
                             { return -2 /* StrictOctal */; }
                         parser.flags |= 128 /* Octal */;
                     }
                 }
-                else if (context & 16384 /* Strict */) {
+                else if (context & 8192 /* Strict */) {
                     return -2 /* StrictOctal */;
                 }
                 else {
@@ -1993,7 +2029,7 @@ function scanEscapeSequence(parser, context, first) {
         case 55 /* Seven */:
             {
                 // 1 to 2 octal digits
-                if (context & 16384 /* Strict */)
+                if (context & 8192 /* Strict */)
                     { return -2 /* StrictOctal */; }
                 var code$1 = first - 48;
                 var index$1 = parser.index + 1;
@@ -2076,7 +2112,7 @@ function throwStringError(parser, context, code) {
         case -1 /* Empty */:
             return;
         case -2 /* StrictOctal */:
-            report(parser, context & 65536 /* TaggedTemplate */ ?
+            report(parser, context & 32768 /* TaggedTemplate */ ?
                 79 /* TemplateOctalLiteral */ :
                 9 /* StrictOctalEscape */);
         case -3 /* EightOrNine */:
@@ -2215,11 +2251,11 @@ function scanTemplate(parser, context, first) {
                     // Because octals are forbidden in escaped template sequences and the fact that
                     // both string and template scanning uses the same method - 'scanEscapeSequence',
                     // we set the strict context mask.
-                    var code = scanEscapeSequence(parser, context | 16384 /* Strict */, ch);
+                    var code = scanEscapeSequence(parser, context | 8192 /* Strict */, ch);
                     if (code >= 0) {
                         ret += fromCodePoint(code);
                     }
-                    else if (code !== -1 /* Empty */ && context & 65536 /* TaggedTemplate */) {
+                    else if (code !== -1 /* Empty */ && context & 32768 /* TaggedTemplate */) {
                         ret = undefined;
                         ch = scanLooserTemplateSegment(parser, parser.lastValue);
                         if (ch < 0) {
@@ -2228,7 +2264,7 @@ function scanTemplate(parser, context, first) {
                         break loop;
                     }
                     else {
-                        throwStringError(parser, context | 65536 /* TaggedTemplate */, code);
+                        throwStringError(parser, context | 32768 /* TaggedTemplate */, code);
                     }
                     ch = parser.lastValue;
                 }
@@ -2379,12 +2415,515 @@ function validate(parser, pattern, flags) {
     }
 }
 
+// JSX Specification
+// https://facebook.github.io/jsx/
+/**
+ * Parses JSX element or JSX fragment
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXRootElement(parser, context) {
+    var pos = getLocation(parser);
+    var children = [];
+    var closingElement = null;
+    var selfClosing = false;
+    var openingElement;
+    expect(parser, context, 149311 /* LessThan */);
+    var isFragment = parser.token === 149312;
+    if (isFragment) {
+        openingElement = parseJSXOpeningFragment(parser, context, pos);
+    }
+    else {
+        var name = parseJSXElementName(parser, context);
+        var attributes = parseJSXAttributes(parser, context);
+        selfClosing = consume(parser, context, 150069 /* Divide */);
+        openingElement = parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos);
+    }
+    if (isFragment)
+        { return parseJSXFragment(parser, context, openingElement, pos); }
+    if (!selfClosing) {
+        children = parseJSXChildren(parser, context);
+        closingElement = parseJSXClosingElement(parser, context);
+        var open = isQualifiedJSXName(openingElement.name);
+        var close = isQualifiedJSXName(closingElement.name);
+        if (open !== close)
+            { report(parser, 89 /* ExpectedJSXClosingTag */, close); }
+    }
+    return finishNode(context, parser, pos, {
+        type: 'JSXElement',
+        children: children,
+        openingElement: openingElement,
+        closingElement: closingElement,
+    });
+}
+/**
+ * Parses JSX opening element
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param name Element name
+ * @param attributes Element attributes
+ * @param selfClosing True if this is a selfclosing JSX Element
+ * @param pos Line / Column tracking
+ */
+function parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos) {
+    if (context & 1073741824 /* InJSXChild */ && selfClosing)
+        { expect(parser, context, 149312 /* GreaterThan */); }
+    else
+        { nextJSXToken(parser, context); }
+    return finishNode(context, parser, pos, {
+        type: 'JSXOpeningElement',
+        name: name,
+        attributes: attributes,
+        selfClosing: selfClosing
+    });
+}
+/**
+ * Parse JSX fragment
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param openingElement Opening fragment
+ * @param pos Line / Column location
+ */
+function parseJSXFragment(parser, context, openingElement, pos) {
+    var children = parseJSXChildren(parser, context);
+    var closingElement = parseJSXClosingFragment(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'JSXFragment',
+        children: children,
+        openingElement: openingElement,
+        closingElement: closingElement,
+    });
+}
+/**
+ * Parse JSX opening fragment
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Line / Column location
+ */
+function parseJSXOpeningFragment(parser, context, pos) {
+    nextJSXToken(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'JSXOpeningFragment'
+    });
+}
+/**
+ * Prime the scanner and advance to the next JSX token in the stream
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function nextJSXToken(parser, context) {
+    return parser.token = scanJSXToken(parser, context);
+}
+/**
+ * Mini scanner
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function scanJSXToken(parser, context) {
+    if (!hasNext(parser))
+        { return 268435456 /* EndOfSource */; }
+    parser.lastIndex = parser.startIndex = parser.index;
+    var char = nextChar(parser);
+    if (char === 60 /* LessThan */) {
+        advance(parser);
+        return consumeOpt(parser, 47 /* Slash */) ? 25 /* JSXClose */ : 149311 /* LessThan */;
+    }
+    else if (char === 123 /* LeftBrace */) {
+        advance(parser);
+        return 16793612 /* LeftBrace */;
+    }
+    while (hasNext(parser)) {
+        advance(parser);
+        var next = nextChar(parser);
+        if (next === 123 /* LeftBrace */ || next === 60 /* LessThan */)
+            { break; }
+    }
+    return 121 /* JSXText */;
+}
+/**
+ * Parses JSX children
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXChildren(parser, context) {
+    var children = [];
+    while (parser.token !== 25 /* JSXClose */) {
+        children.push(parseJSXChild(parser, context));
+    }
+    return children;
+}
+/**
+ * Parses JSX Text
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXText(parser, context) {
+    var pos = getLocation(parser);
+    var value = parser.source.slice(parser.startIndex, parser.index);
+    parser.token = scanJSXToken(parser, context);
+    var node = finishNode(context, parser, pos, {
+        type: 'JSXText',
+        value: value
+    });
+    if (context & 8 /* OptionsRaw */)
+        { node.raw = value; }
+    return node;
+}
+/**
+ * Parses JSX Child
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXChild(parser, context) {
+    switch (parser.token) {
+        case 67125249 /* Identifier */:
+        case 121 /* JSXText */:
+            return parseJSXText(parser, context);
+        case 16793612 /* LeftBrace */:
+            return parseJSXExpression(parser, context & ~1073741824 /* InJSXChild */);
+        case 149311 /* LessThan */:
+            return parseJSXRootElement(parser, context & ~1073741824 /* InJSXChild */);
+        default:
+            report(parser, 0 /* Unexpected */);
+    }
+}
+/**
+ * Parses JSX attributes
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXAttributes(parser, context) {
+    var attributes = [];
+    while (hasNext(parser)) {
+        if (parser.token === 150069 /* Divide */ || parser.token === 149312 /* GreaterThan */)
+            { break; }
+        attributes.push(parseJSXAttribute(parser, context));
+    }
+    return attributes;
+}
+/**
+ * Parses JSX spread attribute
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXSpreadAttribute(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 16793612 /* LeftBrace */);
+    expect(parser, context, 14 /* Ellipsis */);
+    var expression = parseExpressionCoverGrammar(parser, context & ~1073741824 /* InJSXChild */, parseAssignmentExpression);
+    expect(parser, context, 301990415 /* RightBrace */);
+    return finishNode(context, parser, pos, {
+        type: 'JSXSpreadAttribute',
+        argument: expression
+    });
+}
+/**
+ * Parses JSX namespace name
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param namespace Identifier
+ * @param pos Line / Column location
+ */
+function parseJSXNamespacedName(parser, context, namespace, pos) {
+    expect(parser, context, 33554453 /* Colon */);
+    var name = parseJSXIdentifier(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'JSXNamespacedName',
+        namespace: namespace,
+        name: name
+    });
+}
+/**
+ * Parses JSX attribute name
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXAttributeName(parser, context) {
+    var pos = getLocation(parser);
+    var identifier = parseJSXIdentifier(parser, context);
+    return parser.token === 33554453 /* Colon */ ?
+        parseJSXNamespacedName(parser, context, identifier, pos) :
+        identifier;
+}
+/**
+ * Parses JSX Attribute value
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXAttributeValue(parser, context) {
+    switch (scanJSXAttributeValue(parser, context)) {
+        case 16387 /* StringLiteral */:
+            return parseLiteral(parser, context);
+        case 16793612 /* LeftBrace */:
+            return parseJSXExpressionContainer(parser, context | 1073741824 /* InJSXChild */);
+        case 149311 /* LessThan */:
+            return parseJSXRootElement(parser, context | 1073741824 /* InJSXChild */);
+        default:
+            tolerant(parser, context, 91 /* InvalidJSXAttributeValue */);
+    }
+}
+/**
+ * Parses JSX Attribute
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXAttribute(parser, context) {
+    var pos = getLocation(parser);
+    if (parser.token === 16793612 /* LeftBrace */)
+        { return parseJSXSpreadAttribute(parser, context); }
+    scanJSXIdentifier(parser, context);
+    var attrName = parseJSXAttributeName(parser, context);
+    var value = parser.token === 33620509 /* Assign */ ? parseJSXAttributeValue(parser, context) : null;
+    return finishNode(context, parser, pos, {
+        type: 'JSXAttribute',
+        value: value,
+        name: attrName
+    });
+}
+/**
+ * Parses JSX Attribute value
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function scanJSXAttributeValue(parser, context) {
+    parser.lastIndex = parser.index;
+    var ch = nextChar(parser);
+    switch (ch) {
+        case 34 /* DoubleQuote */:
+        case 39 /* SingleQuote */:
+            return scanJSXString(parser, context, ch);
+        default:
+            return nextToken(parser, context);
+    }
+}
+/**
+ * Parses JSX String
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param quote Code point
+ */
+function scanJSXString(parser, context, quote) {
+    var rawStart = parser.index;
+    advance(parser);
+    var ret = '';
+    var start = parser.index;
+    var ch = nextChar(parser);
+    while (ch !== quote) {
+        ret += fromCodePoint(ch);
+        advance(parser);
+        ch = nextChar(parser);
+        if (!hasNext(parser))
+            { report(parser, 4 /* UnterminatedString */); }
+    }
+    advance(parser); // skip the quote
+    // raw
+    if (context & 8 /* OptionsRaw */)
+        { storeRaw(parser, rawStart); }
+    parser.tokenValue = ret;
+    return 16387 /* StringLiteral */;
+}
+/**
+ * Parses JJSX Empty Expression
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXEmptyExpression(parser, context) {
+    var pos = getLocation(parser);
+    return finishNode(context, parser, pos, {
+        type: 'JSXEmptyExpression'
+    });
+}
+/**
+ * Parses JSX Spread child
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXSpreadChild(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 14 /* Ellipsis */);
+    var expression = parseExpression(parser, context);
+    expect(parser, context, 301990415 /* RightBrace */);
+    return finishNode(context, parser, pos, {
+        type: 'JSXSpreadChild',
+        expression: expression
+    });
+}
+/**
+ * Parses JSX Expression container
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXExpressionContainer(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 16793612 /* LeftBrace */);
+    // Note: JSX Expressions can't be empty
+    if (parser.token === 301990415 /* RightBrace */)
+        { tolerant(parser, context, 88 /* NonEmptyJSXExpression */); }
+    var expression = parseExpressionCoverGrammar(parser, context & ~1073741824 /* InJSXChild */, parseAssignmentExpression);
+    expect(parser, context, 301990415 /* RightBrace */);
+    return finishNode(context, parser, pos, {
+        type: 'JSXExpressionContainer',
+        expression: expression
+    });
+}
+/**
+ * Parses JSX Expression
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Line / Column location
+ */
+function parseJSXExpression(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 16793612 /* LeftBrace */);
+    if (parser.token === 14 /* Ellipsis */)
+        { return parseJSXSpreadChild(parser, context); }
+    var expression = parser.token === 301990415 /* RightBrace */ ?
+        parseJSXEmptyExpression(parser, context) :
+        parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
+    nextJSXToken(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'JSXExpressionContainer',
+        expression: expression
+    });
+}
+/**
+ * Parses JSX Closing fragment
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXClosingFragment(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 25 /* JSXClose */);
+    expect(parser, context, 149312 /* GreaterThan */);
+    return finishNode(context, parser, pos, {
+        type: 'JSXClosingFragment'
+    });
+}
+/**
+ * Parses JSX Closing Element
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Line / Column location
+ */
+function parseJSXClosingElement(parser, context) {
+    var pos = getLocation(parser);
+    expect(parser, context, 25 /* JSXClose */);
+    var name = parseJSXElementName(parser, context);
+    if (context & 1073741824 /* InJSXChild */)
+        { expect(parser, context, 149312 /* GreaterThan */); }
+    else
+        { nextJSXToken(parser, context); }
+    return finishNode(context, parser, pos, {
+        type: 'JSXClosingElement',
+        name: name
+    });
+}
+/**
+ * Parses JSX Identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXIdentifier(parser, context) {
+    var token = parser.token;
+    var name = parser.tokenValue;
+    var raw = parser.tokenRaw;
+    if (!(token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */))) {
+        tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
+    }
+    var pos = getLocation(parser);
+    nextToken(parser, context);
+    var node = finishNode(context, parser, pos, {
+        type: 'JSXIdentifier',
+        name: name
+    });
+    if (context & 1024 /* OptionsRawidentifiers */)
+        { node.raw = raw; }
+    return node;
+}
+/**
+ * Parses JSX Member expression
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Line / Column location
+ */
+function parseJSXMemberExpression(parser, context, expr, pos) {
+    // Note: In order to be able to parse cases like ''<A.B.C.D.E.foo-bar />', where the dash is located at the
+    // end, we must rescan for the JSX Identifier now. This because JSX identifiers differ from normal identifiers
+    scanJSXIdentifier(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'JSXMemberExpression',
+        object: expr,
+        property: parseJSXIdentifier(parser, context)
+    });
+}
+/**
+ * Parses JSX Element name
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseJSXElementName(parser, context) {
+    var pos = getLocation(parser);
+    scanJSXIdentifier(parser, context);
+    var elementName = parseJSXIdentifier(parser, context);
+    if (parser.token === 33554453 /* Colon */)
+        { return parseJSXNamespacedName(parser, context, elementName, pos); }
+    while (consume(parser, context, 33554445 /* Period */)) {
+        elementName = parseJSXMemberExpression(parser, context, elementName, pos);
+    }
+    return elementName;
+}
+/**
+ * Scans JSX Identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function scanJSXIdentifier(parser, context) {
+    var token = parser.token;
+    var index = parser.index;
+    if (token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */)) {
+        var firstCharPosition = parser.index;
+        var ch = nextChar(parser);
+        while (hasNext(parser) && (ch === 45 /* Hyphen */ || (isValidIdentifierPart(ch)))) {
+            ch = readNext(parser, ch);
+        }
+        parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);
+    }
+    return parser.token;
+}
+
 /**
  * Parse expression
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Expression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseExpression(parser, context) {
@@ -2397,7 +2936,7 @@ function parseExpression(parser, context) {
 /**
  * Parse secuence expression
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseSequenceExpression(parser, context, left, pos) {
@@ -2415,12 +2954,12 @@ function parseSequenceExpression(parser, context, left, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-YieldExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseYieldExpression(parser, context, pos) {
     // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
-    if (context & 2097152 /* InParameter */)
+    if (context & 1048576 /* InParameter */)
         { tolerant(parser, context, 51 /* YieldInParameter */); }
     expect(parser, context, 1070186 /* YieldKeyword */);
     var argument = null;
@@ -2442,31 +2981,31 @@ function parseYieldExpression(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseAssignmentExpression(parser, context) {
     var pos = getLocation(parser);
     var token = parser.token;
-    if (context & 1048576 /* Yield */ && token & 1048576 /* IsYield */)
+    if (context & 524288 /* Yield */ && token & 1048576 /* IsYield */)
         { return parseYieldExpression(parser, context, pos); }
     var isAsync = token & 4194304 /* IsAsync */ && lookahead(parser, context, nextTokenisIdentifierOrParen);
     var expr = isAsync ? parserCoverCallExpressionAndAsyncArrowHead(parser, context) : parseConditionalExpression(parser, context, pos);
     if (parser.token === 10 /* Arrow */) {
         if (token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */)) {
             if (token & (5120 /* FutureReserved */ | 134217728 /* IsEvalOrArguments */)) {
-                if (context & 16384 /* Strict */) {
+                if (context & 8192 /* Strict */) {
                     tolerant(parser, context, 47 /* StrictEvalArguments */);
                 }
                 parser.flags |= 64 /* StrictReserved */;
             }
             expr = [expr];
         }
-        return parseArrowFunction(parser, context &= ~524288 /* Async */, pos, expr);
+        return parseArrowFunction(parser, context &= ~262144 /* Async */, pos, expr);
     }
     if (hasBit(parser.token, 65536 /* IsAssignOp */)) {
         token = parser.token;
-        if (context & 16384 /* Strict */ && isEvalOrArguments(expr.name)) {
+        if (context & 8192 /* Strict */ && isEvalOrArguments(expr.name)) {
             tolerant(parser, context, 15 /* StrictLHSAssignment */);
         }
         else if (consume(parser, context, 33620509 /* Assign */)) {
@@ -2474,16 +3013,16 @@ function parseAssignmentExpression(parser, context) {
                 tolerant(parser, context, 76 /* InvalidDestructuringTarget */);
             }
             // Only re-interpret if not inside a formal parameter list
-            if (!(context & 2097152 /* InParameter */))
+            if (!(context & 1048576 /* InParameter */))
                 { reinterpret(parser, context, expr); }
-            if (context & 1073741824 /* InParen */)
+            if (context & 536870912 /* InParen */)
                 { parser.flags |= 8 /* SimpleParameterList */; }
             if (parser.token & 2097152 /* IsAwait */) {
                 recordError(parser);
                 parser.flags |= 16384 /* HasAwait */;
             }
-            else if (context & 1073741824 /* InParen */ &&
-                context & (16384 /* Strict */ | 1048576 /* Yield */) &&
+            else if (context & 536870912 /* InParen */ &&
+                context & (8192 /* Strict */ | 524288 /* Yield */) &&
                 parser.token & 1048576 /* IsYield */) {
                 recordError(parser);
                 parser.flags |= 32768 /* HasYield */;
@@ -2496,7 +3035,7 @@ function parseAssignmentExpression(parser, context) {
             parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
             nextToken(parser, context);
         }
-        var right = parseExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression);
+        var right = parseExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression);
         parser.pendingExpressionError = null;
         return finishNode(context, parser, pos, {
             type: 'AssignmentExpression',
@@ -2512,14 +3051,14 @@ function parseAssignmentExpression(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ConditionalExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseConditionalExpression(parser, context, pos) {
     var test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, 22 /* QuestionMark */))
         { return test; }
-    var consequent = parseExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression);
+    var consequent = parseExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression);
     expect(parser, context, 33554453 /* Colon */);
     return finishNode(context, parser, pos, {
         type: 'ConditionalExpression',
@@ -2540,7 +3079,7 @@ function parseConditionalExpression(parser, context, pos) {
  * @see [Link](https://tc39.github.io/ecma262/#sec-relational-operators)
  * @see [Link](https://tc39.github.io/ecma262/#sec-multiplicative-operators)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param minPrec Minimum precedence value
  * @param pos Line / Column info
@@ -2551,7 +3090,7 @@ function parseBinaryExpression(parser, context, minPrec, pos, left) {
 
     // Shift-reduce parser for the binary operator part of the JS expression
     // syntax.
-    var bit = context & 262144 /* AllowIn */ ^ 262144;
+    var bit = context & 131072 /* AllowIn */ ^ 131072;
     if (!hasBit(parser.token, 147456 /* IsBinaryOp */))
         { return left; }
     while (hasBit(parser.token, 147456 /* IsBinaryOp */)) {
@@ -2568,7 +3107,7 @@ function parseBinaryExpression(parser, context, minPrec, pos, left) {
         left = finishNode(context, parser, pos, {
             type: t & 8388608 /* IsLogical */ ? 'LogicalExpression' : 'BinaryExpression',
             left: left,
-            right: parseBinaryExpression(parser, context & ~262144 /* AllowIn */, prec, getLocation(parser)),
+            right: parseBinaryExpression(parser, context & ~131072 /* AllowIn */, prec, getLocation(parser)),
             operator: tokenDesc(t)
         });
     }
@@ -2579,7 +3118,7 @@ function parseBinaryExpression(parser, context, minPrec, pos, left) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AwaitExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param {loc} pas Location info
  */
@@ -2595,14 +3134,14 @@ function parseAwaitExpression(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-UnaryExpression)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parseUnaryExpression(parser, context) {
     var pos = getLocation(parser);
     var token = parser.token;
     // Note: 'await' is an unary operator, but we keep it separate due to performance reasons
-    if (context & 524288 /* Async */ && token === 69231725 /* AwaitKeyword */)
+    if (context & 262144 /* Async */ && token === 69231725 /* AwaitKeyword */)
         { return parseAwaitExpression(parser, context, pos); }
     if (hasBit(token, 278528 /* IsUnaryOp */)) {
         token = parser.token;
@@ -2611,7 +3150,7 @@ function parseUnaryExpression(parser, context) {
         if (parser.token === 150326 /* Exponentiate */) {
             tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
         }
-        if (context & 16384 /* Strict */ && token === 281643 /* DeleteKeyword */) {
+        if (context & 8192 /* Strict */ && token === 281643 /* DeleteKeyword */) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, 42 /* StrictDelete */);
             }
@@ -2633,7 +3172,7 @@ function parseUnaryExpression(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-UpdateExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 function parseUpdateExpression(parser, context, pos) {
@@ -2653,7 +3192,7 @@ function parseUpdateExpression(parser, context, pos) {
         operator = parser.token;
         nextToken(parser, context);
     }
-    if (context & 16384 /* Strict */ && isEvalOrArguments(argument.name)) {
+    if (context & 8192 /* Strict */ && isEvalOrArguments(argument.name)) {
         tolerant(parser, context, 71 /* StrictLHSPrefixPostFix */, prefix ? 'Prefix' : 'Postfix');
     }
     else if (!isValidSimpleAssignmentTarget(argument)) {
@@ -2671,7 +3210,7 @@ function parseUpdateExpression(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 function parseRestElement(parser, context, args) {
@@ -2690,14 +3229,14 @@ function parseRestElement(parser, context, args) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SpreadElement)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  */
 function parseSpreadElement(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 14 /* Ellipsis */);
     var token = parser.token;
-    var argument = restoreExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression);
+    var argument = restoreExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
         argument: argument
@@ -2714,16 +3253,16 @@ function parseSpreadElement(parser, context) {
  */
 function parseLeftHandSideExpression(parser, context, pos) {
     var expr = parser.token === 19546 /* ImportKeyword */ ?
-        parseImportExpressions(parser, context | 262144 /* AllowIn */, pos) :
-        parseMemberExpression(parser, context | 262144 /* AllowIn */, pos);
-    return parseCallExpression(parser, context | 262144 /* AllowIn */, pos, expr);
+        parseImportExpressions(parser, context | 131072 /* AllowIn */, pos) :
+        parseMemberExpression(parser, context | 131072 /* AllowIn */, pos);
+    return parseCallExpression(parser, context | 131072 /* AllowIn */, pos, expr);
 }
 /**
  * Parse member expression
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param context Context masks
  * @param pos Location info
  * @param expr Expression
@@ -2767,7 +3306,7 @@ function parseMemberExpression(parser, context, pos, expr) {
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
-                    quasi: parseTemplate(parser, context | 65536 /* TaggedTemplate */)
+                    quasi: parseTemplate(parser, context | 32768 /* TaggedTemplate */)
                 });
                 continue;
             }
@@ -2802,12 +3341,12 @@ function parseCallExpression(parser, context, pos, expr) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-CoverCallExpressionAndAsyncArrowHead)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parserCoverCallExpressionAndAsyncArrowHead(parser, context) {
     var pos = getLocation(parser);
-    var expr = parseMemberExpression(parser, context | 262144 /* AllowIn */, pos);
+    var expr = parseMemberExpression(parser, context | 131072 /* AllowIn */, pos);
     // Here we jump right into it and parse a simple, faster sub-grammar for
     // async arrow / async identifier + call expression. This could have been done different
     // but ESTree sucks!
@@ -2840,7 +3379,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser, context) {
  *
  * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 function parseArgumentList(parser, context) {
@@ -2849,7 +3388,7 @@ function parseArgumentList(parser, context) {
     while (parser.token !== 16 /* RightParen */) {
         expressions.push(parser.token === 14 /* Ellipsis */ ?
             parseSpreadElement(parser, context) :
-            parseExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression));
+            parseExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression));
         if (parser.token === 16 /* RightParen */)
             { break; }
         expect(parser, context, 33554450 /* Comma */);
@@ -2864,7 +3403,7 @@ function parseArgumentList(parser, context) {
  *
  * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 function parseAsyncArgumentList(parser, context) {
@@ -2894,7 +3433,7 @@ function parseAsyncArgumentList(parser, context) {
                 { state |= 32 /* Await */; }
             if (!(parser.flags & 2 /* AllowBinding */))
                 { tolerant(parser, context, 80 /* NotBindable */); }
-            args.push(restoreExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression));
+            args.push(restoreExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression));
         }
         if (consume(parser, context, 33554450 /* Comma */)) {
             parser.flags &= ~4 /* AllowDestructuring */;
@@ -2915,7 +3454,7 @@ function parseAsyncArgumentList(parser, context) {
         if (state & 16 /* Yield */ || parser.flags & 32768 /* HasYield */)
             { tolerant(parser, context, 51 /* YieldInParameter */); }
         if (state & 8 /* EvalOrArguments */) {
-            if (context & 16384 /* Strict */)
+            if (context & 8192 /* Strict */)
                 { tolerant(parser, context, 47 /* StrictEvalArguments */); }
             parser.flags |= 4096 /* StrictEvalArguments */;
         }
@@ -2928,7 +3467,7 @@ function parseAsyncArgumentList(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PrimaryExpression)
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 function parsePrimaryExpression(parser, context) {
@@ -2951,7 +3490,7 @@ function parsePrimaryExpression(parser, context) {
         case 4203628 /* AsyncKeyword */:
             return parseAsyncFunctionOrIdentifier(parser, context);
         case 33570827 /* LeftParen */:
-            return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 1073741824 /* InParen */);
+            return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 536870912 /* InParen */);
         case 16793619 /* LeftBracket */:
             return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
         case 16793612 /* LeftBrace */:
@@ -2976,6 +3515,9 @@ function parsePrimaryExpression(parser, context) {
             return parseTemplate(parser, context);
         case 21576 /* LetKeyword */:
             return parseLetAsIdentifier(parser, context);
+        case 149311 /* LessThan */:
+            if (context & 4 /* OptionsJSX */)
+                { return parseJSXRootElement(parser, context | 1073741824 /* InJSXChild */); }
         default:
             return parseAndValidateIdentifier(parser, context);
     }
@@ -2984,11 +3526,11 @@ function parsePrimaryExpression(parser, context) {
  * Parse 'let' as identifier in 'sloppy mode', and throws
  * in 'strict mode'  / 'module code'
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context context mask
  */
 function parseLetAsIdentifier(parser, context) {
-    if (context & 16384 /* Strict */)
+    if (context & 8192 /* Strict */)
         { tolerant(parser, context, 50 /* UnexpectedStrictReserved */); }
     var pos = getLocation(parser);
     var name = parser.tokenValue;
@@ -3008,7 +3550,7 @@ function parseLetAsIdentifier(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionExpression)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Identifier)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context  context mask
  */
 function parseAsyncFunctionOrIdentifier(parser, context) {
@@ -3021,18 +3563,18 @@ function parseAsyncFunctionOrIdentifier(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Identifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseIdentifier(parser, context) {
     var pos = getLocation(parser);
     var name = parser.tokenValue;
-    nextToken(parser, context | 65536 /* TaggedTemplate */);
+    nextToken(parser, context | 32768 /* TaggedTemplate */);
     var node = finishNode(context, parser, pos, {
         type: 'Identifier',
         name: name
     });
-    if (context & 2048 /* OptionsRawidentifiers */)
+    if (context & 1024 /* OptionsRawidentifiers */)
         { node.raw = parser.tokenRaw; }
     return node;
 }
@@ -3041,7 +3583,7 @@ function parseIdentifier(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseRegularExpressionLiteral(parser, context) {
@@ -3065,13 +3607,13 @@ function parseRegularExpressionLiteral(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-NumericLiteral)
  * @see [Link](https://tc39.github.io/ecma262/#prod-StringLiteral)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseLiteral(parser, context) {
     var pos = getLocation(parser);
     var value = parser.tokenValue;
-    if (context & 16384 /* Strict */ && parser.flags & 128 /* Octal */) {
+    if (context & 8192 /* Strict */ && parser.flags & 128 /* Octal */) {
         tolerant(parser, context, 61 /* StrictOctalLiteral */);
     }
     nextToken(parser, context);
@@ -3088,7 +3630,7 @@ function parseLiteral(parser, context) {
  *
  * @see [Link](https://tc39.github.io/proposal-bigint/)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseBigIntLiteral(parser, context) {
@@ -3129,7 +3671,7 @@ function parseNullOrTrueOrFalseLiteral(parser, context) {
 /**
  * Parse this expression
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseThisExpression(parser, context) {
@@ -3144,7 +3686,7 @@ function parseThisExpression(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-IdentifierName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param t token
  */
@@ -3158,7 +3700,7 @@ function parseIdentifierName(parser, context, t) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseIdentifierNameOrPrivateName(parser, context) {
@@ -3181,7 +3723,7 @@ function parseIdentifierNameOrPrivateName(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayLiteral)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseArrayLiteral(parser, context) {
@@ -3201,7 +3743,7 @@ function parseArrayLiteral(parser, context) {
             elements.push(element);
         }
         else {
-            elements.push(restoreExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression));
+            elements.push(restoreExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression));
             if (parser.token !== 20 /* RightBracket */)
                 { expect(parser, context, 33554450 /* Comma */); }
         }
@@ -3217,7 +3759,7 @@ function parseArrayLiteral(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-parseCoverParenthesizedExpressionAndArrowParameterList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context) {
@@ -3257,7 +3799,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context)
                 }
                 if (parser.token & 16777216 /* IsBindingPattern */)
                     { state |= 16 /* HasBinding */; }
-                var expr$1 = restoreExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression);
+                var expr$1 = restoreExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression);
                 // Sequence expression
                 if (parser.token === 33554450 /* Comma */) {
                     state |= 1 /* SequenceExpression */;
@@ -3312,12 +3854,12 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context)
                 expect(parser, context, 16 /* RightParen */);
                 if (parser.token === 10 /* Arrow */) {
                     if (state & 2 /* HasEvalOrArguments */) {
-                        if (context & 16384 /* Strict */)
+                        if (context & 8192 /* Strict */)
                             { tolerant(parser, context, 47 /* StrictEvalArguments */); }
                         parser.flags |= 4096 /* StrictEvalArguments */;
                     }
                     else if (state & 4 /* HasReservedWords */) {
-                        if (context & 16384 /* Strict */)
+                        if (context & 8192 /* Strict */)
                             { tolerant(parser, context, 50 /* UnexpectedStrictReserved */); }
                         parser.flags |= 64 /* StrictReserved */;
                     }
@@ -3347,7 +3889,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionExpression)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionExpression(parser, context) {
@@ -3358,13 +3900,13 @@ function parseFunctionExpression(parser, context) {
     var token = parser.token;
     if (token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */)) {
         if (hasBit(token, 134217728 /* IsEvalOrArguments */)) {
-            if (context & 16384 /* Strict */)
+            if (context & 8192 /* Strict */)
                 { tolerant(parser, context, 47 /* StrictEvalArguments */); }
             parser.flags |= 2048 /* StrictFunctionName */;
         }
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
-    var ref = swapContext(parser, context & ~(268435456 /* Method */ | 536870912 /* AllowSuperProperty */), isGenerator, parseFormalListAndBody);
+    var ref = swapContext(parser, context & ~(134217728 /* Method */ | 268435456 /* AllowSuperProperty */), isGenerator, parseFormalListAndBody);
     var params = ref.params;
     var body = ref.body;
     return finishNode(context, parser, pos, {
@@ -3382,7 +3924,7 @@ function parseFunctionExpression(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionExpression)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
@@ -3395,7 +3937,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
     var token = parser.token;
     if (token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */)) {
         if (hasBit(token, 134217728 /* IsEvalOrArguments */)) {
-            if (context & 16384 /* Strict */ || isAwait & 2 /* Await */)
+            if (context & 8192 /* Strict */ || isAwait & 2 /* Await */)
                 { tolerant(parser, context, 47 /* StrictEvalArguments */); }
             parser.flags |= 2048 /* StrictFunctionName */;
         }
@@ -3403,7 +3945,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
             { tolerant(parser, context, 48 /* AwaitBindingIdentifier */); }
         id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
     }
-    var ref = swapContext(parser, context & ~(268435456 /* Method */ | 536870912 /* AllowSuperProperty */), isGenerator | isAwait, parseFormalListAndBody);
+    var ref = swapContext(parser, context & ~(134217728 /* Method */ | 268435456 /* AllowSuperProperty */), isGenerator | isAwait, parseFormalListAndBody);
     var params = ref.params;
     var body = ref.body;
     return finishNode(context, parser, pos, {
@@ -3419,7 +3961,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
 /**
  * Shared helper function for "parseFunctionExpression" and "parseAsyncFunctionOrAsyncGeneratorExpression"
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionOrClassExpressionName(parser, context, state) {
@@ -3433,13 +3975,13 @@ function parseFunctionOrClassExpressionName(parser, context, state) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ComputedPropertyName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseComputedPropertyName(parser, context) {
     expect(parser, context, 16793619 /* LeftBracket */);
     // if (context & Context.Yield && parser.token & Token.IsYield) tolerant(parser, context, Errors.YieldInParameter);
-    var key = parseAssignmentExpression(parser, context | 262144 /* AllowIn */);
+    var key = parseAssignmentExpression(parser, context | 131072 /* AllowIn */);
     expect(parser, context, 20 /* RightBracket */);
     return key;
 }
@@ -3448,7 +3990,7 @@ function parseComputedPropertyName(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PropertyName)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parsePropertyName(parser, context) {
@@ -3467,7 +4009,7 @@ function parsePropertyName(parser, context) {
  *
  * @see [Link](https://tc39.github.io/proposal-object-rest-spread/#Spread)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseSpreadProperties(parser, context) {
@@ -3476,7 +4018,7 @@ function parseSpreadProperties(parser, context) {
     var token = parser.token;
     if (parser.token & 16777216 /* IsBindingPattern */)
         { parser.flags &= ~4 /* AllowDestructuring */; }
-    var argument = parseAssignmentExpression(parser, context | 262144 /* AllowIn */);
+    var argument = parseAssignmentExpression(parser, context | 131072 /* AllowIn */);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
         argument: argument
@@ -3517,7 +4059,7 @@ function parseObjectLiteral(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-PropertyDefinition)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parsePropertyDefinition(parser, context) {
@@ -3552,7 +4094,7 @@ function parsePropertyDefinition(parser, context) {
             state |= 32 /* Method */;
             parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
         }
-        value = parseMethodDeclaration(parser, context | 268435456 /* Method */, state);
+        value = parseMethodDeclaration(parser, context | 134217728 /* Method */, state);
     }
     else {
         if (state & (2 /* Generator */ | 1 /* Async */)) {
@@ -3575,17 +4117,17 @@ function parsePropertyDefinition(parser, context) {
             if (state & 1 /* Async */ || !isIdentifier(context, t)) {
                 tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(t));
             }
-            else if (context & (16384 /* Strict */ | 1048576 /* Yield */) && t & 1048576 /* IsYield */) {
+            else if (context & (8192 /* Strict */ | 524288 /* Yield */) && t & 1048576 /* IsYield */) {
                 recordError(parser);
                 parser.flags |= 32768 /* HasYield */;
             }
             state |= 64 /* Shorthand */;
             if (consume(parser, context, 33620509 /* Assign */)) {
-                if (context & (16384 /* Strict */ | 1048576 /* Yield */) && parser.token & 1048576 /* IsYield */) {
+                if (context & (8192 /* Strict */ | 524288 /* Yield */) && parser.token & 1048576 /* IsYield */) {
                     recordError(parser);
                     parser.flags |= 32768 /* HasYield */;
                 }
-                value = parseAssignmentPattern(parser, context | 262144 /* AllowIn */, key, pos);
+                value = parseAssignmentPattern(parser, context | 131072 /* AllowIn */, key, pos);
                 parser.pendingExpressionError = {
                     error: 3 /* InvalidLHSInAssignment */,
                     line: parser.startLine,
@@ -3595,7 +4137,7 @@ function parsePropertyDefinition(parser, context) {
             }
             else {
                 if (t & 2097152 /* IsAwait */) {
-                    if (context & 524288 /* Async */)
+                    if (context & 262144 /* Async */)
                         { tolerant(parser, context, 46 /* UnexpectedReserved */); }
                     recordError(parser);
                     parser.flags |= 16384 /* HasAwait */;
@@ -3619,7 +4161,7 @@ function parsePropertyDefinition(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseMethodDeclaration(parser, context, state) {
@@ -3644,7 +4186,7 @@ function parseMethodDeclaration(parser, context, state) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseArrowFunction(parser, context, pos, params) {
@@ -3659,7 +4201,7 @@ function parseArrowFunction(parser, context, pos, params) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseAsyncArrowFunction(parser, context, state, pos, params) {
@@ -3675,7 +4217,7 @@ function parseAsyncArrowFunction(parser, context, state, pos, params) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrowFunction)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncArrowFunction)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
@@ -3683,10 +4225,10 @@ function parseArrowBody(parser, context, params, pos, state) {
     var token = parser.token;
     parser.pendingExpressionError = null;
     for (var i in params)
-        { reinterpret(parser, context | 2097152 /* InParameter */, params[i]); }
+        { reinterpret(parser, context | 1048576 /* InParameter */, params[i]); }
     var expression = parser.token !== 16793612;
-    var body = expression ? parseExpressionCoverGrammar(parser, context | 524288 /* Async */, parseAssignmentExpression) :
-        swapContext(parser, context | 8388608 /* InFunctionBody */, state, parseFunctionBody);
+    var body = expression ? parseExpressionCoverGrammar(parser, context | 262144 /* Async */, parseAssignmentExpression) :
+        swapContext(parser, context | 4194304 /* InFunctionBody */, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
         body: body,
@@ -3703,14 +4245,14 @@ function parseArrowBody(parser, context, params, pos, state) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionBody)
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameters)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseFormalListAndBody(parser, context, state) {
-    var paramList = parseFormalParameters(parser, context | 2097152 /* InParameter */, state);
+    var paramList = parseFormalParameters(parser, context | 1048576 /* InParameter */, state);
     var args = paramList.args;
     var params = paramList.params;
-    var body = parseFunctionBody(parser, context | 8388608 /* InFunctionBody */, args);
+    var body = parseFunctionBody(parser, context | 4194304 /* InFunctionBody */, args);
     return { params: params, body: body };
 }
 /**
@@ -3718,7 +4260,7 @@ function parseFormalListAndBody(parser, context, state) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionBody)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseFunctionBody(parser, context, params) {
@@ -3729,28 +4271,24 @@ function parseFunctionBody(parser, context, params) {
     expect(parser, context, 16793612 /* LeftBrace */);
     var body = [];
     while (parser.token === 16387 /* StringLiteral */) {
-        var item = parseDirective(parser, context);
-        body.push(item);
-        if (!isPrologueDirective(item))
-            { break; }
-        if (item.expression.value === 'use strict') {
+        var tokenRaw = parser.tokenRaw;
+        var tokenValue = parser.tokenValue;
+        body.push(parseDirective(parser, context));
+        if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
             // See: https://tc39.github.io/ecma262/#sec-function-definitions-static-semantics-early-errors
             if (parser.flags & 8 /* SimpleParameterList */) {
                 tolerant(parser, context, 65 /* IllegalUseStrict */);
             }
-            else if (parser.flags & 64 /* StrictReserved */) {
-                tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
-            }
-            else if (parser.flags & 2048 /* StrictFunctionName */) {
+            else if (parser.flags & (64 /* StrictReserved */ | 2048 /* StrictFunctionName */)) {
                 tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
             }
             else if (parser.flags & 4096 /* StrictEvalArguments */) {
                 tolerant(parser, context, 47 /* StrictEvalArguments */);
             }
-            context |= 16384 /* Strict */;
+            context |= 8192 /* Strict */;
         }
     }
-    if (context & 16384 /* Strict */) {
+    if (context & 8192 /* Strict */) {
         validateParams(parser, context, params);
     }
     var labelSet = parser.labelSet;
@@ -3778,7 +4316,7 @@ function parseFunctionBody(parser, context, params) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameters)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  * @param {state} Optional objectstate. Default to none
  */
@@ -3815,19 +4353,19 @@ function parseFormalParameters(parser, context, state) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameterList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseFormalParameterList(parser, context, args) {
     var pos = getLocation(parser);
     if (parser.token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */)) {
         if (hasBit(parser.token, 5120 /* FutureReserved */)) {
-            if (context & 16384 /* Strict */)
+            if (context & 8192 /* Strict */)
                 { tolerant(parser, context, 50 /* UnexpectedStrictReserved */); }
             parser.flags |= 2048 /* StrictFunctionName */;
         }
         if (hasBit(parser.token, 134217728 /* IsEvalOrArguments */)) {
-            if (context & 16384 /* Strict */)
+            if (context & 8192 /* Strict */)
                 { tolerant(parser, context, 47 /* StrictEvalArguments */); }
             parser.flags |= 4096 /* StrictEvalArguments */;
         }
@@ -3838,7 +4376,7 @@ function parseFormalParameterList(parser, context, args) {
     var left = parseBindingIdentifierOrPattern(parser, context, args);
     if (!consume(parser, context, 33620509 /* Assign */))
         { return left; }
-    if (parser.token & (1048576 /* IsYield */ | 2097152 /* IsAwait */) && context & (1048576 /* Yield */ | 524288 /* Async */)) {
+    if (parser.token & (1048576 /* IsYield */ | 2097152 /* IsAwait */) && context & (524288 /* Yield */ | 262144 /* Async */)) {
         tolerant(parser, context, parser.token & 2097152 /* IsAwait */ ? 52 /* AwaitInParameter */ : 51 /* YieldInParameter */);
     }
     parser.flags |= 8 /* SimpleParameterList */;
@@ -3853,7 +4391,7 @@ function parseFormalParameterList(parser, context, args) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseClassExpression(parser, context) {
@@ -3861,21 +4399,21 @@ function parseClassExpression(parser, context) {
     expect(parser, context, 19533 /* ClassKeyword */);
     var token = parser.token;
     var state = 0;
-    if (context & 524288 /* Async */ && token & 2097152 /* IsAwait */)
+    if (context & 262144 /* Async */ && token & 2097152 /* IsAwait */)
         { tolerant(parser, context, 48 /* AwaitBindingIdentifier */); }
     var id = (token !== 16793612 /* LeftBrace */ && token !== 3156 /* ExtendsKeyword */) ?
-        parseBindingIdentifier(parser, context | 16384 /* Strict */) :
+        parseBindingIdentifier(parser, context | 8192 /* Strict */) :
         null;
     var superClass = null;
     if (consume(parser, context, 3156 /* ExtendsKeyword */)) {
-        superClass = parseLeftHandSideExpression(parser, context | 16384 /* Strict */, pos);
+        superClass = parseLeftHandSideExpression(parser, context | 8192 /* Strict */, pos);
         state |= 512 /* Heritage */;
     }
     return finishNode(context, parser, pos, {
         type: 'ClassExpression',
         id: id,
         superClass: superClass,
-        body: parseClassBodyAndElementList(parser, context | 16384 /* Strict */, state)
+        body: parseClassBodyAndElementList(parser, context | 8192 /* Strict */, state)
     });
 }
 /**
@@ -3885,7 +4423,7 @@ function parseClassExpression(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassElementList)
  *
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseClassBodyAndElementList(parser, context, state) {
@@ -3909,7 +4447,7 @@ function parseClassBodyAndElementList(parser, context, state) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassElement)
  * @see [Link](https://tc39.github.io/proposal-class-public-fields/)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseClassElement(parser, context, state) {
@@ -3981,9 +4519,9 @@ function parseClassElement(parser, context, state) {
         if (!(state & (4 /* Getter */ | 8 /* Setter */)))
             { state |= 32 /* Method */; }
         if (state & 512 /* Heritage */ && state & 256 /* Constructor */) {
-            context |= 536870912 /* AllowSuperProperty */;
+            context |= 268435456 /* AllowSuperProperty */;
         }
-        value = parseMethodDeclaration(parser, context | 268435456 /* Method */, state);
+        value = parseMethodDeclaration(parser, context | 134217728 /* Method */, state);
     }
     else {
         // Class fields - Stage 3 proposal
@@ -4007,7 +4545,7 @@ function parseMethodDefinition(parser, context, key, value, state, pos) {
 /**
  * Parses field definition.
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseFieldDefinition(parser, context, key, state, pos) {
@@ -4033,7 +4571,7 @@ function parseFieldDefinition(parser, context, key, state, pos) {
 /**
  * Parse private name
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parsePrivateName(parser, context, pos) {
@@ -4049,11 +4587,11 @@ function parsePrivateName(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/proposal-class-public-fields/)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parsePrivateFields(parser, context, pos) {
-    expect(parser, context | 131072 /* InClass */, 115 /* Hash */);
+    expect(parser, context | 65536 /* InClass */, 115 /* Hash */);
     if (parser.tokenValue === 'constructor')
         { tolerant(parser, context, 40 /* PrivateFieldConstructor */); }
     var key = parsePrivateName(parser, context, pos);
@@ -4075,13 +4613,13 @@ function parsePrivateFields(parser, context, pos) {
     });
 }
 function parsePrivateMethod(parser, context, key, pos) {
-    var value = parseMethodDeclaration(parser, context | 16384 /* Strict */ | 268435456 /* Method */, 0 /* None */);
+    var value = parseMethodDeclaration(parser, context | 8192 /* Strict */ | 134217728 /* Method */, 0 /* None */);
     return parseMethodDefinition(parser, context, key, value, 32 /* Method */, pos);
 }
 /**
  * Parse import expressions
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseImportExpressions(parser, context, poss) {
@@ -4091,7 +4629,7 @@ function parseImportExpressions(parser, context, poss) {
     var id = parseIdentifier(parser, context);
     // Import.meta - Stage 3 proposal
     if (context & 1 /* OptionsNext */ && consume(parser, context, 33554445 /* Period */)) {
-        if (context & 32768 /* Module */ && parser.tokenValue === 'meta') {
+        if (context & 16384 /* Module */ && parser.tokenValue === 'meta') {
             return parseMetaProperty(parser, context, id, pos);
         }
         tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
@@ -4100,7 +4638,7 @@ function parseImportExpressions(parser, context, poss) {
         type: 'Import'
     });
     expect(parser, context, 33570827 /* LeftParen */);
-    var args = parseExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentExpression);
+    var args = parseExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentExpression);
     expect(parser, context, 16 /* RightParen */);
     expr = finishNode(context, parser, pos, {
         type: 'CallExpression',
@@ -4114,7 +4652,7 @@ function parseImportExpressions(parser, context, poss) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseMetaProperty(parser, context, meta, pos) {
@@ -4129,7 +4667,7 @@ function parseMetaProperty(parser, context, meta, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NewExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseNewExpression(parser, context) {
@@ -4139,7 +4677,7 @@ function parseNewExpression(parser, context) {
     var id = parseIdentifier(parser, context);
     if (consume(parser, context, 33554445 /* Period */)) {
         if (parser.tokenValue !== 'target' ||
-            !(context & (2097152 /* InParameter */ | 8388608 /* InFunctionBody */)))
+            !(context & (1048576 /* InParameter */ | 4194304 /* InFunctionBody */)))
             { tolerant(parser, context, 53 /* MetaNotInFunctionBody */); }
         return parseMetaProperty(parser, context, id, pos);
     }
@@ -4154,7 +4692,7 @@ function parseNewExpression(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-MemberExpression)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseImportOrMemberExpression(parser, context, pos) {
@@ -4173,7 +4711,7 @@ function parseImportOrMemberExpression(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SuperProperty)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseSuperProperty(parser, context) {
@@ -4182,12 +4720,12 @@ function parseSuperProperty(parser, context) {
     var token = parser.token;
     if (token === 33570827 /* LeftParen */) {
         // The super property has to be within a class constructor
-        if (!(context & 536870912 /* AllowSuperProperty */)) {
+        if (!(context & 268435456 /* AllowSuperProperty */)) {
             tolerant(parser, context, 54 /* BadSuperCall */);
         }
     }
     else if (token === 16793619 /* LeftBracket */ || token === 33554445 /* Period */) {
-        if (!(context & 268435456 /* Method */))
+        if (!(context & 134217728 /* Method */))
             { tolerant(parser, context, 55 /* UnexpectedSuper */); }
     }
     else {
@@ -4202,7 +4740,7 @@ function parseSuperProperty(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseTemplateLiteral(parser, context) {
@@ -4218,7 +4756,7 @@ function parseTemplateLiteral(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseTemplateHead(parser, context, cooked, raw, pos) {
@@ -4239,7 +4777,7 @@ function parseTemplateHead(parser, context, cooked, raw, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseTemplate(parser, context, expressions, quasis) {
@@ -4270,7 +4808,7 @@ function parseTemplate(parser, context, expressions, quasis) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param Parser instance
+ * @param Parser object
  * @param Context masks
  */
 function parseTemplateSpans(parser, context, pos) {
@@ -4293,7 +4831,7 @@ function parseTemplateSpans(parser, context, pos) {
 /**
  * Parses either a binding identifier or binding pattern
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseBindingIdentifierOrPattern(parser, context, args) {
@@ -4305,10 +4843,10 @@ function parseBindingIdentifierOrPattern(parser, context, args) {
             { return parseArrayAssignmentPattern(parser, context); }
         return parserObjectAssignmentPattern(parser, context);
     }
-    if (token & 2097152 /* IsAwait */ && (context & (524288 /* Async */ | 32768 /* Module */))) {
+    if (token & 2097152 /* IsAwait */ && (context & (262144 /* Async */ | 16384 /* Module */))) {
         tolerant(parser, context, 48 /* AwaitBindingIdentifier */);
     }
-    else if (token & 1048576 /* IsYield */ && (context & (1048576 /* Yield */ | 16384 /* Strict */))) {
+    else if (token & 1048576 /* IsYield */ && (context & (524288 /* Yield */ | 8192 /* Strict */))) {
         tolerant(parser, context, 49 /* YieldBindingIdentifier */);
     }
     args.push(parser.tokenValue);
@@ -4319,22 +4857,22 @@ function parseBindingIdentifierOrPattern(parser, context, args) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseBindingIdentifier(parser, context) {
     var token = parser.token;
     if (token & 134217728 /* IsEvalOrArguments */) {
-        if (context & 16384 /* Strict */)
+        if (context & 8192 /* Strict */)
             { tolerant(parser, context, 15 /* StrictLHSAssignment */); }
         parser.flags |= 64 /* StrictReserved */;
     }
-    else if (context & 33554432 /* BlockScope */ && token === 21576 /* LetKeyword */) {
+    else if (context & 16777216 /* BlockScope */ && token === 21576 /* LetKeyword */) {
         // let is disallowed as a lexically bound name
         tolerant(parser, context, 25 /* LetInLexicalBinding */);
     }
     else if (hasBit(token, 5120 /* FutureReserved */)) {
-        if (context & 16384 /* Strict */)
+        if (context & 8192 /* Strict */)
             { tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(token)); }
         parser.flags |= 2048 /* StrictFunctionName */;
     }
@@ -4355,7 +4893,7 @@ function parseBindingIdentifier(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAssignmentRestElementOrProperty(parser, context, endToken) {
@@ -4374,7 +4912,7 @@ function parseAssignmentRestElementOrProperty(parser, context, endToken) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser instance
+ * @param {Parser} Parser object
  * @param {context} Context masks
  */
 function parseArrayAssignmentPattern(parser, context) {
@@ -4391,7 +4929,7 @@ function parseArrayAssignmentPattern(parser, context) {
                 break;
             }
             else {
-                elements.push(parseExpressionCoverGrammar(parser, context | 262144 /* AllowIn */, parseAssignmentOrArrayAssignmentPattern));
+                elements.push(parseExpressionCoverGrammar(parser, context | 131072 /* AllowIn */, parseAssignmentOrArrayAssignmentPattern));
             }
             if (parser.token !== 20 /* RightBracket */) {
                 expect(parser, context, 33554450 /* Comma */);
@@ -4407,7 +4945,7 @@ function parseArrayAssignmentPattern(parser, context) {
 /**
  * Parse object assignment pattern
  *
- * @param Parser Parser instance
+ * @param Parser Parser object
  * @param Context Context masks
  */
 function parserObjectAssignmentPattern(parser, context) {
@@ -4434,7 +4972,7 @@ function parserObjectAssignmentPattern(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param left LHS of assignment pattern
  * @param pos Location
@@ -4452,7 +4990,7 @@ function parseAssignmentPattern(parser, context, left, pos) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param left LHS of assignment pattern
  * @param pos Location
@@ -4463,21 +5001,21 @@ function parseAssignmentOrArrayAssignmentPattern(parser, context, pos, left) {
 
     if (!consume(parser, context, 33620509 /* Assign */))
         { return left; }
-    if (context & (1073741824 /* InParen */ | 8388608 /* InFunctionBody */)) {
-        if (parser.token & 1048576 /* IsYield */ && context & 1048576 /* Yield */) {
+    if (context & (536870912 /* InParen */ | 4194304 /* InFunctionBody */)) {
+        if (parser.token & 1048576 /* IsYield */ && context & 524288 /* Yield */) {
             tolerant(parser, context, 49 /* YieldBindingIdentifier */);
         }
     }
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
         left: left,
-        right: parseAssignmentExpression(parser, context | 262144 /* AllowIn */)
+        right: parseAssignmentExpression(parser, context | 131072 /* AllowIn */)
     });
 }
 /**
  * Parse object binding property
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
 function parseBindingProperty(parser, context) {
@@ -4492,12 +5030,12 @@ function parseBindingProperty(parser, context) {
         key = parseIdentifier(parser, context);
         shorthand = !consume(parser, context, 33554453 /* Colon */);
         if (shorthand) {
-            if (context & (16384 /* Strict */ | 1048576 /* Yield */) &&
+            if (context & (8192 /* Strict */ | 524288 /* Yield */) &&
                 (token & 1048576 /* IsYield */ || parser.token & 1048576 /* IsYield */)) {
-                tolerant(parser, context, context & 2097152 /* InParameter */ ? 51 /* YieldInParameter */ : 49 /* YieldBindingIdentifier */);
+                tolerant(parser, context, context & 1048576 /* InParameter */ ? 51 /* YieldInParameter */ : 49 /* YieldBindingIdentifier */);
             }
             if (consume(parser, context, 33620509 /* Assign */)) {
-                value = parseAssignmentPattern(parser, context | 262144 /* AllowIn */, key, pos);
+                value = parseAssignmentPattern(parser, context | 131072 /* AllowIn */, key, pos);
             }
             else {
                 if (!isIdentifier(context, token))
@@ -4531,25 +5069,25 @@ function parseBindingProperty(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseClassDeclaration(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 19533 /* ClassKeyword */);
     var token = parser.token;
-    var id = (context & 134217728 /* RequireIdentifier */ && (parser.token !== 67125249 /* Identifier */)) ? null : parseBindingIdentifier(parser, context | 16384 /* Strict */);
+    var id = (context & 67108864 /* RequireIdentifier */ && (parser.token !== 67125249 /* Identifier */)) ? null : parseBindingIdentifier(parser, context | 8192 /* Strict */);
     var state = 0;
     var superClass = null;
     if (consume(parser, context, 3156 /* ExtendsKeyword */)) {
-        superClass = parseLeftHandSideExpression(parser, context | 16384 /* Strict */, pos);
+        superClass = parseLeftHandSideExpression(parser, context | 8192 /* Strict */, pos);
         state |= 512 /* Heritage */;
     }
     return finishNode(context, parser, pos, {
         type: 'ClassDeclaration',
         id: id,
         superClass: superClass,
-        body: parseClassBodyAndElementList(parser, context & ~134217728 /* RequireIdentifier */ | 16384 /* Strict */ | 131072 /* InClass */, state)
+        body: parseClassBodyAndElementList(parser, context & ~67108864 /* RequireIdentifier */ | 8192 /* Strict */ | 65536 /* InClass */, state)
     });
 }
 /**
@@ -4557,7 +5095,7 @@ function parseClassDeclaration(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionDeclaration(parser, context) {
@@ -4565,12 +5103,12 @@ function parseFunctionDeclaration(parser, context) {
     expect(parser, context, 19544 /* FunctionKeyword */);
     var isGenerator = 0;
     if (consume(parser, context, 150067 /* Multiply */)) {
-        if (!(context & 8388608 /* InFunctionBody */) && context & 16777216 /* AllowSingleStatement */) {
+        if (!(context & 4194304 /* InFunctionBody */) && context & 8388608 /* AllowSingleStatement */) {
             tolerant(parser, context, 20 /* GeneratorInSingleStatementContext */);
         }
         isGenerator = 1 /* Generator */;
     }
-    return parseFunctionDeclarationBody(parser, context & ~(16777216 /* AllowSingleStatement */ | 268435456 /* Method */ | 536870912 /* AllowSuperProperty */), isGenerator, pos);
+    return parseFunctionDeclarationBody(parser, context & ~(8388608 /* AllowSingleStatement */ | 134217728 /* Method */ | 268435456 /* AllowSuperProperty */), isGenerator, pos);
 }
 /**
  * Parses out a function declartion body
@@ -4578,14 +5116,14 @@ function parseFunctionDeclaration(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context mask
  * @param state Modifier state
  * @param pos Current location
  */
 function parseFunctionDeclarationBody(parser, context, state, pos) {
     var id = parseFunctionDeclarationName(parser, context);
-    var ref = swapContext(parser, context & ~134217728 /* RequireIdentifier */, state, parseFormalListAndBody);
+    var ref = swapContext(parser, context & ~67108864 /* RequireIdentifier */, state, parseFormalListAndBody);
     var params = ref.params;
     var body = ref.body;
     return finishNode(context, parser, pos, {
@@ -4604,7 +5142,7 @@ function parseFunctionDeclarationBody(parser, context, state, pos) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
@@ -4615,32 +5153,32 @@ function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
     var isGenerator = 0;
     if (consume(parser, context, 150067 /* Multiply */))
         { isGenerator = 1 /* Generator */; }
-    return parseFunctionDeclarationBody(parser, context & ~(16777216 /* AllowSingleStatement */ | 268435456 /* Method */ | 536870912 /* AllowSuperProperty */), isGenerator | isAwait, pos);
+    return parseFunctionDeclarationBody(parser, context & ~(8388608 /* AllowSingleStatement */ | 134217728 /* Method */ | 268435456 /* AllowSuperProperty */), isGenerator | isAwait, pos);
 }
 /**
  * Shared helper function for "parseFunctionDeclaration" and "parseAsyncFunctionOrAsyncGeneratorDeclaration"
  * so we can re-use the same logic when parsing out the function name, or throw an
  * error if the 'RequireIdentifier' mask is not set
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseFunctionDeclarationName(parser, context) {
     var token = parser.token;
     var id = null;
-    if (context & 1048576 /* Yield */ && token & 1048576 /* IsYield */)
+    if (context & 524288 /* Yield */ && token & 1048576 /* IsYield */)
         { tolerant(parser, context, 49 /* YieldBindingIdentifier */); }
-    if (context & 524288 /* Async */ && token & 2097152 /* IsAwait */)
+    if (context & 262144 /* Async */ && token & 2097152 /* IsAwait */)
         { tolerant(parser, context, 48 /* AwaitBindingIdentifier */); }
     if (hasBit(token, 134217728 /* IsEvalOrArguments */)) {
-        if (context & 16384 /* Strict */)
+        if (context & 8192 /* Strict */)
             { tolerant(parser, context, 47 /* StrictEvalArguments */); }
         parser.flags |= 4096 /* StrictEvalArguments */;
     }
     if (token !== 33570827 /* LeftParen */) {
         id = parseBindingIdentifier(parser, context);
     }
-    else if (!(context & 134217728 /* RequireIdentifier */))
+    else if (!(context & 67108864 /* RequireIdentifier */))
         { tolerant(parser, context, 38 /* UnNamedFunctionDecl */); }
     return id;
 }
@@ -4649,7 +5187,7 @@ function parseFunctionDeclarationName(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseVariableDeclaration(parser, context, isConst) {
@@ -4658,9 +5196,9 @@ function parseVariableDeclaration(parser, context, isConst) {
     var id = parseBindingIdentifierOrPattern(parser, context);
     var init = null;
     if (consume(parser, context, 33620509 /* Assign */)) {
-        init = parseExpressionCoverGrammar(parser, context & ~(33554432 /* BlockScope */ | 67108864 /* ForStatement */), parseAssignmentExpression);
-        if (parser.token & 536870912 /* IsInOrOf */ && (context & 67108864 /* ForStatement */ || isBindingPattern)) {
-            tolerant(parser, context, context & (33554432 /* BlockScope */ | 16384 /* Strict */) ?
+        init = parseExpressionCoverGrammar(parser, context & ~(16777216 /* BlockScope */ | 33554432 /* ForStatement */), parseAssignmentExpression);
+        if (parser.token & 536870912 /* IsInOrOf */ && (context & 33554432 /* ForStatement */ || isBindingPattern)) {
+            tolerant(parser, context, context & (16777216 /* BlockScope */ | 8192 /* Strict */) ?
                 23 /* ForInOfLoopInitializer */ :
                 23 /* ForInOfLoopInitializer */, tokenDesc(parser.token));
         }
@@ -4680,7 +5218,7 @@ function parseVariableDeclaration(parser, context, isConst) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclarationList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseVariableDeclarationList(parser, context, isConst) {
@@ -4688,7 +5226,7 @@ function parseVariableDeclarationList(parser, context, isConst) {
     while (consume(parser, context, 33554450 /* Comma */)) {
         list.push(parseVariableDeclaration(parser, context, isConst));
     }
-    if (context & 67108864 /* ForStatement */ && parser.token & 536870912 /* IsInOrOf */ && list.length !== 1) {
+    if (context & 33554432 /* ForStatement */ && parser.token & 536870912 /* IsInOrOf */ && list.length !== 1) {
         tolerant(parser, context, 24 /* ForInOfLoopMultiBindings */, tokenDesc(parser.token));
     }
     return list;
@@ -4700,7 +5238,7 @@ function parseVariableDeclarationList(parser, context, isConst) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementListItem)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseStatementListItem(parser, context) {
@@ -4710,40 +5248,40 @@ function parseStatementListItem(parser, context) {
         case 19533 /* ClassKeyword */:
             return parseClassDeclaration(parser, context);
         case 21576 /* LetKeyword */:
-            return parseLetOrExpressionStatement(parser, context | 262144 /* AllowIn */);
+            return parseLetOrExpressionStatement(parser, context | 131072 /* AllowIn */);
         case 19529 /* ConstKeyword */:
-            return parseVariableStatement(parser, context | 33554432 /* BlockScope */ | 262144 /* AllowIn */);
+            return parseVariableStatement(parser, context | 16777216 /* BlockScope */ | 131072 /* AllowIn */);
         case 4203628 /* AsyncKeyword */:
             return parseAsyncFunctionDeclarationOrStatement(parser, context);
         case 3155 /* ExportKeyword */:
-            if (context & 32768 /* Module */)
+            if (context & 16384 /* Module */)
                 { tolerant(parser, context, 33 /* ExportDeclAtTopLevel */); }
             break;
         case 19546 /* ImportKeyword */:
             // We must be careful not to parse a 'import()'
             // expression or 'import.meta' as an import declaration.
             if (context & 1 /* OptionsNext */ && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
-                return parseExpressionStatement(parser, context | 262144 /* AllowIn */);
+                return parseExpressionStatement(parser, context | 131072 /* AllowIn */);
             }
-            if (context & 32768 /* Module */)
+            if (context & 16384 /* Module */)
                 { tolerant(parser, context, 32 /* ImportDeclAtTopLevel */); }
             break;
         default: // ignore
     }
-    return parseStatement(parser, context | 16777216 /* AllowSingleStatement */);
+    return parseStatement(parser, context | 8388608 /* AllowSingleStatement */);
 }
 /**
  * Parses statements
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseStatement(parser, context) {
     switch (parser.token) {
         case 19527 /* VarKeyword */:
-            return parseVariableStatement(parser, context | 262144 /* AllowIn */);
+            return parseVariableStatement(parser, context | 131072 /* AllowIn */);
         case 301990417 /* Semicolon */:
             return parseEmptyStatement(parser, context);
         case 19550 /* SwitchKeyword */:
@@ -4771,15 +5309,15 @@ function parseStatement(parser, context) {
         case 3169 /* TryKeyword */:
             return parseTryStatement(parser, context);
         case 1073744982 /* ForKeyword */:
-            return parseForStatement(parser, context | 67108864 /* ForStatement */);
+            return parseForStatement(parser, context | 33554432 /* ForStatement */);
         case 4203628 /* AsyncKeyword */:
             if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
                 tolerant(parser, context, 34 /* AsyncFunctionInSingleStatementContext */);
             }
-            return parseExpressionOrLabelledStatement(parser, context | 16777216 /* AllowSingleStatement */);
+            return parseExpressionOrLabelledStatement(parser, context | 8388608 /* AllowSingleStatement */);
         case 19544 /* FunctionKeyword */:
             // V8
-            tolerant(parser, context, context & 16384 /* Strict */ ? 17 /* StrictFunction */ : 18 /* SloppyFunction */);
+            tolerant(parser, context, context & 8192 /* Strict */ ? 17 /* StrictFunction */ : 18 /* SloppyFunction */);
         case 19533 /* ClassKeyword */:
             tolerant(parser, context, 19 /* ForbiddenAsStatement */, tokenDesc(parser.token));
         default:
@@ -4791,7 +5329,7 @@ function parseStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseEmptyStatement(parser, context) {
@@ -4806,7 +5344,7 @@ function parseEmptyStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ContinueStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseContinueStatement(parser, context) {
@@ -4833,7 +5371,7 @@ function parseContinueStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BreakStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseBreakStatement(parser, context) {
@@ -4861,14 +5399,14 @@ function parseBreakStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-if-statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseIfStatement(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 3161 /* IfKeyword */);
     expect(parser, context, 33570827 /* LeftParen */);
-    var test = parseExpression(parser, context | 262144 /* AllowIn */);
+    var test = parseExpression(parser, context | 131072 /* AllowIn */);
     expect(parser, context, 16 /* RightParen */);
     var consequent = parseConsequentOrAlternate(parser, context);
     var alternate = consume(parser, context, 3154 /* ElseKeyword */) ? parseConsequentOrAlternate(parser, context) : null;
@@ -4881,12 +5419,12 @@ function parseIfStatement(parser, context) {
 }
 /**
  * Parse either consequent or alternate. Supports AnnexB.
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseConsequentOrAlternate(parser, context) {
-    return context & 16384 /* Strict */ || parser.token !== 19544 /* FunctionKeyword */ ?
-        parseStatement(parser, context & ~16777216 /* AllowSingleStatement */) :
+    return context & 8192 /* Strict */ || parser.token !== 19544 /* FunctionKeyword */ ?
+        parseStatement(parser, context & ~8388608 /* AllowSingleStatement */) :
         parseFunctionDeclaration(parser, context);
 }
 /**
@@ -4894,7 +5432,7 @@ function parseConsequentOrAlternate(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-DebuggerStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseDebuggerStatement(parser, context) {
@@ -4910,7 +5448,7 @@ function parseDebuggerStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-TryStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseTryStatement(parser, context) {
@@ -4933,7 +5471,7 @@ function parseTryStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseCatchBlock(parser, context) {
@@ -4958,7 +5496,7 @@ function parseCatchBlock(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ThrowStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseThrowStatement(parser, context) {
@@ -4966,7 +5504,7 @@ function parseThrowStatement(parser, context) {
     expect(parser, context, 3168 /* ThrowKeyword */);
     if (parser.flags & 1 /* NewLine */)
         { tolerant(parser, context, 84 /* NewlineAfterThrow */); }
-    var argument = parseExpression(parser, context | 262144 /* AllowIn */);
+    var argument = parseExpression(parser, context | 131072 /* AllowIn */);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ThrowStatement',
@@ -4978,12 +5516,12 @@ function parseThrowStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseExpressionStatement(parser, context) {
     var pos = getLocation(parser);
-    var expr = parseExpression(parser, context | 262144 /* AllowIn */);
+    var expr = parseExpression(parser, context | 131072 /* AllowIn */);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -4996,24 +5534,24 @@ function parseExpressionStatement(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-LabelledStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseExpressionOrLabelledStatement(parser, context) {
     var pos = getLocation(parser);
     var tokenValue = parser.tokenValue;
     var token = parser.token;
-    var expr = parseExpression(parser, context | 262144 /* AllowIn */);
+    var expr = parseExpression(parser, context | 131072 /* AllowIn */);
     if (token & (67108864 /* IsIdentifier */ | 1024 /* Keyword */) && parser.token === 33554453 /* Colon */) {
         // If within generator function bodies, we do it like this so we can throw an nice error message
-        if (context & 1048576 /* Yield */ && token & 1048576 /* IsYield */)
+        if (context & 524288 /* Yield */ && token & 1048576 /* IsYield */)
             { tolerant(parser, context, 57 /* YieldReservedKeyword */); }
         expect(parser, context, 33554453 /* Colon */, 87 /* LabelNoColon */);
         if (hasLabel(parser, tokenValue))
             { tolerant(parser, context, 27 /* LabelRedeclaration */, tokenValue); }
         addLabel(parser, tokenValue);
         var body;
-        if (!(context & 16384 /* Strict */) && (context & 16777216 /* AllowSingleStatement */) && parser.token === 19544 /* FunctionKeyword */) {
+        if (!(context & 8192 /* Strict */) && (context & 8388608 /* AllowSingleStatement */) && parser.token === 19544 /* FunctionKeyword */) {
             body = parseFunctionDeclaration(parser, context);
         }
         else {
@@ -5037,7 +5575,7 @@ function parseExpressionOrLabelledStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseDoWhileStatement(parser, context) {
@@ -5046,7 +5584,7 @@ function parseDoWhileStatement(parser, context) {
     var body = parseIterationStatement(parser, context);
     expect(parser, context, 1073744994 /* WhileKeyword */);
     expect(parser, context, 33570827 /* LeftParen */);
-    var test = parseExpression(parser, context | 262144 /* AllowIn */);
+    var test = parseExpression(parser, context | 131072 /* AllowIn */);
     expect(parser, context, 16 /* RightParen */);
     consume(parser, context, 301990417 /* Semicolon */);
     return finishNode(context, parser, pos, {
@@ -5060,14 +5598,14 @@ function parseDoWhileStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-grammar-notation-WhileStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseWhileStatement(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 1073744994 /* WhileKeyword */);
     expect(parser, context, 33570827 /* LeftParen */);
-    var test = parseExpression(parser, context | 262144 /* AllowIn */);
+    var test = parseExpression(parser, context | 131072 /* AllowIn */);
     expect(parser, context, 16 /* RightParen */);
     var body = parseIterationStatement(parser, context);
     return finishNode(context, parser, pos, {
@@ -5082,7 +5620,7 @@ function parseWhileStatement(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-BlockStatement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Block)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseBlockStatement(parser, context) {
@@ -5103,17 +5641,17 @@ function parseBlockStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ReturnStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseReturnStatement(parser, context) {
     var pos = getLocation(parser);
-    if (!(context & (128 /* OptionsGlobalReturn */ | 8388608 /* InFunctionBody */))) {
+    if (!(context & (128 /* OptionsGlobalReturn */ | 4194304 /* InFunctionBody */))) {
         tolerant(parser, context, 16 /* IllegalReturn */);
     }
     expect(parser, context, 3164 /* ReturnKeyword */);
     var argument = !(parser.token & 268435456 /* ASI */) && !(parser.flags & 1 /* NewLine */) ?
-        parseExpression(parser, context & ~8388608 /* InFunctionBody */ | 262144 /* AllowIn */) :
+        parseExpression(parser, context & ~4194304 /* InFunctionBody */ | 131072 /* AllowIn */) :
         null;
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -5127,7 +5665,7 @@ function parseReturnStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-grammar-notation-IterationStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseIterationStatement(parser, context) {
@@ -5137,7 +5675,7 @@ function parseIterationStatement(parser, context) {
     // return the mentioned statements (to match the original grammar).
     var savedFlags = parser.flags;
     parser.flags |= 32 /* Iteration */;
-    var body = parseStatement(parser, context & ~16777216 /* AllowSingleStatement */);
+    var body = parseStatement(parser, context & ~8388608 /* AllowSingleStatement */);
     parser.flags = savedFlags;
     return body;
 }
@@ -5146,18 +5684,18 @@ function parseIterationStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-WithStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseWithStatement(parser, context) {
-    if (context & 16384 /* Strict */)
+    if (context & 8192 /* Strict */)
         { tolerant(parser, context, 36 /* StrictModeWith */); }
     var pos = getLocation(parser);
     expect(parser, context, 3171 /* WithKeyword */);
     expect(parser, context, 33570827 /* LeftParen */);
-    var object = parseExpression(parser, context |= 262144 /* AllowIn */);
+    var object = parseExpression(parser, context |= 131072 /* AllowIn */);
     expect(parser, context, 16 /* RightParen */);
-    var body = parseStatement(parser, context & ~16777216 /* AllowSingleStatement */);
+    var body = parseStatement(parser, context & ~8388608 /* AllowSingleStatement */);
     return finishNode(context, parser, pos, {
         type: 'WithStatement',
         object: object,
@@ -5169,14 +5707,14 @@ function parseWithStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SwitchStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseSwitchStatement(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 19550 /* SwitchKeyword */);
     expect(parser, context, 33570827 /* LeftParen */);
-    var discriminant = parseExpression(parser, context | 262144 /* AllowIn */);
+    var discriminant = parseExpression(parser, context | 131072 /* AllowIn */);
     expect(parser, context, 16 /* RightParen */);
     expect(parser, context, 16793612 /* LeftBrace */);
     var cases = [];
@@ -5199,18 +5737,18 @@ function parseSwitchStatement(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-CaseClauses)
  * @see [Link](https://tc39.github.io/ecma262/#prod-DefaultClause)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseCaseOrDefaultClauses(parser, context) {
     var pos = getLocation(parser);
     var seenDefault = consume(parser, context, 3152 /* DefaultKeyword */);
     var test = !seenDefault && consume(parser, context, 3147 /* CaseKeyword */)
-        ? parseExpression(parser, context | 262144 /* AllowIn */) : null;
+        ? parseExpression(parser, context | 131072 /* AllowIn */) : null;
     expect(parser, context, 33554453 /* Colon */);
     var consequent = [];
     while (!isEndOfCaseOrDefaultClauses(parser)) {
-        consequent.push(parseStatementListItem(parser, context | 262144 /* AllowIn */));
+        consequent.push(parseStatementListItem(parser, context | 131072 /* AllowIn */));
         if (parser.token === 3152 /* DefaultKeyword */) {
             if (seenDefault)
                 { tolerant(parser, context, 31 /* MultipleDefaultsInSwitch */); }
@@ -5228,7 +5766,7 @@ function parseCaseOrDefaultClauses(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseVariableStatement(parser, context, shouldConsume) {
@@ -5254,14 +5792,14 @@ function parseVariableStatement(parser, context, shouldConsume) {
  * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseLetOrExpressionStatement(parser, context, shouldConsume) {
     if ( shouldConsume === void 0 ) shouldConsume = true;
 
     return lookahead(parser, context, isLexical) ?
-        parseVariableStatement(parser, context | 33554432 /* BlockScope */, shouldConsume) :
+        parseVariableStatement(parser, context | 16777216 /* BlockScope */, shouldConsume) :
         parseExpressionOrLabelledStatement(parser, context);
 }
 /**
@@ -5270,7 +5808,7 @@ function parseLetOrExpressionStatement(parser, context, shouldConsume) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionDeclarationOrStatement(parser, context) {
@@ -5284,13 +5822,13 @@ function parseAsyncFunctionDeclarationOrStatement(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#sec-for-statement)
  * @see [Link](https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseForStatement(parser, context) {
     var pos = getLocation(parser);
     expect(parser, context, 1073744982 /* ForKeyword */);
-    var awaitToken = !!(context & 524288 /* Async */ && consume(parser, context, 69231725 /* AwaitKeyword */));
+    var awaitToken = !!(context & 262144 /* Async */ && consume(parser, context, 69231725 /* AwaitKeyword */));
     expect(parser, context, 33570827 /* LeftParen */);
     var token = parser.token;
     var init = null;
@@ -5302,14 +5840,14 @@ function parseForStatement(parser, context) {
     var right;
     // TODO! Scoping
     if (token === 19529 /* ConstKeyword */ || (token === 21576 /* LetKeyword */ && lookahead(parser, context, isLexical))) {
-        variableStatement = parseVariableStatement(parser, context & ~262144 /* AllowIn */ | 33554432 /* BlockScope */, /* shouldConsume */ false);
+        variableStatement = parseVariableStatement(parser, context & ~131072 /* AllowIn */ | 16777216 /* BlockScope */, /* shouldConsume */ false);
     }
     else if (token === 19527 /* VarKeyword */) {
-        variableStatement = parseVariableStatement(parser, context & ~262144 /* AllowIn */, /* shouldConsume */ false);
+        variableStatement = parseVariableStatement(parser, context & ~131072 /* AllowIn */, /* shouldConsume */ false);
     }
     else if (token !== 301990417 /* Semicolon */) {
         sequencePos = getLocation(parser);
-        init = restoreExpressionCoverGrammar(parser, context & ~262144 /* AllowIn */, parseAssignmentExpression);
+        init = restoreExpressionCoverGrammar(parser, context & ~131072 /* AllowIn */, parseAssignmentExpression);
     }
     if (consume(parser, context, 536880242 /* OfKeyword */)) {
         type = 'ForOfStatement';
@@ -5321,7 +5859,7 @@ function parseForStatement(parser, context) {
         }
         else
             { init = variableStatement; }
-        right = parseAssignmentExpression(parser, context | 262144 /* AllowIn */);
+        right = parseAssignmentExpression(parser, context | 131072 /* AllowIn */);
     }
     else if (consume(parser, context, 537022257 /* InKeyword */)) {
         if (init) {
@@ -5332,7 +5870,7 @@ function parseForStatement(parser, context) {
         else
             { init = variableStatement; }
         type = 'ForInStatement';
-        right = parseExpression(parser, context | 262144 /* AllowIn */);
+        right = parseExpression(parser, context | 131072 /* AllowIn */);
     }
     else {
         if (parser.token === 33554450 /* Comma */)
@@ -5340,9 +5878,9 @@ function parseForStatement(parser, context) {
         if (variableStatement)
             { init = variableStatement; }
         expect(parser, context, 301990417 /* Semicolon */);
-        test = parser.token !== 301990417 /* Semicolon */ ? parseExpression(parser, context | 262144 /* AllowIn */) : null;
+        test = parser.token !== 301990417 /* Semicolon */ ? parseExpression(parser, context | 131072 /* AllowIn */) : null;
         expect(parser, context, 301990417 /* Semicolon */);
-        update = parser.token !== 16 /* RightParen */ ? parseExpression(parser, context | 262144 /* AllowIn */) : null;
+        update = parser.token !== 16 /* RightParen */ ? parseExpression(parser, context | 131072 /* AllowIn */) : null;
     }
     expect(parser, context, 16 /* RightParen */);
     var body = parseIterationStatement(parser, context);
@@ -5372,7 +5910,7 @@ function parseForStatement(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItemList)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseModuleItemList(parser, context) {
@@ -5382,7 +5920,7 @@ function parseModuleItemList(parser, context) {
     while (parser.token !== 268435456 /* EndOfSource */) {
         statements.push(parser.token === 16387 /* StringLiteral */ ?
             parseDirective(parser, context) :
-            parseModuleItem(parser, context | 262144 /* AllowIn */));
+            parseModuleItem(parser, context | 131072 /* AllowIn */));
     }
     return statements;
 }
@@ -5391,7 +5929,7 @@ function parseModuleItemList(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItem)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseModuleItem(parser, context) {
@@ -5414,7 +5952,7 @@ function parseModuleItem(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExportDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseExportDeclaration(parser, context) {
@@ -5494,7 +6032,7 @@ function parseExportDeclaration(parser, context) {
 /**
  * Parse export all declaration
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseExportAllDeclaration(parser, context, pos) {
@@ -5509,7 +6047,7 @@ function parseExportAllDeclaration(parser, context, pos) {
 /**
  * Parse named export declaration
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseNamedExportDeclaration(parser, context) {
@@ -5534,7 +6072,7 @@ function parseNamedExportDeclaration(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  * @param pos Location
  */
@@ -5544,20 +6082,20 @@ function parseExportDefault(parser, context, pos) {
     switch (parser.token) {
         // export default HoistableDeclaration[Default]
         case 19544 /* FunctionKeyword */:
-            declaration = parseFunctionDeclaration(parser, context | 134217728 /* RequireIdentifier */);
+            declaration = parseFunctionDeclaration(parser, context | 67108864 /* RequireIdentifier */);
             break;
         // export default ClassDeclaration[Default]
         case 19533 /* ClassKeyword */:
-            declaration = parseClassDeclaration(parser, context & ~262144 /* AllowIn */ | 134217728 /* RequireIdentifier */);
+            declaration = parseClassDeclaration(parser, context & ~131072 /* AllowIn */ | 67108864 /* RequireIdentifier */);
             break;
         // export default HoistableDeclaration[Default]
         case 4203628 /* AsyncKeyword */:
-            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 134217728 /* RequireIdentifier */);
+            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 67108864 /* RequireIdentifier */);
             break;
         default:
             {
                 // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
-                declaration = parseAssignmentExpression(parser, context | 262144 /* AllowIn */);
+                declaration = parseAssignmentExpression(parser, context | 131072 /* AllowIn */);
                 consumeSemicolon(parser, context);
             }
     }
@@ -5571,7 +6109,7 @@ function parseExportDefault(parser, context, pos) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportDeclaration(parser, context) {
@@ -5599,7 +6137,7 @@ function parseImportDeclaration(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportClause)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportClause(parser, context) {
@@ -5643,7 +6181,7 @@ function parseImportClause(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseNamedImports(parser, context, specifiers) {
@@ -5662,7 +6200,7 @@ function parseNamedImports(parser, context, specifiers) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportSpecifier(parser, context) {
@@ -5694,7 +6232,7 @@ function parseImportSpecifier(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportNamespaceSpecifier(parser, context, specifiers) {
@@ -5712,7 +6250,7 @@ function parseImportNamespaceSpecifier(parser, context, specifiers) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseModuleSpecifier(parser, context) {
@@ -5726,7 +6264,7 @@ function parseModuleSpecifier(parser, context) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseImportDefaultSpecifier(parser, context) {
@@ -5742,13 +6280,13 @@ function parseImportDefaultSpecifier(parser, context) {
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser  Parser instance
+ * @param parser  Parser object
  * @param context Context masks
  */
 function parseAsyncFunctionOrAssignmentExpression(parser, context) {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
-        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 134217728 /* RequireIdentifier */) :
-        parseAssignmentExpression(parser, context | 262144 /* AllowIn */);
+        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 67108864 /* RequireIdentifier */) :
+        parseAssignmentExpression(parser, context | 131072 /* AllowIn */);
 }
 
 /**
@@ -5786,10 +6324,9 @@ function createParser(source, sourceFile, delegate) {
         flags: 4 /* AllowDestructuring */,
         // The tokens
         token: 268435456 /* EndOfSource */,
+        // Misc
         tokenRaw: '',
         lastValue: 0,
-        numCapturingParens: 0,
-        maxBackReference: 0,
         comments: [],
         sourceFile: sourceFile,
         tokenRegExp: undefined,
@@ -5829,30 +6366,27 @@ function parse(source, options, context) {
         // The flag to allow return in the global scope
         if (options.globalReturn)
             { context |= 128 /* OptionsGlobalReturn */; }
-        // The flag to allow 'await' in the global scope
-        if (options.globalAwait)
-            { context |= 256 /* OptionsGlobalAwait */; }
         // The flag to allow to skip shebang - '#'
         if (options.skipShebang)
-            { context |= 1024 /* OptionsShebang */; }
+            { context |= 512 /* OptionsShebang */; }
         // Attach raw property to each identifier node
         if (options.rawIdentifier)
-            { context |= 2048 /* OptionsRawidentifiers */; }
+            { context |= 1024 /* OptionsRawidentifiers */; }
         // Enable tolerant mode
         if (options.tolerant)
-            { context |= 4096 /* OptionsTolerant */; }
+            { context |= 2048 /* OptionsTolerant */; }
         // Set to true to record the source file in every node's loc object when the loc option is set.
         if (!!options.source)
             { sourceFile = options.source; }
         // Create a top-level comments array containing all comments
         if (!!options.comments)
-            { context |= 512 /* OptionsComments */; }
+            { context |= 256 /* OptionsComments */; }
         // The flag to enable implied strict mode
         if (options.impliedStrict)
             { context |= 64 /* OptionsImpliedStrict */; }
         // The flag to set to bypass methods in Node
         if (options.node)
-            { context |= 8192 /* OptionsNode */; }
+            { context |= 4096 /* OptionsNode */; }
         // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
         if (typeof options.delegate === 'function') {
             context |= 32 /* OptionsDelegate */;
@@ -5860,10 +6394,12 @@ function parse(source, options, context) {
         }
     }
     var parser = createParser(source, sourceFile, delegate);
-    var body = context & 32768 /* Module */ ? parseModuleItemList(parser, context) : parseStatementList(parser, context);
+    var body = context & 16384 /* Module */
+        ? parseModuleItemList(parser, context)
+        : parseStatementList(parser, context);
     var node = {
         type: 'Program',
-        sourceType: context & 32768 /* Module */ ? 'module' : 'script',
+        sourceType: context & 16384 /* Module */ ? 'module' : 'script',
         body: body,
     };
     if (context & 2 /* OptionsRanges */) {
@@ -5884,9 +6420,9 @@ function parse(source, options, context) {
         if (sourceFile)
             { node.loc.source = sourceFile; }
     }
-    if (context & 512 /* OptionsComments */)
+    if (context & 256 /* OptionsComments */)
         { node.comments = parser.comments; }
-    if (context & 4096 /* OptionsTolerant */)
+    if (context & 2048 /* OptionsTolerant */)
         { node.errors = parser.errors; }
     return node;
 }
@@ -5902,13 +6438,10 @@ function parseStatementList(parser, context) {
     var statements = [];
     nextToken(parser, context);
     while (parser.token === 16387 /* StringLiteral */) {
-        var item = parseDirective(parser, context);
-        statements.push(item);
-        if (!isPrologueDirective(item))
-            { break; }
-        if (item.expression.value === 'use strict') {
-            context |= 16384 /* Strict */;
+        if (!(context & 8192 /* Strict */) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict') {
+            context |= 8192 /* Strict */;
         }
+        statements.push(parseDirective(parser, context));
     }
     while (parser.token !== 268435456 /* EndOfSource */) {
         statements.push(parseStatementListItem(parser, context));
@@ -5979,7 +6512,30 @@ var index = Object.freeze({
 	parseWithStatement: parseWithStatement,
 	parseSwitchStatement: parseSwitchStatement,
 	parseCaseOrDefaultClauses: parseCaseOrDefaultClauses,
-	parseVariableStatement: parseVariableStatement
+	parseVariableStatement: parseVariableStatement,
+	parseJSXRootElement: parseJSXRootElement,
+	parseJSXOpeningElement: parseJSXOpeningElement,
+	nextJSXToken: nextJSXToken,
+	scanJSXToken: scanJSXToken,
+	parseJSXChildren: parseJSXChildren,
+	parseJSXText: parseJSXText,
+	parseJSXChild: parseJSXChild,
+	parseJSXAttributes: parseJSXAttributes,
+	parseJSXSpreadAttribute: parseJSXSpreadAttribute,
+	parseJSXNamespacedName: parseJSXNamespacedName,
+	parseJSXAttributeName: parseJSXAttributeName,
+	parseJSXAttributeValue: parseJSXAttributeValue,
+	parseJSXAttribute: parseJSXAttribute,
+	parseJSXEmptyExpression: parseJSXEmptyExpression,
+	parseJSXSpreadChild: parseJSXSpreadChild,
+	parseJSXExpressionContainer: parseJSXExpressionContainer,
+	parseJSXExpression: parseJSXExpression,
+	parseJSXClosingFragment: parseJSXClosingFragment,
+	parseJSXClosingElement: parseJSXClosingElement,
+	parseJSXIdentifier: parseJSXIdentifier,
+	parseJSXMemberExpression: parseJSXMemberExpression,
+	parseJSXElementName: parseJSXElementName,
+	scanJSXIdentifier: scanJSXIdentifier
 });
 
 /**
@@ -6006,8 +6562,8 @@ function parseScript(source, options) {
  * @param options parser options
  */
 function parseModule(source, options) {
-    return parse(source, options, 16384 /* Strict */ | 32768 /* Module */);
+    return parse(source, options, 8192 /* Strict */ | 16384 /* Module */);
 }
-var version = '1.4.3';
+var version = '1.4.5';
 
-export { parseScript, parseModule, version, estree as ESTree, index as Parser, skipSingleLineComment, skipMultiLineComment, addComment, ErrorMessages, constructError, report, tolerant, scan, scanHexIntegerLiteral, scanOctalOrBinary, scanImplicitOctalDigits, scanSignedInteger, scanNumericLiteral, scanNumericSeparator, scanDecimalDigitsOrSeparator, scanDecimalAsSmi, scanIdentifier, scanString, consumeTemplateBrace, scanTemplate, scanRegularExpression, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, isIdentifierPart, expect, consume, nextToken, hasBit, scanPrivateName, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, hasNext, advance, advanceOnMaybeAstral, nextChar, nextUnicodeChar, validateParams, reinterpret, advanceAndOrSkipUC, consumeOpt, consumeLineFeed, advanceNewline, fromCodePoint, toHex, storeRaw, lookahead, escapeForPrinting, isValidSimpleAssignmentTarget, getLocation, isIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, isPrologueDirective, parseAndDisallowDestructuringAndBinding, parseAndValidateIdentifier, parseDirective, isEvalOrArguments, recordError, readNext };
+export { parseScript, parseModule, version, estree as ESTree, index as Parser, skipSingleLineComment, skipMultiLineComment, addComment, ErrorMessages, constructError, report, tolerant, scan, scanHexIntegerLiteral, scanOctalOrBinary, scanImplicitOctalDigits, scanSignedInteger, scanNumericLiteral, scanNumericSeparator, scanDecimalDigitsOrSeparator, scanDecimalAsSmi, scanIdentifier, scanString, consumeTemplateBrace, scanTemplate, scanRegularExpression, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, isIdentifierPart, expect, consume, nextToken, hasBit, scanPrivateName, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, hasNext, advance, advanceOnMaybeAstral, nextChar, nextUnicodeChar, validateParams, reinterpret, advanceAndOrSkipUC, consumeOpt, consumeLineFeed, advanceNewline, fromCodePoint, toHex, storeRaw, lookahead, escapeForPrinting, isValidSimpleAssignmentTarget, getLocation, isIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, isPrologueDirective, parseAndDisallowDestructuringAndBinding, parseAndValidateIdentifier, parseDirective, isEvalOrArguments, recordError, readNext, isQualifiedJSXName };
