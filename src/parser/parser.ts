@@ -163,11 +163,11 @@ export function parse(source: string, options: Options | void, context: Context)
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
     nextToken(parser, context);
-    if (parser.token === Token.StringLiteral) {
-          if (parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
+    while (parser.token === Token.StringLiteral) {
+        if (!(context & Context.Strict) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
             context |= Context.Strict;
         }
-          statements.push(parseDirective(parser, context));
+        statements.push(parseDirective(parser, context));
     }
     while (parser.token !== Token.EndOfSource) {
         statements.push(parseStatementListItem(parser, context));
