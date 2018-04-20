@@ -35,17 +35,6 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
-
-## Builds
-
-Cherow contains 3 different builds:
-
-| Name        | Description |
-| ----------- | ------------------------------------------------------------ |
-| `Stable`    | Stable release |
-| `Next`      | Has the `next` option enabled by default, and support all latest ECMAScript proposals. |
-| `Bleeding`  | The active development branch. You can and will expect bugs with this branch because it's not stable |
-
 ## API
 
 Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
@@ -117,10 +106,41 @@ There is a second argument to both methods that allows you to specify various op
 | `rawIdentifier`   | Attach raw property to each identifier node    |
 | `node`            | Allow to bypass scoping when run in a NodejS environment |
 
+## Builds
+
+Cherow contains 3 different builds:
+
+| Name        | Description |
+| ----------- | ------------------------------------------------------------ |
+| `Stable`    | Stable release |
+| `Next`      | Has the `next` option enabled by default, and support all latest ECMAScript proposals. |
+| `Bleeding`  | The active development branch. You can and will expect bugs with this branch because it's not stable |
+
+## Syntax Delegate
+
+The `delegate` option accepts a callback function to be invoked for each syntax node (as the node is constructed). 
+
+Both ESTree AST nodes and comments can be delegated.
+
+Here is how you do it:
+
+```js
+    cherow.parseScript('foo // comment', { delegate: function(node, start, end) { } } )
+```
+
+This will output:
+
+```js
+    { type: 'SingleLine', value: ' comment', start: 4, end: 14 }
+    { type: 'Identifier', name: 'foo' }
+    { type: 'ExpressionStatement', expression: { type: 'Identifier', name: 'foo' } }
+```        
+
 # Modules
 
-In Cherow this replace the traditional plugin system, and let you import the parser instance and
-develop your own functions with it, and / or re-use existing one.
+In Cherow this replace the traditional plugin system. Cherow export all functions, and let you import them and
+develop your own functions with it, and / or re-use existing one as long as you parse the parser object as the first 
+argument. 
 
 Example:
 
@@ -135,3 +155,19 @@ function doWhatYouWant(parser, context) {
 }
 
 ```
+  
+## Bug reporting
+
+If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 60 minutes before the bug is fixed. 
+
+Note that I will try to respond to you within one hour. Sometimes it can take a bit longer. I'm not allways online. And if I find out it 
+will take more then 60 minutes to solve your issue, you will be notified. 
+
+I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
+
+## Contribution
+
+If you feel something could've been done better, please do feel free to file a pull request with the changes.
+
+Read our guidelines [here](CONTRIBUTING.md)
+
