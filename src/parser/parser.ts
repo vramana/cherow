@@ -164,6 +164,8 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
     const statements: ESTree.Statement[] = [];
     nextToken(parser, context);
     while (parser.token === Token.StringLiteral) {
+        // We do a strict check here too speed up things in case someone is crazy eenough to
+        // write "use strict"; "use strict"; at Top-level. // J.K
         if (!(context & Context.Strict) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
             context |= Context.Strict;
         }
