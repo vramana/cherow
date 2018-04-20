@@ -136,10 +136,10 @@ This will output:
     { type: 'ExpressionStatement', expression: { type: 'Identifier', name: 'foo' } }
 ```        
 
-# Modules
+## Modules
 
 In Cherow this replace the traditional plugin system. Cherow export all functions, and let you import them and
-develop your own functions with it, and / or re-use existing one as long as you parse the parser object as the first 
+develop your own functions with it, and / or re-use existing one as long as you pass the parser object as the first 
 argument. 
 
 Example:
