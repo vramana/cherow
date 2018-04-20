@@ -162,19 +162,12 @@ export function parse(source: string, options: Options | void, context: Context)
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
-
     nextToken(parser, context);
-
-    while (parser.token === Token.StringLiteral) {
-        const item: ESTree.Statement = parseDirective(parser, context);
-        statements.push(item);
-
-        if (!isPrologueDirective(item)) break;
-
-        if (item.expression.value === 'use strict') {
-
+    if (parser.token === Token.StringLiteral) {
+          if (parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
             context |= Context.Strict;
         }
+          statements.push(parseDirective(parser, context));
     }
     while (parser.token !== Token.EndOfSource) {
         statements.push(parseStatementListItem(parser, context));
