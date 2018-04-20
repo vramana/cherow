@@ -6,414 +6,128 @@ import { parse } from '../../../src/parser/parser';
 describe('Miscellaneous - Directives', () => {
 
     describe('Failure', () => {
-        fail('"\\1;" "use strict";', Context.Empty, {
-            source: '"\\1;" "use strict";',
-        });
 
-        fail('strict directive after legacy octal ', Context.Empty, {
-            source: '"\\1;" "use strict";',
-        });
+        const InvalidSyntax = [
+            '"\\1;" "use strict";',
+            '"use strict"; function f(){"\\1";}',
+            '"\\1;" "use strict"; null',
+            '"use strict"; with (a) b = c;',
+            '"use strict"; "\\1;"',
+            '"use strict"; "\\1;" null',
+            '"random\\x0\nnewline"',
+            '"random\\u\nnewline"',
+            '"random\\u0\nnewline"',
+            '"random\\ua\u2029newline"',
+            '"random\\ua\rnewline"',
+            '"random\\u0a\nnewline"',
+            '"random\\u000\nnewline"',
+            '"random\\u00a\nnewline"',
+            '"random\\u{0\nnewline"',
+            '"random\\u{a\nnewline"',
+            '\'random\\x foo\'',
+            '"random\\u{a\rnewline"',
+            '\'random\\u foo\'',
+            '\'random\\u0 foo\'',
+            '\'random\\u00 foo\'',
+            '\'random\\u0a foo\'',
+            '\'random\\x0\\ foo\'',
+            '\'random\\ua\\ foo\'',
+            '\'random\\x0\\ foo\'',
+            '\'random\\u0a\\ foo\'',
+            '\'random\\xx foo\'',
+            '\'random\\u00a\\ foo\'',
+            '\'random\\uax foo\'',
+            '\'random\\u0au foo\'',
+            'function foo() { "use strict"; with (a) b = c; }',
+            '"use strict"; function foo() { with (a) b = c; }'
+        ];
 
-        fail('strict directive after legacy octal in function body', Context.Empty, {
-            source: '"use strict"; function f(){"\\1";}'
-        });
+        for (const arg of InvalidSyntax) {
 
-        fail('strict directive after legacy octal followed by null', Context.Empty, {
-            source: '"\\1;" "use strict"; null',
-        });
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
 
-        fail('strict directive before legacy octal', Context.Empty, {
-            source: '"use strict"; "\\1;"',
-        });
-
-        fail('strict directive before asdfasdfadsfaddsf octal', Context.Strict | Context.Module, {
-            source: '"\\1;"',
-        });
-
-        fail('strict directive before legacy octal followed by null', Context.Empty, {
-            source: '"use strict"; "\\1;" null',
-        });
-
-        fail('legacy octal inside function body', Context.Empty, {
-            source: '"use strict"; function f(){"\\1";}',
-        });
-
-        fail('invalid newlines after ASCII \\x0', Context.Empty, {
-            source: '"random\\x0\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u', Context.Empty, {
-            source: '"random\\u\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u0', Context.Empty, {
-            source: '"random\\u0\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\ua', Context.Empty, {
-            source: '"random\\ua\nnewline"',
-        });
-
-        fail('invalid paragraph separators after Unicode \\ua', Context.Strict | Context.Module, {
-            source: '"random\\ua\u2029newline"',
-        });
-
-        fail('invalid carriage returns after Unicode \\ua', Context.Empty, {
-            source: '"random\\ua\rnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u00', Context.Empty, {
-            source: '"random\\u00\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u0a', Context.Empty, {
-            source: '"random\\u0a\nnewline"',
-
-        });
-        fail('invalid newlines after Unicode \\u000', Context.Empty, {
-            source: '"random\\u000\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u00a', Context.Empty, {
-            source: '"random\\u00a\nnewline"',
-
-        });
-
-        fail('invalid newlines after Unicode \\u{', Context.Empty, {
-            source: '"rrandom\\u{\nnewline"',
-        });
-
-        fail('invalid newlines after Unicode \\u{0', Context.Empty, {
-            source: '"random\\u{0\nnewline"',
-
-        });
-
-        fail('invalid newlines after Unicode \\u{a', Context.Empty, {
-            source: '"random\\u{a\nnewline"',
-        });
-
-        fail('invalid carriage returns after Unicode \\u{a', Context.Empty, {
-            source: '"random\\u{a\rnewline"',
-
-        });
-        fail('catches invalid space after ASCII \\x', Context.Empty, {
-            source: '\'random\\x foo\'',
-        });
-
-        fail('catches invalid space after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0 foo\'',
-        });
-
-        fail('catches invalid space after Unicode \\u', Context.Empty, {
-            source: '\'random\\u foo\'',
-
-        });
-        fail('catches invalid space after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0 foo\'',
-
-        });
-        fail('catches invalid space after Unicode \\ua', Context.Empty, {
-            source: '\'random\\ua foo\'',
-
-        });
-        fail('catches invalid space after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00 foo\'',
-
-        });
-        fail('catches invalid space after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0a foo\'',
-
-        });
-        fail('catches invalid space after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000 foo\'',
-        });
-        fail('catches invalid space after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00a foo\'',
-        });
-        fail('catches invalid space after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{ foo\'',
-        });
-        fail('catches invalid space after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0 foo\'',
-        });
-        fail('catches invalid space after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{a foo\'',
-        });
-        fail('catches invalid \\ after ASCII \\x', Context.Empty, {
-            source: '\'random\\x\\ foo\'',
-        });
-        fail('catches invalid \\ after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u', Context.Empty, {
-            source: '\'random\\u\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\ua', Context.Empty, {
-            source: '\'random\\ua\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0a\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00a\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0\\ foo\'',
-        });
-        fail('catches invalid \\ after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{a\\ foo\'',
-        });
-        fail('catches invalid x after ASCII \\x', Context.Empty, {
-            source: '\'random\\xx foo\'',
-        });
-        fail('catches invalid x after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0x foo\'',
-        });
-        fail('catches invalid x after Unicode \\u', Context.Empty, {
-            source: '\'random\\ux foo\'',
-        });
-        fail('catches invalid x after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0x foo\'',
-        });
-        fail('catches invalid x after Unicode \\ua', Context.Empty, {
-            source: '\'random\\uax foo\'',
-        });
-        fail('catches invalid x after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00x foo\'',
-        });
-        fail('catches invalid x after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0ax foo\'',
-        });
-        fail('catches invalid x after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000x foo\'',
-        });
-        fail('catches invalid x after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00ax foo\'',
-        });
-        fail('catches invalid x after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{x foo\'',
-        });
-        fail('catches invalid x after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0x foo\'',
-        });
-        fail('catches invalid x after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{ax foo\'',
-        });
-        fail('catches invalid X after ASCII \\x', Context.Empty, {
-            source: '\'random\\xX foo\'',
-        });
-        fail('catches invalid X after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0X foo\'',
-        });
-        fail('catches invalid X after Unicode \\u', Context.Empty, {
-            source: '\'random\\uX foo\'',
-        });
-        fail('catches invalid X after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0X foo\'',
-        });
-        fail('catches invalid X after Unicode \\ua', Context.Empty, {
-            source: '\'random\\uaX foo\'',
-
-        });
-        fail('catches invalid X after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00X foo\'',
-        });
-        fail('catches invalid X after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0aX foo\'',
-        });
-        fail('catches invalid X after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000X foo\'',
-       });
-        fail('catches invalid X after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00aX foo\'',
-       });
-        fail('catches invalid X after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{X foo\'',
-
-        });
-        fail('catches invalid X after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0X foo\'',
-       });
-        fail('catches invalid X after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{aX foo\'',
-        });
-        fail('catches invalid u after ASCII \\x', Context.Empty, {
-            source: '\'random\\xu foo\'',
-
-        });
-        fail('catches invalid u after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0u foo\'',
-        });
-        fail('catches invalid u after Unicode \\u', Context.Empty, {
-            source: '\'random\\uu foo\'',
-        });
-        fail('catches invalid u after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0u foo\'',
-        });
-        fail('catches invalid u after Unicode \\ua', Context.Empty, {
-            source: '\'random\\uau foo\'',
-        });
-        fail('catches invalid u after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00u foo\'',
-        });
-        fail('catches invalid u after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0au foo\'',
-        });
-        fail('catches invalid u after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000u foo\''
-        });
-        fail('catches invalid u after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00au foo\'',
-
-        });
-        fail('catches invalid u after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{u foo\'',
-        });
-        fail('catches invalid u after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0u foo\'',
-        });
-        fail('catches invalid u after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{au foo\'',
-        });
-        fail('catches invalid U after ASCII \\x', Context.Empty, {
-            source: '\'random\\xU foo\'',
-        });
-        fail('catches invalid U after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0U foo\'',
-        });
-        fail('catches invalid U after Unicode \\u', Context.Empty, {
-            source: '\'random\\uU foo\'',
-        });
-        fail('catches invalid U after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0U foo\'',
-        });
-        fail('catches invalid U after Unicode \\ua', Context.Empty, {
-            source: '\'random\\uaU foo\'',
-        });
-        fail('catches invalid U after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00U foo\'',
-        });
-        fail('catches invalid U after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0aU foo\'',
-        });
-        fail('catches invalid U after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000U foo\'',
-        });
-        fail('catches invalid U after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00aU foo\'',
-
-        });
-        fail('catches invalid U after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{U foo\'',
-
-        });
-        fail('catches invalid U after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0U foo\'',
-        });
-        fail('catches invalid U after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{aU foo\''
-        });
-        fail('catches invalid { after ASCII \\x', Context.Empty, {
-            source: '\'random\\x{ foo\'',
-        });
-        fail('catches invalid { after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0{ foo\'',
-        });
-
-        fail('catches invalid { after Unicode \\u', Context.Empty, {
-            source: '\'random\\u{ foo\'',
-        });
-        fail('catches invalid { after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0{ foo\'',
-
-        });
-        fail('catches invalid { after Unicode \\ua', Context.Empty, {
-            source: '\'random\\ua{ foo\'',
-        });
-        fail('catches invalid { after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00{ foo\'',
-
-        });
-        fail('catches invalid { after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0a{ foo\''
-        });
-        fail('catches invalid { after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000{ foo\''
-        });
-        fail('catches invalid { after Unicode \\u000', Context.Strict | Context.Module, {
-            source: '\'random\\u000{ foo\'',
-        });
-        fail('catches invalid { after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00a{ foo\'',
-       });
-        fail('catches invalid { after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{{ foo\'',
-        });
-        fail('catches invalid { after Unicode \\u{0', Context.Empty, {
-            source: '\'random\\u{0{ foo\''
-        });
-        fail('catches invalid { after Unicode \\u{a', Context.Empty, {
-            source: '\'random\\u{a{ foo\'',
-
-        });
-        fail('catches invalid } after ASCII \\x', Context.Empty, {
-            source: '\'random\\x} foo\'',
-
-        });
-        fail('catches invalid } after ASCII \\x0', Context.Empty, {
-            source: '\'random\\x0} foo\'',
-        });
-        fail('catches invalid } after Unicode \\u', Context.Empty, {
-            source: '\'random\\u} foo\'',
-
-        });
-        fail('catches invalid } after Unicode \\u0', Context.Empty, {
-            source: '\'random\\u0} foo\'',
-
-        });
-        fail('catches invalid } after Unicode \\ua', Context.Empty, {
-            source: '\'random\\ua} foo\'',
-
-        });
-        fail('catches invalid } after Unicode \\u00', Context.Empty, {
-            source: '\'random\\u00} foo\'',
-
-        });
-        fail('catches invalid } after Unicode \\u0a', Context.Empty, {
-            source: '\'random\\u0a} foo\'',
-
-        });
-        fail('catches invalid } after Unicode \\u000', Context.Empty, {
-            source: '\'random\\u000} foo\'',
-        });
-        fail('catches invalid } after Unicode \\u00a', Context.Empty, {
-            source: '\'random\\u00a} foo\'',
-        });
-        fail('catches invalid } after Unicode \\u00a', Context.Strict | Context.Module, {
-            source: '\'random\\u00a} foo\'',
-        });
-        fail('catches invalid } after Unicode \\u{', Context.Empty, {
-            source: '\'random\\u{} foo\'',
-        });
-
-        fail('catches invalid } after Unicode \\u{', Context.Strict | Context.Module, {
-            source: '\'random\\u{} foo\'',
-        });
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`function icefapper() { ${arg} }`, undefined, Context.Empty);
+                });
+            });
+        }
     });
 
     describe('Pass', () => {
+
+        const validSyntax = [
+            '("use strict")',
+            '"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"',
+            '"use some future directive"',
+            '"use some future directive";',
+            '"use some future directive"; "use strict";',
+            '"Hello\\312World"',
+            "\"use strict\"",
+            "'use\\x20strict'",
+            "\"use\\x20strict\"",
+            "'use asm'",
+            "'use asm'; 'use strict'",
+            "'use asm' \n 'use strict'",
+            "\"use asm\" \n \"use strict\"",
+            "'use asm' \r 'use strict'",
+            "\"use asm\" \r \"use strict\"",
+            "'use asm' \r\n 'use strict'",
+            "\"use asm\" \r\n \"use strict\"",
+            "'use asm' \u2028 'use strict'",
+            "\"use asm\" \u2028 \"use strict\"",
+            "'use asm' \u2029 'use strict'",
+            "\"use asm\" \u2029 \"use strict\"",
+            'function foo() { "use \\u0020strict"; with (a) b = c; }',
+            '"use \\u0020strict"; function foo() { with (a) b = c; }'
+        ];
+
+        for (const arg of validSyntax) {
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`function icefapper() { ${arg} }`, undefined, Context.Empty);
+                });
+            });
+        }
+
+
+        pass( "\"use asm\" \u2029 \"use strict\"", Context.Empty, {
+            source:  "\"use asm\" \u2029 \"use strict\"",
+            expected: {
+                  "body": [
+                    {
+                      "directive": "use asm",
+                      "expression": {
+                        "type": "Literal",
+                        "value": "use asm",
+                      },
+                      "type": "ExpressionStatement"
+                    },
+                    {
+                     "directive": "use strict",
+                      "expression": {
+                        "type": "Literal",
+                       "value": "use strict",
+                      },
+                      "type": "ExpressionStatement",
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program",
+                }
+        });
+      
         pass('"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"', Context.Empty, {
             source: '"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"',
             expected: {
@@ -1339,5 +1053,102 @@ describe('Miscellaneous - Directives', () => {
                 }
             }
         });
+
+        pass('function foo() { "use \\u0020strict"; with (a) b = c; }', Context.Empty, {
+            source: 'function foo() { "use \\u0020strict"; with (a) b = c; }',
+            expected: {
+                  "body": [
+                    {
+                      "async": false,
+                      "body": {
+                        "body": [
+                          {
+                            "directive": "use \\u0020strict",
+                            "expression": {
+                              "type": "Literal",
+                              "value": "use  strict",
+                            },
+                            "type": "ExpressionStatement",
+                          },
+                         {
+                            "body": {
+                              "expression": {
+                                "left": {
+                                  "name": "b",
+                                  "type": "Identifier",
+                                },
+                                "operator": "=",
+                                "right": {
+                                  "name": "c",
+                                  "type": "Identifier",
+                                },
+                                "type": "AssignmentExpression",
+                              },
+                              "type": "ExpressionStatement",
+                            },
+                            "object": {
+                              "name": "a",
+                              "type": "Identifier",
+                            },
+                            "type": "WithStatement",
+                          },
+                        ],
+                        "type": "BlockStatement",
+                      },
+                      "expression": false,
+                      "generator": false,
+                      "id": {
+                        "name": "foo",
+                        "type": "Identifier",
+                      },
+                      "params": [],
+                      "type": "FunctionDeclaration",
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"use\x20strict"; with (a) b = c;', Context.Empty, {
+            source: '"use \\u0020strict"; with (a) b = c;',
+            expected: {
+                  "body": [
+                    {
+                      "directive": "use \\u0020strict",
+                     "expression": {
+                        "type": "Literal",
+                        "value": "use  strict",
+                      },
+                      "type": "ExpressionStatement"
+                    },
+                    {
+                      "body": {
+                        "expression": {
+                          "left": {
+                            "name": "b",
+                            "type": "Identifier",
+                          },
+                          "operator": "=",
+                          "right": {
+                            "name": "c",
+                            "type": "Identifier",
+                          },
+                          "type": "AssignmentExpression",
+                        },
+                        "type": "ExpressionStatement",
+                      },
+                      "object": {
+                        "name": "a",
+                        "type": "Identifier",
+                      },
+                      "type": "WithStatement"
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
     });
 });

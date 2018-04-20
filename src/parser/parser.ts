@@ -167,7 +167,7 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
         if (!(context & Context.Strict) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
             context |= Context.Strict;
         }
-        statements.push(parseDirective(parser, context));
+          statements.push(parseDirective(parser, context));
     }
     while (parser.token !== Token.EndOfSource) {
         statements.push(parseStatementListItem(parser, context));
