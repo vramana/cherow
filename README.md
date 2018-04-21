@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
 [![Build status](https://ci.appveyor.com/api/projects/status/pkydnkv0deckns5l/branch/master?svg=true)](https://ci.appveyor.com/project/Kflash/cherow/branch/master)
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
+[![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
@@ -156,6 +157,14 @@ function doWhatYouWant(parser, context) {
 
 ```
   
+## Performance 
+
+Please note that the results vary from computer to computer, and that end results are not completely correct because 
+this `Jazzle` parser can't parse the `TypeScript library`.
+
+![Alt text](bench.png?raw=true "Title")
+
+
 ## Bug reporting
 
 If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 60 minutes before the bug is fixed. 

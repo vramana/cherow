@@ -1,5 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Expressions - Variable', () => {
 
@@ -91,6 +93,20 @@ source: 'var x | true;',
   });
 
   describe('Pass', () => {
+
+    
+    const validSyntax = [
+      `var {x, y} = o`,
+      'var {x: x, y: y} = o',
+  ];
+
+  for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+  }
 
     pass(`"use strict"; var foo = { }; foo.eval = {};`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
       source: `"use strict"; var foo = { }; foo.eval = {};`,

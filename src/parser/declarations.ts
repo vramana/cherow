@@ -62,7 +62,7 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
     expect(parser, context, Token.FunctionKeyword);
     let isGenerator = ModifierState.None;
     if (consume(parser, context, Token.Multiply)) {
-        if (!(context & Context.InFunctionBody) && context & Context.AllowSingleStatement) {
+        if (context & Context.AllowSingleStatement && !(context & Context.InFunctionBody)) {
             tolerant(parser, context, Errors.GeneratorInSingleStatementContext);
         }
 
@@ -110,8 +110,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     expect(parser, context, Token.AsyncKeyword);
     expect(parser, context, Token.FunctionKeyword);
     const isAwait = ModifierState.Await;
-    let isGenerator = ModifierState.None;
-    if (consume(parser, context, Token.Multiply)) isGenerator = ModifierState.Generator;
+    let isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     return parseFunctionDeclarationBody(parser, context & ~(Context.AllowSingleStatement | Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, pos);
 }
 
@@ -126,7 +125,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
 function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
-    if (hasBit(token, Token.IsEvalOrArguments)) {
+    if (token & Token.IsEvalOrArguments) {
         if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
         parser.flags |= Flags.StrictEvalArguments;
     }
@@ -151,20 +150,20 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
 function parseVariableDeclaration(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator {
 
     const pos = getLocation(parser);
-    const isBindingPattern = (parser.token & Token.IsBindingPattern) !== 0;
+    const { token } = parser;
     const id = parseBindingIdentifierOrPattern(parser, context);
 
     let init: ESTree.Expression | null = null;
 
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
-        if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
+        if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || parser.token & Token.IsBindingPattern)) {
             tolerant(parser, context, context & (Context.BlockScope | Context.Strict) ?
                 Errors.ForInOfLoopInitializer :
                 Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
-        // Initializers are required for 'const' and binding patterns
-    } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
+        // Note: Initializers are required for 'const' and binding patterns
+    } else if (!(parser.token & Token.IsInOrOf) && (isConst || parser.token & Token.IsBindingPattern)) {
         tolerant(parser, context, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
     }
     return finishNode(context, parser, pos, {
@@ -185,9 +184,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
 
 export function parseVariableDeclarationList(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator[] {
     const list: ESTree.VariableDeclarator[] = [parseVariableDeclaration(parser, context, isConst)];
-    while (consume(parser, context, Token.Comma)) {
-        list.push(parseVariableDeclaration(parser, context, isConst));
-    }
+    while (consume(parser, context, Token.Comma)) list.push(parseVariableDeclaration(parser, context, isConst));
     if (context & Context.ForStatement && parser.token & Token.IsInOrOf && list.length !== 1) {
         tolerant(parser, context, Errors.ForInOfLoopMultiBindings, tokenDesc(parser.token));
     }
