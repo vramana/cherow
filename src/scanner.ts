@@ -57,7 +57,7 @@ export function scan(parser: Parser, context: Context): Token {
 
         const first = nextChar(parser);
 
-        if (first >= Chars.MaxAsciiCharacter) {
+        if (first > Chars.MaxAsciiCharacter) {
 
             switch (first) {
 

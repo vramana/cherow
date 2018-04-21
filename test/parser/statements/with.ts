@@ -1,5 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Statements - With', () => {
 
@@ -30,9 +32,35 @@ describe('Statements - With', () => {
         source: 'with ({}) let x;',
     });
 
+    fail(`if (false) {
+      with ({}) let
+      [a] = 0;
+  }`, Context.Empty, {
+      source: `if (false) {
+        with ({}) let
+        [a] = 0;
+    }`
+  });
+
   });
 
   describe('Pass', () => {
+
+    const validSyntax = [
+      `with({}){ p1 = 'x1'; }`,
+      `if (false) {
+        with ({}) let // ASI
+        {}
+    }`
+  ];
+
+    for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+  }
 
     pass(`with ({}) ;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
       source: `with ({}) ;`,

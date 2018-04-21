@@ -172,6 +172,18 @@ describe('Miscellaneous - Comments', () => {
         source: 'var x = a; --> is eol-comment\nvar y = b;\n',
     });
 
+    fail(`/*
+    */ the comment should not include these characters, regardless of AnnexB extensions -->`, Context.Empty, {
+        source: `/*
+        */ the comment should not include these characters, regardless of AnnexB extensions -->`,
+    });
+
+    fail(`/*
+    */ the comment should not include these characters, regardless of AnnexB extensions -->`, Context.Strict | Context.Module, {
+        source: `/*
+        */ the comment should not include these characters, regardless of AnnexB extensions -->`,
+    });
+
     describe('Pass', () => {
         const programs = [
             '//\\u00A0 single line \\u00A0 comment \\u00A0',
@@ -240,6 +252,15 @@ describe('Miscellaneous - Comments', () => {
             `var a; // a`,
             'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
             '/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n',
+            `// var /*
+            // x
+            // =
+            // 1*/`,
+            `/* var
+            //x
+            */`,
+            `// x = 1;`,
+            `//var this.y = 1; `
 
         ];
 

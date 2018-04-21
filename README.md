@@ -167,7 +167,7 @@ I know how irritating it can be if you are writing code and encounter bugs in yo
 
 ## Developers
 
-Cherow v. 1.4x is mainly developed by one person, but three other developers actively participate "behind the scene". None of these are GH users, but they name themselves whenever they make changes to the code.
+Cherow v. 1.4x is mainly developed by one person, but two other developers actively participate "behind the scene". None of these are GH users, but they name themselves whenever they make changes to the code. 
 
 ## Contribution
 

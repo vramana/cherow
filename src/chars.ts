@@ -5,7 +5,7 @@
 export const enum Chars {
 
     // Optimized for the  0...127 range
-    MaxAsciiCharacter = (1 << 7) - 1, // '0x7F'
+    MaxAsciiCharacter = 1 << 7, // '0x7F'
 
     Null           = 0x00,
     Backspace      = 0x08,

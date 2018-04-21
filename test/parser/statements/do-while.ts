@@ -1,5 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Statements - Do while', () => {
 
@@ -25,7 +27,31 @@ describe('Statements - Do while', () => {
 
   describe('Pass', () => {
 
-      pass(`do a(); while (true);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    // Testing both in sloppy mode and strict / module code
+    const validSyntax = [
+      `do{ break; } while(function __func(){return 0;});`,
+      'do { __condition++; if (((""+__condition/2).split(".")).length>1) continue; __odds++;} while(__condition < 10)',
+      'do { break; } while (false)',
+      `do {
+        var __in__do=1;
+        if(__in__do)break;
+    } while({});`,
+  ];
+
+    for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parse(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
+    pass(`do a(); while (true);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `do a(); while (true);`,
           expected: {
             type: 'Program',
@@ -127,7 +153,7 @@ describe('Statements - Do while', () => {
 
       });
 
-      pass(`do ; while (true)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`do ; while (true)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `do ; while (true)`,
         expected: {
             type: 'Program',
@@ -196,7 +222,7 @@ describe('Statements - Do while', () => {
           }
     });
 
-      pass(`do continue; while(1);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`do continue; while(1);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `do continue; while(1);`,
         expected: {
             type: 'Program',
@@ -266,7 +292,7 @@ describe('Statements - Do while', () => {
           }
     });
 
-      pass(`do {} while (true)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`do {} while (true)`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `do {} while (true)`,
         expected: {
             type: 'Program',
@@ -337,7 +363,7 @@ describe('Statements - Do while', () => {
 
     });
 
-      pass(`{do ; while(false); false}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`{do ; while(false); false}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `{do ; while(false); false}`,
         expected: {
             type: 'Program',
@@ -455,7 +481,7 @@ describe('Statements - Do while', () => {
           }
     });
 
-      pass(`{do ; while(false) false}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass(`{do ; while(false) false}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `{do ; while(false) false}`,
         expected: {
             type: 'Program',

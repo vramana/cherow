@@ -1,9 +1,35 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Statements - Const', () => {
 
   describe('Failure', () => {
+
+    const invalidSyntax = [
+      `do const x = 1; while (false)`,
+      'while (false) const x = 1;',
+      'label: const x;',
+      'while (false) const x;',
+      'const [...x = []] = [];',
+      'const [...{ x }, y] = [1, 2, 3];',
+      'const [...x, y] = [1, 2, 3];',
+  ];
+
+    for (const arg of invalidSyntax) {
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parse(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
 
     fail('const x', Context.Empty, {
         source: 'const x',
@@ -11,10 +37,6 @@ describe('Statements - Const', () => {
 
     fail('const [...[ x ] = []] = [];', Context.Empty, {
           source: 'const [...[ x ] = []] = [];',
-      });
-
-    fail('const [...x = []] = [];', Context.Empty, {
-          source: 'const [...x = []] = [];',
       });
 
     fail('const [...[x], y] = [1, 2, 3];', Context.Empty, {
@@ -25,16 +47,8 @@ describe('Statements - Const', () => {
           source: 'const [...{ x }, y] = [1, 2, 3];',
       });
 
-    fail('do const x = 1; while (false)', Context.Empty, {
-          source: 'do const x = 1; while (false)',
-      });
-
     fail('if (true) {} else const x;', Context.Empty, {
           source: 'if (true) {} else const x;',
-      });
-
-    fail('do const x = 1; while (false)', Context.Empty, {
-          source: 'do const x = 1; while (false)',
       });
 
     fail('for (;false;) const x = 1;', Context.Empty, {

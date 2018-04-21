@@ -7,11 +7,51 @@ describe('Miscellaneous - Whitespace', () => {
 
     describe('Failure', () => {
 
+      const invalidSyntax = [
+        'var\\u0009x;',
+        'var\\u000Bx;',
+        'var\\u000Bx;',
+        'var\\u00A0x;',
+        '\\u000Bstr\\u000Bing\\u000B',
+        '\\u00A0var\\u00A0x\\u00A0=\\u00A01\\u00A0; result = x;',
+        'var᠎foo;',
+        'var\u180Efoo;',
+        'var\\u180Efoo;'
+    ];
+      for (const arg of invalidSyntax) {
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
     });
 
     describe('Pass', () => {
 
-        pass(`spaces`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+      const validSyntax = [
+        '//singlelinecommentx = icefapper;',
+        '//\\u000C single line \\u000C comment \\u000C',
+        `//\\u0020 single line \\u0020 comment \\u0020`,
+        `// single line comment`,
+        `/*multilinecommenta = b;*/`,
+        `MAX_VALUE\u000Ain\u000ANumber`,
+        `MAX_VALUE\u2028in\u2028Number`,
+        `MAX_VALUE\u2029in\u2029Number`,
+        `MAX_VALUE\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029in\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029Number`,
+
+    ];
+      for (const arg of validSyntax) {
+
+        it(`${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
+
+      pass(`spaces`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
             source: '        ',
             expected: {
                   body: [],
@@ -32,7 +72,7 @@ describe('Miscellaneous - Whitespace', () => {
                 }
         });
 
-        pass(`tabs`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
+      pass(`tabs`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
             source: '\t\t\t\t\t\t\t\t',
             expected: {
                   body: [],
