@@ -562,17 +562,14 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
     const cases: ESTree.SwitchCase[] = [];
     const savedFlags = parser.flags;
     parser.flags |= Flags.Switch;
-    let defaultFound = false;
+    let seenDefault = false;
     while (parser.token !== Token.RightBrace) {
         const clause = parseCaseOrDefaultClauses(parser, context);
         cases.push(clause);
         if (clause.test === null) {
-            if (defaultFound) {
-               tolerant(parser, context, Errors.MultipleDefaultsInSwitch);
-            }
-            defaultFound = true;
+            if (seenDefault) tolerant(parser, context, Errors.MultipleDefaultsInSwitch);
+            seenDefault = true;
         }
-
     }
     parser.flags = savedFlags;
     expect(parser, context, Token.RightBrace);
@@ -596,8 +593,12 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
 
 export function parseCaseOrDefaultClauses(parser: Parser, context: Context): ESTree.SwitchCase {
     const pos = getLocation(parser);
-    const test = !consume(parser, context, Token.DefaultKeyword) && consume(parser, context, Token.CaseKeyword)
-        ? parseExpression(parser, context | Context.AllowIn) : null;
+    let test: ESTree.Expression | null = null;
+    if (consume(parser, context, Token.CaseKeyword)) {
+        test = parseExpression(parser, context | Context.AllowIn);
+    } else {
+        expect(parser, context, Token.DefaultKeyword);
+    }
     expect(parser, context, Token.Colon);
     const consequent: ESTree.Statement[] = [];
     while (!isEndOfCaseOrDefaultClauses(parser)) {

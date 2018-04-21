@@ -101,6 +101,10 @@ describe('Declarations - Private fields', () => {
             });
         }
 
+        fail('#constructor', Context.OptionsNext | Context.Strict | Context.Module, {
+            source: '#constructor',
+        });
+
         fail('#constructor', Context.OptionsNext, {
             source: '#constructor',
         });

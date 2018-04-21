@@ -7,7 +7,6 @@ import {
     Context,
     Flags,
     nextToken,
-    isPrologueDirective,
     parseDirective
 } from '../utilities';
 

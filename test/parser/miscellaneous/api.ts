@@ -248,4 +248,29 @@ it('should parse with ranges option', () => {
     });
 });
 
+it('should parse JSX', () => {
+  assert.match(parseModule('<div />', { jsx: true}), {
+      body: [
+        {
+          expression: {
+            children: [],
+            closingElement: null,
+            openingElement: {
+              attributes: [],
+              name: {
+                name: 'div',
+                type: 'JSXIdentifier'
+              },
+              selfClosing: true,
+              type: 'JSXOpeningElement'
+            },
+            type: 'JSXElement',
+          },
+          type: 'ExpressionStatement'
+        },
+      ],
+      sourceType: 'module',
+      type: 'Program'
+    });
+});
 });

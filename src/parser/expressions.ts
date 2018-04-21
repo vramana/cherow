@@ -29,8 +29,6 @@ import {
     nextTokenIsFuncKeywordOnSameLine,
     lookahead,
     isPropertyWithPrivateFieldKey,
-    isPrologueDirective,
-    parseAndDisallowDestructuringAndBinding,
     parseDirective,
     ObjectState,
     CoverParenthesizedState,
@@ -688,10 +686,8 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseSuperProperty(parser, context);
         case Token.Divide:
         case Token.DivideAssign:
-            if (scanRegularExpression(parser, context) === Token.RegularExpression) {
-                return parseRegularExpressionLiteral(parser, context);
-            }
-            tolerant(parser, context, Errors.UnterminatedRegExp);
+            scanRegularExpression(parser, context);
+            return parseRegularExpressionLiteral(parser, context);
         case Token.TemplateTail:
             return parseTemplateLiteral(parser, context);
         case Token.TemplateCont:
@@ -907,7 +903,6 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
 function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): ESTree.PrivateName | ESTree.Identifier {
     if (!consume(parser, context, Token.Hash)) return parseIdentifierName(parser, context, parser.token);
     const { token, tokenValue } = parser;
-    if (!(parser.token & Token.IsIdentifier)) tolerant(parser, context, Errors.UnexpectedKeyword, tokenDesc(token));
     const pos = getLocation(parser);
     const name = tokenValue;
     nextToken(parser, context);

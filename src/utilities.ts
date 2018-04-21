@@ -158,7 +158,7 @@ export const enum ObjectState {
  * @param label label
  * @param isContinue true if validation continue statement
  */
-export function validateBreakOrContinueLabel(parser: Parser, context: Context, label: string, isContinue: boolean = false) {
+export function validateBreakOrContinueLabel(parser: Parser, context: Context, label: string, isContinue: boolean) {
     const state = hasLabel(parser, label);
     if (!state) tolerant(parser, context, Errors.UnknownLabel, label);
     if (isContinue && !(state & Labels.Nested)) tolerant(parser, context, Errors.IllegalContinue, label);
@@ -313,7 +313,6 @@ export function scanPrivateName(parser: Parser, context: Context): Token {
     if (!(context & Context.InClass) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
-    if (context & Context.Module) report(parser, Errors.Unexpected);
     return Token.Hash;
 }
 
@@ -326,7 +325,7 @@ export function scanPrivateName(parser: Parser, context: Context): Token {
  * @param parser  Parser instance
  * @param context Context masks
  */
-export function consumeSemicolon(parser: Parser, context: Context): boolean {
+export function consumeSemicolon(parser: Parser, context: Context) {
     const { token } = parser;
 
     if (token & Token.ASI || parser.flags & Flags.NewLine) { // EOF, '}', ';'
@@ -335,7 +334,6 @@ export function consumeSemicolon(parser: Parser, context: Context): boolean {
     report(parser, !(context & Context.Async) && token & Token.IsAwait ?
         Errors.AwaitOutsideAsync :
         Errors.UnexpectedToken, tokenDesc(token));
-    return false;
 }
 
 /**
@@ -560,22 +558,6 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
     }
 };
 
-export function advanceAndOrSkipUC(parser: Parser) {
-    const hi = parser.source.charCodeAt(parser.index++);
-    let code = hi;
-
-    if (hi >= 0xd800 && hi <= 0xdbff && hasNext(parser)) {
-        const lo = parser.source.charCodeAt(parser.index);
-        if (lo >= 0xdc00 && lo <= 0xdfff) {
-            code = (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-            parser.index++;
-        }
-    }
-
-    parser.column++;
-    return code;
-}
-
 export function consumeOpt(parser: Parser, code: number) {
     if (parser.source.charCodeAt(parser.index) !== code) return false;
     parser.index++;
@@ -758,17 +740,6 @@ export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Contex
 export function isPropertyWithPrivateFieldKey(context: Context, expr: any): boolean {
     if (!expr.property) return false;
     return expr.property.type === 'PrivateName';
-}
-
-export const isPrologueDirective = (node: ESTree.Statement): node is ESTree.ExpressionStatement & {
-    expression: ESTree.Literal & {
-        value: string
-    };
-} => node.type === 'ExpressionStatement' && node.expression.type === 'Literal';
-
-export function parseAndDisallowDestructuringAndBinding(parser: Parser, context: Context, callback: any) {
-    parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-    return callback(parser, context);
 }
 
 export function parseAndValidateIdentifier(parser: Parser, context: Context) {

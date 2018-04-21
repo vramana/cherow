@@ -4,7 +4,9 @@ import { Context } from '../../../src/utilities';
 describe('Statements - Switch', () => {
 
   describe('Failure', () => {
-
+    fail('switch (c) { default: default: }', Context.Empty, {
+      source: 'switch (c) { default: default: }',
+  });
     fail(`duplicate default`, Context.Empty, {
       source: `function SwitchTest(value){
         var result = 0;
