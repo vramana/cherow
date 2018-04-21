@@ -85,8 +85,5 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  },
-  "dependencies": {
-    "jazzle": "^0.9.12"
   }
 }

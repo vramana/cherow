@@ -1148,11 +1148,11 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
     const { token } = parser;
-     if (token & (Token.IsIdentifier | Token.Keyword)) {
+    if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (token & Token.IsEvalOrArguments) {
             if (context & Context.Strict || isAwait & ModifierState.Await) tolerant(parser, context, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictFunctionName;
-        } 
+        }
         if (token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
         if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) tolerant(parser, context, Errors.YieldBindingIdentifier);
         id = parseBindingIdentifier(parser, context);
