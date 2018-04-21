@@ -94,13 +94,12 @@ source: 'var x | true;',
 
   describe('Pass', () => {
 
-    
     const validSyntax = [
       `var {x, y} = o`,
       'var {x: x, y: y} = o',
   ];
 
-  for (const arg of validSyntax) {
+    for (const arg of validSyntax) {
       it(`${arg}`, () => {
           t.doesNotThrow(() => {
               parse(`${arg}`, undefined, Context.Empty);

@@ -127,8 +127,8 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     if (context & Context.Yield && token & Token.IsYield) return parseYieldExpression(parser, context, pos);
 
-    let expr: any = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen) 
-            ? parserCoverCallExpressionAndAsyncArrowHead(parser, context) 
+    let expr: any = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen)
+            ? parserCoverCallExpressionAndAsyncArrowHead(parser, context)
             : parseConditionalExpression(parser, context, pos);
 
     if (parser.token === Token.Arrow) {
@@ -442,13 +442,12 @@ function parseMemberExpression(
     pos: Location,
     expr: ESTree.CallExpression | ESTree.Expression = parsePrimaryExpression(parser, context)
 ): ESTree.Expression {
-    
-    loop:
+
     while (true) {
 
         switch (parser.token) {
             case Token.Period: {
-                consume(parser, context, Token.Period)
+                consume(parser, context, Token.Period);
                 parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
                 const property = parseIdentifierNameOrPrivateName(parser, context);
                 expr = finishNode(context, parser, pos, {
@@ -457,13 +456,13 @@ function parseMemberExpression(
                     computed: false,
                     property,
                 });
-    
+
                 continue;
             }
 
             case Token.LeftBracket: {
-                
-                    consume(parser, context, Token.LeftBracket)
+
+                    consume(parser, context, Token.LeftBracket);
                     parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
                     const property = parseExpression(parser, context);
                     expect(parser, context, Token.RightBracket);
@@ -473,10 +472,10 @@ function parseMemberExpression(
                         computed: true,
                         property,
                     });
-        
+
                     continue;
-        
-                } 
+
+                }
             case Token.TemplateTail: {
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
@@ -484,7 +483,7 @@ function parseMemberExpression(
                     quasi: parseTemplateLiteral(parser, context)
                 });
                 continue;
-            } 
+            }
             case Token.TemplateCont: {
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
@@ -495,12 +494,9 @@ function parseMemberExpression(
                 continue;
             }
             default:
-            break loop;
+            return expr;
         }
-
-      
     }
-    return expr;
 }
 
 /**
@@ -514,7 +510,7 @@ function parseMemberExpression(
  * @param expr Expression
  */
 function parseCallExpression(parser: Parser, context: Context, pos: Location, expr: ESTree.Expression): ESTree.Expression | ESTree.CallExpression {
-    
+
     while (true) {
         expr = parseMemberExpression(parser, context, pos, expr);
         if (parser.token !== Token.LeftParen) return expr;
@@ -553,7 +549,6 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     while (parser.token === Token.LeftParen) {
         expr = parseMemberExpression(parser, context, pos, expr);
-
         const args = parseAsyncArgumentList(parser, context);
         if (parser.token === Token.Arrow) {
             expr = parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, args);
@@ -718,7 +713,8 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
 
 /**
  * Parse 'let' as identifier in 'sloppy mode', and throws
- * in 'strict mode'  / 'module code'
+ * in 'strict mode'  / 'module code'. We also avoid a lookahead on the
+ * ASI restictions while checking this after parsing out the 'let' keyword
  *
  * @param parser Parser object
  * @param context context mask
@@ -771,7 +767,6 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
     });
 
     if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
-
     return node;
 }
 
@@ -785,10 +780,8 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
  */
 
 function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree.RegExpLiteral {
-
     const pos = getLocation(parser);
     const { tokenRegExp, tokenValue, tokenRaw } = parser;
-
     nextToken(parser, context);
 
     const node: any = finishNode(context, parser, pos, {
@@ -829,7 +822,7 @@ export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
 }
 
 /**
- * Parses BigInt literal
+ * Parses BigInt literal (stage 3 proposal)
  *
  * @see [Link](https://tc39.github.io/proposal-bigint/)
  *
@@ -847,7 +840,6 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
     });
 
     if (context & Context.OptionsRaw) node.raw = parser.tokenRaw;
-
     return node;
 }
 
