@@ -150,20 +150,20 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
 function parseVariableDeclaration(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator {
 
     const pos = getLocation(parser);
-    const { token } = parser;
+    const isBindingPattern = (parser.token & Token.IsBindingPattern) !== 0;
     const id = parseBindingIdentifierOrPattern(parser, context);
 
     let init: ESTree.Expression | null = null;
 
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
-        if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || parser.token & Token.IsBindingPattern)) {
+        if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
             tolerant(parser, context, context & (Context.BlockScope | Context.Strict) ?
                 Errors.ForInOfLoopInitializer :
                 Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Note: Initializers are required for 'const' and binding patterns
-    } else if (!(parser.token & Token.IsInOrOf) && (isConst || parser.token & Token.IsBindingPattern)) {
+    } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
         tolerant(parser, context, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
     }
     return finishNode(context, parser, pos, {
