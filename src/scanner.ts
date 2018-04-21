@@ -316,7 +316,6 @@ export function scan(parser: Parser, context: Context): Token {
                     // `0`...`9`
                 case Chars.Zero:
                     {
-
                         advance(parser);
 
                         switch (nextChar(parser)) {

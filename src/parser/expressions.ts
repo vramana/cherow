@@ -1108,12 +1108,14 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     const { token } = parser;
 
     if (token & (Token.IsIdentifier | Token.Keyword)) {
-        if (hasBit(token, Token.IsEvalOrArguments)) {
+        if (token & Token.IsEvalOrArguments) {
             if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictFunctionName;
         }
-
-        id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
+        if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) {
+            tolerant(parser, context, Errors.YieldBindingIdentifier);
+        }
+        id = parseBindingIdentifier(parser, context);
     }
 
     const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
@@ -1146,16 +1148,15 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
     const { token } = parser;
-    if (token & (Token.IsIdentifier | Token.Keyword)) {
-
-        if (hasBit(token, Token.IsEvalOrArguments)) {
+     if (token & (Token.IsIdentifier | Token.Keyword)) {
+        if (token & Token.IsEvalOrArguments) {
             if (context & Context.Strict || isAwait & ModifierState.Await) tolerant(parser, context, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictFunctionName;
-        }
+        } 
         if (token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
-        id = parseFunctionOrClassExpressionName(parser, context, isGenerator);
+        if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) tolerant(parser, context, Errors.YieldBindingIdentifier);
+        id = parseBindingIdentifier(parser, context);
     }
-
     const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
@@ -1167,19 +1168,6 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         expression: false,
         id
     });
-}
-
-/**
- * Shared helper function for "parseFunctionExpression" and "parseAsyncFunctionOrAsyncGeneratorExpression"
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseFunctionOrClassExpressionName(parser: Parser, context: Context, state: ModifierState): ESTree.Identifier | null {
-    if (parser.token & Token.IsYield && state & ModifierState.Generator) {
-        tolerant(parser, context, Errors.YieldBindingIdentifier);
-    }
-    return parseBindingIdentifier(parser, context);
 }
 
 /**

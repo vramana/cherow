@@ -126,12 +126,13 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
 function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
-    if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
-    if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
     if (hasBit(token, Token.IsEvalOrArguments)) {
         if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
         parser.flags |= Flags.StrictEvalArguments;
     }
+    if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
+    if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
+
     if (token !== Token.LeftParen) {
         id = parseBindingIdentifier(parser, context);
     } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
