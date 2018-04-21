@@ -127,17 +127,21 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     if (context & Context.Yield && token & Token.IsYield) return parseYieldExpression(parser, context, pos);
 
-    const isAsync = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen);
-
-    let expr: any = isAsync ? parserCoverCallExpressionAndAsyncArrowHead(parser, context) : parseConditionalExpression(parser, context, pos);
+    let expr: any = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen) 
+            ? parserCoverCallExpressionAndAsyncArrowHead(parser, context) 
+            : parseConditionalExpression(parser, context, pos);
 
     if (parser.token === Token.Arrow) {
         if (token & (Token.IsIdentifier | Token.Keyword)) {
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
-                if (context & Context.Strict) {
-                    tolerant(parser, context, Errors.StrictEvalArguments);
+                // Invalid: ' yield => { 'use strict'; 0 };'
+                if (token & Token.FutureReserved) {
+                    if (context & Context.Strict)  tolerant(parser, context, Errors.UnexpectedStrictReserved);
+                    parser.flags |= Flags.StrictReserved;
+                } else if (token & Token.IsEvalOrArguments) {
+                    if (context & Context.Strict)  tolerant(parser, context, Errors.StrictEvalArguments);
+                    parser.flags |= Flags.StrictEvalArguments;
                 }
-                parser.flags |= Flags.StrictReserved;
             }
             expr = [expr];
         }
@@ -438,44 +442,50 @@ function parseMemberExpression(
     pos: Location,
     expr: ESTree.CallExpression | ESTree.Expression = parsePrimaryExpression(parser, context)
 ): ESTree.Expression {
-
+    
+    loop:
     while (true) {
 
-        if (consume(parser, context, Token.Period)) {
-            parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
-            const property = parseIdentifierNameOrPrivateName(parser, context);
-            expr = finishNode(context, parser, pos, {
-                type: 'MemberExpression',
-                object: expr,
-                computed: false,
-                property,
-            });
+        switch (parser.token) {
+            case Token.Period: {
+                consume(parser, context, Token.Period)
+                parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
+                const property = parseIdentifierNameOrPrivateName(parser, context);
+                expr = finishNode(context, parser, pos, {
+                    type: 'MemberExpression',
+                    object: expr,
+                    computed: false,
+                    property,
+                });
+    
+                continue;
+            }
 
-            continue;
-        }
-
-        if (consume(parser, context, Token.LeftBracket)) {
-            parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
-            const property = parseExpression(parser, context);
-            expect(parser, context, Token.RightBracket);
-            expr = finishNode(context, parser, pos, {
-                type: 'MemberExpression',
-                object: expr,
-                computed: true,
-                property,
-            });
-
-            continue;
-
-        } else {
-
-            if (parser.token === Token.TemplateTail) {
+            case Token.LeftBracket: {
+                
+                    consume(parser, context, Token.LeftBracket)
+                    parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
+                    const property = parseExpression(parser, context);
+                    expect(parser, context, Token.RightBracket);
+                    expr = finishNode(context, parser, pos, {
+                        type: 'MemberExpression',
+                        object: expr,
+                        computed: true,
+                        property,
+                    });
+        
+                    continue;
+        
+                } 
+            case Token.TemplateTail: {
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
                     quasi: parseTemplateLiteral(parser, context)
                 });
-            } else if (parser.token === Token.TemplateCont) {
+                continue;
+            } 
+            case Token.TemplateCont: {
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
@@ -484,10 +494,13 @@ function parseMemberExpression(
 
                 continue;
             }
+            default:
+            break loop;
         }
 
-        return expr;
+      
     }
+    return expr;
 }
 
 /**
@@ -498,8 +511,10 @@ function parseMemberExpression(
  * @param Parser Parer instance
  * @param Context Context masks
  * @param pos Line / Colum info
+ * @param expr Expression
  */
 function parseCallExpression(parser: Parser, context: Context, pos: Location, expr: ESTree.Expression): ESTree.Expression | ESTree.CallExpression {
+    
     while (true) {
         expr = parseMemberExpression(parser, context, pos, expr);
         if (parser.token !== Token.LeftParen) return expr;

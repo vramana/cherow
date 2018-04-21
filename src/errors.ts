@@ -180,7 +180,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.InvalidUnicodeEscapeSequence]: 'Invalid Unicode escape sequence',
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
-    [Errors.NotBindable]: '\'%0\' can not be treated as an actual binding pattern',
+    [Errors.NotBindable]: 'Invalid binding pattern',
     [Errors.ParamAfterRest]: 'Rest parameter must be last formal parameter',
     [Errors.LineBreakAfterArrow]: 'No line break is allowed after \'=>\'',
     [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',

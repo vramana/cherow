@@ -252,6 +252,7 @@ describe('Miscellaneous - Comments', () => {
             `var a; // a`,
             'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
             '/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n',
+            'a(/* inner */); b(e, /* inner */)',
             `// var /*
             // x
             // =
