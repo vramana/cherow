@@ -1,66 +1,49 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Statements - Async function', () => {
 
   describe('Failures', () => {
 
-  fail('async function fn() { var await; }', Context.Empty, {
-      source: 'async function fn() { var await; }',
-  });
+    const invalidSyntax = [
+      'async function wrap() {\n({a = await b} = obj) => a\n}',
+      'async function wrap() {\n(a = await b) => a\n}',
+      'async function foo() { await }',
+      'async function fn() { var await; }',
+      'async function fn() { var await; }',
+      'async function fn() {  void await; }',
+      'async function fn() {  await: ; }',
+      'async function foo(x = 1){"use strict"}',
+      '"use strict"; async function foo (arguments) {  }',
+      'async function foo (x = await) {  }',
+      'async function foo (await) {  }',
+      '"use strict"; async function arguments () {  }',
+      'async function foo (foo) { super() };',
+      '"use strict"; async function foo (eval) {  }',
+      'async function foo() { (async function await() { }) }',
+      ];
 
-  fail('async function fn() { var await; }', Context.Strict | Context.Module, {
-    source: 'async function fn() { var await; }',
-  });
+    for (const arg of invalidSyntax) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
 
-  fail('async function fn() { var await; }', Context.Empty, {
-    source: 'async function fn() {  void await; }',
-  });
+        it(`${arg}`, () => {
+          t.throws(() => {
+              parse(`${arg}`, undefined, Context.Strict | Context.Module);
+          });
+      });
+    }
 
-  fail('async function fn() { var await; }', Context.Empty, {
-    source: 'async function fn() {  await: ; }',
-  });
+    fail('"use strict"; async function foo(a, a) { }', Context.Empty, {
+      source: '"use strict"; async function foo(a, a) { }',
+    });
 
-  fail('async function foo(x = 1){"use strict"}', Context.Empty, {
-    source: 'async function foo(x = 1){"use strict"}',
-  });
-  fail('"use strict"; async function foo (arguments) {  }', Context.Empty, {
-    source: '"use strict"; async function foo (arguments) {  }',
-  });
-
-  fail('async function a() { async function await() {} }', Context.Empty, {
-    source: 'async function a() { async function await() {} }',
-  });
-
-  fail('async function foo (x = await) {  }', Context.Empty, {
-    source: 'async function foo (x = await) {  }',
-  });
-
-  fail('async function foo (await) {  }', Context.Empty, {
-     source: 'async function foo (await) {  }',
-   });
-
-  fail('"use strict"; async function arguments () {  }', Context.Empty, {
-    source: '"use strict"; async function arguments () {  }',
-  });
-
-  fail('async function foo (foo) { super() };', Context.Empty, {
-     source: 'async function foo (foo) { super() };',
-   });
-
-  fail('async function foo (foo) { super.prop };', Context.Empty, {
-     source: 'async function foo (foo) { super.prop };',
-   });
-
-   // fail('"use strict"; async function foo(a, a) { }', Context.Empty, {
-   //   source: '"use strict"; async function foo(a, a) { }',
-   // });
-
-  fail('"use strict"; async function foo (eval) {  }', Context.Empty, {
-    source: '"use strict"; async function foo (eval) {  }',
-  });
-
-  fail('async function foo (foo = super()) { let bar; }', Context.Empty, {
+    fail('async function foo (foo = super()) { let bar; }', Context.Empty, {
      source: 'async function foo (foo = super()) { let bar; }',
    });
 
@@ -68,25 +51,18 @@ describe('Statements - Async function', () => {
     //source: '\\u0061sync function f(){}',
   //});
 
-  fail('async function foo() { async function await() { } }', Context.Empty, {
-      source: 'async function foo() { (async function await() { }) }',
-    });
 
-  fail('async function foo() { async function await() { } }', Context.Empty, {
-    source: 'async function foo() { async function await() { } }',
-  });
-
-  fail('async({x=y})', Context.Empty, {
+    fail('async({x=y})', Context.Empty, {
     source: 'async({x=y})',
   });
 
-  fail(`async
+    fail(`async
   function asyncFn() { await 1; }`, Context.Empty, {
     source: `async
     function asyncFn() { await 1; }`,
   });
 
-  fail(`async function f() {
+    fail(`async function f() {
     let
     await 0;
 }`, Context.Empty, {
@@ -99,6 +75,31 @@ describe('Statements - Async function', () => {
   });
 
   describe('Pass', () => {
+
+    const validSyntax = [
+    'async function wrap() {\n({a = await b} = obj)\n}',
+    'async function wrap() {\n(a = await b)\n}',
+    'async function foo(a = class {async bar() { await b }}) {}',
+    'async function foo(a = {async bar() { await b }}) {}',
+    'async function foo(a = async () => await b) {}',
+    'async function foo(a = async function foo() { await b }) {}',
+    'async function foo() { await + 1 }',
+    'async function foo(a, b) { await a + await b }',
+  ];
+
+    for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parse(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
 
     pass(`async
     function asyncFn() { }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {

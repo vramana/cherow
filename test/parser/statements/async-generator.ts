@@ -32,7 +32,7 @@ describe('Statements - Async generators', () => {
             'yield *',
             '(yield *)',
             'yield 3 + yield 4;',
-            //"yield: 34",
+            "yield: 34",
             'yield ? 1 : 2',
             'yield / yield',
             '+ yield',
@@ -41,9 +41,9 @@ describe('Statements - Async generators', () => {
             'var [yield] = [42];',
             'var [await] = [42];',
             'var {foo: yield} = {a: 42};',
-            //"yield\n{yield: 42}",
-            //"yield /* comment */\n {yield: 42}",
-            //"yield //comment\n {yield: 42}",
+            "yield\n{yield: 42}",
+            "yield /* comment */\n {yield: 42}",
+            "yield //comment\n {yield: 42}",
             'var {foo: await} = {a: 42};',
             '[yield] = [42];',
             '[await] = [42];',
@@ -66,7 +66,6 @@ describe('Statements - Async generators', () => {
             'for (yield \'x\' in {} of {});',
             'for (await \'x\' in {} of {});',
             'class C extends yield { }',
-            //"class C extends await { }",
         ];
 
         for (const arg of Failures) {
@@ -106,6 +105,34 @@ describe('Statements - Async generators', () => {
         fail('for await (let [...{ x } = []] = []; a < 1; ) {}', Context.Strict, {
             source: 'for await (let [...{ x } = []] = []; a < 1; ) {}',
         });
+
+        fail('async function* x() { super(); }', Context.Empty, {
+            source: 'async function* x() { super(); }',
+        });
+
+        fail('ref = async function*() { super(); }', Context.Empty, {
+            source: 'ref = async function*() { super(); }',
+        });
+
+        fail('(async function*() { super(); })', Context.Empty, {
+            source: '(async function*() { super(); })',
+        });
+
+        fail('var gen = { async *method() { super(); } }', Context.Empty, {
+            source: 'var gen = { async *method() { super(); } }',
+        });
+
+        fail('export default async function*() { super(); }', Context.Strict | Context.Module, {
+            source: 'export default async function*() { super(); }',
+        });
+
+        fail('var C = class { async *method() { super(); } }', Context.Empty, {
+            source: 'var C = class { async *method() { super(); } }',
+        });
+
+        fail('var C = class { static async *method() { super(); } }', Context.Empty, {
+            source: 'var C = class { static async *method() { super(); } }',
+        });
     });
 
     describe('Pass', () => {
@@ -132,6 +159,7 @@ describe('Statements - Async generators', () => {
             '(function await() { })',
             'yield { yield: 12 }',
             'yield /* comment */ { yield: 12 }',
+            "class C extends await { }",
             'yield * \n { yield: 12 }',
             'yield /* comment */ * \n { yield: 12 }',
             'yield 1; return',
@@ -143,13 +171,13 @@ describe('Statements - Async generators', () => {
             'yield 1; return 7; yield \'foo\';',
             'yield * 1; return 3; yield * \'foo\';',
             '({ yield: 1 })',
-//            "({ yield })",
+            "({ yield })",
             '({ get yield() { } })',
             '({ await: 1 })',
 //            "({ await })",
             '({ get await() { } })',
             '({ [yield]: x } = { })',
-            //  "({ [await 1]: x } = { })",
+              "({ [await 1]: x } = { })",
             'yield',
             'yield\n',
             'yield /* comment */',
@@ -187,6 +215,9 @@ describe('Statements - Async generators', () => {
             'yield await // comment\n 10',
             'await (yield /* comment */)',
             'await (yield // comment\n)',
+            'for await (x of xs);',
+            'for await (let x of xs);',
+            'await a; yield b;',
         ];
 
         for (const arg of programs) {
@@ -212,8 +243,274 @@ describe('Statements - Async generators', () => {
               t.doesNotThrow(() => {
                 parse(`({ async * gen () { ${arg} } })`, undefined, Context.Empty);
             });
-               });
+
+            });
         }
+
+        pass('class A { async f() { for await (x of xs); } }', Context.Empty, {
+            source: 'class A { async f() { for await (x of xs); } }',
+            expected: {
+                  body: [
+                    {
+                     body: {
+                        body: [
+                          {
+                            computed: false,
+                            key: {
+                              name: 'f',
+                              type: 'Identifier'
+                            },
+                            kind: 'method',
+                            static: false,
+                            type: 'MethodDefinition',
+                            value: {
+                              async: true,
+                             body: {
+                                body: [
+                                  {
+                                    await: true,
+                                    body: {
+                                      type: 'EmptyStatement',
+                                    },
+                                    left: {
+                                      name: 'x',
+                                      type: 'Identifier',
+                                    },
+                                    right: {
+                                      name: 'xs',
+                                      type: 'Identifier',
+                                    },
+                                    type: 'ForOfStatement',
+                                  },
+                                ],
+                                type: 'BlockStatement',
+                              },
+                              expression: false,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'FunctionExpression'
+                            }
+                          }
+                        ],
+                        type: 'ClassBody',
+                      },
+                      id: {
+                        name: 'A',
+                        type: 'Identifier',
+                      },
+                      superClass: null,
+                      type: 'ClassDeclaration'
+                    },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+        pass('f = async function() { for await (x of xs); }', Context.Empty, {
+            source: 'f = async function() { for await (x of xs); }',
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        left: {
+                          name: 'f',
+                          type: 'Identifier'
+                        },
+                        operator: '=',
+                       right: {
+                          async: true,
+                          body: {
+                            body: [
+                              {
+                               await: true,
+                                body: {
+                                 type: 'EmptyStatement',
+                                },
+                                left: {
+                                  name: 'x',
+                                  type: 'Identifier',
+                                },
+                                right: {
+                                  name: 'xs',
+                                  type: 'Identifier',
+                                },
+                                type: 'ForOfStatement',
+                              }
+                            ],
+                            type: 'BlockStatement',
+                          },
+                          expression: false,
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression'
+                        },
+                        type: 'AssignmentExpression'
+                      },
+                      type: 'ExpressionStatement'
+                   },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+        pass(`x = async() => { for await (x of xs); }`, Context.Empty, {
+            source: `x = async() => { for await (x of xs); }`,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        left: {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                       operator: '=',
+                        right: {
+                          async: true,
+                          body: {
+                            body: [
+                              {
+                                await: true,
+                                body: {
+                                  type: 'EmptyStatement',
+                                },
+                                left: {
+                                  name: 'x',
+                                  type: 'Identifier',
+                                },
+                                right: {
+                                  name: 'xs',
+                                  type: 'Identifier',
+                               },
+                                type: 'ForOfStatement',
+                              }
+                            ],
+                            type: 'BlockStatement'
+                          },
+                          expression: false,
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'ArrowFunctionExpression'
+                        },
+                        type: 'AssignmentExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                 ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+        pass('obj = { async f() { for await (x of xs); } }', Context.Empty, {
+            source: 'obj = { async f() { for await (x of xs); } }',
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        left: {
+                          name: 'obj',
+                          type: 'Identifier'
+                        },
+                        operator: '=',
+                        right: {
+                          properties: [
+                            {
+                              computed: false,
+                              key: {
+                                name: 'f',
+                                type: 'Identifier',
+                              },
+                              kind: 'init',
+                              method: true,
+                              shorthand: false,
+                              type: 'Property',
+                              value: {
+                               async: true,
+                                body: {
+                                  body: [
+                                    {
+                                      await: true,
+                                      body: {
+                                        type: 'EmptyStatement',
+                                      },
+                                      left: {
+                                        name: 'x',
+                                        type: 'Identifier',
+                                      },
+                                      right: {
+                                        name: 'xs',
+                                        type: 'Identifier',
+                                      },
+                                      type: 'ForOfStatement',
+                                    },
+                                  ],
+                                  type: 'BlockStatement',
+                                },
+                                expression: false,
+                                generator: false,
+                                id: null,
+                                params: [],
+                                type: 'FunctionExpression'
+                              }
+                            }
+                          ],
+                          type: 'ObjectExpression',
+                        },
+                        type: 'AssignmentExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+        pass(`async function f() { for\nawait (x of xs); }`, Context.Empty, {
+            source: `async function f() { for\nawait (x of xs); }`,
+            expected: {
+                  body: [
+                    {
+                      async: true,
+                      body: {
+                        body: [
+                          {
+                            await: true,
+                            body: {
+                              type: 'EmptyStatement'
+                            },
+                           left: {
+                              name: 'x',
+                              type: 'Identifier',
+                            },
+                            right: {
+                              name: 'xs',
+                              type: 'Identifier'
+                            },
+                            type: 'ForOfStatement',
+                          },
+                        ],
+                       type: 'BlockStatement'
+                      },
+                     expression: false,
+                      generator: false,
+                      id: {
+                       name: 'f',
+                        type: 'Identifier',
+                      },
+                      params: [],
+                      type: 'FunctionDeclaration',
+                    },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
 
         pass(`async function * gen() { yield 2; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `async function * gen() { yield 2; }`,

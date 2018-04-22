@@ -99,6 +99,16 @@ describe('Expressions - Object literal', () => {
           'set y() {}',
           'set y(a, b) {}',
           'get y(z)',
+          'async foo() { var await }',
+          'async foo(await) { }',
+          '*async f()',
+          '*async* f()',
+          //"async* f() { () => await a; }",
+          //"async* f() { () => yield a; }",
+          //"async* f() { await a; yield b; }",
+          'async foo() { return {await} }',
+          'async get foo() { }',
+          'async\nfoo() { }',
           'get x() { "use strict"; public = 42; }',
           'async method() { void await; }',
           `"use strict";
@@ -696,6 +706,19 @@ describe('Expressions - Object literal', () => {
           'set i(x) {}, i: 42 ',
           '[a]:()=>{}',
           'set x(a=0){}',
+          'async delete() {}',
+          'async [foo](){}',
+          'async 100(){}',
+          'async \'foo\'(){}',
+          'async "foo"(){}',
+          'async, foo',
+          'async',
+          'async: true',
+          'async foo(a) { await a }',
+          'async await() { }',
+          'async() { }',
+          'async foo() { }',
+          'foo() { }',
       ];
 
     for (const arg of validSyntax) {
@@ -717,6 +740,246 @@ describe('Expressions - Object literal', () => {
               });
           });
       }
+
+    pass('({async = 0} = {})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '({async = 0} = {})',
+        expected: {
+          type: 'Program',
+          start: 0,
+          end: 18,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 18
+            }
+          },
+          body: [
+            {
+              type: 'ExpressionStatement',
+              start: 0,
+              end: 18,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 18
+                }
+              },
+              expression: {
+                type: 'AssignmentExpression',
+                start: 1,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 1
+                  },
+                  end: {
+                    line: 1,
+                    column: 17
+                  }
+                },
+                operator: '=',
+                left: {
+                  type: 'ObjectPattern',
+                  start: 1,
+                  end: 12,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 12
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 2,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 2
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      method: false,
+                      shorthand: true,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 2,
+                        end: 7,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 2
+                          },
+                          end: {
+                            line: 1,
+                            column: 7
+                          }
+                        },
+                        name: 'async'
+                      },
+                      kind: 'init',
+                      value: {
+                        type: 'AssignmentPattern',
+                        start: 2,
+                        end: 11,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 2
+                          },
+                          end: {
+                            line: 1,
+                            column: 11
+                          }
+                        },
+                        left: {
+                          type: 'Identifier',
+                          start: 2,
+                          end: 7,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 2
+                            },
+                            end: {
+                              line: 1,
+                              column: 7
+                            }
+                          },
+                          name: 'async'
+                        },
+                        right: {
+                          type: 'Literal',
+                          start: 10,
+                          end: 11,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 11
+                            }
+                          },
+                          value: 0,
+                          raw: '0'
+                        }
+                      }
+                    }
+                  ]
+                },
+                right: {
+                  type: 'ObjectExpression',
+                  start: 15,
+                  end: 17,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 15
+                    },
+                    end: {
+                      line: 1,
+                      column: 17
+                    }
+                  },
+                  properties: []
+                }
+              }
+            }
+          ],
+          sourceType: 'script'
+        }
+      });
+
+    pass('obj = { async* f() { await a; yield b; } }', Context.Empty, {
+        source: 'obj = { async* f() { await a; yield b; } }',
+        expected: {
+            body: [
+              {
+                expression: {
+                  left: {
+                    name: 'obj',
+                    type: 'Identifier'
+                  },
+                  operator: '=',
+                  right: {
+                    properties: [
+                      {
+                        computed: false,
+                        key: {
+                          name: 'f',
+                          type: 'Identifier',
+                        },
+                        kind: 'init',
+                        method: true,
+                        shorthand: false,
+                        type: 'Property',
+                        value: {
+                          async: true,
+                         body: {
+                            body: [
+                              {
+                                expression: {
+                                  argument: {
+                                    name: 'a',
+                                    type: 'Identifier',
+                                  },
+                                  type: 'AwaitExpression'
+                                },
+                                type: 'ExpressionStatement'
+                              },
+                              {
+                                expression: {
+                                  argument: {
+                                    name: 'b',
+                                    type: 'Identifier',
+                                  },
+                                  delegate: false,
+                                  type: 'YieldExpression',
+                                },
+                                type: 'ExpressionStatement'
+                              }
+                            ],
+                            type: 'BlockStatement',
+                          },
+                          expression: false,
+                          generator: true,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression'
+                        }
+                      }
+                    ],
+                    type: 'ObjectExpression',
+                  },
+                  type: 'AssignmentExpression'
+                },
+                type: 'ExpressionStatement'
+              },
+            ],
+            sourceType: 'script',
+            type: 'Program'
+          }
+      });
 
     pass(`var {[zee]:x1} = {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: `var {[zee]:x1} = {}`,

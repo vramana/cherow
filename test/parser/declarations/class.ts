@@ -191,6 +191,14 @@ describe('Declarations - Class', () => {
       'class name { *static m() {} }',
       'class name { foo(a, a) { "use strict"; } }',
       '"use strict"; class name { foo(a, a) {} }',
+      'class A {async foo() { var await }}',
+      'class A {async foo(await) { }}',
+      'class A {async foo() { return {await} }}',
+      'class A {async constructor() { }}',
+      'class A {async get foo() { }}',
+      'class A {async set foo(value) { }}',
+      'class A {static async get foo() { }}',
+      'class A {static async set foo(value) { }}',
         ];
 
         for (const arg of invalidDeclarations) {
@@ -741,6 +749,15 @@ describe('Declarations - Class', () => {
             'async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }] = []) {}',
             'async *method([{ x }] = []) {}',
             'async yield() {}',
+            'static async await() { }',
+            'async await() { }',
+            'static* async() { }',
+            '*async() { }',
+            'static async() { }',
+            'async() { }',
+            'static async foo() { }',
+            'async foo() { }',
+            'foo() { }',
         ];
 
         for (const arg of validSyntax) {

@@ -77,6 +77,42 @@ describe('Expressions - Super property', () => {
           });
       }
 
+      fail('var C = class { async *method() { var x = function () { super(); } } }', Context.Empty, {
+        source: 'var C = class { async *method() { var x = function () { super(); } } }',
+      });
+
+      fail('var C = class { static async *method() { var x = function () { super(); } } }', Context.Empty, {
+        source: 'var C = class { static async *method() { var x = function () { super(); } } }',
+      });
+
+      fail('async function* x() { var x = { y: function () { super(); } } }', Context.Empty, {
+        source: 'async function* x() { var x = { y: function () { super(); } } }',
+      });
+
+      fail('ref = async function*() { var x = { y: function () { super(); } } }', Context.Empty, {
+        source: 'ref = async function*() { var x = { y: function () { super(); } } }',
+      });
+
+      fail('(async function*() { var x = { y: function () { super(); } } })', Context.Empty, {
+        source: '(async function*() { var x = { y: function () { super(); } } })',
+      });
+
+      fail('var gen = { async *method() { var x = { y: function () { super(); } } } }', Context.Empty, {
+        source: 'var gen = { async *method() { var x = { y: function () { super(); } } } }',
+      });
+
+      fail('export default async function*() { var x = { y: function () { super(); } } }', Context.Strict | Context.Module, {
+        source: 'export default async function*() { var x = { y: function () { super(); } } }',
+      });
+
+      fail('var C = class { async *method() { var x = { y: function () { super(); } } } }', Context.Empty, {
+        source: 'var C = class { async *method() { var x = { y: function () { super(); } } } }',
+      });
+
+      fail('var C = class { static async *method() { var x = { y: function () { super(); } } } }', Context.Empty, {
+        source: 'var C = class { static async *method() { var x = { y: function () { super(); } } } }',
+      });
+
       // Testing invalid use of super property
       const invalidSuperKeyword = [
           'super',

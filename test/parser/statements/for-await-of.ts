@@ -376,6 +376,7 @@ describe('Statements - For await of', () => {
             '(const {"a": a = 1} of [])',
             '(const {[Symbol.iterator]: a = 1} of [])',
             '(const {0: a = 1} of [])',
+
         ];
 
         for (const arg of programs) {
@@ -457,6 +458,14 @@ describe('Statements - For await of', () => {
                 });
             });
         }
+
+        fail('for await (const line of readLines(filePath)) {\n  console.log(line);\n}', Context.Empty, {
+            source: 'for await (const line of readLines(filePath)) {\n  console.log(line);\n}',
+       });
+
+        fail('for await (const line of readLines(filePath)) {\n  console.log(line);\n}', Context.Empty, {
+        source: 'for await (const line of readLines(filePath)) {\n  console.log(line);\n}',
+        });
 
         pass(`async function f() { for await (a of []); }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `async function f() { for await (a of []); }`,

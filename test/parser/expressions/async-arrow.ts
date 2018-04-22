@@ -153,6 +153,10 @@ describe('Expressions - Async Arrows', () => {
             '({x: async (y,w) => z})',
             'async({x = yield}) => 1; ',
             'async (icefapper = bad) => {  }',
+            'async ({a: b = c})',
+            'async ({a = b}) => a',
+            'async (a, b) => a',
+            'async () => a',
             'var asyncFn = async({ foo = 1 }) => foo;',
             'var asyncFn = async({ foo = 1 } = {}) => foo;',
         ];

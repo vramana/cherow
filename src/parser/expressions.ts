@@ -1348,7 +1348,11 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                 if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
                     recordError(parser);
                     parser.flags |= Flags.HasYield;
+                } else if (context & (Context.Strict | Context.Async) && parser.token & Token.IsAwait) {
+                    recordError(parser);
+                    parser.flags |= Flags.HasAwait;
                 }
+
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
                 parser.pendingExpressionError = {
                     error: Errors.InvalidLHSInAssignment,
@@ -1503,7 +1507,6 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
     expect(parser, context, Token.LeftBrace);
 
     const body: ESTree.Statement[] = [];
-
     while (parser.token === Token.StringLiteral) {
         const { tokenRaw, tokenValue} = parser;
         body.push(parseDirective(parser, context));
@@ -1530,9 +1533,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
 
     const savedFlags = parser.flags;
 
-    // Here we need to unset the 'StrictFunctionName' and 'StrictEvalArguments' masks
-    // to avoid conflicts in nested functions
-    parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments | Flags.Switch | Flags.Iteration);
+    parser.flags = parser.flags & ~(Flags.StrictFunctionName | Flags.StrictEvalArguments | Flags.Switch | Flags.Iteration) | Flags.AllowDestructuring;
 
     while (parser.token !== Token.RightBrace) {
         body.push(parseStatementListItem(parser, context));
@@ -1888,6 +1889,7 @@ function parsePrivateFields(parser: Parser, context: Context, pos: Location): ES
 
 function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Location): ESTree.MethodDefinition {
     const value = parseMethodDeclaration(parser, context | Context.Strict | Context.Method, ObjectState.None);
+    parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     return parseMethodDefinition(parser, context, key, value, ObjectState.Method, pos);
 }
 

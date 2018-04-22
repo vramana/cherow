@@ -84,6 +84,11 @@ describe('Statements - While', () => {
     const validSyntax = [
         `while(function a(){return 1;}()){ break }`,
         'while(function __func(){return 1;}()){ break }',
+        'while (true) { continue\nthere; }',
+        'while (true) { continue // Comment\nthere; }',
+        'while (true) { continue /* Multiline\nComment */there; }',
+        'while (true) { break\nthere; }',
+        'while (true) { break /* Multiline\nComment */there; }',
         `while (false) let // ASI
         x = 1;`,
         `while (false) let // ASI

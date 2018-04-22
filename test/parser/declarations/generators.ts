@@ -806,6 +806,60 @@ describe('Declarations - Generators', () => {
               }
         });
 
+        pass(`function* g() {\nasync(a = yield b)\n}`, Context.Empty, {
+            source: `function* g() {\nasync(a = yield b)\n}`,
+            expected: {
+                  body: [
+                    {
+                     async: false,
+                      body: {
+                        body: [
+                         {
+                            expression: {
+                              arguments: [
+                                {
+                                  left: {
+                                    name: 'a',
+                                    type: 'Identifier'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    argument: {
+                                      name: 'b',
+                                      type: 'Identifier'
+                                    },
+                                   delegate: false,
+                                    type: 'YieldExpression'
+                                  },
+                                  type: 'AssignmentExpression'
+                                }
+                              ],
+                              callee: {
+                                name: 'async',
+                              type: 'Identifier',
+                              },
+                              type: 'CallExpression'
+                            },
+                            type: 'ExpressionStatement'
+                          }
+                        ],
+                        type: 'BlockStatement'
+                      },
+                     expression: false,
+                      generator: true,
+                      id: {
+                        name: 'g',
+                        type: 'Identifier',
+                      },
+                      params: [],
+                      type: 'FunctionDeclaration',
+                    },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
         pass(`function* g1() { yield; } function* g2() { yield 1; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `function* g1() { yield; } function* g2() { yield 1; }`,
             expected: {
