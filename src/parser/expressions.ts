@@ -301,7 +301,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
     const pos = getLocation(parser);
     let { token } = parser;
     // Note: 'await' is an unary operator, but we keep it separate due to performance reasons
-    if (context & Context.Async && token === Token.AwaitKeyword) return parseAwaitExpression(parser, context, pos);
+    if (context & Context.Async && token & Token.IsAwait) return parseAwaitExpression(parser, context, pos);
     if (hasBit(token, Token.IsUnaryOp)) {
         token = parser.token;
         nextToken(parser, context);
@@ -971,7 +971,6 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
  */
 
 function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, context: Context): any {
-
     expect(parser, context, Token.LeftParen);
 
     switch (parser.token) {
@@ -1422,7 +1421,7 @@ function parseArrowFunction(parser: Parser, context: Context, pos: any, params: 
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterArrow);
     expect(parser, context, Token.Arrow);
-    return parseArrowBody(parser, context & ~Context.InParameter, params, pos, ModifierState.None);
+    return parseArrowBody(parser, context & ~Context.Async, params, pos, ModifierState.None);
 }
 
 /**
@@ -1438,7 +1437,7 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterAsync);
     expect(parser, context, Token.Arrow);
-    return parseArrowBody(parser, context & ~Context.InParameter, params, pos, state);
+    return parseArrowBody(parser, context | Context.Async, params, pos, state);
 }
 
 /**
@@ -1459,8 +1458,8 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
-    const body = expression ? parseExpressionCoverGrammar(parser, context & ~Context.Yield | Context.Async, parseAssignmentExpression) :
-        swapContext(parser, context | Context.InFunctionBody, state, parseFunctionBody);
+    const body = expression ? parseExpressionCoverGrammar(parser, context & ~(Context.Yield | Context.InParameter), parseAssignmentExpression) :
+        swapContext(parser, context & ~Context.Yield | Context.InFunctionBody, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
         body,
@@ -1801,7 +1800,6 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
 }
 
 function parseMethodDefinition(parser: Parser, context: Context, key: any, value: any, state: ObjectState, pos: Location): ESTree.MethodDefinition {
-
     return finishNode(context, parser, pos, {
         type: 'MethodDefinition',
         kind: (state & ObjectState.Constructor) ? 'constructor' : (state & ObjectState.Getter) ? 'get' :
