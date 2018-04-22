@@ -59,7 +59,7 @@ var DescKeywordTable = Object.create(null, {
     try: { value: 3169 /* TryKeyword */ },
     catch: { value: 3148 /* CatchKeyword */ },
     delete: { value: 281643 /* DeleteKeyword */ },
-    throw: { value: 3168 /* ThrowKeyword */ },
+    throw: { value: 281696 /* ThrowKeyword */ },
     switch: { value: 19550 /* SwitchKeyword */ },
     continue: { value: 3150 /* ContinueKeyword */ },
     default: { value: 3152 /* DefaultKeyword */ },
@@ -557,7 +557,7 @@ function restoreExpressionCoverGrammar(parser, context, callback) {
 function swapContext(parser, context, state, callback, methodState /* None */) {
     if ( methodState === void 0 ) methodState = 0;
 
-    context &= ~(262144 /* Async */ | 524288 /* Yield */);
+    context &= ~(262144 /* Async */ | 524288 /* Yield */ | 1048576 /* InParameter */);
     if (state & 1 /* Generator */)
         { context |= 524288 /* Yield */; }
     if (state & 2 /* Await */)
@@ -3108,6 +3108,8 @@ function parseBinaryExpression(parser, context, minPrec, pos, left) {
  * @param {loc} pas Location info
  */
 function parseAwaitExpression(parser, context, pos) {
+    if (context & 1048576 /* InParameter */)
+        { tolerant(parser, context, 52 /* AwaitInParameter */); }
     expect(parser, context, 69231725 /* AwaitKeyword */);
     return finishNode(context, parser, pos, {
         type: 'AwaitExpression',
@@ -3255,7 +3257,7 @@ function parseLeftHandSideExpression(parser, context, pos) {
 function parseMemberExpression(parser, context, pos, expr) {
     if ( expr === void 0 ) expr = parsePrimaryExpression(parser, context);
 
-    loop: while (true) {
+    while (true) {
         switch (parser.token) {
             case 33554445 /* Period */: {
                 consume(parser, context, 33554445 /* Period */);
@@ -3299,10 +3301,9 @@ function parseMemberExpression(parser, context, pos, expr) {
                 continue;
             }
             default:
-                break loop;
+                return expr;
         }
     }
-    return expr;
 }
 /**
  * Parse call expression
@@ -3513,7 +3514,8 @@ function parsePrimaryExpression(parser, context) {
 }
 /**
  * Parse 'let' as identifier in 'sloppy mode', and throws
- * in 'strict mode'  / 'module code'
+ * in 'strict mode'  / 'module code'. We also avoid a lookahead on the
+ * ASI restictions while checking this after parsing out the 'let' keyword
  *
  * @param parser Parser object
  * @param context context mask
@@ -3615,7 +3617,7 @@ function parseLiteral(parser, context) {
     return node;
 }
 /**
- * Parses BigInt literal
+ * Parses BigInt literal (stage 3 proposal)
  *
  * @see [Link](https://tc39.github.io/proposal-bigint/)
  *
@@ -4107,6 +4109,10 @@ function parsePropertyDefinition(parser, context) {
                     recordError(parser);
                     parser.flags |= 32768 /* HasYield */;
                 }
+                else if (context & (8192 /* Strict */ | 262144 /* Async */) && parser.token & 2097152 /* IsAwait */) {
+                    recordError(parser);
+                    parser.flags |= 16384 /* HasAwait */;
+                }
                 value = parseAssignmentPattern(parser, context | 131072 /* AllowIn */, key, pos);
                 parser.pendingExpressionError = {
                     error: 3 /* InvalidLHSInAssignment */,
@@ -4174,7 +4180,7 @@ function parseArrowFunction(parser, context, pos, params) {
     if (parser.flags & 1 /* NewLine */)
         { tolerant(parser, context, 82 /* LineBreakAfterArrow */); }
     expect(parser, context, 10 /* Arrow */);
-    return parseArrowBody(parser, context, params, pos, 0 /* None */);
+    return parseArrowBody(parser, context & ~1048576 /* InParameter */, params, pos, 0 /* None */);
 }
 /**
  * Parse async arrow function
@@ -4189,7 +4195,7 @@ function parseAsyncArrowFunction(parser, context, state, pos, params) {
     if (parser.flags & 1 /* NewLine */)
         { tolerant(parser, context, 35 /* LineBreakAfterAsync */); }
     expect(parser, context, 10 /* Arrow */);
-    return parseArrowBody(parser, context, params, pos, state);
+    return parseArrowBody(parser, context & ~1048576 /* InParameter */, params, pos, state);
 }
 /**
  * Shared helper function for both async arrow and arrows
@@ -4207,7 +4213,7 @@ function parseArrowBody(parser, context, params, pos, state) {
     for (var i in params)
         { reinterpret(parser, context | 1048576 /* InParameter */, params[i]); }
     var expression = parser.token !== 16793612 /* LeftBrace */;
-    var body = expression ? parseExpressionCoverGrammar(parser, context | 262144 /* Async */, parseAssignmentExpression) :
+    var body = expression ? parseExpressionCoverGrammar(parser, context & ~524288 /* Yield */ | 262144 /* Async */, parseAssignmentExpression) :
         swapContext(parser, context | 4194304 /* InFunctionBody */, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
@@ -4274,9 +4280,7 @@ function parseFunctionBody(parser, context, params) {
     var labelSet = parser.labelSet;
     parser.labelSet = {};
     var savedFlags = parser.flags;
-    // Here we need to unset the 'StrictFunctionName' and 'StrictEvalArguments' masks
-    // to avoid conflicts in nested functions
-    parser.flags &= ~(2048 /* StrictFunctionName */ | 4096 /* StrictEvalArguments */ | 16 /* Switch */ | 32 /* Iteration */);
+    parser.flags = parser.flags & ~(2048 /* StrictFunctionName */ | 4096 /* StrictEvalArguments */ | 16 /* Switch */ | 32 /* Iteration */) | 4 /* AllowDestructuring */;
     while (parser.token !== 301990415 /* RightBrace */) {
         body.push(parseStatementListItem(parser, context));
     }
@@ -4594,6 +4598,7 @@ function parsePrivateFields(parser, context, pos) {
 }
 function parsePrivateMethod(parser, context, key, pos) {
     var value = parseMethodDeclaration(parser, context | 8192 /* Strict */ | 134217728 /* Method */, 0 /* None */);
+    parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
     return parseMethodDefinition(parser, context, key, value, 32 /* Method */, pos);
 }
 /**
@@ -5276,7 +5281,7 @@ function parseStatement(parser, context) {
             return parseContinueStatement(parser, context);
         case 3151 /* DebuggerKeyword */:
             return parseDebuggerStatement(parser, context);
-        case 3168 /* ThrowKeyword */:
+        case 281696 /* ThrowKeyword */:
             return parseThrowStatement(parser, context);
         case 3169 /* TryKeyword */:
             return parseTryStatement(parser, context);
@@ -5473,7 +5478,7 @@ function parseCatchBlock(parser, context) {
  */
 function parseThrowStatement(parser, context) {
     var pos = getLocation(parser);
-    expect(parser, context, 3168 /* ThrowKeyword */);
+    expect(parser, context, 281696 /* ThrowKeyword */);
     if (parser.flags & 1 /* NewLine */)
         { tolerant(parser, context, 84 /* NewlineAfterThrow */); }
     var argument = parseExpression(parser, context | 131072 /* AllowIn */);
@@ -6544,6 +6549,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return parse(source, options, 8192 /* Strict */ | 16384 /* Module */);
 }
-var version = '1.4.6';
+var version = '1.4.7';
 
 export { parseScript, parseModule, version, estree as ESTree, index as Parser, skipSingleLineComment, skipMultiLineComment, addComment, ErrorMessages, constructError, report, tolerant, scan, scanHexIntegerLiteral, scanOctalOrBinary, scanImplicitOctalDigits, scanSignedInteger, scanNumericLiteral, scanNumericSeparator, scanDecimalDigitsOrSeparator, scanDecimalAsSmi, scanIdentifier, scanString, consumeTemplateBrace, scanTemplate, scanRegularExpression, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, isIdentifierPart, expect, consume, nextToken, hasBit, scanPrivateName, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, hasNext, advance, advanceOnMaybeAstral, nextChar, nextUnicodeChar, validateParams, reinterpret, consumeOpt, consumeLineFeed, advanceNewline, fromCodePoint, toHex, storeRaw, lookahead, escapeForPrinting, isValidSimpleAssignmentTarget, getLocation, isIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, parseAndValidateIdentifier, parseDirective, isEvalOrArguments, recordError, readNext, isQualifiedJSXName };
