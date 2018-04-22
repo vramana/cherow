@@ -77,6 +77,36 @@ describe('Expressions - Super property', () => {
           });
       }
 
+      // Note: Acorn fails on this, and have commented out their tests for this
+
+      fail('async function* x() { super(); }', Context.Empty, {
+          source: 'async function* x() { super(); }',
+      });
+
+      fail('ref = async function*() { super(); }', Context.Empty, {
+          source: 'ref = async function*() { super(); }',
+      });
+
+      fail('(async function*() { super(); })', Context.Empty, {
+          source: '(async function*() { super(); })',
+      });
+
+      fail('var gen = { async *method() { super(); } }', Context.Empty, {
+          source: 'var gen = { async *method() { super(); } }',
+      });
+
+      fail('export default async function*() { super(); }', Context.Strict | Context.Module, {
+          source: 'export default async function*() { super(); }',
+      });
+
+      fail('var C = class { async *method() { super(); } }', Context.Empty, {
+          source: 'var C = class { async *method() { super(); } }',
+      });
+
+      fail('var C = class { static async *method() { super(); } }', Context.Empty, {
+          source: 'var C = class { static async *method() { super(); } }',
+      });
+
       fail('var C = class { async *method() { var x = function () { super(); } } }', Context.Empty, {
         source: 'var C = class { async *method() { var x = function () { super(); } } }',
       });

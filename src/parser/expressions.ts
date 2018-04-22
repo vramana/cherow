@@ -1459,7 +1459,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
-    const body = expression ? parseExpressionCoverGrammar(parser, context | Context.Async, parseAssignmentExpression) :
+    const body = expression ? parseExpressionCoverGrammar(parser, context & ~Context.Yield | Context.Async, parseAssignmentExpression) :
         swapContext(parser, context | Context.InFunctionBody, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',

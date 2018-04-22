@@ -164,8 +164,8 @@ describe('Statements - For await of', () => {
             '(let [...x, y] of [[1, 2, 3]])',
             '(let [...[ x ] = []] of (async function*() {yield* [[]];})())',
             '(constt [...[x], y] of (async function*() {  yield* [[1, 2, 3]]; })())',
-            '(let [...[x], y] of (async function*() {  yield* [[1, 2, 3]]; })())'
-        ];
+            '(let [...[x], y] of (async function*() {  yield* [[1, 2, 3]]; })())',
+       ];
 
         for (const arg of Failures) {
             it(`async function f() { for await ${arg} { } } `, () => {
@@ -376,6 +376,8 @@ describe('Statements - For await of', () => {
             '(const {"a": a = 1} of [])',
             '(const {[Symbol.iterator]: a = 1} of [])',
             '(const {0: a = 1} of [])',
+            '(let x in y)',
+            '(let x of y)',
 
         ];
 

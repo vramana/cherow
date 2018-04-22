@@ -26,13 +26,12 @@ describe('Statements - Async generators', () => {
             'var foo = yield = 1;',
             'var foo = await = 1;',
             '++yield;',
-            //"++await;",
             'yield++;',
             'await++;',
             'yield *',
             '(yield *)',
             'yield 3 + yield 4;',
-            "yield: 34",
+            'yield: 34',
             'yield ? 1 : 2',
             'yield / yield',
             '+ yield',
@@ -41,9 +40,9 @@ describe('Statements - Async generators', () => {
             'var [yield] = [42];',
             'var [await] = [42];',
             'var {foo: yield} = {a: 42};',
-            "yield\n{yield: 42}",
-            "yield /* comment */\n {yield: 42}",
-            "yield //comment\n {yield: 42}",
+            'yield\n{yield: 42}',
+            'yield /* comment */\n {yield: 42}',
+            'yield //comment\n {yield: 42}',
             'var {foo: await} = {a: 42};',
             '[yield] = [42];',
             '[await] = [42];',
@@ -57,6 +56,10 @@ describe('Statements - Async generators', () => {
             '[await 24] = [42];',
             '({a: yield 24} = {a: 42});',
             '({a: await 24} = {a: 42});',
+            '({ await })',
+            'yield --> comment ',
+            '(yield --> comment)',
+           'yield /* comment */ --> comment ',
             'for (yield \'x\' in {});',
             'for (await \'x\' in {});',
             'for (yield \'x\' of {});',
@@ -78,6 +81,12 @@ describe('Statements - Async generators', () => {
             it(`"use strict"; async function * gen() { ${arg} } `, () => {
                 t.throws(() => {
                     parse(`"use strict"; async function * gen() { ${arg} } `, undefined, Context.Empty);
+                });
+            });
+
+            it(`async function * gen() { ${arg} } `, () => {
+                t.throws(() => {
+                    parse(`async function * gen() { ${arg} } `, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -106,33 +115,6 @@ describe('Statements - Async generators', () => {
             source: 'for await (let [...{ x } = []] = []; a < 1; ) {}',
         });
 
-        fail('async function* x() { super(); }', Context.Empty, {
-            source: 'async function* x() { super(); }',
-        });
-
-        fail('ref = async function*() { super(); }', Context.Empty, {
-            source: 'ref = async function*() { super(); }',
-        });
-
-        fail('(async function*() { super(); })', Context.Empty, {
-            source: '(async function*() { super(); })',
-        });
-
-        fail('var gen = { async *method() { super(); } }', Context.Empty, {
-            source: 'var gen = { async *method() { super(); } }',
-        });
-
-        fail('export default async function*() { super(); }', Context.Strict | Context.Module, {
-            source: 'export default async function*() { super(); }',
-        });
-
-        fail('var C = class { async *method() { super(); } }', Context.Empty, {
-            source: 'var C = class { async *method() { super(); } }',
-        });
-
-        fail('var C = class { static async *method() { super(); } }', Context.Empty, {
-            source: 'var C = class { static async *method() { super(); } }',
-        });
     });
 
     describe('Pass', () => {
@@ -159,7 +141,7 @@ describe('Statements - Async generators', () => {
             '(function await() { })',
             'yield { yield: 12 }',
             'yield /* comment */ { yield: 12 }',
-            "class C extends await { }",
+            'class C extends await { }',
             'yield * \n { yield: 12 }',
             'yield /* comment */ * \n { yield: 12 }',
             'yield 1; return',
@@ -171,21 +153,17 @@ describe('Statements - Async generators', () => {
             'yield 1; return 7; yield \'foo\';',
             'yield * 1; return 3; yield * \'foo\';',
             '({ yield: 1 })',
-            "({ yield })",
+            '({ yield })',
             '({ get yield() { } })',
             '({ await: 1 })',
-//            "({ await })",
             '({ get await() { } })',
             '({ [yield]: x } = { })',
-              "({ [await 1]: x } = { })",
+              '({ [await 1]: x } = { })',
             'yield',
             'yield\n',
             'yield /* comment */',
             'yield // comment\n',
             'yield // comment\n\r\f',
-            // "yield --> comment ",
-            // "(yield --> comment)",
-            //"yield /* comment */ --> comment ",
             '(yield)',
             '[yield]',
             '{yield}',

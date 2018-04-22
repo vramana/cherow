@@ -23,6 +23,13 @@ describe('Statements - Async function', () => {
       'async function foo (foo) { super() };',
       '"use strict"; async function foo (eval) {  }',
       'async function foo() { (async function await() { }) }',
+
+      // Babylon issue: https://github.com/babel/babel/issues/6687
+      'async function foo(bar = await baz()) {}',
+      'async function foo({ [await baz()]: bar }) {}',
+      'async function a() {  class Foo {   bar = await baz();  }}',
+      'async function foo() { async function bar(a = await baz()) {} }',
+      'async function foo() { async function bar(a = await baz()) {} }',
       ];
 
     for (const arg of invalidSyntax) {
@@ -50,7 +57,6 @@ describe('Statements - Async function', () => {
   //fail('\\u0061sync function f(){}', Context.Empty, {
     //source: '\\u0061sync function f(){}',
   //});
-
 
     fail('async({x=y})', Context.Empty, {
     source: 'async({x=y})',
