@@ -6,7 +6,7 @@ import { parse } from '../../../src/parser/parser';
 describe('Statements - If', () => {
 
     describe('Failure', () => {
-        
+
     const invalidSyntax = [
         // Esprima issue: https://github.com/jquery/esprima/issues/1866
         'if (true) class C {} else class D {}',
@@ -52,29 +52,29 @@ describe('Statements - If', () => {
         });
     }
 
-        fail(`if(true)
+    fail(`if(true)
     if (false)`, Context.Empty, {
             source: `if(true)
         if (false)`,
         });
-        
-        fail('if (false) ; else function f() {}', Context.Strict, {
+
+    fail('if (false) ; else function f() {}', Context.Strict, {
             source: 'if (false) ; else function f() {}',
         });
 
-        fail('if (true) async function f() {  }', Context.Empty, {
+    fail('if (true) async function f() {  }', Context.Empty, {
             source: 'if (true) async function f() {  }',
         });
 
-        fail('if (true) async function f() {  } else async function _f() {}', Context.Empty, {
+    fail('if (true) async function f() {  } else async function _f() {}', Context.Empty, {
             source: 'if (true) async function f() {  } else async function _f() {}',
         });
 
-        fail('if (true) class C {}', Context.Empty, {
+    fail('if (true) class C {}', Context.Empty, {
             source: 'if (true) class C {}',
         });
 
-        fail('if (true) class C {}', Context.Empty, {
+    fail('if (true) class C {}', Context.Empty, {
             source: 'if (true) class C {}',
         });
 

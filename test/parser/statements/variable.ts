@@ -20,7 +20,7 @@ describe('Expressions - Variable', () => {
       `var [...{ x }, y] = [1, 2, 3];`,
   ];
 
-  for (const arg of invalidSyntax) {
+    for (const arg of invalidSyntax) {
       it(`${arg}`, () => {
           t.throws(() => {
               parse(`${arg}`, undefined, Context.Empty);

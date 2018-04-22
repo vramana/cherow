@@ -21,7 +21,7 @@ describe('Statements - Try', () => {
         `catch(){}
             finally{}`,
         `catch`,
-        `try{	
+        `try{
         }
         finally(e){}`,
         `try

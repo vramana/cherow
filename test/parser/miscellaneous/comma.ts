@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
 describe('Failure', () => {
-  
+
     const invalidSyntax = [
         ',',
         ',,',
@@ -98,18 +98,18 @@ describe('Failure', () => {
         });
     }
 
-      // Comma is not permitted after the rest element 
-      const invalidRest = [
-        "function foo(...a,) { }",
-        "(function(...a,) { })", 
-        "(...a,) => a", 
-        "async (...a,) => a", 
-        "({foo(...a,) {}})",
-        "class A {foo(...a,) {}}", 
-        "class A {static foo(...a,) {}}", 
-        "(class {foo(...a,) {}})",
-        "(class {static foo(...a,) {}})",
-    ]
+      // Comma is not permitted after the rest element
+    const invalidRest = [
+        'function foo(...a,) { }',
+        '(function(...a,) { })',
+        '(...a,) => a',
+        'async (...a,) => a',
+        '({foo(...a,) {}})',
+        'class A {foo(...a,) {}}',
+        'class A {static foo(...a,) {}}',
+        '(class {foo(...a,) {}})',
+        '(class {static foo(...a,) {}})',
+    ];
 
     for (const arg of invalidRest) {
 
@@ -126,8 +126,8 @@ describe('Failure', () => {
         });
     }
 
-    fail("export default function foo(,) { }", Context.Strict | Context.Module, {
-        source: "export default function foo(,) { }",
+    fail('export default function foo(,) { }', Context.Strict | Context.Module, {
+        source: 'export default function foo(,) { }',
     });
 
     fail('export default (function foo(,) { })', Context.Strict | Context.Module, {

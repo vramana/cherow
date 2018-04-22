@@ -63,7 +63,7 @@ describe('Expressions - Async Function', () => {
             'var f = async() => await;',
             'var O = { *async method() {} };',
             'var O = { async method*() {} };',
-            "async(...a = b) => b",
+            'async(...a = b) => b',
             'async(...a,) => b',
             'async(...a, b) => b',
             `(async

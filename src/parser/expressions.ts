@@ -91,19 +91,19 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
     // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
    if (context & Context.InParameter) tolerant(parser, context, Errors.YieldInParameter);
 
-    expect(parser, context, Token.YieldKeyword);
+   expect(parser, context, Token.YieldKeyword);
 
-    let argument: ESTree.Expression | null = null;
-    let delegate = false;
+   let argument: ESTree.Expression | null = null;
+   let delegate = false;
 
-    if (!(parser.flags & Flags.NewLine)) {
+   if (!(parser.flags & Flags.NewLine)) {
         delegate = consume(parser, context, Token.Multiply);
         if (delegate || parser.token & Token.IsExpressionStart) {
             argument = parseAssignmentExpression(parser, context);
         }
     }
 
-    return finishNode(context, parser, pos, {
+   return finishNode(context, parser, pos, {
         type: 'YieldExpression',
         argument,
         delegate
