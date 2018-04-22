@@ -744,7 +744,6 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
     expect(parser, context, Token.RightParen);
 
     const body = parseIterationStatement(parser, context);
-
     return finishNode(context, parser, pos, type === 'ForOfStatement' ? {
         type,
         body,

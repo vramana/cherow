@@ -476,9 +476,43 @@ describe('Expressions - Await', () => {
                 return b;
               }`,
         });
+
+        const invalidSyntax = [
+            "await call();",
+            "var result = await call();",
+            "await a;",
+            "var lambdaParenNoArg = await () => x < y;",
+            "await p + await q;",
+            "function method() { var x = await call(); }"
+        ];
+        for (const arg of invalidSyntax) {
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
     });
 
     describe('Pass', () => {
+
+        
+        const validStrictSyntax = [
+            "function f() { var await; }",
+            "function f() { const await = 10; }",
+            "function f() { function await() { } }",
+            "function f() { var fe = function await() { } }",
+            "function f() { var await = 10; var o = { await }; }",
+            "function f() { class C { await() { } } }",
+            "function f() { class C { *await() { } } }"
+        ];
+        for (const arg of validStrictSyntax) {
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
 
         const formalParams = [
             'x = function await() {}',
