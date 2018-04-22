@@ -626,7 +626,7 @@ export interface TryStatement extends _Statement<'TryStatement'> {
     finalizer: BlockStatement | null;
 }
 
-export type UnaryOperator = '-' | '+' | '!' | '~' | 'typeof' | 'void' | 'delete';
+export type UnaryOperator = '-' | '+' | '!' | '~' | 'typeof' | 'void' | 'delete' | 'throw';
 export interface UnaryExpression extends _Expression<'UnaryExpression'> {
     operator: UnaryOperator;
     argument: Expression;

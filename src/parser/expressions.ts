@@ -89,7 +89,7 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
 function parseYieldExpression(parser: Parser, context: Context, pos: Location): ESTree.YieldExpression | ESTree.Identifier {
 
     // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
-    if (context & Context.InParameter) tolerant(parser, context, Errors.YieldInParameter);
+   if (context & Context.InParameter) tolerant(parser, context, Errors.YieldInParameter);
 
     expect(parser, context, Token.YieldKeyword);
 
@@ -281,6 +281,7 @@ function parseBinaryExpression(
  */
 
 function parseAwaitExpression(parser: Parser, context: Context, pos: Location): ESTree.AwaitExpression {
+    if (context & Context.InParameter) tolerant(parser, context, Errors.AwaitInParameter);
     expect(parser, context, Token.AwaitKeyword);
     return finishNode(context, parser, pos, {
         type: 'AwaitExpression',
@@ -1417,7 +1418,7 @@ function parseArrowFunction(parser: Parser, context: Context, pos: any, params: 
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterArrow);
     expect(parser, context, Token.Arrow);
-    return parseArrowBody(parser, context, params, pos, ModifierState.None);
+    return parseArrowBody(parser, context & ~Context.InParameter, params, pos, ModifierState.None);
 }
 
 /**
@@ -1433,7 +1434,7 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterAsync);
     expect(parser, context, Token.Arrow);
-    return parseArrowBody(parser, context, params, pos, state);
+    return parseArrowBody(parser, context & ~Context.InParameter, params, pos, state);
 }
 
 /**

@@ -7,6 +7,34 @@ describe('Expressions - Variable', () => {
 
   describe('Failure', () => {
 
+    const invalidSyntax = [
+      'var x += 1;',
+      'var x | true;',
+      'var x && 1;',
+      'var --x;',
+      'var x>>1;',
+      `var x in [];`,
+      `var [...[ x ] = []] = [];`,
+      `var [...{ x } = []] = [];`,
+      `var [...x, y] = [1, 2, 3];`,
+      `var [...{ x }, y] = [1, 2, 3];`,
+  ];
+
+  for (const arg of invalidSyntax) {
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parse(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+
+  }
+
     fail('var x && 1;', Context.Empty, {
       source: 'var x && 1;',
   });
@@ -47,30 +75,6 @@ y`, Context.Empty, {
 
     fail('var x | true;', Context.Empty, {
 source: 'var x | true;',
-});
-
-    fail('var x += 1;', Context.Empty, {
-      source: 'var x += 1;',
-  });
-
-    fail('var x | true;', Context.Empty, {
-    source: 'var x | true;',
-});
-
-    fail('var x++;', Context.Empty, {
-  source: 'var x++;',
-});
-
-    fail('var x>>1;', Context.Empty, {
-  source: 'var x>>1;',
-});
-
-    fail('var x in [];', Context.Empty, {
-  source: 'var x in [];',
-});
-
-    fail('var [...[ x ] = []] = [];', Context.Empty, {
-  source: 'var [...[ x ] = []] = [];',
 });
 
     fail('var [...[x], y] = [1, 2, 3];', Context.Empty, {

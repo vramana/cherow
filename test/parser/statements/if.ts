@@ -1,87 +1,65 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Statements - If', () => {
 
     describe('Failure', () => {
+        
+    const invalidSyntax = [
+        // Esprima issue: https://github.com/jquery/esprima/issues/1866
+        'if (true) class C {} else class D {}',
+        'if true;',
+        `if(!(1))`,
+        'if(!(true))',
+        'if(!("A"))',
+        'if (false) label1: label2: function test262() {} else ;',
+        'if (false) ; else function* g() {  }',
+        'if (true) let x; else let y;',
+        'if (false) ; else class C {}',
+        'if (false) ; else async function f() {  }',
+        'if (true) ; else label1: label2: function test262() {}',
+        'if (true) function* g() {  } else ;',
+        '"use strict"; if (true) function f() {  } else function _f() {}',
+        'if (true) class C {}',
+        '"use strict"; if (true) function f() {  } else function _f() {}',
+        'if (true) const x = null;',
+        'if (true) function f() {  } else ',
+        'if (false) ; else let x;',
+        'if (true) async function f() {  } else ;',
+        'if();',
+        `if({1})
+        {
+          ;
+        }else
+        {
+          ;
+        }`
+    ];
+
+    for (const arg of invalidSyntax) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
 
         fail(`if(true)
     if (false)`, Context.Empty, {
             source: `if(true)
         if (false)`,
         });
-
-        // Esprima issue: https://github.com/jquery/esprima/issues/1866
-        fail('if(1)class A{}', Context.Empty, {
-            source: 'if(1)class A{}',
-        });
-
-        fail('if (true) class C {} else class D {}', Context.Empty, {
-            source: 'if (true) class C {} else class D {}',
-        });
-
-        fail('if true;', Context.Empty, {
-            source: 'if true;',
-        });
-
-        fail(`if(!(1))`, Context.Empty, {
-            source: `if(!(1))`,
-        });
-
-        fail('if(!(true))', Context.Empty, {
-            source: 'if(!(true))',
-        });
-
-        fail('if(!("A"))', Context.Empty, {
-            source: 'if(!("A"))',
-        });
-
-        fail('if (true) let x; else let y;', Context.Empty, {
-            source: 'if (true) let x; else let y;',
-        });
-
-        fail('if (false) label1: label2: function test262() {} else ;', Context.Empty, {
-            source: 'if (false) label1: label2: function test262() {} else ;',
-        });
-
-        fail('"use strict"; if (false) ; else function f() {}', Context.Empty, {
-            source: '"use strict"; if (false) ; else function f() {}',
-        });
-
-        fail('if (false) ; else function* g() {  }', Context.Empty, {
-            source: 'if (false) ; else function* g() {  }',
-        });
-
-        fail('if (false) ; else class C {}', Context.Empty, {
-            source: 'if (false) ; else class C {}',
-        });
-
-        fail('if (false) ; else async function f() {  }', Context.Empty, {
-            source: 'if (false) ; else async function f() {  }',
-        });
-
-        fail('if (true) ; else label1: label2: function test262() {}', Context.Empty, {
-            source: 'if (true) ; else label1: label2: function test262() {}',
-        });
-
-        fail('if (true) function* g() {  } else function* _g() {}', Context.Empty, {
-            source: 'if (true) function* g() {  } else function* _g() {}',
-        });
-
-        fail('if (true) function* g() {  } else ;', Context.Empty, {
-            source: 'if (true) function* g() {  } else ;',
-        });
-
-        fail('"use strict"; if (true) function f() {  }', Context.Empty, {
-            source: '"use strict"; if (true) function f() {  }',
-        });
-
-        fail('"use strict"; if (true) function f() {  } else function _f() {}', Context.Empty, {
-            source: '"use strict"; if (true) function f() {  } else function _f() {}',
-        });
-
-        fail('if (true) class C {}', Context.Empty, {
-            source: 'if (true) class C {}',
+        
+        fail('if (false) ; else function f() {}', Context.Strict, {
+            source: 'if (false) ; else function f() {}',
         });
 
         fail('if (true) async function f() {  }', Context.Empty, {

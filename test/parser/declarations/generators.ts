@@ -43,6 +43,7 @@ describe('Declarations - Generators', () => {
             'for (yield \'x\' of {});',
             'for (yield \'x\' in {} in {});',
             'for (yield \'x\' in {} of {});',
+            "yield ? yield : yield",
             'class C extends yield { }',
             'class yield {}',
             // Can not use 'yield' as identifier inside a generator
@@ -105,7 +106,6 @@ describe('Declarations - Generators', () => {
             'yield // comment\n',
             '(yield)',
             '[yield]',
-         //   "yield ? yield : yield",
             '{yield}',
             'yield this.foo',
             'yield, yield',

@@ -7,15 +7,60 @@ describe('Statements - Try', () => {
 
   describe('Failure', () => {
 
-    const programs: any = [
+    const invalidSyntax: any = [
         'try { }',
         'try { } foo();',
         'try { } catch (e) foo();',
         'try { } catch { }',
         'try { } finally foo();',
+        `try{}
+        catch(){`,
+        `try{}
+        catch(){
+        finally{}`,
+        `catch(){}
+            finally{}`,
+        `catch`,
+        `try{	
+        }
+        finally(e){}`,
+        `try
+        {
+        }
+        catch("22")
+        {
+        }`,
+        `try
+        {
+          try
+          {
+          }
+        }
+        catch(e1){}
+        catch(e2){}`,
+        `try{
+            {
+            }
+            catch(e){}
+            finally{}
+          }`,
+          `try{}
+          catch(){}
+          finally{}`,
+          `try`,
+          `try { throw []; } catch ([...[ x ] = []]) {}`,
+          `try { throw []; } catch ([...x = []]) {}`,
+          `try { throw [1, 2, 3]; } catch ([...{ x }, y]) {}`,
+          `try { throw [1, 2, 3]; } catch ([...[x], y]) { }`
     ];
 
-    for (const arg of programs) {
+    for (const arg of invalidSyntax) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
         it(`${arg}`, () => {
             t.throws(() => {
                 parse(`${arg}`, undefined, Context.Empty);

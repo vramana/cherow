@@ -417,7 +417,7 @@ export function swapContext < T >(
     callback: (parser: Parser, context: Context, state: ObjectState) => T,
     methodState: ObjectState = ObjectState.None): T {
 
-    context &= ~(Context.Async | Context.Yield);
+    context &= ~(Context.Async | Context.Yield | Context.InParameter);
 
     if (state & ModifierState.Generator) context |= Context.Yield;
 

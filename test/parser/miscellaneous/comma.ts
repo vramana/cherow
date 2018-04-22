@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
 describe('Failure', () => {
-
+  
     const invalidSyntax = [
         ',',
         ',,',
@@ -48,6 +48,9 @@ describe('Failure', () => {
         '(function* a(b, c, ...d,) {});',
         '(function   (b, c, ...d,) {});',
         '(function*  (b, c, ...d,) {});',
+        'class A {foo(,) {}}',
+        'class A {static foo(,) {}}',
+        '(class {static foo(,) {}})',
         '(...b,) => {};',
         '(b, c, ...d,) => {};',
         '(,);',
@@ -82,12 +85,62 @@ describe('Failure', () => {
             });
         });
 
+        it(`function foo() {${arg}}`, () => {
+            t.throws(() => {
+                parse(`function foo() {${arg}}`, undefined, Context.Strict | Context.Module);
+            });
+        });
+
         it(`function foo() {'use strict'; ${arg}}`, () => {
             t.throws(() => {
                 parse(`function foo() {'use strict'; ${arg}}`, undefined, Context.Empty);
             });
         });
     }
+
+      // Comma is not permitted after the rest element 
+      const invalidRest = [
+        "function foo(...a,) { }",
+        "(function(...a,) { })", 
+        "(...a,) => a", 
+        "async (...a,) => a", 
+        "({foo(...a,) {}})",
+        "class A {foo(...a,) {}}", 
+        "class A {static foo(...a,) {}}", 
+        "(class {foo(...a,) {}})",
+        "(class {static foo(...a,) {}})",
+    ]
+
+    for (const arg of invalidRest) {
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Strict | Context.Module);
+            });
+        });
+    }
+
+    fail("export default function foo(,) { }", Context.Strict | Context.Module, {
+        source: "export default function foo(,) { }",
+    });
+
+    fail('export default (function foo(,) { })', Context.Strict | Context.Module, {
+        source: 'export default (function foo(,) { })',
+    });
+
+    fail('export default (function foo(...a,) { })', Context.Strict | Context.Module, {
+        source: 'export default (function foo(...a,) { })',
+    });
+
+    fail('export function foo(...a,) { }', Context.Strict | Context.Module, {
+        source: 'export function foo(...a,) { }',
+    });
 });
 
 describe('Pass', () => {
