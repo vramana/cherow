@@ -143,7 +143,7 @@ export const enum Token {
     SuperKeyword    = 93 | Reserved | IsExpressionStart,
     SwitchKeyword   = 94 | Reserved | IsExpressionStart,
     ThisKeyword     = 95 | Reserved | IsExpressionStart,
-    ThrowKeyword    = 96 | Reserved | IsUnaryOp,
+    ThrowKeyword    = 96 | Reserved | IsUnaryOp | IsExpressionStart,
     TryKeyword      = 97 | Reserved,
     WhileKeyword    = 98 | Reserved | IsIterationStatement,
     WithKeyword     = 99 | Reserved,

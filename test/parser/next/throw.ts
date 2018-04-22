@@ -5,7 +5,18 @@ import { parse } from '../../../src/parser/parser';
 
 describe('Next - Throw expression', () => {
 
-    describe('Failure', () => {});
+    describe('Failure', () => {
+        fail('(function () { yield throw 10 })', Context.OptionsNext | Context.Strict | Context.Module, {
+            source: '(function () { yield throw 10 })',
+        });
+        fail('(function () { yield throw 10 })', Context.OptionsNext, {
+            source: '(function () { yield throw 10 })',
+        });
+
+        fail('(async function () { yield throw 10 })', Context.OptionsNext, {
+            source: '(async function () { yield throw 10 })',
+        });
+    });
 
     describe('Pass', () => {
 
@@ -19,6 +30,10 @@ describe('Next - Throw expression', () => {
             'function test() { true && throw 1; }',
             'function test() { throw 1; }',
             'const b = condition || throw new Error();',
+            '(function *() { yield throw 10 })',
+            'function *foo() { yield throw 10 }',
+            '(async function *() { yield throw 10 })',
+            'async function *foo() { yield throw "icefapper"; }',
             'function save(filename = throw new TypeError("Argument required")) { }',
             `class Product {
                 get id() { return this._id; }
@@ -26,6 +41,12 @@ describe('Next - Throw expression', () => {
               }`
         ];
         for (const arg of validSyntax) {
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.OptionsNext);
+                });
+            });
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
