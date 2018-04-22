@@ -30,7 +30,7 @@ describe('Expressions - Object Spread', () => {
                 });
             });
         }
-        
+
 //        fail('var {...{z}} = { z: 1};', Context.Empty, {
   //          source: 'var {...{z}} = { z: 1};',
     //      });

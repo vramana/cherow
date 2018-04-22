@@ -1510,7 +1510,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
 
-    parser.tokenValue = validate(parser, pattern, flags);
+    parser.tokenValue = validate(parser, context, pattern, flags);
 
     return Token.RegularExpression;
 }
@@ -1521,22 +1521,22 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
  *
  * @param parser Parser instance
  * @param context Context masks
- * @param start Start of regexp pattern to validate
- * @param end End of regexp pattern to validate
- * @param isUnicode True if unicode
+ * @param pattern Regexp body
  * @param flags Regexp flags
  */
 function validate(
     parser: Parser,
+    context: Context,
     pattern: string,
     flags: string) {
 
-    try {
-        RegExp(pattern);
-    } catch (e) {
-        report(parser, Errors.UnterminatedRegExp);
+    if (!(context & Context.OptionsNode)) {
+        try {
+            RegExp(pattern);
+        } catch (e) {
+            report(parser, Errors.UnterminatedRegExp);
+        }
     }
-
     try {
         return new RegExp(pattern, flags);
     } catch (e) {

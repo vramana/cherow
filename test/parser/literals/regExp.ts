@@ -66,7 +66,7 @@ describe('Literals - Reggular expression', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNode);
+                    parse(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -309,7 +309,7 @@ describe('Literals - Reggular expression', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNode);
+                    parse(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

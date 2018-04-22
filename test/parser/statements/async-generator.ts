@@ -95,6 +95,10 @@ describe('Statements - Async generators', () => {
             source: 'async function* f(...x = []) { }',
         });
 
+        fail('async function* eval() { "use strict"; }', Context.Empty, {
+            source: 'async function* eval() { "use strict"; }',
+        });
+
         fail('async function fn() { for await ([ x[yield] ] of [[]]) }', Context.Empty, {
             source: 'async function fn() { for await ([ x[yield] ] of [[]]) }',
         });
@@ -158,7 +162,7 @@ describe('Statements - Async generators', () => {
             '({ await: 1 })',
             '({ get await() { } })',
             '({ [yield]: x } = { })',
-              '({ [await 1]: x } = { })',
+            '({ [await 1]: x } = { })',
             'yield',
             'yield\n',
             'yield /* comment */',

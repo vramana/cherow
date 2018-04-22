@@ -136,9 +136,9 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
                 // Invalid: ' yield => { 'use strict'; 0 };'
                 if (token & Token.FutureReserved) {
-                    if (context & Context.Strict)  tolerant(parser, context, Errors.UnexpectedStrictReserved);
                     parser.flags |= Flags.StrictReserved;
-                } else if (token & Token.IsEvalOrArguments) {
+                }
+                if (token & Token.IsEvalOrArguments) {
                     if (context & Context.Strict)  tolerant(parser, context, Errors.StrictEvalArguments);
                     parser.flags |= Flags.StrictEvalArguments;
                 }
@@ -784,16 +784,11 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     const { tokenRegExp, tokenValue, tokenRaw } = parser;
     nextToken(parser, context);
-
-    const node: any = finishNode(context, parser, pos, {
+    return finishNode(context, parser, pos, {
         type: 'Literal',
         value: tokenValue,
         regex: tokenRegExp
     });
-
-    if (context & Context.OptionsRaw) node.raw = tokenRaw;
-
-    return node;
 }
 
 /**
