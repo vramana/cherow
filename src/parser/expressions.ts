@@ -971,8 +971,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
             {
                 const expr = parseRestElement(parser, context);
                 expect(parser, context, Token.RightParen);
-                parser.flags |= Flags.SimpleParameterList;
-                parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
+                parser.flags = parser.flags & ~(Flags.AllowDestructuring | Flags.AllowBinding) | Flags.SimpleParameterList;
                 if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
                 return [expr];
             }
@@ -1101,7 +1100,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (token & Token.IsEvalOrArguments) {
             if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
-            parser.flags |= Flags.StrictFunctionName;
+            parser.flags |= Flags.StrictEvalArguments;
         }
         if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) {
             tolerant(parser, context, Errors.YieldBindingIdentifier);
@@ -1172,7 +1171,6 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
 
 function parseComputedPropertyName(parser: Parser, context: Context): ESTree.Expression {
     expect(parser, context, Token.LeftBracket);
-    // if (context & Context.Yield && parser.token & Token.IsYield) tolerant(parser, context, Errors.YieldInParameter);
     const key = parseAssignmentExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightBracket);
     return key;
@@ -1187,7 +1185,7 @@ function parseComputedPropertyName(parser: Parser, context: Context): ESTree.Exp
  * @param Context masks
  */
 
-export function parsePropertyName(parser: Parser, context: Context): any {
+export function parsePropertyName(parser: Parser, context: Context): ESTree.Expression {
     switch (parser.token) {
         case Token.NumericLiteral:
         case Token.StringLiteral:

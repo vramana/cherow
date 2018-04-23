@@ -56,7 +56,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
     const { token } = parser;
     if (token & Token.IsEvalOrArguments) {
         if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
-        parser.flags |= Flags.StrictReserved;
+        parser.flags |= Flags.StrictEvalArguments;
     } else if (context & Context.BlockScope && token === Token.LetKeyword) {
         // let is disallowed as a lexically bound name
         tolerant(parser, context, Errors.LetInLexicalBinding);

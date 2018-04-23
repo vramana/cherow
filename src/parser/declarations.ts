@@ -33,7 +33,9 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
     const { token } = parser;
-    const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier)) ? null : parseBindingIdentifier(parser, context | Context.Strict);
+    const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier)) 
+        ? null : 
+        parseBindingIdentifier(parser, context | Context.Strict);
     let state = ObjectState.None;
     let superClass: ESTree.Expression | null = null;
     if (consume(parser, context, Token.ExtendsKeyword)) {
@@ -125,13 +127,8 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
 function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
-    if (token & Token.IsEvalOrArguments) {
-        if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
-        parser.flags |= Flags.StrictEvalArguments;
-    }
     if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
     if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
-
     if (token !== Token.LeftParen) {
         id = parseBindingIdentifier(parser, context);
     // Unnamed functions are forbidden in statement context.
@@ -159,9 +156,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     if (consume(parser, context, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            tolerant(parser, context, context & (Context.BlockScope | Context.Strict) ?
-                Errors.ForInOfLoopInitializer :
-                Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
+            tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Note: Initializers are required for 'const' and binding patterns
     } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
