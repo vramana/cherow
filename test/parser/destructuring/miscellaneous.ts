@@ -217,131 +217,131 @@ describe('Destructuring - Miscellaneous', () => {
     });
 
     describe('Pass', () => {
-      
+
       pass('({i: {...j}} = k);', Context.Empty, {
         source: '({i: {...j}} = k);',
         expected: {
-            "body": [
+            body: [
               {
-                "expression": {
-                  "left": {
-                    "properties": [
+                expression: {
+                  left: {
+                    properties: [
                       {
-                        "computed": false,
-                        "key": {
-                          "name": "i",
-                          "type": "Identifier"
+                        computed: false,
+                        key: {
+                          name: 'i',
+                          type: 'Identifier'
                         },
-                        "kind": "init",
-                        "method": false,
-                        "shorthand": false,
-                        "type": "Property",
-                       "value": {
-                          "properties": [
+                        kind: 'init',
+                        method: false,
+                        shorthand: false,
+                        type: 'Property',
+                       value: {
+                          properties: [
                             {
-                             "argument": {
-                                "name": "j",
-                                "type": "Identifier"
+                             argument: {
+                                name: 'j',
+                                type: 'Identifier'
                               },
-                              "type": "RestElement"
+                              type: 'RestElement'
                             }
                           ],
-                          "type": "ObjectPattern"
+                          type: 'ObjectPattern'
                         }
                       }
                     ],
-                    "type": "ObjectPattern"
+                    type: 'ObjectPattern'
                   },
-                  "operator": "=",
-                  "right": {
-                    "name": "k",
-                    "type": "Identifier"
+                  operator: '=',
+                  right: {
+                    name: 'k',
+                    type: 'Identifier'
                  },
-                  "type": "AssignmentExpression"
+                  type: 'AssignmentExpression'
                 },
-                "type": "ExpressionStatement"
+                type: 'ExpressionStatement'
               }
             ],
-            "sourceType": "script",
-            "type": "Program"
+            sourceType: 'script',
+            type: 'Program'
           }
       });
 
       pass('(a, c) => (({ [c]: _, ...rest } = a), rest)', Context.Empty, {
         source: '(a, c) => (({ [c]: _, ...rest } = a), rest)',
         expected: {
-            "body": [
+            body: [
               {
-                "expression": {
-                  "async": false,
-                  "body": {
-                    "expressions": [
+                expression: {
+                  async: false,
+                  body: {
+                    expressions: [
                       {
-                        "left": {
-                          "properties": [
+                        left: {
+                          properties: [
                             {
-                             "computed": true,
-                              "key": {
-                                "name": "c",
-                                "type": "Identifier"
+                             computed: true,
+                              key: {
+                                name: 'c',
+                                type: 'Identifier'
                               },
-                              "kind": "init",
-                              "method": false,
-                              "shorthand": false,
-                              "type": "Property",
-                              "value": {
-                                "name": "_",
-                                "type": "Identifier",
+                              kind: 'init',
+                              method: false,
+                              shorthand: false,
+                              type: 'Property',
+                              value: {
+                                name: '_',
+                                type: 'Identifier',
                               }
                             },
                             {
-                              "argument": {
-                                "name": "rest",
-                                "type": "Identifier"
+                              argument: {
+                                name: 'rest',
+                                type: 'Identifier'
                               },
-                              "type": "RestElement"
+                              type: 'RestElement'
                             }
                           ],
-                          "type": "ObjectPattern",
+                          type: 'ObjectPattern',
                         },
-                        "operator": "=",
-                        "right": {
-                          "name": "a",
-                          "type": "Identifier"
+                        operator: '=',
+                        right: {
+                          name: 'a',
+                          type: 'Identifier'
                         },
-                        "type": "AssignmentExpression"
+                        type: 'AssignmentExpression'
                       },
                       {
-                        "name": "rest",
-                        "type": "Identifier",
+                        name: 'rest',
+                        type: 'Identifier',
                       },
                     ],
-                   "type": "SequenceExpression",
+                   type: 'SequenceExpression',
                   },
-                  "expression": true,
-                  "generator": false,
-                  "id": null,
-                  "params": [
+                  expression: true,
+                  generator: false,
+                  id: null,
+                  params: [
                     {
-                      "name": "a",
-                      "type": "Identifier"
+                      name: 'a',
+                      type: 'Identifier'
                     },
                     {
-                      "name": "c",
-                      "type": "Identifier"
+                      name: 'c',
+                      type: 'Identifier'
                     },
                   ],
-                  "type": "ArrowFunctionExpression"
+                  type: 'ArrowFunctionExpression'
                },
-                "type": "ExpressionStatement"
+                type: 'ExpressionStatement'
               }
             ],
-            "sourceType": "script",
-            "type": "Program"
+            sourceType: 'script',
+            type: 'Program'
           }
     });
-    
-    pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+
+      pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: 'c = ({b} = b);',
         expected: {
             type: 'Program',
@@ -510,7 +510,7 @@ describe('Destructuring - Miscellaneous', () => {
           }
     });
 
-    pass('for (var {z} = { z : 3 }; z != 0; z--) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      pass('for (var {z} = { z : 3 }; z != 0; z--) {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: 'for (var {z} = { z : 3 }; z != 0; z--) {}',
         expected: {
             type: 'Program',
@@ -815,7 +815,7 @@ describe('Destructuring - Miscellaneous', () => {
           }
     });
 
-    pass('var { x : { z1 }, y2} = { x : {}, y2 : 42 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      pass('var { x : { z1 }, y2} = { x : {}, y2 : 42 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: 'var { x : { z1 }, y2} = { x : {}, y2 : 42 }',
         expected: {
             type: 'Program',

@@ -10,7 +10,8 @@ export const enum Token {
     Precedence = 15 << PrecStart, // 8-11
 
     /* Attribute names */
-    InstanceField           = 1 << 9,
+    IsBlockScope      = 1 << 6,
+    InstanceField     = 1 << 9,
     Keyword           = 1 << 10,
     Reserved          = 1 << 11 | Keyword,
     FutureReserved    = 1 << 12 | Keyword,
@@ -118,8 +119,8 @@ export const enum Token {
 
     /* Variable declaration kinds */
     VarKeyword   = 71 | Reserved       | IsExpressionStart,
-    LetKeyword   = 72 | FutureReserved | IsExpressionStart,
-    ConstKeyword = 73 | Reserved       | IsExpressionStart,
+    LetKeyword   = 72 | FutureReserved | IsExpressionStart | IsBlockScope,
+    ConstKeyword = 73 | Reserved       | IsExpressionStart | IsBlockScope,
 
     /* Other reserved words */
     BreakKeyword    = 74 | Reserved,

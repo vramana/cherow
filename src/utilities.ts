@@ -209,7 +209,7 @@ export function finishNode < T extends ESTree.Node >(
     meta: Location,
     node: any,
 ): T {
-    
+
     const { lastIndex, lastLine, lastColumn, sourceFile, index, delegate } = parser;
 
     if (context & Context.OptionsRanges) {
@@ -231,7 +231,7 @@ export function finishNode < T extends ESTree.Node >(
         };
 
         if (sourceFile) node.loc.source = sourceFile;
-    } 
+    }
 
     if (context & Context.OptionsDelegate) (delegate as Delegate)(node, meta.index, index);
 
@@ -546,16 +546,16 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             // Fall through
 
         default:
-            tolerant(parser, context, context & Context.InParameter 
-                ? Errors.NotBindable 
+            tolerant(parser, context, context & Context.InParameter
+                ? Errors.NotBindable
                 : Errors.InvalidDestructuringTarget, node.type);
     }
-}
+};
 
 /**
  * Consume an token in the scanner on match. This is an equalent to
  * 'consume' used in the parser code itself.
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -568,7 +568,7 @@ export function consumeOpt(parser: Parser, code: number): boolean {
 
 /**
  * Consumes line feed
- * 
+ *
  * @param parser Parser object
  * @param state  Scanner state
  */
@@ -583,7 +583,7 @@ export function consumeLineFeed(parser: Parser, state: ScannerState) {
 
  /**
  * Advance to new line
- * 
+ *
  * @param parser Parser object
  */
 export function advanceNewline(parser: Parser) {
@@ -598,7 +598,7 @@ export const fromCodePoint = (code: Chars) => {
         String.fromCharCode(code) :
         String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
             Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
-}
+};
 
 export function toHex(code: number): number {
     if (code < Chars.Zero) return -1;
@@ -612,14 +612,14 @@ export function toHex(code: number): number {
 
 /**
  * Does a lookahead.
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  * @param callback Callback function to be invoked
  */
 export function lookahead < T >(parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): T {
-    const { tokenValue, flags, line, column, startColumn, index, lastColumn,startLine, lastLine,  lastIndex, startIndex,
-        tokenRaw, token,lastValue, tokenRegExp } = parser;
+    const { tokenValue, flags, line, column, startColumn, index, lastColumn, startLine, lastLine,  lastIndex, startIndex,
+        tokenRaw, token, lastValue, tokenRegExp } = parser;
     const res = callback(parser, context);
     parser.index = index;
     parser.token = token;
@@ -668,7 +668,7 @@ export function escapeForPrinting(code: number): string {
 
 /**
  * Returns true if this an valid simple assignment target
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -678,7 +678,7 @@ export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
 
 /**
  * Get current node location
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -692,7 +692,7 @@ export function getLocation(parser: Parser): Location {
 
 /**
  * Returns true if this is an valid identifier
- * 
+ *
  * @param context  Context masks
  * @param t  Token
  */
@@ -714,7 +714,7 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 
 /**
  * Returns true if this an valid lexical binding and not an identifier
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -728,7 +728,7 @@ export function isLexical(parser: Parser, context: Context): boolean {
 
 /**
  * Returns true if this is end of case or default clauses
- * 
+ *
  * @param parser Parser object
  */
 export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
@@ -739,7 +739,7 @@ export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
 
 /**
  * Validates if the next token in the stream is a left paren or a period
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -750,7 +750,7 @@ export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): 
 
 /**
  * Validates if the next token in the stream is a identifier or left paren
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -762,7 +762,7 @@ export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): 
 
 /**
  * Validates if the next token in the stream is left parenthesis.
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -773,7 +773,7 @@ export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean 
 
 /**
  * Validates if the next token in the stream is a function keyword on the same line.
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -784,7 +784,7 @@ export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Contex
 
 /**
  * Checks if the property has any private field key
- * 
+ *
  * @param parser Parser object
  * @param context  Context masks
  */
@@ -794,7 +794,7 @@ export function isPropertyWithPrivateFieldKey(context: Context, expr: any): bool
 
 /**
  * Validates an identifier and either parse it or throw
- * 
+ *
  * @param parser Parser object
  * @param context Context masks
  */
@@ -833,19 +833,18 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
     report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 
-
 export function nameIsArgumentsOrEval(value: string): boolean {
     return value === 'eval' || value === 'arguments';
 }
 
 /**
- * Records an error from current position. If we report an error later, we'll do it from 
+ * Records an error from current position. If we report an error later, we'll do it from
  * this position.
- * 
+ *
  * @param parser Parser object
  */
 export function setPendingError(parser: Parser) {
-    
+
     parser.errorLocation = {
         line: parser.line,
         column: parser.column,

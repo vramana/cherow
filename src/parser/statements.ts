@@ -62,10 +62,15 @@ export function parseStatementListItem(parser: Parser, context: Context) {
             return parseVariableStatement(parser, context | Context.BlockScope | Context.AllowIn);
         case Token.AsyncKeyword:
             return parseAsyncFunctionDeclarationOrStatement(parser, context);
-        case Token.ImportKeyword:
-            return parseExpressionStatementOrStatement(parser, context);
+        case Token.ImportKeyword: {
+            if (context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
+                return parseExpressionStatement(parser, context | Context.AllowIn);
+            }
+        }
         case Token.ExportKeyword:
-            if (context & Context.Module) tolerant(parser, context, Errors.ExportDeclAtTopLevel);
+            if (context & Context.Module) {
+                tolerant(parser, context, parser.token == Token.ImportKeyword ? Errors.ImportDeclAtTopLevel : Errors.ExportDeclAtTopLevel);
+            }
         default:
             return parseStatement(parser, context | Context.AllowSingleStatement);
     }
@@ -348,24 +353,10 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
 }
 
 /**
- * Parses either expression statement or statement
- * 
- * @param parser Parser object
- * @param context Context masks
- */
-function parseExpressionStatementOrStatement(parser: Parser, context: Context): ESTree.Statement {
-    if (context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
-        return parseExpressionStatement(parser, context | Context.AllowIn);
-    }
-    if (context & Context.Module) tolerant(parser, context, Errors.ImportDeclAtTopLevel);
-    return parseStatement(parser, context | Context.AllowSingleStatement);
-}
-
-/**
  * Parse directive node
- * 
+ *
  * * @see [Link](https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive)
- * 
+ *
  * @param parser Parser object
  * @param context Context masks
  */

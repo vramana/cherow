@@ -5,6 +5,119 @@ import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Pass', () => {
 
+    const validStatementSyntax = [
+        '{}',
+        'var x',
+        'var x = 1',
+        ';',
+        '12',
+        'if (false) {} else ;',
+        'if (false) {} else {}',
+        'if (false) {} else 12',
+        'if (false) ;',
+        'if (false) {}',
+        'if (false) 12',
+        'do {} while (false)',
+        'for (;;) ;',
+        'for (;;) {}',
+        'for (;;) 12',
+        'with ({}) ;',
+        'with ({}) {}',
+        'with ({}) 12',
+        'switch ({}) { default: }',
+        'try {} catch(e) {}',
+        'try {} finally {}',
+        'try {} catch(e) {} finally {}',
+        'debugger',
+    ];
+
+    for (const arg of validStatementSyntax) {
+        it(`while (false) ${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`while (false) ${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`switch (12) { default: ${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`switch (12) { default: ${arg}}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`with ({}) ${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`with ({}) ${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`if (true) {} else ${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`if (true) {} else ${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`if (true) ${arg}`, () => {
+            t.doesNotThrow(() => {
+                parse(`if (true) ${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`do { ${arg} } while (false)`, () => {
+            t.doesNotThrow(() => {
+                parse(`do { ${arg} } while (false)`, undefined, Context.Empty);
+            });
+        });
+    }
+
+        // TODO(marja): activate once parsing 'return' is merged into ParserBase.
+        // "return",
+        // "return  12",
+        // "return\n12",
+
+    const validBodySyntax = [
+    '',
+    'return this',
+    'return arguments',
+    'return arguments[0]',
+    'return this + arguments[0]',
+    'return x => this + x',
+    'this.foo = 42;',
+    'this.foo();',
+    'if (foo()) { this.f() }',
+    'if (arguments.length) { this.f() }',
+    'while (true) { this.f() }',
+    'if (true) { while (true) this.foo(arguments) }',
+    'while (true) { while (true) { while (true) return this } }',
+    'if (1) { return () => { while (true) new this() } }',
+    'return function (x) { return this + x }',
+    'var x = function () { this.foo = 42 };',
+    'if (1) { return function () { while (true) new this() } }',
+    'return function (x) { return () => this }',
+    '"use strict"; while (true) { let x; this, arguments; }',
+    '"use strict"; if (foo()) { let x; this.f() }',
+    '"use strict"; if (1) {} ',
+    ];
+
+    for (const arg of validBodySyntax) {
+        it(`function f() {${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`function f() {${arg}}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`var f = () => {${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`var f = () => {${arg}}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`var f = () => {${arg}}`, () => {
+            t.doesNotThrow(() => {
+                parse(`class C { constructor() {${arg}} }`, undefined, Context.Empty);
+            });
+        });
+    }
+
     const programs = [
         '"\\u{714E}\\u{8336}"',
         '"\\u{20BB7}\\u{91CE}\\u{5BB6}"',
@@ -30,7 +143,7 @@ describe('Miscellaneous - Pass', () => {
         '1+1',
         'var a = 1, b = 2, c, d = 1 + 1;',
         `(1+2)*3 || 4 && 5 && 6 || 7
-        ? void 0 
+        ? void 0
         : void 1;`,
         `1 === 1 ? 1 : 2 !== 2 ? 2 : 3 == 3 ? 3 : 4 != 4 ? 4 : 5;`,
         `1 + 2 - 3 * 4 / 5 % 6 << 7 >> 8 >>> 9 ? 1 ^ 1 : ~1 - 1, 2, 3;`,
@@ -55,7 +168,7 @@ describe('Miscellaneous - Pass', () => {
           };`,
           `if (1) 1;`,
           `if (1) 1; else 2;`,
-          `'(' + (a === b ? c : d) + ')' + e;`, 
+          `'(' + (a === b ? c : d) + ')' + e;`,
         '`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`',
         'switch (answer) { case 42: let t = 42; break; }',
         '() => "test"',
@@ -419,7 +532,7 @@ describe('Miscellaneous - Pass', () => {
         } else if (e) {
             f();
         }
-        
+
         if (a) {
             b();
         } else if (c) {

@@ -11,6 +11,8 @@ describe('Expressions - In', () => {
             'x in {}',
             'x in __proto',
             '"string" in {}',
+            'false in []',
+            '!("foo" in {})',
             `MAX_VALUE\u0009in\u0009Number`,
             `MAX_VALUE\u000Bin\u000BNumber`,
             `MAX_VALUE\u0020in\u0020Number`,

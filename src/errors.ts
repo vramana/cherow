@@ -142,7 +142,7 @@ export const ErrorMessages: {
     [Errors.DisallowedInContext]: '\'%0\' may not be used as an identifier in this context',
     [Errors.PrivateFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
     [Errors.PublicFieldConstructor]: 'Classes may not have a field named \'constructor\'',
-    [Errors.StrictDelete]: 'Identifier expressions must not be deleted in strict mode',
+    [Errors.StrictDelete]: 'Delete of an unqualified identifier in strict mode',
     [Errors.DeletePrivateField]: 'Private fields can not be deleted',
     [Errors.ConstructorIsGenerator]: 'Class constructor may not be a generator',
     [Errors.ConstructorSpecialMethod]: 'Class constructor may not be an accessor',

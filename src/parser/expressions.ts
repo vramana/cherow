@@ -319,7 +319,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
         });
     }
 
-    return context & Context.Async && token & Token.IsAwait 
+    return context & Context.Async && token & Token.IsAwait
     ? parseAwaitExpression(parser, context, pos)
     : parseUpdateExpression(parser, context, pos);
 }

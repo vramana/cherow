@@ -33,8 +33,8 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     const pos = getLocation(parser);
     expect(parser, context, Token.ClassKeyword);
     const { token } = parser;
-    const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier)) 
-        ? null : 
+    const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))
+        ? null :
         parseBindingIdentifier(parser, context | Context.Strict);
     let state = ObjectState.None;
     let superClass: ESTree.Expression | null = null;
