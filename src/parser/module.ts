@@ -17,7 +17,8 @@ import {
     lookahead,
     nextTokenIsFuncKeywordOnSameLine,
     nextTokenIsLeftParenOrPeriod,
-    setPendingError
+    setPendingError,
+    hasBit
 } from '../utilities';
 
 // 15.2 Modules
@@ -361,7 +362,6 @@ function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.
     expect(parser, context, Token.LeftBrace);
 
     while (parser.token !== Token.RightBrace) {
-        // only accepts identifiers or keywords
         specifiers.push(parseImportSpecifier(parser, context));
         if (parser.token !== Token.RightBrace) {
             expect(parser, context, Token.Comma);
@@ -392,12 +392,10 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
         expect(parser, context, Token.AsKeyword);
         local = parseBindingIdentifier(parser, context);
     } else {
-        if ((token & Token.Reserved) === Token.Reserved) {
-            tolerant(parser, context, Errors.UnexpectedReserved);
-        }
-        if ((token & Token.IsEvalOrArguments) === Token.IsEvalOrArguments) {
-            tolerant(parser, context, Errors.StrictEvalArguments);
-        }
+         // An import name that is a keyword is a syntax error if it is not followed
+         // by the keyword 'as'.
+        if (hasBit(token, Token.Reserved)) tolerant(parser, context, Errors.UnexpectedReserved);
+        if (hasBit(token, Token.IsEvalOrArguments)) tolerant(parser, context, Errors.StrictEvalArguments);
         local = imported;
     }
 

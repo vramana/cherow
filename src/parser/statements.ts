@@ -62,21 +62,13 @@ export function parseStatementListItem(parser: Parser, context: Context) {
             return parseVariableStatement(parser, context | Context.BlockScope | Context.AllowIn);
         case Token.AsyncKeyword:
             return parseAsyncFunctionDeclarationOrStatement(parser, context);
+        case Token.ImportKeyword:
+            return parseExpressionStatementOrStatement(parser, context);
         case Token.ExportKeyword:
             if (context & Context.Module) tolerant(parser, context, Errors.ExportDeclAtTopLevel);
-            break;
-        case Token.ImportKeyword:
-            // We must be careful not to parse a 'import()'
-            // expression or 'import.meta' as an import declaration.
-            if (context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
-                return parseExpressionStatement(parser, context | Context.AllowIn);
-            }
-            if (context & Context.Module) tolerant(parser, context, Errors.ImportDeclAtTopLevel);
-            break;
-        default: // ignore
+        default:
+            return parseStatement(parser, context | Context.AllowSingleStatement);
     }
-
-    return parseStatement(parser, context | Context.AllowSingleStatement);
 }
 
 /**
@@ -89,7 +81,6 @@ export function parseStatementListItem(parser: Parser, context: Context) {
  */
 
 export function parseStatement(parser: Parser, context: Context): any {
-
     switch (parser.token) {
         case Token.VarKeyword:
             return parseVariableStatement(parser, context | Context.AllowIn);
@@ -357,6 +348,20 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
 }
 
 /**
+ * Parses either expression statement or statement
+ * 
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseExpressionStatementOrStatement(parser: Parser, context: Context): ESTree.Statement {
+    if (context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
+        return parseExpressionStatement(parser, context | Context.AllowIn);
+    }
+    if (context & Context.Module) tolerant(parser, context, Errors.ImportDeclAtTopLevel);
+    return parseStatement(parser, context | Context.AllowSingleStatement);
+}
+
+/**
  * Parse directive node
  * 
  * * @see [Link](https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive)
@@ -533,7 +538,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
     // bitfiddling before and after to modify the parser state before we let the 'parseStatement'
     // return the mentioned statements (to match the original grammar).
     const savedFlags = parser.flags;
-    parser.flags |= Flags.Iteration;
+    parser.flags |= Flags.Iteration | Flags.AllowDestructuring;
     const body = parseStatement(parser, context & ~Context.AllowSingleStatement);
     parser.flags = savedFlags;
     return body;

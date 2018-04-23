@@ -32,16 +32,15 @@ export const enum Context {
     Async                   = 1 << 18,
     Yield                   = 1 << 19,
     InParameter             = 1 << 20,
-    IsReserved              = 1 << 21,
-    InFunctionBody          = 1 << 22,
-    AllowSingleStatement    = 1 << 23,
-    BlockScope              = 1 << 24,
-    ForStatement            = 1 << 25,
-    RequireIdentifier       = 1 << 26,
-    Method                  = 1 << 27,
-    AllowSuperProperty      = 1 << 28,
-    InParen                 = 1 << 29,
-    InJSXChild              = 1 << 30
+    InFunctionBody          = 1 << 21,
+    AllowSingleStatement    = 1 << 22,
+    BlockScope              = 1 << 23,
+    ForStatement            = 1 << 24,
+    RequireIdentifier       = 1 << 25,
+    Method                  = 1 << 26,
+    AllowSuperProperty      = 1 << 27,
+    InParen                 = 1 << 28,
+    InJSXChild              = 1 << 29
 }
 
 // Mutual parser flags

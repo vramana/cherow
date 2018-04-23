@@ -132,7 +132,18 @@ describe('Statements - For', () => {
         'for (let {j}=x; j<10; ++j) { function foo(){return j} }',
         'for (let j=x; j<10; ++j) { const foo = j }',
         'for (let j=x; j<10; ++j) { let [foo] = [j] }',
+        // tests for possible destructuring regression
         'for (var {j}=x; j<10; ++j) { const foo = j }',
+        `        for ("boolean" == typeof a && (l = a, a = arguments[s] || 
+                {}, s++), "object" == typeof a || 
+                g(a) || (a = {}), s === u && (a = this, s--); s < u; s++)
+        if (null != (e = arguments[s]))
+            for (t in e) n = a[t], a !== (r = e[t]) && (l && r && (w.isPlainObject(r) || 
+            (i = Array.isArray(r))) ? (i ? (i = !1, o = n && Array.isArray(n) 
+            ? n : []) 
+            : o = n && w.isPlainObject(n) 
+            ? n : {}, a[t] = w.extend(l, o, r)) 
+            : void 0 !== r && (a[t] = r));`
     ];
 
     for (const arg of programs) {

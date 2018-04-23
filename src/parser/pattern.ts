@@ -196,22 +196,17 @@ export function parseAssignmentPattern(
  *
  * @param parser Parser object
  * @param context Context masks
- * @param left LHS of assignment pattern
- * @param pos Location
  */
-
-function parseBindingInitializer(
-    parser: Parser,
-    context: Context,
-    pos: Location = getLocation(parser),
-    left: any = parseBindingIdentifierOrPattern(parser, context)
-): ESTree.AssignmentPattern {
-    if (!consume(parser, context, Token.Assign)) return left;
-    return finishNode(context, parser, pos, {
-        type: 'AssignmentPattern',
-        left,
-        right: parseAssignmentExpression(parser, context | Context.AllowIn)
-    });
+function parseBindingInitializer(parser: Parser, context: Context): ESTree.AssignmentPattern {
+    const pos = getLocation(parser)
+    const left: any = parseBindingIdentifierOrPattern(parser, context);
+    return !consume(parser, context, Token.Assign) ?
+        left :
+        finishNode(context, parser, pos, {
+            type: 'AssignmentPattern',
+            left,
+            right: parseAssignmentExpression(parser, context | Context.AllowIn)
+        });
 }
 
 /**

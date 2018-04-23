@@ -613,7 +613,6 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
         if (parser.token === Token.Ellipsis) {
             parser.flags |= Flags.SimpleParameterList;
             args.push(parseSpreadElement(parser, context));
-            parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
             state = CoverCallState.HasSpread;
         } else {
             token = parser.token;
