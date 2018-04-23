@@ -101,6 +101,7 @@ source: 'var x | true;',
     const validSyntax = [
       `var {x, y} = o`,
       'var {x: x, y: y} = o',
+      'var {x=1, y=2} = o',
   ];
 
     for (const arg of validSyntax) {

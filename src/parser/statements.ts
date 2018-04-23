@@ -357,6 +357,26 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
 }
 
 /**
+ * Parse directive node
+ * 
+ * * @see [Link](https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive)
+ * 
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function parseDirective(parser: Parser, context: Context): ESTree.ExpressionStatement {
+    const pos = getLocation(parser);
+    const directive = parser.tokenRaw.slice(1, -1);
+    const expr = parseExpression(parser, context | Context.AllowIn);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'ExpressionStatement',
+        expression: expr,
+        directive
+    });
+}
+
+/**
  * Parses either expression or labelled statement
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)

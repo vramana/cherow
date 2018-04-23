@@ -3,7 +3,7 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { Location, Parser } from '../types';
 import { parseBindingIdentifier } from './pattern';
-import { parseStatementListItem, parseVariableStatement } from './statements';
+import { parseStatementListItem, parseVariableStatement, parseDirective } from './statements';
 import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression } from './expressions';
 import { parseClassDeclaration, parseFunctionDeclaration,  parseAsyncFunctionOrAsyncGeneratorDeclaration } from './declarations';
 import {
@@ -15,10 +15,9 @@ import {
     getLocation,
     consumeSemicolon,
     lookahead,
-    parseDirective,
     nextTokenIsFuncKeywordOnSameLine,
     nextTokenIsLeftParenOrPeriod,
-    recordError
+    setPendingError
 } from '../utilities';
 
 // 15.2 Modules
@@ -111,7 +110,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                 while (parser.token !== Token.RightBrace) {
                     if (parser.token & Token.Reserved) {
                         hasReservedWord = true;
-                        recordError(parser);
+                        setPendingError(parser);
                     }
                     specifiers.push(parseNamedExportDeclaration(parser, context));
                     if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);

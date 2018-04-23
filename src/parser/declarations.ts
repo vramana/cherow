@@ -134,6 +134,7 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
 
     if (token !== Token.LeftParen) {
         id = parseBindingIdentifier(parser, context);
+    // Unnamed functions are forbidden in statement context.
     } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
     return id as ESTree.Identifier;
 }

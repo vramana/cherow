@@ -5,7 +5,7 @@ import { scanRegularExpression, consumeTemplateBrace } from '../scanner';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Options, Location, Parser } from '../types';
-import { parseStatementListItem } from './statements';
+import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
     expect,
@@ -29,14 +29,13 @@ import {
     nextTokenIsFuncKeywordOnSameLine,
     lookahead,
     isPropertyWithPrivateFieldKey,
-    parseDirective,
     ObjectState,
     CoverParenthesizedState,
-    isIdentifier,
+    isValidIdentifier,
     nextTokenIsLeftParen,
     isEvalOrArguments,
     nextTokenisIdentifierOrParen,
-    recordError,
+    setPendingError,
     CoverCallState,
     validateParams
 } from '../utilities';
@@ -165,12 +164,12 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             if (context & Context.InParen) parser.flags |= Flags.SimpleParameterList;
 
             if (parser.token & Token.IsAwait) {
-                recordError(parser);
+                setPendingError(parser);
                 parser.flags |= Flags.HasAwait;
             } else if (context & Context.InParen &&
                 context & (Context.Strict | Context.Yield) &&
                 parser.token & Token.IsYield) {
-                recordError(parser);
+                setPendingError(parser);
                 parser.flags |= Flags.HasYield;
             }
         } else {
@@ -996,10 +995,10 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                 const sequencepos = getLocation(parser);
 
                 if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                    recordError(parser);
+                    setPendingError(parser);
                     state |= CoverParenthesizedState.HasEvalOrArguments;
                 } else if (hasBit(parser.token, Token.FutureReserved)) {
-                    recordError(parser);
+                    setPendingError(parser);
                     state |= CoverParenthesizedState.HasReservedWords;
                 }
 
@@ -1042,10 +1041,10 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                             default:
                                 {
                                     if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                                        recordError(parser);
+                                        setPendingError(parser);
                                         state |= CoverParenthesizedState.HasEvalOrArguments;
                                     } else if (hasBit(parser.token, Token.FutureReserved)) {
-                                        recordError(parser);
+                                        setPendingError(parser);
                                         state |= CoverParenthesizedState.HasReservedWords;
                                     }
                                     if (parser.token & Token.IsBindingPattern) {
@@ -1329,10 +1328,10 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             value = restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression);
         } else {
 
-            if (state & ObjectState.Async || !isIdentifier(context, t)) {
+            if (state & ObjectState.Async || !isValidIdentifier(context, t)) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(t));
             } else if (context & (Context.Strict | Context.Yield) && t & Token.IsYield) {
-                recordError(parser);
+                setPendingError(parser);
                 parser.flags |= Flags.HasYield;
             }
 
@@ -1340,10 +1339,10 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
 
             if (consume(parser, context, Token.Assign)) {
                 if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
-                    recordError(parser);
+                    setPendingError(parser);
                     parser.flags |= Flags.HasYield;
                 } else if (context & (Context.Strict | Context.Async) && parser.token & Token.IsAwait) {
-                    recordError(parser);
+                    setPendingError(parser);
                     parser.flags |= Flags.HasAwait;
                 }
 
@@ -1358,7 +1357,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) tolerant(parser, context, Errors.UnexpectedReserved);
-                    recordError(parser);
+                    setPendingError(parser);
                     parser.flags |= Flags.HasAwait;
                 }
                 value = key;
@@ -1505,7 +1504,6 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
         const { tokenRaw, tokenValue} = parser;
         body.push(parseDirective(parser, context));
         if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
-            // See: https://tc39.github.io/ecma262/#sec-function-definitions-static-semantics-early-errors
             if (parser.flags & Flags.SimpleParameterList) {
                 tolerant(parser, context, Errors.IllegalUseStrict);
             } else if (parser.flags & (Flags.StrictReserved | Flags.StrictFunctionName)) {
