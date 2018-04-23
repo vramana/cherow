@@ -14,7 +14,6 @@ import {
     escapeForPrinting,
     nextUnicodeChar,
     toHex,
-    storeRaw,
     scanPrivateName,
     Context,
     fromCodePoint,
@@ -886,7 +885,7 @@ export function scanDecimalAsSmi(parser: Parser, context: Context): number {
  */
 function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt = false): Token {
     parser.tokenValue = value;
-    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
+    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
     return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;
 }
 
@@ -937,7 +936,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
         const token = descKeyword(ret);
         if (token > 0) return token;
     }
-    if (context & Context.OptionsRawidentifiers) storeRaw(parser, start);
+    if (context & Context.OptionsRawidentifiers) parser.tokenRaw = parser.source.slice(start, parser.index);
     return Token.Identifier;
 }
 
@@ -1270,7 +1269,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
 
     advance(parser);
 
-    storeRaw(parser, start);
+    parser.tokenRaw = parser.source.slice(start, parser.index);
     parser.tokenValue = ret;
     parser.lastValue = lastValue;
     return Token.StringLiteral;
@@ -1508,7 +1507,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     parser.tokenRegExp = { pattern, flags };
 
-    if (context & Context.OptionsRaw) storeRaw(parser, parser.startIndex);
+    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
 
     parser.tokenValue = validate(parser, context, pattern, flags);
 

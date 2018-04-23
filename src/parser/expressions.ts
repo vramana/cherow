@@ -33,7 +33,7 @@ import {
     CoverParenthesizedState,
     isValidIdentifier,
     nextTokenIsLeftParen,
-    isEvalOrArguments,
+    nameIsArgumentsOrEval,
     nextTokenisIdentifierOrParen,
     setPendingError,
     CoverCallState,
@@ -151,7 +151,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
         token = parser.token;
 
-        if (context & Context.Strict && isEvalOrArguments((expr as ESTree.Identifier).name)) {
+        if (context & Context.Strict && nameIsArgumentsOrEval((expr as ESTree.Identifier).name)) {
             tolerant(parser, context, Errors.StrictLHSAssignment);
         } else if (consume(parser, context, Token.Assign)) {
 
@@ -298,21 +298,16 @@ function parseAwaitExpression(parser: Parser, context: Context, pos: Location): 
  */
 function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
     const pos = getLocation(parser);
-    let { token } = parser;
-    // Note: 'await' is an unary operator, but we keep it separate due to performance reasons
-    if (context & Context.Async && token & Token.IsAwait) return parseAwaitExpression(parser, context, pos);
+    const { token } = parser;
+
     if (hasBit(token, Token.IsUnaryOp)) {
-        token = parser.token;
         nextToken(parser, context);
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
-        if (parser.token === Token.Exponentiate) {
-            tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
-        }
+        if (parser.token === Token.Exponentiate) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
         if (context & Context.Strict && token === Token.DeleteKeyword) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, Errors.StrictDelete);
-            }
-            if (isPropertyWithPrivateFieldKey(context, argument)) {
+            } else if (isPropertyWithPrivateFieldKey(context, argument)) {
                 tolerant(parser, context, Errors.DeletePrivateField);
             }
         }
@@ -324,7 +319,9 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
         });
     }
 
-    return parseUpdateExpression(parser, context, pos);
+    return context & Context.Async && token & Token.IsAwait 
+    ? parseAwaitExpression(parser, context, pos)
+    : parseUpdateExpression(parser, context, pos);
 }
 
 /**
@@ -356,7 +353,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTr
         nextToken(parser, context);
     }
 
-    if (context & Context.Strict && isEvalOrArguments((argument as ESTree.Identifier).name)) {
+    if (context & Context.Strict && nameIsArgumentsOrEval((argument as ESTree.Identifier).name)) {
         tolerant(parser, context, Errors.StrictLHSPrefixPostFix, prefix ? 'Prefix' : 'Postfix');
     } else if (!isValidSimpleAssignmentTarget(argument)) {
         tolerant(parser, context, Errors.InvalidLHSInAssignment);
@@ -566,12 +563,11 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 /**
  * Parse argument list
  *
- * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
+ * @see [https://tc39.github.io/ecma262/#prod-ArgumentList)
  *
  * @param Parser Parser object
  * @param Context Context masks
  */
-
 function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
     expect(parser, context, Token.LeftParen);
     const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
@@ -589,7 +585,7 @@ function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression
 /**
  * Parse argument list for async arrow / async call expression
  *
- * @see [https://tc39.github.io/ecma262/#prod-grammar-notation-ArgumentList)
+ * @see [https://tc39.github.io/ecma262/#prod-ArgumentList)
  *
  * @param Parser Parser object
  * @param Context Context masks
@@ -930,12 +926,12 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
         if (consume(parser, context, Token.Comma)) {
             elements.push(null);
         } else if (parser.token === Token.Ellipsis) {
-            const element = parseSpreadElement(parser, context);
+            elements.push(parseSpreadElement(parser, context));
             if (parser.token !== Token.RightBracket) {
                 parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
                 expect(parser, context, Token.Comma);
             }
-            elements.push(element);
+            
         } else {
             elements.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
             if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);

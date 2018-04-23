@@ -206,13 +206,15 @@ export function hasLabel(parser: Parser, label: string): Labels {
 export function finishNode < T extends ESTree.Node >(
     context: Context,
     parser: Parser,
-    meta: any,
+    meta: Location,
     node: any,
 ): T {
+    
+    const { lastIndex, lastLine, lastColumn, sourceFile, index, delegate } = parser;
 
     if (context & Context.OptionsRanges) {
         node.start = meta.index;
-        node.end = parser.lastIndex;
+        node.end = lastIndex;
     }
 
     if (context & Context.OptionsLoc) {
@@ -223,19 +225,15 @@ export function finishNode < T extends ESTree.Node >(
                 column: meta.column,
             },
             end: {
-                line: parser.lastLine,
-                column: parser.lastColumn
+                line: lastLine,
+                column: lastColumn
             }
         };
 
-        if (parser.sourceFile) {
-            node.loc.source = parser.sourceFile;
-        }
-    }
+        if (sourceFile) node.loc.source = sourceFile;
+    } 
 
-    if (context & Context.OptionsDelegate) {
-        (parser.delegate as Delegate)(node, meta.index, parser.index);
-    }
+    if (context & Context.OptionsDelegate) (delegate as Delegate)(node, meta.index, index);
 
     return node;
 }
@@ -264,9 +262,7 @@ export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
  * @param Err Errors
  */
 export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): boolean {
-    if (parser.token !== t) {
-       report(parser, err, tokenDesc(parser.token));
-    }
+    if (parser.token !== t) report(parser, err, tokenDesc(parser.token));
     nextToken(parser, context);
     return true;
 }
@@ -279,11 +275,9 @@ export function expect(parser: Parser, context: Context, t: Token, err: Errors =
  * @param t Token
  */
 export function consume(parser: Parser, context: Context, t: Token) {
-    if (parser.token === t) {
-        nextToken(parser, context);
-        return true;
-    }
-    return false;
+    if (parser.token !== t) return false;
+    nextToken(parser, context);
+    return true;
 }
 
 /**
@@ -296,7 +290,6 @@ export function nextToken(parser: Parser, context: Context) {
     parser.lastIndex = parser.index;
     parser.lastLine = parser.line;
     parser.lastColumn = parser.column;
-
     return parser.token = scan(parser, context);
 }
 
@@ -553,7 +546,9 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
             // Fall through
 
         default:
-            tolerant(parser, context, context & Context.InParameter ? Errors.NotBindable : Errors.InvalidDestructuringTarget, node.type);
+            tolerant(parser, context, context & Context.InParameter 
+                ? Errors.NotBindable 
+                : Errors.InvalidDestructuringTarget, node.type);
     }
 }
 
@@ -615,37 +610,18 @@ export function toHex(code: number): number {
     return -1;
 }
 
-export function storeRaw(parser: Parser, start: number) {
-    parser.tokenRaw = parser.source.slice(start, parser.index);
-}
-
 /**
- * Returns true if this an valid lexical binding and not an identifier
+ * Does a lookahead.
  * 
  * @param parser Parser object
  * @param context  Context masks
+ * @param callback Callback function to be invoked
  */
-export function lookahead < T >(parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): any {
-
-    const savePos = parser.index;
-    const {
-        tokenValue,
-        flags,
-        line,
-        column,
-        startColumn,
-        lastColumn,
-        startLine,
-        lastLine,
-        lastIndex,
-        startIndex,
-        tokenRaw,
-        token,
-        lastValue,
-        tokenRegExp
-    } = parser;
+export function lookahead < T >(parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): T {
+    const { tokenValue, flags, line, column, startColumn, index, lastColumn,startLine, lastLine,  lastIndex, startIndex,
+        tokenRaw, token,lastValue, tokenRegExp } = parser;
     const res = callback(parser, context);
-    parser.index = savePos;
+    parser.index = index;
     parser.token = token;
     parser.tokenValue = tokenValue;
     parser.tokenValue = tokenValue;
@@ -654,14 +630,12 @@ export function lookahead < T >(parser: Parser, context: Context, callback: (par
     parser.column = column;
     parser.tokenRaw = tokenRaw;
     parser.lastValue = lastValue;
-
     parser.startColumn = startColumn;
     parser.lastColumn = lastColumn;
     parser.startLine = startLine;
     parser.lastLine = lastLine;
     parser.lastIndex = lastIndex;
     parser.startIndex = startIndex;
-
     parser.tokenRegExp = tokenRegExp;
     return res;
 }
@@ -860,7 +834,7 @@ export function parseAndValidateIdentifier(parser: Parser, context: Context) {
 }
 
 
-export function isEvalOrArguments(value: string): boolean {
+export function nameIsArgumentsOrEval(value: string): boolean {
     return value === 'eval' || value === 'arguments';
 }
 

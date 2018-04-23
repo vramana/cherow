@@ -873,6 +873,7 @@ describe('Expressions - Arrows', () => {
             '(x, y) => x + y',
             '(x, y, z) => x, y, z',
             '(x, y) => x.a = y',
+            `(a, b, ...rest) => body`,
             '() => ({\'value\': 42})',
             'f = ([...[x, y, z]]) => {}',
             'f = ([...{ 0: v, 1: w, 2: x, 3: y, length: z }]) => {}',

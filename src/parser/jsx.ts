@@ -15,7 +15,6 @@ import {
     advance,
     consumeOpt,
     finishNode,
-    storeRaw,
     nextTokenIsFuncKeywordOnSameLine,
     nextToken,
     isQualifiedJSXName,
@@ -386,7 +385,7 @@ function scanJSXString(parser: Parser, context: Context, quote: number): Token {
     advance(parser); // skip the quote
 
     // raw
-    if (context & Context.OptionsRaw) storeRaw(parser, rawStart);
+    if (context & Context.OptionsRaw)  parser.tokenRaw = parser.source.slice(rawStart, parser.index);
 
     parser.tokenValue = ret;
 
