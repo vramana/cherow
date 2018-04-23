@@ -21,7 +21,6 @@ describe('Destructuring - Params', () => {
             '[abc.d]',
             '[super]',
             '[super()]',
-
         ];
 
         for (const arg of invalidSyntax) {

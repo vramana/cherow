@@ -931,7 +931,6 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
                 parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
                 expect(parser, context, Token.Comma);
             }
-            
         } else {
             elements.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
             if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);

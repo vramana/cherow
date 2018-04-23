@@ -34,7 +34,7 @@ describe('Expressions - Array', () => {
             ' [...{}];',
             '[1,2,,4,5];',
             'var array = [,,,,,];',
-            '  var a = [,];',
+            'var a = [,];',
         ];
 
         for (const arg of validSyntax) {

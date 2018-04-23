@@ -37,7 +37,6 @@ describe('Expressions - Assignment', () => {
       fail('[(a = 0)] = 1', Context.Module, {
         source: '[(a = 0)] = 1',
     });
-
   });
 
   describe('Pass', () => {
