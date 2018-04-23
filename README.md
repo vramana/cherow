@@ -135,35 +135,13 @@ This will output:
     { type: 'SingleLine', value: ' comment', start: 4, end: 14 }
     { type: 'Identifier', name: 'foo' }
     { type: 'ExpressionStatement', expression: { type: 'Identifier', name: 'foo' } }
-```        
+``` 
 
-## Modules
+## Contributing
 
-In Cherow this replace the traditional plugin system. Cherow export all functions, and let you import them and
-develop your own functions with it, and / or re-use existing one as long as you pass the parser object as the first 
-argument. 
+If you feel something could've been done better, please do feel free to file a pull request with the changes.
 
-Example:
-
-```js
-import { parser, scanSignedInteger, parseScript, parserModule } from 'cherow';
-
-function doWhatYouWant(parser, context) {
-    // do some magic with numbers
-    value = scanSignedInteger(parser, context); / '+', '-'
-
-    // ...
-}
-
-```
-  
-## Performance 
-
-Please note that the results vary from computer to computer, and that end results are not completely correct because 
-this `Jazzle` parser can't parse the `TypeScript library`.
-
-![Alt text](bench.png?raw=true "Title")
-
+Read our guidelines [here](CONTRIBUTING.md)
 
 ## Bug reporting
 
@@ -174,13 +152,20 @@ will take more then 60 minutes to solve your issue, you will be notified.
 
 I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
 
-## Developers
 
-Cherow v. 1.4x is mainly developed by one person, but two other developers actively participate "behind the scene". None of these are GH users, but they name themselves whenever they make changes to the code. 
+## Rationale
 
-## Contribution
+Existing parsers have many issues with them:
 
-If you feel something could've been done better, please do feel free to file a pull request with the changes.
+* `Acorn` is the most commonly used tool out there because of its support for recent ES standards, but it's slow and it often is too permissive in what it accepts. It's also a bit bloated.
 
-Read our guidelines [here](CONTRIBUTING.md)
+* `Esprima` is faster than Acorn, but only recently added async function support, almost never updated, and their test suite has too many invalid tests
+
+* `Babylon` is highly coupled to Babel, and is comparatively very slow and buggy, failing to correctly handle even stable ECMAScript standard features.
+
+None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. 
+
+After discovering this, we figured we could do better. *We* are used in plural form because Cherow is developed by a main developer and two 
+others "behind the scene" that contributes with their knowledge whenever it's necessary.
+
 
