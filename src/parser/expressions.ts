@@ -572,18 +572,14 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
  * @param Context Context masks
  */
 
-function parseArgumentList(parser: Parser, context: Context): ESTree.Expression[] {
+function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
     expect(parser, context, Token.LeftParen);
-    const expressions: any[] = [];
-
+    const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
     while (parser.token !== Token.RightParen) {
         expressions.push(parser.token === Token.Ellipsis ?
             parseSpreadElement(parser, context) :
             parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
-
-        if (parser.token === Token.RightParen) break;
-        expect(parser, context, Token.Comma);
-        if (parser.token === Token.RightParen) break;
+        if (parser.token !== Token.RightParen) expect(parser, context, Token.Comma);
     }
 
     expect(parser, context, Token.RightParen);

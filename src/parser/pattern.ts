@@ -86,11 +86,11 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 
-function parseAssignmentRestElementOrProperty(parser: Parser, context: Context, endToken: Token): ESTree.RestElement {
+function parseAssignmentRestElementOrProperty(parser: Parser, context: Context): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
-    if (parser.token !== endToken) tolerant(parser, context, Errors.ElementAfterRest);
+    if (parser.token == Token.Comma) tolerant(parser, context, Errors.RestWithComma);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument
@@ -118,7 +118,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
             elements.push(null);
         } else {
             if (parser.token === Token.Ellipsis) {
-                elements.push(parseAssignmentRestElementOrProperty(parser, context, Token.RightBracket));
+                elements.push(parseAssignmentRestElementOrProperty(parser, context));
                 break;
             } else {
                 elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseBindingInitializer));
@@ -149,7 +149,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
 
     while (parser.token !== Token.RightBrace) {
         if (parser.token === Token.Ellipsis) {
-            properties.push(parseAssignmentRestElementOrProperty(parser, context, Token.RightBrace));
+            properties.push(parseAssignmentRestElementOrProperty(parser, context));
             break;
         }
         properties.push(parseAssignmentProperty(parser, context));
@@ -248,7 +248,7 @@ function parseAssignmentProperty(parser: Parser, context: Context): ESTree.Assig
         value = parseExpressionCoverGrammar(parser, context, parseBindingInitializer);
     }
 
-    // Note! This is ESTree madness. The specs specifically state that this is "assignment property", but 
+    // Note! The specs specifically state that this is "assignment property", but 
     // nothing in ESTree specs explains the difference between this "property" and the "property" for object literals.
     return finishNode(context, parser, pos, {
         type: 'Property',

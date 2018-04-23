@@ -93,7 +93,8 @@ export const enum Errors {
     NonEmptyJSXExpression,
     ExpectedJSXClosingTag,
     AdjacentJSXElements,
-    InvalidJSXAttributeValue
+    InvalidJSXAttributeValue,
+    RestWithComma
 }
 
 export const ErrorMessages: {
@@ -191,7 +192,8 @@ export const ErrorMessages: {
     [Errors.NonEmptyJSXExpression]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
     [Errors.ExpectedJSXClosingTag]: 'Expected corresponding JSX closing tag for %0',
     [Errors.AdjacentJSXElements]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
-    [Errors.InvalidJSXAttributeValue]: 'Invalid JSX attribute value'
+    [Errors.InvalidJSXAttributeValue]: 'Invalid JSX attribute value',
+    [Errors.RestWithComma]: 'Rest element may not have a trailing comma',
 };
 
 /**

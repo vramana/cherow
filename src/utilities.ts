@@ -1,13 +1,12 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
 import { Errors, report, tolerant } from './errors';
-import { Parser, Delegate } from './types';
+import { Parser, Delegate, Location } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './scanner';
 import { constructError } from './errors';
 import { parseExpression, parseIdentifier } from './parser/expressions';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
-import { Location } from '../lib/types';
 
 // Context masks
 export const enum Context {
