@@ -157,15 +157,15 @@ I know how irritating it can be if you are writing code and encounter bugs in yo
 
 Existing parsers have many issues with them:
 
-* `Acorn` is the most commonly used tool out there because of its support for recent ES standards, but it's slow and it often is too permissive in what it accepts. It's also a bit bloated.
+* `Acorn` is the most commonly used tool out there because of its support for recent ES standards, but it's slow and it often is too permissive in what it accepts. It's also not optimized for handheld devices.
 
-* `Esprima` is faster than Acorn, but only recently added async function support, almost never updated, and their test suite has too many invalid tests
+* `Esprima` is a little faster than Acorn, but it's almost never updated, and their test suite has too many invalid tests. It also doesn't support recent ES standards.
 
-* `Babylon` is highly coupled to Babel, and is comparatively very slow and buggy, failing to correctly handle even stable ECMAScript standard features.
+* `Babylon` is highly coupled to Babel, and is comparatively very slow and buggy, and until recently failing to correctly handle even stable ECMAScript standard features.
 
 None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. 
 
-After discovering this, we figured we could do better. *We* are used in plural form because Cherow is developed by a main developer and two 
-others "behind the scene" that contributes with their knowledge whenever it's necessary.
+We figured we could do better. *We* are used in plural form because Cherow is developed by a main developer and two 
+others "*behind the scene*" that contributes with their knowledge whenever it's necessary.
 
 
