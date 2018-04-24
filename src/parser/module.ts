@@ -141,6 +141,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
         case Token.LetKeyword:
         case Token.ConstKeyword:
             declaration = parseVariableStatement(parser, context | Context.BlockScope);
+            break;
             
           // export VariableDeclaration
         case Token.VarKeyword:
