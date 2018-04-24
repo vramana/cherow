@@ -9,9 +9,6 @@
 
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
-~20 KB smaller code size (*minified*) than Acorn, and ~60 KB than Esprima, and around twice as fast with full support for JSX & Stage 3 proposals via option.
-
-
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
@@ -20,8 +17,8 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Supports Stage 3 proposals via option
 * Optionally track syntactic node locations
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~43 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
-* Lightweight - 62 KB minified
+* Very well tested (~45 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Lightweight - ~68 KB minified (*20 kb smaller than Acorn*)
 
 ## ESNext features
 
@@ -161,11 +158,9 @@ Existing parsers have many issues with them:
 
 * `Esprima` is a little faster than Acorn, but it's almost never updated, and their test suite has too many invalid tests. It also doesn't support recent ES standards.
 
-* `Babylon` is highly coupled to Babel, and is comparatively very slow and buggy, and until recently failing to correctly handle even stable ECMAScript standard features.
+* `Babylon` is highly coupled to Babel, and is comparatively very slow and buggy, and failing to correctly handle even stable ECMAScript standard features.
 
 None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. 
 
-We figured we could do better. *We* are used in plural form because Cherow is developed by a main developer and two 
+We figured we could *try* do better. *We* are used in plural form because Cherow is developed by a main developer and two 
 others "*behind the scene*" that contributes with their knowledge whenever it's necessary.
-
-
