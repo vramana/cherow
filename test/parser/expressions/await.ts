@@ -450,7 +450,7 @@ describe('Expressions - Await', () => {
         });
 
         // fail('function* wrap() { async(a = yield b) => a };', Context.Empty, {
-           //  source: 'function* wrap() { async(a = yield b) => a };',
+        //  source: 'function* wrap() { async(a = yield b) => a };',
         // });
 
         fail('await f();', Context.Empty, {

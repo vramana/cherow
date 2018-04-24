@@ -228,87 +228,85 @@ describe('Module - Export', () => {
                 start: 0,
                 end: 30,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 30
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 30
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExportNamedDeclaration',
                     start: 0,
                     end: 30,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 30
-                      }
-                    },
-                    declaration: {
-                      type: 'FunctionDeclaration',
-                      start: 7,
-                      end: 30,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 7
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 30
-                        }
-                      },
-                      id: {
-                        type: 'Identifier',
-                        start: 22,
-                        end: 25,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 22
-                          },
-                          end: {
-                            line: 1,
-                            column: 25
-                          }
-                        },
-                        name: 'foo'
-                      },
-                      generator: false,
-                      expression: false,
-                      async: true,
-                      params: [],
-                      body: {
-                        type: 'BlockStatement',
-                        start: 28,
-                        end: 30,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 28
-                          },
-                          end: {
                             line: 1,
                             column: 30
-                          }
+                        }
+                    },
+                    declaration: {
+                        type: 'FunctionDeclaration',
+                        start: 7,
+                        end: 30,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 7
+                            },
+                            end: {
+                                line: 1,
+                                column: 30
+                            }
                         },
-                        body: []
-                      }
+                        id: {
+                            type: 'Identifier',
+                            start: 22,
+                            end: 25,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 22
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 25
+                                }
+                            },
+                            name: 'foo'
+                        },
+                        generator: false,
+                        expression: false,
+                        async: true,
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            start: 28,
+                            end: 30,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 28
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 30
+                                }
+                            },
+                            body: []
+                        }
                     },
                     specifiers: [],
                     source: null
-                  }
-                ],
+                }],
                 sourceType: 'module'
-              }
+            }
         });
 
         pass(`export default async function bar() {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.Module, {
@@ -318,85 +316,83 @@ describe('Module - Export', () => {
                 start: 0,
                 end: 38,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 38
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 38
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExportDefaultDeclaration',
                     start: 0,
                     end: 38,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 38
-                      }
-                    },
-                    declaration: {
-                      type: 'FunctionDeclaration',
-                      start: 15,
-                      end: 38,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 15
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 38
-                        }
-                      },
-                      id: {
-                        type: 'Identifier',
-                        start: 30,
-                        end: 33,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 30
-                          },
-                          end: {
-                            line: 1,
-                            column: 33
-                          }
-                        },
-                        name: 'bar'
-                      },
-                      generator: false,
-                      expression: false,
-                      async: true,
-                      params: [],
-                      body: {
-                        type: 'BlockStatement',
-                        start: 36,
-                        end: 38,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 36
-                          },
-                          end: {
                             line: 1,
                             column: 38
-                          }
+                        }
+                    },
+                    declaration: {
+                        type: 'FunctionDeclaration',
+                        start: 15,
+                        end: 38,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 1,
+                                column: 38
+                            }
                         },
-                        body: []
-                      }
+                        id: {
+                            type: 'Identifier',
+                            start: 30,
+                            end: 33,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 30
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 33
+                                }
+                            },
+                            name: 'bar'
+                        },
+                        generator: false,
+                        expression: false,
+                        async: true,
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            start: 36,
+                            end: 38,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 36
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 38
+                                }
+                            },
+                            body: []
+                        }
                     }
-                  }
-                ],
+                }],
                 sourceType: 'module'
-              }
+            }
         });
 
         pass(`import * as loo from 'bar.js';`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.Module, {
@@ -489,101 +485,99 @@ describe('Module - Export', () => {
                 start: 0,
                 end: 38,
                 loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 38
-                  }
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 38
+                    }
                 },
-                body: [
-                  {
+                body: [{
                     type: 'ExportDefaultDeclaration',
                     start: 0,
                     end: 38,
                     loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 38
-                      }
-                    },
-                    declaration: {
-                      type: 'ArrowFunctionExpression',
-                      start: 15,
-                      end: 38,
-                      loc: {
                         start: {
-                          line: 1,
-                          column: 15
+                            line: 1,
+                            column: 0
                         },
                         end: {
-                          line: 1,
-                          column: 38
-                        }
-                      },
-                      id: null,
-                      generator: false,
-                      expression: true,
-                      async: true,
-                      params: [],
-                      body: {
-                        type: 'AwaitExpression',
-                        start: 27,
-                        end: 38,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 27
-                          },
-                          end: {
                             line: 1,
                             column: 38
-                          }
-                        },
-                        argument: {
-                          type: 'CallExpression',
-                          start: 33,
-                          end: 38,
-                          loc: {
+                        }
+                    },
+                    declaration: {
+                        type: 'ArrowFunctionExpression',
+                        start: 15,
+                        end: 38,
+                        loc: {
                             start: {
-                              line: 1,
-                              column: 33
+                                line: 1,
+                                column: 15
                             },
                             end: {
-                              line: 1,
-                              column: 38
+                                line: 1,
+                                column: 38
                             }
-                          },
-                          callee: {
-                            type: 'Identifier',
-                            start: 33,
-                            end: 36,
+                        },
+                        id: null,
+                        generator: false,
+                        expression: true,
+                        async: true,
+                        params: [],
+                        body: {
+                            type: 'AwaitExpression',
+                            start: 27,
+                            end: 38,
                             loc: {
-                              start: {
-                                line: 1,
-                                column: 33
-                              },
-                              end: {
-                                line: 1,
-                                column: 36
-                              }
+                                start: {
+                                    line: 1,
+                                    column: 27
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 38
+                                }
                             },
-                            name: 'foo'
-                          },
-                          arguments: []
+                            argument: {
+                                type: 'CallExpression',
+                                start: 33,
+                                end: 38,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 33
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 38
+                                    }
+                                },
+                                callee: {
+                                    type: 'Identifier',
+                                    start: 33,
+                                    end: 36,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 33
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 36
+                                        }
+                                    },
+                                    name: 'foo'
+                                },
+                                arguments: []
+                            }
                         }
-                      }
                     }
-                  }
-                ],
+                }],
                 sourceType: 'module'
-              }
+            }
         });
 
         pass(`import 'foo';`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw | Context.Module, {

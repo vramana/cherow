@@ -23,7 +23,7 @@ describe('Next - Bignt', () => {
             // Invalid left-hand side in assignment
             '0n = foo[0];',
             '(0n = foo[0]);',
-       ];
+        ];
 
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
@@ -70,19 +70,19 @@ describe('Next - Bignt', () => {
             '0b1_1n',
             '0o_777n',
             '0o7_77n',
-           '1_6n',
-           '(0b101n) << 1n',
-           `0x123456789abcdef0fedcba9876543212345678n << 32n`,
-           `5n << 2n`,
-           `0b101011101n`,
-           `0xFFF123n`,
-           `100n`,
-           '9223372036854775807n',
-           `- - 1n`,
-           `0o0_11n`,
-           `123456789_8n`,
-           'for (let i = 2n; ; i++) {}',
-           '0b1 <= 1n',
+            '1_6n',
+            '(0b101n) << 1n',
+            `0x123456789abcdef0fedcba9876543212345678n << 32n`,
+            `5n << 2n`,
+            `0b101011101n`,
+            `0xFFF123n`,
+            `100n`,
+            '9223372036854775807n',
+            `- - 1n`,
+            `0o0_11n`,
+            `123456789_8n`,
+            'for (let i = 2n; ; i++) {}',
+            '0b1 <= 1n',
             '0b0_1n',
             '0b01_0n',
             '0b0_1_0_1_0n',
@@ -109,27 +109,12 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'module',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'Literal',
-                            value: 14,
-                            bigint: '14n',
-                            start: 0,
-                            end: 3,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 3
-                                }
-                            },
-                            raw: '14n'
-                        },
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 14,
+                        bigint: '14n',
                         start: 0,
                         end: 3,
                         loc: {
@@ -141,9 +126,22 @@ describe('Next - Bignt', () => {
                                 line: 1,
                                 column: 3
                             }
+                        },
+                        raw: '14n'
+                    },
+                    start: 0,
+                    end: 3,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 3
                         }
                     }
-                ],
+                }],
                 start: 0,
                 end: 3,
                 loc: {
@@ -164,115 +162,97 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ForStatement',
-                        body: {
-                            type: 'BlockStatement',
-                            body: [],
-                            start: 24,
-                            end: 26,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 24
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 26
-                                }
+                body: [{
+                    type: 'ForStatement',
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 24,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 24
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
                             }
-                        },
-                        init: {
-                            type: 'VariableDeclaration',
-                            declarations: [
-                                {
-                                    type: 'VariableDeclarator',
-                                    init: {
-                                        type: 'Literal',
-                                        value: 2,
-                                        bigint: '2n',
-                                        start: 13,
-                                        end: 15,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 13
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 15
-                                            }
-                                        },
-                                        raw: '2n'
+                        }
+                    },
+                    init: {
+                        type: 'VariableDeclaration',
+                        declarations: [{
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Literal',
+                                value: 2,
+                                bigint: '2n',
+                                start: 13,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
                                     },
-                                    id: {
-                                        type: 'Identifier',
-                                        name: 'i',
-                                        start: 9,
-                                        end: 10,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 9
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 10
-                                            }
-                                        }
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                },
+                                raw: '2n'
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'i',
+                                start: 9,
+                                end: 10,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
                                     },
-                                    start: 9,
-                                    end: 15,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 9
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 15
-                                        }
+                                    end: {
+                                        line: 1,
+                                        column: 10
                                     }
                                 }
-                            ],
-                            kind: 'let',
-                            start: 5,
+                            },
+                            start: 9,
                             end: 15,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 5
+                                    column: 9
                                 },
                                 end: {
                                     line: 1,
                                     column: 15
                                 }
                             }
-                        },
-                        test: null,
-                        update: {
-                            type: 'UpdateExpression',
-                            argument: {
-                                type: 'Identifier',
-                                name: 'i',
-                                start: 19,
-                                end: 20,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 19
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 20
-                                    }
-                                }
+                        }],
+                        kind: 'let',
+                        start: 5,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 5
                             },
-                            operator: '++',
-                            prefix: false,
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        }
+                    },
+                    test: null,
+                    update: {
+                        type: 'UpdateExpression',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'i',
                             start: 19,
-                            end: 22,
+                            end: 20,
                             loc: {
                                 start: {
                                     line: 1,
@@ -280,24 +260,38 @@ describe('Next - Bignt', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 22
+                                    column: 20
                                 }
                             }
                         },
-                        start: 0,
-                        end: 26,
+                        operator: '++',
+                        prefix: false,
+                        start: 19,
+                        end: 22,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 19
                             },
                             end: {
                                 line: 1,
-                                column: 26
+                                column: 22
                             }
                         }
+                    },
+                    start: 0,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 26,
                 loc: {
@@ -318,49 +312,16 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'BinaryExpression',
-                            left: {
-                                type: 'Literal',
-                                value: 1,
-                                bigint: '1n',
-                                start: 0,
-                                end: 2,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 2
-                                    }
-                                },
-                                raw: '1n'
-                            },
-                            right: {
-                                type: 'Literal',
-                                value: 1,
-                                start: 6,
-                                end: 7,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 6
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 7
-                                    }
-                                },
-                                raw: '1'
-                            },
-                            operator: '<=',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'Literal',
+                            value: 1,
+                            bigint: '1n',
                             start: 0,
-                            end: 7,
+                            end: 2,
                             loc: {
                                 start: {
                                     line: 1,
@@ -368,10 +329,29 @@ describe('Next - Bignt', () => {
                                 },
                                 end: {
                                     line: 1,
+                                    column: 2
+                                }
+                            },
+                            raw: '1n'
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 1,
+                            start: 6,
+                            end: 7,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
                                     column: 7
                                 }
-                            }
+                            },
+                            raw: '1'
                         },
+                        operator: '<=',
                         start: 0,
                         end: 7,
                         loc: {
@@ -384,8 +364,20 @@ describe('Next - Bignt', () => {
                                 column: 7
                             }
                         }
+                    },
+                    start: 0,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 7,
                 loc: {
@@ -406,27 +398,12 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'Literal',
-                            value: 349,
-                            bigint: '0b101011101n',
-                            start: 0,
-                            end: 12,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 12
-                                }
-                            },
-                            raw: '0b101011101n'
-                        },
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 349,
+                        bigint: '0b101011101n',
                         start: 0,
                         end: 12,
                         loc: {
@@ -438,9 +415,22 @@ describe('Next - Bignt', () => {
                                 line: 1,
                                 column: 12
                             }
+                        },
+                        raw: '0b101011101n'
+                    },
+                    start: 0,
+                    end: 12,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 12
                         }
                     }
-                ],
+                }],
                 start: 0,
                 end: 12,
                 loc: {
@@ -461,27 +451,12 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'Literal',
-                            value: 256,
-                            bigint: '0x01_00n',
-                            start: 0,
-                            end: 8,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 8
-                                }
-                            },
-                            raw: '0x01_00n'
-                        },
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 256,
+                        bigint: '0x01_00n',
                         start: 0,
                         end: 8,
                         loc: {
@@ -493,9 +468,22 @@ describe('Next - Bignt', () => {
                                 line: 1,
                                 column: 8
                             }
+                        },
+                        raw: '0x01_00n'
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
                         }
                     }
-                ],
+                }],
                 start: 0,
                 end: 8,
                 loc: {
@@ -516,27 +504,12 @@ describe('Next - Bignt', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'script',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'Literal',
-                            value: 511,
-                            bigint: '0o_777n',
-                            start: 0,
-                            end: 7,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 7
-                                }
-                            },
-                            raw: '0o_777n'
-                        },
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 511,
+                        bigint: '0o_777n',
                         start: 0,
                         end: 7,
                         loc: {
@@ -548,9 +521,22 @@ describe('Next - Bignt', () => {
                                 line: 1,
                                 column: 7
                             }
+                        },
+                        raw: '0o_777n'
+                    },
+                    start: 0,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
                         }
                     }
-                ],
+                }],
                 start: 0,
                 end: 7,
                 loc: {

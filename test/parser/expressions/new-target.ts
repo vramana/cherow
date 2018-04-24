@@ -29,7 +29,7 @@ describe('Expressions - New target', () => {
             source: 'for (var import.meta of [1]) {}',
         });
 
-      //  fail(`() => { new.target; };`, Context.Empty, {
+        //  fail(`() => { new.target; };`, Context.Empty, {
         //    source: '() => { new.target; };',
         //});
 
@@ -42,7 +42,7 @@ describe('Expressions - New target', () => {
         });
 
         //fail(`function f() { new.t\\u0061rget; }`, Context.Empty, {
-          //  source: 'function f() { new.t\\u0061rget; }',
+        //  source: 'function f() { new.t\\u0061rget; }',
         //});
 
         fail(`new.prop`, Context.Empty, {
@@ -182,256 +182,246 @@ describe('Expressions - New target', () => {
             expected: {
                 type: 'Program',
                 sourceType: 'module',
-                body: [
-                    {
-                        type: 'ClassDeclaration',
-                        id: {
-                            type: 'Identifier',
-                            name: 'C',
-                            start: 6,
-                            end: 7,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 6
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 7
-                                }
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'C',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
                             }
-                        },
-                        superClass: null,
-                        body: {
-                            type: 'ClassBody',
-                            body: [
-                                {
-                                    type: 'MethodDefinition',
-                                    kind: 'set',
-                                    static: false,
-                                    computed: false,
-                                    key: {
-                                        type: 'Identifier',
-                                        name: 'x',
-                                        start: 13,
-                                        end: 14,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 13
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 14
-                                            }
-                                        }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            kind: 'set',
+                            static: false,
+                            computed: false,
+                            key: {
+                                type: 'Identifier',
+                                name: 'x',
+                                start: 13,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
                                     },
-                                    value: {
-                                        type: 'FunctionExpression',
-                                        params: [
-                                            {
-                                                type: 'Identifier',
-                                                name: '_',
-                                                start: 15,
-                                                end: 16,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 15
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 16
-                                                    }
-                                                }
-                                            }
-                                        ],
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                params: [{
+                                    type: 'Identifier',
+                                    name: '_',
+                                    start: 15,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    }
+                                }],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [{
+                                        type: 'DoWhileStatement',
                                         body: {
                                             type: 'BlockStatement',
-                                            body: [
-                                                {
-                                                    type: 'DoWhileStatement',
-                                                    body: {
-                                                        type: 'BlockStatement',
-                                                        body: [
-                                                            {
-                                                                type: 'ExpressionStatement',
-                                                                expression: {
-                                                                    meta: {
-                                                                        type: 'Identifier',
-                                                                        name: 'new',
-                                                                        start: 24,
-                                                                        end: 27,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 1,
-                                                                                column: 24
-                                                                            },
-                                                                            end: {
-                                                                                line: 1,
-                                                                                column: 27
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    type: 'MetaProperty',
-                                                                    property: {
-                                                                        type: 'Identifier',
-                                                                        name: 'target',
-                                                                        start: 28,
-                                                                        end: 34,
-                                                                        loc: {
-                                                                            start: {
-                                                                                line: 1,
-                                                                                column: 28
-                                                                            },
-                                                                            end: {
-                                                                                line: 1,
-                                                                                column: 34
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    start: 24,
-                                                                    end: 34,
-                                                                    loc: {
-                                                                        start: {
-                                                                            line: 1,
-                                                                            column: 24
-                                                                        },
-                                                                        end: {
-                                                                            line: 1,
-                                                                            column: 34
-                                                                        }
-                                                                    }
-                                                                },
-                                                                start: 24,
-                                                                end: 34,
-                                                                loc: {
-                                                                    start: {
-                                                                        line: 1,
-                                                                        column: 24
-                                                                    },
-                                                                    end: {
-                                                                        line: 1,
-                                                                        column: 34
-                                                                    }
-                                                                }
-                                                            }
-                                                        ],
-                                                        start: 22,
-                                                        end: 36,
+                                            body: [{
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    meta: {
+                                                        type: 'Identifier',
+                                                        name: 'new',
+                                                        start: 24,
+                                                        end: 27,
                                                         loc: {
                                                             start: {
                                                                 line: 1,
-                                                                column: 22
+                                                                column: 24
                                                             },
                                                             end: {
                                                                 line: 1,
-                                                                column: 36
+                                                                column: 27
                                                             }
                                                         }
                                                     },
-                                                    test: {
-                                                        type: 'Literal',
-                                                        value: 0,
-                                                        start: 44,
-                                                        end: 45,
+                                                    type: 'MetaProperty',
+                                                    property: {
+                                                        type: 'Identifier',
+                                                        name: 'target',
+                                                        start: 28,
+                                                        end: 34,
                                                         loc: {
                                                             start: {
                                                                 line: 1,
-                                                                column: 44
+                                                                column: 28
                                                             },
                                                             end: {
                                                                 line: 1,
-                                                                column: 45
+                                                                column: 34
                                                             }
-                                                        },
-                                                        raw: '0'
+                                                        }
                                                     },
-                                                    start: 19,
-                                                    end: 46,
+                                                    start: 24,
+                                                    end: 34,
                                                     loc: {
                                                         start: {
                                                             line: 1,
-                                                            column: 19
+                                                            column: 24
                                                         },
                                                         end: {
                                                             line: 1,
-                                                            column: 46
+                                                            column: 34
                                                         }
                                                     }
+                                                },
+                                                start: 24,
+                                                end: 34,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 24
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 34
+                                                    }
                                                 }
-                                            ],
-                                            start: 18,
-                                            end: 47,
+                                            }],
+                                            start: 22,
+                                            end: 36,
                                             loc: {
                                                 start: {
                                                     line: 1,
-                                                    column: 18
+                                                    column: 22
                                                 },
                                                 end: {
                                                     line: 1,
-                                                    column: 47
+                                                    column: 36
                                                 }
                                             }
                                         },
-                                        async: false,
-                                        generator: false,
-                                        expression: false,
-                                        id: null,
-                                        start: 14,
-                                        end: 47,
+                                        test: {
+                                            type: 'Literal',
+                                            value: 0,
+                                            start: 44,
+                                            end: 45,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 44
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 45
+                                                }
+                                            },
+                                            raw: '0'
+                                        },
+                                        start: 19,
+                                        end: 46,
                                         loc: {
                                             start: {
                                                 line: 1,
-                                                column: 14
+                                                column: 19
                                             },
                                             end: {
                                                 line: 1,
-                                                column: 47
+                                                column: 46
                                             }
                                         }
-                                    },
-                                    start: 9,
+                                    }],
+                                    start: 18,
                                     end: 47,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 9
+                                            column: 18
                                         },
                                         end: {
                                             line: 1,
                                             column: 47
                                         }
                                     }
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null,
+                                start: 14,
+                                end: 47,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 14
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 47
+                                    }
                                 }
-                            ],
-                            start: 8,
-                            end: 48,
+                            },
+                            start: 9,
+                            end: 47,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 8
+                                    column: 9
                                 },
                                 end: {
                                     line: 1,
-                                    column: 48
+                                    column: 47
                                 }
                             }
-                        },
-                        start: 0,
+                        }],
+                        start: 8,
                         end: 48,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 8
                             },
                             end: {
                                 line: 1,
                                 column: 48
                             }
                         }
+                    },
+                    start: 0,
+                    end: 48,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 48
+                        }
                     }
-                ],
+                }],
                 start: 0,
                 end: 48,
                 loc: {
