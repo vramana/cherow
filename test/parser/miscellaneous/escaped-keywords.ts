@@ -12,6 +12,7 @@ describe('Miscellaneous - Escaped keywords', () => {
             'import X fro\\u006d "foo"',
             'export default \\u0061sync function () { await x }',
             'export \\u0061sync function y() { await x }',
+            // "\\u0069mport blah from './foo.js';",
     
         ];
     
@@ -25,27 +26,27 @@ describe('Miscellaneous - Escaped keywords', () => {
         }
 
         const invalidSyntax = [
-            //'\\u0061sync function* f(){}',
+            '\\u0061sync function* f(){}',
             //'void \\u0061sync function* f(){};',
             //  '({ \\u0061sync m(){} });',
             '"use strict"; var \\u0079ield = 123;',
             // '({ g\\u0065t m() {} });',
             'for (var i = 0; i < 100; ++i) { br\\u0065ak; }',
-            //'cl\\u0061ss Foo {}',
-            //'\\u0063onst foo = 1;',
+            'cl\\u0061ss Foo {}',
+            '\\u0063onst foo = 1;',
             'while(n --> 0) { \\u0062\\u0072\\u0065\\u0061\\u{006B}; }',
             'while (i < 10) { if (i++ & 1) c\\u006fntinue; this.x++; }',
-            // 'd\\u0065bugger;',
-            // 'd\\u0065lete this.a;',
+            'd\\u0065bugger;',
+            'd\\u0065lete this.a;',
             '\\u0063o { } while(0)',
             'if (false) { this.a = 1; } \\u0065lse { this.b = 1; }',
             'e\\u0078port var foo;',
             'try { } catch (e) {} f\\u0069nally { }',
-            // 'n\\u0065w function f() {}',
+            'n\\u0065w function f() {}',
             // 'class C extends function() {} { constructor() { sup\\u0065r() } }',
-            // 't\\u0072y { true } catch (e) {}',
+            't\\u0072y { true } catch (e) {}',
             // 'var x = typ\\u0065of "blah"',
-            // 'v\\u0061r a = true',
+            'v\\u0061r a = true',
             'var { n\\u0075ll } = { 1 };',
             'n\\u0075ll = 1;',
             'try { } c\\u0061tch (e) {}',
@@ -55,55 +56,53 @@ describe('Miscellaneous - Escaped keywords', () => {
             'tru\\u0065 = 0;',
             'async() => { \\u0061wait: ;  };',
             '"use strict"; var \\u0079ield = 123;',
-            //'i\\u0066 (false) {}',
+            'i\\u0066 (false) {}',
             'var i\\u0066;',
             'i\\u006E',
             //'class X { st\\u0061tic y() {} }',
-            //'f\\u0061lse: ;',
-            //'tru\\u0065: ;',
+            'f\\u0061lse: ;',
+            'tru\\u0065: ;',
             'var i\\u0066',
             //'function *a(){yi\\u0065ld 0}',
-            // 'le\\u0074 a',
-            // '\\u{74}rue',
-            // 'le\\u0074 x = 5',
+             'le\\u0074 a',
+             '\\u{74}rue',
+             'le\\u0074 x = 5',
             'function* () { y\\u0069eld 10 })',
             // '(async function() { aw\\u0061it x })',
-            //'\\u0061sync x => { await x }',
+            '\\u0061sync x => { await x }',
             "for (var i = 0; i < 100; ++i) { br\\u0065ak; }",
-            // "cl\\u0061ss Foo {}",
+             "cl\\u0061ss Foo {}",
             // "var x = cl\\u0061ss {}",
-            // "\\u0063onst foo = 1;",
+             "\\u0063onst foo = 1;",
              "while (i < 10) { if (i++ & 1) c\\u006fntinue; this.x++; }",
-            // "d\\u0065bugger;",
-            // "d\\u0065lete this.a;",
+            "d\\u0065bugger;",
+            "d\\u0065lete this.a;",
              "\\u0063o { } while(0)",
              "if (d\\u006f { true }) {}",
              "if (false) { this.a = 1; } \\u0065lse { this.b = 1; }",
              "e\\u0078port var foo;",
              "try { } catch (e) {} f\\u0069nally { }",
-            // "f\\u006fr (var i = 0; i < 10; ++i);",
-            // "f\\u0075nction fn() {}",
+             "f\\u006fr (var i = 0; i < 10; ++i);",
+             "f\\u0075nction fn() {}",
             // "var f = f\\u0075nction() {}",
-            // "\\u0069f (true) { }",
-            // "\\u0069mport blah from './foo.js';",
-            // "n\\u0065w function f() {}",
+            "\\u0069f (true) { }",
+            "n\\u0065w function f() {}",
             // "(function() { r\\u0065turn; })()",
             // "class C extends function() {} { constructor() { sup\\u0065r() } }",
             // "class C extends function() {} { constructor() { sup\\u0065r.a = 1 } }",
-            // "sw\\u0069tch (this.a) {}",
+             "sw\\u0069tch (this.a) {}",
             // "var x = th\\u0069s;",
-            // "th\\u0069s.a = 1;",
-            // "thr\\u006fw 'boo';",
-            // "t\\u0072y { true } catch (e) {}",
+             "th\\u0069s.a = 1;",
+             "thr\\u006fw 'boo';",
+             "t\\u0072y { true } catch (e) {}",
             // "var x = typ\\u0065of 'blah'",
-            // "v\\u0061r a = true",
+             "v\\u0061r a = true",
             "var v\\u0061r = true",
             // "(function() { return v\\u006fid 0; })()",
-            // "wh\\u0069le (true) { }",
-            // "w\\u0069th (this.scope) { }",
+             "wh\\u0069le (true) { }",
+             "w\\u0069th (this.scope) { }",
             // "(function*() { y\\u0069eld 1; })()",
             // "(function*() { var y\\u0069eld = 1; })()",
-        
             // "var \\u0065num = 1;",
             "var { \\u0065num } = {}",
             "(\\u0065num = 1);",
@@ -167,6 +166,26 @@ describe('Miscellaneous - Escaped keywords', () => {
 
     describe('Pass', () => {
 
+        const validSyntax = [
+            'var le\u0074;',
+            '({le\u0074: 0})',
+            '({i\\u0066: 0})',
+            'var le\\u0074',
+            'function *a(){({yi\\u0065ld: 0})}',
+            'var le\\u0074',
+            "(\\u0061sync ())",
+    
+        ];
+    
+        for (const arg of validSyntax) {
+    
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
+        
         pass(`var { y\\u0069eld } = {};`, Context.OptionsRaw, {
             source: 'var { y\\u0069eld } = {};',
             expected: {

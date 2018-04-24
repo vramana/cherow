@@ -4,6 +4,7 @@ import { Context } from './utilities';
 export const enum Errors {
     Unexpected,
     UnexpectedToken,
+    UnexpectedEscapedKeyword,
     UnexpectedKeyword,
     InvalidLHSInAssignment,
     UnterminatedString,
@@ -102,6 +103,7 @@ export const ErrorMessages: {
 } = {
     [Errors.Unexpected]: 'Unexpected token',
     [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',
+    [Errors.UnexpectedEscapedKeyword]: 'Unexpected escaped keyword \'%0\'',
     [Errors.UnexpectedKeyword]: 'Keyword \'%0\' is reserved',
     [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment',
     [Errors.UnterminatedString]: 'Unterminated string literal',

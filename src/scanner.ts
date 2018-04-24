@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import { Parser } from './types';
-import { Errors, report } from './errors';
+import { Errors, report, tolerant } from './errors';
 import { Token, descKeyword } from './token';
 import { isValidIdentifierStart } from './unicode';
 import { skipSingleLineComment, skipMultiLineComment } from './comments';
@@ -935,7 +935,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
     // https://tc39.github.io/ecma262/#sec-keywords
     if (len >= 2 && len <= 11) {
         const token = descKeyword(ret);
-        if (context & Context.DisallowEscapedKeyword && isEscaped) this.tolerate(context, Errors.Unexpected);
+        if (context & Context.DisallowEscapedKeyword && isEscaped) tolerant(parser, context, Errors.UnexpectedEscapedKeyword);
         else if (token > 0) return token;
     }
     if (context & Context.OptionsRawidentifiers) parser.tokenRaw = parser.source.slice(start, parser.index);

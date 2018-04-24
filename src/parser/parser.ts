@@ -156,7 +156,7 @@ export function parse(source: string, options: Options | void, context: Context)
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
-    nextToken(parser, context);
+    nextToken(parser, context | Context.DisallowEscapedKeyword);
     while (parser.token === Token.StringLiteral) {
         // We do a strict check here too speed up things in case someone is crazy eenough to
         // write "use strict"; "use strict"; at Top-level. // J.K
