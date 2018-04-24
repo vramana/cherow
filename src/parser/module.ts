@@ -138,9 +138,11 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
             break;
 
             // export LexicalDeclaration
-            // export VariableDeclaration
         case Token.LetKeyword:
         case Token.ConstKeyword:
+            declaration = parseVariableStatement(parser, context | Context.BlockScope);
+            
+          // export VariableDeclaration
         case Token.VarKeyword:
             declaration = parseVariableStatement(parser, context);
             break;

@@ -713,7 +713,6 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
     let update: ESTree.Expression | null = null;
     let right;
 
-    // TODO! Scoping
     if (token === Token.ConstKeyword || (token === Token.LetKeyword && lookahead(parser, context, isLexical))) {
         variableStatement = parseVariableStatement(parser, context & ~Context.AllowIn | Context.BlockScope, /* shouldConsume */ false);
     } else if (token === Token.VarKeyword) {
