@@ -10,28 +10,27 @@ export const enum Token {
     Precedence = 15 << PrecStart, // 8-11
 
     /* Attribute names */
-    IsBlockScope      = 1 << 6,
-    InstanceField     = 1 << 9,
-    Keyword           = 1 << 10,
-    Reserved          = 1 << 11 | Keyword,
-    FutureReserved    = 1 << 12 | Keyword,
-    Contextual        = 1 << 13 | Keyword,
-    IsExpressionStart = 1 << 14,
-    IsAssignOp        = 1 << 16,
-    IsBinaryOp        = 1 << 17 | IsExpressionStart,
-    IsUnaryOp         = 1 << 18 | IsExpressionStart,
-    IsUpdateOp        = 1 << 19 | IsExpressionStart,
-    IsYield           = 1 << 20,
-    IsAwait           = 1 << 21,
-    IsAsync           = 1 << 22,
-    IsLogical         = 1 << 23,
-    IsBindingPattern  = 1 << 24,
-    IsEndMarker       = 1 << 25,
-    IsIdentifier      = 1 << 26,
-    IsEvalOrArguments = 1 << 27,
-    ASI               = 1 << 28,
-    IsInOrOf          = 1 << 29,
-    IsIterationStatement = 1 << 30,
+    IsIterationStatement = 1 << 4,
+    Keyword              = 1 << 12,
+    Reserved             = 1 << 13 | Keyword,
+    FutureReserved       = 1 << 14 | Keyword,
+    Contextual           = 1 << 15 | Keyword,
+    IsExpressionStart    = 1 << 16,
+    IsAssignOp           = 1 << 17,
+    IsBinaryOp           = 1 << 18 | IsExpressionStart,
+    IsUnaryOp            = 1 << 19 | IsExpressionStart,
+    IsUpdateOp           = 1 << 20 | IsExpressionStart,
+    IsYield              = 1 << 21,
+    IsAwait              = 1 << 22,
+    IsAsync              = 1 << 23,
+    IsLogical            = 1 << 24,
+    IsBindingPattern     = 1 << 25,
+    IsEndMarker          = 1 << 26,
+    IsIdentifier         = 1 << 27,
+    IsEvalOrArguments    = 1 << 28,
+    ASI                  = 1 << 29,
+    IsInOrOf             = 1 << 30,
+
 
     /* Node types */
     EndOfSource = 0 | ASI, // Pseudo
@@ -55,9 +54,9 @@ export const enum Token {
     LeftBrace    = 12 | IsExpressionStart | IsBindingPattern, // {
     Period       = 13 | IsEndMarker, // .
     Ellipsis     = 14, // ...
-    RightBrace   = 15 | IsEndMarker | ASI  | InstanceField, // }
+    RightBrace   = 15 | IsEndMarker | ASI, // }
     RightParen   = 16, // )
-    Semicolon    = 17 | ASI | IsEndMarker | InstanceField, // ;
+    Semicolon    = 17 | ASI | IsEndMarker, // ;
     Comma        = 18 | IsEndMarker, // ,
     LeftBracket  = 19 | IsBindingPattern | IsExpressionStart , // [
     RightBracket = 20, // ]
@@ -73,7 +72,7 @@ export const enum Token {
      Decrement = 28 | IsUpdateOp, // --
 
       /* Assign operators */
-      Assign                  = 29 | IsAssignOp | IsEndMarker | InstanceField, // =
+      Assign                  = 29 | IsAssignOp | IsEndMarker, // =
       ShiftLeftAssign         = 30 | IsAssignOp, // <<=
       ShiftRightAssign        = 31 | IsAssignOp, // >>=
       LogicalShiftRightAssign = 32 | IsAssignOp, // >>>=
@@ -119,8 +118,8 @@ export const enum Token {
 
     /* Variable declaration kinds */
     VarKeyword   = 71 | Reserved       | IsExpressionStart,
-    LetKeyword   = 72 | FutureReserved | IsExpressionStart | IsBlockScope,
-    ConstKeyword = 73 | Reserved       | IsExpressionStart | IsBlockScope,
+    LetKeyword   = 72 | FutureReserved | IsExpressionStart,
+    ConstKeyword = 73 | Reserved       | IsExpressionStart,
 
     /* Other reserved words */
     BreakKeyword    = 74 | Reserved,

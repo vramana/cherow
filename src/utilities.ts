@@ -878,3 +878,8 @@ export function isQualifiedJSXName(elementName: any): any {
             // ignore
     }
 }
+
+export function isInstanceField(parser: Parser): boolean {
+    const { token } = parser;
+    return token === Token.RightBrace || token === Token.Semicolon || token === Token.Assign;
+}

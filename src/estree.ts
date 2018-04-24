@@ -495,7 +495,7 @@ export interface LabeledStatement extends _Statement<'LabeledStatement'> {
     body: Statement;
 }
 export interface BigIntLiteral extends _Expression<'Literal'> {
-    value: number | null;
+    value: number;
     bigint: string;
     raw?: string;
 }
@@ -636,7 +636,7 @@ export interface UnaryExpression extends _Expression<'UnaryExpression'> {
 export type UpdateOperator = '++' | '--';
 export interface UpdateExpression extends _Expression<'UpdateExpression'> {
     operator: UpdateOperator;
-    argument: Expression;
+    argument: Expression | Pattern;
     prefix: boolean;
 }
 

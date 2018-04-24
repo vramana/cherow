@@ -15,7 +15,8 @@ import {
     Flags,
     hasNext,
     nextToken,
-    consume,
+    consume, 
+    isInstanceField,
     restoreExpressionCoverGrammar,
     parseAndValidateIdentifier,
     parseExpressionCoverGrammar,
@@ -1736,7 +1737,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
 
     let key = parsePropertyName(parser, context);
 
-    if (context & Context.OptionsNext && parser.token & Token.InstanceField) {
+    if (context & Context.OptionsNext && isInstanceField(parser)) {
         return parseFieldDefinition(parser, context, key, state, pos);
     }
 
@@ -1756,7 +1757,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
 
             key = parsePropertyName(parser, context);
 
-            if (context & Context.OptionsNext && parser.token & Token.InstanceField) {
+            if (context & Context.OptionsNext && isInstanceField(parser)) {
                 if (tokenValue === 'constructor') tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
                 return parseFieldDefinition(parser, context, key, state, pos);
             }
@@ -1799,7 +1800,6 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
     }
 
     return parseMethodDefinition(parser, context, key, value, state, pos);
-
 }
 
 function parseMethodDefinition(parser: Parser, context: Context, key: any, value: any, state: ObjectState, pos: Location): ESTree.MethodDefinition {
