@@ -2038,7 +2038,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
 
     const id = parseIdentifier(parser, context);
 
-    if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Period)) {
+    if (consume(parser, context, Token.Period)) {
         if (parser.tokenValue !== 'target' ||
             !(context & (Context.InParameter | Context.InFunctionBody))) tolerant(parser, context, Errors.MetaNotInFunctionBody);
         return parseMetaProperty(parser, context, id as ESTree.Identifier, pos);

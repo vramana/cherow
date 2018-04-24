@@ -63,6 +63,7 @@ export const enum Flags {
     InFunctionBody          = 1 << 13,
     HasAwait                = 1 << 14,
     HasYield                = 1 << 15,
+    EscapedKeyword          = 1 << 16,
     AllowBreakOrContinue = Switch | Iteration,
 }
 

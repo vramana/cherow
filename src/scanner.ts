@@ -27,6 +27,7 @@ import {
     NumericState,
     advanceOnMaybeAstral
 } from './utilities';
+import { tokenDesc } from '../lib/token';
 
 /**
  * Scan
@@ -935,9 +936,22 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
     // https://tc39.github.io/ecma262/#sec-keywords
     if (len >= 2 && len <= 11) {
         const token = descKeyword(ret);
-        if (context & Context.DisallowEscapedKeyword && isEscaped) tolerant(parser, context, Errors.UnexpectedEscapedKeyword);
-        else if (token > 0) return token;
-    }
+        if (token > 0) {
+            if (isEscaped) {
+                if (context & Context.DisallowEscapedKeyword) {
+                    tolerant(parser, context, Errors.UnexpectedEscapedKeyword, tokenDesc(token as any));
+                }
+                // Here we fall back to a mutual parser flag if the escaped keyword isn't disallowed through
+                // context masks. This is similiar to how V8 does it - they are using an
+                // 'escaped_keyword' token. 
+                //
+                // - J.K. Thomas
+                parser.flags |= Flags.EscapedKeyword;
+            }
+            return token;
+        }
+    } 
+    
     if (context & Context.OptionsRawidentifiers) parser.tokenRaw = parser.source.slice(start, parser.index);
     return Token.Identifier;
 }
