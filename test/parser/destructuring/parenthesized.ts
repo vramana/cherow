@@ -1,87 +1,71 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser/parser';
 
 describe('Destructuring - Parenthesized', () => {
 
   describe('Failure', () => {
 
-      fail('(new.target) = 1', Context.Empty, {
-          source: '(new.target) = 1',
-      });
-
-      fail('([a += a] = a)', Context.Empty, {
-        source: '([a += a] = a)',
-      });
-
-      fail('for (`a` of b);', Context.Empty, {
-          source: 'for (`a` of b);',
-      });
-
-      fail('(`a`) => b;', Context.Empty, {
-          source: '(`a`) => b;',
-      });
-
-      fail('({ x }) = { x: 5 };', Context.Empty, {
-          source: '({ x }) = { x: 5 };',
-      });
-
-      fail('({a}) = 1;', Context.Empty, {
-          source: '({a}) = 1;',
-      });
-
-      fail('const ({a}) = 1;', Context.Empty, {
-          source: 'const ({a}) = 1;',
-      });
-
-      fail('(var {a:b} = {})', Context.Empty, {
-          source: '(var {a:b} = {})',
-      });
-
-      fail('({start, stop}) = othernode;', Context.Empty, {
-          source: '({start, stop}) = othernode;',
-      });
-
-      fail('{a, b} = {a: 1, b: 2}', Context.Empty, {
-          source: '{a, b} = {a: 1, b: 2}',
-      });
-
-      fail('({a, b}) = {a: 1, b:2};', Context.Empty, {
-          source: '({a, b}) = {a: 1, b:2};',
-      });
-
-      fail('({b}) = b;', Context.Empty, {
-          source: '({b}) = b;',
-      });
-
-      fail('([b]) = b;', Context.Empty, {
-          source: '([b]) = b;',
-      });
-
-      fail('([a]) = 2;', Context.Empty, {
-        source: '([a]) = 2;',
-      });
-
-      fail('({a}) = 2;', Context.Empty, {
-        source: '({a}) = 2;',
-      });
-
-      fail('([b]) = b;', Context.Empty, {
-        source: '([b]) = b;',
-      });
-
-      fail('([{constructor(){}}] = b);', Context.Empty, {
-          source: '([{constructor(){}}] = b);',
-      });
-
+    const invalidSyntax = [
+      'var {(a)} = 0',
+      'var {a:(b)} = 0',
+      '({(a)} = 0)',
+      '({a:(b = 0)} = 1)',
+      '(new.target) = 1',
+      '([a += a] = a)',
+      'for (`a` of b);',
+      '(`a`) => b;',
+      '({ x }) = { x: 5 };',
+      '({a}) = 1;',
+      '(var {a:b} = {})',
+      '({start, stop}) = othernode;',
+      '{a, b} = {a: 1, b: 2}',
+      '({a, b}) = {a: 1, b:2};',
+      '({b}) = b;',
+      '([b]) = b;',
+      '({a}) = 2;',
+      '([b]) = b;',
+      'var [(a)] = 0',
+      '[(a = 0)] = 1',
+      '([{constructor(){}}] = b);',
       // doesn't fail in Acorn / Esprima / Espree and Babylon
-      fail('({ src: ([dest]) } = obj)', Context.Empty, {
-          source: '({ src: ([dest]) } = obj)',
+      '({ src: ([dest]) } = obj)',
+  ];
+
+    for (const arg of invalidSyntax) {
+
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
       });
+    }
   });
 
   describe('Pass', () => {
 
-      pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    const validSyntax = [
+      '[(a)] = 0',
+      '[(a) = 0] = 1',
+      '[(a.b)] = 0',
+      '({a:(b)} = 0)',
+      '({a:(b) = 0} = 1)',
+      '({a:(b.c)} = 0)',
+      '({a:(b = 0)})',
+  ];
+
+    for (const arg of validSyntax) {
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+          parse(`${arg}`, undefined, Context.Empty);
+      });
+  });
+
+    }
+
+    pass('c = ({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'c = ({b} = b);',
           expected: {
               type: 'Program',
@@ -250,7 +234,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('({b} = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '({b} = b);',
           expected: {
               type: 'Program',
@@ -387,7 +371,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('([b] = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('([b] = b);', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '([b] = b);',
           expected: {
               type: 'Program',
@@ -489,7 +473,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('({a, b} = {a: 1, b: 2});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('({a, b} = {a: 1, b: 2});', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '({a, b} = {a: 1, b: 2});',
           expected: {
               type: 'Program',
@@ -782,7 +766,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('[a, b] = [1, 2]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('[a, b] = [1, 2]', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '[a, b] = [1, 2]',
           expected: {
               type: 'Program',
@@ -935,7 +919,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('let {start, stop} = node;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('let {start, stop} = node;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'let {start, stop} = node;',
           expected: {
               type: 'Program',
@@ -1125,7 +1109,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('({ responseText: text } = res)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '({ responseText: text } = res)',
           expected: {
               type: 'Program',
@@ -1262,7 +1246,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('(a) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(a) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(a) = {}',
           expected: {
               type: 'Program',
@@ -1347,7 +1331,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('(a["b"]) = {} ', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(a["b"]) = {} ', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(a["b"]) = {}',
           expected: {
               type: 'Program',
@@ -1465,7 +1449,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('(a.b) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(a.b) = {}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(a.b) = {}',
           expected: {
               type: 'Program',
@@ -1582,7 +1566,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('test = { a: 1 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('test = { a: 1 }', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'test = { a: 1 }',
           expected: {
               type: 'Program',
@@ -1720,7 +1704,7 @@ describe('Destructuring - Parenthesized', () => {
             }
       });
 
-      pass('(new f()[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(new f()[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(new f()[0]) = 1;',
           expected: {
               type: 'Program',
@@ -1853,7 +1837,7 @@ describe('Destructuring - Parenthesized', () => {
           }
       });
 
-      pass('(new f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(new f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(new f().a) = 1;',
           expected: {
               type: 'Program',
@@ -1985,7 +1969,7 @@ describe('Destructuring - Parenthesized', () => {
           }
       });
 
-      pass('(f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(f().a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(f().a) = 1;',
           expected: {
               type: 'Program',
@@ -2117,7 +2101,7 @@ describe('Destructuring - Parenthesized', () => {
           }
       });
 
-      pass('(obj[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(obj[0]) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(obj[0]) = 1;',
           expected: {
               type: 'Program',
@@ -2234,7 +2218,7 @@ describe('Destructuring - Parenthesized', () => {
           }
       });
 
-      pass('(obj.a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    pass('(obj.a) = 1;', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '(obj.a) = 1;',
           expected: {
               type: 'Program',

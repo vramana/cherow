@@ -70,10 +70,10 @@ describe('Expressions - New', () => {
           'new foo[bar].baz(baz)()[bar].baz;',
           'new "foo"',
           'new 1',
+          'new a(b,c)',
           'new Button',
           'new Button(a)',
           '(new new Function("this.x = 1")).x;',
-          `new new foo()`,
           `new f(...a)`,
           `new f(...a, ...b)`,
           'new(a in b)',
@@ -98,6 +98,496 @@ describe('Expressions - New', () => {
               });
           });
       }
+
+      pass('new(a in b)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'new(a in b)',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 11
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                expression: {
+                  type: 'NewExpression',
+                  start: 0,
+                  end: 11,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 11
+                    }
+                  },
+                  callee: {
+                    type: 'BinaryExpression',
+                    start: 4,
+                    end: 10,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 10
+                      }
+                    },
+                    left: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'a'
+                    },
+                    operator: 'in',
+                    right: {
+                      type: 'Identifier',
+                      start: 9,
+                      end: 10,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 9
+                        },
+                        end: {
+                          line: 1,
+                          column: 10
+                        }
+                      },
+                      name: 'b'
+                    }
+                  },
+                  arguments: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('new Button(a)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'new Button(a)',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 13,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 13
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 13,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 13
+                  }
+                },
+                expression: {
+                  type: 'NewExpression',
+                  start: 0,
+                  end: 13,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 13
+                    }
+                  },
+                  callee: {
+                    type: 'Identifier',
+                    start: 4,
+                    end: 10,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 10
+                      }
+                    },
+                    name: 'Button'
+                  },
+                  arguments: [
+                    {
+                      type: 'Identifier',
+                      start: 11,
+                      end: 12,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 11
+                        },
+                        end: {
+                          line: 1,
+                          column: 12
+                        }
+                      },
+                      name: 'a'
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('new new foo', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'new new foo',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 11
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                expression: {
+                  type: 'NewExpression',
+                  start: 0,
+                  end: 11,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 11
+                    }
+                  },
+                  callee: {
+                    type: 'NewExpression',
+                    start: 4,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 11
+                      }
+                    },
+                    callee: {
+                      type: 'Identifier',
+                      start: 8,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 8
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      name: 'foo'
+                    },
+                    arguments: []
+                  },
+                  arguments: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('new new foo()',  Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'new new foo()',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 13,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 13
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 13,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 13
+                  }
+                },
+                expression: {
+                  type: 'NewExpression',
+                  start: 0,
+                  end: 13,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 13
+                    }
+                  },
+                  callee: {
+                    type: 'NewExpression',
+                    start: 4,
+                    end: 13,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 13
+                      }
+                    },
+                    callee: {
+                      type: 'Identifier',
+                      start: 8,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 8
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      name: 'foo'
+                    },
+                    arguments: []
+                  },
+                  arguments: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+      pass('new f(...a = b)', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'new f(...a = b)',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 15,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 15
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 15,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 15
+                  }
+                },
+                expression: {
+                  type: 'NewExpression',
+                  start: 0,
+                  end: 15,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 15
+                    }
+                  },
+                  callee: {
+                    type: 'Identifier',
+                    start: 4,
+                    end: 5,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 5
+                      }
+                    },
+                    name: 'f'
+                  },
+                  arguments: [
+                    {
+                      type: 'SpreadElement',
+                      start: 6,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 6
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      argument: {
+                        type: 'AssignmentExpression',
+                        start: 9,
+                        end: 14,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 9
+                          },
+                          end: {
+                            line: 1,
+                            column: 14
+                          }
+                        },
+                        operator: '=',
+                        left: {
+                          type: 'Identifier',
+                          start: 9,
+                          end: 10,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 10
+                            }
+                          },
+                          name: 'a'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          start: 13,
+                          end: 14,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 14
+                            }
+                          },
+                          name: 'b'
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
   });
 
 });

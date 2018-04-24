@@ -88,6 +88,7 @@ describe('Statements - While', () => {
         'while (true) { continue // Comment\nthere; }',
         'while (true) { continue /* Multiline\nComment */there; }',
         'while (true) { break\nthere; }',
+        'while (i-->0) {}',
         'while (true) { break /* Multiline\nComment */there; }',
         `while (false) let // ASI
         x = 1;`,
@@ -102,6 +103,125 @@ describe('Statements - While', () => {
             });
         });
     }
+
+    pass('while (i-->0) {}',  Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: 'while (i-->0) {}',
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 16,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 16
+              }
+            },
+            body: [
+              {
+                type: 'WhileStatement',
+                start: 0,
+                end: 16,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 16
+                  }
+                },
+                test: {
+                  type: 'BinaryExpression',
+                  start: 7,
+                  end: 12,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 7
+                    },
+                    end: {
+                      line: 1,
+                      column: 12
+                    }
+                  },
+                  left: {
+                    type: 'UpdateExpression',
+                    start: 7,
+                    end: 10,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 7
+                      },
+                      end: {
+                        line: 1,
+                        column: 10
+                      }
+                    },
+                    operator: '--',
+                    prefix: false,
+                    argument: {
+                      type: 'Identifier',
+                      start: 7,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      name: 'i'
+                    }
+                  },
+                  operator: '>',
+                  right: {
+                    type: 'Literal',
+                    start: 11,
+                    end: 12,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 11
+                      },
+                      end: {
+                        line: 1,
+                        column: 12
+                      }
+                    },
+                    value: 0,
+                    raw: '0'
+                  }
+                },
+                body: {
+                  type: 'BlockStatement',
+                  start: 14,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 14
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  body: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
     pass(`while (x < 10) { x++; y--; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `while (x < 10) { x++; y--; }`,

@@ -7,111 +7,133 @@ describe('Statements - For', () => {
 
   describe('Failure', () => {
 
-      fail('for(const x,y = 1; ; ) {}', Context.Empty, {
+    const programs = [
+        'for ((i in {}));',
+        'for (i + 1 in {});',
+        'for (+i in {});',
+        'for (let [];;);',
+        'for (let [a = 0];;);',
+        'for (let a = 0, [];;);',
+        'for (let [] = 0, [];;);',
+        'for (let {};;);',
+        'for (let {a = 0};;);',
+        'for (let a = 0, {};;);',
+        'for (let [] = 0, {};;);',
+    ];
+
+    for (const arg of programs) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
+
+    fail('for(const x,y = 1; ; ) {}', Context.Empty, {
           source: 'for(const x,y = 1; ; ) {}',
       });
 
-      fail('for (let [...x = []] = []; a < 1; ) {}', Context.Empty, {
+    fail('for (let [...x = []] = []; a < 1; ) {}', Context.Empty, {
           source: 'for (let [...x = []] = []; a < 1; ) {}',
       });
 
-      fail('for (let [...{ x } = []] = []; a < 1; ) {}', Context.OptionsNext, {
+    fail('for (let [...{ x } = []] = []; a < 1; ) {}', Context.OptionsNext, {
           source: 'for (let [...{ x } = []] = []; a < 1; ) {}',
       });
 
-      fail('for(;;){ a: continue a; }', Context.OptionsNext, {
+    fail('for(;;){ a: continue a; }', Context.OptionsNext, {
         source: 'for(;;){ a: continue a; }',
       });
 
-      fail('for (let [...{ x } = []] = []; a < 1; ) {}', Context.OptionsNext, {
+    fail('for (let [...{ x } = []] = []; a < 1; ) {}', Context.OptionsNext, {
           source: 'for (let [...{ x } = []] = []; a < 1; ) {}',
       });
 
-      fail('for (var a in arr;1;){ break; }', Context.Empty, {
+    fail('for (var a in arr;1;){ break; }', Context.Empty, {
           source: 'for (var a in arr;1;){ break; }',
       });
 
-      fail('for(index=0; index<10; index++; index--) ;', Context.Empty, {
+    fail('for(index=0; index<10; index++; index--) ;', Context.Empty, {
           source: 'for(index=0; index<10; index++; index--) ;',
       });
 
-      fail('for(var index=0; index<100; {index++; index*2;}) {	arr.add(""+index);};', Context.Empty, {
+    fail('for(var index=0; index<100; {index++; index*2;}) {	arr.add(""+index);};', Context.Empty, {
           source: 'for(var index=0; index<100; {index++; index*2;}) {	arr.add(""+index);};',
       });
 
-      fail('for ( ; false; ) class C {}', Context.Empty, {
+    fail('for ( ; false; ) class C {}', Context.Empty, {
           source: 'for ( ; false; ) class C {}',
       });
 
-      fail('for ( ; false; ) const x = null;', Context.Empty, {
+    fail('for ( ; false; ) const x = null;', Context.Empty, {
           source: 'for ( ; false; ) const x = null;',
       });
 
-      fail('for ( ; false; ) function f() {}', Context.Empty, {
+    fail('for ( ; false; ) function f() {}', Context.Empty, {
           source: 'for ( ; false; ) function f() {}',
       });
 
-      fail('for ( ; false; ) function* g() {}', Context.Empty, {
+    fail('for ( ; false; ) function* g() {}', Context.Empty, {
           source: 'for ( ; false; ) function* g() {}',
       });
 
-      fail('for (const [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (const [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (const [...[ x ] = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (const [...x = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (const [...x = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (const [...x = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (const [...{ x } = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (const [...{ x } = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (const [...{ x } = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (const [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (const [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (const [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}',
       });
 
-      fail('for (const [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (const [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (const [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...[ x ] = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...x = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...x = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...x = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...{ x } = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...{ x } = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...{ x } = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...[x], y] = [1, 2, 3]; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...x, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...x, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...x, y] = [1, 2, 3]; iterCount < 1; ) {}',
       });
 
-      fail('for (let [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (let [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (let [...{ x }, y] = [1, 2, 3]; iterCount < 1; ) {}',
       });
 
-      fail('for (var [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
+    fail('for (var [...[ x ] = []] = []; iterCount < 1; ) {}', Context.Empty, {
           source: 'for (var [...[ x ] = []] = []; iterCount < 1; ) {}',
       });
 
-      fail('for (const x; false; ) label1: label2: function f() {}', Context.Empty, {
+    fail('for (const x; false; ) label1: label2: function f() {}', Context.Empty, {
           source: 'for (const x; false; ) label1: label2: function f() {}',
       });
 
-      fail('for ( ; false; ) label1: label2: function f() {}', Context.Empty, {
+    fail('for ( ; false; ) label1: label2: function f() {}', Context.Empty, {
           source: 'for ( ; false; ) label1: label2: function f() {}',
       });
 
-      fail('for (var x; false; ) label1: label2: function f() {}', Context.Empty, {
+    fail('for (var x; false; ) label1: label2: function f() {}', Context.Empty, {
           source: 'for (var x; false; ) label1: label2: function f() {}',
       });
   });

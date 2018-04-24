@@ -1,3 +1,4 @@
+
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
@@ -81,11 +82,19 @@ describe('Expressions - Yield', () => {
           'function* gf() { yield++; }',
           'function* gf() { (yield) = 10; }',
           'function* gf() { (yield)++; }',
-          'function* gf() { let yield; }',
+          'function *gf(){ function yield(){}; }',
+          'function *gf(){ var yield; }',
+          'function *gf(yield){}',
+          'function *gf() { let yield; }',
           'function* gf() { const yield = 10; }',
           'function* gf() { function yield() { } }',
           'function* gf() { function* yield() { } }',
           'function *gf() { (a = (yield) => {}) => {}; }',
+          // yield binding is disallowed in object destructuring in generators
+          'function *gf({yield}){}',
+          'function*g([yield]){}',
+          'function*g({a: yield}){}',
+          'function*g(yield = 0){}',
           // 'yield' is a keyword and disallowed within arrow function parameter syntax
           'function* gf() { var a = (x, y = yield* 0, z = 0) => { }; }',
           'function* gf() { var a = (x, y = yield 0, z = 0) => { }; }',
@@ -99,6 +108,7 @@ describe('Expressions - Yield', () => {
           'function* gf() { var a = (x = yield 0) => { }; }',
           'function* gf() { var gfe = function* yield() { } }',
           'function* gf() { class yield { } }',
+          'function* a(a=yield){}',
           `"use strict"; function not_gen() { (function yield() { }) }`,
           '"use strict"; function not_gen() { function foo(bar, yield) { } }',
           '"use strict"; function not_gen() { try { } catch (yield) { } }',
@@ -112,6 +122,7 @@ describe('Expressions - Yield', () => {
           '"use strict"; function * gen() { function not_gen() { try { } catch (yield) { } }',
           'function *a(){yield*}',
           '(a = yield 3) {}',
+          '(a=yield) {}',
           '(yield 3) {}',
           '(a = yield) {}',
           '(yield = 1) {}',
@@ -449,6 +460,7 @@ describe('Expressions - Yield', () => {
           'function* gf() { var a = yield; }',
           'function* gf() { foo[yield]; }',
           'function* gf() { yield, 10; }',
+          'function *f(){ () => yield; }',
           'var o = { *gf() { switch (1) { case yield: break; } } }',
           'function * yield() { }',
           'function yield() {}',
@@ -512,6 +524,10 @@ describe('Expressions - Yield', () => {
           '(function * () { yield * 1; return 37; yield * "icefapper"; });',
           '(function * () { ({ [yield]: x } = { }) });',
           'function* g(){ x ? yield : y }',
+           // YieldExpression is legal in class expression heritage
+          'function* g(){(class extends (yield) {});}',
+           // YieldExpression is legal in class expression body
+          'function* a(){(class {[yield](){}})};',
           'function *g() { yield ~x }',
           'function *g() { yield class x {} }',
           'function *g() { yield --x }',
@@ -1245,6 +1261,132 @@ describe('Expressions - Yield', () => {
             sourceType: 'script'
           }
         });
+
+      // Consise arrow bodies may contain yield as an identifier even in generators.
+      pass(`function* f(){ () => yield; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: `function* f(){ () => yield; }`,
+        expected: {
+          type: 'Program',
+          start: 0,
+          end: 29,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 29
+            }
+          },
+          body: [
+            {
+              type: 'FunctionDeclaration',
+              start: 0,
+              end: 29,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 29
+                }
+              },
+              id: {
+                type: 'Identifier',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                name: 'f'
+              },
+              generator: true,
+              expression: false,
+              async: false,
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                start: 13,
+                end: 29,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 13
+                  },
+                  end: {
+                    line: 1,
+                    column: 29
+                  }
+                },
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 15,
+                    end: 27,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 15
+                      },
+                      end: {
+                        line: 1,
+                        column: 27
+                      }
+                    },
+                    expression: {
+                      type: 'ArrowFunctionExpression',
+                      start: 15,
+                      end: 26,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
+                        },
+                        end: {
+                          line: 1,
+                          column: 26
+                        }
+                      },
+                      id: null,
+                      generator: false,
+                      expression: true,
+                      async: false,
+                      params: [],
+                      body: {
+                        type: 'Identifier',
+                        start: 21,
+                        end: 26,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 21
+                          },
+                          end: {
+                            line: 1,
+                            column: 26
+                          }
+                        },
+                        name: 'yield'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          sourceType: 'script'
+        }
+      });
 
       pass(`function *foo() { function b() {} }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `function *foo() { function b() {} }`,
@@ -2917,6 +3059,665 @@ describe('Expressions - Yield', () => {
               sourceType: 'script'
             }
       });
+
+      pass(`function* a(){({[yield]:a}=0)}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: `function* a(){({[yield]:a}=0)}`,
+        expected: {
+          type: 'Program',
+          start: 0,
+          end: 30,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 30
+            }
+          },
+          body: [
+            {
+              type: 'FunctionDeclaration',
+              start: 0,
+              end: 30,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 30
+                }
+              },
+              id: {
+                type: 'Identifier',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                name: 'a'
+              },
+              generator: true,
+              expression: false,
+              async: false,
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                start: 13,
+                end: 30,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 13
+                  },
+                  end: {
+                    line: 1,
+                    column: 30
+                  }
+                },
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 14,
+                    end: 29,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 14
+                      },
+                      end: {
+                        line: 1,
+                        column: 29
+                      }
+                    },
+                    expression: {
+                      type: 'AssignmentExpression',
+                      start: 15,
+                      end: 28,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
+                        },
+                        end: {
+                          line: 1,
+                          column: 28
+                        }
+                      },
+                      operator: '=',
+                      left: {
+                        type: 'ObjectPattern',
+                        start: 15,
+                        end: 26,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 15
+                          },
+                          end: {
+                            line: 1,
+                            column: 26
+                          }
+                        },
+                        properties: [
+                          {
+                            type: 'Property',
+                            start: 16,
+                            end: 25,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 16
+                              },
+                              end: {
+                                line: 1,
+                                column: 25
+                              }
+                            },
+                            method: false,
+                            shorthand: false,
+                            computed: true,
+                            key: {
+                              type: 'YieldExpression',
+                              start: 17,
+                              end: 22,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 17
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 22
+                                }
+                              },
+                              delegate: false,
+                              argument: null
+                            },
+                            value: {
+                              type: 'Identifier',
+                              start: 24,
+                              end: 25,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 24
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 25
+                                }
+                              },
+                              name: 'a'
+                            },
+                            kind: 'init'
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'Literal',
+                        start: 27,
+                        end: 28,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 27
+                          },
+                          end: {
+                            line: 1,
+                            column: 28
+                          }
+                        },
+                        value: 0,
+                        raw: '0'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          sourceType: 'script'
+        }
+      });
+
+      pass(`function* a(){yield a}}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: `function* a(){yield a}`,
+        expected: {
+          type: 'Program',
+          start: 0,
+          end: 22,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
+            },
+            end: {
+              line: 1,
+              column: 22
+            }
+          },
+          body: [
+            {
+              type: 'FunctionDeclaration',
+              start: 0,
+              end: 22,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 22
+                }
+              },
+              id: {
+                type: 'Identifier',
+                start: 10,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                name: 'a'
+              },
+              generator: true,
+              expression: false,
+              async: false,
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                start: 13,
+                end: 22,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 13
+                  },
+                  end: {
+                    line: 1,
+                    column: 22
+                  }
+                },
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 14,
+                    end: 21,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 14
+                      },
+                      end: {
+                        line: 1,
+                        column: 21
+                      }
+                    },
+                    expression: {
+                      type: 'YieldExpression',
+                      start: 14,
+                      end: 21,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 14
+                        },
+                        end: {
+                          line: 1,
+                          column: 21
+                        }
+                      },
+                      delegate: false,
+                      argument: {
+                        type: 'Identifier',
+                        start: 20,
+                        end: 21,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 20
+                          },
+                          end: {
+                            line: 1,
+                            column: 21
+                          }
+                        },
+                        name: 'a'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          sourceType: 'script'
+        }
+      });
+
+      pass('function* g(){(class extends (yield) {});}', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: 'function* g(){(class extends (yield) {});}',
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 42,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 42
+          }
+        },
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            start: 0,
+            end: 42,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 42
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 10,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 10
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
+              },
+              name: 'g'
+            },
+            generator: true,
+            expression: false,
+            async: false,
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              start: 13,
+              end: 42,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 13
+                },
+                end: {
+                  line: 1,
+                  column: 42
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 14,
+                  end: 41,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 14
+                    },
+                    end: {
+                      line: 1,
+                      column: 41
+                    }
+                  },
+                  expression: {
+                    type: 'ClassExpression',
+                    start: 15,
+                    end: 39,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 15
+                      },
+                      end: {
+                        line: 1,
+                        column: 39
+                      }
+                    },
+                    id: null,
+                    superClass: {
+                      type: 'YieldExpression',
+                      start: 30,
+                      end: 35,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 30
+                        },
+                        end: {
+                          line: 1,
+                          column: 35
+                        }
+                      },
+                      delegate: false,
+                      argument: null
+                    },
+                    body: {
+                      type: 'ClassBody',
+                      start: 37,
+                      end: 39,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 37
+                        },
+                        end: {
+                          line: 1,
+                          column: 39
+                        }
+                      },
+                      body: []
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+     });
+
+      pass('function* a(){(class {[yield](){}})};', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: 'function* a(){(class {[yield](){}})};',
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 37,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 37
+          }
+        },
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            start: 0,
+            end: 36,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 36
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 10,
+              end: 11,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 10
+                },
+                end: {
+                  line: 1,
+                  column: 11
+                }
+              },
+              name: 'a'
+            },
+            generator: true,
+            expression: false,
+            async: false,
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              start: 13,
+              end: 36,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 13
+                },
+                end: {
+                  line: 1,
+                  column: 36
+                }
+              },
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  start: 14,
+                  end: 35,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 14
+                    },
+                    end: {
+                      line: 1,
+                      column: 35
+                    }
+                  },
+                  expression: {
+                    type: 'ClassExpression',
+                    start: 15,
+                    end: 34,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 15
+                      },
+                      end: {
+                        line: 1,
+                        column: 34
+                      }
+                    },
+                    id: null,
+                    superClass: null,
+                    body: {
+                      type: 'ClassBody',
+                      start: 21,
+                      end: 34,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 21
+                        },
+                        end: {
+                          line: 1,
+                          column: 34
+                        }
+                      },
+                      body: [
+                        {
+                          type: 'MethodDefinition',
+                          start: 22,
+                          end: 33,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 22
+                            },
+                            end: {
+                              line: 1,
+                              column: 33
+                            }
+                          },
+                          computed: true,
+                          key: {
+                            type: 'YieldExpression',
+                            start: 23,
+                            end: 28,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 23
+                              },
+                              end: {
+                                line: 1,
+                                column: 28
+                              }
+                            },
+                            delegate: false,
+                            argument: null
+                          },
+                          static: false,
+                          kind: 'method',
+                          value: {
+                            type: 'FunctionExpression',
+                            start: 29,
+                            end: 33,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 29
+                              },
+                              end: {
+                                line: 1,
+                                column: 33
+                              }
+                            },
+                            id: null,
+                            generator: false,
+                            expression: false,
+                            async: false,
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              start: 31,
+                              end: 33,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 31
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 33
+                                }
+                              },
+                              body: []
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            type: 'EmptyStatement',
+            start: 36,
+            end: 37,
+            loc: {
+              start: {
+                line: 1,
+                column: 36
+              },
+              end: {
+                line: 1,
+                column: 37
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+     });
 
       pass(`function * gen() { yield /* comment */ }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: `function * gen() { yield /* comment */ }`,

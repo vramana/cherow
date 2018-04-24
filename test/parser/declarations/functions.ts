@@ -92,6 +92,8 @@ describe('Declarations - Functions', () => {
             'function arguments() { "use strict"; }',
             'function implements() { "use strict"; }',
             'function static() { "use strict"; }',
+            '"use strict"; function f(){01;}',
+            '"use strict"; function f(){("\\1");}',
             'function f(a, a) { "use strict"; function f(b, c) {} }',
             'function arguments(eval) { "use strict"; eval = arguments; function foo() { "use strict"; } }',
             '"use strict"; function f(a, a) {  }',

@@ -7,7 +7,7 @@ describe('Expressions - Exponentiation', () => {
 
     describe('Failure', () => {
 
-        const validSyntax = [
+        const inValidSyntax = [
             'delete O.p ** 10',
             'delete x ** 10',
             '~O.p ** 10',
@@ -25,6 +25,7 @@ describe('Expressions - Exponentiation', () => {
             'void ** 10',
             'void O.p ** 10',
             'void x ** 10',
+            '-x ** y',
             '++delete O.p ** 10',
             '--delete O.p ** 10',
             '++~O.p ** 10',
@@ -40,7 +41,7 @@ describe('Expressions - Exponentiation', () => {
             '{ x } **= { x: 2 }',
             '{ x: x **= 2 ] = { x: 2 }',
         ];
-        for (const arg of validSyntax) {
+        for (const arg of inValidSyntax) {
 
             it(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, () => {
                 t.throws(() => {
@@ -78,6 +79,10 @@ describe('Expressions - Exponentiation', () => {
             '(+O.p) ** 10',
             '(+x) ** 10',
             '(-O.p) ** 10',
+            'x ** y ** z',
+            '++x ** y',
+            '(-x) ** y',
+            '-(x ** y)',
             '(-x) ** 10',
             '(typeof O.p) ** 10',
             '(typeof x) ** 10',

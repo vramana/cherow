@@ -42,7 +42,7 @@ export function parseJSXRootElement(
     let selfClosing = false;
     let openingElement: any;
     expect(parser, context, Token.LessThan);
-    
+
     const isFragment = parser.token === Token.GreaterThan;
 
     if (isFragment) {

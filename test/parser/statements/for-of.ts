@@ -62,6 +62,8 @@ describe('Statements - For of', () => {
           'for(o.p = 0 of {});',
           'for(o[0] = 0 of {});',
           'for(f() = 0 of {});',
+          'for(({a}) of 0);',
+          'for(([a]) of 0);',
       ];
 
       for (const arg of invalidDestructuring) {
@@ -82,7 +84,9 @@ describe('Statements - For of', () => {
           'for (var i, j of [1, 2, 3]) {}',
           'for (var i, j = 1 of {}) {}',
           'for (var i, j = void 0 of [1, 2, 3]) {}',
-
+          'for(([a]) of 0);',
+          'for(({a}) of 0);',
+          'for(var a of b, c);',
           'for (let i, j of {}) {}',
           'for (let i, j of [1, 2, 3]) {}',
           'for (let i, j = 1 of {}) {}',
@@ -255,14 +259,6 @@ describe('Statements - For of', () => {
 
       fail('for(x of [], []) {}', Context.Empty, {
               source: 'for(x of [], []) {}',
-          });
-
-      fail('for(({a}) of 0);', Context.Empty, {
-              source: 'for(({a}) of 0);',
-          });
-
-      fail('for(([a]) of 0);', Context.Empty, {
-              source: 'for(([a]) of 0);',
           });
 
       fail('for(var a of b, c);', Context.Empty, {
@@ -442,6 +438,7 @@ describe('Statements - For of', () => {
     describe('Pass', () => {
 
           const programs = [
+              'for({a=0} of b);',
               'for (let of of ([0])) { }',
               'for (let of of [0]) { }',
               'for (let of; false; ) { }',

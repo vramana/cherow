@@ -7,23 +7,41 @@ describe('Expressions - Compound assignment', () => {
 
 describe('Failure', () => {
 
-    fail(`1 >>>= 1;`, Context.Empty, {
+  const invalidSyntax = [
+    '({a: (b = 0)} = {})',
+    '([(a = b)] = []',
+    '({a: b += 0} = {})',
+    '[a += b] = []',
+    '0.toString',
+    '0.toString',
+  ];
+
+  for (const arg of invalidSyntax) {
+
+    it(`${arg}`, () => {
+        t.throws(() => {
+            parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+        });
+    });
+}
+
+  fail(`1 >>>= 1;`, Context.Empty, {
         source: '1 >>>= 1;'
     });
 
-    fail(`1 -= 1;`, Context.Empty, {
+  fail(`1 -= 1;`, Context.Empty, {
         source: '1 -= 1;',
     });
 
-    fail(`1 *= 1;`, Context.Empty, {
+  fail(`1 *= 1;`, Context.Empty, {
         source: '1 *= 1;',
     });
 
-    fail(`1 &= 1;`, Context.Empty, {
+  fail(`1 &= 1;`, Context.Empty, {
         source: '1 &= 1;',
     });
 
-    fail(`1 |= 1;`, Context.Empty, {
+  fail(`1 |= 1;`, Context.Empty, {
         source: '1 |= 1;',
     });
 
@@ -32,6 +50,7 @@ describe('Failure', () => {
 describe('Pass', () => {
 
     const validSyntax = [
+        'null && (x += null)',
         'y1 = (y %= 2);',
         'var x1 = (x <<= 1);',
         'y1 = (y <<= 1);',
@@ -65,6 +84,10 @@ describe('Pass', () => {
         'var z = (x %= y);',
         'var z = (x |= 1);',
         'var z = (x >>= 1);',
+        'a[b](b,c)',
+        '(new foo).bar()',
+        'a.b.c(2014)',
+        'a(0).b(14, 3, 77).c',
         'x >>= 1;',
         'var x = 4;',
     ];

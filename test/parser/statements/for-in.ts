@@ -245,6 +245,14 @@ describe('Statements - For in', () => {
             source: 'for(([a]) in 0);',
         });
 
+      fail('for(let a = 0 of b);', Context.Empty, {
+           source: 'for(let a = 0 of b);',
+      });
+
+      fail('for(const a = 0 of b);', Context.Empty, {
+        source: 'for(const a = 0 of b);',
+      });
+
       fail('for(let ? b : c in 0);', Context.Empty, {
             source: 'for(let ? b : c in 0);',
         });
@@ -422,6 +430,7 @@ describe('Statements - For in', () => {
               'for({a: a} in []){}',
               'for({\'a\': a} in []){}',
               'for({"a": a} in []){}',
+              'for({a=0} in b);',
               'for({[Symbol.iterator]: a} in []){}',
               'for({0: a} in []){}',
               'for({a = 1} in []){}',
@@ -4663,6 +4672,159 @@ describe('Statements - For in', () => {
               }
         });
 
+          pass(`for (() => { this in null };;);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+            source: `for (() => { this in null };;);`,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 31,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 31
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForStatement',
+                    start: 0,
+                    end: 31,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 31
+                      }
+                    },
+                    init: {
+                      type: 'ArrowFunctionExpression',
+                      start: 5,
+                      end: 27,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 27
+                        }
+                      },
+                      id: null,
+                      generator: false,
+                      expression: false,
+                      async: false,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        start: 11,
+                        end: 27,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 11
+                          },
+                          end: {
+                            line: 1,
+                            column: 27
+                          }
+                        },
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            start: 13,
+                            end: 25,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 13
+                              },
+                              end: {
+                                line: 1,
+                                column: 25
+                              }
+                            },
+                            expression: {
+                              type: 'BinaryExpression',
+                              start: 13,
+                              end: 25,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 13
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 25
+                                }
+                              },
+                              left: {
+                                type: 'ThisExpression',
+                                start: 13,
+                                end: 17,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 13
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 17
+                                  }
+                                }
+                              },
+                              operator: 'in',
+                              right: {
+                                type: 'Literal',
+                                start: 21,
+                                end: 25,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 21
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 25
+                                  }
+                                },
+                                value: null,
+                                raw: 'null'
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    test: null,
+                    update: null,
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 30,
+                      end: 31,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 30
+                        },
+                        end: {
+                          line: 1,
+                          column: 31
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
           pass(`for (a.in in a);`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `for (a.in in a);`,
             expected: {
