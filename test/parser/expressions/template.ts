@@ -103,7 +103,6 @@ describe('Expressions - Template', () => {
             '`left${0}\\u{110000}`',
             '`left${0}\\u{110000}${1}right`',
             '`\\1``\\2`',
-            //"tag` ${`\\u`}`",
             '`\\u```',
         ];
         for (const arg of invalidSyntax) {
@@ -170,11 +169,11 @@ describe('Expressions - Template', () => {
                 });
             });
 
-            /*  it(`"use strict"; '${arg1}'`, () => {
+              it(`"use strict"; '${arg1}'`, () => {
                   t.throws(() => {
                       parse(`"use strict"; '${arg1}'`, undefined, Context.Empty)
                   })
-              });*/
+              });
 
             const arg2 = `\\00${code}`;
 
@@ -184,11 +183,11 @@ describe('Expressions - Template', () => {
                 });
             });
 
-            /* it(`"use strict"; '${arg2}'`, () => {
+            it(`"use strict"; '${arg2}'`, () => {
                  t.throws(() => {
                      parse(`"use strict"; '${arg2}'`, undefined, Context.Empty)
                  })
-             });*/
+            });
         }
 
         for (let code = 0x10f000; code <= 0x10ffff; code++) {

@@ -270,10 +270,11 @@ describe('Expressions - Yield', () => {
       fail('function* fn(x = yield* yield) {} ', Context.Empty, {
         source: 'function* fn(x = yield* yield) {}',
       });
-
-//      fail('function* fn() { (x = 3 + a.b(yield) ** 2) => {}; } ', Context.Empty, {
-  //      source: 'function* fn() { (x = 3 + a.b(yield) ** 2) => {}; } ',
-    //  });
+      
+      // Doesn't fail in the Esprima parser
+      fail('function* fn() { (x = 3 + a.b(yield) ** 2) => {}; } ', Context.Empty, {
+        source: 'function* fn() { (x = 3 + a.b(yield) ** 2) => {}; } ',
+      });
 
       fail('function* fn() { (x = yield fn) => {}; }', Context.Empty, {
         source: 'function* fn() { (x = yield fn) => {}; }',

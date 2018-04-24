@@ -9,7 +9,6 @@ describe('Expressions - Spread properties', () => {
 
         const invalidSyntax = [
             '({...})',
-      //      "({...obj})",
         ];
         for (const arg of invalidSyntax) {
 

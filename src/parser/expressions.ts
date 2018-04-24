@@ -572,9 +572,16 @@ function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression
     expect(parser, context, Token.LeftParen);
     const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
     while (parser.token !== Token.RightParen) {
-        expressions.push(parser.token === Token.Ellipsis ?
-            parseSpreadElement(parser, context) :
-            parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
+        if (parser.token === Token.Ellipsis) {
+            expressions.push(parseSpreadElement(parser, context));
+        } else {
+            if (context & Context.Yield && hasBit(parser.token, Token.IsYield)) {
+                parser.flags |= Flags.HasYield;
+                setPendingError(parser);
+            }
+            expressions.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
+        }
+
         if (parser.token !== Token.RightParen) expect(parser, context, Token.Comma);
     }
 
@@ -612,10 +619,21 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
             state = CoverCallState.HasSpread;
         } else {
             token = parser.token;
-            if (hasBit(token, Token.IsEvalOrArguments)) state |= CoverCallState.EvalOrArguments;
-            if (hasBit(token, Token.IsYield)) state |= CoverCallState.Yield;
-            if (hasBit(token, Token.IsAwait)) state |= CoverCallState.Await;
-            if (!(parser.flags & Flags.AllowBinding)) tolerant(parser, context, Errors.NotBindable);
+            if (hasBit(token, Token.IsEvalOrArguments)) {
+                setPendingError(parser);
+                state |= CoverCallState.EvalOrArguments;
+            }
+            if (hasBit(token, Token.IsYield)) {
+                setPendingError(parser);
+                state |= CoverCallState.Yield;
+            }
+            if (hasBit(token, Token.IsAwait)) {
+                setPendingError(parser);
+                state |= CoverCallState.Await;
+            }
+            if (!(parser.flags & Flags.AllowBinding)) {
+                tolerant(parser, context, Errors.NotBindable);
+            }
             args.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
         }
 
@@ -774,11 +792,15 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     const { tokenRegExp, tokenValue, tokenRaw } = parser;
     nextToken(parser, context);
-    return finishNode(context, parser, pos, {
+    const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
         value: tokenValue,
         regex: tokenRegExp
     });
+
+    if (context & Context.OptionsRaw) node.raw = parser.tokenRaw;
+
+    return node;
 }
 
 /**

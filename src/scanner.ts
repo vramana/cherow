@@ -1539,6 +1539,6 @@ function validate(
     try {
         return new RegExp(pattern, flags);
     } catch (e) {
-        return undefined;
+        return null;
     }
 }
