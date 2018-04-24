@@ -15,7 +15,7 @@ import {
     Flags,
     hasNext,
     nextToken,
-    consume, 
+    consume,
     isInstanceField,
     restoreExpressionCoverGrammar,
     parseAndValidateIdentifier,
@@ -42,7 +42,13 @@ import {
 } from '../utilities';
 
 /**
- * Parse expression
+ * Expression :
+ *   AssignmentExpression
+ *   Expression , AssignmentExpression
+ *
+ * ExpressionNoIn :
+ *   AssignmentExpressionNoIn
+ *   ExpressionNoIn , AssignmentExpressionNoIn
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Expression)
  *
@@ -78,7 +84,11 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
 }
 
 /**
- * Parse yield expression
+ * YieldExpression[In] :
+ *   yield
+ *   yield [no LineTerminator here] AssignmentExpression[?In, Yield]
+ *   yield [no LineTerminator here] * AssignmentExpression[?In, Yield]
+ *
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-YieldExpression)
  *
@@ -98,6 +108,9 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
 
    if (!(parser.flags & Flags.NewLine)) {
         delegate = consume(parser, context, Token.Multiply);
+         // 'Token.IsExpressionStart' bitmask contains the complete set of
+         // tokens that can appear after an AssignmentExpression, and none of them
+         // can start an AssignmentExpression.
         if (delegate || parser.token & Token.IsExpressionStart) {
             argument = parseAssignmentExpression(parser, context);
         }
@@ -111,7 +124,22 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
 }
 
 /**
- * Parse assignment expression
+ * AssignmentExpression :
+ *   ConditionalExpression
+ *   YieldExpression
+ *   ArrowFunction
+ *   AsyncArrowFunction
+ *   LeftHandSideExpression = AssignmentExpression
+ *   LeftHandSideExpression AssignmentOperator AssignmentExpression
+ *
+ * AssignmentExpressionNoIn :
+ *   ConditionalExpressionNoIn
+ *   YieldExpression
+ *   ArrowFunction
+ *   AsyncArrowFunction
+ *   LeftHandSideExpression = AssignmentExpressionNoIn
+ *   LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn
+ *
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
  *
@@ -570,6 +598,13 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
  * @param Context Context masks
  */
 function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
+    // ArgumentList :
+    //   AssignmentOrSpreadExpression
+    //   ArgumentList , AssignmentOrSpreadExpression
+    //
+    // AssignmentOrSpreadExpression :
+    //   ... AssignmentExpression
+    //   AssignmentExpression
     expect(parser, context, Token.LeftParen);
     const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
     while (parser.token !== Token.RightParen) {
@@ -930,6 +965,25 @@ function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): EST
 
 /**
  * Parse array literal
+ *
+ * ArrayLiteral :
+ *   [ Elisionopt ]
+ *   [ ElementList ]
+ *   [ ElementList , Elisionopt ]
+ *
+ * ElementList :
+ *   Elisionopt AssignmentExpression
+ *   Elisionopt ... AssignmentExpression
+ *   ElementList , Elisionopt AssignmentExpression
+ *   ElementList , Elisionopt SpreadElement
+ *
+ * Elision :
+ *   ,
+ *   Elision ,
+ *
+ * SpreadElement :
+ *   ... AssignmentExpression
+ *
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayLiteral)
  *
@@ -1569,11 +1623,32 @@ export function parseFormalParameters(
     parser: Parser,
     context: Context,
     state: ObjectState
-): any {
+): { params: ESTree.Identifier[]; args: string[]; } {
+
+    // FormalParameterList :
+    //   [empty]
+    //   FunctionRestParameter
+    //   FormalsList
+    //   FormalsList , FunctionRestParameter
+    //
+    // FunctionRestParameter :
+    //   ... BindingIdentifier
+    //
+    // FormalsList :
+    //   FormalParameter
+    //   FormalsList , FormalParameter
+    //
+    // FormalParameter :
+    //   BindingElement
+    //
+    // BindingElement :
+    //   SingleNameBinding
+    //   BindingPattern Initializeropt
+
+    expect(parser, context, Token.LeftParen);
 
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
-    expect(parser, context, Token.LeftParen);
     const args: string[] = [];
     const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
 

@@ -31,7 +31,6 @@ export const enum Token {
     ASI                  = 1 << 29,
     IsInOrOf             = 1 << 30,
 
-
     /* Node types */
     EndOfSource = 0 | ASI, // Pseudo
 

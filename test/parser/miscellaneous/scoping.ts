@@ -41,7 +41,7 @@ describe('Miscellaneous - Scoping', () => {
              // rest parameter shouldn't be shadowed
              '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);'
         ];
-        
+
         for (const arg of validSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {

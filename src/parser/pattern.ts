@@ -98,7 +98,26 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context):
 }
 
 /**
- * Parse array assignment pattern
+ * ArrayAssignmentPattern[Yield] :
+ *   [ Elisionopt AssignmentRestElement[?Yield]opt ]
+ *   [ AssignmentElementList[?Yield] ]
+ *   [ AssignmentElementList[?Yield] , Elisionopt AssignmentRestElement[?Yield]opt ]
+ *
+ * AssignmentRestElement[Yield] :
+ *   ... DestructuringAssignmentTarget[?Yield]
+ *
+ * AssignmentElementList[Yield] :
+ *   AssignmentElisionElement[?Yield]
+ *   AssignmentElementList[?Yield] , AssignmentElisionElement[?Yield]
+ *
+ * AssignmentElisionElement[Yield] :
+ *   Elisionopt AssignmentElement[?Yield]
+ *
+ * AssignmentElement[Yield] :
+ *   DestructuringAssignmentTarget[?Yield] Initializer[In,?Yield]opt
+ *
+ * DestructuringAssignmentTarget[Yield] :
+ *   LeftHandSideExpression[?Yield]
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
@@ -107,6 +126,7 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context):
  */
 
 function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.ArrayPattern {
+
     const pos = getLocation(parser);
 
     expect(parser, context, Token.LeftBracket);

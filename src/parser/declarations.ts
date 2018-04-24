@@ -137,7 +137,14 @@ function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.
 }
 
 /**
- * Parses variable declaration.
+ * VariableDeclaration :
+ *   BindingIdentifier Initializeropt
+ *   BindingPattern Initializer
+ *
+ * VariableDeclarationNoIn :
+ *   BindingIdentifier InitializerNoInopt
+ *   BindingPattern InitializerNoIn
+ *
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclaration)
  *

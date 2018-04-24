@@ -169,10 +169,10 @@ describe('Expressions - Template', () => {
                 });
             });
 
-              it(`"use strict"; '${arg1}'`, () => {
+            it(`"use strict"; '${arg1}'`, () => {
                   t.throws(() => {
-                      parse(`"use strict"; '${arg1}'`, undefined, Context.Empty)
-                  })
+                      parse(`"use strict"; '${arg1}'`, undefined, Context.Empty);
+                  });
               });
 
             const arg2 = `\\00${code}`;
@@ -185,8 +185,8 @@ describe('Expressions - Template', () => {
 
             it(`"use strict"; '${arg2}'`, () => {
                  t.throws(() => {
-                     parse(`"use strict"; '${arg2}'`, undefined, Context.Empty)
-                 })
+                     parse(`"use strict"; '${arg2}'`, undefined, Context.Empty);
+                 });
             });
         }
 

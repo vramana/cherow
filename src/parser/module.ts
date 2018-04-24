@@ -121,6 +121,8 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
 
                 if (parser.token === Token.FromKeyword) {
                     source = parseModuleSpecifier(parser, context);
+                //  The left hand side can't be a keyword where there is no
+                // 'from' keyword since it references a local binding.
                 } else if (hasReservedWord) {
                     tolerant(parser, context, Errors.UnexpectedReserved);
                 }
@@ -136,16 +138,9 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
             break;
 
             // export LexicalDeclaration
-        case Token.ConstKeyword:
-            declaration = parseVariableStatement(parser, context);
-            break;
-
-            // export LexicalDeclaration
-        case Token.LetKeyword:
-            declaration = parseVariableStatement(parser, context);
-            break;
-
             // export VariableDeclaration
+        case Token.LetKeyword:
+        case Token.ConstKeyword:
         case Token.VarKeyword:
             declaration = parseVariableStatement(parser, context);
             break;
@@ -435,6 +430,8 @@ function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifi
  * @param context Context masks
  */
 function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal {
+    // ModuleSpecifier :
+    //   StringLiteral
     expect(parser, context, Token.FromKeyword);
     if (parser.token !== Token.StringLiteral) report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     return parseLiteral(parser, context);
