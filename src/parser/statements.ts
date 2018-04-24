@@ -222,7 +222,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
     expect(parser, context, Token.LeftParen);
     const test = parseExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightParen);
-    const consequent = parseConsequentOrAlternate(parser, context);
+    const consequent = parseConsequentOrAlternate(parser, context | Context.DisallowEscapedKeyword);
     const alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
     return finishNode(context, parser, pos, {
         type: 'IfStatement',
@@ -273,8 +273,8 @@ export function parseDebuggerStatement(parser: Parser, context: Context): ESTree
 export function parseTryStatement(parser: Parser, context: Context) {
     const pos = getLocation(parser);
     expect(parser, context, Token.TryKeyword);
-    const block = parseBlockStatement(parser, context);
-    const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
+    const block = parseBlockStatement(parser, context | Context.DisallowEscapedKeyword);
+    const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context | Context.DisallowEscapedKeyword) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
     if (!handler && !finalizer) tolerant(parser, context, Errors.NoCatchOrFinally);
     return finishNode(context, parser, pos, {
@@ -530,7 +530,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
     // return the mentioned statements (to match the original grammar).
     const savedFlags = parser.flags;
     parser.flags |= Flags.Iteration | Flags.AllowDestructuring;
-    const body = parseStatement(parser, context & ~Context.AllowSingleStatement);
+    const body = parseStatement(parser, context & ~Context.AllowSingleStatement | Context.DisallowEscapedKeyword);
     parser.flags = savedFlags;
     return body;
 }
@@ -701,7 +701,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
 
     const awaitToken = !!(context & Context.Async && consume(parser, context, Token.AwaitKeyword));
 
-    expect(parser, context, Token.LeftParen);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.LeftParen);
 
     const { token } = parser;
 

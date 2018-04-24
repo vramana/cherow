@@ -997,7 +997,7 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
 
     expect(parser, context, Token.LeftBracket);
 
-    const elements: any[] = [];
+    const elements: (ESTree.Expression | null)[] = [];
 
     while (parser.token !== Token.RightBracket) {
         if (consume(parser, context, Token.Comma)) {
@@ -1476,7 +1476,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
  * @param Context masks
  */
 
-function parseArrowFunction(parser: Parser, context: Context, pos: any, params: string[]): ESTree.ArrowFunctionExpression {
+function parseArrowFunction(parser: Parser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterArrow);
     expect(parser, context, Token.Arrow);
@@ -1492,7 +1492,7 @@ function parseArrowFunction(parser: Parser, context: Context, pos: any, params: 
  * @param Context masks
  */
 
-function parseAsyncArrowFunction(parser: Parser, context: Context, state: ModifierState, pos: any, params: any): ESTree.ArrowFunctionExpression {
+function parseAsyncArrowFunction(parser: Parser, context: Context, state: ModifierState, pos: Location, params: any): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterAsync);
     expect(parser, context, Token.Arrow);
@@ -1982,7 +1982,7 @@ function parseImportExpressions(parser: Parser, context: Context, poss: Location
     const id = parseIdentifier(parser, context);
 
     // Import.meta - Stage 3 proposal
-    if (context & Context.OptionsNext && consume(parser, context, Token.Period)) {
+    if (context & Context.OptionsNext && consume(parser, context | Context.DisallowEscapedKeyword, Token.Period)) {
         if (context & Context.Module && parser.tokenValue === 'meta') {
             return parseMetaProperty(parser, context, id, pos);
         }
@@ -2038,7 +2038,7 @@ function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpress
 
     const id = parseIdentifier(parser, context);
 
-    if (consume(parser, context, Token.Period)) {
+    if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Period)) {
         if (parser.tokenValue !== 'target' ||
             !(context & (Context.InParameter | Context.InFunctionBody))) tolerant(parser, context, Errors.MetaNotInFunctionBody);
         return parseMetaProperty(parser, context, id as ESTree.Identifier, pos);

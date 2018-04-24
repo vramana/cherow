@@ -40,7 +40,8 @@ export const enum Context {
     Method                  = 1 << 26,
     AllowSuperProperty      = 1 << 27,
     InParen                 = 1 << 28,
-    InJSXChild              = 1 << 29
+    InJSXChild              = 1 << 29,
+    DisallowEscapedKeyword  = 1 << 30
 }
 
 // Mutual parser flags
@@ -239,8 +240,7 @@ export function finishNode < T extends ESTree.Node >(
 }
 
 /**
- * Finish each the node for each parse. Set line / and column on the node if the
- * options are set for it
+ * Returns true if this is a vlid identifier part
  *
  * @param parser Parser object
  * @param context Context masks
@@ -254,12 +254,13 @@ export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
     (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
 
 /**
- * Expect token. Throws if no match
+ * Consumes the next token. If the consumed token is not of the expected type
+ * then report an error and return null. Otherwise return true.
  *
  * @param parser Parser object
  * @param context Context masks
  * @param t Token
- * @param Err Errors
+ * @param Err Optionally error message to be thrown
  */
 export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): boolean {
     if (parser.token !== t) report(parser, err, tokenDesc(parser.token));
@@ -268,7 +269,8 @@ export function expect(parser: Parser, context: Context, t: Token, err: Errors =
 }
 
 /**
- * Consume token and advance if it exist, else return false
+ * If the next token matches the given token, this consumes the token
+ * and returns true. Otherwise return false.
  *
  * @param parser Parser object
  * @param context Context masks
@@ -859,19 +861,19 @@ export function readNext(parser: Parser, prev: number): number {
 }
 
 // Fully qualified element name, e.g. <svg:path> returns "svg:path"
-export function isQualifiedJSXName(elementName: any): any {
+export function isEqualTagNames(elementName: any): any {
     switch (elementName.type) {
         case 'JSXIdentifier':
             return elementName.name;
         case 'JSXNamespacedName':
             const ns = elementName as ESTree.JSXNamespacedName;
-            return isQualifiedJSXName(ns.namespace) + ':' +
-            isQualifiedJSXName(ns.name);
+            return isEqualTagNames(ns.namespace) + ':' +
+            isEqualTagNames(ns.name);
         case 'JSXMemberExpression':
 
             return (
-                isQualifiedJSXName(elementName.object) + '.' +
-                isQualifiedJSXName(elementName.property)
+                isEqualTagNames(elementName.object) + '.' +
+                isEqualTagNames(elementName.property)
             );
             /* istanbul ignore next */
         default:

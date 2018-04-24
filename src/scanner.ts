@@ -902,7 +902,7 @@ function assembleNumericLiteral(parser: Parser, context: Context, value: number,
 export function scanIdentifier(parser: Parser, context: Context, first ?: number): Token {
     let start = parser.index;
     let ret: string = '';
-
+    let isEscaped = false;
     if (first) advanceOnMaybeAstral(parser, first);
     loop:
         while (hasNext(parser)) {
@@ -914,6 +914,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
                     ret += parser.source.slice(start, index);
                     ret += scanUnicodeCodePointEscape(parser);
                     start = parser.index;
+                    isEscaped = true;
                     break;
 
                 default:
@@ -934,7 +935,8 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
     // https://tc39.github.io/ecma262/#sec-keywords
     if (len >= 2 && len <= 11) {
         const token = descKeyword(ret);
-        if (token > 0) return token;
+        if (context & Context.DisallowEscapedKeyword && isEscaped) this.tolerate(context, Errors.Unexpected);
+        else if (token > 0) return token;
     }
     if (context & Context.OptionsRawidentifiers) parser.tokenRaw = parser.source.slice(start, parser.index);
     return Token.Identifier;

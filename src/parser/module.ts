@@ -90,7 +90,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
     let source = null;
     let declaration: ESTree.Statement | null = null;
 
-    expect(parser, context, Token.ExportKeyword);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.ExportKeyword);
 
     switch (parser.token) {
         // export * FromClause ;
@@ -117,7 +117,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                     if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
                 }
 
-                expect(parser, context, Token.RightBrace);
+                expect(parser, context | Context.DisallowEscapedKeyword, Token.RightBrace);
 
                 if (parser.token === Token.FromKeyword) {
                     source = parseModuleSpecifier(parser, context);
@@ -142,7 +142,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
         case Token.ConstKeyword:
             declaration = parseVariableStatement(parser, context | Context.BlockScope);
             break;
-            
+
           // export VariableDeclaration
         case Token.VarKeyword:
             declaration = parseVariableStatement(parser, context);
@@ -199,7 +199,7 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
     // ExportSpecifier :
     // IdentifierName
     // IdentifierName as IdentifierName
-    const local = parseIdentifierName(parser, context, parser.token);
+    const local = parseIdentifierName(parser, context | Context.DisallowEscapedKeyword, parser.token);
     const exported = consume(parser, context, Token.AsKeyword)
         ? parseIdentifierName(parser, context, parser.token)
         : local;
@@ -223,7 +223,7 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
  */
 function parseExportDefault(parser: Parser, context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
 
-    expect(parser, context, Token.DefaultKeyword);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.DefaultKeyword);
 
     let declaration: ESTree.FunctionDeclaration | ESTree.ClassDeclaration | ESTree.Expression;
 
@@ -310,7 +310,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
         // 'import' ModuleSpecifier ';'
         case Token.Identifier:
             {
-                specifiers.push(parseImportDefaultSpecifier(parser, context));
+                specifiers.push(parseImportDefaultSpecifier(parser, context | Context.DisallowEscapedKeyword));
 
                 if (consume(parser, context, Token.Comma)) {
                     switch (parser.token) {
@@ -332,7 +332,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
 
             // import {bar}
         case Token.LeftBrace:
-            parseNamedImports(parser, context, specifiers);
+            parseNamedImports(parser, context | Context.DisallowEscapedKeyword, specifiers);
             break;
 
             // import * as foo
@@ -382,7 +382,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 
     const pos = getLocation(parser);
     const { token } = parser;
-    const imported = parseIdentifierName(parser, context, token);
+    const imported = parseIdentifierName(parser, context | Context.DisallowEscapedKeyword, token);
 
     let local: ESTree.Identifier;
 
@@ -415,7 +415,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 
 function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
     const pos = getLocation(parser);
-    expect(parser, context, Token.Multiply);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.UnexpectedAsBinding);
     const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {

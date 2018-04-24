@@ -17,7 +17,7 @@ import {
     finishNode,
     nextTokenIsFuncKeywordOnSameLine,
     nextToken,
-    isQualifiedJSXName,
+    isEqualTagNames,
     fromCodePoint,
     readNext,
     parseExpressionCoverGrammar
@@ -59,8 +59,8 @@ export function parseJSXRootElement(
     if (!selfClosing) {
         children = parseJSXChildren(parser, context);
         closingElement = parseJSXClosingElement(parser, context);
-        const open = isQualifiedJSXName(openingElement.name);
-        const close = isQualifiedJSXName(closingElement.name);
+        const open = isEqualTagNames(openingElement.name);
+        const close = isEqualTagNames(closingElement.name);
         if (open !== close) report(parser, Errors.ExpectedJSXClosingTag, close);
     }
 
@@ -89,7 +89,7 @@ export function parseJSXOpeningElement(
     attributes: any,
     selfClosing: boolean,
     pos: Location
-): any {
+): ESTree.JSXOpeningElement {
     if (context & Context.InJSXChild && selfClosing) expect(parser, context, Token.GreaterThan);
     else nextJSXToken(parser, context);
     return finishNode(context, parser, pos, {
@@ -177,7 +177,7 @@ export function scanJSXToken(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 
-export function parseJSXChildren(parser: Parser, context: Context): any[] {
+export function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[] {
     const children: any[] = [];
     while (parser.token !== Token.JSXClose) {
         children.push(parseJSXChild(parser, context));
@@ -310,7 +310,7 @@ export function parseJSXAttributeName(parser: Parser, context: Context): ESTree.
  * @param context Context masks
  */
 
-export function parseJSXAttributeValue(parser: Parser, context: Context): any {
+export function parseJSXAttributeValue(parser: Parser, context: Context) {
 
     switch (scanJSXAttributeValue(parser, context)) {
         case Token.StringLiteral:
@@ -350,7 +350,7 @@ export function parseJSXAttribute(parser: Parser, context: Context): any {
  * @param context Context masks
  */
 
-function scanJSXAttributeValue(parser: Parser, context: Context): any {
+function scanJSXAttributeValue(parser: Parser, context: Context): Token {
     parser.lastIndex = parser.index;
     const ch = nextChar(parser);
     switch (ch) {
