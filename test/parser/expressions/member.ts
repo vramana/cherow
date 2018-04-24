@@ -1,9 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 
-describe('Expressions - Call', () => {
-
-    describe('Expressions - Member', () => {
+describe('Expressions - Member', () => {
 
         pass(`a[b, c]`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `a[b, c]`,
@@ -803,5 +801,4 @@ describe('Expressions - Call', () => {
                 sourceType: 'script'
               }
         });
- });
 });

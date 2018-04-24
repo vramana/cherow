@@ -98,7 +98,7 @@ describe('Failure', () => {
         });
     }
 
-      // Comma is not permitted after the rest element
+    // Comma is not permitted after the rest element
     const invalidRest = [
         'function foo(...a,) { }',
         '(function(...a,) { })',
