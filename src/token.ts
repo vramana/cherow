@@ -172,7 +172,7 @@ export const enum Token {
     EnumKeyword        = 118 | Reserved,
     BigIntLiteral      = 119 | IsExpressionStart,
     At                 = 120,
-    JSXText             = 121,
+    JSXText            = 121,
 
 }
 

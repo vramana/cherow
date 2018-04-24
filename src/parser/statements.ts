@@ -503,6 +503,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) {
         tolerant(parser, context, Errors.IllegalReturn);
     }
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
     expect(parser, context, Token.ReturnKeyword);
     const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine) ?
         parseExpression(parser, context & ~Context.InFunctionBody | Context.AllowIn) :
@@ -574,7 +575,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
     expect(parser, context, Token.LeftParen);
     const discriminant = parseExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightParen);
-    expect(parser, context, Token.LeftBrace);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.LeftBrace);
     const cases: ESTree.SwitchCase[] = [];
     const savedFlags = parser.flags;
     parser.flags |= Flags.Switch;

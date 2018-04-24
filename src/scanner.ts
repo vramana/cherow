@@ -1,7 +1,7 @@
 import { Chars } from './chars';
 import { Parser } from './types';
 import { Errors, report, tolerant } from './errors';
-import { Token, descKeyword } from './token';
+import { Token, descKeyword, tokenDesc } from './token';
 import { isValidIdentifierStart } from './unicode';
 import { skipSingleLineComment, skipMultiLineComment } from './comments';
 import {
@@ -27,7 +27,6 @@ import {
     NumericState,
     advanceOnMaybeAstral
 } from './utilities';
-import { tokenDesc } from '../lib/token';
 
 /**
  * Scan
@@ -41,7 +40,7 @@ import { tokenDesc } from '../lib/token';
 
 export function scan(parser: Parser, context: Context): Token {
 
-    parser.flags &= ~Flags.NewLine;
+    parser.flags &= ~Flags.NewLine | Flags.EscapedKeyword;
 
     const lineStart = parser.index === 0;
 
@@ -943,15 +942,14 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
                 }
                 // Here we fall back to a mutual parser flag if the escaped keyword isn't disallowed through
                 // context masks. This is similiar to how V8 does it - they are using an
-                // 'escaped_keyword' token. 
-                //
+                // 'escaped_keyword' token.
                 // - J.K. Thomas
                 parser.flags |= Flags.EscapedKeyword;
             }
             return token;
         }
-    } 
-    
+    }
+
     if (context & Context.OptionsRawidentifiers) parser.tokenRaw = parser.source.slice(start, parser.index);
     return Token.Identifier;
 }

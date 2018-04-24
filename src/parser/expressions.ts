@@ -100,7 +100,7 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
 
     // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
    if (context & Context.InParameter) tolerant(parser, context, Errors.YieldInParameter);
-
+   if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
    expect(parser, context, Token.YieldKeyword);
 
    let argument: ESTree.Expression | null = null;
@@ -310,6 +310,7 @@ function parseBinaryExpression(
 
 function parseAwaitExpression(parser: Parser, context: Context, pos: Location): ESTree.AwaitExpression {
     if (context & Context.InParameter) tolerant(parser, context, Errors.AwaitInParameter);
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
     expect(parser, context, Token.AwaitKeyword);
     return finishNode(context, parser, pos, {
         type: 'AwaitExpression',
@@ -331,6 +332,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
 
     if (hasBit(token, Token.IsUnaryOp)) {
         nextToken(parser, context);
+        if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
         if (parser.token === Token.Exponentiate) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
         if (context & Context.Strict && token === Token.DeleteKeyword) {
@@ -899,7 +901,7 @@ function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     const { token } = parser;
     const raw = tokenDesc(token);
-
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
     nextToken(parser, context);
 
     const node: any = finishNode(context, parser, pos, {
@@ -920,9 +922,10 @@ function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree
  */
 
 function parseThisExpression(parser: Parser, context: Context): ESTree.ThisExpression {
-    const pos = getLocation(parser);
-    nextToken(parser, context);
-    return finishNode(context, parser, pos, {
+   if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
+   const pos = getLocation(parser);
+   nextToken(parser, context | Context.DisallowEscapedKeyword);
+   return finishNode(context, parser, pos, {
         type: 'ThisExpression'
     });
 }
@@ -1169,6 +1172,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
 export function parseFunctionExpression(parser: Parser, context: Context): ESTree.FunctionExpression {
     const pos = getLocation(parser);
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     let id: ESTree.Identifier | null = null;
@@ -1354,10 +1358,12 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
 
         if (!(state & ObjectState.Generator) && t & Token.IsAsync && !(parser.flags & Flags.NewLine)) {
             t = parser.token;
+            if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
             state |= ObjectState.Async;
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             key = parsePropertyName(parser, context);
         } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
+            if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
             if (state & ObjectState.Generator) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
             }
@@ -1731,12 +1737,13 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
-    expect(parser, context, Token.ClassKeyword);
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const { token } = parser;
     let state = ObjectState.None;
     if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
-        parseBindingIdentifier(parser, context | Context.Strict) :
+        parseBindingIdentifier(parser, context | Context.Strict | Context.DisallowEscapedKeyword) :
         null;
     let superClass: ESTree.Expression | null = null;
 
@@ -1831,7 +1838,6 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
             state |= ObjectState.Static;
 
             key = parsePropertyName(parser, context);
-
             if (context & Context.OptionsNext && isInstanceField(parser)) {
                 if (tokenValue === 'constructor') tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
                 return parseFieldDefinition(parser, context, key, state, pos);
@@ -1982,7 +1988,7 @@ function parseImportExpressions(parser: Parser, context: Context, poss: Location
     const id = parseIdentifier(parser, context);
 
     // Import.meta - Stage 3 proposal
-    if (context & Context.OptionsNext && consume(parser, context | Context.DisallowEscapedKeyword, Token.Period)) {
+    if (context & Context.OptionsNext && consume(parser, context, Token.Period)) {
         if (context & Context.Module && parser.tokenValue === 'meta') {
             return parseMetaProperty(parser, context, id, pos);
         }
@@ -2082,7 +2088,7 @@ function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Lo
 
 function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
     const pos = getLocation(parser);
-
+    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
     expect(parser, context, Token.SuperKeyword);
 
     const { token } = parser;
