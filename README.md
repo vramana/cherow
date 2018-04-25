@@ -19,6 +19,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~45 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Lightweight - ~68 KB minified (*20 kb smaller than Acorn*)
+* Easy drop-in replacement for other parsers
 
 ## ESNext features
 
@@ -113,6 +114,17 @@ Cherow contains 3 different builds:
 | `Stable`    | Stable release |
 | `Next`      | Has the `next` option enabled by default, and support all latest ECMAScript proposals. |
 | `Bleeding`  | The active development branch. You can and will expect bugs with this branch because it's not stable |
+
+## Drop-in replacement
+
+If you are using either Acorn or Esprima, use `parseScript` for parsing script code or
+`parseModule` for module code. The latter because there doesn't exist a `sourceType` 
+option.
+
+There are no need for external plugins - everything is "build-in'. 
+Use the `next` option if you want to enable support for Stage 3 proposals, and
+`jsx` to true if you want to enable `JSX` parsing.
+
 
 ## Syntax Delegate
 
