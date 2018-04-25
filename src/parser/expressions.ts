@@ -1345,7 +1345,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
     const pos = getLocation(parser);
     let value;
     let state = ObjectState.None;
-
+    const isEscaped = !!(parser.flags & Flags.EscapedKeyword);
     if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
 
     let t = parser.token;
@@ -1363,7 +1363,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             key = parsePropertyName(parser, context);
         } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
-            if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
+            if (isEscaped) report(parser, Errors.UnexpectedEscapedKeyword);
             if (state & ObjectState.Generator) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
             }
@@ -1807,7 +1807,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
     }
 
     let { tokenValue, token } = parser;
-
+    const isEscaped = !!(parser.flags & Flags.EscapedKeyword);
     if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
 
     if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
@@ -1831,7 +1831,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
             token = parser.token;
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             tokenValue = parser.tokenValue;
-
+            if (isEscaped) report(parser, Errors.UnexpectedEscapedKeyword);
             if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
             if (parser.tokenValue === 'prototype') tolerant(parser, context, Errors.StaticPrototype);
 

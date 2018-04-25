@@ -720,7 +720,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         variableStatement = parseVariableStatement(parser, context & ~Context.AllowIn, /* shouldConsume */ false);
     } else if (token !== Token.Semicolon) {
         sequencePos = getLocation(parser);
-        init = restoreExpressionCoverGrammar(parser, context & ~Context.AllowIn, parseAssignmentExpression);
+        init = restoreExpressionCoverGrammar(parser, context & ~Context.AllowIn | Context.DisallowEscapedKeyword, parseAssignmentExpression);
     }
 
     if (consume(parser, context, Token.OfKeyword)) {
