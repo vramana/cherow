@@ -114,7 +114,7 @@ export function parseStatement(parser: Parser, context: Context): any {
         case Token.ThrowKeyword:
             return parseThrowStatement(parser, context);
         case Token.TryKeyword:
-            return parseTryStatement(parser, context);
+            return parseTryStatement(parser, context | Context.DisallowEscapedKeyword);
         case Token.ForKeyword:
             return parseForStatement(parser, context | Context.ForStatement);
         case Token.AsyncKeyword:
@@ -273,8 +273,8 @@ export function parseDebuggerStatement(parser: Parser, context: Context): ESTree
 export function parseTryStatement(parser: Parser, context: Context) {
     const pos = getLocation(parser);
     expect(parser, context, Token.TryKeyword);
-    const block = parseBlockStatement(parser, context | Context.DisallowEscapedKeyword);
-    const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context | Context.DisallowEscapedKeyword) : null;
+    const block = parseBlockStatement(parser, context);
+    const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
     if (!handler && !finalizer) tolerant(parser, context, Errors.NoCatchOrFinally);
     return finishNode(context, parser, pos, {

@@ -1363,7 +1363,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             key = parsePropertyName(parser, context);
         } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
-            if (isEscaped) report(parser, Errors.UnexpectedEscapedKeyword);
+            if (isEscaped) tolerant(parser, context, Errors.UnexpectedEscapedKeyword);
             if (state & ObjectState.Generator) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
             }
@@ -1738,12 +1738,12 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
     if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
-    expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
+    expect(parser, context, Token.ClassKeyword);
     const { token } = parser;
     let state = ObjectState.None;
     if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
     const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
-        parseBindingIdentifier(parser, context | Context.Strict | Context.DisallowEscapedKeyword) :
+        parseBindingIdentifier(parser, context | Context.Strict) :
         null;
     let superClass: ESTree.Expression | null = null;
 

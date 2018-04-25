@@ -90,7 +90,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
     let source = null;
     let declaration: ESTree.Statement | null = null;
 
-    expect(parser, context | Context.DisallowEscapedKeyword, Token.ExportKeyword);
+    expect(parser, context, Token.ExportKeyword);
 
     switch (parser.token) {
         // export * FromClause ;
@@ -279,7 +279,7 @@ export function parseImportDeclaration(parser: Parser, context: Context): ESTree
     if (parser.token === Token.StringLiteral) {
         source = parseLiteral(parser, context);
     } else {
-        specifiers = parseImportClause(parser, context);
+        specifiers = parseImportClause(parser, context | Context.DisallowEscapedKeyword);
         source = parseModuleSpecifier(parser, context);
     }
 
@@ -310,7 +310,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
         // 'import' ModuleSpecifier ';'
         case Token.Identifier:
             {
-                specifiers.push(parseImportDefaultSpecifier(parser, context | Context.DisallowEscapedKeyword));
+                specifiers.push(parseImportDefaultSpecifier(parser, context));
 
                 if (consume(parser, context, Token.Comma)) {
                     switch (parser.token) {
@@ -332,7 +332,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
 
             // import {bar}
         case Token.LeftBrace:
-            parseNamedImports(parser, context | Context.DisallowEscapedKeyword, specifiers);
+            parseNamedImports(parser, context, specifiers);
             break;
 
             // import * as foo
@@ -415,7 +415,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 
 function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
     const pos = getLocation(parser);
-    expect(parser, context | Context.DisallowEscapedKeyword, Token.Multiply);
+    expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.UnexpectedAsBinding);
     const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {

@@ -14,7 +14,8 @@ describe('Miscellaneous - Escaped keywords', () => {
             'export \\u0061sync function y() { await x }',
             // https://github.com/shapesecurity/shift-parser-js/issues/376
             'export {a \\u0061s b} from "";',
-            'export {} fr\\u006fm "";'
+            'export {} fr\\u006fm "";',
+            'import* \\u0061s foo from "./icefapper.js";'
         ];
 
         for (const arg of invalidModuleCode) {
@@ -38,9 +39,25 @@ describe('Miscellaneous - Escaped keywords', () => {
             'for (var i = 0; i < 100; ++i) { br\\u0065ak; }',
             'cl\\u0061ss Foo {}',
             '\\u0063onst foo = 1;',
+            "[th\\u{69}s] = []", 
+            'th\\u{69}s',
+            "[f\\u0061lse] = []",
+            'f\\u0061lse',
+            'function *gen() { var yi\\u0065ld; }',
+            'function *gen() { void yi\\u0065ld; }',
+            'class C { static async method() { void \u0061wait; }}',
             // Babylon issue: https://github.com/babel/babel/issues/6717
             'while(n --> 0) { \\u0062\\u0072\\u0065\\u0061\\u{006B}; }',
             'while (i < 10) { if (i++ & 1) c\\u006fntinue; this.x++; }',
+            `(function a({ hello: {var:v\\u{0061}r}}) { })`, 
+            `(function a({ hello: [v\\u{0061}r]}) { })`,
+            `(function a({ 0: {var:v\\u{0061}r}}) { })`, 
+            `(function a({ 0: [v\\u{0061}r]}) { })`,
+            `var v\u{0061}r`,
+            `'use strict'; impleme\u{006E}ts`,
+            `[v\\u{0061}r] = obj`,
+            `var v\\u{0061}r = 2000000`,
+            'var obj = { async method() { \\u0061wait: ; }};',
             'd\\u0065bugger;',
             'd\\u0065lete this.a;',
             '\\u0063o { } while(0)',
