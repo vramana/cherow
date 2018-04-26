@@ -3,7 +3,7 @@ import { Chars } from '../chars';
 import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
-import { isValidIdentifierPart, isValidIdentifierStart } from '../unicode';
+import { isValidIdentifierPart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
 import {
     Context,
@@ -15,7 +15,6 @@ import {
     advance,
     consumeOpt,
     finishNode,
-    nextTokenIsFuncKeywordOnSameLine,
     nextToken,
     isEqualTagNames,
     fromCodePoint,
@@ -91,7 +90,7 @@ export function parseJSXOpeningElement(
     pos: Location
 ): ESTree.JSXOpeningElement {
     if (context & Context.InJSXChild && selfClosing) expect(parser, context, Token.GreaterThan);
-    else nextJSXToken(parser, context);
+    else nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningElement',
         name,
@@ -127,7 +126,7 @@ function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTr
  * @param pos Line / Column location
  */
 function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location): ESTree.JSXOpeningFragment {
-    nextJSXToken(parser, context);
+    nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningFragment'
     });
@@ -139,8 +138,8 @@ function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location
  * @param parser Parser object
  * @param context Context masks
  */
-export function nextJSXToken(parser: Parser, context: Context): Token {
-    return parser.token = scanJSXToken(parser, context);
+export function nextJSXToken(parser: Parser): Token {
+    return parser.token = scanJSXToken(parser);
 }
 
 /**
@@ -149,7 +148,7 @@ export function nextJSXToken(parser: Parser, context: Context): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanJSXToken(parser: Parser, context: Context): Token {
+export function scanJSXToken(parser: Parser): Token {
     if (!hasNext(parser)) return Token.EndOfSource;
     parser.lastIndex = parser.startIndex = parser.index;
     const char = nextChar(parser);
@@ -196,7 +195,7 @@ export function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXEl
 export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
     const pos = getLocation(parser);
     const value = parser.source.slice(parser.startIndex, parser.index);
-    parser.token = scanJSXToken(parser, context);
+    parser.token = scanJSXToken(parser);
     const node: any = finishNode(context, parser, pos, {
         type: 'JSXText',
         value
@@ -333,7 +332,7 @@ export function parseJSXAttributeValue(parser: Parser, context: Context) {
 export function parseJSXAttribute(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     if (parser.token === Token.LeftBrace) return parseJSXSpreadAttribute(parser, context);
-    scanJSXIdentifier(parser, context);
+    scanJSXIdentifier(parser);
     const attrName = parseJSXAttributeName(parser, context);
     const value = parser.token === Token.Assign ? parseJSXAttributeValue(parser, context) : null;
     return finishNode(context, parser, pos, {
@@ -375,7 +374,6 @@ function scanJSXString(parser: Parser, context: Context, quote: number): Token {
     advance(parser);
 
     let ret = '';
-    const start = parser.index;
     let ch = nextChar(parser);
     while (ch !== quote) {
         ret += fromCodePoint(ch);
@@ -460,7 +458,7 @@ export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSX
     const expression = parser.token === Token.RightBrace ?
         parseJSXEmptyExpression(parser, context) :
         parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
-    nextJSXToken(parser, context);
+    nextJSXToken(parser);
 
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
@@ -496,7 +494,7 @@ export function parseJSXClosingElement(parser: Parser, context: Context): ESTree
     expect(parser, context, Token.JSXClose);
     const name = parseJSXElementName(parser, context);
     if (context & Context.InJSXChild) expect(parser, context, Token.GreaterThan);
-    else nextJSXToken(parser, context);
+    else nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXClosingElement',
         name
@@ -538,7 +536,7 @@ export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSX
 export function parseJSXMemberExpression(parser: Parser, context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
     // Note: In order to be able to parse cases like ''<A.B.C.D.E.foo-bar />', where the dash is located at the
     // end, we must rescan for the JSX Identifier now. This because JSX identifiers differ from normal identifiers
-    scanJSXIdentifier(parser, context);
+    scanJSXIdentifier(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXMemberExpression',
         object: expr,
@@ -555,7 +553,7 @@ export function parseJSXMemberExpression(parser: Parser, context: Context, expr:
 
 export function parseJSXElementName(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
-    scanJSXIdentifier(parser, context);
+    scanJSXIdentifier(parser);
     let elementName: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = parseJSXIdentifier(parser, context);
     if (parser.token === Token.Colon) return parseJSXNamespacedName(parser, context, elementName, pos);
     while (consume(parser, context, Token.Period)) {
@@ -570,13 +568,13 @@ export function parseJSXElementName(parser: Parser, context: Context): any {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanJSXIdentifier(parser: Parser, context: Context): Token {
-    const { token, index } = parser;
+export function scanJSXIdentifier(parser: Parser): Token {
+    const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         const firstCharPosition = parser.index;
         let ch = nextChar(parser);
         while (hasNext(parser) && (ch === Chars.Hyphen || (isValidIdentifierPart(ch)))) {
-            ch = readNext(parser, ch);
+            ch = readNext(parser);
         }
         parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);
     }

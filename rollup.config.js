@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 
@@ -12,7 +11,7 @@ const output = isMinify
     ? [ { file: `./dist/${pkg.name}.min.js`, format: 'umd', name: pkg.name } ]
     : [
         { file: `./dist/${pkg.name}.js`, format: 'umd', name: pkg.name },
-        { file: `./dist/${pkg.name}.mjs`, format: 'es', name: pkg.name },
+        { file: `./dist/${pkg.name}.es.js`, format: 'es', name: pkg.name },
     ];
 
 
@@ -22,9 +21,7 @@ const config = {
     replace({
       __VERSION__: pkg.version
     }),
-    buble({exclude: './node_modules/**', transforms: { dangerousForOf: true }}),
   ],
-  sourcemap: false,
   output
 };
 

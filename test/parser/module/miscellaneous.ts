@@ -1,4 +1,4 @@
-import { pass, fail } from '../../test-utils';
+import { fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
@@ -32,11 +32,11 @@ describe('Module - Miscellaneous', () => {
             });
         }
 
-        fail(`class C {}
+        /*fail(`class C {}
         new C().#x;`, Context.Strict | Context.Module, {
             source: `class C {}
             new C().#x;`
-        });
+        });*/
 
         fail(`yield;`, Context.Strict | Context.Module, {
             source: `yield;`,

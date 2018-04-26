@@ -12,17 +12,26 @@
         "noImplicitAny": true,
         "lib": ["es2017"],
         "noLib": false,
-        "removeComments": false,
+        "removeComments": true,
         "pretty": true,
+        "noEmitOnError": true,
+        "noUnusedParameters": true,
         "strictNullChecks": true,
         "stripInternal": true,
         "sourceMap": false,
+        "diagnostics": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitThis": true,
         "inlineSourceMap": false,
         "suppressImplicitAnyIndexErrors": false,
         "outDir": "build/",
         "typeRoots": [ "node_modules/@types/"],
         "types": ["mocha", "node"]
 },
+"include": [
+    "src",
+    "test"
+],
     "compileOnSave": false,
     "buildOnSave": false
 }

@@ -90,7 +90,7 @@ function parseAssignmentRestElementOrProperty(parser: Parser, context: Context):
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
-    if (parser.token == Token.Comma) tolerant(parser, context, Errors.RestWithComma);
+    if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument

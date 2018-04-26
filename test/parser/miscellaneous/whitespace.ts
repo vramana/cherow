@@ -1,4 +1,4 @@
-import { pass, fail } from '../../test-utils';
+import { pass } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
@@ -15,6 +15,9 @@ describe('Miscellaneous - Whitespace', () => {
         '\\u000Bstr\\u000Bing\\u000B',
         '\\u00A0var\\u00A0x\\u00A0=\\u00A01\\u00A0; result = x;',
         'var᠎foo;',
+        'throw /* \n */ e',
+        'throw /* \u2028 */ e',
+        'throw /* \u2029 */ e',
         'var\u180Efoo;',
         'var\\u180Efoo;'
     ];
@@ -40,6 +43,10 @@ describe('Miscellaneous - Whitespace', () => {
         `MAX_VALUE\u2028in\u2028Number`,
         `MAX_VALUE\u2029in\u2029Number`,
         `MAX_VALUE\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029in\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029Number`,
+//        "new\u0020\u0009\u000B\u000C\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFFa",
+        '{0\n1\r2\u20283\u20294}',
+        'throw /* \u202a */ e',
+        '{ var x = 14, y = 3\nz; }',
 
     ];
       for (const arg of validSyntax) {

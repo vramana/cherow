@@ -1,10 +1,9 @@
 import * as ESTree from '../estree';
-import { Chars } from '../chars';
 import { Token, tokenDesc } from '../token';
 import { scanRegularExpression, consumeTemplateBrace } from '../scanner';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
-import { Options, Location, Parser } from '../types';
+import { Location, Parser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
@@ -13,7 +12,6 @@ import {
     hasBit,
     finishNode,
     Flags,
-    hasNext,
     nextToken,
     consume,
     isInstanceField,
@@ -21,12 +19,11 @@ import {
     parseAndValidateIdentifier,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
+    validateUpdateExpression,
     swapContext,
     ModifierState,
     getLocation,
     reinterpret,
-    consumeSemicolon,
-    Labels,
     nextTokenIsFuncKeywordOnSameLine,
     lookahead,
     isPropertyWithPrivateFieldKey,
@@ -71,7 +68,7 @@ export function parseExpression(parser: Parser, context: Context): ESTree.Assign
  * @param Context masks
  */
 
-export function parseSequenceExpression(parser: Parser, context: Context, left: ESTree.Expression, pos: any): ESTree.SequenceExpression {
+export function parseSequenceExpression(parser: Parser, context: Context, left: ESTree.Expression, pos: Location): ESTree.SequenceExpression {
     const expressions: ESTree.Expression[] = [left];
     while (consume(parser, context, Token.Comma)) {
         expressions.push(parseExpressionCoverGrammar(parser, context, parseAssignmentExpression));
@@ -100,7 +97,8 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
 
     // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
    if (context & Context.InParameter) tolerant(parser, context, Errors.YieldInParameter);
-   if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
+   if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context, Errors.UnexpectedEscapedKeyword);
+
    expect(parser, context, Token.YieldKeyword);
 
    let argument: ESTree.Expression | null = null;
@@ -164,7 +162,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
                 // Invalid: ' yield => { 'use strict'; 0 };'
                 if (token & Token.FutureReserved) {
-                    parser.flags |= Flags.StrictReserved;
+                    parser.flags |= Flags.HasStrictReserved;
                 }
                 if (token & Token.IsEvalOrArguments) {
                     if (context & Context.Strict)  tolerant(parser, context, Errors.StrictEvalArguments);
@@ -338,7 +336,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
         if (context & Context.Strict && token === Token.DeleteKeyword) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, Errors.StrictDelete);
-            } else if (isPropertyWithPrivateFieldKey(context, argument)) {
+            } else if (isPropertyWithPrivateFieldKey(argument)) {
                 tolerant(parser, context, Errors.DeletePrivateField);
             }
         }
@@ -363,39 +361,35 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
  * @param Parser Parser object
  * @param context Context masks
  */
-function parseUpdateExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
-
-    let prefix = false;
-    let operator: Token | undefined;
-    if (hasBit(parser.token, Token.IsUpdateOp)) {
-        operator = parser.token;
-        prefix = true;
-        nextToken(parser, context);
-    }
+function parseUpdateExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     const { token } = parser;
-
-    const argument = parseLeftHandSideExpression(parser, context, pos);
-    const isPostfix = !(parser.flags & Flags.NewLine) && hasBit(parser.token, Token.IsUpdateOp);
-
-    if (!prefix && !isPostfix) return argument;
-
-    if (!prefix) {
-        operator = parser.token;
+    if (hasBit(parser.token, Token.IsUpdateOp)) {
         nextToken(parser, context);
+        const expr = parseLeftHandSideExpression(parser, context, pos);
+        validateUpdateExpression(parser, context, expr, 'Prefix');
+        return finishNode(context, parser, pos, {
+            type: 'UpdateExpression',
+            argument: expr,
+            operator: tokenDesc(token as Token),
+            prefix: true
+        });
+    } else if (context & Context.OptionsJSX && token === Token.LessThan) {
+        return parseJSXRootElement(parser, context | Context.InJSXChild);
+    }
+    const expression = parseLeftHandSideExpression(parser, context, pos);
+    if (hasBit(parser.token, Token.IsUpdateOp) && !(parser.flags & Flags.NewLine)) {
+        validateUpdateExpression(parser, context, expression, 'Postfix');
+        const operator = parser.token;
+        nextToken(parser, context);
+        return finishNode(context, parser, pos, {
+            type: 'UpdateExpression',
+            argument: expression,
+            operator: tokenDesc(operator as Token),
+            prefix: false
+        });
     }
 
-    if (context & Context.Strict && nameIsArgumentsOrEval((argument as ESTree.Identifier).name)) {
-        tolerant(parser, context, Errors.StrictLHSPrefixPostFix, prefix ? 'Prefix' : 'Postfix');
-    } else if (!isValidSimpleAssignmentTarget(argument)) {
-        tolerant(parser, context, Errors.InvalidLHSInAssignment);
-    }
-
-    return finishNode(context, parser, pos, {
-        type: 'UpdateExpression',
-        argument,
-        operator: tokenDesc(operator as Token),
-        prefix
-    });
+    return expression;
 }
 
 /**
@@ -428,7 +422,6 @@ export function parseRestElement(parser: Parser, context: Context, args: string[
 function parseSpreadElement(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
-    const token = parser.token;
     const argument = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
@@ -448,7 +441,7 @@ function parseSpreadElement(parser: Parser, context: Context): any {
 
 export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     const expr = parser.token === Token.ImportKeyword ?
-        parseImportExpressions(parser, context | Context.AllowIn, pos) :
+        parseImportExpressions(parser, context | Context.AllowIn) :
         parseMemberExpression(parser, context | Context.AllowIn, pos);
     return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
 }
@@ -751,8 +744,6 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplate(parser, context);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
-        case Token.LessThan:
-            if (context & Context.OptionsJSX) return parseJSXRootElement(parser, context | Context.InJSXChild);
         default:
             return parseAndValidateIdentifier(parser, context);
     }
@@ -836,7 +827,7 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
         regex: tokenRegExp
     });
 
-    if (context & Context.OptionsRaw) node.raw = parser.tokenRaw;
+    if (context & Context.OptionsRaw) node.raw = tokenRaw;
 
     return node;
 }
@@ -853,7 +844,7 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
 export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
     const value = parser.tokenValue;
-    if (context & Context.Strict && parser.flags & Flags.Octal) {
+    if (context & Context.Strict && parser.flags & Flags.HasOctal) {
         tolerant(parser, context, Errors.StrictOctalLiteral);
     }
     nextToken(parser, context);
@@ -956,7 +947,7 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
 
 function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): ESTree.PrivateName | ESTree.Identifier {
     if (!consume(parser, context, Token.Hash)) return parseIdentifierName(parser, context, parser.token);
-    const { token, tokenValue } = parser;
+    const { tokenValue } = parser;
     const pos = getLocation(parser);
     const name = tokenValue;
     nextToken(parser, context);
@@ -1139,7 +1130,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                         parser.flags |= Flags.StrictEvalArguments;
                     } else if (state & CoverParenthesizedState.HasReservedWords) {
                         if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedStrictReserved);
-                        parser.flags |= Flags.StrictReserved;
+                        parser.flags |= Flags.HasStrictReserved;
                     } else if (!(parser.flags & Flags.AllowBinding)) {
                         tolerant(parser, context, Errors.NotBindable);
                     }
@@ -1289,7 +1280,6 @@ export function parsePropertyName(parser: Parser, context: Context): ESTree.Expr
 function parseSpreadProperties(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
-    const token = parser.token;
     if (parser.token & Token.IsBindingPattern) parser.flags &= ~Flags.AllowDestructuring;
     const argument = parseAssignmentExpression(parser, context | Context.AllowIn);
     return finishNode(context, parser, pos, {
@@ -1518,8 +1508,6 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
 
 function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
-
-    const { token } = parser;
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
@@ -1546,7 +1534,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @param Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState){
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
@@ -1577,7 +1565,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
         if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
             if (parser.flags & Flags.SimpleParameterList) {
                 tolerant(parser, context, Errors.IllegalUseStrict);
-            } else if (parser.flags & (Flags.StrictReserved | Flags.StrictFunctionName)) {
+            } else if (parser.flags & (Flags.HasStrictReserved | Flags.StrictFunctionName)) {
                 tolerant(parser, context, Errors.UnexpectedStrictReserved);
             } else if (parser.flags & Flags.StrictEvalArguments) {
                 tolerant(parser, context, Errors.StrictEvalArguments);
@@ -1596,14 +1584,14 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
 
     const savedFlags = parser.flags;
 
-    parser.flags = parser.flags & ~(Flags.StrictFunctionName | Flags.StrictEvalArguments | Flags.Switch | Flags.Iteration) | Flags.AllowDestructuring;
+    parser.flags = parser.flags & ~(Flags.StrictFunctionName | Flags.StrictEvalArguments | Flags.InSwitchStatement | Flags.InIterationStatement) | Flags.AllowDestructuring;
 
     while (parser.token !== Token.RightBrace) {
         body.push(parseStatementListItem(parser, context));
     }
 
-    if (savedFlags & Flags.Iteration) parser.flags |= Flags.Iteration;
-    if (savedFlags & Flags.Switch) parser.flags |= Flags.Switch;
+    if (savedFlags & Flags.InIterationStatement) parser.flags |= Flags.InIterationStatement;
+    if (savedFlags & Flags.InSwitchStatement) parser.flags |= Flags.InSwitchStatement;
 
     parser.labelSet = labelSet;
 
@@ -1653,7 +1641,7 @@ export function parseFormalParameters(
 
     expect(parser, context, Token.LeftParen);
 
-    parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
+    parser.flags &= ~(Flags.SimpleParameterList | Flags.HasStrictReserved);
 
     const args: string[] = [];
     const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
@@ -1982,7 +1970,7 @@ function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Loc
  * @param Context masks
  */
 
-function parseImportExpressions(parser: Parser, context: Context, poss: Location): ESTree.Expression {
+function parseImportExpressions(parser: Parser, context: Context): ESTree.Expression {
     if (!(context & Context.OptionsNext)) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
@@ -2040,8 +2028,6 @@ function parseMetaProperty(parser: Parser, context: Context, meta: ESTree.Identi
 function parseNewExpression(parser: Parser, context: Context): ESTree.NewExpression | ESTree.MetaProperty {
 
     const pos = getLocation(parser);
-    const { token, tokenValue } = parser;
-
     const id = parseIdentifier(parser, context);
 
     if (consume(parser, context, Token.Period)) {
@@ -2072,7 +2058,7 @@ function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Lo
         // Invalid: '"new import(x)"'
         if (lookahead(parser, context, nextTokenIsLeftParen)) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
         // Fixes cases like ''new import.meta','
-        return parseImportExpressions(parser, context, pos);
+        return parseImportExpressions(parser, context);
     }
     return parseMemberExpression(parser, context, pos);
 }

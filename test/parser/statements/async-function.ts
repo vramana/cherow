@@ -8,6 +8,7 @@ describe('Statements - Async function', () => {
   describe('Failures', () => {
 
     const invalidSyntax = [
+      'async function foo() { async function bar(a = await baz()) {} }',
       'async function wrap() {\n({a = await b} = obj) => a\n}',
       'async function wrap() {\n(a = await b) => a\n}',
       'async function foo() { await }',
@@ -57,7 +58,6 @@ describe('Statements - Async function', () => {
       'async function foo({ [await baz()]: bar }) {}',
       'async function a() {  class Foo {   bar = await baz();  }}',
       'async function foo() { async function bar(a = await baz()) {} }',
-      'async function foo() { async function bar(a = await baz()) {} }',
       ];
 
     for (const arg of invalidSyntax) {
@@ -82,9 +82,9 @@ describe('Statements - Async function', () => {
      source: 'async function foo (foo = super()) { let bar; }',
    });
 
-  //fail('\\u0061sync function f(){}', Context.Empty, {
-    //source: '\\u0061sync function f(){}',
-  //});
+    fail('\\u0061sync function f(){}', Context.Empty, {
+    source: '\\u0061sync function f(){}',
+  });
 
     fail('async({x=y})', Context.Empty, {
     source: 'async({x=y})',

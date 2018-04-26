@@ -70,6 +70,94 @@ describe('Statements - Const', () => {
 
   describe('Pass', () => {
 
+    // Babylon issue: https://github.com/babel/babel/issues/6687
+    pass(`const await = foo;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: `const await = foo;`,
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 18,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 18
+          }
+        },
+        body: [
+          {
+            type: 'VariableDeclaration',
+            start: 0,
+            end: 18,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 18
+              }
+            },
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                start: 6,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 6
+                  },
+                  end: {
+                    line: 1,
+                    column: 17
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 11,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 11
+                    }
+                  },
+                  name: 'await'
+                },
+                init: {
+                  type: 'Identifier',
+                  start: 14,
+                  end: 17,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 14
+                    },
+                    end: {
+                      line: 1,
+                      column: 17
+                    }
+                  },
+                  name: 'foo'
+                }
+              }
+            ],
+            kind: 'const'
+          }
+        ],
+        sourceType: 'script'
+      }
+    });
+
     pass(`const { async: foo } = bar;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
       source: `const { async: foo } = bar;`,
       expected: {

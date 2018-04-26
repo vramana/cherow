@@ -1,7 +1,5 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
-import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Shebang', () => {
 

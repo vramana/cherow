@@ -42,7 +42,6 @@ export function skipSingleLineComment(
                 advanceNewline(parser);
                 if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) parser.index++;
                 return state | ScannerState.NewLine;
-
             case Chars.LineFeed:
             case Chars.LineSeparator:
             case Chars.ParagraphSeparator:

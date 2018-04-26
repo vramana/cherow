@@ -1,4 +1,4 @@
-import { pass, fail } from '../../test-utils';
+import { pass } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 
 // A number of slash-disambiguation corner cases

@@ -9,6 +9,18 @@ describe('Miscellaneous - Comments', () => {
         source: `;-->`,
     });
 
+    fail(`---*/
+
+    -->`, Context.Empty, {
+        source: `---*/
+
+        -->`,
+    });
+
+    fail(`<!-- test --->`, Context.Module, {
+        source: `<!-- test --->`,
+    });
+
     fail(`single and multi line comments used together`, Context.Empty, {
         source: `// var /*
             x*/`,
@@ -186,6 +198,10 @@ describe('Miscellaneous - Comments', () => {
 
     describe('Pass', () => {
         const programs = [
+
+           // Babylon issue: https://github.com/babel/babel/issues/7802
+            `<!-- test --->`,
+            '<!-- console.log("foo") -->',
             '//\\u00A0 single line \\u00A0 comment \\u00A0',
             '// foo',
             '// foo /* bar */',
@@ -206,6 +222,10 @@ describe('Miscellaneous - Comments', () => {
             '/*a\rb*/ 0',
             '/*a\nb*/ 0',
             '/*a\nc*/ 0',
+            'let a = () => /* = */ { return "b" }',
+            'let a = () => { /* = */ return "b" }',
+            'let a = () /* = */ => { return "b" }',
+            '(/* className: string */) => {}',
             '0 // line comment',
             '// Hello, Icefapper!\n0',
             '//',
@@ -234,6 +254,7 @@ describe('Miscellaneous - Comments', () => {
             `\t /*\t*/ /* optional SingleLineDelimitedCommentSequence */
                 \n--> the comment extends to these characters\t `,
             `\t \n   --> the comment extends to these characters\r `,
+            '() => /* string */ \'\'',
             '// foo',
             '/**/ // ',
             '// a /* bcd */ ',
@@ -277,6 +298,15 @@ describe('Miscellaneous - Comments', () => {
             'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
             '/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n',
             'a(/* inner */); b(e, /* inner */)',
+            'while (true) { continue /* Multiline\nComment */there; }',
+            'while (true) { break /* Multiline\nComment */there; }',
+            'while (true) { continue // Comment\nthere; }',
+            'while (true) { continue\nthere; }',
+            '{ x\n++y }',
+            '{ x\n--y }',
+            '{ throw error\nerror; }',
+            '{ throw error// Comment\nerror; }',
+            '{ throw error/* Multiline\nComment */error; }',
             `// var /*
             // x
             // =

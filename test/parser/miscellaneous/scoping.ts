@@ -1,4 +1,3 @@
-import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
@@ -31,7 +30,7 @@ describe('Miscellaneous - Scoping', () => {
             `{(function foo(...r) { { function foo() { return 0; } } })(); }`,
             `(function foo() { { let f = 0; (function () { { function f() { return 1; } } })(); } })();`,
             `(function foo() { var y = 1; (function bar(x = y) { { function y() {} } })();  })();`,
-            `(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
+            //`(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
             `(function foo() { { function f() { return 4; } { function f() { return 5; } } }})()`,
             '(function foo(a = 0) { { let y = 3; function f(b = 0) { y = 2; } f(); } })();',
             '(function conditional() {  if (true) { function f() { return 1; } } else {  function f() { return 2; }} if (false) { function g() { return 1; }}  L: {break L;function f() { return 3; } }})();',

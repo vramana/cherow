@@ -34,8 +34,7 @@ import {
     hasLabel,
     addLabel,
     popLabel,
-    restoreExpressionCoverGrammar,
-    parseExpressionCoverGrammar
+    restoreExpressionCoverGrammar
 } from '../utilities';
 
 // Statements
@@ -69,7 +68,7 @@ export function parseStatementListItem(parser: Parser, context: Context) {
         }
         case Token.ExportKeyword:
             if (context & Context.Module) {
-                tolerant(parser, context, parser.token == Token.ImportKeyword ? Errors.ImportDeclAtTopLevel : Errors.ExportDeclAtTopLevel);
+                tolerant(parser, context, parser.token === Token.ImportKeyword ? Errors.ImportDeclAtTopLevel : Errors.ExportDeclAtTopLevel);
             }
         default:
             return parseStatement(parser, context | Context.AllowSingleStatement);
@@ -385,7 +384,7 @@ export function parseDirective(parser: Parser, context: Context): ESTree.Express
 export function parseExpressionOrLabelledStatement(parser: Parser, context: Context): ESTree.ExpressionStatement | ESTree.LabeledStatement {
     const pos = getLocation(parser);
     const { tokenValue, token } = parser;
-    const expr: ESTree.Expression = parseExpression(parser, context | Context.AllowIn);
+    const expr: ESTree.Expression = parseExpression(parser, context & ~Context.AllowSingleStatement | Context.AllowIn);
     if (token & (Token.IsIdentifier | Token.Keyword) && parser.token === Token.Colon) {
         // If within generator function bodies, we do it like this so we can throw an nice error message
         if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldReservedKeyword);
@@ -530,7 +529,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
     // bitfiddling before and after to modify the parser state before we let the 'parseStatement'
     // return the mentioned statements (to match the original grammar).
     const savedFlags = parser.flags;
-    parser.flags |= Flags.Iteration | Flags.AllowDestructuring;
+    parser.flags |= Flags.InIterationStatement | Flags.AllowDestructuring;
     const body = parseStatement(parser, context & ~Context.AllowSingleStatement | Context.DisallowEscapedKeyword);
     parser.flags = savedFlags;
     return body;
@@ -578,7 +577,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
     expect(parser, context | Context.DisallowEscapedKeyword, Token.LeftBrace);
     const cases: ESTree.SwitchCase[] = [];
     const savedFlags = parser.flags;
-    parser.flags |= Flags.Switch;
+    parser.flags |= Flags.InSwitchStatement;
     let seenDefault = false;
     while (parser.token !== Token.RightBrace) {
         const clause = parseCaseOrDefaultClauses(parser, context);
@@ -746,7 +745,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
 
     } else {
 
-        if (parser.token === Token.Comma) init = parseSequenceExpression(parser, context, init as ESTree.Expression, sequencePos);
+        if (parser.token === Token.Comma) init = parseSequenceExpression(parser, context, init as ESTree.Expression, sequencePos as Location);
         if (variableStatement) init = variableStatement;
         expect(parser, context, Token.Semicolon);
 

@@ -494,7 +494,7 @@ export function scan(parser: Parser, context: Context): Token {
 
                     // ``string``
                 case Chars.Backtick:
-                    return scanTemplate(parser, context, first);
+                    return scanTemplate(parser, context);
 
                     // `|`, `||`, `|=`
                 case Chars.VerticalBar:
@@ -683,7 +683,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
                 let column = parser.column;
                 let code = 0;
 
-                parser.flags |= Flags.Octal;
+                parser.flags |= Flags.HasOctal;
 
                 // Implicit octal, unless there is a non-octal digit.
                 // (Annex B.1.1 on Numeric Literals)
@@ -707,7 +707,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
         case Chars.Eight:
         case Chars.Nine:
 
-            parser.flags |= Flags.Octal;
+            parser.flags |= Flags.HasOctal;
 
         default:
             if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
@@ -1021,7 +1021,7 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
 
     // '\u{DDDDDDDD}'
     if (ch === Chars.LeftBrace) { // {
-        ch = readNext(parser, ch);
+        ch = readNext(parser);
 
         let digit = toHex(ch);
 
@@ -1099,12 +1099,12 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                     // Strict mode code allows only \0, then a non-digit.
                     if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
                         if (context & Context.Strict) return Escape.StrictOctal;
-                        parser.flags |= Flags.Octal;
+                        parser.flags |= Flags.HasOctal;
                     }
                 } else if (context & Context.Strict) {
                     return Escape.StrictOctal;
                 } else {
-                    parser.flags |= Flags.Octal;
+                    parser.flags |= Flags.HasOctal;
                     parser.lastValue = next;
                     code = code * 8 + (next - Chars.Zero);
                     index++;
@@ -1155,10 +1155,10 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
             // ASCII escapes
         case Chars.LowerX:
             {
-                const ch1 = parser.lastValue = readNext(parser, first);
+                const ch1 = parser.lastValue = readNext(parser);
                 const hi = toHex(ch1);
                 if (hi < 0) return Escape.InvalidHex;
-                const ch2 = parser.lastValue = readNext(parser, ch1);
+                const ch2 = parser.lastValue = readNext(parser);
                 const lo = toHex(ch2);
                 if (lo < 0) return Escape.InvalidHex;
 
@@ -1168,20 +1168,20 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
             // UCS-2/Unicode escapes
         case Chars.LowerU:
             {
-                let ch = parser.lastValue = readNext(parser, first);
+                let ch = parser.lastValue = readNext(parser);
                 if (ch === Chars.LeftBrace) {
-                    ch = parser.lastValue = readNext(parser, ch);
+                    ch = parser.lastValue = readNext(parser);
                     let code = toHex(ch);
                     if (code < 0) return Escape.InvalidHex;
 
-                    ch = parser.lastValue = readNext(parser, ch);
+                    ch = parser.lastValue = readNext(parser);
                     while (ch !== Chars.RightBrace) {
                         const digit = toHex(ch);
                         if (digit < 0) return Escape.InvalidHex;
                         code = code * 16 + digit;
                         // Code point out of bounds
                         if (code > Chars.NonBMPMax) return Escape.OutOfRange;
-                        ch = parser.lastValue = readNext(parser, ch);
+                        ch = parser.lastValue = readNext(parser);
                     }
 
                     return code;
@@ -1191,7 +1191,7 @@ function scanEscapeSequence(parser: Parser, context: Context, first: number): nu
                     if (codePoint < 0) return Escape.InvalidHex;
 
                     for (let i = 0; i < 3; i++) {
-                        ch = parser.lastValue = readNext(parser, ch);
+                        ch = parser.lastValue = readNext(parser);
                         const digit = toHex(ch);
                         if (digit < 0) return Escape.InvalidHex;
                         codePoint = codePoint * 16 + digit;
@@ -1247,7 +1247,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
     const { index: start, lastValue } = parser;
     let ret = '';
 
-    let ch = readNext(parser, quote);
+    let ch = readNext(parser);
     while (ch !== quote) {
         switch (ch) {
             case Chars.CarriageReturn:
@@ -1260,7 +1260,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
                 report(parser, Errors.UnterminatedString);
 
             case Chars.Backslash:
-                ch = readNext(parser, ch);
+                ch = readNext(parser);
 
                 if (ch >= 128) {
                     ret += fromCodePoint(ch);
@@ -1278,7 +1278,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
                 ret += fromCodePoint(ch);
         }
 
-        ch = readNext(parser, ch);
+        ch = readNext(parser);
     }
 
     advance(parser);
@@ -1309,7 +1309,7 @@ function scanLooserTemplateSegment(parser: Parser, ch: number): number {
 
         // Skip '\' and continue to scan the template token to search
         // for the end, without validating any escape sequences
-        ch = readNext(parser, ch);
+        ch = readNext(parser);
     }
 
     return ch;
@@ -1327,7 +1327,7 @@ export function consumeTemplateBrace(parser: Parser, context: Context): Token {
     // Upon reaching a '}', consume it and rewind the scanner state
     parser.index--;
     parser.column--;
-    return scanTemplate(parser, context, Chars.RightBrace);
+    return scanTemplate(parser, context);
 }
 
 /**
@@ -1337,12 +1337,12 @@ export function consumeTemplateBrace(parser: Parser, context: Context): Token {
  * @param {context} Context masks
  * @param {first} Codepoint
  */
-export function scanTemplate(parser: Parser, context: Context, first: number): Token {
+export function scanTemplate(parser: Parser, context: Context): Token {
     const { index: start, lastValue } = parser;
     let tail = true;
     let ret: string | void = '';
 
-    let ch = readNext(parser, first);
+    let ch = readNext(parser);
 
     loop:
         while (ch !== Chars.Backtick) {
@@ -1364,7 +1364,7 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
                     }
 
                 case Chars.Backslash:
-                    ch = readNext(parser, ch);
+                    ch = readNext(parser);
 
                     if (ch >= 128) {
                         ret += fromCodePoint(ch);
@@ -1410,7 +1410,7 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
                     if (ret != null) ret += fromCodePoint(ch);
             }
 
-            ch = readNext(parser, ch);
+            ch = readNext(parser);
         }
 
     advance(parser);

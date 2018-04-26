@@ -7,7 +7,7 @@ import { parse } from '../../../src/parser/parser';
 //
 // Note! This is not finished yet - still a few non-failing tests. Waiting for finale specs
 
-describe('Declarations - Class fields', () => {
+describe('Next - Class fields', () => {
 
     describe('Failures', () => {
 
@@ -78,10 +78,6 @@ describe('Declarations - Class fields', () => {
                 });
             });
         }
-
-        fail('#constructor', Context.OptionsNext, {
-            source: '#constructor',
-        });
 
         fail('class X { constructor = function() {}; }', Context.OptionsNext, {
             source: 'class X { constructor = function() {}; }',

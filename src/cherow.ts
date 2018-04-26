@@ -9,7 +9,7 @@ import { Context } from './utilities';
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
  *
- * @param source  source code to parse
+ * @param source source code to parse
  * @param options parser options
  */
 
@@ -22,7 +22,7 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
  *
- * @param source  source code to parse
+ * @param source source code to parse
  * @param options parser options
  */
 
