@@ -502,7 +502,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) {
         tolerant(parser, context, Errors.IllegalReturn);
     }
-    if (parser.flags & Flags.EscapedKeyword) report(parser, Errors.UnexpectedEscapedKeyword);
+    if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
     expect(parser, context, Token.ReturnKeyword);
     const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine) ?
         parseExpression(parser, context & ~Context.InFunctionBody | Context.AllowIn) :

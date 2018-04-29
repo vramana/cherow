@@ -9,6 +9,9 @@ describe('Expressions - Async Arrows', () => {
 
         const invalidSyntax = [
             '"use strict"; async(x = await) => {  }',
+            'async() => { (a = await/r/g) => {} };',
+            'async(a = (await) => {}) => {};',
+            'async(a = (...await) => {}) => {};',
             `async ((x, y)) => 0`,
             'async(foo) => { super.prop };',
             'async(foo = super()) => {}',

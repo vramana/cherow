@@ -18,8 +18,11 @@ describe('Miscellaneous - Whitespace', () => {
         'throw /* \n */ e',
         'throw /* \u2028 */ e',
         'throw /* \u2029 */ e',
+        'new\u180Ea',
+        "new\u0020\u0009\u000B\u000C\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFFa",
         'var\u180Efoo;',
-        'var\\u180Efoo;'
+        'var\\u180Efoo;',
+        "\\u2002Проверка\\r\\n\\u00a0",
     ];
       for (const arg of invalidSyntax) {
 
@@ -34,16 +37,33 @@ describe('Miscellaneous - Whitespace', () => {
     describe('Pass', () => {
 
       const validSyntax = [
+        "\t\t\t\t\t\t\t\t",
+        "\v\v\v\v\v\v\v\v",
+        " \t\f\v\r\n",
+        "\r\n",
+        "    \t \r\n \n\r \v\f\t ",
+        `  \t // foo bar\f  `,
+        `  \t // foo bar\t  `,
+        `  \t // foo bar\v  `,
+        "{0\n1\r2\u20283\u20294}",
         '//singlelinecommentx = icefapper;',
         '//\\u000C single line \\u000C comment \\u000C',
         `//\\u0020 single line \\u0020 comment \\u0020`,
+        "\u0020var x\u0020= 1\u0020; result = x;",
+        "'\u0009str\u0009ing\u0009'",
+        "{ x\n++y }", 
+        '\u0009var\u0009x\u0009=\u00091\u0009; result = x;',
+        "\u0009" + "var" + "\u0009" + "x" + "\u0009" + "=" + "\u0009" + "2" + "\u0009; result = x;",
+        "\u0009" + "var" + "\t" + "x" + "\u0009" + "=" + "\t" + "5" + "\u0009; result = x;",
+        "'\\u0009str\\u0009ing\\u0009'",
+        "/*\u0009 multi line \u0009 comment \u0009 x = 1;*/",
+        "/*\u0009 multi line \u0009 comment \u0009*/",
         `// single line comment`,
         `/*multilinecommenta = b;*/`,
         `MAX_VALUE\u000Ain\u000ANumber`,
         `MAX_VALUE\u2028in\u2028Number`,
         `MAX_VALUE\u2029in\u2029Number`,
         `MAX_VALUE\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029in\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029Number`,
-//        "new\u0020\u0009\u000B\u000C\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFFa",
         '{0\n1\r2\u20283\u20294}',
         'throw /* \u202a */ e',
         '{ var x = 14, y = 3\nz; }',
@@ -436,61 +456,6 @@ describe('Miscellaneous - Whitespace', () => {
           type: 'Program'
         }
 });
-/*
-pass(`var source = '{0\x0A1\x0D2\u20283\u20294}';`, Context.OptionsRaw, {
-  source: `{0\x0A1\x0D2\u20283\u20294}`,
-  expected: {
-      body: [
-        {
-          body: [
-            {
-             expression: {
-                raw: '0',
-                type: 'Literal',
-                value: 0
-              },
-              type: 'ExpressionStatement'
-            },
-            {
-              expression: {
-                raw: '1',
-                type: 'Literal',
-                value: 1
-              },
-              type: 'ExpressionStatement',
-            },
-            {
-              expression: {
-               raw: '2',
-                type: 'Literal',
-                value: 2,
-              },
-              type: 'ExpressionStatement',
-            },
-            {
-              expression: {
-                raw: '3',
-                type: 'Literal',
-                value: 3,
-              },
-              type: 'ExpressionStatement',
-            },
-            {
-              expression: {
-                raw: '4',
-                type: 'Literal',
-                value: 4,
-              },
-              type: 'ExpressionStatement'
-            }
-          ],
-          type: 'BlockStatement'
-        }
-      ],
-      sourceType: 'script',
-      type: 'Program',
-    }
-});*/
 
     pass(`line separators`, Context.OptionsRaw | Context.OptionsLoc | Context.OptionsRanges, {
     source: '\u2028\u2028\u2028\u2028\u2028\u2028\u2028\u2028',

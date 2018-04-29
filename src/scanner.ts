@@ -90,7 +90,7 @@ export function scan(parser: Parser, context: Context): Token {
                     break;
 
                 default:
-                    return parseMaybeIdentifier(parser, context, first);
+                    return scanMaybeIdentifier(parser, context, first);
             }
 
         } else {
@@ -938,7 +938,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
         if (token > 0) {
             if (isEscaped) {
                 if (context & Context.DisallowEscapedKeyword) {
-                    tolerant(parser, context, Errors.UnexpectedEscapedKeyword, tokenDesc(token as any));
+                    tolerant(parser, context, Errors.InvalidEscapedReservedWord);
                 }
                 // Here we fall back to a mutual parser flag if the escaped keyword isn't disallowed through
                 // context masks. This is similiar to how V8 does it - they are using an
@@ -963,7 +963,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
  * @param first Code point
  */
 
-function parseMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
+function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
         report(parser, Errors.UnexpectedChar, escapeForPrinting(first));

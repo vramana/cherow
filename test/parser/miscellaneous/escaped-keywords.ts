@@ -149,7 +149,6 @@ describe('Miscellaneous - Escaped keywords', () => {
             'for (var a i\\u006e this) {}',
             'if (\'foo\' \\u0069n this) {}',
             'if (this \\u0069nstanceof Array) {}',
-            '(n\\u0065w function f() {})',
             '(typ\\u0065of 123)',
             '(v\\u006fid 0)',
             'do { ; } wh\\u0069le (true) { }',

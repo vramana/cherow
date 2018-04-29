@@ -105,6 +105,35 @@ describe('Expressions  - Class', () => {
             source: '(class extends a,b {)',
         });
 
+        fail('var C = class l\\u0065t {};', Context.Empty, {
+            source: 'var C = class l\\u0065t {};',
+        });
+
+        fail('var C = class let {};', Context.Empty, {
+            source: 'var C = class let {};',
+        });
+
+        fail('var C = class st\\u0061tic {};', Context.Empty, {
+            source: 'var C = class st\\u0061tic {};',
+        });
+
+        fail('var C = class static {};', Context.Empty, {
+            source: 'var C = class static {};',
+        });
+
+        fail('var C = class yi\\u0065ld {};', Context.Empty, {
+            source: 'var C = class yi\\u0065ld {};',
+        });
+
+        fail('var C = class yield {};', Context.Empty, {
+            source: 'var C = class yield {};',
+        });
+
+        fail('class aw\\u0061it {}', Context.Strict | Context.Module, {
+            source: 'class aw\\u0061it {}',
+        });
+
+                
         fail('(class extends a,b {})', Context.Empty, {
             source: '(class extends a,b {})',
         });
@@ -116,7 +145,20 @@ describe('Expressions  - Class', () => {
         fail('(class eval {a:0})', Context.Empty, {
             source: '(class eval {a:0})',
         });
+        
+        fail('class aw\\u0061it {};', Context.Empty, {
+            source: 'class aw\\u0061it {};',
+        });
 
+        fail('var C = class aw\\u0061it {};', Context.Empty, {
+            source: 'var C = class aw\\u0061it {};',
+        });
+
+        fail('var C = class await {};', Context.Strict | Context.Module, {
+            source: 'var C = class await {};',
+        });
+        
+        
         fail('(class package {a:0})', Context.Empty, {
             source: '(class package {a:0})',
         });

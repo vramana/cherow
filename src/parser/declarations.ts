@@ -29,10 +29,10 @@ import {
  */
 export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
     const pos = getLocation(parser);
-    expect(parser, context, Token.ClassKeyword);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))
         ? null :
-        parseBindingIdentifier(parser, context | Context.Strict);
+        parseBindingIdentifier(parser, context | Context.Strict | Context.DisallowEscapedKeyword);
     let state = ObjectState.None;
     let superClass: ESTree.Expression | null = null;
     if (consume(parser, context, Token.ExtendsKeyword)) {
@@ -157,7 +157,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
 
     let init: ESTree.Expression | null = null;
 
-    if (consume(parser, context, Token.Assign)) {
+    if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
             tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));

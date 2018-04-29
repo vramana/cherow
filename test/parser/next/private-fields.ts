@@ -101,25 +101,25 @@ describe('Next - Private fields', () => {
             });
         }
 
-        //fail('#constructor', Context.OptionsNext, {
-          //  source: '#constructor',
-        //});
-//
-    //    fail('#constructor', Context.OptionsNext | Context.Strict | Context.Module, {
-     //       source: '#constructor',
-    //    });
+        fail('#constructor', Context.OptionsNext, {
+            source: '#constructor',
+        });
 
-      //  fail('#constructor', Context.OptionsNext, {
-        //    source: '#constructor',
-        //});
+        fail('#constructor', Context.OptionsNext | Context.Strict | Context.Module, {
+            source: '#constructor',
+        });
+
+        fail('#constructor', Context.OptionsNext, {
+            source: '#constructor',
+        });
 
         fail('#*a() { }', Context.OptionsNext, {
             source: '#*a() { }',
         });
 
-        // fail('#x = typeof super();', Context.OptionsNext, {
-            // source: '#x = typeof super();',
-        // });
+        fail('#x = typeof super();', Context.OptionsNext, {
+            source: '#x = typeof super();',
+         });
 
         fail('#a = 0\n *b(){}', Context.OptionsNext, {
             source: '#a = 0\n *b(){}',

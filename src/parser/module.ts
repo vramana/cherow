@@ -90,7 +90,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
     let source = null;
     let declaration: ESTree.Statement | null = null;
 
-    expect(parser, context, Token.ExportKeyword);
+    expect(parser, context | Context.DisallowEscapedKeyword, Token.ExportKeyword);
 
     switch (parser.token) {
         // export * FromClause ;
