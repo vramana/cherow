@@ -3,7 +3,7 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parse } from '../../../src/parser/parser';
 
-describe('Declarations - Optional catch binding', () => {
+describe('Next - Optional catch binding', () => {
 
     describe('Failure', () => {
         fail('try { throw undefined; } catch (err = "foo") { err }', Context.OptionsNext, {

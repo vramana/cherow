@@ -186,6 +186,7 @@ export function throwStringError(parser: Parser, context: Context, code: Escape)
 
         case Escape.OutOfRange:
             report(parser, Errors.UnicodeOutOfRange);
+        /* istanbul ignore next */
         default:
             // ignore
     }
@@ -203,18 +204,19 @@ export function throwStringError(parser: Parser, context: Context, code: Escape)
 export function scanString(parser: Parser, context: Context, quote: number): Token {
     const { index: start, lastValue} = parser;
     let ret = '';
-    let ch = readNext(parser);
+    advance(parser);  // consume quote
+    
+    let ch = nextChar(parser);
+
     while (ch !== quote) {
         switch (ch) {
+
+            case Chars.LineSeparator:
+            case Chars.ParagraphSeparator:
             case Chars.CarriageReturn:
             case Chars.LineFeed:
                 report(parser, Errors.UnterminatedString);
-            case Chars.LineSeparator:
-            case Chars.ParagraphSeparator:
-                // Stage 3 proposal
-                if (context & Context.OptionsNext) advance(parser);
-                report(parser, Errors.UnterminatedString);
-
+        
             case Chars.Backslash:
                 ch = readNext(parser);
 
@@ -223,7 +225,6 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
                 } else {
                     parser.lastValue = ch;
                     const code = scanEscapeSequence(parser, context, ch);
-
                     if (code >= 0) ret += fromCodePoint(code);
                     else throwStringError(parser, context, code as Escape);
                     ch = parser.lastValue;
@@ -237,7 +238,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
         ch = readNext(parser);
     }
 
-    advance(parser);
+    advance(parser); // consume quote
 
     parser.tokenRaw = parser.source.slice(start, parser.index);
     parser.tokenValue = ret;

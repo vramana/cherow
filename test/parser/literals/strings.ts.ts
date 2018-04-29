@@ -7,6 +7,14 @@ describe('Literals - String', () => {
 
     describe('Failure', () => {
 
+        fail('"', Context.Empty, {
+            source: '"',
+        });
+
+        fail('"foo', Context.Empty, {
+            source: '"foo',
+        });
+
         fail('"foo\\"', Context.Empty, {
             source: '"foo\\"',
         });

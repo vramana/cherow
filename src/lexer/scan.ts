@@ -78,7 +78,7 @@ export function scan(parser: Parser, context: Context): Token {
             // Note: Here we first get rid of LT and  WS, then we make sure that the lookup time 
             // for the single punctuator char is short as possible. A single punctuator
             // char is a valid token that cannot also be a prefix of a combination
-            // of multiple tokens - e.g. '(', ')' and '=' is valid. '==' is not.
+            // of long tokens - e.g. '(', ')' and '=' is valid. '==' is not.
             switch (first) {
 
                 case Chars.CarriageReturn:
@@ -239,6 +239,7 @@ export function scan(parser: Parser, context: Context): Token {
                         case Chars.EqualSign:
                             advance(parser);
                             return Token.LessThanOrEqual;
+                            
                         case Chars.Slash:
                             {
                                 if (!(context & Context.OptionsJSX)) break;
@@ -330,25 +331,6 @@ export function scan(parser: Parser, context: Context): Token {
                         }
 
                         return Token.Add;
-                    }
-
-                    // `#`
-                case Chars.Hash:
-                    {
-                        advance(parser);
-
-                        const index = parser.index;
-
-                        const next = parser.source.charCodeAt(index);
-
-                        if (context & Context.OptionsShebang &&
-                            lineStart &&
-                            next === Chars.Exclamation) {
-                            parser.index = index + 1;
-                            skipSingleLineComment(parser, context, ScannerState.None, 'SheBang');
-                            continue;
-                        }
-                        return scanPrivateName(parser, context);
                     }
 
                     // `\\u{N}var`
@@ -461,6 +443,24 @@ export function scan(parser: Parser, context: Context): Token {
 
                         advance(parser);
                         return Token.Period;
+                    }
+                    // `#`
+                case Chars.Hash:
+                    {
+                        advance(parser);
+
+                        const index = parser.index;
+
+                        const next = parser.source.charCodeAt(index);
+
+                        if (context & Context.OptionsShebang &&
+                            lineStart &&
+                            next === Chars.Exclamation) {
+                            parser.index = index + 1;
+                            skipSingleLineComment(parser, context, ScannerState.None, 'SheBang');
+                            continue;
+                        }
+                        return scanPrivateName(parser, context);
                     }
 
                     // `0`...`9`

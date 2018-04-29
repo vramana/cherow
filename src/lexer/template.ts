@@ -84,13 +84,6 @@ export function scanTemplate(parser: Parser, context: Context): Token {
                     break;
 
                 case Chars.CarriageReturn:
-                    if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) {
-                        if (ret != null) ret += fromCodePoint(ch);
-                        ch = nextChar(parser);
-                        parser.index++;
-                    }
-                    // falls through
-
                 case Chars.LineFeed:
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
@@ -126,14 +119,9 @@ export function scanTemplate(parser: Parser, context: Context): Token {
  */
 function scanLooserTemplateSegment(parser: Parser, ch: number): number {
     while (ch !== Chars.Backtick) {
-
-        if (ch === Chars.Dollar) {
-            const index = parser.index + 1;
-            if (parser.source.charCodeAt(index) === Chars.LeftBrace) {
-                parser.index = index;
-                parser.column++;
-                return -ch;
-            }
+        if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
+            advance(parser);
+            return -ch;
         }
 
         // Skip '\' and continue to scan the template token to search
