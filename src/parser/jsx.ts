@@ -5,13 +5,7 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
-import {     hasNext,
-    nextChar,
-    advance,
-    consumeOpt,
-    fromCodePoint,
-    readNext,
-} from '../scanner/common';
+import { hasNext, nextChar, advance, consumeOpt, fromCodePoint, readNext } from '../lexer/common';
 import {
     Context,
     expect,

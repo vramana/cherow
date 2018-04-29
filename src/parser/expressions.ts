@@ -1,7 +1,7 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { scanRegularExpression } from '../scanner/regexp';
-import { consumeTemplateBrace } from '../scanner/template';
+import { scanRegularExpression } from '../lexer/regexp';
+import { consumeTemplateBrace } from '../lexer/template';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Location, Parser } from '../types';

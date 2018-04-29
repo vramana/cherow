@@ -1,7 +1,7 @@
 import { parse } from './parser/parser';
 import * as ESTree from './estree';
 import * as Parser from './parser/index';
-import * as Scanner from './scanner/index';
+import * as Scanner from './lexer/index';
 import { Options } from './types';
 import { Context } from './utilities';
 

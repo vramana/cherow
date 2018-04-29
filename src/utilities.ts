@@ -3,7 +3,7 @@ import { Chars } from './chars';
 import { Errors, report, tolerant } from './errors';
 import { Parser, Delegate, Location } from './types';
 import { Token, tokenDesc } from './token';
-import { scan } from './scanner/scan';
+import { scan } from './lexer/scan';
 import { constructError } from './errors';
 import { parseIdentifier } from './parser/expressions';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
