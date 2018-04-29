@@ -1,4 +1,4 @@
-import { Chars } from '../chars';
+import { Chars, CharacterFlags, CharacterType } from '../chars';
 import { Parser } from '../types';
 import { Errors, report } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
@@ -11,7 +11,6 @@ import { Flags, Context, ScannerState } from '../utilities';
  *
  * @param parser Parser object
  */
-
 export function hasNext(parser: Parser) {
     return parser.index < parser.source.length;
 }
@@ -32,7 +31,7 @@ export function advance(parser: Parser) {
  *
  * @param parser Parser object
  */
-export function nextChar(parser: Parser) {
+export function nextChar(parser: Parser): number {
     return parser.source.charCodeAt(parser.index);
 }
 
@@ -43,7 +42,6 @@ export function nextChar(parser: Parser) {
  */
 export function nextUnicodeChar(parser: Parser) {
     const { index } = parser;
-
     const hi = parser.source.charCodeAt(index);
     if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
     const lo = parser.source.charCodeAt(index + 1);
@@ -52,18 +50,12 @@ export function nextUnicodeChar(parser: Parser) {
 }
 
 /**
- * Returns true if this is a vlid identifier part
+ * Returns true if this is a valid identifier part
  *
- * @param parser Parser object
- * @param context Context masks
- * @param meta Line / column
- * @param node AST node
+ * @param code Codepoint
  */
-export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
-    code === Chars.Backslash ||
-    code === Chars.Dollar ||
-    code === Chars.Underscore ||
-    (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
+
+export const isIdentifierPart = (code: number) => (CharacterType[code] & CharacterFlags.IdentifierStart) != 0 || isValidIdentifierPart(code);
 
 export function escapeForPrinting(code: number): string {
     switch (code) {

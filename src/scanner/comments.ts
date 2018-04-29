@@ -125,7 +125,9 @@ export function skipMultiLineComment(
 }
 
 export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number) {
+
     const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
+
     const comment: ESTree.Comment = {
         type,
         value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
