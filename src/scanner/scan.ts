@@ -5,7 +5,7 @@ import { scanTemplate } from './template';
 import { scanNumericLiteral, scanImplicitOctalDigits, scanOctalOrBinary, scanHexIntegerLiteral } from './numbers';
 import { scanString } from './string';
 import { scanIdentifier, scanMaybeIdentifier } from './identifier';
-import { skipMultiLineComment, skipSingleLineComment } from './comments';
+import { skipMultiLineComment, skipSingleLineComment, skipSingleHTMLComment } from './comments';
 import { Context, Flags, ScannerState, Escape, NumericState } from '../utilities';
 import {
     consumeLineFeed,
@@ -138,11 +138,10 @@ export function scan(parser: Parser, context: Context): Token {
 
                     advance(parser); // skip `<`
 
-                    if (!(context & Context.Module) &&
-                        consumeOpt(parser, Chars.Exclamation) &&
+                    if (consumeOpt(parser, Chars.Exclamation) &&
                         consumeOpt(parser, Chars.Hyphen) &&
                         consumeOpt(parser, Chars.Hyphen)) {
-                        state = skipSingleLineComment(parser, context, state, 'HTMLOpen');
+                        state = skipSingleHTMLComment(parser, context, state, 'HTMLOpen');
                         continue;
                     }
 
@@ -186,11 +185,8 @@ export function scan(parser: Parser, context: Context): Token {
                                 {
                                     advance(parser);
                                     if ((state & ScannerState.NewLine || lineStart) &&
-                                        nextChar(parser) === Chars.GreaterThan) {
-                                        if (!(context & Context.Module)) {
-                                            advance(parser);
-                                            state = skipSingleLineComment(parser, context, state, 'HTMLClose');
-                                        }
+                                        consumeOpt(parser, Chars.GreaterThan)) {
+                                            state = skipSingleHTMLComment(parser, context, state, 'HTMLClose');
                                         continue;
                                     }
                                     return Token.Decrement;

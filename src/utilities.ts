@@ -11,9 +11,6 @@ import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './uni
 // Context masks
 export const enum Context {
     Empty                   = 0,
-    
-    /** options */
-    
     OptionsNext             = 1 << 0,
     OptionsRanges           = 1 << 1,
     OptionsJSX              = 1 << 2,
@@ -27,9 +24,6 @@ export const enum Context {
     OptionsRawidentifiers   = 1 << 10,
     OptionsTolerant         = 1 << 11,
     OptionsNode             = 1 << 12,
-
-    /** misc */
-
     Strict                  = 1 << 13,
     Module                  = 1 << 14,
     TaggedTemplate          = 1 << 15,

@@ -265,7 +265,7 @@ export interface Position {
     column: number;
 }
 
-export type CommentType = 'SingleLine' | 'MultiLine' | 'SingleLineHTMLClose' | 'SingleLineHTMLOpen' | 'SheBang';
+export type CommentType = 'SingleLine' | 'MultiLine' | 'HTMLClose' | 'HTMLOpen' | 'SheBang';
 
 export interface Comment {
     type: CommentType;

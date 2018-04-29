@@ -33,8 +33,8 @@ describe('Miscellaneous - Delegate', () => {
             parseScript('/* multiline */', {
                 delegate: function(ast: Node) {
                     delegate.push(ast);
-                }as any});
-            t.equal(delegate[0].type, 'Multiline');
+                } as any});
+            t.equal(delegate[0].type, 'MultiLine');
         });
     });
 });

@@ -1,18 +1,28 @@
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
-import { Errors, tolerant } from '../errors';
+import { Errors, tolerant, report } from '../errors';
 import { Parser, CommentType } from '../types';
 import { Context, ScannerState } from '../utilities';
-import {
-    consumeLineFeed,
-    consumeOpt,
-    nextChar,
-    hasNext,
-    advanceNewline,
-    advance,
-} from './common';
+import { consumeLineFeed, consumeOpt, nextChar,  hasNext,  advanceNewline,  advance } from './common';
 
 // 11.4 Comments
+
+/**
+ * Skips single HTML comments. Same behavior as in V8.
+ * 
+ * @param parser Parser Object
+ * @param context Context masks.
+ * @param state  Scanner state
+ * @param type   Comment type
+ */
+export function skipSingleHTMLComment(
+    parser: Parser,
+    context: Context,
+    state: ScannerState,
+    type: CommentType) {
+    if (context & Context.Module) report(parser, Errors.HtmlCommentInModule);
+    return skipSingleLineComment(parser, context, state, type);
+}
 
 /**
  * Skips SingleLineComment, SingleLineHTMLCloseComment and SingleLineHTMLOpenComment
@@ -81,7 +91,7 @@ export function skipMultiLineComment(
                 advance(parser);
                 state &= ~ScannerState.LastIsCR;
                 if (consumeOpt(parser, Chars.Slash)) {
-                    if (collectable) addComment(parser, context, 'Multiline', start);
+                    if (collectable) addComment(parser, context, 'MultiLine', start);
                     return state;
                 }
                 break;
@@ -110,11 +120,12 @@ export function skipMultiLineComment(
         }
     }
 
+    // Unterminated multi-line comment.
     tolerant(parser, context, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, type: any, start: number) {
-    const {index, startIndex, startLine, startColumn, lastLine, column} = parser;
+export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number) {
+    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
     const comment: ESTree.Comment = {
         type,
         value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
