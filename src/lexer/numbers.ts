@@ -9,6 +9,35 @@ import { consumeLineFeed, consumeOpt, toHex, hasNext, nextChar, advance } from '
 // 11.8.3 Numeric Literals
 
 /**
+// Use table lookup + bitmask for improved performance
+function isDigit(ch: number): boolean {
+    return (CharacterType[ch] & CharacterFlags.Decimal) !== 0;
+}
+
+export function scanNumericLiteral(parser: Parser, context: Context) {
+    const { index: start } = parser;
+    while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
+    if (nextChar(parser) === Chars.Period) {
+        advance(parser);
+        while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
+    }
+    let end = parser.index;
+    if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
+        if (consumeOpt(parser, Chars.Plus) || consumeOpt(parser, Chars.Hyphen)) {} //  pos++;
+        if (isDigit(parser.source.charCodeAt(parser.index))) {
+            advance(parser);
+            while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
+            end = parser.index;
+        } else {
+            report(parser, Errors.Unexpected)
+        }
+    }
+    parser.tokenValue = parseFloat(parser.source.substring(start, end));
+    return Token.NumericLiteral;
+}
+*/
+
+/**
  * Scans hex integer literal
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
