@@ -7,15 +7,7 @@ import { scanString } from './string';
 import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 import { skipMultiLineComment, skipSingleLineComment, skipSingleHTMLComment } from './comments';
 import { Context, Flags, ScannerState, Escape, NumericState } from '../utilities';
-import {
-    consumeLineFeed,
-    consumeOpt,
-    advanceNewline,
-    scanPrivateName,
-    hasNext,
-    nextChar,
-    advance,
-} from './common';
+import { consumeLineFeed, consumeOpt, advanceNewline, scanPrivateName, hasNext, nextChar, advance } from './common';
 
 /**
  * Scan
@@ -23,10 +15,9 @@ import {
  * @see [Link](https://tc39.github.io/ecma262/#sec-punctuatorss)
  * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  */
-
 export function scan(parser: Parser, context: Context): Token {
 
     parser.flags &= ~Flags.NewLine | Flags.EscapedKeyword;
@@ -83,6 +74,11 @@ export function scan(parser: Parser, context: Context): Token {
             }
 
         } else {
+
+            // Note: Here we first get rid of LT and  WS, then we make sure that the lookup time 
+            // for the single punctuator char is short as possible. A single punctuator
+            // char is a valid token that cannot also be a prefix of a combination
+            // of multiple tokens - e.g. '(', ')' and '=' is valid. '==' is not.
             switch (first) {
 
                 case Chars.CarriageReturn:
@@ -101,6 +97,66 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.Space:
                     advance(parser);
                     break;
+
+                    // `(`
+                case Chars.LeftParen:
+                    advance(parser);
+                    return Token.LeftParen;
+
+                    // `)`
+                case Chars.RightParen:
+                    advance(parser);
+                    return Token.RightParen;
+
+                    // `,`
+                case Chars.Comma:
+                    advance(parser);
+                    return Token.Comma;
+
+                    // `:`
+                case Chars.Colon:
+                    advance(parser);
+                    return Token.Colon;
+
+                    // `;`
+                case Chars.Semicolon:
+                    advance(parser);
+                    return Token.Semicolon;
+
+                    // `?`
+                case Chars.QuestionMark:
+                    advance(parser);
+                    return Token.QuestionMark;
+
+                    // `]`
+                case Chars.RightBracket:
+                    advance(parser);
+                    return Token.RightBracket;
+
+                    // `{`
+                case Chars.LeftBrace:
+                    advance(parser);
+                    return Token.LeftBrace;
+
+                    // `}`
+                case Chars.RightBrace:
+                    advance(parser);
+                    return Token.RightBrace;
+
+                    // `~`
+                case Chars.Tilde:
+                    advance(parser);
+                    return Token.Complement;
+
+                    // `[`
+                case Chars.LeftBracket:
+                    advance(parser);
+                    return Token.LeftBracket;
+
+                    // `@`
+                case Chars.At:
+                    advance(parser);
+                    return Token.At;
 
                     // `/`, `/=`, `/>`
                 case Chars.Slash:
@@ -130,6 +186,34 @@ export function scan(parser: Parser, context: Context): Token {
 
                             default:
                                 return Token.Divide;
+                        }
+                    }
+
+                    // `-`, `--`, `-=`
+                case Chars.Hyphen:
+                    {
+                        advance(parser); // skip `-`
+
+                        const next = nextChar(parser);
+
+                        switch (next) {
+                            case Chars.Hyphen:
+                                {
+                                    advance(parser);
+                                    if ((state & ScannerState.NewLine || lineStart) &&
+                                        consumeOpt(parser, Chars.GreaterThan)) {
+                                        state = skipSingleHTMLComment(parser, context, state, 'HTMLClose');
+                                        continue;
+                                    }
+                                    return Token.Decrement;
+                                }
+                            case Chars.EqualSign:
+                                {
+                                    advance(parser);
+                                    return Token.SubtractAssign;
+                                }
+                            default:
+                                return Token.Subtract;
                         }
                     }
 
@@ -173,33 +257,6 @@ export function scan(parser: Parser, context: Context): Token {
                             return Token.LessThan;
                     }
 
-                    // `-`, `--`, `-=`
-                case Chars.Hyphen:
-                    {
-                        advance(parser); // skip `-`
-
-                        const next = nextChar(parser);
-
-                        switch (next) {
-                            case Chars.Hyphen:
-                                {
-                                    advance(parser);
-                                    if ((state & ScannerState.NewLine || lineStart) &&
-                                        consumeOpt(parser, Chars.GreaterThan)) {
-                                            state = skipSingleHTMLComment(parser, context, state, 'HTMLClose');
-                                        continue;
-                                    }
-                                    return Token.Decrement;
-                                }
-                            case Chars.EqualSign:
-                                {
-                                    advance(parser);
-                                    return Token.SubtractAssign;
-                                }
-                            default:
-                                return Token.Subtract;
-                        }
-                    }
                     // `!`, `!=`, `!==`
                 case Chars.Exclamation:
                     advance(parser);
@@ -275,64 +332,6 @@ export function scan(parser: Parser, context: Context): Token {
                         return Token.Add;
                     }
 
-                    // `.`, `...`, `.123` (numeric literal)
-                case Chars.Period:
-                    {
-                        let index = parser.index + 1;
-
-                        const next = parser.source.charCodeAt(index);
-                        if (next >= Chars.Zero && next <= Chars.Nine) {
-                            scanNumericLiteral(parser, context, NumericState.Float);
-                            return Token.NumericLiteral;
-                        } else if (next === Chars.Period) {
-                            index++;
-                            if (index < parser.source.length &&
-                                parser.source.charCodeAt(index) === Chars.Period) {
-                                parser.index = index + 1;
-                                parser.column += 3;
-                                return Token.Ellipsis;
-                            }
-                        }
-
-                        advance(parser);
-                        return Token.Period;
-                    }
-
-                    // `0`...`9`
-                case Chars.Zero:
-                    {
-                        advance(parser);
-
-                        switch (nextChar(parser)) {
-                            // Hex number - '0x', '0X'
-                            case Chars.UpperX:
-                            case Chars.LowerX:
-                                return scanHexIntegerLiteral(parser, context);
-                                // Binary number - '0b', '0B'
-                            case Chars.UpperB:
-                            case Chars.LowerB:
-                                return scanOctalOrBinary(parser, context, 2);
-                                // Octal number - '0o', '0O'
-                            case Chars.UpperO:
-                            case Chars.LowerO:
-                                return scanOctalOrBinary(parser, context, 8);
-                            default:
-                                // Implicit octal digits startign with '0'
-                                return scanImplicitOctalDigits(parser, context);
-                        }
-                    }
-
-                case Chars.One:
-                case Chars.Two:
-                case Chars.Three:
-                case Chars.Four:
-                case Chars.Five:
-                case Chars.Six:
-                case Chars.Seven:
-                case Chars.Eight:
-                case Chars.Nine:
-                    return scanNumericLiteral(parser, context);
-
                     // `#`
                 case Chars.Hash:
                     {
@@ -351,60 +350,10 @@ export function scan(parser: Parser, context: Context): Token {
                         }
                         return scanPrivateName(parser, context);
                     }
-                    // `(`
-                case Chars.LeftParen:
-                    advance(parser);
-                    return Token.LeftParen;
 
-                    // `)`
-                case Chars.RightParen:
-                    advance(parser);
-                    return Token.RightParen;
-
-                    // `,`
-                case Chars.Comma:
-                    advance(parser);
-                    return Token.Comma;
-
-                    // `:`
-                case Chars.Colon:
-                    advance(parser);
-                    return Token.Colon;
-
-                    // `@`
-                case Chars.At:
-                    advance(parser);
-                    return Token.At;
-
-                    // `;`
-                case Chars.Semicolon:
-                    advance(parser);
-                    return Token.Semicolon;
-
-                    // `?`
-                case Chars.QuestionMark:
-                    advance(parser);
-                    return Token.QuestionMark;
-
-                    // `]`
-                case Chars.RightBracket:
-                    advance(parser);
-                    return Token.RightBracket;
-
-                    // `{`
-                case Chars.LeftBrace:
-                    advance(parser);
-                    return Token.LeftBrace;
-
-                    // `}`
-                case Chars.RightBrace:
-                    advance(parser);
-                    return Token.RightBrace;
-
-                    // `~`
-                case Chars.Tilde:
-                    advance(parser);
-                    return Token.Complement;
+                    // `\\u{N}var`
+                case Chars.Backslash:
+                    return scanIdentifier(parser, context);
 
                     // `=`, `==`, `===`, `=>`
                 case Chars.EqualSign:
@@ -463,15 +412,6 @@ export function scan(parser: Parser, context: Context): Token {
                         return Token.ShiftRight;
                     }
 
-                    // `[`
-                case Chars.LeftBracket:
-                    advance(parser);
-                    return Token.LeftBracket;
-
-                    // `\\u{N}var`
-                case Chars.Backslash:
-                    return scanIdentifier(parser, context);
-
                     // `^`, `^=`
                 case Chars.Caret:
                     advance(parser);
@@ -499,6 +439,64 @@ export function scan(parser: Parser, context: Context): Token {
 
                         return Token.BitwiseOr;
                     }
+
+                    // `.`, `...`, `.123` (numeric literal)
+                case Chars.Period:
+                    {
+                        let index = parser.index + 1;
+
+                        const next = parser.source.charCodeAt(index);
+                        if (next >= Chars.Zero && next <= Chars.Nine) {
+                            scanNumericLiteral(parser, context, NumericState.Float);
+                            return Token.NumericLiteral;
+                        } else if (next === Chars.Period) {
+                            index++;
+                            if (index < parser.source.length &&
+                                parser.source.charCodeAt(index) === Chars.Period) {
+                                parser.index = index + 1;
+                                parser.column += 3;
+                                return Token.Ellipsis;
+                            }
+                        }
+
+                        advance(parser);
+                        return Token.Period;
+                    }
+
+                    // `0`...`9`
+                case Chars.Zero:
+                    {
+                        advance(parser);
+
+                        switch (nextChar(parser)) {
+                            // Hex number - '0x', '0X'
+                            case Chars.UpperX:
+                            case Chars.LowerX:
+                                return scanHexIntegerLiteral(parser, context);
+                                // Binary number - '0b', '0B'
+                            case Chars.UpperB:
+                            case Chars.LowerB:
+                                return scanOctalOrBinary(parser, context, 2);
+                                // Octal number - '0o', '0O'
+                            case Chars.UpperO:
+                            case Chars.LowerO:
+                                return scanOctalOrBinary(parser, context, 8);
+                            default:
+                                // Implicit octal digits startign with '0'
+                                return scanImplicitOctalDigits(parser, context);
+                        }
+                    }
+
+                case Chars.One:
+                case Chars.Two:
+                case Chars.Three:
+                case Chars.Four:
+                case Chars.Five:
+                case Chars.Six:
+                case Chars.Seven:
+                case Chars.Eight:
+                case Chars.Nine:
+                    return scanNumericLiteral(parser, context);
 
                     // `a`...`z`, `A`...`Z`, `_var`, `$var`
                 case Chars.UpperA:
