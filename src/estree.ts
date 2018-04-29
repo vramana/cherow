@@ -351,7 +351,7 @@ export interface CatchClause extends _Node<'CatchClause'> {
 }
 
 export interface ClassBody extends _Node<'ClassBody'> {
-    body: (MethodDefinition | FieldDefinition )[];
+    body: (MethodDefinition | FieldDefinition)[];
 }
 
 export interface PrivateMemberExpression  extends _Node<'PrivateMemberExpression '> {

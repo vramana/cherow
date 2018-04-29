@@ -10,6 +10,8 @@
         "noEmitHelpers": true,
         "newLine": "LF",
         "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "strict": true,
         "lib": ["es2017"],
         "noLib": false,
         "removeComments": true,

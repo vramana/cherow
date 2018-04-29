@@ -9,7 +9,7 @@ import { consumeLineFeed, consumeOpt, nextChar,  hasNext,  advanceNewline,  adva
 
 /**
  * Skips single HTML comments. Same behavior as in V8.
- * 
+ *
  * @param parser Parser Object
  * @param context Context masks.
  * @param state  Scanner state
@@ -41,7 +41,7 @@ export function skipSingleLineComment(
     parser: Parser,
     context: Context,
     state: ScannerState,
-    type: CommentType
+    type: CommentType,
 ): ScannerState {
     const start = parser.index;
     const collectable = !!(context & (Context.OptionsComments | context & Context.OptionsDelegate));
@@ -143,8 +143,8 @@ export function addComment(parser: Parser, context: Context, type: ESTree.Commen
             },
             end: {
                 line: lastLine,
-                column: column
-            }
+                column,
+            },
         };
     }
 

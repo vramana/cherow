@@ -141,7 +141,7 @@ export const CharacterType = [
     CharacterFlags.Unknown,
     CharacterFlags.Unknown,
     CharacterFlags.Unknown,
-    CharacterFlags.Unknown
+    CharacterFlags.Unknown,
 ];
 
 /**
@@ -298,5 +298,5 @@ export const enum Chars {
     TrailSurrogateMax = 0xDFFF,
 
     NonBMPMin = 0x10000,
-    NonBMPMax  = 0x10ffff
+    NonBMPMax  = 0x10ffff,
 }

@@ -14,7 +14,7 @@ import {
     finishNode,
     nextToken,
     isEqualTagNames,
-    parseExpressionCoverGrammar
+    parseExpressionCoverGrammar,
 } from '../utilities';
 
 // JSX Specification
@@ -28,7 +28,7 @@ import {
  */
 export function parseJSXRootElement(
     parser: Parser,
-    context: Context
+    context: Context,
 ): ESTree.JSXElement | ESTree.JSXFragment {
     const pos = getLocation(parser);
     let children: ESTree.JSXElement[] = [];
@@ -82,7 +82,7 @@ export function parseJSXOpeningElement(
     name: string,
     attributes: any,
     selfClosing: boolean,
-    pos: Location
+    pos: Location,
 ): ESTree.JSXOpeningElement {
     if (context & Context.InJSXChild && selfClosing) expect(parser, context, Token.GreaterThan);
     else nextJSXToken(parser);
@@ -90,7 +90,7 @@ export function parseJSXOpeningElement(
         type: 'JSXOpeningElement',
         name,
         attributes,
-        selfClosing
+        selfClosing,
     });
 }
 
@@ -123,7 +123,7 @@ function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTr
 function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location): ESTree.JSXOpeningFragment {
     nextJSXToken(parser);
     return finishNode(context, parser, pos, {
-        type: 'JSXOpeningFragment'
+        type: 'JSXOpeningFragment',
     });
 }
 
@@ -171,7 +171,7 @@ export function scanJSXToken(parser: Parser): Token {
  * @param context Context masks
  */
 
-export function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[] {
+function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[] {
     const children: any[] = [];
     while (parser.token !== Token.JSXClose) {
         children.push(parseJSXChild(parser, context));
@@ -193,7 +193,7 @@ export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
     parser.token = scanJSXToken(parser);
     const node: any = finishNode(context, parser, pos, {
         type: 'JSXText',
-        value
+        value,
     });
 
     if (context & Context.OptionsRaw) node.raw = value;
@@ -208,7 +208,7 @@ export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
  * @param context Context masks
  */
 
-export function parseJSXChild(parser: Parser, context: Context) {
+function parseJSXChild(parser: Parser, context: Context): any {
     switch (parser.token) {
         case Token.Identifier:
         case Token.JSXText:
@@ -254,7 +254,7 @@ export function parseJSXSpreadAttribute(parser: Parser, context: Context): ESTre
 
     return finishNode(context, parser, pos, {
         type: 'JSXSpreadAttribute',
-        argument: expression
+        argument: expression,
     });
 }
 
@@ -271,14 +271,14 @@ export function parseJSXNamespacedName(
     parser: Parser,
     context: Context,
     namespace: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
-    pos: Location
+    pos: Location,
 ): ESTree.JSXNamespacedName {
     expect(parser, context, Token.Colon);
     const name = parseJSXIdentifier(parser, context);
     return finishNode(context, parser, pos, {
         type: 'JSXNamespacedName',
         namespace,
-        name
+        name,
     });
 }
 
@@ -304,7 +304,7 @@ export function parseJSXAttributeName(parser: Parser, context: Context): ESTree.
  * @param context Context masks
  */
 
-export function parseJSXAttributeValue(parser: Parser, context: Context) {
+function parseJSXAttributeValue(parser: Parser, context: Context): any {
 
     switch (scanJSXAttributeValue(parser, context)) {
         case Token.StringLiteral:
@@ -333,7 +333,7 @@ export function parseJSXAttribute(parser: Parser, context: Context): any {
     return finishNode(context, parser, pos, {
         type: 'JSXAttribute',
         value,
-        name: attrName
+        name: attrName,
     });
 }
 
@@ -397,7 +397,7 @@ function scanJSXString(parser: Parser, context: Context, quote: number): Token {
 export function parseJSXEmptyExpression(parser: Parser, context: Context): ESTree.JSXEmptyExpression {
     const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
-        type: 'JSXEmptyExpression'
+        type: 'JSXEmptyExpression',
     });
 }
 
@@ -414,7 +414,7 @@ export function parseJSXSpreadChild(parser: Parser, context: Context): ESTree.JS
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
         type: 'JSXSpreadChild',
-        expression
+        expression,
     });
 }
 
@@ -434,7 +434,7 @@ export function parseJSXExpressionContainer(parser: Parser, context: Context): E
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
-        expression
+        expression,
     });
 }
 
@@ -457,7 +457,7 @@ export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSX
 
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
-        expression
+        expression,
     });
 }
 
@@ -473,7 +473,7 @@ export function parseJSXClosingFragment(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.JSXClose);
     expect(parser, context, Token.GreaterThan);
     return finishNode(context, parser, pos, {
-        type: 'JSXClosingFragment'
+        type: 'JSXClosingFragment',
     });
 }
 
@@ -492,7 +492,7 @@ export function parseJSXClosingElement(parser: Parser, context: Context): ESTree
     else nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXClosingElement',
-        name
+        name,
     });
 }
 
@@ -514,7 +514,7 @@ export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSX
     nextToken(parser, context);
     const node: any = finishNode(context, parser, pos, {
         type: 'JSXIdentifier',
-        name
+        name,
     });
     if (context & Context.OptionsRawidentifiers) node.raw = raw;
     return node;
@@ -535,7 +535,7 @@ export function parseJSXMemberExpression(parser: Parser, context: Context, expr:
     return finishNode(context, parser, pos, {
         type: 'JSXMemberExpression',
         object: expr,
-        property: parseJSXIdentifier(parser, context)
+        property: parseJSXIdentifier(parser, context),
     });
 }
 

@@ -8,8 +8,8 @@ describe('Miscellaneous - Scoping', () => {
 
         const inValidSyntax = [
             `(function foo() { { let f = 2; { let y = 3; function f() { y = 2; } f(); } }})();`,
-        ]
-        
+        ];
+
         for (const arg of inValidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {

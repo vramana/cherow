@@ -222,7 +222,7 @@ const KeywordDescTable = [
 
     '#',
 
-    'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText'
+    'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
 ];
 
 /**

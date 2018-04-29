@@ -19,10 +19,10 @@ describe('Miscellaneous - Whitespace', () => {
         'throw /* \u2028 */ e',
         'throw /* \u2029 */ e',
         'new\u180Ea',
-        "new\u0020\u0009\u000B\u000C\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFFa",
+        'new\u0020\u0009\u000B\u000C\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFFa',
         'var\u180Efoo;',
         'var\\u180Efoo;',
-        "\\u2002Проверка\\r\\n\\u00a0",
+        '\\u2002Проверка\\r\\n\\u00a0',
     ];
       for (const arg of invalidSyntax) {
 
@@ -37,27 +37,27 @@ describe('Miscellaneous - Whitespace', () => {
     describe('Pass', () => {
 
       const validSyntax = [
-        "\t\t\t\t\t\t\t\t",
-        "\v\v\v\v\v\v\v\v",
-        " \t\f\v\r\n",
-        "\r\n",
-        "    \t \r\n \n\r \v\f\t ",
+        '\t\t\t\t\t\t\t\t',
+        '\v\v\v\v\v\v\v\v',
+        ' \t\f\v\r\n',
+        '\r\n',
+        '    \t \r\n \n\r \v\f\t ',
         `  \t // foo bar\f  `,
         `  \t // foo bar\t  `,
         `  \t // foo bar\v  `,
-        "{0\n1\r2\u20283\u20294}",
+        '{0\n1\r2\u20283\u20294}',
         '//singlelinecommentx = icefapper;',
         '//\\u000C single line \\u000C comment \\u000C',
         `//\\u0020 single line \\u0020 comment \\u0020`,
-        "\u0020var x\u0020= 1\u0020; result = x;",
-        "'\u0009str\u0009ing\u0009'",
-        "{ x\n++y }", 
+        '\u0020var x\u0020= 1\u0020; result = x;',
+        '\'\u0009str\u0009ing\u0009\'',
+        '{ x\n++y }',
         '\u0009var\u0009x\u0009=\u00091\u0009; result = x;',
-        "\u0009" + "var" + "\u0009" + "x" + "\u0009" + "=" + "\u0009" + "2" + "\u0009; result = x;",
-        "\u0009" + "var" + "\t" + "x" + "\u0009" + "=" + "\t" + "5" + "\u0009; result = x;",
-        "'\\u0009str\\u0009ing\\u0009'",
-        "/*\u0009 multi line \u0009 comment \u0009 x = 1;*/",
-        "/*\u0009 multi line \u0009 comment \u0009*/",
+        '\u0009' + 'var' + '\u0009' + 'x' + '\u0009' + '=' + '\u0009' + '2' + '\u0009; result = x;',
+        '\u0009' + 'var' + '\t' + 'x' + '\u0009' + '=' + '\t' + '5' + '\u0009; result = x;',
+        '\'\\u0009str\\u0009ing\\u0009\'',
+        '/*\u0009 multi line \u0009 comment \u0009 x = 1;*/',
+        '/*\u0009 multi line \u0009 comment \u0009*/',
         `// single line comment`,
         `/*multilinecommenta = b;*/`,
         `MAX_VALUE\u000Ain\u000ANumber`,

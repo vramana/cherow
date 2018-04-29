@@ -133,7 +133,6 @@ describe('Expressions  - Class', () => {
             source: 'class aw\\u0061it {}',
         });
 
-                
         fail('(class extends a,b {})', Context.Empty, {
             source: '(class extends a,b {})',
         });
@@ -145,7 +144,7 @@ describe('Expressions  - Class', () => {
         fail('(class eval {a:0})', Context.Empty, {
             source: '(class eval {a:0})',
         });
-        
+
         fail('class aw\\u0061it {};', Context.Empty, {
             source: 'class aw\\u0061it {};',
         });
@@ -157,8 +156,7 @@ describe('Expressions  - Class', () => {
         fail('var C = class await {};', Context.Strict | Context.Module, {
             source: 'var C = class await {};',
         });
-        
-        
+
         fail('(class package {a:0})', Context.Empty, {
             source: '(class package {a:0})',
         });

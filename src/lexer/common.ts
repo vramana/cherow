@@ -17,7 +17,7 @@ export function hasNext(parser: Parser) {
 
 /**
  * Advance to the next token in the stream
- * 
+ *
  * @param parser Parser object
  */
 
@@ -55,7 +55,7 @@ export function nextUnicodeChar(parser: Parser) {
  * @param code Codepoint
  */
 
-export const isIdentifierPart = (code: number) => (CharacterType[code] & CharacterFlags.IdentifierStart) != 0 || isValidIdentifierPart(code);
+export const isIdentifierPart = (code: number) => (CharacterType[code] & CharacterFlags.IdentifierStart) !== 0 || isValidIdentifierPart(code);
 
 export function escapeForPrinting(code: number): string {
     switch (code) {
@@ -142,7 +142,7 @@ export const fromCodePoint = (code: Chars) => {
         String.fromCharCode(code) :
         String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
             Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
-}
+};
 
 export function readNext(parser: Parser): number {
     advance(parser);

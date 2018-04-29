@@ -18,7 +18,7 @@ import {
     nextTokenIsFuncKeywordOnSameLine,
     nextTokenIsLeftParenOrPeriod,
     setPendingError,
-    hasBit
+    hasBit,
 } from '../utilities';
 
 // 15.2 Modules
@@ -168,7 +168,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
         type: 'ExportNamedDeclaration',
         source,
         specifiers,
-        declaration
+        declaration,
     });
 }
 
@@ -184,7 +184,7 @@ function parseExportAllDeclaration(parser: Parser, context: Context, pos: Locati
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExportAllDeclaration',
-        source
+        source,
     });
 }
 
@@ -206,7 +206,7 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
     return finishNode(context, parser, pos, {
         type: 'ExportSpecifier',
         local,
-        exported
+        exported,
     });
 }
 
@@ -254,7 +254,7 @@ function parseExportDefault(parser: Parser, context: Context, pos: Location): ES
 
     return finishNode(context, parser, pos, {
         type: 'ExportDefaultDeclaration',
-        declaration
+        declaration,
     });
 }
 
@@ -288,7 +288,7 @@ export function parseImportDeclaration(parser: Parser, context: Context): ESTree
     return finishNode(context, parser, pos, {
         type: 'ImportDeclaration',
         specifiers,
-        source
+        source,
     });
 }
 
@@ -400,7 +400,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
     return finishNode(context, parser, pos, {
         type: 'ImportSpecifier',
         local,
-        imported
+        imported,
     });
 }
 
@@ -420,7 +420,7 @@ function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifi
     const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {
         type: 'ImportNamespaceSpecifier',
-        local
+        local,
     }));
 }
 
@@ -451,7 +451,7 @@ function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal 
 function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.ImportDefaultSpecifier {
     return finishNode(context, parser, getLocation(parser), {
         type: 'ImportDefaultSpecifier',
-        local: parseIdentifier(parser, context)
+        local: parseIdentifier(parser, context),
     });
 }
 

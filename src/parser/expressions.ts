@@ -36,7 +36,7 @@ import {
     nextTokenisIdentifierOrParen,
     setPendingError,
     CoverCallState,
-    validateParams
+    validateParams,
 } from '../utilities';
 
 /**
@@ -77,7 +77,7 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
 
     return finishNode(context, parser, pos, {
         type: 'SequenceExpression',
-        expressions
+        expressions,
     });
 }
 
@@ -118,7 +118,7 @@ function parseYieldExpression(parser: Parser, context: Context, pos: Location): 
    return finishNode(context, parser, pos, {
         type: 'YieldExpression',
         argument,
-        delegate
+        delegate,
     });
 }
 
@@ -216,7 +216,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
             type: 'AssignmentExpression',
             left: expr,
             operator: tokenDesc(token),
-            right
+            right,
         });
 
     }
@@ -241,7 +241,7 @@ function parseConditionalExpression(parser: Parser, context: Context, pos: any):
         type: 'ConditionalExpression',
         test,
         consequent,
-        alternate: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression)
+        alternate: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression),
     });
 }
 
@@ -268,7 +268,7 @@ function parseBinaryExpression(
     context: Context,
     minPrec: number,
     pos: Location,
-    left: ESTree.Expression = parseUnaryExpression(parser, context)
+    left: ESTree.Expression = parseUnaryExpression(parser, context),
 ): ESTree.Expression {
 
     // Shift-reduce parser for the binary operator part of the JS expression
@@ -290,7 +290,7 @@ function parseBinaryExpression(
             type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
             left,
             right: parseBinaryExpression(parser, context & ~Context.AllowIn, prec, getLocation(parser)),
-            operator: tokenDesc(t)
+            operator: tokenDesc(t),
         });
     }
 
@@ -312,7 +312,7 @@ function parseAwaitExpression(parser: Parser, context: Context, pos: Location): 
     expect(parser, context, Token.AwaitKeyword);
     return finishNode(context, parser, pos, {
         type: 'AwaitExpression',
-        argument: parseUnaryExpression(parser, context)
+        argument: parseUnaryExpression(parser, context),
     });
 }
 
@@ -344,7 +344,7 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
             type: 'UnaryExpression',
             operator: tokenDesc(token),
             argument,
-            prefix: true
+            prefix: true,
         });
     }
 
@@ -371,7 +371,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
             type: 'UpdateExpression',
             argument: expr,
             operator: tokenDesc(token as Token),
-            prefix: true
+            prefix: true,
         });
     } else if (context & Context.OptionsJSX && token === Token.LessThan) {
         return parseJSXRootElement(parser, context | Context.InJSXChild);
@@ -385,7 +385,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
             type: 'UpdateExpression',
             argument: expression,
             operator: tokenDesc(operator as Token),
-            prefix: false
+            prefix: false,
         });
     }
 
@@ -408,7 +408,7 @@ export function parseRestElement(parser: Parser, context: Context, args: string[
     const argument = parseBindingIdentifierOrPattern(parser, context, args);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
-        argument
+        argument,
     });
 }
 
@@ -426,7 +426,7 @@ function parseSpreadElement(parser: Parser, context: Context): any {
     const argument = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
-        argument
+        argument,
     });
 }
 
@@ -462,7 +462,7 @@ function parseMemberExpression(
     parser: Parser,
     context: Context,
     pos: Location,
-    expr: ESTree.CallExpression | ESTree.Expression = parsePrimaryExpression(parser, context)
+    expr: ESTree.CallExpression | ESTree.Expression = parsePrimaryExpression(parser, context),
 ): ESTree.Expression {
 
     while (true) {
@@ -502,7 +502,7 @@ function parseMemberExpression(
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
-                    quasi: parseTemplateLiteral(parser, context)
+                    quasi: parseTemplateLiteral(parser, context),
                 });
                 continue;
             }
@@ -510,7 +510,7 @@ function parseMemberExpression(
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
-                    quasi: parseTemplate(parser, context | Context.TaggedTemplate)
+                    quasi: parseTemplate(parser, context | Context.TaggedTemplate),
                 });
 
                 continue;
@@ -540,7 +540,7 @@ function parseCallExpression(parser: Parser, context: Context, pos: Location, ex
         expr = finishNode(context, parser, pos, {
             type: 'CallExpression',
             callee: expr,
-            arguments: args
+            arguments: args,
         });
     }
 }
@@ -579,7 +579,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
         expr = finishNode(context, parser, pos, {
             type: 'CallExpression',
             callee: expr,
-            arguments: args
+            arguments: args,
         });
     }
     return expr;
@@ -768,7 +768,7 @@ function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifi
     }
     return finishNode(context, parser, pos, {
         type: 'Identifier',
-        name
+        name,
     });
 }
 
@@ -802,7 +802,7 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
     nextToken(parser, context | Context.TaggedTemplate);
     const node: any = finishNode(context, parser, pos, {
         type: 'Identifier',
-        name
+        name,
     });
 
     if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
@@ -825,7 +825,7 @@ function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree
     const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
         value: tokenValue,
-        regex: tokenRegExp
+        regex: tokenRegExp,
     });
 
     if (context & Context.OptionsRaw) node.raw = tokenRaw;
@@ -851,7 +851,7 @@ export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
     nextToken(parser, context);
     const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
-        value
+        value,
     });
 
     if (context & Context.OptionsRaw) node.raw = parser.tokenRaw;
@@ -874,7 +874,7 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
     const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
         value: tokenValue,
-        bigint: tokenRaw
+        bigint: tokenRaw,
     });
 
     if (context & Context.OptionsRaw) node.raw = parser.tokenRaw;
@@ -898,7 +898,7 @@ function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree
 
     const node: any = finishNode(context, parser, pos, {
         type: 'Literal',
-        value: token === Token.NullKeyword ? null : raw === 'true'
+        value: token === Token.NullKeyword ? null : raw === 'true',
     });
 
     if (context & Context.OptionsRaw) node.raw = raw;
@@ -918,7 +918,7 @@ function parseThisExpression(parser: Parser, context: Context): ESTree.ThisExpre
    const pos = getLocation(parser);
    nextToken(parser, context | Context.DisallowEscapedKeyword);
    return finishNode(context, parser, pos, {
-        type: 'ThisExpression'
+        type: 'ThisExpression',
     });
 }
 
@@ -954,7 +954,7 @@ function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): EST
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'PrivateName',
-        name
+        name,
     });
 }
 
@@ -1013,7 +1013,7 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
 
     return finishNode(context, parser, pos, {
         type: 'ArrayExpression',
-        elements
+        elements,
     });
 }
 
@@ -1124,7 +1124,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                     expr = finishNode(context, parser, sequencepos, {
                         type: 'SequenceExpression',
-                        expressions
+                        expressions,
                     });
                 }
 
@@ -1195,7 +1195,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         async: false,
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
-        id
+        id,
     });
 }
 
@@ -1234,7 +1234,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         async: true,
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
-        id
+        id,
     });
 }
 
@@ -1291,7 +1291,7 @@ function parseSpreadProperties(parser: Parser, context: Context): any {
     const argument = parseAssignmentExpression(parser, context | Context.AllowIn);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
-        argument
+        argument,
     });
 }
 
@@ -1325,7 +1325,7 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
     expect(parser, context, Token.RightBrace);
     return finishNode(context, parser, pos, {
         type: 'ObjectExpression',
-        properties
+        properties,
     });
 }
 
@@ -1440,7 +1440,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
         kind: !(state & ObjectState.Getter | state & ObjectState.Setter) ? 'init' : (state & ObjectState.Setter) ? 'set' : 'get',
         computed: !!(state & ObjectState.Computed),
         method: !!(state & ObjectState.Method),
-        shorthand: !!(state & ObjectState.Shorthand)
+        shorthand: !!(state & ObjectState.Shorthand),
     });
 }
 
@@ -1466,7 +1466,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
         async: !!(state & ObjectState.Async),
         generator: !!(state & ObjectState.Generator),
         expression: false,
-        id: null
+        id: null,
     });
 }
 
@@ -1527,7 +1527,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
         id: null,
         async: !!(state & ModifierState.Await),
         generator: false,
-        expression
+        expression,
     });
 }
 
@@ -1606,7 +1606,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
 
     return finishNode(context, parser, pos, {
         type: 'BlockStatement',
-        body
+        body,
     });
 }
 
@@ -1623,7 +1623,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
 export function parseFormalParameters(
     parser: Parser,
     context: Context,
-    state: ObjectState
+    state: ObjectState,
 ): { params: ESTree.Identifier[]; args: string[]; } {
 
     // FormalParameterList :
@@ -1716,8 +1716,8 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
-        left: left,
-        right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression)
+        left,
+        right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression),
     });
 }
 
@@ -1749,7 +1749,7 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
         type: 'ClassExpression',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context | Context.Strict, state)
+        body: parseClassBodyAndElementList(parser, context | Context.Strict, state),
     });
 }
 
@@ -1778,7 +1778,7 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
 
     return finishNode(context, parser, pos, {
         type: 'ClassBody',
-        body
+        body,
     });
 }
 
@@ -1885,7 +1885,7 @@ function parseMethodDefinition(parser: Parser, context: Context, key: any, value
         static: !!(state & ObjectState.Static),
         computed: !!(state & ObjectState.Computed),
         key,
-        value
+        value,
     });
 }
 
@@ -1913,7 +1913,7 @@ function parseFieldDefinition(parser: Parser, context: Context, key: any, state:
         key,
         value,
         computed: !!(state & ObjectState.Computed),
-        static: !!(state & ObjectState.Static)
+        static: !!(state & ObjectState.Static),
     });
 }
 
@@ -1929,7 +1929,7 @@ function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTr
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'PrivateName',
-        name
+        name,
     });
 }
 
@@ -1959,7 +1959,7 @@ function parsePrivateFields(parser: Parser, context: Context, pos: Location): ES
         key,
         value,
         computed: false,
-        static: false // Note: This deviates from the ESTree specs. Added to support static field names
+        static: false, // Note: This deviates from the ESTree specs. Added to support static field names
     });
 }
 
@@ -1993,7 +1993,7 @@ function parseCallImportOrMetaProperty(parser: Parser, context: Context): ESTree
     expr = finishNode(context, parser, pos, {
         type: 'CallExpression',
         callee: expr,
-        arguments: [args]
+        arguments: [args],
     });
     return expr;
 }
@@ -2007,7 +2007,7 @@ function parseCallImportOrMetaProperty(parser: Parser, context: Context): ESTree
  */
 function parseImportExpression(parser: Parser, context: Context, pos: Location): ESTree.ImportExpression {
     return finishNode(context, parser, pos, {
-        type: 'Import'
+        type: 'Import',
     });
 }
 
@@ -2026,7 +2026,7 @@ function parseMetaProperty(parser: Parser, context: Context, meta: ESTree.Identi
     return finishNode(context, parser, pos, {
         meta,
         type: 'MetaProperty',
-        property: parseIdentifier(parser, context)
+        property: parseIdentifier(parser, context),
     });
 }
 
@@ -2053,7 +2053,7 @@ function parseNewExpressionOrMetaProperty(parser: Parser, context: Context): EST
     return finishNode(context, parser, pos, {
         type: 'NewExpression',
         callee: parseImportOrMemberExpression(parser, context, pos),
-        arguments: parser.token === Token.LeftParen ? parseArgumentList(parser, context) : []
+        arguments: parser.token === Token.LeftParen ? parseArgumentList(parser, context) : [],
     });
 }
 
@@ -2107,7 +2107,7 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
     }
 
     return finishNode(context, parser, pos, {
-        type: 'Super'
+        type: 'Super',
     });
 }
 
@@ -2125,7 +2125,7 @@ function parseTemplateLiteral(parser: Parser, context: Context): ESTree.Template
     return finishNode(context, parser, pos, {
         type: 'TemplateLiteral',
         expressions: [],
-        quasis: [parseTemplateSpans(parser, context)]
+        quasis: [parseTemplateSpans(parser, context)],
     });
 }
 
@@ -2145,9 +2145,9 @@ function parseTemplateHead(parser: Parser, context: Context, cooked: string | nu
         type: 'TemplateElement',
         value: {
             cooked,
-            raw
+            raw,
         },
-        tail: false
+        tail: false,
     });
 }
 
@@ -2164,7 +2164,7 @@ function parseTemplate(
     parser: Parser,
     context: Context,
     expressions: ESTree.Expression[] = [],
-    quasis: ESTree.TemplateElement[] = []
+    quasis: ESTree.TemplateElement[] = [],
 ): ESTree.TemplateLiteral {
     const pos = getLocation(parser);
     const { tokenValue, tokenRaw } = parser;
@@ -2184,7 +2184,7 @@ function parseTemplate(
     return finishNode(context, parser, pos, {
         type: 'TemplateLiteral',
         expressions,
-        quasis
+        quasis,
     });
 }
 
@@ -2206,8 +2206,8 @@ function parseTemplateSpans(parser: Parser, context: Context, pos: Location = ge
         type: 'TemplateElement',
         value: {
             cooked: tokenValue,
-            raw: tokenRaw
+            raw: tokenRaw,
         },
-        tail: true
+        tail: true,
     });
 }

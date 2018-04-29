@@ -3,7 +3,7 @@ import { Parser } from '../types';
 import { Errors, report, tolerant } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
-import { Context, Flags, NumericState, } from '../utilities';
+import { Context, Flags, NumericState } from '../utilities';
 import { consumeLineFeed, consumeOpt, toHex, hasNext, nextChar, advance } from './common';
 
 // 11.8.3 Numeric Literals

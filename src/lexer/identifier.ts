@@ -15,7 +15,7 @@ import {
     nextChar,
     advance,
     nextUnicodeChar,
-    advanceOnMaybeAstral
+    advanceOnMaybeAstral,
 } from './common';
 
 /**

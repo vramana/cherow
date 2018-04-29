@@ -75,7 +75,7 @@ export function scan(parser: Parser, context: Context): Token {
 
         } else {
 
-            // Note: Here we first get rid of LT and  WS, then we make sure that the lookup time 
+            // Note: Here we first get rid of LT and  WS, then we make sure that the lookup time
             // for the single punctuator char is short as possible. A single punctuator
             // char is a valid token that cannot also be a prefix of a combination
             // of long tokens - e.g. '(', ')' and '=' is valid. '==' is not.
@@ -239,7 +239,7 @@ export function scan(parser: Parser, context: Context): Token {
                         case Chars.EqualSign:
                             advance(parser);
                             return Token.LessThanOrEqual;
-                            
+
                         case Chars.Slash:
                             {
                                 if (!(context & Context.OptionsJSX)) break;

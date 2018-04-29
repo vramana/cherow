@@ -7,13 +7,13 @@ import {
     parseFunctionDeclaration,
     parseVariableDeclarationList,
     parseClassDeclaration,
-    parseAsyncFunctionOrAsyncGeneratorDeclaration
+    parseAsyncFunctionOrAsyncGeneratorDeclaration,
 } from './declarations';
 import {
     parseExpression,
     parseIdentifier,
     parseAssignmentExpression,
-    parseSequenceExpression
+    parseSequenceExpression,
 } from './expressions';
 import {
     expect,
@@ -34,7 +34,7 @@ import {
     hasLabel,
     addLabel,
     popLabel,
-    restoreExpressionCoverGrammar
+    restoreExpressionCoverGrammar,
 } from '../utilities';
 
 // Statements
@@ -143,7 +143,7 @@ export function parseEmptyStatement(parser: Parser, context: Context): ESTree.Em
     const pos = getLocation(parser);
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
-        type: 'EmptyStatement'
+        type: 'EmptyStatement',
     });
 }
 
@@ -172,7 +172,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ContinueStatement',
-        label
+        label,
     });
 }
 
@@ -202,7 +202,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'BreakStatement',
-        label
+        label,
     });
 }
 
@@ -227,7 +227,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
         type: 'IfStatement',
         test,
         consequent,
-        alternate
+        alternate,
     });
 }
 
@@ -280,7 +280,7 @@ export function parseTryStatement(parser: Parser, context: Context) {
         type: 'TryStatement',
         block,
         handler,
-        finalizer
+        finalizer,
     });
 }
 
@@ -308,7 +308,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
     return finishNode(context, parser, pos, {
         type: 'CatchClause',
         param,
-        body
+        body,
     });
 }
 
@@ -329,7 +329,7 @@ export function parseThrowStatement(parser: Parser, context: Context) {
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ThrowStatement',
-        argument
+        argument,
     });
 }
 
@@ -347,7 +347,7 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
-        expression: expr
+        expression: expr,
     });
 }
 
@@ -367,7 +367,7 @@ export function parseDirective(parser: Parser, context: Context): ESTree.Express
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
         expression: expr,
-        directive
+        directive,
     });
 }
 
@@ -403,7 +403,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
         return finishNode(context, parser, pos, {
             type: 'LabeledStatement',
             label: expr,
-            body
+            body,
         });
     }
 
@@ -411,7 +411,7 @@ export function parseExpressionOrLabelledStatement(parser: Parser, context: Cont
 
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
-        expression: expr
+        expression: expr,
     });
 }
 
@@ -436,7 +436,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
     return finishNode(context, parser, pos, {
         type: 'DoWhileStatement',
         body,
-        test
+        test,
     });
 }
 
@@ -459,7 +459,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
     return finishNode(context, parser, pos, {
         type: 'WhileStatement',
         test,
-        body
+        body,
     });
 }
 
@@ -484,7 +484,7 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
 
     return finishNode(context, parser, pos, {
         type: 'BlockStatement',
-        body
+        body,
     });
 }
 
@@ -510,7 +510,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ReturnStatement',
-        argument
+        argument,
     });
 }
 
@@ -555,7 +555,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
     return finishNode(context, parser, pos, {
         type: 'WithStatement',
         object,
-        body
+        body,
     });
 }
 
@@ -593,7 +593,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
     return finishNode(context, parser, pos, {
         type: 'SwitchStatement',
         discriminant,
-        cases
+        cases,
     });
 }
 
@@ -624,7 +624,7 @@ export function parseCaseOrDefaultClauses(parser: Parser, context: Context): EST
     return finishNode(context, parser, pos, {
         type: 'SwitchCase',
         test,
-        consequent
+        consequent,
     });
 }
 
@@ -648,7 +648,7 @@ export function parseVariableStatement(parser: Parser, context: Context, shouldC
     return finishNode(context, parser, pos, {
         type: 'VariableDeclaration',
         kind: tokenDesc(token),
-        declarations
+        declarations,
     });
 }
 
@@ -769,12 +769,12 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         type,
         body,
         left: init,
-        right
+        right,
     } : {
         type,
         body,
         init,
         test,
-        update
+        update,
     });
 }

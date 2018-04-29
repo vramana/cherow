@@ -205,7 +205,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
     const { index: start, lastValue} = parser;
     let ret = '';
     advance(parser);  // consume quote
-    
+
     let ch = nextChar(parser);
 
     while (ch !== quote) {
@@ -216,7 +216,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
             case Chars.CarriageReturn:
             case Chars.LineFeed:
                 report(parser, Errors.UnterminatedString);
-        
+
             case Chars.Backslash:
                 ch = readNext(parser);
 

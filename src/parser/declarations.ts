@@ -1,5 +1,5 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc, } from '../token';
+import { Token, tokenDesc } from '../token';
 import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
@@ -14,7 +14,7 @@ import {
     ModifierState,
     swapContext,
     ObjectState,
-    parseExpressionCoverGrammar
+    parseExpressionCoverGrammar,
 } from '../utilities';
 
 // Declarations
@@ -44,7 +44,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state)
+        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state),
     });
 }
 
@@ -91,7 +91,7 @@ function parseFunctionDeclarationBody(parser: Parser, context: Context, state: M
         async: !!(state & ModifierState.Await),
         generator: !!(state & ModifierState.Generator),
         expression: false,
-        id
+        id,
     });
 }
 
@@ -169,7 +169,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     return finishNode(context, parser, pos, {
         type: 'VariableDeclarator',
         init,
-        id
+        id,
     });
 }
 

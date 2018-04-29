@@ -8,7 +8,7 @@ import { isIdentifierPart, fromCodePoint, hasNext, nextChar, advance } from './c
 
 /**
  * Scans regular expression
- * 
+ *
  * @param parser Parser object
  * @param context Context masks
  */

@@ -97,11 +97,11 @@ export const enum Errors {
     InvalidJSXAttributeValue,
     RestWithComma,
     UndefinedUnicodeCodePoint,
-    HtmlCommentInModule
+    HtmlCommentInModule,
 }
 
 export const ErrorMessages: {
-    [key: string]: string
+    [key: string]: string,
 } = {
     [Errors.Unexpected]: 'Unexpected token',
     [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',

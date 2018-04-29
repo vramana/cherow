@@ -15,11 +15,11 @@ import { Context, Flags, nextToken } from '../utilities';
 export function createParser(
     source: string,
     sourceFile: string | void,
-    delegate: Delegate | void
+    delegate: Delegate | void,
 ): Parser {
     return {
         // The source code to parse
-        source: source,
+        source,
         // Current position
         index: 0,
         // Current line
@@ -48,13 +48,13 @@ export function createParser(
         tokenRaw: '',
         lastValue: 0,
         comments: [],
-        sourceFile: sourceFile,
+        sourceFile,
         tokenRegExp: undefined,
         tokenValue: undefined,
         labelSet: undefined,
         errorLocation: undefined,
-        delegate: delegate,
-        errors: []
+        delegate,
+        errors: [],
     };
 }
 
@@ -131,8 +131,8 @@ export function parse(source: string, options: Options | void, context: Context)
             },
             end: {
                 line: parser.line,
-                column: parser.column
-            }
+                column: parser.column,
+            },
         };
 
         if (sourceFile) node.loc.source = sourceFile;

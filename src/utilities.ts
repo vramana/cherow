@@ -41,7 +41,7 @@ export const enum Context {
     AllowSuperProperty      = 1 << 27,
     InParen                 = 1 << 28,
     InJSXChild              = 1 << 29,
-    DisallowEscapedKeyword  = 1 << 30
+    DisallowEscapedKeyword  = 1 << 30,
 }
 
 // Mutual parser flags
@@ -71,7 +71,7 @@ export const enum Flags {
 export const enum Labels {
     None        = 0,
     NotNested   = 1 << 0,
-    Nested      = 1 << 1
+    Nested      = 1 << 1,
 }
 
 export const enum NumericState {
@@ -228,8 +228,8 @@ export function finishNode < T extends ESTree.Node >(
             },
             end: {
                 line: lastLine,
-                column: lastColumn
-            }
+                column: lastColumn,
+            },
         };
 
         if (sourceFile) node.loc.source = sourceFile;
@@ -291,7 +291,7 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
  * @param parser Parser object
  * @param context Context masks
  */
-export function consumeSemicolon(parser: Parser, context: Context) {
+export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
     const { token } = parser;
 
     if (token & Token.ASI || parser.flags & Flags.NewLine) { // EOF, '}', ';'
@@ -319,7 +319,7 @@ export function consumeSemicolon(parser: Parser, context: Context) {
 export function parseExpressionCoverGrammar < T >(
     parser: Parser,
     context: Context,
-    callback: (parser: Parser, context: Context) => T
+    callback: (parser: Parser, context: Context) => T,
 ) {
     const prevFlags = parser.flags;
     const prevpendingExpressionError = parser.pendingExpressionError;
@@ -349,7 +349,7 @@ export function parseExpressionCoverGrammar < T >(
 export function restoreExpressionCoverGrammar < T >(
     parser: Parser,
     context: Context,
-    callback: (parser: Parser, context: Context) => T
+    callback: (parser: Parser, context: Context) => T,
 ) {
     const prevFlags = parser.flags;
     const prevpendingExpressionError = parser.pendingExpressionError;
@@ -646,7 +646,7 @@ export function isPropertyWithPrivateFieldKey(expr: any): boolean {
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseAndValidateIdentifier(parser: Parser, context: Context) {
+export function parseAndValidateIdentifier(parser: Parser, context: Context): void | ESTree.Identifier {
 
     const { token} = parser;
 
@@ -706,7 +706,7 @@ export function setPendingError(parser: Parser) {
  * @param elementName JSX Element name
  */
 export function isEqualTagNames(
-    elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression
+    elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
 ): any {
     switch (elementName.type) {
         case 'JSXIdentifier':
