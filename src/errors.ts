@@ -95,7 +95,8 @@ export const enum Errors {
     ExpectedJSXClosingTag,
     AdjacentJSXElements,
     InvalidJSXAttributeValue,
-    RestWithComma
+    RestWithComma,
+    UndefinedUnicodeCodePoint
 }
 
 export const ErrorMessages: {
@@ -196,6 +197,7 @@ export const ErrorMessages: {
     [Errors.AdjacentJSXElements]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
     [Errors.InvalidJSXAttributeValue]: 'Invalid JSX attribute value',
     [Errors.RestWithComma]: 'Rest element may not have a trailing comma',
+    [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point'
 };
 
 /**

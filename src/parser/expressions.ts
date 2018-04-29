@@ -1,6 +1,7 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { scanRegularExpression, consumeTemplateBrace } from '../scanner';
+import { scanRegularExpression } from '../scanner/regexp';
+import { consumeTemplateBrace } from '../scanner/template';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Location, Parser } from '../types';
@@ -90,7 +91,7 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
  */
 
 function parseYieldExpression(parser: Parser, context: Context, pos: Location): ESTree.YieldExpression | ESTree.Identifier {
-    
+
     // YieldExpression[In] :
     //    yield
     //    yield [no LineTerminator here] AssignmentExpression[?In, Yield]
@@ -2077,20 +2078,23 @@ function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Lo
  */
 
 function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
+    // SuperProperty[Yield, Await]:
+    //  super[Expression[+In, ?Yield, ?Await]]
+    //  super.IdentifierName
     const pos = getLocation(parser);
     expect(parser, context, Token.SuperKeyword);
 
-    const { token } = parser;
-
-    if (token === Token.LeftParen) {
-        // The super property has to be within a class constructor
-        if (!(context & Context.AllowSuperProperty)) {
-            tolerant(parser, context, Errors.BadSuperCall);
-        }
-    } else if (token === Token.LeftBracket || token === Token.Period) {
-        if (!(context & Context.Method)) tolerant(parser, context, Errors.UnexpectedSuper);
-    } else {
-        tolerant(parser, context, Errors.LoneSuper);
+    switch (parser.token) {
+        case Token.LeftParen:
+            // The super property has to be within a class constructor
+            if (!(context & Context.AllowSuperProperty)) tolerant(parser, context, Errors.BadSuperCall);
+            break;
+        case Token.LeftBracket:
+        case Token.Period:
+            if (!(context & Context.Method)) tolerant(parser, context, Errors.UnexpectedSuper);
+            break;
+        default:
+            tolerant(parser, context, Errors.LoneSuper);
     }
 
     return finishNode(context, parser, pos, {

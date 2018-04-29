@@ -3,7 +3,7 @@ import { Chars } from './chars';
 import { Errors, report, tolerant } from './errors';
 import { Parser, Delegate, Location } from './types';
 import { Token, tokenDesc } from './token';
-import { scan } from './scanner';
+import { scan } from './scanner/scan';
 import { constructError } from './errors';
 import { parseIdentifier } from './parser/expressions';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
@@ -11,7 +11,9 @@ import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './uni
 // Context masks
 export const enum Context {
     Empty                   = 0,
+    
     /** options */
+    
     OptionsNext             = 1 << 0,
     OptionsRanges           = 1 << 1,
     OptionsJSX              = 1 << 2,
@@ -25,7 +27,9 @@ export const enum Context {
     OptionsRawidentifiers   = 1 << 10,
     OptionsTolerant         = 1 << 11,
     OptionsNode             = 1 << 12,
+
     /** misc */
+
     Strict                  = 1 << 13,
     Module                  = 1 << 14,
     TaggedTemplate          = 1 << 15,
@@ -241,21 +245,6 @@ export function finishNode < T extends ESTree.Node >(
 
     return node;
 }
-
-/**
- * Returns true if this is a vlid identifier part
- *
- * @param parser Parser object
- * @param context Context masks
- * @param meta Line / column
- * @param node AST node
- */
-export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
-    code === Chars.Backslash ||
-    code === Chars.Dollar ||
-    code === Chars.Underscore ||
-    (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
-
 /**
  * Consumes the next token. If the consumed token is not of the expected type
  * then report an error and return null. Otherwise return true.
@@ -299,19 +288,6 @@ export function nextToken(parser: Parser, context: Context) {
 }
 
 export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
-
-/**
- * Scans private name. Stage 3 proposal related
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanPrivateName(parser: Parser, context: Context): Token {
-    if (!(context & Context.InClass) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
-        report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
-    }
-    return Token.Hash;
-}
 
 /**
  * Automatic Semicolon Insertion
@@ -424,49 +400,6 @@ export function swapContext < T >(
 }
 
 /**
- * Return the next codepoint in the stream
- *
- * @param parser Parser object
- */
-
-export function hasNext(parser: Parser) {
-    return parser.index < parser.source.length;
-}
-export function advance(parser: Parser) {
-    parser.index++;
-    parser.column++;
-}
-
-export function advanceOnMaybeAstral(parser: Parser, ch: number) {
-    advance(parser);
-    if (ch > 0xFFFF) parser.index++;
-}
-
-/**
- * Return the next codepoint in the stream by index
- *
- * @param parser Parser object
- */
-export function nextChar(parser: Parser) {
-    return parser.source.charCodeAt(parser.index);
-}
-
-/**
- * Return the next unicodechar in the stream
- *
- * @param parser Parser object
- */
-export function nextUnicodeChar(parser: Parser) {
-    const { index } = parser;
-
-    const hi = parser.source.charCodeAt(index);
-    if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
-    const lo = parser.source.charCodeAt(index + 1);
-    if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
-    return Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF;
-}
-
-/**
  * Validates function params
  *
  * Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar
@@ -558,64 +491,6 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
 };
 
 /**
- * Consume an token in the scanner on match. This is an equalent to
- * 'consume' used in the parser code itself.
- *
- * @param parser Parser object
- * @param context  Context masks
- */
-export function consumeOpt(parser: Parser, code: number): boolean {
-    if (parser.source.charCodeAt(parser.index) !== code) return false;
-    parser.index++;
-    parser.column++;
-    return true;
-}
-
-/**
- * Consumes line feed
- *
- * @param parser Parser object
- * @param state  Scanner state
- */
-export function consumeLineFeed(parser: Parser, state: ScannerState) {
-    parser.flags |= Flags.NewLine;
-    parser.index++;
-    if ((state & ScannerState.LastIsCR) === 0) {
-        parser.column = 0;
-        parser.line++;
-    }
-}
-
-/**
- * Advance to new line
- *
- * @param parser Parser object
- */
-export function advanceNewline(parser: Parser) {
-    parser.flags |= Flags.NewLine;
-    parser.index++;
-    parser.column = 0;
-    parser.line++;
-}
-
-export const fromCodePoint = (code: Chars) => {
-    return code <= 0xFFFF ?
-        String.fromCharCode(code) :
-        String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
-            Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
-};
-
-export function toHex(code: number): number {
-    if (code < Chars.Zero) return -1;
-    if (code <= Chars.Nine) return code - Chars.Zero;
-    if (code < Chars.UpperA) return -1;
-    if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
-    if (code < Chars.LowerA) return -1;
-    if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
-    return -1;
-}
-
-/**
  * Does a lookahead.
  *
  * @param parser Parser object
@@ -643,32 +518,6 @@ export function lookahead < T >(parser: Parser, context: Context, callback: (par
     parser.startIndex = startIndex;
     parser.tokenRegExp = tokenRegExp;
     return res;
-}
-
-export function escapeForPrinting(code: number): string {
-    switch (code) {
-        case Chars.Null:
-            return '\\0';
-        case Chars.Backspace:
-            return '\\b';
-        case Chars.Tab:
-            return '\\t';
-        case Chars.LineFeed:
-            return '\\n';
-        case Chars.VerticalTab:
-            return '\\v';
-        case Chars.FormFeed:
-            return '\\f';
-        case Chars.CarriageReturn:
-            return '\\r';
-        default:
-            if (!mustEscape(code)) return fromCodePoint(code);
-            if (code < 0x10) return `\\x0${code.toString(16)}`;
-            if (code < 0x100) return `\\x${code.toString(16)}`;
-            if (code < 0x1000) return `\\u0${code.toString(16)}`;
-            if (code < 0x10000) return `\\u${code.toString(16)}`;
-            return `\\u{${code.toString(16)}}`;
-    }
 }
 
 /**
@@ -855,12 +704,6 @@ export function setPendingError(parser: Parser) {
         column: parser.column,
         index: parser.index,
     };
-}
-
-export function readNext(parser: Parser): number {
-    advance(parser);
-    if (!hasNext(parser)) report(parser, Errors.UnicodeOutOfRange);
-    return nextUnicodeChar(parser);
 }
 
 /**

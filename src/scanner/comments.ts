@@ -1,17 +1,16 @@
-import * as ESTree from './estree';
-import { Chars } from './chars';
-import { Errors, tolerant } from './errors';
-import { Parser, CommentType } from './types';
+import * as ESTree from '../estree';
+import { Chars } from '../chars';
+import { Errors, tolerant } from '../errors';
+import { Parser, CommentType } from '../types';
+import { Context, ScannerState } from '../utilities';
 import {
-    ScannerState,
+    consumeLineFeed,
+    consumeOpt,
     nextChar,
     hasNext,
     advanceNewline,
     advance,
-    consumeLineFeed,
-    consumeOpt,
-    Context
-} from './utilities';
+} from './common';
 
 // 11.4 Comments
 

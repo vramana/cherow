@@ -5,20 +5,21 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
+import {     hasNext,
+    nextChar,
+    advance,
+    consumeOpt,
+    fromCodePoint,
+    readNext,
+} from '../scanner/common';
 import {
     Context,
     expect,
     getLocation,
     consume,
-    hasNext,
-    nextChar,
-    advance,
-    consumeOpt,
     finishNode,
     nextToken,
     isEqualTagNames,
-    fromCodePoint,
-    readNext,
     parseExpressionCoverGrammar
 } from '../utilities';
 
