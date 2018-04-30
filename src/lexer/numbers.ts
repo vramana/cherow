@@ -18,7 +18,48 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
     const { index: start } = parser;
     let hasFloat = false;
     let isBigInt = false;
-    let value: string | number | null = scanDecimalDigitsOrSeparator(parser);
+    let maximumDigits = 10;
+    let digit = maximumDigits - 1;
+    let seenSeparator = false;
+    let value: any = 0;
+
+    // 4 bytes optimization
+    loop: while (hasNext(parser) && digit >= 0) {
+        const ch = nextChar(parser);
+        switch (ch) {
+            case Chars.Underscore:
+                advance(parser);
+                if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
+                seenSeparator = true;
+                continue;
+            case Chars.Zero:
+            case Chars.One:
+            case Chars.Two:
+            case Chars.Three:
+            case Chars.Four:
+            case Chars.Five:
+            case Chars.Six:
+            case Chars.Seven:
+            case Chars.Eight:
+            case Chars.Nine:
+                seenSeparator = false;
+                value = value * 10 + (ch - Chars.Zero);
+                advance(parser);
+                --digit;
+                break;
+            default:
+                break loop;
+        }
+    }
+    if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
+    let next = nextChar(parser);
+
+    if (digit >= 0 && nextChar(parser) !== Chars.Period && (!hasNext(parser) || !isValidIdentifierStart(next))) {
+        if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(start, parser.index);
+        parser.tokenValue = hasFloat ? parseFloat(value) : parseInt(value);
+        return Token.NumericLiteral;
+    }
+
     if (nextChar(parser) === Chars.Period) {
         hasFloat = true;
         if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
@@ -31,6 +72,7 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
     let end = parser.index;
     if (consumeOpt(parser, Chars.LowerN)) {
         if (hasFloat) report(parser, Errors.Unexpected);
+        isBigInt = true;
     }
     if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
         hasFloat = true;
