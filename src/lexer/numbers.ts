@@ -14,26 +14,34 @@ function isDigit(ch: number): boolean {
     return (CharacterType[ch] & CharacterFlags.Decimal) !== 0;
 }
 
-export function scanNumericLiteral(parser: Parser, context: Context) {
+export function scanNumericLiteral(parser: Parser, context: Context): Token {
     const { index: start } = parser;
-    while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
+    let hasFloat = false;
+    let isBigInt = false;
+    let value: string | number | null = scanDecimalDigitsOrSeparator(parser);
     if (nextChar(parser) === Chars.Period) {
-        advance(parser);
-        while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
-    }
-    let end = parser.index;
-    if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
-        if (consumeOpt(parser, Chars.Plus) || consumeOpt(parser, Chars.Hyphen)) {} //  pos++;
-        if (isDigit(parser.source.charCodeAt(parser.index))) {
-            advance(parser);
-            while (isDigit(parser.source.charCodeAt(parser.index))) advance(parser);
-            end = parser.index;
-        } else {
-            report(parser, Errors.Unexpected)
+        hasFloat = true;
+        if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
+            report(parser, Errors.ZeroDigitNumericSeparator);
         }
+        advance(parser);
+        value = value + '.' + scanDecimalDigitsOrSeparator(parser);
     }
-    parser.tokenValue = parseFloat(parser.source.substring(start, end));
-    return Token.NumericLiteral;
+
+    let end = parser.index;
+    if (consumeOpt(parser, Chars.LowerN)) {
+        if (hasFloat) report(parser, Errors.Unexpected);
+    }
+    if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
+        hasFloat = true;
+        if (consumeOpt(parser, Chars.Plus) || consumeOpt(parser, Chars.Hyphen)) {} //  pos++;
+        const preNumericPart = parser.index;
+        const finalFragment = scanDecimalDigitsOrSeparator(parser);
+        value = value + parser.source.substring(end, preNumericPart) + finalFragment;
+    }
+    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(start, parser.index);
+    parser.tokenValue = hasFloat ? parseFloat(value) : parseInt(value);
+    return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;
 }
 */
 
