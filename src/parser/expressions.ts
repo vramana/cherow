@@ -38,7 +38,8 @@ import {
     CoverCallState,
     validateParams,
     recordExpressionError,
-    validateCoverParenthesizedExpression
+    validateCoverParenthesizedExpression,
+    validateAsyncArgumentList
 } from '../utilities';
 
 /**
@@ -653,21 +654,7 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
             state = CoverCallState.HasSpread;
         } else {
             token = parser.token;
-            if (hasBit(token, Token.IsEvalOrArguments)) {
-                setPendingError(parser);
-                state |= CoverCallState.EvalOrArguments;
-            }
-            if (hasBit(token, Token.IsYield)) {
-                setPendingError(parser);
-                state |= CoverCallState.Yield;
-            }
-            if (hasBit(token, Token.IsAwait)) {
-                setPendingError(parser);
-                state |= CoverCallState.Await;
-            }
-            if (!(parser.flags & Flags.AllowBinding)) {
-                tolerant(parser, context, Errors.NotBindable);
-            }
+            state = validateAsyncArgumentList(parser, context, state);
             args.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
         }
 
@@ -681,18 +668,21 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
 
     expect(parser, context, Token.RightParen);
     if (parser.token === Token.Arrow) {
-        if (state & CoverCallState.SeenSpread) tolerant(parser, context, Errors.ParamAfterRest);
-        if (!(token & Token.IsIdentifier)) parser.flags |= Flags.SimpleParameterList;
-        if (state & CoverCallState.Await || parser.flags & Flags.HasAwait) tolerant(parser, context, Errors.AwaitInParameter);
-        if (state & CoverCallState.Yield || parser.flags & Flags.HasYield) tolerant(parser, context, Errors.YieldInParameter);
-        if (state & CoverCallState.EvalOrArguments) {
+        if (state & CoverCallState.SeenSpread) {
+            tolerant(parser, context, Errors.ParamAfterRest);
+        } else if (state & CoverCallState.EvalOrArguments) {
             if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
             parser.flags |= Flags.StrictEvalArguments;
+        } else if (state & CoverCallState.Yield) {
+            if (context & Context.Strict) tolerant(parser, context, Errors.YieldInParameter);
+            parser.flags |= Flags.HasStrictReserved;
+        } else if (parser.flags & Flags.HasYield) {
+            tolerant(parser, context, Errors.YieldInParameter);
+        } else if (state & CoverCallState.Await || parser.flags & Flags.HasAwait) {
+            tolerant(parser, context, Errors.AwaitInParameter);
         }
-        parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-
     }
-
+    
     return args;
 }
 
