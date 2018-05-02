@@ -1297,13 +1297,9 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
         if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
     }
 
-    if (parser.flags & Flags.HasDuplicateProto && parser.token !== Token.Assign) {
-        tolerant(parser, context, Errors.DuplicateProto);
-    }
-
-    // Unset the 'HasProtoField' flag now, we are done!
-    parser.flags &= ~(Flags.HasProtoField | Flags.HasDuplicateProto);
     expect(parser, context, Token.RightBrace);
+    parser.flags  &= ~Flags.HasProtoField;
+
     return finishNode(context, parser, pos, {
         type: 'ObjectExpression',
         properties,
