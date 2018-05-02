@@ -98,6 +98,7 @@ export const enum Errors {
     RestWithComma,
     UndefinedUnicodeCodePoint,
     HtmlCommentInModule,
+    InvalidCoverInitializedName
 }
 
 export const ErrorMessages: {
@@ -168,7 +169,7 @@ export const ErrorMessages: {
     [Errors.StrictOctalLiteral]: 'Legacy octal literals are not allowed in strict mode',
     [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
     [Errors.InvalidLhsInAssignment]: 'Invalid left-hand side in assignment',
-    [Errors.DuplicateProto]: 'Duplicate __proto__ fields are not allowed in object literals',
+    [Errors.DuplicateProto]: 'Property name __proto__ appears more than once in object literal',
     [Errors.IllegalUseStrict]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
     [Errors.StaticPrototype]: 'Classes may not have a static property named \'prototype\'',
     [Errors.BadImportCallArity]: 'Unexpected token',
@@ -200,6 +201,7 @@ export const ErrorMessages: {
     [Errors.RestWithComma]: 'Rest element may not have a trailing comma',
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
+    [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
 };
 
 /**

@@ -744,9 +744,7 @@ export function validateUpdateExpression(parser: Parser, context: Context, expr:
     if (!isValidSimpleAssignmentTarget(expr)) {
         tolerant(parser, context, Errors.InvalidLHSInAssignment);
     }
-
 }
-
 
 /**
  * Record expression error
@@ -754,12 +752,12 @@ export function validateUpdateExpression(parser: Parser, context: Context, expr:
  * @param parser Parser object
  * @param error Error message
  */
-export function recordExpressionError(parser: Parser, type: Errors) {
+export function setPendingExpressionError(parser: Parser, type: Errors) {
     parser.pendingExpressionError = {
         error: ErrorMessages[type],
-        line: parser.startLine,
-        column: parser.startColumn,
-        index: parser.startIndex,
+        line: parser.line,
+        column: parser.column,
+        index: parser.index,
     };
 }
 

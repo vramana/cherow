@@ -560,6 +560,7 @@ async *method() {
           'set true(w) { w }',
           'set false(w) { w }',
           'set: 2',
+          'a: await',
           'x:x = 20',
           'x:z = 1, x1:y = 20',
           ' __proto__: 2 ',
@@ -786,8 +787,151 @@ async *method() {
               });
           });
       }
+      
+      pass('({a: await}) => 1', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        source: '({a: await}) => 1',
+        expected: {
+          "type": "Program",
+          "start": 0,
+          "end": 17,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 17
+            }
+          },
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "start": 0,
+              "end": 17,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 17
+                }
+              },
+              "expression": {
+                "type": "ArrowFunctionExpression",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": true,
+                "async": false,
+                "params": [
+                  {
+                    "type": "ObjectPattern",
+                    "start": 1,
+                    "end": 11,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 11
+                      }
+                    },
+                    "properties": [
+                      {
+                        "type": "Property",
+                        "start": 2,
+                        "end": 10,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 2
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 10
+                          }
+                        },
+                        "method": false,
+                        "shorthand": false,
+                        "computed": false,
+                        "key": {
+                          "type": "Identifier",
+                          "start": 2,
+                          "end": 3,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 2
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3
+                            }
+                          },
+                          "name": "a"
+                        },
+                        "value": {
+                          "type": "Identifier",
+                          "start": 5,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 5
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "name": "await"
+                        },
+                        "kind": "init"
+                      }
+                    ]
+                  }
+                ],
+                "body": {
+                  "type": "Literal",
+                  "start": 16,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "value": 1,
+                  "raw": "1"
+                }
+              }
+            }
+          ],
+          "sourceType": "script"
+        }
+      });
 
-    pass('({async = 0} = {})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      pass('({async = 0} = {})', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
         source: '({async = 0} = {})',
         expected: {
           type: 'Program',

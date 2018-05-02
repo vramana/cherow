@@ -37,7 +37,7 @@ import {
     setPendingError,
     CoverCallState,
     validateParams,
-    recordExpressionError,
+    setPendingExpressionError,
     validateCoverParenthesizedExpression,
     validateAsyncArgumentList
 } from '../utilities';
@@ -1111,7 +1111,9 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                         parser.flags |= Flags.HasStrictReserved;
                     } else if (!(parser.flags & Flags.AllowBinding)) {
                         tolerant(parser, context, Errors.NotBindable);
-                    } else if (parser.flags & (Flags.HasYield | Flags.HasAwait)) {
+                    } else if (parser.flags & Flags.HasYield) {
+                        tolerant(parser, context, parser.flags & Flags.HasYield ? Errors.YieldInParameter : Errors.AwaitInParameter);
+                    } else if (context & Context.Async && parser.flags & Flags.HasAwait) {
                         tolerant(parser, context, parser.flags & Flags.HasYield ? Errors.YieldInParameter : Errors.AwaitInParameter);
                     }
                     
@@ -1342,12 +1344,15 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             if ((state & (ObjectState.Async | ObjectState.Generator))) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
             } else if (t !== Token.LeftBracket && parser.tokenValue === '__proto__') {
-                if (parser.flags & Flags.HasProtoField) recordExpressionError(parser, Errors.DuplicateProto);
-                else parser.flags |= Flags.HasProtoField;
+                if (parser.flags & Flags.HasProtoField) {
+                    // Record the error and put it on hold until we've determined 
+                    // whether or not we're destructuring
+                    setPendingExpressionError(parser, Errors.DuplicateProto);
+                } else parser.flags |= Flags.HasProtoField;
             }
 
             expect(parser, context, Token.Colon);
-
+            // Invalid: 'async ({a: await}) => 1'
             if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
             value = restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression);
         } else {
@@ -1361,13 +1366,15 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
 
             state |= ObjectState.Shorthand;
 
-            if (consume(parser, context, Token.Assign)) {
+            if (parser.token === Token.Assign) {
+                setPendingExpressionError(parser, Errors.InvalidCoverInitializedName);
+                expect(parser, context, Token.Assign);
                 if (context & (Context.Strict | Context.Yield | Context.Async) && parser.token & (Token.IsYield | Token.IsAwait)) {
                     setPendingError(parser);
                     parser.flags |= parser.token & Token.IsYield ? Flags.HasYield : Flags.HasAwait;
                 }
                 value = parseAssignmentPattern(parser, context, key, pos);
-                recordExpressionError(parser, Errors.InvalidLHSInAssignment);
+                
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) tolerant(parser, context, Errors.UnexpectedReserved);
