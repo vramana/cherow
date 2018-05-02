@@ -62,6 +62,9 @@ export interface Options {
     // The flag to allow return in the global scope
     globalReturn?: boolean;
 
+    // The flag to allow experimental features
+    experimental?: boolean;
+
     // The flag to allow to skip shebang - '#'
     skipShebang?: boolean;
 
