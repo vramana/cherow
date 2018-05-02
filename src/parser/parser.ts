@@ -82,12 +82,12 @@ export function parse(source: string, options: Options | void, context: Context)
         if (options.loc) context |= Context.OptionsLoc;
         // The flag to attach raw property to each literal node
         if (options.raw) context |= Context.OptionsRaw;
+        // Attach raw property to each identifier node
+        if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
         // The flag to allow return in the global scope
         if (options.globalReturn) context |= Context.OptionsGlobalReturn;
         // The flag to allow to skip shebang - '#'
         if (options.skipShebang) context |= Context.OptionsShebang;
-        // Attach raw property to each identifier node
-        if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
         // Enable tolerant mode
         if (options.tolerant) context |= Context.OptionsTolerant;
         // Set to true to record the source file in every node's loc object when the loc option is set.
@@ -95,7 +95,7 @@ export function parse(source: string, options: Options | void, context: Context)
         // Create a top-level comments array containing all comments
         if (!!options.comments) context |= Context.OptionsComments;
         // The flag to enable implied strict mode
-        if (options.impliedStrict) context |= Context.OptionsImpliedStrict;
+        if (options.impliedStrict) context |= Context.Strict;
         // The flag to set to bypass methods in Node
         if (options.node) context |= Context.OptionsNode;
         // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
