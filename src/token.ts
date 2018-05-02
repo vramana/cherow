@@ -25,7 +25,7 @@ export const enum Token {
     IsAsync              = 1 << 23,
     IsLogical            = 1 << 24,
     IsBindingPattern     = 1 << 25,
-    IsEndMarker          = 1 << 26,
+    IsShorthandProperty          = 1 << 26,
     IsIdentifier         = 1 << 27,
     IsEvalOrArguments    = 1 << 28,
     ASI                  = 1 << 29,
@@ -49,17 +49,17 @@ export const enum Token {
 
     /* Punctuators */
     Arrow        = 10, // =>
-    LeftParen    = 11 | IsExpressionStart | IsEndMarker, // (
+    LeftParen    = 11 | IsExpressionStart | IsShorthandProperty, // (
     LeftBrace    = 12 | IsExpressionStart | IsBindingPattern, // {
-    Period       = 13 | IsEndMarker, // .
+    Period       = 13 | IsShorthandProperty, // .
     Ellipsis     = 14, // ...
-    RightBrace   = 15 | IsEndMarker | ASI, // }
+    RightBrace   = 15 | IsShorthandProperty | ASI, // }
     RightParen   = 16, // )
-    Semicolon    = 17 | ASI | IsEndMarker, // ;
-    Comma        = 18 | IsEndMarker, // ,
+    Semicolon    = 17 | ASI | IsShorthandProperty, // ;
+    Comma        = 18 | IsShorthandProperty, // ,
     LeftBracket  = 19 | IsBindingPattern | IsExpressionStart , // [
     RightBracket = 20, // ]
-    Colon        = 21 | IsEndMarker, // :
+    Colon        = 21 | IsShorthandProperty, // :
     QuestionMark = 22, // ?
     SingleQuote  = 23, // '
     DoubleQuote  = 24, // "
@@ -71,7 +71,7 @@ export const enum Token {
      Decrement = 28 | IsUpdateOp, // --
 
       /* Assign operators */
-      Assign                  = 29 | IsAssignOp | IsEndMarker, // =
+      Assign                  = 29 | IsAssignOp | IsShorthandProperty, // =
       ShiftLeftAssign         = 30 | IsAssignOp, // <<=
       ShiftRightAssign        = 31 | IsAssignOp, // >>=
       LogicalShiftRightAssign = 32 | IsAssignOp, // >>>=

@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
-import { Errors, report, tolerant } from './errors';
+import { Errors, report, tolerant, ErrorMessages } from './errors';
 import { Parser, Delegate, Location } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './lexer/scan';
@@ -746,4 +746,80 @@ export function validateUpdateExpression(parser: Parser, context: Context, expr:
         tolerant(parser, context, Errors.InvalidLHSInAssignment);
     }
 
+}
+
+
+/**
+ * Record expression error
+ * 
+ * @param parser Parser object
+ * @param error Error message
+ */
+export function recordExpressionError(parser: Parser, type: Errors) {
+    parser.pendingExpressionError = {
+        error: ErrorMessages[type],
+        line: parser.startLine,
+        column: parser.startColumn,
+        index: parser.startIndex,
+    };
+}
+
+/**
+ * Validate coer parenthesized expression
+ * 
+ * @param parser Parser object
+ * @param state CoverParenthesizedState
+ */
+export function validateCoverParenthesizedExpression(
+    parser: Parser,
+    state: CoverParenthesizedState
+): CoverParenthesizedState {
+    const { token } = parser;
+    if (token & Token.IsBindingPattern) {
+        parser.flags |= Flags.SimpleParameterList;
+    } else {
+        if ((token & Token.IsEvalOrArguments) === Token.IsEvalOrArguments) {
+            setPendingError(parser);
+            state |= CoverParenthesizedState.HasEvalOrArguments;
+        } else if ((token & Token.FutureReserved) === Token.FutureReserved) {
+            setPendingError(parser);
+            state |= CoverParenthesizedState.HasReservedWords;
+        } else if ((token & Token.IsAwait) === Token.IsAwait) {
+            setPendingError(parser);
+            parser.flags |= Flags.HasAwait;
+        }
+    }
+    return state;
+}
+
+/**
+ * Validate coer parenthesized expression
+ * 
+ * @param parser Parser object
+ * @param state CoverParenthesizedState
+ */
+export function validateAsyncArgumentList(
+    parser: Parser,
+    context: Context,
+    state: CoverCallState
+): CoverCallState {
+    const { token } = parser;
+    if (!(parser.flags & Flags.AllowBinding)) {
+        tolerant(parser, context, Errors.NotBindable);
+    } else if (token & Token.IsBindingPattern) {
+        parser.flags |= Flags.SimpleParameterList;
+    } else {
+        if ((token & Token.IsEvalOrArguments) === Token.IsEvalOrArguments) {
+            setPendingError(parser);
+            state |= CoverCallState.EvalOrArguments;
+        } else if ((token & Token.IsAwait) === Token.IsAwait) {
+            setPendingError(parser);
+            state |= CoverCallState.Await;
+        } else if ((token & Token.IsYield) === Token.IsYield) {
+            setPendingError(parser);
+            state |= CoverCallState.Yield;
+        }
+        
+    }
+    return state;
 }

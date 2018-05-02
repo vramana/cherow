@@ -15,6 +15,7 @@ import {
     parseExpressionCoverGrammar,
     restoreExpressionCoverGrammar,
     hasBit,
+    setPendingError
 } from '../utilities';
 
 // 12.15.5 Destructuring Assignment
@@ -204,7 +205,7 @@ export function parseAssignmentPattern(
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
         left,
-        right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression),
+        right: parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression),
     });
 }
 
@@ -254,7 +255,7 @@ function parseAssignmentProperty(parser: Parser, context: Context): ESTree.Assig
             const hasInitializer = consume(parser, context, Token.Assign);
             if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
             if (!isValidIdentifier(context, token)) tolerant(parser, context, Errors.UnexpectedReserved);
-            value = hasInitializer ? parseAssignmentPattern(parser, context | Context.AllowIn, key, pos) : key;
+            value = hasInitializer ? parseAssignmentPattern(parser, context, key, pos) : key;
         } else value = parseBindingInitializer(parser, context);
     } else {
         computed = token === Token.LeftBracket;

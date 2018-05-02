@@ -9,13 +9,11 @@ describe('Expressions - Object literal', () => {
 
   describe('Failure', () => {
 
-        const invalidSyntax = [
+      const invalidSyntax = [
+          `({get +:3})`,
           ',',
-          '({',
-          '({)',
-          '({}',
-          '(})',
-          '{})',
+          '...',
+          '...async x,',
           'get bar(x) {',
           'get bar(x {}',
           'get bar(x {',
@@ -35,6 +33,8 @@ describe('Expressions - Object literal', () => {
           'static 0',
           '*x: 0',
           '*x',
+          'async x',
+          'async *x',
           '*get x(){}',
           '*set x(y){}',
           'get *x(){}',
@@ -72,7 +72,7 @@ describe('Expressions - Object literal', () => {
           'foo(x = 1) {"use strict"}',
           '"async foo (arguments) { "use strict"; }',
           `async
-          foo() { }`,
+foo() { }`,
           'async foo (x = await) {  }',
           'async foo (await) {  }',
           'async foo () { super() }',
@@ -90,7 +90,7 @@ describe('Expressions - Object literal', () => {
           'async *method([...x = []] = []) {}',
           'async *method([...{ x }, y] = [1, 2, 3]) {}',
           'x + {y=z}',
-         'get __proto(){}, "__proto__": null, __proto__: null,',
+          'get __proto(){}, "__proto__": null, __proto__: null,',
           '({ __proto__: null, "__proto__": null })',
           '__proto__: null, __proto__: null',
           '"__proto__": null, __proto__: null',
@@ -111,28 +111,28 @@ describe('Expressions - Object literal', () => {
           'get x() { "use strict"; public = 42; }',
           'async method() { void await; }',
           `"use strict";
-            var gen = {
-            *method() {
-              return {
-                   ...(function() {
-                      var yield;
-                   }()),
-                }
-            }
-          }.method;`,
+  var gen = {
+  *method() {
+    return {
+         ...(function() {
+            var yield;
+         }()),
+      }
+  }
+}.method;`,
 
           `var gen = {
-            async *method() {
-              return {
-                   ...(function() {
-                      var yield;
-                   }()),
-                }
-            }
-          }.method;`,
+  async *method() {
+    return {
+         ...(function() {
+            var yield;
+         }()),
+      }
+  }
+}.method;`,
       ];
 
-        for (const arg of invalidSyntax) {
+      for (const arg of invalidSyntax) {
           it(`({ ${arg} })`, () => {
               t.throws(() => {
                   parse(`({ ${arg} })`, undefined, Context.OptionsNext);
@@ -152,173 +152,219 @@ describe('Expressions - Object literal', () => {
           });
       }
 
-        const invalidShorthand = [
-        'break',    'case',    'catch',  'class',      'const', 'continue',
-        'debugger', 'default', 'delete', 'do',         'else',  'enum',
-        'export',   'extends', 'false',  'finally',    'for',   'function',
-        'if',       'import',  'in',     'instanceof', 'new',   'null',
-        'return',   'super',   'switch', 'this',       'throw', 'true',
-        'try',      'typeof',  'var',    'void',       'while', 'with',
-    ];
-        for (const arg of invalidShorthand) {
+      const invalidShorthand = [
+          'break', 'case', 'catch', 'class', 'const', 'continue',
+          'debugger', 'default', 'delete', 'do', 'else', 'enum',
+          'export', 'extends', 'false', 'finally', 'for', 'function',
+          'if', 'import', 'in', 'instanceof', 'new', 'null',
+          'return', 'super', 'switch', 'this', 'throw', 'true',
+          'try', 'typeof', 'var', 'void', 'while', 'with',
+      ];
+      for (const arg of invalidShorthand) {
 
-        it(`({ ${arg}});`, () => {
+          it(`({ ${arg}});`, () => {
+              t.throws(() => {
+                  parse(`({ ${arg}});`, undefined, Context.Empty);
+              });
+          });
+
+          it(`"use strict"; ({ ${arg}});`, () => {
+              t.throws(() => {
+                  parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+              });
+          });
+      }
+
+      const invalidShorthandStrict = [
+          '1',
+          '1.2',
+          '0',
+          '0.1',
+          '1.0',
+          '1e1', '0x1', '"s"', '\'s\'',
+          'implements', 'interface', 'let', 'package',
+          'private', 'protected', 'public', 'static',
+          'yield',
+      ];
+      for (const arg of invalidShorthandStrict) {
+
+          it(`"use strict"; ({ ${arg}});`, () => {
+              t.throws(() => {
+                  parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+              });
+          });
+
+          it(`"use strict"; ({ ${arg}});`, () => {
             t.throws(() => {
-                parse(`({ ${arg}});`, undefined, Context.Empty);
+                parse(`"use strict"; ({ ${arg}});`, undefined, Context.Strict | Context.Module);
             });
         });
-
-        it(`"use strict"; ({ ${arg}});`, () => {
-          t.throws(() => {
-              parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
-          });
-      });
       }
 
-        const invalidShorthandStrict = [
-        '1',
-        '1.2',
-        '0',
-        '0.1',
-        '1.0',
-        '1e1', '0x1', '"s"', '\'s\'',
-        'implements', 'interface', 'let',    'package',
-                             'private',    'protected', 'public', 'static',
-                             'yield',
-    ];
-        for (const arg of invalidShorthandStrict) {
-
-        it(`"use strict"; ({ ${arg}});`, () => {
-          t.throws(() => {
-              parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
-          });
+      fail(`"use strict";
+var gen = {
+async *method() {
+(function() {
+    var yield;
+  }())
+}
+}.method;`, Context.Empty, {
+          source: `"use strict";
+var gen = {
+async *method() {
+  (function() {
+      var yield;
+    }())
+}
+}.method;`
       });
-      }
 
-        fail(`"use strict";
-      var gen = {
-        async *method() {
-          (function() {
-              var yield;
-            }())
-        }
-      }.method;`, Context.Empty, {
-        source: `"use strict";
-        var gen = {
-          async *method() {
-            (function() {
-                var yield;
-              }())
-          }
-        }.method;`,
-    });
+      fail('({ a: () {}a })', Context.Empty, {
+        source: '({ a: () {}a })',
+      });
 
-        fail('0, { get a(param = null) {} };', Context.Empty, {
-      source: '0, { get a(param = null) {} };',
-  });
+      fail('({ a: ()a })', Context.Empty, {
+        source: '({ a: ()a })',
+      });
 
-        fail('({[x]});', Context.Empty, {
-     source: '({[x]});',
- });
+      fail('({ a: ()}a })', Context.Empty, {
+        source: '({ a: ()}a })',
+      });
 
-        fail('({async async});', Context.Empty, {
-  source: '({async async});',
-});
+      fail('({ a: ()a {} })', Context.Empty, {
+        source: '({ a: ()a {} })',
+      });
 
-        fail('({async async});', Context.Empty, {
-  source: '({async async});',
-});
+      fail('({)', Context.Empty, {
+          source: '({)',
+      });
 
-        fail('({0});', Context.Empty, {
-  source: '({0});',
-});
+      fail('(})', Context.Empty, {
+          source: '(})',
+      });
 
-        fail('({async\nfoo() { }})', Context.Empty, {
-  source: '({async\nfoo() { }});',
-});
+      fail('{})', Context.Empty, {
+          source: '{})',
+      });
 
-        fail('({async get foo() { }})', Context.Empty, {
-  source: '({async get foo() { }})',
-});
+      fail('({ eval: 1} = 2)', Context.Empty, {
+          source: '({ eval: 1} = 2)',
+      });
 
-        fail('({async set foo(value) { }})', Context.Empty, {
-  source: '({async set foo(value) { }})',
-});
+      fail('({ eval: 1} = 2)', Context.Strict | Context.Module, {
+        source: '({ eval: 1} = 2)',
+      });
 
-        fail('({async set foo(value) { }})', Context.Empty, {
-  source: '({async set foo(value) { }})',
-});
+      fail('({[x]});', Context.Empty, {
+          source: '({[x]});',
+      });
 
-        fail('({async set foo(value) { }})', Context.Empty, {
-  source: '({async set foo(value) { }})',
-});
+      fail('0, { get a(param = null) {} };', Context.Empty, {
+          source: '0, { get a(param = null) {} };',
+      });
 
-        fail('({async get foo() { }});', Context.Empty, {
-  source: '({async get foo() { }});',
-});
+      fail('({[x]});', Context.Empty, {
+          source: '({[x]});',
+      });
 
-        fail('async ({a = b});', Context.Empty, {
-  source: 'async ({a = b});',
-});
+      fail('({async async});', Context.Empty, {
+          source: '({async async});',
+      });
 
-        fail('({async foo: 1});', Context.Empty, {
-  source: '({async foo: 1});',
-});
+      fail('({async async});', Context.Empty, {
+          source: '({async async});',
+      });
 
-        fail('({async foo: 1);', Context.Empty, {
-  source: '({async foo: 1);',
-});
+      fail('({0});', Context.Empty, {
+          source: '({0});',
+      });
 
-        fail('({async foo: 1})', Context.Empty, {
-  source: '({async foo: 1})',
-});
+      fail('({async\nfoo() { }})', Context.Empty, {
+          source: '({async\nfoo() { }});',
+      });
 
-        fail('x = { async get g() {} }', Context.Empty, {
-  source: 'x = { async get g() {} }',
-});
+      fail('({async get foo() { }})', Context.Empty, {
+          source: '({async get foo() { }})',
+      });
 
-        fail('x = { async f: function() {} }', Context.Empty, {
-  source: 'x = { async f: function() {} }',
-});
+      fail('({async set foo(value) { }})', Context.Empty, {
+          source: '({async set foo(value) { }})',
+      });
 
-        fail('x = {async set s(i) {} }', Context.Empty, {
-  source: 'x = {async set s(i) {} }',
-});
+      fail('({async set foo(value) { }})', Context.Empty, {
+          source: '({async set foo(value) { }})',
+      });
 
-        fail('var f = async function() { return {g: await} }', Context.Empty, {
-  source: 'var f = async function() { return {g: await} }',
-});
+      fail('({async set foo(value) { }})', Context.Empty, {
+          source: '({async set foo(value) { }})',
+      });
 
-        fail('async function f() { return {g: await} }', Context.Empty, {
-  source: 'async function f() { return {g: await} }',
-});
+      fail('({async get foo() { }});', Context.Empty, {
+          source: '({async get foo() { }});',
+      });
 
-        fail('async f() { x = { async await(){} } }', Context.Empty, {
-  source: 'async f() { x = { async await(){} } }',
-});
+      fail('async ({a = b});', Context.Empty, {
+          source: 'async ({a = b});',
+      });
 
-        fail('({,} = {});', Context.Empty, {
-  source: '({,} = {});',
-});
+      fail('({async foo: 1});', Context.Empty, {
+          source: '({async foo: 1});',
+      });
 
-        fail('var {x:y--} = {};', Context.Empty, {
-  source: 'var {x:y--} = {};',
-});
+      fail('({async foo: 1);', Context.Empty, {
+          source: '({async foo: 1);',
+      });
 
-        fail('var {x:y+1} = {};', Context.Empty, {
-  source: 'var {x:y+1} = {};',
-});
+      fail('({async foo: 1})', Context.Empty, {
+          source: '({async foo: 1})',
+      });
 
-        fail('var y; ({x:y--} = {});', Context.Empty, {
-  source: 'var y; ({x:y--} = {});',
-});
+      fail('x = { async get g() {} }', Context.Empty, {
+          source: 'x = { async get g() {} }',
+      });
 
-        fail('let {x:foo()} = {};', Context.Empty, {
-  source: 'let {x:foo()} = {};',
-});
+      fail('x = { async f: function() {} }', Context.Empty, {
+          source: 'x = { async f: function() {} }',
+      });
 
-// Illegal property initializer
-        fail('({ ice = fapper })', Context.Empty, {
+      fail('x = {async set s(i) {} }', Context.Empty, {
+          source: 'x = {async set s(i) {} }',
+      });
+
+      fail('var f = async function() { return {g: await} }', Context.Empty, {
+          source: 'var f = async function() { return {g: await} }',
+      });
+
+      fail('async function f() { return {g: await} }', Context.Empty, {
+          source: 'async function f() { return {g: await} }',
+      });
+
+      fail('async f() { x = { async await(){} } }', Context.Empty, {
+          source: 'async f() { x = { async await(){} } }',
+      });
+
+      fail('({,} = {});', Context.Empty, {
+          source: '({,} = {});',
+      });
+
+      fail('var {x:y--} = {};', Context.Empty, {
+          source: 'var {x:y--} = {};',
+      });
+
+      fail('var {x:y+1} = {};', Context.Empty, {
+          source: 'var {x:y+1} = {};',
+      });
+
+      fail('var y; ({x:y--} = {});', Context.Empty, {
+          source: 'var y; ({x:y--} = {});',
+      });
+
+      fail('let {x:foo()} = {};', Context.Empty, {
+          source: 'let {x:foo()} = {};',
+      });
+
+      // Illegal property initializer
+      fail('({ ice = fapper })', Context.Empty, {
           source: '({ ice = fapper })',
       });
   });
@@ -383,8 +429,10 @@ describe('Expressions - Object literal', () => {
     }
 
     const methodDefinitionDuplicateEvalArguments = [
-      'eval, eval', 'eval, a, eval', 'arguments, arguments',
-                        'arguments, a, arguments'
+      'eval, eval', 
+      'eval, a, eval', 
+      'arguments, arguments',
+      'arguments, a, arguments'
   ];
     for (const arg of methodDefinitionDuplicateEvalArguments) {
 

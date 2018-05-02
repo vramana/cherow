@@ -37,6 +37,8 @@ import {
     setPendingError,
     CoverCallState,
     validateParams,
+    recordExpressionError,
+    validateCoverParenthesizedExpression
 } from '../utilities';
 
 /**
@@ -1055,16 +1057,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                 // Record the sequence position
                 const sequencepos = getLocation(parser);
 
-                if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                    setPendingError(parser);
-                    state |= CoverParenthesizedState.HasEvalOrArguments;
-                } else if (hasBit(parser.token, Token.FutureReserved)) {
-                    setPendingError(parser);
-                    state |= CoverParenthesizedState.HasReservedWords;
-                } else if (hasBit(parser.token, Token.IsAwait)) {
-                    setPendingError(parser);
-                    parser.flags |= Flags.HasAwait;
-                }
+                state = validateCoverParenthesizedExpression(parser, state);
 
                 if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
 
@@ -1104,19 +1097,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                             default:
                                 {
-                                    if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                                        setPendingError(parser);
-                                        state |= CoverParenthesizedState.HasEvalOrArguments;
-                                    } else if (hasBit(parser.token, Token.FutureReserved)) {
-                                        setPendingError(parser);
-                                        state |= CoverParenthesizedState.HasReservedWords;
-                                    } else if (hasBit(parser.token, Token.IsAwait)) {
-                                        setPendingError(parser);
-                                        parser.flags |= Flags.HasAwait;
-                                    }
-                                    if (parser.token & Token.IsBindingPattern) {
-                                        state |= CoverParenthesizedState.HasBinding;
-                                    }
+                                    state = validateCoverParenthesizedExpression(parser, state);
                                     expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                 }
                         }
@@ -1140,12 +1121,12 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                         parser.flags |= Flags.HasStrictReserved;
                     } else if (!(parser.flags & Flags.AllowBinding)) {
                         tolerant(parser, context, Errors.NotBindable);
+                    } else if (parser.flags & (Flags.HasYield | Flags.HasAwait)) {
+                        tolerant(parser, context, parser.flags & Flags.HasYield ? Errors.YieldInParameter : Errors.AwaitInParameter);
                     }
-                    if (parser.flags & Flags.HasYield) tolerant(parser, context, Errors.YieldInParameter);
-                    if (parser.flags & Flags.HasAwait) tolerant(parser, context, Errors.AwaitInParameter);
-                    parser.flags &= ~(Flags.HasAwait | Flags.HasYield);
-                    if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList;
-                    parser.flags &= ~Flags.AllowBinding;
+                    
+                    parser.flags &= ~(Flags.AllowBinding | Flags.HasAwait | Flags.HasYield);
+
                     const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
                     return params;
                 }
@@ -1340,63 +1321,52 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
 
 function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Property {
     const pos = getLocation(parser);
+    const flags = parser.flags;
     let value;
-    let state = ObjectState.None;
-    const isEscaped = !!(parser.flags & Flags.EscapedKeyword);
-    if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
-
+    let state = consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Method : ObjectState.Method;
     let t = parser.token;
-
-    if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
 
     let key = parsePropertyName(parser, context);
 
-    if (!(parser.token & Token.IsEndMarker)) {
-
-        if (!(state & ObjectState.Generator) && t & Token.IsAsync && !(parser.flags & Flags.NewLine)) {
-            t = parser.token;
-            if (isEscaped) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
-            state |= ObjectState.Async;
-            if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
+    if (!(parser.token & Token.IsShorthandProperty)) {
+        if (flags & Flags.EscapedKeyword) {
+            tolerant(parser, context, Errors.InvalidEscapedReservedWord);
+        } else if (!(state & ObjectState.Generator) && t & Token.IsAsync && !(parser.flags & Flags.NewLine)) {
+            state |= consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Async: ObjectState.Async;
             key = parsePropertyName(parser, context);
-        } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
-            if (isEscaped) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
-            if (state & ObjectState.Generator) {
-                tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
-            }
-            state |= t === Token.GetKeyword ? ObjectState.Getter : ObjectState.Setter;
+        } else if (t === Token.GetKeyword) {
+            state = state & ~ObjectState.Method | ObjectState.Getter;
             key = parsePropertyName(parser, context);
+        } else if (t === Token.SetKeyword) {
+            state = state & ~ObjectState.Method | ObjectState.Setter;
+            key = parsePropertyName(parser, context);
+        }
+        if (state & (ObjectState.Getter | ObjectState.Setter)) {
+            if (state & ObjectState.Generator) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
         }
     }
-    // method
-    if (parser.token === Token.LeftParen) {
-        if (!(state & (ObjectState.Getter | ObjectState.Setter))) {
-            state |= ObjectState.Method;
-            parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-        }
-        value = parseMethodDeclaration(parser, context | Context.Method, state);
-    } else {
 
-        if (state & (ObjectState.Generator | ObjectState.Async)) {
-            tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
-        }
+    if (parser.token === Token.LeftParen) {
+        value = parseMethodDeclaration(parser, context, state);
+    } else {
+        state &= ~ObjectState.Method;
 
         if (parser.token === Token.Colon) {
-
-            if (!(state & ObjectState.Computed) && parser.tokenValue === '__proto__') {
-                // Annex B defines an tolerate error for duplicate PropertyName of `__proto__`,
-                // in object initializers, but this does not apply to Object Assignment
-                // patterns, so we need to validate this *after* done parsing
-                // the object expression
-                parser.flags |= parser.flags & Flags.HasProtoField ? Flags.HasDuplicateProto : Flags.HasProtoField;
+         
+            if ((state & (ObjectState.Async | ObjectState.Generator))) {
+                tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+            } else if (t !== Token.LeftBracket && parser.tokenValue === '__proto__') {
+                if (parser.flags & Flags.HasProtoField) recordExpressionError(parser, Errors.DuplicateProto);
+                else parser.flags |= Flags.HasProtoField;
             }
+
             expect(parser, context, Token.Colon);
 
             if (parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
             value = restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression);
         } else {
 
-            if (state & ObjectState.Async || !isValidIdentifier(context, t)) {
+            if ((state & (ObjectState.Generator | ObjectState.Async)) || !isValidIdentifier(context, t)) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(t));
             } else if (context & (Context.Strict | Context.Yield) && t & Token.IsYield) {
                 setPendingError(parser);
@@ -1406,22 +1376,12 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             state |= ObjectState.Shorthand;
 
             if (consume(parser, context, Token.Assign)) {
-                if (context & (Context.Strict | Context.Yield) && parser.token & Token.IsYield) {
+                if (context & (Context.Strict | Context.Yield | Context.Async) && parser.token & (Token.IsYield | Token.IsAwait)) {
                     setPendingError(parser);
-                    parser.flags |= Flags.HasYield;
-                } else if (context & (Context.Strict | Context.Async) && parser.token & Token.IsAwait) {
-                    setPendingError(parser);
-                    parser.flags |= Flags.HasAwait;
+                    parser.flags |= parser.token & Token.IsYield ? Flags.HasYield : Flags.HasAwait;
                 }
-
-                value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
-                parser.pendingExpressionError = {
-                    error: Errors.InvalidLHSInAssignment,
-                    line: parser.startLine,
-                    column: parser.startColumn,
-                    index: parser.startIndex,
-                };
-
+                value = parseAssignmentPattern(parser, context, key, pos);
+                recordExpressionError(parser, Errors.InvalidLHSInAssignment);
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) tolerant(parser, context, Errors.UnexpectedReserved);
@@ -1438,7 +1398,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
         key,
         value,
         kind: !(state & ObjectState.Getter | state & ObjectState.Setter) ? 'init' : (state & ObjectState.Setter) ? 'set' : 'get',
-        computed: !!(state & ObjectState.Computed),
+        computed: t === Token.LeftBracket,
         method: !!(state & ObjectState.Method),
         shorthand: !!(state & ObjectState.Shorthand),
     });
@@ -1457,7 +1417,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
     const pos = getLocation(parser);
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
-    const { params, body } = swapContext(parser, context, isGenerator | isAsync, parseFormalListAndBody, state);
+    const { params, body } = swapContext(parser, context | Context.Method, isGenerator | isAsync, parseFormalListAndBody, state);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1819,7 +1779,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
 
     let value;
 
-    if (!(parser.token & Token.IsEndMarker)) {
+    if (!(parser.token & Token.IsShorthandProperty)) {
 
         if (token === Token.StaticKeyword) {
             token = parser.token;
@@ -1867,7 +1827,7 @@ export function parseClassElement(parser: Parser, context: Context, state: Objec
         if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
             context |= Context.AllowSuperProperty;
         }
-        value = parseMethodDeclaration(parser, context | Context.Method, state);
+        value = parseMethodDeclaration(parser, context, state);
     } else {
         // Class fields - Stage 3 proposal
         if (context & Context.OptionsNext) return parseFieldDefinition(parser, context, key, state, pos);
@@ -1964,7 +1924,7 @@ function parsePrivateFields(parser: Parser, context: Context, pos: Location): ES
 }
 
 function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Location): ESTree.MethodDefinition {
-    const value = parseMethodDeclaration(parser, context | Context.Strict | Context.Method, ObjectState.None);
+    const value = parseMethodDeclaration(parser, context | Context.Strict, ObjectState.None);
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     return parseMethodDefinition(parser, context, key, value, ObjectState.Method, pos);
 }
