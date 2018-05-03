@@ -163,7 +163,6 @@ describe('Destructuring - Assignment', () => {
             'let {a, ...[b]} = {/*...*/}; // invalid;',
             'let {a, ...{}} = {/*...*/}; // invalid;',
             'let {a, ...{b}} = {/*...*/}; // invalid;',
-
         ];
 
         for (const arg of invalidSyntax) {

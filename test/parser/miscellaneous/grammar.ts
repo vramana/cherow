@@ -245,12 +245,6 @@ describe('Miscellaneous - Cover grammar', () => {
             '{ ...method() {} }',
             '{ ...function() {} }',
             '{ ...*method() {} }',
-            //"{...{x} }",
-            //"{...[x] }",
-            //"{...{ x = 5 } }",
-            //"{...[ x = 5 ] }",
-            '{...x.f }',
-            '{...x[0] }',
         ];
 
         for (const arg of programs) {
