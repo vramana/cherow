@@ -34,6 +34,12 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
+## Experimental features
+
+Cherow supports the same `experimental` option as in `NodeJS`, and let you enable experimental features.
+
+* [Decorators](https://github.com/tc39/proposal-decorators)
+
 ## API
 
 Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
