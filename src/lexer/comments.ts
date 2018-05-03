@@ -44,7 +44,7 @@ export function skipSingleLineComment(
     type: CommentType,
 ): ScannerState {
     const start = parser.index;
-    const collectable = !!(context & (Context.OptionsComments | context & Context.OptionsDelegate));
+    const collectable = !!(context & Context.OptionsComments);
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
             case Chars.CarriageReturn:
@@ -83,7 +83,7 @@ export function skipMultiLineComment(
     state: ScannerState): any {
 
     const start = parser.index;
-    const collectable = !!(context & (Context.OptionsComments | context & Context.OptionsDelegate));
+    const collectable = !!(context & Context.OptionsComments);
 
     while (hasNext(parser)) {
         switch (nextChar(parser)) {
@@ -146,10 +146,6 @@ export function addComment(parser: Parser, context: Context, type: ESTree.Commen
                 column,
             },
         };
-    }
-
-    if (context & Context.OptionsDelegate) {
-        (parser.delegate as any)(comment, startIndex, index);
     }
 
     parser.comments.push(comment);

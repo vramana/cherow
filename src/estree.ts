@@ -27,6 +27,7 @@ export interface T_Node extends T_Statement, T_Expression, T_Pattern,
     'ClassBody': ClassBody;
     'FieldDefinition ': FieldDefinition;
     'PrivateName': PrivateName;
+    'Decorator': Decorator;
     'MethodDefinition': MethodDefinition;
     'VariableDeclarator': VariableDeclarator;
     'JSXIdentifier': JSXIdentifier;
@@ -58,6 +59,7 @@ export type Node =
     | ClassBody
     | FieldDefinition
     | PrivateName
+    | Decorator
     | MethodDefinition
     | ModuleDeclaration
     | ModuleSpecifier
@@ -519,6 +521,10 @@ export interface MetaProperty extends _Expression<'MetaProperty'> {
 
 export interface PrivateName extends _Node<'PrivateName'> {
     name: string;
+}
+
+export interface Decorator extends _Node<'Decorator'> {
+    expression: Expression;
 }
 
 export interface MethodDefinition extends _Node<'MethodDefinition'> {

@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import {  Options, Delegate, Location, Parser } from '../types';
+import {  Options, Location, Parser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
 import { Context, Flags, nextToken } from '../utilities';
@@ -10,12 +10,11 @@ import { Context, Flags, nextToken } from '../utilities';
  *
  * @param source The source coode to parser
  * @param sourceFile Optional source file info to be attached in every node
- * @param delegate  Optional callback function to be invoked for each syntax node (as the node is constructed)
- */
+  */
+ 
 export function createParser(
     source: string,
     sourceFile: string | void,
-    delegate: Delegate | void,
 ): Parser {
     return {
         // The source code to parse
@@ -53,7 +52,6 @@ export function createParser(
         tokenValue: undefined,
         labelSet: undefined,
         errorLocation: undefined,
-        delegate,
         errors: [],
     };
 }
@@ -69,7 +67,6 @@ export function createParser(
 export function parse(source: string, options: Options | void, context: Context): ESTree.Program {
 
     let sourceFile: string = '';
-    let delegate;
 
     if (!!options) {
         // The flag to enable stage 3 support (ESNext)
@@ -96,16 +93,14 @@ export function parse(source: string, options: Options | void, context: Context)
         if (!!options.comments) context |= Context.OptionsComments;
         // The flag to enable implied strict mode
         if (options.impliedStrict) context |= Context.Strict;
+        // The flag to enable experimental features
+        if (options.experimental) context |= Context.OptionsExperimental;
         // The flag to set to bypass methods in Node
         if (options.node) context |= Context.OptionsNode;
         // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
-        if (typeof options.delegate === 'function') {
-            context |= Context.OptionsDelegate;
-            delegate = options.delegate;
-        }
     }
 
-    const parser = createParser(source, sourceFile, delegate);
+    const parser = createParser(source, sourceFile);
 
     const body = context & Context.Module
           ? parseModuleItemList(parser, context)

@@ -133,6 +133,8 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
             }
 
             // export ClassDeclaration
+            // export @decl ClassDeclaration
+        case Token.At:
         case Token.ClassKeyword:
             declaration = (parseClassDeclaration(parser, context));
             break;
@@ -235,6 +237,8 @@ function parseExportDefault(parser: Parser, context: Context, pos: Location): ES
             break;
 
             // export default ClassDeclaration[Default]
+            // export default  @decl ClassDeclaration[Default]
+        case Token.At:
         case Token.ClassKeyword:
             declaration = parseClassDeclaration(parser, context & ~Context.AllowIn | Context.RequireIdentifier);
             break;

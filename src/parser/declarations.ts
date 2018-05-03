@@ -4,7 +4,7 @@ import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
 import { Parser, Location } from '../types';
-import { parseClassBodyAndElementList,  parseLeftHandSideExpression } from './expressions';
+import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecoratorList } from './expressions';
 import {
     expect,
     Context,
@@ -14,7 +14,7 @@ import {
     ModifierState,
     swapContext,
     ObjectState,
-    parseExpressionCoverGrammar,
+    parseExpressionCoverGrammar
 } from '../utilities';
 
 // Declarations
@@ -29,6 +29,10 @@ import {
  */
 export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
     const pos = getLocation(parser);
+    let decorators: ESTree.Decorator[] = [];
+    if (context & Context.OptionsExperimental) {
+        decorators = parseDecoratorList(parser, context)
+    }
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))
         ? null :
@@ -39,12 +43,20 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
         state |= ObjectState.Heritage;
     }
+    
+    const body = parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state);
 
-    return finishNode(context, parser, pos, {
+    return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state),
+        body,
+        decorators 
+    } : {
+        type: 'ClassDeclaration',
+        id,
+        superClass,
+        body
     });
 }
 

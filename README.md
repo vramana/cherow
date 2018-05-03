@@ -91,7 +91,6 @@ There is a second argument to both methods that allows you to specify various op
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
-| `delegate`        | Accepts a callback function to be invoked for each syntax node (as the node is constructed) |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
@@ -101,6 +100,7 @@ There is a second argument to both methods that allows you to specify various op
 | `jsx`             | Enable React JSX parsing  |
 | `tolerant`        | Create a top-level error array containing all "skipped" errors |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
+| `experimental`    | Enable experimental features such as decorators
 | `raw`             | Attach raw property to each literal node    |
 | `rawIdentifier`   | Attach raw property to each identifier node    |
 | `node`            | Allow to bypass scoping when run in a NodejS environment |
@@ -114,27 +114,6 @@ Cherow contains 3 different builds:
 | `Stable`    | Stable release |
 | `Next`      | Has the `next` option enabled by default, and support all latest ECMAScript proposals. |
 | `Bleeding`  | The active development branch. You can and will expect bugs with this branch because it's not stable |
-
-
-## Syntax Delegate
-
-The `delegate` option accepts a callback function to be invoked for each syntax node (as the node is constructed). 
-
-Both ESTree AST nodes and comments can be delegated.
-
-Here is how you do it:
-
-```js
-    cherow.parseScript('foo // comment', { delegate: function(node, start, end) { } } )
-```
-
-This will output:
-
-```js
-    { type: 'SingleLine', value: ' comment', start: 4, end: 14 }
-    { type: 'Identifier', name: 'foo' }
-    { type: 'ExpressionStatement', expression: { type: 'Identifier', name: 'foo' } }
-``` 
 
 ## Contributing
 

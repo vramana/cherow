@@ -153,7 +153,7 @@ describe('Destructuring - Miscellaneous', () => {
             '[...rest]',
             '[a,b,...rest]',
             '[a,,...rest]',
-            "{ __proto__: x, __proto__: y}",
+            '{ __proto__: x, __proto__: y}',
             '{arguments: x}',
             '{eval: x}',
             '{ x : y, ...z }',
@@ -173,7 +173,7 @@ describe('Destructuring - Miscellaneous', () => {
             '{[x] : z, ...y}',
             '{[1+1] : z, ...x}',
             '{arguments: x, ...z}',
-            "{ __proto__: x, __proto__: y, ...z}",
+            '{ __proto__: x, __proto__: y, ...z}',
         ];
 
       for (const arg of validSyntax) {

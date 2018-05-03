@@ -98,7 +98,9 @@ export const enum Errors {
     RestWithComma,
     UndefinedUnicodeCodePoint,
     HtmlCommentInModule,
-    InvalidCoverInitializedName
+    InvalidCoverInitializedName,
+    TrailingDecorators,
+    GeneratorConstructor
 }
 
 export const ErrorMessages: {
@@ -202,6 +204,9 @@ export const ErrorMessages: {
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
     [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
+    [Errors.TrailingDecorators]: 'Trailing decorator may be followed by method',
+    [Errors.GeneratorConstructor]: 'Decorators can\'t be used with a constructor',
+    
 };
 
 /**

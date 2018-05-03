@@ -1,7 +1,7 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
 import { Errors, report, tolerant, ErrorMessages } from './errors';
-import { Parser, Delegate, Location } from './types';
+import { Parser, Location } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './lexer/scan';
 import { constructError } from './errors';
@@ -16,32 +16,32 @@ export const enum Context {
     OptionsJSX              = 1 << 2,
     OptionsRaw              = 1 << 3,
     OptionsLoc              = 1 << 4,
-    OptionsDelegate         = 1 << 5,
-    OptionsGlobalReturn     = 1 << 6,
-    OptionsComments         = 1 << 7,
-    OptionsShebang          = 1 << 8,
-    OptionsRawidentifiers   = 1 << 9,
-    OptionsTolerant         = 1 << 10,
-    OptionsNode             = 1 << 11,
-    OptionsExperimental     = 1 << 12,
-    Strict                  = 1 << 13,
-    Module                  = 1 << 14,
-    TaggedTemplate          = 1 << 15,
-    InClass                 = 1 << 16,
-    AllowIn                 = 1 << 17,
-    Async                   = 1 << 18,
-    Yield                   = 1 << 19,
-    InParameter             = 1 << 20,
-    InFunctionBody          = 1 << 21,
-    AllowSingleStatement    = 1 << 22,
-    BlockScope              = 1 << 23,
-    ForStatement            = 1 << 24,
-    RequireIdentifier       = 1 << 25,
-    Method                  = 1 << 26,
-    AllowSuperProperty      = 1 << 27,
-    InParen                 = 1 << 28,
-    InJSXChild              = 1 << 29,
-    DisallowEscapedKeyword  = 1 << 30,
+    OptionsGlobalReturn     = 1 << 5,
+    OptionsComments         = 1 << 6,
+    OptionsShebang          = 1 << 7,
+    OptionsRawidentifiers   = 1 << 8,
+    OptionsTolerant         = 1 << 9,
+    OptionsNode             = 1 << 10,
+    OptionsExperimental     = 1 << 11,
+    Strict                  = 1 << 12,
+    Module                  = 1 << 13,
+    TaggedTemplate          = 1 << 14,
+    InClass                 = 1 << 15,
+    AllowIn                 = 1 << 16,
+    Async                   = 1 << 17,
+    Yield                   = 1 << 18,
+    InParameter             = 1 << 19,
+    InFunctionBody          = 1 << 20,
+    AllowSingleStatement    = 1 << 21,
+    BlockScope              = 1 << 22,
+    ForStatement            = 1 << 23,
+    RequireIdentifier       = 1 << 24,
+    Method                  = 1 << 25,
+    AllowSuperProperty      = 1 << 26,
+    InParen                 = 1 << 27,
+    InJSXChild              = 1 << 28,
+    DisallowEscapedKeyword  = 1 << 29,
+    InsideDecorator         = 1 << 30,
 }
 
 // Mutual parser flags
@@ -211,7 +211,7 @@ export function finishNode < T extends ESTree.Node >(
     node: any,
 ): T {
 
-    const { lastIndex, lastLine, lastColumn, sourceFile, index, delegate } = parser;
+    const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
 
     if (context & Context.OptionsRanges) {
         node.start = meta.index;
@@ -233,8 +233,6 @@ export function finishNode < T extends ESTree.Node >(
 
         if (sourceFile) node.loc.source = sourceFile;
     }
-
-    if (context & Context.OptionsDelegate) (delegate as Delegate)(node, meta.index, index);
 
     return node;
 }

@@ -15,15 +15,6 @@ export type ForStatementType = 'ForStatement' | 'ForOfStatement' | 'ForInStateme
 export type CommentType = 'MultiLine' | 'SingleLine' | 'SheBang' | 'HTMLOpen' | 'HTMLClose';
 
 /**
- * A callback function to be invoked for each syntax node (as the node is constructed)
- *
- * @param ast The AST node created
- * @param start The 0-based start index of the current node.
- * @param end The 0-based end index of the current node.
- */
-export type Delegate = (ast: Node, start: number, end: number) => void;
-
-/**
  * The parser options.
  */
 
@@ -50,10 +41,7 @@ export interface Options {
     // Attach raw property to each identifier node
     rawIdentifier?: boolean;
 
-    // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
-    delegate?: Delegate;
-
-    // Set to true to record the source file in every node's loc object when the loc option is set.
+        // Set to true to record the source file in every node's loc object when the loc option is set.
     source?: string;
 
     // The flag to enable implied strict mode
@@ -126,7 +114,6 @@ export interface Parser {
     lastValue: number;
     tokenRegExp: any;
     token: Token;
-    delegate: Delegate | void;
     errors: any[];
 }
 
