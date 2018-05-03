@@ -4,7 +4,7 @@ import { Errors, report, tolerant } from '../errors';
 import { Location, Parser } from '../types';
 import { parseBindingIdentifier } from './pattern';
 import { parseStatementListItem, parseVariableStatement, parseDirective } from './statements';
-import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression } from './expressions';
+import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression, parseDecorators } from './expressions';
 import { parseClassDeclaration, parseFunctionDeclaration,  parseAsyncFunctionOrAsyncGeneratorDeclaration } from './declarations';
 import {
     expect,
@@ -57,6 +57,9 @@ export function parseModuleItemList(parser: Parser, context: Context): ESTree.St
  */
 export function parseModuleItem(parser: Parser, context: Context) {
     switch (parser.token) {
+
+        case Token.At:
+            return parseDecorators(parser, context);
 
         // ExportDeclaration
         case Token.ExportKeyword:
@@ -133,8 +136,6 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
             }
 
             // export ClassDeclaration
-            // export @decl ClassDeclaration
-        case Token.At:
         case Token.ClassKeyword:
             declaration = (parseClassDeclaration(parser, context));
             break;

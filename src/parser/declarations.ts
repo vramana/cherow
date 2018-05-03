@@ -4,7 +4,7 @@ import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
 import { Parser, Location } from '../types';
-import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecoratorList } from './expressions';
+import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecorators } from './expressions';
 import {
     expect,
     Context,
@@ -31,7 +31,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     const pos = getLocation(parser);
     let decorators: ESTree.Decorator[] = [];
     if (context & Context.OptionsExperimental) {
-        decorators = parseDecoratorList(parser, context)
+        decorators = parseDecorators(parser, context)
     }
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))

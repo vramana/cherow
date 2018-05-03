@@ -239,7 +239,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 function parseConditionalExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
     const test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, Token.QuestionMark)) return test;
-    const consequent = parseExpressionCoverGrammar(parser, context & ~Context.InsideDecorator | Context.AllowIn, parseAssignmentExpression);
+    const consequent = parseExpressionCoverGrammar(parser, context & ~Context.AllowDecorator | Context.AllowIn, parseAssignmentExpression);
     expect(parser, context, Token.Colon);
     return finishNode(context, parser, pos, {
         type: 'ConditionalExpression',
@@ -278,7 +278,6 @@ function parseBinaryExpression(
     // Shift-reduce parser for the binary operator part of the JS expression
     // syntax.
     const bit = context & Context.AllowIn ^ Context.AllowIn;
-    if (!hasBit(parser.token, Token.IsBinaryOp)) return left;
     while (hasBit(parser.token, Token.IsBinaryOp)) {
         const t = parser.token;
         if (bit && t === Token.InKeyword) break;
@@ -537,7 +536,7 @@ function parseCallExpression(parser: Parser, context: Context, pos: Location, ex
     while (true) {
         expr = parseMemberExpression(parser, context, pos, expr);
         if (parser.token !== Token.LeftParen) return expr;
-        const args = parseArgumentList(parser, context & ~Context.InsideDecorator);
+        const args = parseArgumentList(parser, context & ~Context.AllowDecorator);
         expr = finishNode(context, parser, pos, {
             type: 'CallExpression',
             callee: expr,
@@ -1470,7 +1469,7 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
     const body = expression ? parseExpressionCoverGrammar(parser, context & ~(Context.Yield | Context.InParameter), parseAssignmentExpression) :
-        swapContext(parser, context & ~(Context.Yield | Context.InsideDecorator) | Context.InFunctionBody, state, parseFunctionBody);
+        swapContext(parser, context & ~(Context.Yield | Context.AllowDecorator) | Context.InFunctionBody, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
         body,
@@ -1496,7 +1495,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
-    const body = parseFunctionBody(parser, context & ~Context.InsideDecorator | Context.InFunctionBody, args);
+    const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
     return { params, body };
 }
 
@@ -1719,11 +1718,11 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
-    let decorators: ESTree.Decorator[] | null = [];
+    let decorators: ESTree.Decorator[] = [];
     while (parser.token !== Token.RightBrace) {
         if (!consume(parser, context, Token.Semicolon)) {
             if (context & Context.OptionsExperimental) {
-                decorators = parseDecoratorList(parser, context)
+                decorators = parseDecorators(parser, context)
                 if (parser.token === Token.RightBrace) report(parser, Errors.TrailingDecorators)
                 if (decorators.length !== 0 && parser.tokenValue === 'constructor') {
                     report(parser, Errors.GeneratorConstructor)
@@ -2209,7 +2208,7 @@ function parseTemplateSpans(parser: Parser, context: Context, pos: Location = ge
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseDecorator(parser: Parser, context: Context): ESTree.Decorator {
+function parseDecoratorList(parser: Parser, context: Context): ESTree.Decorator {
     const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
             type: 'Decorator',
@@ -2223,11 +2222,11 @@ export function parseDecorator(parser: Parser, context: Context): ESTree.Decorat
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseDecoratorList(parser: Parser, context: Context): ESTree.Decorator[] {
-    const pos = getLocation(parser);
+export function parseDecorators(parser: Parser, context: Context): ESTree.Decorator[] {
     let decoratorList: ESTree.Decorator[] = [];
+    if (!(context & Context.OptionsExperimental)) decoratorList;
     while (consume(parser, context, Token.At)) {
-       decoratorList.push(parseDecorator(parser, context | Context.InsideDecorator));
+       decoratorList.push(parseDecoratorList(parser, context | Context.AllowDecorator));
     }
     return decoratorList
 }

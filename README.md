@@ -36,7 +36,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 ## Experimental features
 
-Cherow supports the same `experimental` option as in `NodeJS`, and let you enable experimental features.
+Experimental features support as in `NodeJS`. These need to be enabled with the `experimental` option. 
 
 * [Decorators](https://github.com/tc39/proposal-decorators)
 

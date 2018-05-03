@@ -220,7 +220,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
     const pos = getLocation(parser);
     expect(parser, context, Token.IfKeyword);
     expect(parser, context, Token.LeftParen);
-    const test = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const test = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     const consequent = parseConsequentOrAlternate(parser, context | Context.DisallowEscapedKeyword);
     const alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
@@ -326,7 +326,7 @@ export function parseThrowStatement(parser: Parser, context: Context) {
     const pos = getLocation(parser);
     expect(parser, context, Token.ThrowKeyword);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.NewlineAfterThrow);
-    const argument: ESTree.Expression = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const argument: ESTree.Expression = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ThrowStatement',
@@ -344,7 +344,7 @@ export function parseThrowStatement(parser: Parser, context: Context) {
  */
 export function parseExpressionStatement(parser: Parser, context: Context): ESTree.ExpressionStatement {
     const pos = getLocation(parser);
-    const expr: ESTree.Expression = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const expr: ESTree.Expression = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -363,7 +363,7 @@ export function parseExpressionStatement(parser: Parser, context: Context): ESTr
 export function parseDirective(parser: Parser, context: Context): ESTree.ExpressionStatement {
     const pos = getLocation(parser);
     const directive = parser.tokenRaw.slice(1, -1);
-    const expr = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const expr = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -385,7 +385,7 @@ export function parseDirective(parser: Parser, context: Context): ESTree.Express
 export function parseExpressionOrLabelledStatement(parser: Parser, context: Context): ESTree.ExpressionStatement | ESTree.LabeledStatement {
     const pos = getLocation(parser);
     const { tokenValue, token } = parser;
-    const expr: ESTree.Expression = parseExpression(parser, context & ~(Context.AllowSingleStatement | Context.InsideDecorator) | Context.AllowIn);
+    const expr: ESTree.Expression = parseExpression(parser, context & ~(Context.AllowSingleStatement | Context.AllowDecorator) | Context.AllowIn);
     if (token & (Token.IsIdentifier | Token.Keyword) && parser.token === Token.Colon) {
         // If within generator function bodies, we do it like this so we can throw an nice error message
         if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldReservedKeyword);
@@ -431,7 +431,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
     const body = parseIterationStatement(parser, context);
     expect(parser, context, Token.WhileKeyword);
     expect(parser, context, Token.LeftParen);
-    const test = parseExpression(parser, context & ~Context.InsideDecorator| Context.AllowIn);
+    const test = parseExpression(parser, context & ~Context.AllowDecorator| Context.AllowIn);
     expect(parser, context, Token.RightParen);
     consume(parser, context, Token.Semicolon);
     return finishNode(context, parser, pos, {
@@ -454,7 +454,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
     const pos = getLocation(parser);
     expect(parser, context, Token.WhileKeyword);
     expect(parser, context, Token.LeftParen);
-    const test = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const test = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     const body = parseIterationStatement(parser, context);
     return finishNode(context, parser, pos, {
@@ -506,7 +506,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
     expect(parser, context, Token.ReturnKeyword);
     const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine) ?
-        parseExpression(parser, context & ~(Context.InFunctionBody | Context.InsideDecorator) | Context.AllowIn) :
+        parseExpression(parser, context & ~(Context.InFunctionBody | Context.AllowDecorator) | Context.AllowIn) :
         null;
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -550,7 +550,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
     const pos = getLocation(parser);
     expect(parser, context, Token.WithKeyword);
     expect(parser, context, Token.LeftParen);
-    const object = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const object = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     const body = parseStatement(parser, context & ~Context.AllowSingleStatement);
     return finishNode(context, parser, pos, {
@@ -573,7 +573,7 @@ export function parseSwitchStatement(parser: Parser, context: Context): ESTree.S
     const pos = getLocation(parser);
     expect(parser, context, Token.SwitchKeyword);
     expect(parser, context, Token.LeftParen);
-    const discriminant = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+    const discriminant = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     expect(parser, context | Context.DisallowEscapedKeyword, Token.LeftBrace);
     const cases: ESTree.SwitchCase[] = [];
@@ -612,7 +612,7 @@ export function parseCaseOrDefaultClauses(parser: Parser, context: Context): EST
     const pos = getLocation(parser);
     let test: ESTree.Expression | null = null;
     if (consume(parser, context, Token.CaseKeyword)) {
-        test = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+        test = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     } else {
         expect(parser, context, Token.DefaultKeyword);
     }
@@ -742,7 +742,7 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         } else init = variableStatement;
 
         type = 'ForInStatement';
-        right = parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn);
+        right = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
 
     } else {
 
@@ -750,11 +750,11 @@ function parseForStatement(parser: Parser, context: Context): ESTree.ForStatemen
         if (variableStatement) init = variableStatement;
         expect(parser, context, Token.Semicolon);
 
-        test = parser.token !== Token.Semicolon ? parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn) : null;
+        test = parser.token !== Token.Semicolon ? parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn) : null;
 
         expect(parser, context, Token.Semicolon);
 
-        update = parser.token !== Token.RightParen ? parseExpression(parser, context & ~Context.InsideDecorator | Context.AllowIn) : null;
+        update = parser.token !== Token.RightParen ? parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn) : null;
     }
 
     expect(parser, context, Token.RightParen);

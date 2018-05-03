@@ -40,6 +40,11 @@ describe('Experimental - Decorators', () => {
                 });
             });
         }
+
+        fail('export @bar class Foo { }', Context.Strict | Context.Module, {
+            source: 'export @bar class Foo { }',
+        });
+
     });
 
     describe('Pass', () => {
@@ -770,6 +775,42 @@ describe('Experimental - Decorators', () => {
             }
         });
 
+        pass(`@bar export default
+       class Foo { }
+        }`, Context.OptionsExperimental | Context.Module, {
+            source: `@bar export default
+          class Foo { }`,
+            expected: {
+                body: [
+                    [{
+                        expression: {
+                            name: 'bar',
+                            type: 'Identifier',
+                        },
+                        type: 'Decorator'
+                    }],
+                    {
+                        declaration: {
+                            body: {
+                                body: [],
+                                type: 'ClassBody'
+                            },
+                            decorators: [],
+                            id: {
+                                name: 'Foo',
+                                type: 'Identifier',
+                            },
+                            superClass: null,
+                            type: 'ClassDeclaration',
+                        },
+                        type: 'ExportDefaultDeclaration',
+                    }
+                ],
+                sourceType: 'module',
+                type: 'Program'
+            }
+        });
+
         pass(`export default
       @bar class Foo { }
         }`, Context.OptionsExperimental | Context.Module, {
@@ -1343,38 +1384,6 @@ describe('Experimental - Decorators', () => {
         }
     });
 
-    pass(`export @bar class Foo { }`, Context.OptionsExperimental | Context.Module, {
-        source: `export @bar class Foo { }`,
-        expected: {
-            body: [{
-                declaration: {
-                    body: {
-                        body: [],
-                        type: 'ClassBody'
-                    },
-                    decorators: [{
-                        expression: {
-                            name: 'bar',
-                            type: 'Identifier',
-                        },
-                        type: 'Decorator',
-                    }, ],
-                    id: {
-                        name: 'Foo',
-                        type: 'Identifier',
-                    },
-                    superClass: null,
-                    type: 'ClassDeclaration'
-                },
-                source: null,
-                specifiers: [],
-                type: 'ExportNamedDeclaration'
-            }],
-            sourceType: 'module',
-            type: 'Program'
-        }
-    });
-
     pass(`class Counter extends HTMLElement {
     @observed #x = 0;
 
@@ -1696,6 +1705,225 @@ describe('Experimental - Decorators', () => {
             type: 'Program'
         }
     });
+
+    pass(`class A {
+        @(() => _ => dec1 = _)
+        @(() => _ => dec2 = _)
+        fn() {}
+      }`, Context.OptionsExperimental | Context.OptionsNext, {
+          source: `class A {
+              @(() => _ => dec1 = _)
+              @(() => _ => dec2 = _)
+              fn() {}
+            }`,
+          expected: {
+             body: [
+               {
+                  body: {
+                    body: [
+                      {
+                        computed: false,
+                        decorators: [
+                          {
+                            expression: {
+                              async: false,
+                              body: {
+                                async: false,
+                                body: {
+                                  left: {
+                                    name: 'dec1',
+                                    type: 'Identifier'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    name: '_',
+                                    type: 'Identifier',
+                                  },
+                                  type: 'AssignmentExpression'
+                                },
+                                expression: true,
+                                generator: false,
+                                id: null,
+                                params: [
+                                  {
+                                   name: '_',
+                                    type: 'Identifier'
+                                  }
+                               ],
+                                type: 'ArrowFunctionExpression',
+                              },
+                              expression: true,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'ArrowFunctionExpression'
+                            },
+                            type: 'Decorator'
+                          },
+                          {
+                            expression: {
+                              async: false,
+                              body: {
+                                async: false,
+                                body: {
+                                  left: {
+                                    name: 'dec2',
+                                    type: 'Identifier',
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    name: '_',
+                                    type: 'Identifier',
+                                  },
+                                  type: 'AssignmentExpression'
+                                },
+                               expression: true,
+                                generator: false,
+                                id: null,
+                                params: [
+                                  {
+                                    name: '_',
+                                    type: 'Identifier'
+                                  }
+                                ],
+                               type: 'ArrowFunctionExpression'
+                              },
+                              expression: true,
+                              generator: false,
+                             id: null,
+                              params: [],
+                              type: 'ArrowFunctionExpression'
+                            },
+                            type: 'Decorator'
+                          }
+                        ],
+                        key: {
+                          name: 'fn',
+                          type: 'Identifier',
+                        },
+                        kind: 'method',
+                        static: false,
+                        type: 'MethodDefinition',
+                        value: {
+                          async: false,
+                          body: {
+                            body: [],
+                            type: 'BlockStatement'
+                          },
+                          expression: false,
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression',
+                        },
+                      },
+                    ],
+                    type: 'ClassBody'
+                  },
+                  decorators: [],
+                 id: {
+                    name: 'A',
+                    type: 'Identifier',
+                  },
+                  superClass: null,
+                  type: 'ClassDeclaration'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+        });
+
+    pass(`class A {
+        @(() => _ => el = _)
+        static foo() {}
+      }`, Context.OptionsExperimental | Context.OptionsNext, {
+          source: `class A {
+            @(() => _ => el = _)
+            static foo() {}
+          }`,
+          expected: {
+              body: [
+                {
+                  body: {
+                    body: [
+                      {
+                        computed: false,
+                        decorators: [
+                          {
+                            expression: {
+                              async: false,
+                              body: {
+                                async: false,
+                                body: {
+                                  left: {
+                                    name: 'el',
+                                    type: 'Identifier',
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    name: '_',
+                                    type: 'Identifier',
+                                  },
+                                  type: 'AssignmentExpression'
+                                },
+                                expression: true,
+                                generator: false,
+                                id: null,
+                                params: [
+                                  {
+                                    name: '_',
+                                    type: 'Identifier',
+                                  },
+                                ],
+                                type: 'ArrowFunctionExpression',
+                              },
+                              expression: true,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'ArrowFunctionExpression'
+                            },
+                            type: 'Decorator'
+                          }
+                        ],
+                        key: {
+                          name: 'foo',
+                          type: 'Identifier',
+                        },
+                        kind: 'method',
+                        static: true,
+                        type: 'MethodDefinition',
+                        value: {
+                          async: false,
+                          body: {
+                            body: [],
+                            type: 'BlockStatement',
+                          },
+                          expression: false,
+                          generator: false,
+                          id: null,
+                          params: [],
+                          type: 'FunctionExpression'
+                        }
+                      }
+                    ],
+                    type: 'ClassBody'
+                  },
+                  decorators: [],
+                  id: {
+                    name: 'A',
+                    type: 'Identifier',
+                  },
+                  superClass: null,
+                  type: 'ClassDeclaration'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+
+        });
 
     pass(`class Foo {
       @bar [bizz]

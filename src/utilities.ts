@@ -41,7 +41,7 @@ export const enum Context {
     InParen                 = 1 << 27,
     InJSXChild              = 1 << 28,
     DisallowEscapedKeyword  = 1 << 29,
-    InsideDecorator         = 1 << 30,
+    AllowDecorator         = 1 << 30,
 }
 
 // Mutual parser flags
