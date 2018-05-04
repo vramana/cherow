@@ -148,7 +148,7 @@ const ErrorMessages = {
     [62]: 'Legacy octal literals are not allowed in strict mode',
     [63]: 'Invalid or unexpected token',
     [64]: 'Invalid left-hand side in assignment',
-    [65]: 'Duplicate __proto__ fields are not allowed in object literals',
+    [65]: 'Property name __proto__ appears more than once in object literal',
     [66]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
     [67]: 'Classes may not have a static property named \'prototype\'',
     [68]: 'Unexpected token',
@@ -180,6 +180,9 @@ const ErrorMessages = {
     [93]: 'Rest element may not have a trailing comma',
     [94]: 'Undefined Unicode code-point',
     [95]: 'HTML comments are not allowed in modules',
+    [96]: 'Invalid shorthand property initializer',
+    [97]: 'Trailing decorator may be followed by method',
+    [98]: 'Decorators can\'t be used with a constructor',
 };
 function constructError(parser, context, index, line, column, description) {
     const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -187,7 +190,7 @@ function constructError(parser, context, index, line, column, description) {
     error.line = line;
     error.column = column;
     error.description = description;
-    if (context & 2048) {
+    if (context & 512) {
         parser.errors.push(error);
     }
     else
@@ -381,16 +384,6 @@ const convert = ((compressed, lookup) => {
     return result;
 })([-1, 2, 28, 2, 29, 2, 5, -1, 0, 77595648, 3, 41, 2, 3, 0, 14, 2, 52, 2, 53, 3, 0, 3, 0, 3168796671, 0, 4294956992, 2, 1, 2, 0, 2, 54, 3, 0, 4, 0, 4294966523, 3, 0, 4, 2, 55, 2, 56, 2, 4, 0, 4294836479, 0, 3221225471, 0, 4294901942, 2, 57, 0, 134152192, 3, 0, 2, 0, 4294951935, 3, 0, 2, 0, 2683305983, 0, 2684354047, 2, 17, 2, 0, 0, 4294961151, 3, 0, 2, 2, 20, 2, 0, 2, 59, 2, 0, 2, 125, 2, 6, 2, 19, -1, 2, 60, 2, 148, 2, 1, 3, 0, 3, 0, 4294901711, 2, 37, 0, 4089839103, 0, 2961209759, 0, 268697551, 0, 4294543342, 0, 3547201023, 0, 1577204103, 0, 4194240, 0, 4294688750, 2, 2, 0, 80831, 0, 4261478351, 0, 4294549486, 2, 2, 0, 2965387679, 0, 196559, 0, 3594373100, 0, 3288319768, 0, 8469959, 2, 167, 2, 3, 0, 3825204735, 0, 123747807, 0, 65487, 2, 3, 0, 4092591615, 0, 1080049119, 0, 458703, 2, 3, 2, 0, 0, 2163244511, 0, 4227923919, 0, 4236247020, 2, 64, 0, 4284449919, 0, 851904, 2, 4, 2, 16, 0, 67076095, -1, 2, 65, 0, 1006628014, 0, 4093591391, -1, 0, 50331649, 0, 3265266687, 2, 34, 0, 4294844415, 0, 4278190047, 2, 22, 2, 124, -1, 3, 0, 2, 2, 33, 2, 0, 2, 10, 2, 0, 2, 14, 2, 15, 3, 0, 10, 2, 66, 2, 0, 2, 67, 2, 68, 2, 69, 2, 0, 2, 70, 2, 0, 0, 3892314111, 0, 261632, 2, 27, 3, 0, 2, 2, 11, 2, 4, 3, 0, 18, 2, 71, 2, 5, 3, 0, 2, 2, 72, 0, 2088959, 2, 31, 2, 8, 0, 909311, 3, 0, 2, 0, 814743551, 2, 39, 0, 67057664, 3, 0, 2, 2, 9, 2, 0, 2, 32, 2, 0, 2, 18, 2, 7, 0, 268374015, 2, 30, 2, 46, 2, 0, 2, 73, 0, 134153215, -1, 2, 6, 2, 0, 2, 7, 0, 2684354559, 0, 67044351, 0, 1073676416, -2, 3, 0, 2, 2, 40, 0, 1046528, 3, 0, 3, 2, 8, 2, 0, 2, 9, 0, 4294960127, 2, 10, 2, 13, -1, 0, 4294377472, 2, 25, 3, 0, 7, 0, 4227858431, 3, 0, 8, 2, 11, 2, 0, 2, 75, 2, 10, 2, 0, 2, 76, 2, 77, 2, 78, -1, 2, 121, 0, 1048577, 2, 79, 2, 12, -1, 2, 12, 0, 131042, 2, 80, 2, 81, 2, 82, 2, 0, 2, 13, -83, 2, 0, 2, 49, 2, 7, 3, 0, 4, 0, 1046559, 2, 0, 2, 14, 2, 0, 0, 2147516671, 2, 23, 3, 83, 2, 2, 0, -16, 2, 84, 0, 524222462, 2, 4, 2, 0, 0, 4269801471, 2, 4, 2, 0, 2, 15, 2, 74, 2, 86, 3, 0, 2, 2, 43, 2, 16, -1, 2, 17, -16, 3, 0, 205, 2, 18, -2, 3, 0, 655, 2, 19, 3, 0, 36, 2, 47, -1, 2, 17, 2, 10, 3, 0, 8, 2, 87, 2, 117, 2, 0, 0, 3220242431, 3, 0, 3, 2, 20, 2, 21, 2, 88, 3, 0, 2, 2, 89, 2, 90, -1, 2, 21, 2, 0, 2, 26, 2, 0, 2, 8, 3, 0, 2, 0, 67043391, 0, 687865855, 2, 0, 2, 24, 2, 8, 2, 22, 3, 0, 2, 0, 67076097, 2, 7, 2, 0, 2, 23, 0, 67059711, 0, 4236247039, 3, 0, 2, 0, 939524103, 0, 8191999, 2, 94, 2, 95, 2, 15, 2, 92, 3, 0, 3, 0, 67057663, 3, 0, 349, 2, 96, 2, 97, 2, 6, -264, 3, 0, 11, 2, 24, 3, 0, 2, 2, 25, -1, 0, 3774349439, 2, 98, 2, 99, 3, 0, 2, 2, 20, 2, 100, 3, 0, 10, 2, 10, 2, 17, 2, 0, 2, 42, 2, 0, 2, 26, 2, 101, 2, 27, 0, 1638399, 2, 165, 2, 102, 3, 0, 3, 2, 22, 2, 28, 2, 29, 2, 5, 2, 30, 2, 0, 2, 7, 2, 103, -1, 2, 104, 2, 105, 2, 106, -1, 3, 0, 3, 2, 16, -2, 2, 0, 2, 31, -3, 2, 144, -4, 2, 22, 2, 0, 2, 107, 0, 1, 2, 0, 2, 58, 2, 32, 2, 16, 2, 10, 2, 0, 2, 108, -1, 3, 0, 4, 2, 10, 2, 33, 2, 109, 2, 6, 2, 0, 2, 110, 2, 0, 2, 44, -4, 3, 0, 9, 2, 23, 2, 18, 2, 26, -4, 2, 111, 2, 112, 2, 18, 2, 23, 2, 7, -2, 2, 113, 2, 18, 2, 25, -2, 2, 0, 2, 114, -2, 0, 4277137519, 0, 2265972735, -1, 3, 22, 2, -1, 2, 34, 2, 36, 2, 0, 3, 18, 2, 2, 35, 2, 20, -3, 3, 0, 2, 2, 13, -1, 2, 0, 2, 35, 2, 0, 2, 35, -24, 3, 0, 2, 2, 36, 0, 2147549120, 2, 0, 2, 16, 2, 17, 2, 128, 2, 0, 2, 48, 2, 17, 0, 5242879, 3, 0, 2, 0, 402594847, -1, 2, 116, 0, 1090519039, -2, 2, 118, 2, 119, 2, 0, 2, 38, 2, 37, 2, 2, 0, 3766565279, 0, 2039759, -4, 3, 0, 2, 2, 38, -1, 3, 0, 2, 0, 67043519, -5, 2, 0, 0, 4282384383, 0, 1056964609, -1, 3, 0, 2, 0, 67043345, -1, 2, 0, 2, 9, 2, 39, -1, 0, 3825205247, 2, 40, -11, 3, 0, 2, 0, 2147484671, -8, 2, 0, 2, 7, 0, 4294901888, 2, 0, 0, 67108815, -1, 2, 0, 2, 45, -8, 2, 50, 2, 41, 0, 67043329, 2, 122, 2, 42, 0, 8388351, -2, 2, 123, 0, 3028287487, 0, 67043583, -21, 3, 0, 28, 2, 25, -3, 3, 0, 3, 2, 43, 3, 0, 6, 2, 44, -85, 3, 0, 33, 2, 43, -126, 3, 0, 18, 2, 36, -269, 3, 0, 17, 2, 45, 2, 7, 2, 39, -2, 2, 17, 2, 46, 2, 0, 2, 23, 0, 67043343, 2, 126, 2, 27, -27, 3, 0, 2, 0, 4294901791, 2, 7, 2, 187, -2, 0, 3, 3, 0, 191, 2, 47, 3, 0, 23, 2, 35, -296, 3, 0, 8, 2, 7, -2, 2, 17, 3, 0, 11, 2, 6, -72, 3, 0, 3, 2, 127, 0, 1677656575, -166, 0, 4161266656, 0, 4071, 0, 15360, -4, 0, 28, -13, 3, 0, 2, 2, 48, 2, 0, 2, 129, 2, 130, 2, 51, 2, 0, 2, 131, 2, 132, 2, 133, 3, 0, 10, 2, 134, 2, 135, 2, 15, 3, 48, 2, 3, 49, 2, 3, 50, 2, 0, 4294954999, 2, 0, -16, 2, 0, 2, 85, 2, 0, 0, 2105343, 0, 4160749584, 2, 194, -42, 0, 4194303871, 0, 2011, -62, 3, 0, 6, 0, 8323103, -1, 3, 0, 2, 2, 38, -37, 2, 51, 2, 138, 2, 139, 2, 140, 2, 141, 2, 142, -138, 3, 0, 1334, 2, 23, -1, 3, 0, 129, 2, 31, 3, 0, 6, 2, 10, 3, 0, 180, 2, 143, 3, 0, 233, 0, 1, -96, 3, 0, 16, 2, 10, -22583, 3, 0, 7, 2, 27, -6130, 3, 5, 2, -1, 0, 69207040, 3, 41, 2, 3, 0, 14, 2, 52, 2, 53, -3, 0, 3168731136, 0, 4294956864, 2, 1, 2, 0, 2, 54, 3, 0, 4, 0, 4294966275, 3, 0, 4, 2, 55, 2, 56, 2, 4, 2, 26, -1, 2, 17, 2, 57, -1, 2, 0, 2, 19, 0, 4294885376, 3, 0, 2, 0, 3145727, 0, 2617294944, 0, 4294770688, 2, 27, 2, 58, 3, 0, 2, 0, 131135, 2, 91, 0, 70256639, 2, 59, 0, 272, 2, 45, 2, 19, -1, 2, 60, -2, 2, 93, 0, 603979775, 0, 4278255616, 0, 4294836227, 0, 4294549473, 0, 600178175, 0, 2952806400, 0, 268632067, 0, 4294543328, 0, 57540095, 0, 1577058304, 0, 1835008, 0, 4294688736, 2, 61, 2, 62, 0, 33554435, 2, 120, 2, 61, 2, 145, 0, 131075, 0, 3594373096, 0, 67094296, 2, 62, -1, 2, 63, 0, 603979263, 2, 153, 0, 3, 0, 4294828001, 0, 602930687, 2, 175, 0, 393219, 2, 63, 0, 671088639, 0, 2154840064, 0, 4227858435, 0, 4236247008, 2, 64, 2, 36, -1, 2, 4, 0, 917503, 2, 36, -1, 2, 65, 0, 537783470, 0, 4026531935, -1, 0, 1, -1, 2, 34, 2, 47, 0, 7936, -3, 2, 0, 0, 2147485695, 0, 1010761728, 0, 4292984930, 0, 16387, 2, 0, 2, 14, 2, 15, 3, 0, 10, 2, 66, 2, 0, 2, 67, 2, 68, 2, 69, 2, 0, 2, 70, 2, 0, 2, 16, -1, 2, 27, 3, 0, 2, 2, 11, 2, 4, 3, 0, 18, 2, 71, 2, 5, 3, 0, 2, 2, 72, 0, 253951, 3, 20, 2, 0, 122879, 2, 0, 2, 8, 0, 276824064, -2, 3, 0, 2, 2, 9, 2, 0, 0, 4294903295, 2, 0, 2, 18, 2, 7, -1, 2, 17, 2, 46, 2, 0, 2, 73, 2, 39, -1, 2, 23, 2, 0, 2, 31, -2, 0, 128, -2, 2, 74, 2, 8, 0, 4064, -1, 2, 115, 0, 4227907585, 2, 0, 2, 191, 2, 0, 2, 44, 0, 4227915776, 2, 10, 2, 13, -2, 0, 6544896, 3, 0, 6, -2, 3, 0, 8, 2, 11, 2, 0, 2, 75, 2, 10, 2, 0, 2, 76, 2, 77, 2, 78, -3, 2, 79, 2, 12, -3, 2, 80, 2, 81, 2, 82, 2, 0, 2, 13, -83, 2, 0, 2, 49, 2, 7, 3, 0, 4, 0, 817183, 2, 0, 2, 14, 2, 0, 0, 33023, 2, 23, 3, 83, 2, -17, 2, 84, 0, 524157950, 2, 4, 2, 0, 2, 85, 2, 4, 2, 0, 2, 15, 2, 74, 2, 86, 3, 0, 2, 2, 43, 2, 16, -1, 2, 17, -16, 3, 0, 205, 2, 18, -2, 3, 0, 655, 2, 19, 3, 0, 36, 2, 47, -1, 2, 17, 2, 10, 3, 0, 8, 2, 87, 0, 3072, 2, 0, 0, 2147516415, 2, 10, 3, 0, 2, 2, 27, 2, 21, 2, 88, 3, 0, 2, 2, 89, 2, 90, -1, 2, 21, 0, 4294965179, 0, 7, 2, 0, 2, 8, 2, 88, 2, 8, -1, 0, 687603712, 2, 91, 2, 92, 2, 36, 2, 22, 2, 93, 2, 35, 2, 159, 0, 2080440287, 2, 0, 2, 13, 2, 136, 0, 3296722943, 2, 0, 0, 1046675455, 0, 939524101, 0, 1837055, 2, 94, 2, 95, 2, 15, 2, 92, 3, 0, 3, 0, 7, 3, 0, 349, 2, 96, 2, 97, 2, 6, -264, 3, 0, 11, 2, 24, 3, 0, 2, 2, 25, -1, 0, 2700607615, 2, 98, 2, 99, 3, 0, 2, 2, 20, 2, 100, 3, 0, 10, 2, 10, 2, 17, 2, 0, 2, 42, 2, 0, 2, 26, 2, 101, -3, 2, 102, 3, 0, 3, 2, 22, -1, 3, 5, 2, 2, 30, 2, 0, 2, 7, 2, 103, -1, 2, 104, 2, 105, 2, 106, -1, 3, 0, 3, 2, 16, -2, 2, 0, 2, 31, -8, 2, 22, 2, 0, 2, 107, -1, 2, 0, 2, 58, 2, 32, 2, 18, 2, 10, 2, 0, 2, 108, -1, 3, 0, 4, 2, 10, 2, 17, 2, 109, 2, 6, 2, 0, 2, 110, 2, 0, 2, 44, -4, 3, 0, 9, 2, 23, 2, 18, 2, 26, -4, 2, 111, 2, 112, 2, 18, 2, 23, 2, 7, -2, 2, 113, 2, 18, 2, 25, -2, 2, 0, 2, 114, -2, 0, 4277075969, 2, 8, -1, 3, 22, 2, -1, 2, 34, 2, 137, 2, 0, 3, 18, 2, 2, 35, 2, 20, -3, 3, 0, 2, 2, 13, -1, 2, 0, 2, 35, 2, 0, 2, 35, -24, 2, 115, 2, 9, -2, 2, 115, 2, 27, 2, 17, 2, 13, 2, 115, 2, 36, 2, 17, 0, 4718591, 2, 115, 2, 35, 0, 335544350, -1, 2, 116, 2, 117, -2, 2, 118, 2, 119, 2, 7, -1, 2, 120, 2, 61, 0, 3758161920, 0, 3, -4, 2, 0, 2, 31, 2, 170, -1, 2, 0, 2, 27, 0, 176, -5, 2, 0, 2, 43, 2, 177, -1, 2, 0, 2, 27, 2, 189, -1, 2, 0, 2, 19, -2, 2, 25, -12, 3, 0, 2, 2, 121, -8, 0, 4294965249, 0, 67633151, 0, 4026597376, 2, 0, 0, 975, -1, 2, 0, 2, 45, -8, 2, 50, 2, 43, 0, 1, 2, 122, 2, 27, -3, 2, 123, 2, 107, 2, 124, -21, 3, 0, 28, 2, 25, -3, 3, 0, 3, 2, 43, 3, 0, 6, 2, 44, -85, 3, 0, 33, 2, 43, -126, 3, 0, 18, 2, 36, -269, 3, 0, 17, 2, 45, 2, 7, -3, 2, 17, 2, 125, 2, 0, 2, 27, 2, 44, 2, 126, 2, 27, -27, 3, 0, 2, 0, 65567, -1, 2, 100, -2, 0, 3, 3, 0, 191, 2, 47, 3, 0, 23, 2, 35, -296, 3, 0, 8, 2, 7, -2, 2, 17, 3, 0, 11, 2, 6, -72, 3, 0, 3, 2, 127, 2, 128, -187, 3, 0, 2, 2, 48, 2, 0, 2, 129, 2, 130, 2, 51, 2, 0, 2, 131, 2, 132, 2, 133, 3, 0, 10, 2, 134, 2, 135, 2, 15, 3, 48, 2, 3, 49, 2, 3, 50, 2, 2, 136, -129, 3, 0, 6, 2, 137, -1, 3, 0, 2, 2, 44, -37, 2, 51, 2, 138, 2, 139, 2, 140, 2, 141, 2, 142, -138, 3, 0, 1334, 2, 23, -1, 3, 0, 129, 2, 31, 3, 0, 6, 2, 10, 3, 0, 180, 2, 143, 3, 0, 233, 0, 1, -96, 3, 0, 16, 2, 10, -28719, 2, 0, 0, 1, -1, 2, 121, 2, 0, 0, 8193, -21, 0, 50331648, 0, 10255, 0, 4, -11, 2, 62, 2, 163, 0, 1, 0, 71936, -1, 2, 154, 0, 4292933632, 0, 805306431, -5, 2, 144, -1, 2, 172, -1, 0, 6144, -2, 2, 122, -1, 2, 164, -1, 2, 150, 2, 145, 2, 158, 2, 0, 0, 3223322624, 2, 8, 0, 4, -4, 2, 183, 0, 205128192, 0, 1333757536, 0, 3221225520, 0, 423953, 0, 747766272, 0, 2717763192, 0, 4290773055, 0, 278545, 2, 146, 0, 4294886464, 0, 33292336, 0, 417809, 2, 146, 0, 1329579616, 0, 4278190128, 0, 700594195, 0, 1006647527, 0, 4286497336, 0, 4160749631, 2, 147, 0, 469762560, 0, 4171219488, 0, 16711728, 2, 147, 0, 202375680, 0, 3214918176, 0, 4294508592, 2, 147, -1, 0, 983584, 0, 48, 0, 58720275, 0, 3489923072, 0, 10517376, 0, 4293066815, 0, 1, 0, 2013265920, 2, 171, 2, 0, 0, 17816169, 0, 3288339281, 0, 201375904, 2, 0, -2, 0, 256, 0, 122880, 0, 16777216, 2, 144, 0, 4160757760, 2, 0, -6, 2, 160, -11, 0, 3263218176, -1, 0, 49664, 0, 2160197632, 0, 8388802, -1, 0, 12713984, -1, 0, 402653184, 2, 152, 2, 155, -2, 2, 156, -20, 0, 3758096385, -2, 2, 185, 0, 4292878336, 2, 21, 2, 148, 0, 4294057984, -2, 2, 157, 2, 149, 2, 168, -2, 2, 166, -1, 2, 174, -1, 2, 162, 2, 121, 0, 4026593280, 0, 14, 0, 4292919296, -1, 2, 151, 0, 939588608, -1, 0, 805306368, -1, 2, 121, 0, 1610612736, 2, 149, 2, 150, 3, 0, 2, -2, 2, 151, 2, 152, -3, 0, 267386880, -1, 2, 153, 0, 7168, -1, 2, 180, 2, 0, 2, 154, 2, 155, -7, 2, 161, -8, 2, 156, -1, 0, 1426112704, 2, 157, -1, 2, 181, 0, 271581216, 0, 2149777408, 2, 27, 2, 154, 2, 121, 0, 851967, 0, 3758129152, -1, 2, 27, 2, 173, -4, 2, 151, -20, 2, 188, 2, 158, -56, 0, 3145728, 2, 179, 2, 184, 0, 4294443520, 2, 73, -1, 2, 159, 2, 121, -4, 0, 32505856, -1, 2, 160, -1, 0, 2147385088, 2, 21, 1, 2155905152, 2, -3, 2, 91, 2, 0, 2, 161, -2, 2, 148, -6, 2, 162, 0, 4026597375, 0, 1, -1, 0, 1, -1, 2, 163, -3, 2, 137, 2, 190, -2, 2, 159, 2, 164, -1, 2, 169, 2, 121, -6, 2, 121, -213, 2, 162, -657, 2, 158, -36, 2, 165, -1, 0, 65408, -10, 2, 193, -5, 2, 166, -5, 0, 4278222848, 2, 0, 2, 23, -1, 0, 4227919872, -1, 2, 166, -2, 0, 4227874752, 2, 157, -2, 0, 2146435072, 2, 152, -2, 0, 1006649344, 2, 121, -1, 2, 21, 0, 201375744, -3, 0, 134217720, 2, 21, 0, 4286677377, 0, 32896, -1, 2, 167, -3, 2, 168, -349, 2, 169, 2, 170, 2, 171, 3, 0, 264, -11, 2, 172, -2, 2, 155, 2, 0, 0, 520617856, 0, 2692743168, 0, 36, -3, 0, 524284, -11, 2, 27, -1, 2, 178, -1, 2, 176, 0, 3221291007, 2, 155, -1, 0, 524288, 0, 2158720, -3, 2, 152, 0, 1, -4, 2, 121, 0, 3808625411, 0, 3489628288, 0, 4096, 0, 1207959680, 0, 3221274624, 2, 0, -3, 2, 164, 0, 120, 0, 7340032, -2, 0, 4026564608, 2, 4, 2, 27, 2, 157, 3, 0, 4, 2, 152, -1, 2, 173, 2, 171, -1, 0, 8176, 2, 174, 2, 164, 2, 175, -1, 0, 4290773232, 2, 0, -4, 2, 157, 2, 182, 0, 15728640, 2, 171, -1, 2, 154, -1, 0, 4294934512, 3, 0, 4, -9, 2, 21, 2, 162, 2, 176, 3, 0, 4, 0, 704, 0, 1849688064, 0, 4194304, -1, 2, 121, 0, 4294901887, 2, 0, 0, 130547712, 0, 1879048192, 0, 2080374784, 3, 0, 2, -1, 2, 177, 2, 178, -1, 0, 17829776, 0, 2028994560, 0, 4261478144, -2, 2, 0, -1, 0, 4286580608, -1, 0, 29360128, 2, 179, 0, 16252928, 0, 3791388672, 2, 119, 3, 0, 2, -2, 2, 180, 2, 0, -1, 2, 100, -1, 0, 66584576, 3, 0, 11, 2, 121, 3, 0, 12, -2, 0, 245760, 0, 2147418112, -1, 2, 144, 2, 195, 0, 4227923456, -1, 2, 181, 2, 169, 2, 21, -2, 2, 172, 0, 4292870145, 0, 262144, 2, 121, 3, 0, 2, 0, 1073758848, 2, 182, -1, 0, 4227921920, 2, 183, 2, 146, 0, 528402016, 0, 4292927536, 3, 0, 4, -2, 0, 3556769792, 2, 0, -2, 2, 186, 3, 0, 5, -1, 2, 179, 2, 157, 2, 0, -2, 0, 4227923936, 2, 58, -1, 2, 166, 2, 91, 2, 0, 2, 184, 2, 151, 3, 0, 11, -2, 0, 2146959360, 3, 0, 8, -2, 2, 154, -1, 0, 536870960, 2, 115, -1, 2, 185, 3, 0, 8, 0, 512, 0, 8388608, 2, 167, 2, 165, 2, 178, 0, 4286578944, 3, 0, 2, 0, 1152, 0, 1266679808, 2, 186, 3, 0, 21, -28, 2, 155, 3, 0, 3, -3, 0, 4292902912, -6, 2, 93, 3, 0, 85, -33, 2, 187, 3, 0, 126, -18, 2, 188, 3, 0, 269, -17, 2, 185, 2, 121, 0, 4294917120, 3, 0, 2, 2, 27, 0, 4290822144, -2, 0, 67174336, 0, 520093700, 2, 17, 3, 0, 27, -2, 0, 65504, 2, 121, 2, 43, 3, 0, 2, 2, 88, -191, 2, 58, -23, 2, 100, 3, 0, 296, -8, 2, 121, 3, 0, 2, 2, 27, -11, 2, 171, 3, 0, 72, -3, 0, 3758159872, 0, 201391616, 3, 0, 155, -7, 2, 162, -1, 0, 384, -1, 0, 133693440, -3, 2, 180, -2, 2, 30, 3, 0, 5, -2, 2, 21, 2, 122, 3, 0, 4, -2, 2, 181, -1, 2, 144, 0, 335552923, 2, 189, -1, 0, 538974272, 0, 2214592512, 0, 132000, -10, 0, 192, -8, 0, 12288, -21, 0, 134213632, 0, 4294901761, 3, 0, 42, 0, 100663424, 0, 4294965284, 3, 0, 62, -6, 0, 4286578784, 2, 0, -2, 0, 1006696448, 3, 0, 37, 2, 189, 0, 4110942569, 0, 1432950139, 0, 2701658217, 0, 4026532864, 0, 4026532881, 2, 0, 2, 42, 3, 0, 8, -1, 2, 151, -2, 2, 148, 2, 190, 0, 65537, 2, 162, 2, 165, 2, 159, -1, 2, 151, -1, 2, 58, 2, 0, 2, 191, 0, 65528, 2, 171, 0, 4294770176, 2, 30, 3, 0, 4, -30, 2, 192, 0, 4261470208, -3, 2, 148, -2, 2, 192, 2, 0, 2, 151, -1, 2, 186, -1, 2, 154, 0, 4294950912, 3, 0, 2, 2, 151, 2, 121, 2, 165, 2, 193, 2, 166, 2, 0, 2, 194, 2, 188, 3, 0, 48, -1334, 2, 21, 2, 0, -129, 2, 192, -6, 2, 157, -180, 2, 195, -233, 2, 4, 3, 0, 96, -16, 2, 157, 3, 0, 22583, -7, 2, 17, 3, 0, 6128], [4294967295, 4294967291, 4092460543, 4294828015, 4294967294, 134217726, 268435455, 2147483647, 1048575, 16777215, 1073741823, 1061158911, 536805376, 511, 4294910143, 4160749567, 134217727, 4294901760, 4194303, 2047, 262143, 4286578688, 536870911, 8388607, 4294918143, 67108863, 255, 65535, 67043328, 2281701374, 4294967232, 2097151, 4294903807, 4294902783, 4294967039, 524287, 127, 4294549487, 67045375, 1023, 67047423, 4286578687, 4294770687, 32767, 15, 33554431, 2047999, 8191, 4292870143, 4294934527, 4294966783, 4294967279, 262083, 20511, 4290772991, 4294901759, 41943039, 460799, 4294959104, 71303167, 1071644671, 602799615, 65536, 4294828000, 805044223, 4277151126, 1031749119, 4294917631, 2134769663, 4286578493, 4282253311, 4294942719, 33540095, 4294905855, 4294967264, 2868854591, 1608515583, 265232348, 534519807, 2147614720, 1060109444, 4093640016, 17376, 2139062143, 224, 4169138175, 4294868991, 4294909951, 4294967292, 4294965759, 16744447, 4294966272, 4294901823, 4294967280, 8289918, 4294934399, 4294901775, 4294965375, 1602223615, 4294967259, 4294443008, 268369920, 4292804608, 486341884, 4294963199, 3087007615, 1073692671, 131071, 4128527, 4279238655, 4294902015, 4294966591, 2445279231, 3670015, 3238002687, 4294967288, 4294705151, 4095, 3221208447, 4294902271, 4294549472, 2147483648, 4294705152, 4294966143, 64, 16383, 3774873592, 536807423, 67043839, 3758096383, 3959414372, 3755993023, 2080374783, 4294835295, 4294967103, 4160749565, 4087, 31, 184024726, 2862017156, 1593309078, 268434431, 268434414, 4294901763, 536870912, 2952790016, 202506752, 139280, 4293918720, 4227922944, 2147532800, 61440, 3758096384, 117440512, 65280, 4227858432, 3233808384, 3221225472, 4294965248, 32768, 57152, 67108864, 4290772992, 25165824, 4160749568, 57344, 4278190080, 65472, 4227907584, 65520, 1920, 4026531840, 49152, 4294836224, 63488, 1073741824, 4294967040, 251658240, 196608, 12582912, 4294966784, 2097152, 64512, 417808, 469762048, 4261412864, 4227923712, 4294934528, 4294967168, 16, 98304, 63, 4292870144, 4294963200, 65534, 65532]);
 
-function hasNext(parser) {
-    return parser.index < parser.source.length;
-}
-function advance(parser) {
-    parser.index++;
-    parser.column++;
-}
-function nextChar(parser) {
-    return parser.source.charCodeAt(parser.index);
-}
 function nextUnicodeChar(parser) {
     const { index } = parser;
     const hi = parser.source.charCodeAt(index);
@@ -448,7 +441,7 @@ function consumeLineFeed(parser, state) {
     }
 }
 function scanPrivateName(parser, context) {
-    if (!(context & 65536) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
+    if (!(context & 32768) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, 1, tokenDesc(parser.token));
     }
     return 115;
@@ -466,8 +459,9 @@ const fromCodePoint = (code) => {
             55296, ((code - 65536) & (1024 - 1)) + 56320);
 };
 function readNext(parser) {
-    advance(parser);
-    if (!hasNext(parser))
+    parser.index++;
+    parser.column++;
+    if (parser.index >= parser.source.length)
         report(parser, 13);
     return nextUnicodeChar(parser);
 }
@@ -487,7 +481,8 @@ function toHex(code) {
     return -1;
 }
 function advanceOnMaybeAstral(parser, ch) {
-    advance(parser);
+    parser.index++;
+    parser.column++;
     if (ch > 0xFFFF)
         parser.index++;
 }
@@ -496,8 +491,9 @@ function scanRegularExpression(parser, context) {
     const bodyStart = parser.index;
     let preparseState = 0;
     loop: while (true) {
-        const ch = nextChar(parser);
-        advance(parser);
+        const ch = parser.source.charCodeAt(parser.index);
+        parser.index++;
+        parser.column++;
         if (preparseState & 1) {
             preparseState &= ~1;
         }
@@ -525,15 +521,15 @@ function scanRegularExpression(parser, context) {
                 default:
             }
         }
-        if (!hasNext(parser)) {
+        if (parser.index >= parser.source.length) {
             report(parser, 6);
         }
     }
     const bodyEnd = parser.index - 1;
     let mask = 0;
     const { index: flagStart } = parser;
-    loop: while (hasNext(parser)) {
-        const code = nextChar(parser);
+    loop: while (parser.index < parser.source.length) {
+        const code = parser.source.charCodeAt(parser.index);
         switch (code) {
             case 103:
                 if (mask & 2)
@@ -570,7 +566,8 @@ function scanRegularExpression(parser, context) {
                     break loop;
                 report(parser, 15, fromCodePoint(code));
         }
-        advance(parser);
+        parser.index++;
+        parser.column++;
     }
     const flags = parser.source.slice(flagStart, parser.index);
     const pattern = parser.source.slice(bodyStart, bodyEnd);
@@ -581,7 +578,7 @@ function scanRegularExpression(parser, context) {
     return 65540;
 }
 function validate(parser, context, pattern, flags) {
-    if (!(context & 4096)) {
+    if (!(context & 1024)) {
         try {
         }
         catch (e) {
@@ -628,12 +625,12 @@ function scanEscapeSequence(parser, context, first) {
                 let next = parser.source.charCodeAt(index);
                 if (next < 48 || next > 55) {
                     if (code !== 0 || next === 56 || next === 57) {
-                        if (context & 8192)
+                        if (context & 4096)
                             return -2;
                         parser.flags |= 128;
                     }
                 }
-                else if (context & 8192) {
+                else if (context & 4096) {
                     return -2;
                 }
                 else {
@@ -659,7 +656,7 @@ function scanEscapeSequence(parser, context, first) {
         case 54:
         case 55:
             {
-                if (context & 8192)
+                if (context & 4096)
                     return -2;
                 let code = first - 48;
                 const index = parser.index + 1;
@@ -723,7 +720,7 @@ function scanEscapeSequence(parser, context, first) {
                 }
             }
         default:
-            return nextChar(parser);
+            return parser.source.charCodeAt(parser.index);
     }
 }
 function throwStringError(parser, context, code) {
@@ -731,7 +728,7 @@ function throwStringError(parser, context, code) {
         case -1:
             return;
         case -2:
-            report(parser, context & 32768 ?
+            report(parser, context & 16384 ?
                 80 :
                 10);
         case -3:
@@ -746,8 +743,9 @@ function throwStringError(parser, context, code) {
 function scanString(parser, context, quote) {
     const { index: start, lastValue } = parser;
     let ret = '';
-    advance(parser);
-    let ch = nextChar(parser);
+    parser.index++;
+    parser.column++;
+    let ch = parser.source.charCodeAt(parser.index);
     while (ch !== quote) {
         switch (ch) {
             case 8232:
@@ -775,7 +773,8 @@ function scanString(parser, context, quote) {
         }
         ch = readNext(parser);
     }
-    advance(parser);
+    parser.index++;
+    parser.column++;
     parser.tokenRaw = parser.source.slice(start, parser.index);
     parser.tokenValue = ret;
     parser.lastValue = lastValue;
@@ -783,7 +782,7 @@ function scanString(parser, context, quote) {
 }
 
 function consumeTemplateBrace(parser, context) {
-    if (!hasNext(parser))
+    if (parser.index >= parser.source.length)
         report(parser, 8);
     parser.index--;
     parser.column--;
@@ -816,11 +815,11 @@ function scanTemplate(parser, context) {
                 }
                 else {
                     parser.lastValue = ch;
-                    const code = scanEscapeSequence(parser, context | 8192, ch);
+                    const code = scanEscapeSequence(parser, context | 4096, ch);
                     if (code >= 0) {
                         ret += fromCodePoint(code);
                     }
-                    else if (code !== -1 && context & 32768) {
+                    else if (code !== -1 && context & 16384) {
                         ret = undefined;
                         ch = scanLooserTemplateSegment(parser, parser.lastValue);
                         if (ch < 0) {
@@ -829,7 +828,7 @@ function scanTemplate(parser, context) {
                         break loop;
                     }
                     else {
-                        throwStringError(parser, context | 32768, code);
+                        throwStringError(parser, context | 16384, code);
                     }
                     ch = parser.lastValue;
                 }
@@ -846,7 +845,8 @@ function scanTemplate(parser, context) {
         }
         ch = readNext(parser);
     }
-    advance(parser);
+    parser.index++;
+    parser.column++;
     parser.tokenValue = ret;
     parser.lastValue = lastValue;
     if (tail) {
@@ -861,7 +861,8 @@ function scanTemplate(parser, context) {
 function scanLooserTemplateSegment(parser, ch) {
     while (ch !== 96) {
         if (ch === 36 && parser.source.charCodeAt(parser.index + 1) === 123) {
-            advance(parser);
+            parser.index++;
+            parser.column++;
             return -ch;
         }
         ch = readNext(parser);
@@ -870,14 +871,16 @@ function scanLooserTemplateSegment(parser, ch) {
 }
 
 function scanHexIntegerLiteral(parser, context) {
-    advance(parser);
+    parser.index++;
+    parser.column++;
     let state = 0;
-    let value = toHex(nextChar(parser));
+    let value = toHex(parser.source.charCodeAt(parser.index));
     if (value < 0)
         report(parser, 0);
-    advance(parser);
-    while (hasNext(parser)) {
-        const next = nextChar(parser);
+    parser.index++;
+    parser.column++;
+    while (parser.index < parser.source.length) {
+        const next = parser.source.charCodeAt(parser.index);
         if (context & 1 && next === 95) {
             state = scanNumericSeparator(parser, state);
             continue;
@@ -887,20 +890,22 @@ function scanHexIntegerLiteral(parser, context) {
         if (digit < 0)
             break;
         value = value * 16 + digit;
-        advance(parser);
+        parser.index++;
+        parser.column++;
     }
     if (state & 1)
         report(parser, 60);
     return assembleNumericLiteral(parser, context, value, consumeOpt(parser, 110));
 }
 function scanOctalOrBinary(parser, context, base) {
-    advance(parser);
+    parser.index++;
+    parser.column++;
     let digits = 0;
     let ch;
     let value = 0;
     let state = 0;
-    while (hasNext(parser)) {
-        ch = nextChar(parser);
+    while (parser.index < parser.source.length) {
+        ch = parser.source.charCodeAt(parser.index);
         if (context & 1 && ch === 95) {
             state = scanNumericSeparator(parser, state);
             continue;
@@ -910,7 +915,8 @@ function scanOctalOrBinary(parser, context, base) {
         if (!(ch >= 48 && ch <= 57) || converted >= base)
             break;
         value = value * base + converted;
-        advance(parser);
+        parser.index++;
+        parser.column++;
         digits++;
     }
     if (digits === 0)
@@ -920,7 +926,7 @@ function scanOctalOrBinary(parser, context, base) {
     return assembleNumericLiteral(parser, context, value, consumeOpt(parser, 110));
 }
 function scanImplicitOctalDigits(parser, context) {
-    switch (nextChar(parser)) {
+    switch (parser.source.charCodeAt(parser.index)) {
         case 48:
         case 49:
         case 50:
@@ -930,7 +936,7 @@ function scanImplicitOctalDigits(parser, context) {
         case 54:
         case 55:
             {
-                if (context & 8192)
+                if (context & 4096)
                     report(parser, 0);
                 let index = parser.index;
                 let column = parser.column;
@@ -958,17 +964,18 @@ function scanImplicitOctalDigits(parser, context) {
         case 57:
             parser.flags |= 128;
         default:
-            if (context & 1 && nextChar(parser) === 95) {
+            if (context & 1 && parser.source.charCodeAt(parser.index) === 95) {
                 report(parser, 61);
             }
             return scanNumericLiteral(parser, context);
     }
 }
 function scanSignedInteger(parser, end) {
-    let next = nextChar(parser);
+    let next = parser.source.charCodeAt(parser.index);
     if (next === 43 || next === 45) {
-        advance(parser);
-        next = nextChar(parser);
+        parser.index++;
+        parser.column++;
+        next = parser.source.charCodeAt(parser.index);
     }
     if (!(next >= 48 && next <= 57)) {
         report(parser, 63);
@@ -981,12 +988,12 @@ function scanNumericLiteral(parser, context, state = 0) {
     let value = state & 4 ?
         0 :
         scanDecimalAsSmi(parser, context);
-    const next = nextChar(parser);
+    const next = parser.source.charCodeAt(parser.index);
     if (next !== 46 && next !== 95 && !isValidIdentifierStart(next)) {
         return assembleNumericLiteral(parser, context, value);
     }
     if (consumeOpt(parser, 46)) {
-        if (context & 1 && nextChar(parser) === 95) {
+        if (context & 1 && parser.source.charCodeAt(parser.index) === 95) {
             report(parser, 61);
         }
         state |= 4;
@@ -1002,13 +1009,14 @@ function scanNumericLiteral(parser, context, state = 0) {
         state |= 4;
         value += scanSignedInteger(parser, end);
     }
-    if (isValidIdentifierStart(nextChar(parser))) {
+    if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, 0);
     }
     return assembleNumericLiteral(parser, context, state & 4 ? parseFloat(value) : parseInt(value, 10), !!(state & 8));
 }
 function scanNumericSeparator(parser, state) {
-    advance(parser);
+    parser.index++;
+    parser.column++;
     if (state & 1)
         report(parser, 60);
     state |= 1;
@@ -1018,8 +1026,8 @@ function scanDecimalDigitsOrSeparator(parser) {
     let start = parser.index;
     let state = 0;
     let ret = '';
-    loop: while (hasNext(parser)) {
-        switch (nextChar(parser)) {
+    loop: while (parser.index < parser.source.length) {
+        switch (parser.source.charCodeAt(parser.index)) {
             case 95:
                 const preUnderscoreIndex = parser.index;
                 state = scanNumericSeparator(parser, state);
@@ -1037,7 +1045,8 @@ function scanDecimalDigitsOrSeparator(parser) {
             case 56:
             case 57:
                 state = state & ~1;
-                advance(parser);
+                parser.index++;
+                parser.column++;
                 break;
             default:
                 break loop;
@@ -1050,17 +1059,18 @@ function scanDecimalDigitsOrSeparator(parser) {
 function scanDecimalAsSmi(parser, context) {
     let state = 0;
     let value = 0;
-    let next = nextChar(parser);
+    let next = parser.source.charCodeAt(parser.index);
     while (next >= 48 && next <= 57 || next === 95) {
         if (context & 1 && next === 95) {
             state = scanNumericSeparator(parser, state);
-            next = nextChar(parser);
+            next = parser.source.charCodeAt(parser.index);
             continue;
         }
         state &= ~1;
         value = value * 10 + (next - 48);
-        advance(parser);
-        next = nextChar(parser);
+        parser.index++;
+        parser.column++;
+        next = parser.source.charCodeAt(parser.index);
     }
     if (state & 1)
         report(parser, 60);
@@ -1079,7 +1089,7 @@ function scanIdentifier(parser, context, first) {
     let isEscaped = false;
     if (first)
         advanceOnMaybeAstral(parser, first);
-    loop: while (hasNext(parser)) {
+    loop: while (parser.index < parser.source.length) {
         const index = parser.index;
         let ch = parser.source.charCodeAt(index);
         switch (ch) {
@@ -1107,7 +1117,7 @@ function scanIdentifier(parser, context, first) {
         const token = descKeyword(ret);
         if (token > 0) {
             if (isEscaped) {
-                if (context & 1073741824) {
+                if (context & 536870912) {
                     tolerant(parser, context, 2);
                 }
                 parser.flags |= 32768;
@@ -1115,7 +1125,7 @@ function scanIdentifier(parser, context, first) {
             return token;
         }
     }
-    if (context & 1024)
+    if (context & 256)
         parser.tokenRaw = parser.source.slice(start, parser.index);
     return 134283265;
 }
@@ -1146,7 +1156,7 @@ function scanUnicodeCodePointEscape(parser) {
     report(parser, 0);
 }
 function scanIdentifierUnicodeEscape(parser) {
-    let ch = nextChar(parser);
+    let ch = parser.source.charCodeAt(parser.index);
     let codePoint = 0;
     if (ch === 123) {
         ch = readNext(parser);
@@ -1156,40 +1166,42 @@ function scanIdentifierUnicodeEscape(parser) {
             if (codePoint > 1114111) {
                 report(parser, 94);
             }
-            advance(parser);
-            digit = toHex(nextChar(parser));
+            parser.index++;
+            parser.column++;
+            digit = toHex(parser.source.charCodeAt(parser.index));
         }
-        if (nextChar(parser) !== 125) {
+        if (parser.source.charCodeAt(parser.index) !== 125) {
             report(parser, 12);
         }
         consumeOpt(parser, 125);
     }
     else {
         for (let i = 0; i < 4; i++) {
-            ch = nextChar(parser);
+            ch = parser.source.charCodeAt(parser.index);
             const digit = toHex(ch);
             if (digit < 0)
                 report(parser, 12);
             codePoint = (codePoint << 4) | digit;
-            advance(parser);
+            parser.index++;
+            parser.column++;
         }
     }
     return codePoint;
 }
 
 function skipSingleHTMLComment(parser, context, state, type) {
-    if (context & 16384)
+    if (context & 8192)
         report(parser, 95);
     return skipSingleLineComment(parser, context, state, type);
 }
 function skipSingleLineComment(parser, context, state, type) {
     const start = parser.index;
-    const collectable = !!(context & (256 | context & 32));
-    while (hasNext(parser)) {
-        switch (nextChar(parser)) {
+    const collectable = !!(context & 64);
+    while (parser.index < parser.source.length) {
+        switch (parser.source.charCodeAt(parser.index)) {
             case 13:
                 advanceNewline(parser);
-                if (hasNext(parser) && nextChar(parser) === 10)
+                if ((parser.index < parser.source.length) && parser.source.charCodeAt(parser.index) === 10)
                     parser.index++;
                 return state | 1;
             case 10:
@@ -1200,7 +1212,8 @@ function skipSingleLineComment(parser, context, state, type) {
                     addComment(parser, context, type, start);
                 return state | 1;
             default:
-                advance(parser);
+                parser.index++;
+                parser.column++;
         }
     }
     if (collectable)
@@ -1209,11 +1222,12 @@ function skipSingleLineComment(parser, context, state, type) {
 }
 function skipMultiLineComment(parser, context, state) {
     const start = parser.index;
-    const collectable = !!(context & (256 | context & 32));
-    while (hasNext(parser)) {
-        switch (nextChar(parser)) {
+    const collectable = !!(context & 64);
+    while (parser.index < parser.source.length) {
+        switch (parser.source.charCodeAt(parser.index)) {
             case 42:
-                advance(parser);
+                parser.index++;
+                parser.column++;
                 state &= ~2;
                 if (consumeOpt(parser, 47)) {
                     if (collectable)
@@ -1236,7 +1250,8 @@ function skipMultiLineComment(parser, context, state) {
                 break;
             default:
                 state &= ~2;
-                advance(parser);
+                parser.index++;
+                parser.column++;
         }
     }
     tolerant(parser, context, 7);
@@ -1261,9 +1276,6 @@ function addComment(parser, context, type, start) {
             },
         };
     }
-    if (context & 32) {
-        parser.delegate(comment, startIndex, index);
-    }
     parser.comments.push(comment);
 }
 
@@ -1271,13 +1283,13 @@ function scan(parser, context) {
     parser.flags &= ~1 | 32768;
     const lineStart = parser.index === 0;
     let state = 0;
-    while (hasNext(parser)) {
+    while (parser.index < parser.source.length) {
         if (!lineStart) {
             parser.startIndex = parser.index;
             parser.startColumn = parser.column;
             parser.startLine = parser.line;
         }
-        const first = nextChar(parser);
+        const first = parser.source.charCodeAt(parser.index);
         if (first > 128) {
             switch (first) {
                 case 8232:
@@ -1305,7 +1317,8 @@ function scan(parser, context) {
                 case 65279:
                 case 8205:
                 case 65279:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     break;
                 default:
                     return scanMaybeIdentifier(parser, context, first);
@@ -1325,65 +1338,82 @@ function scan(parser, context) {
                 case 11:
                 case 12:
                 case 32:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     break;
                 case 40:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 67174411;
                 case 41:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 16;
                 case 44:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 67108882;
                 case 58:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 67108885;
                 case 59:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 603979793;
                 case 63:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 22;
                 case 93:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 20;
                 case 123:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 33619980;
                 case 125:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 603979791;
                 case 126:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 589870;
                 case 91:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 33619987;
                 case 64:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     return 120;
                 case 47:
                     {
-                        advance(parser);
-                        if (!hasNext(parser))
+                        parser.index++;
+                        parser.column++;
+                        if (parser.index >= parser.source.length)
                             return 330293;
-                        switch (nextChar(parser)) {
+                        switch (parser.source.charCodeAt(parser.index)) {
                             case 47:
                                 {
-                                    advance(parser);
+                                    parser.index++;
+                                    parser.column++;
                                     state = skipSingleLineComment(parser, context, state, 'SingleLine');
                                     continue;
                                 }
                             case 42:
                                 {
-                                    advance(parser);
+                                    parser.index++;
+                                    parser.column++;
                                     state = skipMultiLineComment(parser, context, state);
                                     continue;
                                 }
                             case 61:
                                 {
-                                    advance(parser);
+                                    parser.index++;
+                                    parser.column++;
                                     return 196645;
                                 }
                             default:
@@ -1392,12 +1422,14 @@ function scan(parser, context) {
                     }
                 case 45:
                     {
-                        advance(parser);
-                        const next = nextChar(parser);
+                        parser.index++;
+                        parser.column++;
+                        const next = parser.source.charCodeAt(parser.index);
                         switch (next) {
                             case 45:
                                 {
-                                    advance(parser);
+                                    parser.index++;
+                                    parser.column++;
                                     if ((state & 1 || lineStart) &&
                                         consumeOpt(parser, 62)) {
                                         state = skipSingleHTMLComment(parser, context, state, 'HTMLClose');
@@ -1407,7 +1439,8 @@ function scan(parser, context) {
                                 }
                             case 61:
                                 {
-                                    advance(parser);
+                                    parser.index++;
+                                    parser.column++;
                                     return 131107;
                                 }
                             default:
@@ -1415,21 +1448,24 @@ function scan(parser, context) {
                         }
                     }
                 case 60:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     if (consumeOpt(parser, 33) &&
                         consumeOpt(parser, 45) &&
                         consumeOpt(parser, 45)) {
                         state = skipSingleHTMLComment(parser, context, state, 'HTMLOpen');
                         continue;
                     }
-                    switch (nextChar(parser)) {
+                    switch (parser.source.charCodeAt(parser.index)) {
                         case 60:
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return consumeOpt(parser, 61) ?
                                 131102 :
                                 329793;
                         case 61:
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 329533;
                         case 47:
                             {
@@ -1441,14 +1477,16 @@ function scan(parser, context) {
                                     if (next === 42 || next === 47)
                                         break;
                                 }
-                                advance(parser);
+                                parser.index++;
+                                parser.column++;
                                 return 25;
                             }
                         default:
                             return 329535;
                     }
                 case 33:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     if (!consumeOpt(parser, 61))
                         return 589869;
                     if (!consumeOpt(parser, 61))
@@ -1458,53 +1496,63 @@ function scan(parser, context) {
                 case 34:
                     return scanString(parser, context, first);
                 case 37:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     if (!consumeOpt(parser, 61))
                         return 330292;
                     return 131110;
                 case 38:
                     {
-                        advance(parser);
-                        const next = nextChar(parser);
+                        parser.index++;
+                        parser.column++;
+                        const next = parser.source.charCodeAt(parser.index);
                         if (next === 38) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 17105463;
                         }
                         if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 131113;
                         }
                         return 329028;
                     }
                 case 42:
                     {
-                        advance(parser);
-                        if (!hasNext(parser))
+                        parser.index++;
+                        parser.column++;
+                        if (parser.index >= parser.source.length)
                             return 330291;
-                        const next = nextChar(parser);
+                        const next = parser.source.charCodeAt(parser.index);
                         if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 131108;
                         }
                         if (next !== 42)
                             return 330291;
-                        advance(parser);
+                        parser.index++;
+                        parser.column++;
                         if (!consumeOpt(parser, 61))
                             return 330550;
                         return 131105;
                     }
                 case 43:
                     {
-                        advance(parser);
-                        if (!hasNext(parser))
+                        parser.index++;
+                        parser.column++;
+                        if (parser.index >= parser.source.length)
                             return 854319;
-                        const next = nextChar(parser);
+                        const next = parser.source.charCodeAt(parser.index);
                         if (next === 43) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 1114139;
                         }
                         if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 131106;
                         }
                         return 854319;
@@ -1513,10 +1561,12 @@ function scan(parser, context) {
                     return scanIdentifier(parser, context);
                 case 61:
                     {
-                        advance(parser);
-                        const next = nextChar(parser);
+                        parser.index++;
+                        parser.column++;
+                        const next = parser.source.charCodeAt(parser.index);
                         if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             if (consumeOpt(parser, 61)) {
                                 return 329273;
                             }
@@ -1525,29 +1575,34 @@ function scan(parser, context) {
                             }
                         }
                         else if (next === 62) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 10;
                         }
                         return 67239965;
                     }
                 case 62:
                     {
-                        advance(parser);
-                        if (!hasNext(parser))
+                        parser.index++;
+                        parser.column++;
+                        if (parser.index >= parser.source.length)
                             return 329536;
-                        if (context & 536870912)
+                        if (context & 268435456)
                             return 329536;
-                        let next = nextChar(parser);
+                        let next = parser.source.charCodeAt(parser.index);
                         if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 329534;
                         }
                         if (next !== 62)
                             return 329536;
-                        advance(parser);
-                        next = nextChar(parser);
+                        parser.index++;
+                        parser.column++;
+                        next = parser.source.charCodeAt(parser.index);
                         if (next === 62) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             if (consumeOpt(parser, 61)) {
                                 return 131104;
                             }
@@ -1556,13 +1611,15 @@ function scan(parser, context) {
                             }
                         }
                         else if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 131103;
                         }
                         return 329794;
                     }
                 case 94:
-                    advance(parser);
+                    parser.index++;
+                    parser.column++;
                     if (!consumeOpt(parser, 61))
                         return 328774;
                     return 131111;
@@ -1570,14 +1627,17 @@ function scan(parser, context) {
                     return scanTemplate(parser, context);
                 case 124:
                     {
-                        advance(parser);
-                        const next = nextChar(parser);
+                        parser.index++;
+                        parser.column++;
+                        const next = parser.source.charCodeAt(parser.index);
                         if (next === 124) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 17105208;
                         }
                         else if (next === 61) {
-                            advance(parser);
+                            parser.index++;
+                            parser.column++;
                             return 131112;
                         }
                         return 328517;
@@ -1599,15 +1659,17 @@ function scan(parser, context) {
                                 return 14;
                             }
                         }
-                        advance(parser);
+                        parser.index++;
+                        parser.column++;
                         return 67108877;
                     }
                 case 35:
                     {
-                        advance(parser);
+                        parser.index++;
+                        parser.column++;
                         const index = parser.index;
                         const next = parser.source.charCodeAt(index);
-                        if (context & 512 &&
+                        if (context & 128 &&
                             lineStart &&
                             next === 33) {
                             parser.index = index + 1;
@@ -1618,8 +1680,9 @@ function scan(parser, context) {
                     }
                 case 48:
                     {
-                        advance(parser);
-                        switch (nextChar(parser)) {
+                        parser.index++;
+                        parser.column++;
+                        switch (parser.source.charCodeAt(parser.index)) {
                             case 88:
                             case 120:
                                 return scanHexIntegerLiteral(parser, context);
@@ -1724,7 +1787,7 @@ function hasLabel(parser, label) {
     return !parser.labelSet ? 0 : parser.labelSet['$' + label];
 }
 function finishNode(context, parser, meta, node) {
-    const { lastIndex, lastLine, lastColumn, sourceFile, index, delegate } = parser;
+    const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
     if (context & 2) {
         node.start = meta.index;
         node.end = lastIndex;
@@ -1743,8 +1806,6 @@ function finishNode(context, parser, meta, node) {
         if (sourceFile)
             node.loc.source = sourceFile;
     }
-    if (context & 32)
-        delegate(node, meta.index, index);
     return node;
 }
 function expect(parser, context, t, err = 1) {
@@ -1771,7 +1832,7 @@ function consumeSemicolon(parser, context) {
     if (token & 536870912 || parser.flags & 1) {
         return consume(parser, context, 603979793);
     }
-    report(parser, !(context & 262144) && token & 4194304 ?
+    report(parser, !(context & 131072) && token & 4194304 ?
         38 :
         1, tokenDesc(token));
 }
@@ -1811,11 +1872,11 @@ function restoreExpressionCoverGrammar(parser, context, callback) {
     return res;
 }
 function swapContext(parser, context, state, callback, methodState = 0) {
-    context &= ~(262144 | 524288 | 1048576);
+    context &= ~(131072 | 262144 | 524288);
     if (state & 1)
-        context |= 524288;
-    if (state & 2)
         context |= 262144;
+    if (state & 2)
+        context |= 131072;
     return callback(parser, context, methodState);
 }
 function validateParams(parser, context, params) {
@@ -1870,10 +1931,10 @@ const reinterpret = (parser, context, node) => {
             reinterpret(parser, context, node.left);
             return;
         case 'MemberExpression':
-            if (!(context & 1048576))
+            if (!(context & 524288))
                 return;
         default:
-            tolerant(parser, context, context & 1048576
+            tolerant(parser, context, context & 524288
                 ? 81
                 : 77, node.type);
     }
@@ -1910,8 +1971,8 @@ function getLocation(parser) {
     };
 }
 function isValidIdentifier(context, t) {
-    if (context & 8192) {
-        if (context & 16384 && t & 4194304)
+    if (context & 4096) {
+        if (context & 8192 && t & 4194304)
             return false;
         if (t & 2097152)
             return false;
@@ -1956,8 +2017,8 @@ function isPropertyWithPrivateFieldKey(expr) {
 }
 function parseAndValidateIdentifier(parser, context) {
     const { token } = parser;
-    if (context & 8192) {
-        if (context & 16384 && token & 4194304) {
+    if (context & 4096) {
+        if (context & 8192 && token & 4194304) {
             tolerant(parser, context, 40, tokenDesc(token));
         }
         if (token & 2097152)
@@ -1968,10 +2029,10 @@ function parseAndValidateIdentifier(parser, context) {
         }
         report(parser, 1, tokenDesc(token));
     }
-    if (context & 524288 && token & 2097152) {
+    if (context & 262144 && token & 2097152) {
         tolerant(parser, context, 40, tokenDesc(token));
     }
-    else if (context & 262144 && token & 4194304) {
+    else if (context & 131072 && token & 4194304) {
         tolerant(parser, context, 40, tokenDesc(token));
     }
     if ((token & 134217728) === 134217728 ||
@@ -2007,19 +2068,19 @@ function isInstanceField(parser) {
     return token === 603979791 || token === 603979793 || token === 67239965;
 }
 function validateUpdateExpression(parser, context, expr, prefix) {
-    if (context & 8192 && nameIsArgumentsOrEval(expr.name)) {
+    if (context & 4096 && nameIsArgumentsOrEval(expr.name)) {
         tolerant(parser, context, 72, prefix);
     }
     if (!isValidSimpleAssignmentTarget(expr)) {
         tolerant(parser, context, 4);
     }
 }
-function recordExpressionError(parser, type) {
+function setPendingExpressionError(parser, type) {
     parser.pendingExpressionError = {
         error: ErrorMessages[type],
-        line: parser.startLine,
-        column: parser.startColumn,
-        index: parser.startIndex,
+        line: parser.line,
+        column: parser.column,
+        index: parser.index,
     };
 }
 function validateCoverParenthesizedExpression(parser, state) {
@@ -2103,7 +2164,7 @@ function parseJSXRootElement(parser, context) {
     });
 }
 function parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos) {
-    if (context & 536870912 && selfClosing)
+    if (context & 268435456 && selfClosing)
         expect(parser, context, 329536);
     else
         nextJSXToken(parser);
@@ -2134,21 +2195,24 @@ function nextJSXToken(parser) {
     return parser.token = scanJSXToken(parser);
 }
 function scanJSXToken(parser) {
-    if (!hasNext(parser))
+    if (parser.index >= parser.source.length)
         return 536870912;
     parser.lastIndex = parser.startIndex = parser.index;
-    const char = nextChar(parser);
+    const char = parser.source.charCodeAt(parser.index);
     if (char === 60) {
-        advance(parser);
+        parser.index++;
+        parser.column++;
         return consumeOpt(parser, 47) ? 25 : 329535;
     }
     else if (char === 123) {
-        advance(parser);
+        parser.index++;
+        parser.column++;
         return 33619980;
     }
-    while (hasNext(parser)) {
-        advance(parser);
-        const next = nextChar(parser);
+    while (parser.index < parser.source.length) {
+        parser.index++;
+        parser.column++;
+        const next = parser.source.charCodeAt(parser.index);
         if (next === 123 || next === 60)
             break;
     }
@@ -2179,16 +2243,16 @@ function parseJSXChild(parser, context) {
         case 121:
             return parseJSXText(parser, context);
         case 33619980:
-            return parseJSXExpression(parser, context & ~536870912);
+            return parseJSXExpression(parser, context & ~268435456);
         case 329535:
-            return parseJSXRootElement(parser, context & ~536870912);
+            return parseJSXRootElement(parser, context & ~268435456);
         default:
             report(parser, 0);
     }
 }
 function parseJSXAttributes(parser, context) {
     const attributes = [];
-    while (hasNext(parser)) {
+    while (parser.index < parser.source.length) {
         if (parser.token === 330293 || parser.token === 329536)
             break;
         attributes.push(parseJSXAttribute(parser, context));
@@ -2199,7 +2263,7 @@ function parseJSXSpreadAttribute(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 33619980);
     expect(parser, context, 14);
-    const expression = parseExpressionCoverGrammar(parser, context & ~536870912, parseAssignmentExpression);
+    const expression = parseExpressionCoverGrammar(parser, context & ~268435456, parseAssignmentExpression);
     expect(parser, context, 603979791);
     return finishNode(context, parser, pos, {
         type: 'JSXSpreadAttribute',
@@ -2227,9 +2291,9 @@ function parseJSXAttributeValue(parser, context) {
         case 65539:
             return parseLiteral(parser, context);
         case 33619980:
-            return parseJSXExpressionContainer(parser, context | 536870912);
+            return parseJSXExpressionContainer(parser, context | 268435456);
         case 329535:
-            return parseJSXRootElement(parser, context | 536870912);
+            return parseJSXRootElement(parser, context | 268435456);
         default:
             tolerant(parser, context, 92);
     }
@@ -2249,7 +2313,7 @@ function parseJSXAttribute(parser, context) {
 }
 function scanJSXAttributeValue(parser, context) {
     parser.lastIndex = parser.index;
-    const ch = nextChar(parser);
+    const ch = parser.source.charCodeAt(parser.index);
     switch (ch) {
         case 34:
         case 39:
@@ -2260,17 +2324,20 @@ function scanJSXAttributeValue(parser, context) {
 }
 function scanJSXString(parser, context, quote) {
     const rawStart = parser.index;
-    advance(parser);
+    parser.index++;
+    parser.column++;
     let ret = '';
-    let ch = nextChar(parser);
+    let ch = parser.source.charCodeAt(parser.index);
     while (ch !== quote) {
         ret += fromCodePoint(ch);
-        advance(parser);
-        ch = nextChar(parser);
-        if (!hasNext(parser))
+        parser.index++;
+        parser.column++;
+        ch = parser.source.charCodeAt(parser.index);
+        if (parser.index >= parser.source.length)
             report(parser, 5);
     }
-    advance(parser);
+    parser.index++;
+    parser.column++;
     if (context & 8)
         parser.tokenRaw = parser.source.slice(rawStart, parser.index);
     parser.tokenValue = ret;
@@ -2297,7 +2364,7 @@ function parseJSXExpressionContainer(parser, context) {
     expect(parser, context, 33619980);
     if (parser.token === 603979791)
         tolerant(parser, context, 89);
-    const expression = parseExpressionCoverGrammar(parser, context & ~536870912, parseAssignmentExpression);
+    const expression = parseExpressionCoverGrammar(parser, context & ~268435456, parseAssignmentExpression);
     expect(parser, context, 603979791);
     return finishNode(context, parser, pos, {
         type: 'JSXExpressionContainer',
@@ -2330,7 +2397,7 @@ function parseJSXClosingElement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 25);
     const name = parseJSXElementName(parser, context);
-    if (context & 536870912)
+    if (context & 268435456)
         expect(parser, context, 329536);
     else
         nextJSXToken(parser);
@@ -2350,7 +2417,7 @@ function parseJSXIdentifier(parser, context) {
         type: 'JSXIdentifier',
         name,
     });
-    if (context & 1024)
+    if (context & 256)
         node.raw = raw;
     return node;
 }
@@ -2377,8 +2444,8 @@ function scanJSXIdentifier(parser) {
     const { token } = parser;
     if (token & (134217728 | 4096)) {
         const firstCharPosition = parser.index;
-        let ch = nextChar(parser);
-        while (hasNext(parser) && (ch === 45 || (isValidIdentifierPart(ch)))) {
+        let ch = parser.source.charCodeAt(parser.index);
+        while ((parser.index < parser.source.length) && (ch === 45 || (isValidIdentifierPart(ch)))) {
             ch = readNext(parser);
         }
         parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);
@@ -2388,6 +2455,7 @@ function scanJSXIdentifier(parser) {
 
 function parseExpression(parser, context) {
     const pos = getLocation(parser);
+    const saveDecoratorContext = parser.flags;
     const expr = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
     return parser.token === 67108882 ?
         parseSequenceExpression(parser, context, expr, pos) :
@@ -2404,7 +2472,7 @@ function parseSequenceExpression(parser, context, left, pos) {
     });
 }
 function parseYieldExpression(parser, context, pos) {
-    if (context & 1048576)
+    if (context & 524288)
         tolerant(parser, context, 52);
     expect(parser, context, 2183274);
     let argument = null;
@@ -2424,7 +2492,7 @@ function parseYieldExpression(parser, context, pos) {
 function parseAssignmentExpression(parser, context) {
     const pos = getLocation(parser);
     let { token } = parser;
-    if (context & 524288 && token & 2097152)
+    if (context & 262144 && token & 2097152)
         return parseYieldExpression(parser, context, pos);
     let expr = token & 8388608 && lookahead(parser, context, nextTokenisIdentifierOrParen)
         ? parserCoverCallExpressionAndAsyncArrowHead(parser, context)
@@ -2436,34 +2504,34 @@ function parseAssignmentExpression(parser, context) {
                     parser.flags |= 64;
                 }
                 if (token & 268435456) {
-                    if (context & 8192)
+                    if (context & 4096)
                         tolerant(parser, context, 48);
                     parser.flags |= 2048;
                 }
             }
             expr = [expr];
         }
-        return parseArrowFunction(parser, context &= ~262144, pos, expr);
+        return parseArrowFunction(parser, context &= ~131072, pos, expr);
     }
     if (hasBit(parser.token, 131072)) {
         token = parser.token;
-        if (context & 8192 && nameIsArgumentsOrEval(expr.name)) {
+        if (context & 4096 && nameIsArgumentsOrEval(expr.name)) {
             tolerant(parser, context, 16);
         }
         else if (consume(parser, context, 67239965)) {
             if (!(parser.flags & 4)) {
                 tolerant(parser, context, 77);
             }
-            if (!(context & 1048576))
+            if (!(context & 524288))
                 reinterpret(parser, context, expr);
-            if (context & 268435456)
+            if (context & 134217728)
                 parser.flags |= 8;
             if (parser.token & 4194304) {
                 setPendingError(parser);
                 parser.flags |= 8192;
             }
-            else if (context & 268435456 &&
-                context & (8192 | 524288) &&
+            else if (context & 134217728 &&
+                context & (4096 | 262144) &&
                 parser.token & 2097152) {
                 setPendingError(parser);
                 parser.flags |= 16384;
@@ -2476,7 +2544,7 @@ function parseAssignmentExpression(parser, context) {
             parser.flags &= ~(4 | 2);
             nextToken(parser, context);
         }
-        const right = parseExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression);
+        const right = parseExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression);
         parser.pendingExpressionError = null;
         return finishNode(context, parser, pos, {
             type: 'AssignmentExpression',
@@ -2491,7 +2559,7 @@ function parseConditionalExpression(parser, context, pos) {
     const test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, 22))
         return test;
-    const consequent = parseExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression);
+    const consequent = parseExpressionCoverGrammar(parser, context & ~1073741824 | 65536, parseAssignmentExpression);
     expect(parser, context, 67108885);
     return finishNode(context, parser, pos, {
         type: 'ConditionalExpression',
@@ -2501,9 +2569,7 @@ function parseConditionalExpression(parser, context, pos) {
     });
 }
 function parseBinaryExpression(parser, context, minPrec, pos, left = parseUnaryExpression(parser, context)) {
-    const bit = context & 131072 ^ 131072;
-    if (!hasBit(parser.token, 327680))
-        return left;
+    const bit = context & 65536 ^ 65536;
     while (hasBit(parser.token, 327680)) {
         const t = parser.token;
         if (bit && t === 1074083633)
@@ -2516,14 +2582,14 @@ function parseBinaryExpression(parser, context, minPrec, pos, left = parseUnaryE
         left = finishNode(context, parser, pos, {
             type: t & 16777216 ? 'LogicalExpression' : 'BinaryExpression',
             left,
-            right: parseBinaryExpression(parser, context & ~131072, prec, getLocation(parser)),
+            right: parseBinaryExpression(parser, context & ~65536, prec, getLocation(parser)),
             operator: tokenDesc(t),
         });
     }
     return left;
 }
 function parseAwaitExpression(parser, context, pos) {
-    if (context & 1048576)
+    if (context & 524288)
         tolerant(parser, context, 53);
     expect(parser, context, 138514541);
     return finishNode(context, parser, pos, {
@@ -2541,7 +2607,7 @@ function parseUnaryExpression(parser, context) {
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
         if (parser.token === 330550)
             tolerant(parser, context, 1, tokenDesc(parser.token));
-        if (context & 8192 && token === 602155) {
+        if (context & 4096 && token === 602155) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, 43);
             }
@@ -2556,7 +2622,7 @@ function parseUnaryExpression(parser, context) {
             prefix: true,
         });
     }
-    return context & 262144 && token & 4194304
+    return context & 131072 && token & 4194304
         ? parseAwaitExpression(parser, context, pos)
         : parseUpdateExpression(parser, context, pos);
 }
@@ -2574,7 +2640,7 @@ function parseUpdateExpression(parser, context, pos) {
         });
     }
     else if (context & 4 && token === 329535) {
-        return parseJSXRootElement(parser, context | 536870912);
+        return parseJSXRootElement(parser, context | 268435456);
     }
     const expression = parseLeftHandSideExpression(parser, context, pos);
     if (hasBit(parser.token, 1114112) && !(parser.flags & 1)) {
@@ -2593,7 +2659,7 @@ function parseUpdateExpression(parser, context, pos) {
 function parseRestElement(parser, context, args = []) {
     const pos = getLocation(parser);
     expect(parser, context, 14);
-    if (context & 268435456 && parser.token & 4194304)
+    if (context & 134217728 && parser.token & 4194304)
         parser.flags |= 8192;
     const argument = parseBindingIdentifierOrPattern(parser, context, args);
     return finishNode(context, parser, pos, {
@@ -2604,7 +2670,7 @@ function parseRestElement(parser, context, args = []) {
 function parseSpreadElement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 14);
-    const argument = restoreExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression);
+    const argument = restoreExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
         argument,
@@ -2612,9 +2678,9 @@ function parseSpreadElement(parser, context) {
 }
 function parseLeftHandSideExpression(parser, context, pos) {
     const expr = context & 1 && parser.token === 77914 ?
-        parseCallImportOrMetaProperty(parser, context | 131072) :
-        parseMemberExpression(parser, context | 131072, pos);
-    return parseCallExpression(parser, context | 131072, pos, expr);
+        parseCallImportOrMetaProperty(parser, context | 65536) :
+        parseMemberExpression(parser, context | 65536, pos);
+    return parseCallExpression(parser, context | 65536, pos, expr);
 }
 function parseMemberExpression(parser, context, pos, expr = parsePrimaryExpression(parser, context)) {
     while (true) {
@@ -2656,7 +2722,7 @@ function parseMemberExpression(parser, context, pos, expr = parsePrimaryExpressi
                 expr = finishNode(context, parser, pos, {
                     type: 'TaggedTemplateExpression',
                     tag: expr,
-                    quasi: parseTemplate(parser, context | 32768),
+                    quasi: parseTemplate(parser, context | 16384),
                 });
                 continue;
             }
@@ -2670,7 +2736,7 @@ function parseCallExpression(parser, context, pos, expr) {
         expr = parseMemberExpression(parser, context, pos, expr);
         if (parser.token !== 67174411)
             return expr;
-        const args = parseArgumentList(parser, context);
+        const args = parseArgumentList(parser, context & ~1073741824);
         expr = finishNode(context, parser, pos, {
             type: 'CallExpression',
             callee: expr,
@@ -2680,7 +2746,7 @@ function parseCallExpression(parser, context, pos, expr) {
 }
 function parserCoverCallExpressionAndAsyncArrowHead(parser, context) {
     const pos = getLocation(parser);
-    let expr = parseMemberExpression(parser, context | 131072, pos);
+    let expr = parseMemberExpression(parser, context | 65536, pos);
     if (parser.token & (134217728 | 4096)) {
         if (parser.token & 4194304)
             tolerant(parser, context, 40);
@@ -2711,11 +2777,11 @@ function parseArgumentList(parser, context) {
             expressions.push(parseSpreadElement(parser, context));
         }
         else {
-            if (context & 524288 && hasBit(parser.token, 2097152)) {
+            if (context & 262144 && hasBit(parser.token, 2097152)) {
                 parser.flags |= 16384;
                 setPendingError(parser);
             }
-            expressions.push(parseExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression));
+            expressions.push(parseExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression));
         }
         if (parser.token !== 16)
             expect(parser, context, 67108882);
@@ -2737,7 +2803,7 @@ function parseAsyncArgumentList(parser, context) {
         else {
             token = parser.token;
             state = validateAsyncArgumentList(parser, context, state);
-            args.push(restoreExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression));
+            args.push(restoreExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression));
         }
         if (consume(parser, context, 67108882)) {
             parser.flags &= ~4;
@@ -2753,12 +2819,12 @@ function parseAsyncArgumentList(parser, context) {
             tolerant(parser, context, 82);
         }
         else if (state & 8) {
-            if (context & 8192)
+            if (context & 4096)
                 tolerant(parser, context, 48);
             parser.flags |= 2048;
         }
         else if (state & 16) {
-            if (context & 8192)
+            if (context & 4096)
                 tolerant(parser, context, 52);
             parser.flags |= 64;
         }
@@ -2791,7 +2857,7 @@ function parsePrimaryExpression(parser, context) {
         case 8425580:
             return parseAsyncFunctionOrIdentifier(parser, context);
         case 67174411:
-            return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 268435456);
+            return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 134217728);
         case 33619987:
             return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
         case 33619980:
@@ -2819,7 +2885,7 @@ function parsePrimaryExpression(parser, context) {
     }
 }
 function parseLetAsIdentifier(parser, context) {
-    if (context & 8192)
+    if (context & 4096)
         tolerant(parser, context, 51);
     const pos = getLocation(parser);
     const name = parser.tokenValue;
@@ -2841,12 +2907,12 @@ function parseAsyncFunctionOrIdentifier(parser, context) {
 function parseIdentifier(parser, context) {
     const pos = getLocation(parser);
     const name = parser.tokenValue;
-    nextToken(parser, context | 32768);
+    nextToken(parser, context | 16384);
     const node = finishNode(context, parser, pos, {
         type: 'Identifier',
         name,
     });
-    if (context & 1024)
+    if (context & 256)
         node.raw = parser.tokenRaw;
     return node;
 }
@@ -2866,7 +2932,7 @@ function parseRegularExpressionLiteral(parser, context) {
 function parseLiteral(parser, context) {
     const pos = getLocation(parser);
     const value = parser.tokenValue;
-    if (context & 8192 && parser.flags & 128) {
+    if (context & 4096 && parser.flags & 128) {
         tolerant(parser, context, 62);
     }
     nextToken(parser, context);
@@ -2910,7 +2976,7 @@ function parseThisExpression(parser, context) {
     if (parser.flags & 32768)
         tolerant(parser, context, 2);
     const pos = getLocation(parser);
-    nextToken(parser, context | 1073741824);
+    nextToken(parser, context | 536870912);
     return finishNode(context, parser, pos, {
         type: 'ThisExpression',
     });
@@ -2948,7 +3014,7 @@ function parseArrayLiteral(parser, context) {
             }
         }
         else {
-            elements.push(restoreExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression));
+            elements.push(restoreExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression));
             if (parser.token !== 20)
                 expect(parser, context, 67108882);
         }
@@ -2985,11 +3051,11 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context)
                 state = validateCoverParenthesizedExpression(parser, state);
                 if (parser.token & 33554432)
                     state |= 16;
-                let expr = restoreExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression);
+                let expr = restoreExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression);
                 if (parser.token === 67108882) {
                     state |= 1;
                     const expressions = [expr];
-                    while (consume(parser, context | 1073741824, 67108882)) {
+                    while (consume(parser, context | 536870912, 67108882)) {
                         parser.flags &= ~4;
                         switch (parser.token) {
                             case 14:
@@ -3027,20 +3093,23 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context)
                 expect(parser, context, 16);
                 if (parser.token === 10) {
                     if (state & 2) {
-                        if (context & 8192)
+                        if (context & 4096)
                             tolerant(parser, context, 48);
                         parser.flags |= 2048;
                     }
                     else if (state & 4) {
-                        if (context & 8192)
+                        if (context & 4096)
                             tolerant(parser, context, 51);
                         parser.flags |= 64;
                     }
                     else if (!(parser.flags & 2)) {
                         tolerant(parser, context, 81);
                     }
-                    else if (parser.flags & (16384 | 8192)) {
-                        tolerant(parser, context, parser.flags & 16384 ? 52 : 53);
+                    else if (parser.flags & 16384) {
+                        tolerant(parser, context, 52);
+                    }
+                    else if (context & 131072 && parser.flags & 8192) {
+                        tolerant(parser, context, 53);
                     }
                     parser.flags &= ~(2 | 8192 | 16384);
                     const params = (state & 1 ? expr.expressions : [expr]);
@@ -3061,7 +3130,7 @@ function parseFunctionExpression(parser, context) {
     const { token } = parser;
     if (token & (134217728 | 4096)) {
         if (token & 268435456) {
-            if (context & 8192)
+            if (context & 4096)
                 tolerant(parser, context, 48);
             parser.flags |= 2048;
         }
@@ -3070,7 +3139,7 @@ function parseFunctionExpression(parser, context) {
         }
         id = parseBindingIdentifier(parser, context);
     }
-    const { params, body } = swapContext(parser, context & ~(67108864 | 134217728), isGenerator, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(33554432 | 67108864), isGenerator, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
         params,
@@ -3091,7 +3160,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
     const { token } = parser;
     if (token & (134217728 | 4096)) {
         if (token & 268435456) {
-            if (context & 8192 || isAwait & 2)
+            if (context & 4096 || isAwait & 2)
                 tolerant(parser, context, 48);
             parser.flags |= 1024;
         }
@@ -3101,7 +3170,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
             tolerant(parser, context, 50);
         id = parseBindingIdentifier(parser, context);
     }
-    const { params, body } = swapContext(parser, context & ~(67108864 | 134217728), isGenerator | isAwait, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(33554432 | 67108864), isGenerator | isAwait, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
         params,
@@ -3114,7 +3183,7 @@ function parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) {
 }
 function parseComputedPropertyName(parser, context) {
     expect(parser, context, 33619987);
-    const key = parseAssignmentExpression(parser, context | 131072);
+    const key = parseAssignmentExpression(parser, context | 65536);
     expect(parser, context, 20);
     return key;
 }
@@ -3134,7 +3203,7 @@ function parseSpreadProperties(parser, context) {
     expect(parser, context, 14);
     if (parser.token & 33554432)
         parser.flags &= ~4;
-    const argument = parseAssignmentExpression(parser, context | 131072);
+    const argument = parseAssignmentExpression(parser, context | 65536);
     return finishNode(context, parser, pos, {
         type: 'SpreadElement',
         argument,
@@ -3163,7 +3232,7 @@ function parsePropertyDefinition(parser, context) {
     const flags = parser.flags;
     let value;
     let state = consume(parser, context, 330291) ? 2 | 32 : 32;
-    let t = parser.token;
+    const t = parser.token;
     let key = parsePropertyName(parser, context);
     if (!(parser.token & 67108864)) {
         if (flags & 32768) {
@@ -3196,8 +3265,9 @@ function parsePropertyDefinition(parser, context) {
                 tolerant(parser, context, 1, tokenDesc(parser.token));
             }
             else if (t !== 33619987 && parser.tokenValue === '__proto__') {
-                if (parser.flags & 512)
-                    recordExpressionError(parser, 65);
+                if (parser.flags & 512) {
+                    setPendingExpressionError(parser, 65);
+                }
                 else
                     parser.flags |= 512;
             }
@@ -3210,22 +3280,23 @@ function parsePropertyDefinition(parser, context) {
             if ((state & (2 | 1)) || !isValidIdentifier(context, t)) {
                 tolerant(parser, context, 1, tokenDesc(t));
             }
-            else if (context & (8192 | 524288) && t & 2097152) {
+            else if (context & (4096 | 262144) && t & 2097152) {
                 setPendingError(parser);
                 parser.flags |= 16384;
             }
             state |= 64;
-            if (consume(parser, context, 67239965)) {
-                if (context & (8192 | 524288 | 262144) && parser.token & (2097152 | 4194304)) {
+            if (parser.token === 67239965) {
+                setPendingExpressionError(parser, 96);
+                expect(parser, context, 67239965);
+                if (context & (4096 | 262144 | 131072) && parser.token & (2097152 | 4194304)) {
                     setPendingError(parser);
                     parser.flags |= parser.token & 2097152 ? 16384 : 8192;
                 }
                 value = parseAssignmentPattern(parser, context, key, pos);
-                recordExpressionError(parser, 4);
             }
             else {
                 if (t & 4194304) {
-                    if (context & 262144)
+                    if (context & 131072)
                         tolerant(parser, context, 47);
                     setPendingError(parser);
                     parser.flags |= 8192;
@@ -3248,7 +3319,7 @@ function parseMethodDeclaration(parser, context, state) {
     const pos = getLocation(parser);
     const isGenerator = state & 2 ? 1 : 0;
     const isAsync = state & 1 ? 2 : 0;
-    const { params, body } = swapContext(parser, context | 67108864, isGenerator | isAsync, parseFormalListAndBody, state);
+    const { params, body } = swapContext(parser, context | 33554432, isGenerator | isAsync, parseFormalListAndBody, state);
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
         params,
@@ -3264,22 +3335,22 @@ function parseArrowFunction(parser, context, pos, params) {
     if (parser.flags & 1)
         tolerant(parser, context, 83);
     expect(parser, context, 10);
-    return parseArrowBody(parser, context & ~262144, params, pos, 0);
+    return parseArrowBody(parser, context & ~131072, params, pos, 0);
 }
 function parseAsyncArrowFunction(parser, context, state, pos, params) {
     parser.flags &= ~(4 | 2);
     if (parser.flags & 1)
         tolerant(parser, context, 36);
     expect(parser, context, 10);
-    return parseArrowBody(parser, context | 262144, params, pos, state);
+    return parseArrowBody(parser, context | 131072, params, pos, state);
 }
 function parseArrowBody(parser, context, params, pos, state) {
     parser.pendingExpressionError = null;
     for (const i in params)
-        reinterpret(parser, context | 1048576, params[i]);
+        reinterpret(parser, context | 524288, params[i]);
     const expression = parser.token !== 33619980;
-    const body = expression ? parseExpressionCoverGrammar(parser, context & ~(524288 | 1048576), parseAssignmentExpression) :
-        swapContext(parser, context & ~524288 | 2097152, state, parseFunctionBody);
+    const body = expression ? parseExpressionCoverGrammar(parser, context & ~(262144 | 524288), parseAssignmentExpression) :
+        swapContext(parser, context & ~(262144 | 1073741824) | 1048576, state, parseFunctionBody);
     return finishNode(context, parser, pos, {
         type: 'ArrowFunctionExpression',
         body,
@@ -3291,15 +3362,15 @@ function parseArrowBody(parser, context, params, pos, state) {
     });
 }
 function parseFormalListAndBody(parser, context, state) {
-    const paramList = parseFormalParameters(parser, context | 1048576, state);
+    const paramList = parseFormalParameters(parser, context | 524288, state);
     const args = paramList.args;
     const params = paramList.params;
-    const body = parseFunctionBody(parser, context | 2097152, args);
+    const body = parseFunctionBody(parser, context & ~1073741824 | 1048576, args);
     return { params, body };
 }
 function parseFunctionBody(parser, context, params) {
     const pos = getLocation(parser);
-    expect(parser, context | 1073741824, 33619980);
+    expect(parser, context | 536870912, 33619980);
     const body = [];
     while (parser.token === 65539) {
         const { tokenRaw, tokenValue } = parser;
@@ -3314,10 +3385,10 @@ function parseFunctionBody(parser, context, params) {
             else if (parser.flags & 2048) {
                 tolerant(parser, context, 48);
             }
-            context |= 8192;
+            context |= 4096;
         }
     }
-    if (context & 8192) {
+    if (context & 4096) {
         validateParams(parser, context, params);
     }
     const { labelSet } = parser;
@@ -3370,12 +3441,12 @@ function parseFormalParameterList(parser, context, args) {
     const pos = getLocation(parser);
     if (parser.token & (134217728 | 4096)) {
         if (hasBit(parser.token, 20480)) {
-            if (context & 8192)
+            if (context & 4096)
                 tolerant(parser, context, 51);
             parser.flags |= 1024;
         }
         if (hasBit(parser.token, 268435456)) {
-            if (context & 8192)
+            if (context & 4096)
                 tolerant(parser, context, 48);
             parser.flags |= 2048;
         }
@@ -3386,7 +3457,7 @@ function parseFormalParameterList(parser, context, args) {
     const left = parseBindingIdentifierOrPattern(parser, context, args);
     if (!consume(parser, context, 67239965))
         return left;
-    if (parser.token & (2097152 | 4194304) && context & (524288 | 262144)) {
+    if (parser.token & (2097152 | 4194304) && context & (262144 | 131072)) {
         tolerant(parser, context, parser.token & 4194304 ? 53 : 52);
     }
     parser.flags |= 8;
@@ -3398,33 +3469,42 @@ function parseFormalParameterList(parser, context, args) {
 }
 function parseClassExpression(parser, context) {
     const pos = getLocation(parser);
-    expect(parser, context | 1073741824, 77901);
+    expect(parser, context | 536870912, 77901);
     const { token } = parser;
     let state = 0;
-    if (context & 262144 && token & 4194304)
+    if (context & 131072 && token & 4194304)
         tolerant(parser, context, 49);
     const id = (token !== 33619980 && token !== 12372) ?
-        parseBindingIdentifier(parser, context | 8192) :
+        parseBindingIdentifier(parser, context | 4096) :
         null;
     let superClass = null;
     if (consume(parser, context, 12372)) {
-        superClass = parseLeftHandSideExpression(parser, context | 8192, pos);
+        superClass = parseLeftHandSideExpression(parser, context | 4096, pos);
         state |= 512;
     }
     return finishNode(context, parser, pos, {
         type: 'ClassExpression',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context | 8192, state),
+        body: parseClassBodyAndElementList(parser, context | 4096, state),
     });
 }
 function parseClassBodyAndElementList(parser, context, state) {
     const pos = getLocation(parser);
     expect(parser, context, 33619980);
     const body = [];
+    let decorators = [];
     while (parser.token !== 603979791) {
         if (!consume(parser, context, 603979793)) {
-            body.push(parseClassElement(parser, context, state));
+            if (context & 2048) {
+                decorators = parseDecorators(parser, context);
+                if (parser.token === 603979791)
+                    report(parser, 97);
+                if (decorators.length !== 0 && parser.tokenValue === 'constructor') {
+                    report(parser, 98);
+                }
+            }
+            body.push(parseClassElement(parser, context, state, decorators));
         }
     }
     expect(parser, context, 603979791);
@@ -3433,13 +3513,13 @@ function parseClassBodyAndElementList(parser, context, state) {
         body,
     });
 }
-function parseClassElement(parser, context, state) {
+function parseClassElement(parser, context, state, decorators) {
     const pos = getLocation(parser);
-    if (context & 1 && parser.token === 115) {
-        return parsePrivateFields(parser, context, pos);
-    }
     let { tokenValue, token } = parser;
     const isEscaped = !!(parser.flags & 32768);
+    if (context & 1 && token === 115) {
+        return parsePrivateFields(parser, context, pos, decorators);
+    }
     if (consume(parser, context, 330291))
         state |= 2;
     if (parser.token === 33619987)
@@ -3451,17 +3531,17 @@ function parseClassElement(parser, context, state) {
     }
     let key = parsePropertyName(parser, context);
     if (context & 1 && isInstanceField(parser)) {
-        return parseFieldDefinition(parser, context, key, state, pos);
+        return parseFieldDefinition(parser, context, key, state, pos, decorators);
     }
     let value;
     if (!(parser.token & 67108864)) {
-        if (token === 20585) {
+        if (isEscaped)
+            tolerant(parser, context, 2);
+        else if (token === 20585) {
             token = parser.token;
             if (consume(parser, context, 330291))
                 state |= 2;
             tokenValue = parser.tokenValue;
-            if (isEscaped)
-                tolerant(parser, context, 2);
             if (parser.token === 33619987)
                 state |= 16;
             if (parser.tokenValue === 'prototype')
@@ -3471,7 +3551,7 @@ function parseClassElement(parser, context, state) {
             if (context & 1 && isInstanceField(parser)) {
                 if (tokenValue === 'constructor')
                     tolerant(parser, context, 1, tokenDesc(parser.token));
-                return parseFieldDefinition(parser, context, key, state, pos);
+                return parseFieldDefinition(parser, context, key, state, pos, decorators);
             }
         }
         if (parser.token !== 67174411) {
@@ -3504,19 +3584,28 @@ function parseClassElement(parser, context, state) {
         if (!(state & (4 | 8)))
             state |= 32;
         if (state & 512 && state & 256) {
-            context |= 134217728;
+            context |= 67108864;
         }
         value = parseMethodDeclaration(parser, context, state);
     }
     else {
         if (context & 1)
-            return parseFieldDefinition(parser, context, key, state, pos);
+            return parseFieldDefinition(parser, context, key, state, pos, decorators);
         tolerant(parser, context, 1, tokenDesc(token));
     }
-    return parseMethodDefinition(parser, context, key, value, state, pos);
+    return parseMethodDefinition(parser, context, key, value, state, pos, decorators);
 }
-function parseMethodDefinition(parser, context, key, value, state, pos) {
-    return finishNode(context, parser, pos, {
+function parseMethodDefinition(parser, context, key, value, state, pos, decorators) {
+    return finishNode(context, parser, pos, context & 2048 ? {
+        type: 'MethodDefinition',
+        kind: (state & 256) ? 'constructor' : (state & 4) ? 'get' :
+            (state & 8) ? 'set' : 'method',
+        static: !!(state & 128),
+        computed: !!(state & 16),
+        key,
+        value,
+        decorators
+    } : {
         type: 'MethodDefinition',
         kind: (state & 256) ? 'constructor' : (state & 4) ? 'get' :
             (state & 8) ? 'set' : 'method',
@@ -3526,7 +3615,7 @@ function parseMethodDefinition(parser, context, key, value, state, pos) {
         value,
     });
 }
-function parseFieldDefinition(parser, context, key, state, pos) {
+function parseFieldDefinition(parser, context, key, state, pos, decorators) {
     if (state & 256)
         tolerant(parser, context, 0);
     let value = null;
@@ -3538,7 +3627,14 @@ function parseFieldDefinition(parser, context, key, state, pos) {
         value = parseAssignmentExpression(parser, context);
     }
     consume(parser, context, 67108882);
-    return finishNode(context, parser, pos, {
+    return finishNode(context, parser, pos, context & 2048 ? {
+        type: 'FieldDefinition',
+        key,
+        value,
+        computed: !!(state & 16),
+        static: !!(state & 128),
+        decorators
+    } : {
         type: 'FieldDefinition',
         key,
         value,
@@ -3554,13 +3650,13 @@ function parsePrivateName(parser, context, pos) {
         name,
     });
 }
-function parsePrivateFields(parser, context, pos) {
-    expect(parser, context | 65536, 115);
+function parsePrivateFields(parser, context, pos, decorators) {
+    expect(parser, context | 32768, 115);
     if (parser.tokenValue === 'constructor')
         tolerant(parser, context, 41);
     const key = parsePrivateName(parser, context, pos);
     if (parser.token === 67174411)
-        return parsePrivateMethod(parser, context, key, pos);
+        return parsePrivateMethod(parser, context, key, pos, decorators);
     let value = null;
     if (consume(parser, context, 67239965)) {
         if (parser.token & 268435456)
@@ -3568,7 +3664,14 @@ function parsePrivateFields(parser, context, pos) {
         value = parseAssignmentExpression(parser, context);
     }
     consume(parser, context, 67108882);
-    return finishNode(context, parser, pos, {
+    return finishNode(context, parser, pos, context & 2048 ? {
+        type: 'FieldDefinition',
+        key,
+        value,
+        computed: false,
+        static: false,
+        decorators
+    } : {
         type: 'FieldDefinition',
         key,
         value,
@@ -3576,22 +3679,22 @@ function parsePrivateFields(parser, context, pos) {
         static: false,
     });
 }
-function parsePrivateMethod(parser, context, key, pos) {
-    const value = parseMethodDeclaration(parser, context | 8192, 0);
+function parsePrivateMethod(parser, context, key, pos, decorators) {
+    const value = parseMethodDeclaration(parser, context | 4096, 0);
     parser.flags &= ~(4 | 2);
-    return parseMethodDefinition(parser, context, key, value, 32, pos);
+    return parseMethodDefinition(parser, context, key, value, 32, pos, decorators);
 }
 function parseCallImportOrMetaProperty(parser, context) {
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
     if (consume(parser, context, 67108877)) {
-        if (context & 16384 && parser.tokenValue === 'meta')
+        if (context & 8192 && parser.tokenValue === 'meta')
             return parseMetaProperty(parser, context, id, pos);
         tolerant(parser, context, 1, tokenDesc(parser.token));
     }
     let expr = parseImportExpression(parser, context, pos);
     expect(parser, context, 67174411);
-    const args = parseExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression);
+    const args = parseExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression);
     expect(parser, context, 16);
     expr = finishNode(context, parser, pos, {
         type: 'CallExpression',
@@ -3617,7 +3720,7 @@ function parseNewExpressionOrMetaProperty(parser, context) {
     const id = parseIdentifier(parser, context);
     if (consume(parser, context, 67108877)) {
         if (parser.tokenValue !== 'target' ||
-            !(context & (1048576 | 2097152)))
+            !(context & (524288 | 1048576)))
             tolerant(parser, context, 54);
         return parseMetaProperty(parser, context, id, pos);
     }
@@ -3641,12 +3744,12 @@ function parseSuperProperty(parser, context) {
     expect(parser, context, 77917);
     switch (parser.token) {
         case 67174411:
-            if (!(context & 134217728))
+            if (!(context & 67108864))
                 tolerant(parser, context, 55);
             break;
         case 33619987:
         case 67108877:
-            if (!(context & 67108864))
+            if (!(context & 33554432))
                 tolerant(parser, context, 56);
             break;
         default:
@@ -3706,6 +3809,22 @@ function parseTemplateSpans(parser, context, pos = getLocation(parser)) {
         tail: true,
     });
 }
+function parseDecoratorList(parser, context) {
+    const pos = getLocation(parser);
+    return finishNode(context, parser, pos, {
+        type: 'Decorator',
+        expression: parseLeftHandSideExpression(parser, context, pos)
+    });
+}
+function parseDecorators(parser, context) {
+    const decoratorList = [];
+    if (!(context & 2048))
+        return decoratorList;
+    while (consume(parser, context, 120)) {
+        decoratorList.push(parseDecoratorList(parser, context | 1073741824));
+    }
+    return decoratorList;
+}
 
 function parseBindingIdentifierOrPattern(parser, context, args = []) {
     const { token } = parser;
@@ -3715,10 +3834,10 @@ function parseBindingIdentifierOrPattern(parser, context, args = []) {
             parseArrayAssignmentPattern(parser, context);
     }
     else if (token & (4194304 | 2097152)) {
-        if (token & 4194304 && (context & (262144 | 16384))) {
+        if (token & 4194304 && (context & (131072 | 8192))) {
             tolerant(parser, context, 49);
         }
-        else if (token & 2097152 && (context & (524288 | 8192))) {
+        else if (token & 2097152 && (context & (262144 | 4096))) {
             tolerant(parser, context, 50);
         }
     }
@@ -3728,15 +3847,15 @@ function parseBindingIdentifierOrPattern(parser, context, args = []) {
 function parseBindingIdentifier(parser, context) {
     const { token } = parser;
     if (token & 268435456) {
-        if (context & 8192)
+        if (context & 4096)
             tolerant(parser, context, 16);
         parser.flags |= 2048;
     }
-    else if (context & 8388608 && token === 86088) {
+    else if (context & 4194304 && token === 86088) {
         tolerant(parser, context, 26);
     }
     else if (hasBit(token, 20480)) {
-        if (context & 8192)
+        if (context & 4096)
             tolerant(parser, context, 1, tokenDesc(token));
         parser.flags |= 1024;
     }
@@ -3776,7 +3895,7 @@ function parseArrayAssignmentPattern(parser, context) {
                 break;
             }
             else {
-                elements.push(parseExpressionCoverGrammar(parser, context | 131072, parseBindingInitializer));
+                elements.push(parseExpressionCoverGrammar(parser, context | 65536, parseBindingInitializer));
             }
             if (parser.token !== 20)
                 expect(parser, context, 67108882);
@@ -3811,7 +3930,7 @@ function parseAssignmentPattern(parser, context, left, pos) {
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
         left,
-        right: parseExpressionCoverGrammar(parser, context | 131072, parseAssignmentExpression),
+        right: parseExpressionCoverGrammar(parser, context | 65536, parseAssignmentExpression),
     });
 }
 function parseBindingInitializer(parser, context) {
@@ -3822,7 +3941,7 @@ function parseBindingInitializer(parser, context) {
         finishNode(context, parser, pos, {
             type: 'AssignmentPattern',
             left,
-            right: parseAssignmentExpression(parser, context | 131072),
+            right: parseAssignmentExpression(parser, context | 65536),
         });
 }
 function parseAssignmentProperty(parser, context) {
@@ -3837,7 +3956,7 @@ function parseAssignmentProperty(parser, context) {
         shorthand = !consume(parser, context, 67108885);
         if (shorthand) {
             const hasInitializer = consume(parser, context, 67239965);
-            if (context & 524288 && token & 2097152)
+            if (context & 262144 && token & 2097152)
                 tolerant(parser, context, 50);
             if (!isValidIdentifier(context, token))
                 tolerant(parser, context, 47);
@@ -3865,21 +3984,32 @@ function parseAssignmentProperty(parser, context) {
 
 function parseClassDeclaration(parser, context) {
     const pos = getLocation(parser);
-    expect(parser, context | 1073741824, 77901);
-    const id = (context & 33554432 && (parser.token !== 134283265))
+    let decorators = [];
+    if (context & 2048) {
+        decorators = parseDecorators(parser, context);
+    }
+    expect(parser, context | 536870912, 77901);
+    const id = (context & 16777216 && (parser.token !== 134283265))
         ? null :
-        parseBindingIdentifier(parser, context | 8192 | 1073741824);
+        parseBindingIdentifier(parser, context | 4096 | 536870912);
     let state = 0;
     let superClass = null;
     if (consume(parser, context, 12372)) {
-        superClass = parseLeftHandSideExpression(parser, context | 8192, pos);
+        superClass = parseLeftHandSideExpression(parser, context | 4096, pos);
         state |= 512;
     }
-    return finishNode(context, parser, pos, {
+    const body = parseClassBodyAndElementList(parser, context & ~16777216 | 4096 | 32768, state);
+    return finishNode(context, parser, pos, context & 2048 ? {
         type: 'ClassDeclaration',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context & ~33554432 | 8192 | 65536, state),
+        body,
+        decorators
+    } : {
+        type: 'ClassDeclaration',
+        id,
+        superClass,
+        body
     });
 }
 function parseFunctionDeclaration(parser, context) {
@@ -3887,7 +4017,7 @@ function parseFunctionDeclaration(parser, context) {
     expect(parser, context, 77912);
     let isGenerator = 0;
     if (consume(parser, context, 330291)) {
-        if (context & 4194304 && !(context & 2097152)) {
+        if (context & 2097152 && !(context & 1048576)) {
             tolerant(parser, context, 21);
         }
         isGenerator = 1;
@@ -3896,7 +4026,7 @@ function parseFunctionDeclaration(parser, context) {
 }
 function parseFunctionDeclarationBody(parser, context, state, pos) {
     const id = parseFunctionDeclarationName(parser, context);
-    const { params, body } = swapContext(parser, context & ~(67108864 | 134217728 | 33554432), state, parseFormalListAndBody);
+    const { params, body } = swapContext(parser, context & ~(33554432 | 67108864 | 16777216), state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
         params,
@@ -3918,14 +4048,14 @@ function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
 function parseFunctionDeclarationName(parser, context) {
     const { token } = parser;
     let id = null;
-    if (context & 524288 && token & 2097152)
+    if (context & 262144 && token & 2097152)
         tolerant(parser, context, 50);
-    if (context & 262144 && token & 4194304)
+    if (context & 131072 && token & 4194304)
         tolerant(parser, context, 49);
     if (token !== 67174411) {
         id = parseBindingIdentifier(parser, context);
     }
-    else if (!(context & 33554432))
+    else if (!(context & 16777216))
         tolerant(parser, context, 39);
     return id;
 }
@@ -3934,9 +4064,9 @@ function parseVariableDeclaration(parser, context, isConst) {
     const isBindingPattern = (parser.token & 33554432) !== 0;
     const id = parseBindingIdentifierOrPattern(parser, context);
     let init = null;
-    if (consume(parser, context | 1073741824, 67239965)) {
-        init = parseExpressionCoverGrammar(parser, context & ~(8388608 | 16777216), parseAssignmentExpression);
-        if (parser.token & 1073741824 && (context & 16777216 || isBindingPattern)) {
+    if (consume(parser, context | 536870912, 67239965)) {
+        init = parseExpressionCoverGrammar(parser, context & ~(4194304 | 8388608), parseAssignmentExpression);
+        if (parser.token & 1073741824 && (context & 8388608 || isBindingPattern)) {
             tolerant(parser, context, 24, tokenDesc(parser.token));
         }
     }
@@ -3953,7 +4083,7 @@ function parseVariableDeclarationList(parser, context, isConst) {
     const list = [parseVariableDeclaration(parser, context, isConst)];
     while (consume(parser, context, 67108882))
         list.push(parseVariableDeclaration(parser, context, isConst));
-    if (context & 16777216 && parser.token & 1073741824 && list.length !== 1) {
+    if (context & 8388608 && parser.token & 1073741824 && list.length !== 1) {
         tolerant(parser, context, 25, tokenDesc(parser.token));
     }
     return list;
@@ -3963,31 +4093,32 @@ function parseStatementListItem(parser, context) {
     switch (parser.token) {
         case 77912:
             return parseFunctionDeclaration(parser, context);
+        case 120:
         case 77901:
             return parseClassDeclaration(parser, context);
         case 86088:
-            return parseLetOrExpressionStatement(parser, context | 131072);
+            return parseLetOrExpressionStatement(parser, context | 65536);
         case 77897:
-            return parseVariableStatement(parser, context | 8388608 | 131072);
+            return parseVariableStatement(parser, context | 4194304 | 65536);
         case 8425580:
             return parseAsyncFunctionDeclarationOrStatement(parser, context);
         case 77914: {
             if (context & 1 && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
-                return parseExpressionStatement(parser, context | 131072);
+                return parseExpressionStatement(parser, context | 65536);
             }
         }
         case 12371:
-            if (context & 16384) {
+            if (context & 8192) {
                 tolerant(parser, context, parser.token === 77914 ? 33 : 34);
             }
         default:
-            return parseStatement(parser, context | 4194304);
+            return parseStatement(parser, context | 2097152);
     }
 }
 function parseStatement(parser, context) {
     switch (parser.token) {
         case 77895:
-            return parseVariableStatement(parser, context | 131072);
+            return parseVariableStatement(parser, context | 65536);
         case 603979793:
             return parseEmptyStatement(parser, context);
         case 77918:
@@ -4013,16 +4144,16 @@ function parseStatement(parser, context) {
         case 602208:
             return parseThrowStatement(parser, context);
         case 12385:
-            return parseTryStatement(parser, context | 1073741824);
+            return parseTryStatement(parser, context | 536870912);
         case 12374:
-            return parseForStatement(parser, context | 16777216);
+            return parseForStatement(parser, context | 8388608);
         case 8425580:
             if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
                 tolerant(parser, context, 35);
             }
-            return parseExpressionOrLabelledStatement(parser, context | 4194304);
+            return parseExpressionOrLabelledStatement(parser, context | 2097152);
         case 77912:
-            tolerant(parser, context, context & 8192 ? 18 : 19);
+            tolerant(parser, context, context & 4096 ? 18 : 19);
         case 77901:
             tolerant(parser, context, 20, tokenDesc(parser.token));
         default:
@@ -4076,9 +4207,9 @@ function parseIfStatement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 12377);
     expect(parser, context, 67174411);
-    const test = parseExpression(parser, context | 131072);
+    const test = parseExpression(parser, context & ~1073741824 | 65536);
     expect(parser, context, 16);
-    const consequent = parseConsequentOrAlternate(parser, context | 1073741824);
+    const consequent = parseConsequentOrAlternate(parser, context | 536870912);
     const alternate = consume(parser, context, 12370) ? parseConsequentOrAlternate(parser, context) : null;
     return finishNode(context, parser, pos, {
         type: 'IfStatement',
@@ -4088,8 +4219,8 @@ function parseIfStatement(parser, context) {
     });
 }
 function parseConsequentOrAlternate(parser, context) {
-    return context & 8192 || parser.token !== 77912 ?
-        parseStatement(parser, context & ~4194304) :
+    return context & 4096 || parser.token !== 77912 ?
+        parseStatement(parser, context & ~2097152) :
         parseFunctionDeclaration(parser, context);
 }
 function parseDebuggerStatement(parser, context) {
@@ -4137,7 +4268,7 @@ function parseThrowStatement(parser, context) {
     expect(parser, context, 602208);
     if (parser.flags & 1)
         tolerant(parser, context, 85);
-    const argument = parseExpression(parser, context | 131072);
+    const argument = parseExpression(parser, context & ~1073741824 | 65536);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ThrowStatement',
@@ -4146,7 +4277,7 @@ function parseThrowStatement(parser, context) {
 }
 function parseExpressionStatement(parser, context) {
     const pos = getLocation(parser);
-    const expr = parseExpression(parser, context | 131072);
+    const expr = parseExpression(parser, context & ~1073741824 | 65536);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -4156,7 +4287,7 @@ function parseExpressionStatement(parser, context) {
 function parseDirective(parser, context) {
     const pos = getLocation(parser);
     const directive = parser.tokenRaw.slice(1, -1);
-    const expr = parseExpression(parser, context | 131072);
+    const expr = parseExpression(parser, context & ~1073741824 | 65536);
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
         type: 'ExpressionStatement',
@@ -4167,16 +4298,16 @@ function parseDirective(parser, context) {
 function parseExpressionOrLabelledStatement(parser, context) {
     const pos = getLocation(parser);
     const { tokenValue, token } = parser;
-    const expr = parseExpression(parser, context & ~4194304 | 131072);
+    const expr = parseExpression(parser, context & ~(2097152 | 1073741824) | 65536);
     if (token & (134217728 | 4096) && parser.token === 67108885) {
-        if (context & 524288 && token & 2097152)
+        if (context & 262144 && token & 2097152)
             tolerant(parser, context, 58);
         expect(parser, context, 67108885, 88);
         if (hasLabel(parser, tokenValue))
             tolerant(parser, context, 28, tokenValue);
         addLabel(parser, tokenValue);
         let body;
-        if (!(context & 8192) && (context & 4194304) && parser.token === 77912) {
+        if (!(context & 4096) && (context & 2097152) && parser.token === 77912) {
             body = parseFunctionDeclaration(parser, context);
         }
         else {
@@ -4201,7 +4332,7 @@ function parseDoWhileStatement(parser, context) {
     const body = parseIterationStatement(parser, context);
     expect(parser, context, 12402);
     expect(parser, context, 67174411);
-    const test = parseExpression(parser, context | 131072);
+    const test = parseExpression(parser, context & ~1073741824 | 65536);
     expect(parser, context, 16);
     consume(parser, context, 603979793);
     return finishNode(context, parser, pos, {
@@ -4214,7 +4345,7 @@ function parseWhileStatement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 12402);
     expect(parser, context, 67174411);
-    const test = parseExpression(parser, context | 131072);
+    const test = parseExpression(parser, context & ~1073741824 | 65536);
     expect(parser, context, 16);
     const body = parseIterationStatement(parser, context);
     return finishNode(context, parser, pos, {
@@ -4238,14 +4369,14 @@ function parseBlockStatement(parser, context) {
 }
 function parseReturnStatement(parser, context) {
     const pos = getLocation(parser);
-    if (!(context & (128 | 2097152))) {
+    if (!(context & (32 | 1048576))) {
         tolerant(parser, context, 17);
     }
     if (parser.flags & 32768)
         tolerant(parser, context, 2);
     expect(parser, context, 12380);
     const argument = !(parser.token & 536870912) && !(parser.flags & 1) ?
-        parseExpression(parser, context & ~2097152 | 131072) :
+        parseExpression(parser, context & ~(1048576 | 1073741824) | 65536) :
         null;
     consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
@@ -4256,19 +4387,19 @@ function parseReturnStatement(parser, context) {
 function parseIterationStatement(parser, context) {
     const savedFlags = parser.flags;
     parser.flags |= 32 | 4;
-    const body = parseStatement(parser, context & ~4194304 | 1073741824);
+    const body = parseStatement(parser, context & ~2097152 | 536870912);
     parser.flags = savedFlags;
     return body;
 }
 function parseWithStatement(parser, context) {
-    if (context & 8192)
+    if (context & 4096)
         tolerant(parser, context, 37);
     const pos = getLocation(parser);
     expect(parser, context, 12387);
     expect(parser, context, 67174411);
-    const object = parseExpression(parser, context |= 131072);
+    const object = parseExpression(parser, context & ~1073741824 | 65536);
     expect(parser, context, 16);
-    const body = parseStatement(parser, context & ~4194304);
+    const body = parseStatement(parser, context & ~2097152);
     return finishNode(context, parser, pos, {
         type: 'WithStatement',
         object,
@@ -4279,9 +4410,9 @@ function parseSwitchStatement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 77918);
     expect(parser, context, 67174411);
-    const discriminant = parseExpression(parser, context | 131072);
+    const discriminant = parseExpression(parser, context & ~1073741824 | 65536);
     expect(parser, context, 16);
-    expect(parser, context | 1073741824, 33619980);
+    expect(parser, context | 536870912, 33619980);
     const cases = [];
     const savedFlags = parser.flags;
     parser.flags |= 16;
@@ -4307,7 +4438,7 @@ function parseCaseOrDefaultClauses(parser, context) {
     const pos = getLocation(parser);
     let test = null;
     if (consume(parser, context, 12363)) {
-        test = parseExpression(parser, context | 131072);
+        test = parseExpression(parser, context & ~1073741824 | 65536);
     }
     else {
         expect(parser, context, 12368);
@@ -4315,7 +4446,7 @@ function parseCaseOrDefaultClauses(parser, context) {
     expect(parser, context, 67108885);
     const consequent = [];
     while (!isEndOfCaseOrDefaultClauses(parser)) {
-        consequent.push(parseStatementListItem(parser, context | 131072));
+        consequent.push(parseStatementListItem(parser, context | 65536));
     }
     return finishNode(context, parser, pos, {
         type: 'SwitchCase',
@@ -4339,7 +4470,7 @@ function parseVariableStatement(parser, context, shouldConsume = true) {
 }
 function parseLetOrExpressionStatement(parser, context, shouldConsume = true) {
     return lookahead(parser, context, isLexical) ?
-        parseVariableStatement(parser, context | 8388608, shouldConsume) :
+        parseVariableStatement(parser, context | 4194304, shouldConsume) :
         parseExpressionOrLabelledStatement(parser, context);
 }
 function parseAsyncFunctionDeclarationOrStatement(parser, context) {
@@ -4350,8 +4481,8 @@ function parseAsyncFunctionDeclarationOrStatement(parser, context) {
 function parseForStatement(parser, context) {
     const pos = getLocation(parser);
     expect(parser, context, 12374);
-    const awaitToken = !!(context & 262144 && consume(parser, context, 138514541));
-    expect(parser, context | 1073741824, 67174411);
+    const awaitToken = !!(context & 131072 && consume(parser, context, 138514541));
+    expect(parser, context | 536870912, 67174411);
     const { token } = parser;
     let init = null;
     let sequencePos = null;
@@ -4361,14 +4492,14 @@ function parseForStatement(parser, context) {
     let update = null;
     let right;
     if (token === 77897 || (token === 86088 && lookahead(parser, context, isLexical))) {
-        variableStatement = parseVariableStatement(parser, context & ~131072 | 8388608, false);
+        variableStatement = parseVariableStatement(parser, context & ~65536 | 4194304, false);
     }
     else if (token === 77895) {
-        variableStatement = parseVariableStatement(parser, context & ~131072, false);
+        variableStatement = parseVariableStatement(parser, context & ~65536, false);
     }
     else if (token !== 603979793) {
         sequencePos = getLocation(parser);
-        init = restoreExpressionCoverGrammar(parser, context & ~131072 | 1073741824, parseAssignmentExpression);
+        init = restoreExpressionCoverGrammar(parser, context & ~65536 | 536870912, parseAssignmentExpression);
     }
     if (consume(parser, context, 1073778802)) {
         type = 'ForOfStatement';
@@ -4380,7 +4511,7 @@ function parseForStatement(parser, context) {
         }
         else
             init = variableStatement;
-        right = parseAssignmentExpression(parser, context | 131072);
+        right = parseAssignmentExpression(parser, context | 65536);
     }
     else if (consume(parser, context, 1074083633)) {
         if (init) {
@@ -4391,7 +4522,7 @@ function parseForStatement(parser, context) {
         else
             init = variableStatement;
         type = 'ForInStatement';
-        right = parseExpression(parser, context | 131072);
+        right = parseExpression(parser, context & ~1073741824 | 65536);
     }
     else {
         if (parser.token === 67108882)
@@ -4399,9 +4530,9 @@ function parseForStatement(parser, context) {
         if (variableStatement)
             init = variableStatement;
         expect(parser, context, 603979793);
-        test = parser.token !== 603979793 ? parseExpression(parser, context | 131072) : null;
+        test = parser.token !== 603979793 ? parseExpression(parser, context & ~1073741824 | 65536) : null;
         expect(parser, context, 603979793);
-        update = parser.token !== 16 ? parseExpression(parser, context | 131072) : null;
+        update = parser.token !== 16 ? parseExpression(parser, context & ~1073741824 | 65536) : null;
     }
     expect(parser, context, 16);
     const body = parseIterationStatement(parser, context);
@@ -4431,12 +4562,14 @@ function parseModuleItemList(parser, context) {
     while (parser.token !== 536870912) {
         statements.push(parser.token === 65539 ?
             parseDirective(parser, context) :
-            parseModuleItem(parser, context | 131072));
+            parseModuleItem(parser, context | 65536));
     }
     return statements;
 }
 function parseModuleItem(parser, context) {
     switch (parser.token) {
+        case 120:
+            return parseDecorators(parser, context);
         case 12371:
             return parseExportDeclaration(parser, context);
         case 77914:
@@ -4452,7 +4585,7 @@ function parseExportDeclaration(parser, context) {
     const specifiers = [];
     let source = null;
     let declaration = null;
-    expect(parser, context | 1073741824, 12371);
+    expect(parser, context | 536870912, 12371);
     switch (parser.token) {
         case 330291:
             return parseExportAllDeclaration(parser, context, pos);
@@ -4471,7 +4604,7 @@ function parseExportDeclaration(parser, context) {
                     if (parser.token !== 603979791)
                         expect(parser, context, 67108882);
                 }
-                expect(parser, context | 1073741824, 603979791);
+                expect(parser, context | 536870912, 603979791);
                 if (parser.token === 36977) {
                     source = parseModuleSpecifier(parser, context);
                 }
@@ -4486,7 +4619,7 @@ function parseExportDeclaration(parser, context) {
             break;
         case 86088:
         case 77897:
-            declaration = parseVariableStatement(parser, context | 8388608);
+            declaration = parseVariableStatement(parser, context | 4194304);
             break;
         case 77895:
             declaration = parseVariableStatement(parser, context);
@@ -4520,7 +4653,7 @@ function parseExportAllDeclaration(parser, context, pos) {
 }
 function parseNamedExportDeclaration(parser, context) {
     const pos = getLocation(parser);
-    const local = parseIdentifierName(parser, context | 1073741824, parser.token);
+    const local = parseIdentifierName(parser, context | 536870912, parser.token);
     const exported = consume(parser, context, 36971)
         ? parseIdentifierName(parser, context, parser.token)
         : local;
@@ -4531,21 +4664,22 @@ function parseNamedExportDeclaration(parser, context) {
     });
 }
 function parseExportDefault(parser, context, pos) {
-    expect(parser, context | 1073741824, 12368);
+    expect(parser, context | 536870912, 12368);
     let declaration;
     switch (parser.token) {
         case 77912:
-            declaration = parseFunctionDeclaration(parser, context | 33554432);
+            declaration = parseFunctionDeclaration(parser, context | 16777216);
             break;
+        case 120:
         case 77901:
-            declaration = parseClassDeclaration(parser, context & ~131072 | 33554432);
+            declaration = parseClassDeclaration(parser, context & ~65536 | 16777216);
             break;
         case 8425580:
-            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 33554432);
+            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 16777216);
             break;
         default:
             {
-                declaration = parseAssignmentExpression(parser, context | 131072);
+                declaration = parseAssignmentExpression(parser, context | 65536);
                 consumeSemicolon(parser, context);
             }
     }
@@ -4563,7 +4697,7 @@ function parseImportDeclaration(parser, context) {
         source = parseLiteral(parser, context);
     }
     else {
-        specifiers = parseImportClause(parser, context | 1073741824);
+        specifiers = parseImportClause(parser, context | 536870912);
         source = parseModuleSpecifier(parser, context);
     }
     consumeSemicolon(parser, context);
@@ -4617,7 +4751,7 @@ function parseNamedImports(parser, context, specifiers) {
 function parseImportSpecifier(parser, context) {
     const pos = getLocation(parser);
     const { token } = parser;
-    const imported = parseIdentifierName(parser, context | 1073741824, token);
+    const imported = parseIdentifierName(parser, context | 536870912, token);
     let local;
     if (parser.token === 36971) {
         expect(parser, context, 36971);
@@ -4660,11 +4794,11 @@ function parseImportDefaultSpecifier(parser, context) {
 }
 function parseAsyncFunctionOrAssignmentExpression(parser, context) {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
-        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 33554432) :
-        parseAssignmentExpression(parser, context | 131072);
+        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 16777216) :
+        parseAssignmentExpression(parser, context | 65536);
 }
 
-function createParser(source, sourceFile, delegate) {
+function createParser(source, sourceFile) {
     return {
         source,
         index: 0,
@@ -4687,13 +4821,11 @@ function createParser(source, sourceFile, delegate) {
         tokenValue: undefined,
         labelSet: undefined,
         errorLocation: undefined,
-        delegate,
         errors: [],
     };
 }
 function parse(source, options, context) {
     let sourceFile = '';
-    let delegate;
     if (!!options) {
         if (options.next)
             context |= 1;
@@ -4705,34 +4837,32 @@ function parse(source, options, context) {
             context |= 16;
         if (options.raw)
             context |= 8;
-        if (options.globalReturn)
-            context |= 128;
-        if (options.skipShebang)
-            context |= 512;
         if (options.rawIdentifier)
-            context |= 1024;
+            context |= 256;
+        if (options.globalReturn)
+            context |= 32;
+        if (options.skipShebang)
+            context |= 128;
         if (options.tolerant)
-            context |= 2048;
+            context |= 512;
         if (!!options.source)
             sourceFile = options.source;
         if (!!options.comments)
-            context |= 256;
-        if (options.impliedStrict)
             context |= 64;
-        if (options.node)
+        if (options.impliedStrict)
             context |= 4096;
-        if (typeof options.delegate === 'function') {
-            context |= 32;
-            delegate = options.delegate;
-        }
+        if (options.experimental)
+            context |= 2048;
+        if (options.node)
+            context |= 1024;
     }
-    const parser = createParser(source, sourceFile, delegate);
-    const body = context & 16384
+    const parser = createParser(source, sourceFile);
+    const body = context & 8192
         ? parseModuleItemList(parser, context)
         : parseStatementList(parser, context);
     const node = {
         type: 'Program',
-        sourceType: context & 16384 ? 'module' : 'script',
+        sourceType: context & 8192 ? 'module' : 'script',
         body,
     };
     if (context & 2) {
@@ -4753,18 +4883,18 @@ function parse(source, options, context) {
         if (sourceFile)
             node.loc.source = sourceFile;
     }
-    if (context & 256)
+    if (context & 64)
         node.comments = parser.comments;
-    if (context & 2048)
+    if (context & 512)
         node.errors = parser.errors;
     return node;
 }
 function parseStatementList(parser, context) {
     const statements = [];
-    nextToken(parser, context | 1073741824);
+    nextToken(parser, context | 536870912);
     while (parser.token === 65539) {
-        if (!(context & 8192) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
-            context |= 8192;
+        if (!(context & 4096) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
+            context |= 4096;
         }
         statements.push(parseDirective(parser, context));
     }
@@ -4807,6 +4937,7 @@ var index = /*#__PURE__*/Object.freeze({
     parseFormalParameterList: parseFormalParameterList,
     parseClassBodyAndElementList: parseClassBodyAndElementList,
     parseClassElement: parseClassElement,
+    parseDecorators: parseDecorators,
     parseModuleItemList: parseModuleItemList,
     parseModuleItem: parseModuleItem,
     parseExportDeclaration: parseExportDeclaration,
@@ -4891,8 +5022,8 @@ function parseScript(source, options) {
     return parse(source, options, 0);
 }
 function parseModule(source, options) {
-    return parse(source, options, 8192 | 16384);
+    return parse(source, options, 4096 | 8192);
 }
-const version = '1.5.0';
+const version = '1.5.2';
 
-export { parseScript, parseModule, version, estree as ESTree, index as Parser, index$1 as Scanner, CharacterType, ErrorMessages, constructError, report, tolerant, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, expect, consume, nextToken, hasBit, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, validateParams, reinterpret, lookahead, isValidSimpleAssignmentTarget, getLocation, isValidIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, parseAndValidateIdentifier, nameIsArgumentsOrEval, setPendingError, isEqualTagNames, isInstanceField, validateUpdateExpression, recordExpressionError, validateCoverParenthesizedExpression, validateAsyncArgumentList };
+export { parseScript, parseModule, version, estree as ESTree, index as Parser, index$1 as Scanner, CharacterType, ErrorMessages, constructError, report, tolerant, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, expect, consume, nextToken, hasBit, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, validateParams, reinterpret, lookahead, isValidSimpleAssignmentTarget, getLocation, isValidIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, parseAndValidateIdentifier, nameIsArgumentsOrEval, setPendingError, isEqualTagNames, isInstanceField, validateUpdateExpression, setPendingExpressionError, validateCoverParenthesizedExpression, validateAsyncArgumentList };
