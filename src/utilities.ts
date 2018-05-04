@@ -313,13 +313,12 @@ export function consumeSemicolon(parser: Parser, context: Context): void | boole
  * @param callback Callback function
  * @param errMsg Optional error message
  */
-export function parseExpressionCoverGrammar < T >(
+export function parseExpressionCoverGrammar <T>(
     parser: Parser,
     context: Context,
     callback: (parser: Parser, context: Context) => T,
 ) {
-    const prevFlags = parser.flags;
-    const prevpendingExpressionError = parser.pendingExpressionError;
+    const { flags, pendingExpressionError } = parser;
     parser.flags |= Flags.AllowBinding | Flags.AllowDestructuring;
     parser.pendingExpressionError = undefined;
     const res = callback(parser, context);
@@ -330,9 +329,9 @@ export function parseExpressionCoverGrammar < T >(
         constructError(parser, context, index, line, column, error);
     }
     parser.flags &= ~(Flags.AllowBinding | Flags.AllowDestructuring);
-    if (prevFlags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
-    if (prevFlags & Flags.AllowDestructuring) parser.flags |= Flags.AllowDestructuring;
-    parser.pendingExpressionError = prevpendingExpressionError;
+    if (flags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
+    if (flags & Flags.AllowDestructuring) parser.flags |= Flags.AllowDestructuring;
+    parser.pendingExpressionError = pendingExpressionError;
     return res;
 }
 
@@ -348,17 +347,18 @@ export function restoreExpressionCoverGrammar < T >(
     context: Context,
     callback: (parser: Parser, context: Context) => T,
 ) {
-    const prevFlags = parser.flags;
-    const prevpendingExpressionError = parser.pendingExpressionError;
+    const { flags, pendingExpressionError } = parser;
     parser.flags |= Flags.AllowBinding | Flags.AllowDestructuring;
     // Clear pending expression error
     parser.pendingExpressionError = undefined;
     const res = callback(parser, context);
-    if (parser.flags & Flags.AllowBinding && prevFlags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
-    else parser.flags &= ~Flags.AllowBinding;
-    if (parser.flags & Flags.AllowDestructuring && prevFlags & Flags.AllowDestructuring) parser.flags |= Flags.AllowDestructuring;
-    else parser.flags &= ~Flags.AllowDestructuring;
-    parser.pendingExpressionError = prevpendingExpressionError || parser.pendingExpressionError;
+    if (!(parser.flags & Flags.AllowBinding) || !(flags & Flags.AllowBinding)) {
+        parser.flags &= ~Flags.AllowBinding;
+    }
+    if (!(parser.flags & Flags.AllowDestructuring) || !(flags & Flags.AllowDestructuring)) {
+        parser.flags &= ~Flags.AllowDestructuring;
+    }
+    parser.pendingExpressionError = pendingExpressionError || parser.pendingExpressionError;
     return res;
 }
 
@@ -380,13 +380,9 @@ export function swapContext < T >(
     state: ModifierState,
     callback: (parser: Parser, context: Context, state: ObjectState) => T,
     methodState: ObjectState = ObjectState.None): T {
-
     context &= ~(Context.Async | Context.Yield | Context.InParameter);
-
     if (state & ModifierState.Generator) context |= Context.Yield;
-
     if (state & ModifierState.Await) context |= Context.Async;
-
     return callback(parser, context, methodState);
 }
 
