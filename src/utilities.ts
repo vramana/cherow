@@ -613,7 +613,7 @@ export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): 
  */
 export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
-    return parser.token === Token.LeftParen || parser.token === Token.LeftBracket;
+    return parser.token === Token.LeftParen;
 }
 
 /**

@@ -1682,6 +1682,8 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
+    let decorators: ESTree.Decorator[] = [];
+    if (context & Context.OptionsExperimental) decorators = parseDecorators(parser, context);
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const { token } = parser;
     let state = ObjectState.None;

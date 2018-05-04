@@ -50,18 +50,23 @@ describe('Experimental - Decorators', () => {
     describe('Pass', () => {
 
         const validSyntax = [
+            `(class A { @foo get getter(){} })`,
             `class A { @foo get getter(){} }`,
             `class A { @foo set setter(bar){} }`,
             `class A { @foo async bar(){} }`, // allowed?
             '@foo class Foo {}',
             'class Foo { @foo @bar bar() {} }',
             'class Foo { @foo bar() {} }',
+            'var foo = class Bar { @foo Zoo() {} }',
             `@foo('bar')
           class Foo {}`,
             `@abc class Foo {}`,
             `class A {
               @dec *m(){}
             }`,
+            `(class A {
+                @dec *m(){}
+             })`,
             `class A {
               @a.b.c.d(e, f)
               m(){}

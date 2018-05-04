@@ -30,9 +30,7 @@ import {
 export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
     const pos = getLocation(parser);
     let decorators: ESTree.Decorator[] = [];
-    if (context & Context.OptionsExperimental) {
-        decorators = parseDecorators(parser, context);
-    }
+    if (context & Context.OptionsExperimental) decorators = parseDecorators(parser, context);
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))
         ? null :
