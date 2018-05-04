@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
@@ -70,8 +70,8 @@
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "3.0.0",
     "shx": "^0.2.2",
-    "ts-node": "^6.0.1",
-    "tslint": "5.9.1",
+    "ts-node": "^6.0.2",
+    "tslint": "5.10.0",
     "typescript": "^2.8.3",
     "unicode-10.0.0": "^0.7.5"
   },
