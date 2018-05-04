@@ -15,6 +15,7 @@ describe('Expressions - Async Function', () => {
             '(async function foo (foo) { super() })',
              '(async function foo (foo) { super.prop });',
             '(async function foo (foo = super()) { var bar; });',
+            '(async function*(await) { });',
             '(async function foo(await) { })',
             '(async\nfunction foo() { })',
             'async ()\n=> a',

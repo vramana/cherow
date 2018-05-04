@@ -76,6 +76,8 @@ describe('Miscellaneous - Identifiers', () => {
 
           const programs = [
               'var yield;',
+              'var yield = 1',
+              'var object = {yield}',
               'const yield = yield;',
               'let foo, yield;',
               'var foo, yield;',

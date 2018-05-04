@@ -315,11 +315,7 @@ describe('Statements - For of', () => {
 
       fail('"use strict"; for ([{ x = yield }] of [[{}]]) ;', Context.Empty, {
               source: '"use strict"; for ([{ x = yield }] of [[{}]]) ;',
-          });
-
-          //fail('"use strict"; for ([arguments] of [[]]) ;', Context.Empty, {
-            //source: '"use strict"; for ([arguments] of [[]]) ;',
-           //});
+      });
 
       fail('"use strict"; for ([ x[yield] ] of [[]]) ;', Context.Empty, {
               source: '"use strict"; for ([ x[yield] ] of [[]]) ;',

@@ -10,6 +10,7 @@ describe('Statements - For in', () => {
           'for(var [] = 0 in {});',
           'for(var [,] = 0 in {});',
           'for(var [a] = 0 in {});',
+          'for ([...x,] in [[]]) ;',
           'for(var [a = 0] = 0 in {});',
           'for(var [...a] = 0 in {});',
           'for(var [...[]] = 0 in {});',
@@ -110,10 +111,6 @@ describe('Statements - For in', () => {
             source: 'for(const x = 4, y in [1,2,3]) {}',
         });
 
-  //      fail('for ([ x = yield ] in [[]]) ;', Context.Empty, {
-    //      source: 'for ([ x = yield ] in [[]]) ;',
-      //});
-
       fail('for (this in {}) {};', Context.Empty, {
             source: 'for (this in {}) {}',
         });
@@ -213,9 +210,9 @@ describe('Statements - For in', () => {
             source: 'for (a=12 in e) break;',
         });
 
-        // fail('for (var [arguments] = ({ get y(){} }) in y ) (x);', Context.Empty, {
-           //  source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
-        // });
+      fail('for (var [arguments] = ({ get y(){} }) in y ) (x);', Context.Empty, {
+         source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
+      });
 
       fail('for (0 = 0 in {});', Context.Empty, {
             source: 'for (0 = 0 in {});',
@@ -326,11 +323,7 @@ describe('Statements - For in', () => {
 
       fail('"use strict"; for ([{ x = yield }] in [[{}]]) ;', Context.Empty, {
             source: '"use strict"; for ([{ x = yield }] in [[{}]]) ;',
-        });
-
-        // fail('"use strict"; for ([arguments] in [[]]) ;', Context.Empty, {
-        // source: '"use strict"; for ([arguments] in [[]]) ;',
-        // });
+      });
 
       fail('"use strict"; for ([ x[yield] ] in [[]]) ;', Context.Empty, {
             source: '"use strict"; for ([ x[yield] ] in [[]]) ;',
@@ -352,9 +345,9 @@ describe('Statements - For in', () => {
             source: 'for ([...x,] in [[]]) ;',
         });
 
-        // fail('for ([...x = 1] in [[]]) ;', Context.Empty, {
-        //  source: 'for ([...x = 1] in [[]]) ;',
-        // });
+      fail('for ([...x = 1] in [[]]) ;', Context.Empty, {
+          source: 'for ([...x = 1] in [[]]) ;',
+      });
 
       fail('for ([...[(x, y)]] in [[[]]]) ;', Context.Empty, {
             source: 'for ([...[(x, y)]] in [[[]]]) ;',

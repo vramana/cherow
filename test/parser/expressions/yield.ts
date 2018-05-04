@@ -253,6 +253,10 @@ describe('Expressions - Yield', () => {
         source: 'function yield() { "use strict"; }',
       });
 
+      fail('function* g() { for (yield "" in {}; ; ) ; }', Context.Empty, {
+        source: 'function* g() { for (yield "" in {}; ; ) ; }',
+      });
+
       fail(`"use strict";
       function yield() {} `, Context.Empty, {
         source: `"use strict";

@@ -154,6 +154,13 @@ describe('Statements - For', () => {
         'for (let {j}=x; j<10; ++j) { function foo(){return j} }',
         'for (let j=x; j<10; ++j) { const foo = j }',
         'for (let j=x; j<10; ++j) { let [foo] = [j] }',
+        `let = 1;
+        for ( let; ; )
+          break;`,
+        `for (; false; ) let // ASI
+          {}`,
+          `for (; false; ) let // ASI
+          x = 1;`,
         // tests for possible destructuring regression
         'for (var {j}=x; j<10; ++j) { const foo = j }',
         `        for ("boolean" == typeof a && (l = a, a = arguments[s] ||

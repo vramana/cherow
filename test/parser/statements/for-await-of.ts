@@ -469,6 +469,71 @@ describe('Statements - For await of', () => {
         source: 'for await (const line of readLines(filePath)) {\n  console.log(line);\n}',
         });
 
+        pass(`async function* f() {
+            for await (var x of []) let // ASI
+            {}
+          }`, Context.Empty, {
+            source: `async function* f() {
+                for await (var x of []) let // ASI
+                {}
+              }`,
+            expected: {
+                  body: [
+                    {
+                      async: true,
+                      body: {
+                        body: [
+                          {
+                            await: true,
+                            body: {
+                              expression: {
+                                name: 'let',
+                                type: 'Identifier',
+                              },
+                              type: 'ExpressionStatement'
+                            },
+                            left: {
+                              declarations: [
+                                {
+                                  id: {
+                                    name: 'x',
+                                   type: 'Identifier',
+                                  },
+                                  init: null,
+                                  type: 'VariableDeclarator',
+                                },
+                              ],
+                              kind: 'var',
+                              type: 'VariableDeclaration',
+                            },
+                            right: {
+                              elements: [],
+                              type: 'ArrayExpression',
+                            },
+                            type: 'ForOfStatement',
+                          },
+                          {
+                            body: [],
+                            type: 'BlockStatement',
+                          },
+                        ],
+                        type: 'BlockStatement',
+                      },
+                      expression: false,
+                      generator: true,
+                      id: {
+                       name: 'f',
+                        type: 'Identifier',
+                      },
+                      params: [],
+                      type: 'FunctionDeclaration',
+                    },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program',
+                }
+        });
+
         pass(`async function f() { for await (a of []); }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
             source: `async function f() { for await (a of []); }`,
             expected: {
