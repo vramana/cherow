@@ -15,6 +15,9 @@ describe('Statements - Const', () => {
       'const [...x = []] = [];',
       'const [...{ x }, y] = [1, 2, 3];',
       'const [...x, y] = [1, 2, 3];',
+      // Babylon PR: https://github.com/babel/babylon/pull/195
+      'const { foo: enum } = bar();',
+      'function foo({ bar: enum }) {}',
   ];
 
     for (const arg of invalidSyntax) {
@@ -50,6 +53,10 @@ describe('Statements - Const', () => {
     fail('if (true) {} else const x;', Context.Empty, {
           source: 'if (true) {} else const x;',
       });
+
+    fail('const { foo: protected } = bar();', Context.Strict, {
+        source: 'const { foo: protected } = bar();',
+    });
 
     fail('for (;false;) const x = 1;', Context.Empty, {
         source: 'for (;false;) const x = 1;',

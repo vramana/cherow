@@ -173,6 +173,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
             if (parser.token === Token.InKeyword) {
+                // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
                 if (context & (Context.BlockScope | Context.Strict | Context.Async) || isBindingPattern) {
                     tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
                 }

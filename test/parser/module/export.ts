@@ -68,6 +68,7 @@ describe('Module - Export', () => {
             'function foo() { }; export foo;',
             'export function () { }',
             'export function* () { }',
+            'export B, * as A, { C, D } from "test";',
             // missing binding identifier
             'export class { }',
             'function foo() { }; export [ foo ];',

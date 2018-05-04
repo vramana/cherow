@@ -39,6 +39,10 @@ describe('Expressions - Rest property', () => {
             'function test({...[]}) {}',
             'var {...[]} = {}',
             'function test({...{a}}) {}',
+            // Babylon PR: https://github.com/babel/babylon/issues/667
+            ' ( {...{}} = {} ) ',
+            // Babylon issue: https://github.com/babel/babylon/issues/661
+            'let {...{}} = {};',
             // '({...obj}) => {}',
             // '({...[a,b]}) => {}',
             // '({...(obj)} = foo)',

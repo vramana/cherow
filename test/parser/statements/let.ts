@@ -30,6 +30,7 @@ describe('Expressions - Let', () => {
             'do let x; while (false)',
             'let [...x = []] = [];',
             'if (true) {} else let x;',
+            'let {...{}} = {};',
             'let [...[ x ] = []] = [];',
             'let [...[ x ] = []] = [];',
             'let [...{ x } = []] = [];',
@@ -38,6 +39,9 @@ describe('Expressions - Let', () => {
             'let [...x = []] = [];',
             // 'let' should not be an allowed name in destructuring let declarations
             'let [a, let, b] = [1, 2, 3];',
+            // Babylon issue: https://github.com/babel/babylon/issues/148
+            'let { ...x, y, z } = obj;',
+            'let { x, ...y, ...z } = obj;'
         ];
 
         for (const arg of invalidSyntax) {
