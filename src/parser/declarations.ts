@@ -172,7 +172,11 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
     if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
         if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
-            tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
+            if (parser.token === Token.InKeyword) {
+                if (context & (Context.BlockScope | Context.Strict | Context.Async) || isBindingPattern) {
+                    tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
+                }
+            } else tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Note: Initializers are required for 'const' and binding patterns
     } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {

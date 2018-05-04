@@ -104,7 +104,13 @@ describe('Destructuring - Miscellaneous', () => {
         'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
         'var e = 1;       ( {ghijkl  = (((((foo)) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
         'var e = 1;       ( {abcdef  = (((((foo)) = (1))))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}'
+        'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        // Babylon issue: https://github.com/babel/babylon/issues/397
+        'for (var a = 0 in {});',
+        `function test() {
+          var [x, ...[y, ...z]] = [1,2,3,4];
+          return x === 1 && y === 2 && z + '' === '3,4';
+        }`
     ];
 
       for (const arg of validCombos) {

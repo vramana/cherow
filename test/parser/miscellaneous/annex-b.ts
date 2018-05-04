@@ -17,9 +17,10 @@ describe('Miscellaneous - Annex B', () => {
             `while(true) function a(){}`,
             `with(true) function a(){}`,
             'for (let a = 0 in {});',
-            'for (var a = 0 in {});',
+            '"use strict"; for (var a = 0 in {});',
             'for (var {a} = 0 in {});',
             'for (a = 0 in {});',
+            'for (var [a] = 0 in {});',
             'for (const a = 0 in {});',
             // Esprima issue>  https://github.com/jquery/esprima/issues/1719
             `if (false) L: async function l() {}`
