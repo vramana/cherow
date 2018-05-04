@@ -496,7 +496,7 @@ function parseMemberExpression(
                         computed: true,
                         property,
                     });
-                
+
                     continue;
 
                 }
@@ -679,7 +679,7 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
             tolerant(parser, context, Errors.AwaitInParameter);
         }
     }
-    
+
     return args;
 }
 
@@ -1111,9 +1111,9 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     } else if (parser.flags & Flags.HasYield) {
                         tolerant(parser, context, Errors.YieldInParameter);
                     } else if (context & Context.Async && parser.flags & Flags.HasAwait) {
-                        tolerant(parser, context,Errors.AwaitInParameter);
+                        tolerant(parser, context, Errors.AwaitInParameter);
                     }
-                    
+
                     parser.flags &= ~(Flags.AllowBinding | Flags.HasAwait | Flags.HasYield);
 
                     const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
@@ -1309,7 +1309,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
     const flags = parser.flags;
     let value;
     let state = consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Method : ObjectState.Method;
-    let t = parser.token;
+    const t = parser.token;
 
     let key = parsePropertyName(parser, context);
 
@@ -1317,7 +1317,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
         if (flags & Flags.EscapedKeyword) {
             tolerant(parser, context, Errors.InvalidEscapedReservedWord);
         } else if (!(state & ObjectState.Generator) && t & Token.IsAsync && !(parser.flags & Flags.NewLine)) {
-            state |= consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Async: ObjectState.Async;
+            state |= consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Async : ObjectState.Async;
             key = parsePropertyName(parser, context);
         } else if (t === Token.GetKeyword) {
             state = state & ~ObjectState.Method | ObjectState.Getter;
@@ -1337,12 +1337,12 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
         state &= ~ObjectState.Method;
 
         if (parser.token === Token.Colon) {
-         
+
             if ((state & (ObjectState.Async | ObjectState.Generator))) {
                 tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
             } else if (t !== Token.LeftBracket && parser.tokenValue === '__proto__') {
                 if (parser.flags & Flags.HasProtoField) {
-                    // Record the error and put it on hold until we've determined 
+                    // Record the error and put it on hold until we've determined
                     // whether or not we're destructuring
                     setPendingExpressionError(parser, Errors.DuplicateProto);
                 } else parser.flags |= Flags.HasProtoField;
@@ -1371,7 +1371,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                     parser.flags |= parser.token & Token.IsYield ? Flags.HasYield : Flags.HasAwait;
                 }
                 value = parseAssignmentPattern(parser, context, key, pos);
-                
+
             } else {
                 if (t & Token.IsAwait) {
                     if (context & Context.Async) tolerant(parser, context, Errors.UnexpectedReserved);
@@ -1722,10 +1722,10 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
     while (parser.token !== Token.RightBrace) {
         if (!consume(parser, context, Token.Semicolon)) {
             if (context & Context.OptionsExperimental) {
-                decorators = parseDecorators(parser, context)
-                if (parser.token === Token.RightBrace) report(parser, Errors.TrailingDecorators)
+                decorators = parseDecorators(parser, context);
+                if (parser.token === Token.RightBrace) report(parser, Errors.TrailingDecorators);
                 if (decorators.length !== 0 && parser.tokenValue === 'constructor') {
-                    report(parser, Errors.GeneratorConstructor)
+                    report(parser, Errors.GeneratorConstructor);
                 }
             }
             body.push(parseClassElement(parser, context, state, decorators));
@@ -1751,14 +1751,14 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
  */
 
 export function parseClassElement(
-    parser: Parser, 
-    context: Context, 
-    state: ObjectState, 
+    parser: Parser,
+    context: Context,
+    state: ObjectState,
     decorators: ESTree.Decorator[]
 ): ESTree.MethodDefinition | ESTree.FieldDefinition {
 
     const pos = getLocation(parser);
-    
+
     let { tokenValue, token } = parser;
     const isEscaped = !!(parser.flags & Flags.EscapedKeyword);
 
@@ -1776,7 +1776,7 @@ export function parseClassElement(
     }
 
     let key = parsePropertyName(parser, context);
-    
+
     if (context & Context.OptionsNext && isInstanceField(parser)) {
         return parseFieldDefinition(parser, context, key, state, pos, decorators);
     }
@@ -1790,7 +1790,7 @@ export function parseClassElement(
             token = parser.token;
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             tokenValue = parser.tokenValue;
-           
+
             if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
             if (parser.tokenValue === 'prototype') tolerant(parser, context, Errors.StaticPrototype);
 
@@ -1926,7 +1926,7 @@ function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTr
 function parsePrivateFields(parser: Parser, context: Context, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
     expect(parser, context | Context.InClass, Token.Hash);
     if (parser.tokenValue === 'constructor') tolerant(parser, context, Errors.PrivateFieldConstructor);
-    
+
     const key = parsePrivateName(parser, context, pos);
     if (parser.token === Token.LeftParen) return parsePrivateMethod(parser, context, key, pos, decorators);
     let value: any = null;
@@ -2204,7 +2204,7 @@ function parseTemplateSpans(parser: Parser, context: Context, pos: Location = ge
 
 /**
  * Parses decorators
- * 
+ *
  * @param parser Parser object
  * @param context Context masks
  */
@@ -2218,15 +2218,15 @@ function parseDecoratorList(parser: Parser, context: Context): ESTree.Decorator 
 
 /**
  * Parses a list of decorators
- * 
+ *
  * @param parser Parser object
  * @param context Context masks
  */
 export function parseDecorators(parser: Parser, context: Context): ESTree.Decorator[] {
-    let decoratorList: ESTree.Decorator[] = [];
-    if (!(context & Context.OptionsExperimental)) decoratorList;
+    const decoratorList: ESTree.Decorator[] = [];
+    if (!(context & Context.OptionsExperimental)) return decoratorList;
     while (consume(parser, context, Token.At)) {
        decoratorList.push(parseDecoratorList(parser, context | Context.AllowDecorator));
     }
-    return decoratorList
+    return decoratorList;
 }

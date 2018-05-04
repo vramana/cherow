@@ -3,14 +3,7 @@ import { Parser } from '../types';
 import { Errors, report } from '../errors';
 import { Token } from '../token';
 import { Context, Flags, Escape } from '../utilities';
-import {
-    toHex,
-    readNext,
-    fromCodePoint,
-    hasNext,
-    nextChar,
-    advance,
-} from './common';
+import { toHex, readNext, fromCodePoint } from './common';
 
 /**
  * Scan escape sequence
@@ -159,7 +152,7 @@ export function scanEscapeSequence(parser: Parser, context: Context, first: numb
             }
 
         default:
-            return nextChar(parser);
+            return parser.source.charCodeAt(parser.index);
     }
 }
 
@@ -204,9 +197,9 @@ export function throwStringError(parser: Parser, context: Context, code: Escape)
 export function scanString(parser: Parser, context: Context, quote: number): Token {
     const { index: start, lastValue} = parser;
     let ret = '';
-    advance(parser);  // consume quote
+    parser.index++; parser.column++;  // consume quote
 
-    let ch = nextChar(parser);
+    let ch = parser.source.charCodeAt(parser.index);
 
     while (ch !== quote) {
         switch (ch) {
@@ -238,7 +231,7 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
         ch = readNext(parser);
     }
 
-    advance(parser); // consume quote
+    parser.index++; parser.column++; // consume quote
 
     parser.tokenRaw = parser.source.slice(start, parser.index);
     parser.tokenValue = ret;

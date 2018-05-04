@@ -10,8 +10,7 @@ import { Context, Flags, nextToken } from '../utilities';
  *
  * @param source The source coode to parser
  * @param sourceFile Optional source file info to be attached in every node
-  */
- 
+ */
 export function createParser(
     source: string,
     sourceFile: string | void,

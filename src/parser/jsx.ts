@@ -5,7 +5,7 @@ import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
-import { hasNext, nextChar, advance, consumeOpt, fromCodePoint, readNext } from '../lexer/common';
+import { consumeOpt, fromCodePoint, readNext } from '../lexer/common';
 import {
     Context,
     expect,
@@ -144,20 +144,20 @@ export function nextJSXToken(parser: Parser): Token {
  * @param context Context masks
  */
 export function scanJSXToken(parser: Parser): Token {
-    if (!hasNext(parser)) return Token.EndOfSource;
+    if (parser.index >= parser.source.length) return Token.EndOfSource;
     parser.lastIndex = parser.startIndex = parser.index;
-    const char = nextChar(parser);
+    const char = parser.source.charCodeAt(parser.index);
     if (char === Chars.LessThan) {
-        advance(parser);
+        parser.index++; parser.column++;
         return consumeOpt(parser, Chars.Slash) ? Token.JSXClose : Token.LessThan;
     } else if (char === Chars.LeftBrace) {
-        advance(parser);
+        parser.index++; parser.column++;
         return Token.LeftBrace;
     }
 
-    while (hasNext(parser)) {
-        advance(parser);
-        const next = nextChar(parser);
+    while (parser.index < parser.source.length) {
+        parser.index++; parser.column++;
+        const next = parser.source.charCodeAt(parser.index);
         if (next === Chars.LeftBrace || next === Chars.LessThan) break;
 
     }
@@ -231,7 +231,7 @@ function parseJSXChild(parser: Parser, context: Context): any {
 
 export function parseJSXAttributes(parser: Parser, context: Context): any[] {
     const attributes: ESTree.JSXAttribute[] = [];
-    while (hasNext(parser)) {
+    while (parser.index < parser.source.length) {
         if (parser.token === Token.Divide || parser.token === Token.GreaterThan) break;
         attributes.push(parseJSXAttribute(parser, context));
     }
@@ -346,7 +346,7 @@ export function parseJSXAttribute(parser: Parser, context: Context): any {
 
 function scanJSXAttributeValue(parser: Parser, context: Context): Token {
     parser.lastIndex = parser.index;
-    const ch = nextChar(parser);
+    const ch = parser.source.charCodeAt(parser.index);
     switch (ch) {
         case Chars.DoubleQuote:
         case Chars.SingleQuote:
@@ -366,18 +366,18 @@ function scanJSXAttributeValue(parser: Parser, context: Context): Token {
 function scanJSXString(parser: Parser, context: Context, quote: number): Token {
 
     const rawStart = parser.index;
-    advance(parser);
+    parser.index++; parser.column++;
 
     let ret = '';
-    let ch = nextChar(parser);
+    let ch = parser.source.charCodeAt(parser.index);
     while (ch !== quote) {
         ret += fromCodePoint(ch);
-        advance(parser);
-        ch = nextChar(parser);
-        if (!hasNext(parser)) report(parser, Errors.UnterminatedString);
+        parser.index++; parser.column++;
+        ch = parser.source.charCodeAt(parser.index);
+        if (parser.index >= parser.source.length) report(parser, Errors.UnterminatedString);
     }
 
-    advance(parser); // skip the quote
+    parser.index++; parser.column++; // skip the quote
 
     // raw
     if (context & Context.OptionsRaw)  parser.tokenRaw = parser.source.slice(rawStart, parser.index);
@@ -567,8 +567,8 @@ export function scanJSXIdentifier(parser: Parser): Token {
     const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         const firstCharPosition = parser.index;
-        let ch = nextChar(parser);
-        while (hasNext(parser) && (ch === Chars.Hyphen || (isValidIdentifierPart(ch)))) {
+        let ch = parser.source.charCodeAt(parser.index);
+        while ((parser.index < parser.source.length) && (ch === Chars.Hyphen || (isValidIdentifierPart(ch)))) {
             ch = readNext(parser);
         }
         parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);

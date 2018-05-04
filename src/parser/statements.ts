@@ -431,7 +431,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
     const body = parseIterationStatement(parser, context);
     expect(parser, context, Token.WhileKeyword);
     expect(parser, context, Token.LeftParen);
-    const test = parseExpression(parser, context & ~Context.AllowDecorator| Context.AllowIn);
+    const test = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
     expect(parser, context, Token.RightParen);
     consume(parser, context, Token.Semicolon);
     return finishNode(context, parser, pos, {

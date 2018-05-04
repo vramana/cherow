@@ -11,9 +11,6 @@ import {
     toHex,
     readNext,
     fromCodePoint,
-    hasNext,
-    nextChar,
-    advance,
     nextUnicodeChar,
     advanceOnMaybeAstral,
 } from './common';
@@ -34,7 +31,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
     let isEscaped = false;
     if (first) advanceOnMaybeAstral(parser, first);
     loop:
-        while (hasNext(parser)) {
+        while (parser.index < parser.source.length) {
             const index = parser.index;
             let ch = parser.source.charCodeAt(index);
             switch (ch) {
@@ -145,7 +142,7 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
 
     // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
     // hex digits between { } is arbitrary. \ and u have already been read.
-    let ch = nextChar(parser);
+    let ch = parser.source.charCodeAt(parser.index);
     let codePoint = 0;
 
     // '\u{DDDDDDDD}'
@@ -159,11 +156,11 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
             if (codePoint > Chars.NonBMPMax) {
                 report(parser, Errors.UndefinedUnicodeCodePoint);
             }
-            advance(parser);
-            digit = toHex(nextChar(parser));
+            parser.index++; parser.column++;
+            digit = toHex(parser.source.charCodeAt(parser.index));
         }
 
-        if (nextChar(parser) !== Chars.RightBrace) {
+        if (parser.source.charCodeAt(parser.index) !== Chars.RightBrace) {
             report(parser, Errors.InvalidHexEscapeSequence);
         }
 
@@ -173,11 +170,11 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
     } else {
 
         for (let i = 0; i < 4; i++) {
-            ch = nextChar(parser);
+            ch = parser.source.charCodeAt(parser.index);
             const digit = toHex(ch);
             if (digit < 0) report(parser, Errors.InvalidHexEscapeSequence);
             codePoint = (codePoint << 4) | digit;
-            advance(parser);
+            parser.index++; parser.column++;
         }
     }
 

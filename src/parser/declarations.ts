@@ -31,7 +31,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
     const pos = getLocation(parser);
     let decorators: ESTree.Decorator[] = [];
     if (context & Context.OptionsExperimental) {
-        decorators = parseDecorators(parser, context)
+        decorators = parseDecorators(parser, context);
     }
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const id = (context & Context.RequireIdentifier && (parser.token !== Token.Identifier))
@@ -43,7 +43,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
         state |= ObjectState.Heritage;
     }
-    
+
     const body = parseClassBodyAndElementList(parser, context & ~Context.RequireIdentifier | Context.Strict | Context.InClass, state);
 
     return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
@@ -51,7 +51,7 @@ export function parseClassDeclaration(parser: Parser, context: Context): ESTree.
         id,
         superClass,
         body,
-        decorators 
+        decorators
     } : {
         type: 'ClassDeclaration',
         id,
