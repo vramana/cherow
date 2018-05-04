@@ -328,6 +328,11 @@ export function parseExpressionCoverGrammar <T>(
         const { error, line, column, index } = parser.pendingExpressionError;
         constructError(parser, context, index, line, column, error);
     }
+    // Here we - just in case - disallow both binding and destructuring
+    // and only set the bitmaks if the previous flags (before the callback)
+    // is positive.
+    // Note that this bitmasks may have been turned off during parsing
+    // the callback
     parser.flags &= ~(Flags.AllowBinding | Flags.AllowDestructuring);
     if (flags & Flags.AllowBinding) parser.flags |= Flags.AllowBinding;
     if (flags & Flags.AllowDestructuring) parser.flags |= Flags.AllowDestructuring;
@@ -352,12 +357,21 @@ export function restoreExpressionCoverGrammar < T >(
     // Clear pending expression error
     parser.pendingExpressionError = undefined;
     const res = callback(parser, context);
+    // Both the previous bitmasks and bitmasks set during parsing the callback
+    // has to be positive for us to allow further binding or destructuring.
+    // Note that we allow both before the callback, so this is the only thing
+    // we need to check for.
     if (!(parser.flags & Flags.AllowBinding) || !(flags & Flags.AllowBinding)) {
         parser.flags &= ~Flags.AllowBinding;
     }
     if (!(parser.flags & Flags.AllowDestructuring) || !(flags & Flags.AllowDestructuring)) {
         parser.flags &= ~Flags.AllowDestructuring;
     }
+    // Here we either
+    //  1) restore to previous pending expression error
+    //  or
+    //  2) if a pending expression error have been set during the parse (*only in object literal*)
+    //  we overwrite previous error, and keep the new one
     parser.pendingExpressionError = pendingExpressionError || parser.pendingExpressionError;
     return res;
 }
