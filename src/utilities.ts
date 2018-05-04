@@ -294,10 +294,11 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
  * @param context Context masks
  */
 export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
-    if (parser.token & Token.ASI || parser.flags & Flags.NewLine) return consume(parser, context, Token.Semicolon);
-    report(parser, !(context & Context.Async) && parser.token & Token.IsAwait ?
-        Errors.AwaitOutsideAsync :
-        Errors.UnexpectedToken, tokenDesc(parser.token));
+    return parser.token & Token.ASI || parser.flags & Flags.NewLine ?
+        consume(parser, context, Token.Semicolon) :
+        report(parser, !(context & Context.Async) && parser.token & Token.IsAwait ?
+            Errors.AwaitOutsideAsync :
+            Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 
 /**
