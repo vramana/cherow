@@ -245,7 +245,12 @@ export function finishNode < T extends ESTree.Node >(
  * @param t Token
  * @param Err Optionally error message to be thrown
  */
-export function expect(parser: Parser, context: Context, t: Token, err: Errors = Errors.UnexpectedToken): boolean {
+export function expect(
+    parser: Parser,
+    context: Context,
+    t: Token,
+    err: Errors = Errors.UnexpectedToken
+): boolean {
     if (parser.token !== t) report(parser, err, tokenDesc(parser.token));
     nextToken(parser, context);
     return true;
@@ -259,7 +264,7 @@ export function expect(parser: Parser, context: Context, t: Token, err: Errors =
  * @param context Context masks
  * @param t Token
  */
-export function consume(parser: Parser, context: Context, t: Token) {
+export function consume(parser: Parser, context: Context, t: Token): boolean {
     if (parser.token !== t) return false;
     nextToken(parser, context);
     return true;
@@ -271,7 +276,7 @@ export function consume(parser: Parser, context: Context, t: Token) {
  * @param parser Parser object
  * @param context Context masks
  */
-export function nextToken(parser: Parser, context: Context) {
+export function nextToken(parser: Parser, context: Context): Token {
     parser.lastIndex = parser.index;
     parser.lastLine = parser.line;
     parser.lastColumn = parser.column;
@@ -289,14 +294,10 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
  * @param context Context masks
  */
 export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
-    const { token } = parser;
-
-    if (token & Token.ASI || parser.flags & Flags.NewLine) { // EOF, '}', ';'
-        return consume(parser, context, Token.Semicolon);
-    }
-    report(parser, !(context & Context.Async) && token & Token.IsAwait ?
+    if (parser.token & Token.ASI || parser.flags & Flags.NewLine) return consume(parser, context, Token.Semicolon);
+    report(parser, !(context & Context.Async) && parser.token & Token.IsAwait ?
         Errors.AwaitOutsideAsync :
-        Errors.UnexpectedToken, tokenDesc(token));
+        Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 
 /**
@@ -388,7 +389,7 @@ export function restoreExpressionCoverGrammar < T >(
  * @param methodState Optional Objectstate.
  */
 
-export function swapContext < T >(
+export function swapContext <T>(
     parser: Parser,
     context: Context,
     state: ModifierState,

@@ -152,11 +152,9 @@ async function generate(opts) {
         }
 
         await opts.write(`
-function ${exported}(code${opts.eval ? "" : ":number"}) {
-    const bit = code & ${VectorMask}
-    return (convert[(code >>> ${VectorBitCount}) + ${index * VectorByteSize}] >>> bit & 1) !== 0
-}
-`)
+function ${exported}(code${opts.eval ? "" : ":number"}) { 
+    return (convert[(code >>> ${VectorBitCount}) + ${index * VectorByteSize}] >>> code & ${VectorMask} & 1) !== 0
+}`)
     }
 
     compressorEnd(compress)
