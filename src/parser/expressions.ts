@@ -718,6 +718,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return restoreExpressionCoverGrammar(parser, context, parseObjectLiteral);
         case Token.Hash:
             return parseIdentifierNameOrPrivateName(parser, context);
+        case Token.At:
         case Token.ClassKeyword:
             return parseClassExpression(parser, context);
         case Token.NewKeyword:
@@ -1697,11 +1698,19 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
         state |= ObjectState.Heritage;
     }
-    return finishNode(context, parser, pos, {
+    const body = parseClassBodyAndElementList(parser, context | Context.Strict, state);
+
+    return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
         type: 'ClassExpression',
         id,
         superClass,
-        body: parseClassBodyAndElementList(parser, context | Context.Strict, state),
+        body,
+        decorators
+    } : {
+        type: 'ClassExpression',
+        id,
+        superClass,
+        body,
     });
 }
 

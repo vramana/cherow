@@ -29,8 +29,6 @@ describe('Experimental - Decorators', () => {
               method(@foo x) {}
             };`,
             `class A { @dec static name = 0 }`,
-            `@foo(@bar class Bar{})
-            class Foo {}`,
         ];
 
         for (const arg of inValidSyntax) {
@@ -45,6 +43,9 @@ describe('Experimental - Decorators', () => {
             source: 'export @bar class Foo { }',
         });
 
+        fail('export default @decorator class Foo {}', Context.Strict | Context.Module, {
+            source: 'export default @decorator class Foo {}',
+        });
     });
 
     describe('Pass', () => {
@@ -55,6 +56,8 @@ describe('Experimental - Decorators', () => {
             `class A { @foo set setter(bar){} }`,
             `class A { @foo async bar(){} }`, // allowed?
             '@foo class Foo {}',
+            `@foo(@bar class Bar{})
+            class Foo {}`,
             'class Foo { @foo @bar bar() {} }',
             'class Foo { @foo bar() {} }',
             'var foo = class Bar { @foo Zoo() {} }',
@@ -91,43 +94,50 @@ describe('Experimental - Decorators', () => {
             source: `@foo(class Bar{})
             class Foo {}`,
             expected: {
-                type: 'Program',
-                sourceType: 'script',
-                body: [{
-                    type: 'ClassDeclaration',
-                    id: {
-                        type: 'Identifier',
-                        name: 'Foo'
-                    },
-                    superClass: null,
-                    body: {
+                  body: [
+                    {
+                      body: {
+                        body: [],
                         type: 'ClassBody',
-                        body: []
-                    },
-                    decorators: [{
-                        type: 'Decorator',
-                        expression: {
-                            type: 'CallExpression',
-                            callee: {
-                                type: 'Identifier',
-                                name: 'foo'
-                            },
-                            arguments: [{
-                                type: 'ClassExpression',
+                      },
+                      decorators: [
+                        {
+                          expression: {
+                            arguments: [
+                              {
+                                body: {
+                                  body: [],
+                                  type: 'ClassBody',
+                               },
+                                decorators: [],
                                 id: {
-                                    type: 'Identifier',
-                                    name: 'Bar'
+                                  name: 'Bar',
+                                  type: 'Identifier',
                                 },
                                 superClass: null,
-                                body: {
-                                    type: 'ClassBody',
-                                    body: []
-                                }
-                            }]
+                                type: 'ClassExpression'
+                              }
+                            ],
+                            callee: {
+                              name: 'foo',
+                              type: 'Identifier',
+                            },
+                            type: 'CallExpression',
+                          },
+                          type: 'Decorator'
                         }
-                    }]
-                }]
-            }
+                      ],
+                      id: {
+                        name: 'Foo',
+                        type: 'Identifier',
+                      },
+                      superClass: null,
+                      type: 'ClassDeclaration',
+                    },
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
         });
 
         pass(`class Foo {
@@ -778,6 +788,40 @@ describe('Experimental - Decorators', () => {
                 sourceType: 'script',
                 type: 'Program'
             }
+        });
+
+        pass(`export default (@decorator class Foo {})`, Context.OptionsExperimental | Context.Module, {
+             source: `export default (@decorator class Foo {})`,
+             expected: {
+                  body: [
+                   {
+                      declaration: {
+                        body: {
+                          body: [],
+                          type: 'ClassBody',
+                        },
+                        decorators: [
+                                      {
+                                        expression: {
+                                          name: 'decorator',
+                                          type: 'Identifier',
+                                        },
+                                        type: 'Decorator'
+                                      }
+                                    ],
+                        id: {
+                          name: 'Foo',
+                          type: 'Identifier',
+                        },
+                        superClass: null,
+                       type: 'ClassExpression',
+                      },
+                      type: 'ExportDefaultDeclaration'
+                    },
+                  ],
+                  sourceType: 'module',
+                  type: 'Program'
+                }
         });
 
         pass(`@bar export default
