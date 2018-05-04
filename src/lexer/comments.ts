@@ -45,11 +45,11 @@ export function skipSingleLineComment(
 ): ScannerState {
     const start = parser.index;
     const collectable = !!(context & Context.OptionsComments);
-    while (parser.index < parser.source.length) {
+    while (parser.index < parser.length) {
         switch (parser.source.charCodeAt(parser.index)) {
             case Chars.CarriageReturn:
                 advanceNewline(parser);
-                if ((parser.index < parser.source.length) && parser.source.charCodeAt(parser.index) === Chars.LineFeed) parser.index++;
+                if ((parser.index < parser.length) && parser.source.charCodeAt(parser.index) === Chars.LineFeed) parser.index++;
                 return state | ScannerState.NewLine;
             case Chars.LineFeed:
             case Chars.LineSeparator:
@@ -85,7 +85,7 @@ export function skipMultiLineComment(
     const start = parser.index;
     const collectable = !!(context & Context.OptionsComments);
 
-    while (parser.index < parser.source.length) {
+    while (parser.index < parser.length) {
         switch (parser.source.charCodeAt(parser.index)) {
             case Chars.Asterisk:
                 parser.index++; parser.column++;

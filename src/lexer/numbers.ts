@@ -9,85 +9,6 @@ import { consumeLineFeed, consumeOpt, toHex } from './common';
 // 11.8.3 Numeric Literals
 
 /**
-// Use table lookup + bitmask for improved performance
-function isDigit(ch: number): boolean {
-    return (CharacterType[ch] & CharacterFlags.Decimal) !== 0;
-}
-
-export function scanNumericLiteral(parser: Parser, context: Context): Token {
-    const { index: start } = parser;
-    let hasFloat = false;
-    let isBigInt = false;
-    let maximumDigits = 10;
-    let digit = maximumDigits - 1;
-    let seenSeparator = false;
-    let value: any = 0;
-
-    // 4 bytes optimization
-    loop: while ((parser.index < parser.source.length) && digit >= 0) {
-        const ch = parser.source.charCodeAt(parser.index);
-        switch (ch) {
-            case Chars.Underscore:
-                parser.index++; parser.column++;
-                if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-                seenSeparator = true;
-                continue;
-            case Chars.Zero:
-            case Chars.One:
-            case Chars.Two:
-            case Chars.Three:
-            case Chars.Four:
-            case Chars.Five:
-            case Chars.Six:
-            case Chars.Seven:
-            case Chars.Eight:
-            case Chars.Nine:
-                seenSeparator = false;
-                value = value * 10 + (ch - Chars.Zero);
-                parser.index++; parser.column++;
-                --digit;
-                break;
-            default:
-                break loop;
-        }
-    }
-    if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-    let next = parser.source.charCodeAt(parser.index);
-
-    if (digit >= 0 && parser.source.charCodeAt(parser.index) !== Chars.Period && (parser.index >= parser.source.length || !isValidIdentifierStart(next))) {
-        if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(start, parser.index);
-        parser.tokenValue = hasFloat ? parseFloat(value) : parseInt(value);
-        return Token.NumericLiteral;
-    }
-
-    if (parser.source.charCodeAt(parser.index) === Chars.Period) {
-        hasFloat = true;
-        if (context & Context.OptionsNext && parser.source.charCodeAt(parser.index) === Chars.Underscore) {
-            report(parser, Errors.ZeroDigitNumericSeparator);
-        }
-        parser.index++; parser.column++;
-        value = value + '.' + scanDecimalDigitsOrSeparator(parser);
-    }
-
-    let end = parser.index;
-    if (consumeOpt(parser, Chars.LowerN)) {
-        if (hasFloat) report(parser, Errors.Unexpected);
-        isBigInt = true;
-    }
-    if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
-        hasFloat = true;
-        if (consumeOpt(parser, Chars.Plus) || consumeOpt(parser, Chars.Hyphen)) {} //  pos++;
-        const preNumericPart = parser.index;
-        const finalFragment = scanDecimalDigitsOrSeparator(parser);
-        value = value + parser.source.substring(end, preNumericPart) + finalFragment;
-    }
-    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(start, parser.index);
-    parser.tokenValue = hasFloat ? parseFloat(value) : parseInt(value);
-    return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;
-}
-*/
-
-/**
  * Scans hex integer literal
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
@@ -103,7 +24,7 @@ export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
     if (value < 0) report(parser, Errors.Unexpected);
     parser.index++; parser.column++;
 
-    while (parser.index < parser.source.length) {
+    while (parser.index < parser.length) {
         const next = parser.source.charCodeAt(parser.index);
 
         if (context & Context.OptionsNext && next === Chars.Underscore) {
@@ -141,7 +62,7 @@ export function scanOctalOrBinary(parser: Parser, context: Context, base: number
     let value = 0;
     let state = NumericState.None;
 
-    while (parser.index < parser.source.length) {
+    while (parser.index < parser.length) {
         ch = parser.source.charCodeAt(parser.index);
 
         if (context & Context.OptionsNext && ch === Chars.Underscore) {
@@ -194,7 +115,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
 
                 // Implicit octal, unless there is a non-octal digit.
                 // (Annex B.1.1 on Numeric Literals)
-                while (index < parser.source.length) {
+                while (index < parser.length) {
                     const next = parser.source.charCodeAt(index);
                     if (next === Chars.Underscore) {
                         report(parser, Errors.ZeroDigitNumericSeparator);
@@ -326,7 +247,7 @@ export function scanDecimalDigitsOrSeparator(parser: Parser): string {
     let ret = '';
 
     loop:
-        while (parser.index < parser.source.length) {
+        while (parser.index < parser.length) {
             switch (parser.source.charCodeAt(parser.index)) {
                 case Chars.Underscore:
                     const preUnderscoreIndex = parser.index;

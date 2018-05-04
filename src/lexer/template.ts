@@ -15,7 +15,7 @@ import { readNext, fromCodePoint } from './common';
  */
 
 export function consumeTemplateBrace(parser: Parser, context: Context): Token {
-    if (parser.index >= parser.source.length) report(parser, Errors.UnterminatedTemplate);
+    if (parser.index >= parser.length) report(parser, Errors.UnterminatedTemplate);
     // Upon reaching a '}', consume it and rewind the scanner state
     parser.index--;
     parser.column--;
@@ -44,7 +44,7 @@ export function scanTemplate(parser: Parser, context: Context): Token {
                 case Chars.Dollar:
                     {
                         const index = parser.index + 1;
-                        if (index < parser.source.length &&
+                        if (index < parser.length &&
                             parser.source.charCodeAt(index) === Chars.LeftBrace) {
                             parser.index = index;
                             parser.column++;

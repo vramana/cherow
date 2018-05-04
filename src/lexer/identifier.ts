@@ -31,7 +31,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
     let isEscaped = false;
     if (first) advanceOnMaybeAstral(parser, first);
     loop:
-        while (parser.index < parser.source.length) {
+        while (parser.index < parser.length) {
             const index = parser.index;
             let ch = parser.source.charCodeAt(index);
             switch (ch) {
@@ -107,7 +107,7 @@ function scanUnicodeCodePointEscape(parser: Parser): string | void {
 
     const { index } = parser;
 
-    if (index + 5 < parser.source.length) {
+    if (index + 5 < parser.length) {
 
         if (parser.source.charCodeAt(index + 1) !== Chars.LowerU) {
             report(parser, Errors.Unexpected);

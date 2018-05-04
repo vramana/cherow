@@ -26,7 +26,7 @@ export function scan(parser: Parser, context: Context): Token {
 
     let state = ScannerState.None;
 
-    while (parser.index < parser.source.length) {
+    while (parser.index < parser.length) {
 
         if (!lineStart) {
             parser.startIndex = parser.index;
@@ -163,7 +163,7 @@ export function scan(parser: Parser, context: Context): Token {
                     {
                         parser.index++; parser.column++;
 
-                        if (parser.index >= parser.source.length) return Token.Divide;
+                        if (parser.index >= parser.length) return Token.Divide;
 
                         switch (parser.source.charCodeAt(parser.index)) {
                             case Chars.Slash:
@@ -246,7 +246,7 @@ export function scan(parser: Parser, context: Context): Token {
                                 const index = parser.index + 1;
 
                                 // Check that it's not a comment start.
-                                if (index < parser.source.length) {
+                                if (index < parser.length) {
                                     const next = parser.source.charCodeAt(index);
                                     if (next === Chars.Asterisk || next === Chars.Slash) break;
                                 }
@@ -299,7 +299,7 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.Asterisk:
                     {
                         parser.index++; parser.column++;
-                        if (parser.index >= parser.source.length) return Token.Multiply;
+                        if (parser.index >= parser.length) return Token.Multiply;
                         const next = parser.source.charCodeAt(parser.index);
 
                         if (next === Chars.EqualSign) {
@@ -317,7 +317,7 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.Plus:
                     {
                         parser.index++; parser.column++;
-                        if (parser.index >= parser.source.length) return Token.Add;
+                        if (parser.index >= parser.length) return Token.Add;
                         const next = parser.source.charCodeAt(parser.index);
 
                         if (next === Chars.Plus) {
@@ -364,7 +364,7 @@ export function scan(parser: Parser, context: Context): Token {
                     {
                         parser.index++; parser.column++;
 
-                        if (parser.index >= parser.source.length) return Token.GreaterThan;
+                        if (parser.index >= parser.length) return Token.GreaterThan;
 
                         if (context & Context.InJSXChild) return Token.GreaterThan;
 
@@ -433,7 +433,7 @@ export function scan(parser: Parser, context: Context): Token {
                             return Token.NumericLiteral;
                         } else if (next === Chars.Period) {
                             index++;
-                            if (index < parser.source.length &&
+                            if (index < parser.length &&
                                 parser.source.charCodeAt(index) === Chars.Period) {
                                 parser.index = index + 1;
                                 parser.column += 3;

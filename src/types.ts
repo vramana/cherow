@@ -71,6 +71,9 @@ export interface Parser {
     // The source code to parse
     source: string;
 
+    // Source length
+    length: number;
+
     // Current position
     index: number;
 

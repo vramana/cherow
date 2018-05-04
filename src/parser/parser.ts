@@ -18,6 +18,8 @@ export function createParser(
     return {
         // The source code to parse
         source,
+        // Source length
+        length: source.length,
         // Current position
         index: 0,
         // Current line
