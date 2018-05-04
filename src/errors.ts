@@ -206,7 +206,7 @@ export const ErrorMessages: {
     [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
     [Errors.TrailingDecorators]: 'Trailing decorator may be followed by method',
     [Errors.GeneratorConstructor]: 'Decorators can\'t be used with a constructor',
-    
+
 };
 
 /**

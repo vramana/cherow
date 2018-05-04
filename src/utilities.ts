@@ -746,7 +746,7 @@ export function validateUpdateExpression(parser: Parser, context: Context, expr:
 
 /**
  * Record expression error
- * 
+ *
  * @param parser Parser object
  * @param error Error message
  */
@@ -761,7 +761,7 @@ export function setPendingExpressionError(parser: Parser, type: Errors) {
 
 /**
  * Validate coer parenthesized expression
- * 
+ *
  * @param parser Parser object
  * @param state CoverParenthesizedState
  */
@@ -789,7 +789,7 @@ export function validateCoverParenthesizedExpression(
 
 /**
  * Validate coer parenthesized expression
- * 
+ *
  * @param parser Parser object
  * @param state CoverParenthesizedState
  */
@@ -814,7 +814,7 @@ export function validateAsyncArgumentList(
             setPendingError(parser);
             state |= CoverCallState.Yield;
         }
-        
+
     }
     return state;
 }

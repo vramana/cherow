@@ -5,7 +5,7 @@ import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
 import { scanEscapeSequence, throwStringError } from './string';
 import { Context, Escape,  NumericState } from '../utilities';
-import { readNext, fromCodePoint, hasNext, nextChar, advance } from './common';
+import { readNext, fromCodePoint } from './common';
 
 /**
  * Consumes template brace
@@ -15,7 +15,7 @@ import { readNext, fromCodePoint, hasNext, nextChar, advance } from './common';
  */
 
 export function consumeTemplateBrace(parser: Parser, context: Context): Token {
-    if (!hasNext(parser)) report(parser, Errors.UnterminatedTemplate);
+    if (parser.index >= parser.source.length) report(parser, Errors.UnterminatedTemplate);
     // Upon reaching a '}', consume it and rewind the scanner state
     parser.index--;
     parser.column--;
@@ -98,7 +98,7 @@ export function scanTemplate(parser: Parser, context: Context): Token {
             ch = readNext(parser);
         }
 
-    advance(parser);
+    parser.index++; parser.column++;
     parser.tokenValue = ret;
     parser.lastValue = lastValue;
 
@@ -120,7 +120,7 @@ export function scanTemplate(parser: Parser, context: Context): Token {
 function scanLooserTemplateSegment(parser: Parser, ch: number): number {
     while (ch !== Chars.Backtick) {
         if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
-            advance(parser);
+            parser.index++; parser.column++;
             return -ch;
         }
 

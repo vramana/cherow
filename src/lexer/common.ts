@@ -7,35 +7,6 @@ import { isValidIdentifierPart, mustEscape } from '../unicode';
 import { Flags, Context, ScannerState } from '../utilities';
 
 /**
- * Return true if more chars in the stream. Otherwise return false.
- *
- * @param parser Parser object
- */
-export function hasNext(parser: Parser) {
-    return parser.index < parser.source.length;
-}
-
-/**
- * Advance to the next token in the stream
- *
- * @param parser Parser object
- */
-
-export function advance(parser: Parser) {
-    parser.index++;
-    parser.column++;
-}
-
-/**
- * Return the next codepoint in the stream by index
- *
- * @param parser Parser object
- */
-export function nextChar(parser: Parser): number {
-    return parser.source.charCodeAt(parser.index);
-}
-
-/**
  * Return the next unicodechar in the stream
  *
  * @param parser Parser object
@@ -145,8 +116,8 @@ export const fromCodePoint = (code: Chars) => {
 };
 
 export function readNext(parser: Parser): number {
-    advance(parser);
-    if (!hasNext(parser)) report(parser, Errors.UnicodeOutOfRange);
+    parser.index++; parser.column++;
+    if (parser.index >= parser.source.length) report(parser, Errors.UnicodeOutOfRange);
     return nextUnicodeChar(parser);
 }
 
@@ -161,6 +132,6 @@ export function toHex(code: number): number {
 }
 
 export function advanceOnMaybeAstral(parser: Parser, ch: number) {
-    advance(parser);
+    parser.index++; parser.column++;
     if (ch > 0xFFFF) parser.index++;
 }

@@ -3,7 +3,7 @@ import { Chars } from '../chars';
 import { Errors, tolerant, report } from '../errors';
 import { Parser, CommentType } from '../types';
 import { Context, ScannerState } from '../utilities';
-import { consumeLineFeed, consumeOpt, nextChar,  hasNext,  advanceNewline,  advance } from './common';
+import { consumeLineFeed, consumeOpt, advanceNewline } from './common';
 
 // 11.4 Comments
 
@@ -45,11 +45,11 @@ export function skipSingleLineComment(
 ): ScannerState {
     const start = parser.index;
     const collectable = !!(context & Context.OptionsComments);
-    while (hasNext(parser)) {
-        switch (nextChar(parser)) {
+    while (parser.index < parser.source.length) {
+        switch (parser.source.charCodeAt(parser.index)) {
             case Chars.CarriageReturn:
                 advanceNewline(parser);
-                if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) parser.index++;
+                if ((parser.index < parser.source.length) && parser.source.charCodeAt(parser.index) === Chars.LineFeed) parser.index++;
                 return state | ScannerState.NewLine;
             case Chars.LineFeed:
             case Chars.LineSeparator:
@@ -59,7 +59,7 @@ export function skipSingleLineComment(
                 return state | ScannerState.NewLine;
 
             default:
-                advance(parser);
+                parser.index++; parser.column++;
         }
     }
 
@@ -85,10 +85,10 @@ export function skipMultiLineComment(
     const start = parser.index;
     const collectable = !!(context & Context.OptionsComments);
 
-    while (hasNext(parser)) {
-        switch (nextChar(parser)) {
+    while (parser.index < parser.source.length) {
+        switch (parser.source.charCodeAt(parser.index)) {
             case Chars.Asterisk:
-                advance(parser);
+                parser.index++; parser.column++;
                 state &= ~ScannerState.LastIsCR;
                 if (consumeOpt(parser, Chars.Slash)) {
                     if (collectable) addComment(parser, context, 'MultiLine', start);
@@ -116,7 +116,7 @@ export function skipMultiLineComment(
 
             default:
                 state &= ~ScannerState.LastIsCR;
-                advance(parser);
+                parser.index++; parser.column++;
         }
     }
 

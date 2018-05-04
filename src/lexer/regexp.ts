@@ -4,7 +4,7 @@ import { Errors, report, tolerant } from '../errors';
 import { Token } from '../token';
 import { isValidIdentifierStart } from '../unicode';
 import { Context, RegexFlags, RegexState } from '../utilities';
-import { isIdentifierPart, fromCodePoint, hasNext, nextChar, advance } from './common';
+import { isIdentifierPart, fromCodePoint } from './common';
 
 /**
  * Scans regular expression
@@ -21,8 +21,8 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
 
     loop:
         while (true) {
-            const ch = nextChar(parser);
-            advance(parser);
+            const ch = parser.source.charCodeAt(parser.index);
+            parser.index++; parser.column++;
 
             if (preparseState & RegexState.Escape) {
                 preparseState &= ~RegexState.Escape;
@@ -49,7 +49,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
                 }
             }
 
-            if (!hasNext(parser)) {
+            if (parser.index >= parser.source.length) {
                 report(parser, Errors.UnterminatedRegExp);
             }
         }
@@ -61,8 +61,8 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
     const { index: flagStart } = parser;
 
     loop:
-        while (hasNext(parser)) {
-            const code = nextChar(parser);
+        while (parser.index < parser.source.length) {
+            const code = parser.source.charCodeAt(parser.index);
 
             switch (code) {
                 case Chars.LowerG:
@@ -101,7 +101,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
                     report(parser, Errors.UnexpectedTokenRegExpFlag, fromCodePoint(code));
             }
 
-            advance(parser);
+            parser.index++; parser.column++;
         }
 
     const flags = parser.source.slice(flagStart, parser.index);

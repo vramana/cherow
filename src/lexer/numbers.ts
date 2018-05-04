@@ -4,7 +4,7 @@ import { Errors, report, tolerant } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
 import { Context, Flags, NumericState } from '../utilities';
-import { consumeLineFeed, consumeOpt, toHex, hasNext, nextChar, advance } from './common';
+import { consumeLineFeed, consumeOpt, toHex } from './common';
 
 // 11.8.3 Numeric Literals
 
@@ -24,11 +24,11 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
     let value: any = 0;
 
     // 4 bytes optimization
-    loop: while (hasNext(parser) && digit >= 0) {
-        const ch = nextChar(parser);
+    loop: while ((parser.index < parser.source.length) && digit >= 0) {
+        const ch = parser.source.charCodeAt(parser.index);
         switch (ch) {
             case Chars.Underscore:
-                advance(parser);
+                parser.index++; parser.column++;
                 if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
                 seenSeparator = true;
                 continue;
@@ -44,7 +44,7 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
             case Chars.Nine:
                 seenSeparator = false;
                 value = value * 10 + (ch - Chars.Zero);
-                advance(parser);
+                parser.index++; parser.column++;
                 --digit;
                 break;
             default:
@@ -52,20 +52,20 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
         }
     }
     if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-    let next = nextChar(parser);
+    let next = parser.source.charCodeAt(parser.index);
 
-    if (digit >= 0 && nextChar(parser) !== Chars.Period && (!hasNext(parser) || !isValidIdentifierStart(next))) {
+    if (digit >= 0 && parser.source.charCodeAt(parser.index) !== Chars.Period && (parser.index >= parser.source.length || !isValidIdentifierStart(next))) {
         if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(start, parser.index);
         parser.tokenValue = hasFloat ? parseFloat(value) : parseInt(value);
         return Token.NumericLiteral;
     }
 
-    if (nextChar(parser) === Chars.Period) {
+    if (parser.source.charCodeAt(parser.index) === Chars.Period) {
         hasFloat = true;
-        if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
+        if (context & Context.OptionsNext && parser.source.charCodeAt(parser.index) === Chars.Underscore) {
             report(parser, Errors.ZeroDigitNumericSeparator);
         }
-        advance(parser);
+        parser.index++; parser.column++;
         value = value + '.' + scanDecimalDigitsOrSeparator(parser);
     }
 
@@ -97,14 +97,14 @@ export function scanNumericLiteral(parser: Parser, context: Context): Token {
  */
 
 export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
-    advance(parser);
+    parser.index++; parser.column++;
     let state = NumericState.None;
-    let value = toHex(nextChar(parser));
+    let value = toHex(parser.source.charCodeAt(parser.index));
     if (value < 0) report(parser, Errors.Unexpected);
-    advance(parser);
+    parser.index++; parser.column++;
 
-    while (hasNext(parser)) {
-        const next = nextChar(parser);
+    while (parser.index < parser.source.length) {
+        const next = parser.source.charCodeAt(parser.index);
 
         if (context & Context.OptionsNext && next === Chars.Underscore) {
             state = scanNumericSeparator(parser, state);
@@ -116,7 +116,7 @@ export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
         const digit = toHex(next);
         if (digit < 0) break;
         value = value * 16 + digit;
-        advance(parser);
+        parser.index++; parser.column++;
     }
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
     return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN));
@@ -134,15 +134,15 @@ export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
 
 export function scanOctalOrBinary(parser: Parser, context: Context, base: number): Token {
 
-    advance(parser);
+    parser.index++; parser.column++;
 
     let digits = 0;
     let ch;
     let value = 0;
     let state = NumericState.None;
 
-    while (hasNext(parser)) {
-        ch = nextChar(parser);
+    while (parser.index < parser.source.length) {
+        ch = parser.source.charCodeAt(parser.index);
 
         if (context & Context.OptionsNext && ch === Chars.Underscore) {
             state = scanNumericSeparator(parser, state);
@@ -155,7 +155,7 @@ export function scanOctalOrBinary(parser: Parser, context: Context, base: number
         if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
         value = value * base + converted;
 
-        advance(parser);
+        parser.index++; parser.column++;
         digits++;
     }
 
@@ -174,7 +174,7 @@ export function scanOctalOrBinary(parser: Parser, context: Context, base: number
  */
 export function scanImplicitOctalDigits(parser: Parser, context: Context): Token {
 
-    switch (nextChar(parser)) {
+    switch (parser.source.charCodeAt(parser.index)) {
 
         case Chars.Zero:
         case Chars.One:
@@ -217,7 +217,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
             parser.flags |= Flags.HasOctal;
 
         default:
-            if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
+            if (context & Context.OptionsNext && parser.source.charCodeAt(parser.index) === Chars.Underscore) {
                 report(parser, Errors.ZeroDigitNumericSeparator);
             }
 
@@ -234,11 +234,11 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
  * @param context Context masks
  */
 export function scanSignedInteger(parser: Parser, end: number): string {
-    let next = nextChar(parser);
+    let next = parser.source.charCodeAt(parser.index);
 
     if (next === Chars.Plus || next === Chars.Hyphen) {
-        advance(parser);
-        next = nextChar(parser);
+        parser.index++; parser.column++;
+        next = parser.source.charCodeAt(parser.index);
     }
 
     if (!(next >= Chars.Zero && next <= Chars.Nine)) {
@@ -265,7 +265,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
         0 :
         scanDecimalAsSmi(parser, context);
 
-    const next = nextChar(parser);
+    const next = parser.source.charCodeAt(parser.index);
 
     // I know I'm causing a bug here. The question is - will anyone figure this out?
     if (next !== Chars.Period && next !== Chars.Underscore && !isValidIdentifierStart(next)) {
@@ -273,7 +273,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
     }
 
     if (consumeOpt(parser, Chars.Period)) {
-        if (context & Context.OptionsNext && nextChar(parser) === Chars.Underscore) {
+        if (context & Context.OptionsNext && parser.source.charCodeAt(parser.index) === Chars.Underscore) {
             report(parser, Errors.ZeroDigitNumericSeparator);
         }
         state |= NumericState.Float;
@@ -292,7 +292,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
         value += scanSignedInteger(parser, end);
     }
 
-    if (isValidIdentifierStart(nextChar(parser))) {
+    if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, Errors.Unexpected);
     }
 
@@ -307,7 +307,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
  * @param state NumericState state
  */
 export function scanNumericSeparator(parser: Parser, state: NumericState): NumericState {
-    advance(parser);
+    parser.index++; parser.column++;
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
     state |= NumericState.SeenSeparator;
     return state;
@@ -326,8 +326,8 @@ export function scanDecimalDigitsOrSeparator(parser: Parser): string {
     let ret = '';
 
     loop:
-        while (hasNext(parser)) {
-            switch (nextChar(parser)) {
+        while (parser.index < parser.source.length) {
+            switch (parser.source.charCodeAt(parser.index)) {
                 case Chars.Underscore:
                     const preUnderscoreIndex = parser.index;
                     state = scanNumericSeparator(parser, state);
@@ -346,7 +346,7 @@ export function scanDecimalDigitsOrSeparator(parser: Parser): string {
                 case Chars.Eight:
                 case Chars.Nine:
                     state = state & ~NumericState.SeenSeparator;
-                    advance(parser);
+                    parser.index++; parser.column++;
                     break;
                 default:
                     break loop;
@@ -366,17 +366,17 @@ export function scanDecimalDigitsOrSeparator(parser: Parser): string {
 export function scanDecimalAsSmi(parser: Parser, context: Context): number {
     let state = NumericState.None;
     let value = 0;
-    let next = nextChar(parser);
+    let next = parser.source.charCodeAt(parser.index);
     while (next >= Chars.Zero && next <= Chars.Nine || next === Chars.Underscore) {
         if (context & Context.OptionsNext && next === Chars.Underscore) {
             state = scanNumericSeparator(parser, state);
-            next = nextChar(parser);
+            next = parser.source.charCodeAt(parser.index);
             continue;
         }
         state &= ~NumericState.SeenSeparator;
         value = value * 10 + (next - Chars.Zero);
-        advance(parser);
-        next = nextChar(parser);
+        parser.index++; parser.column++;
+        next = parser.source.charCodeAt(parser.index);
     }
 
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
