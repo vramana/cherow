@@ -36,17 +36,16 @@ describe('Expressions - Rest property', () => {
             'let { a, ...b, c } = x;',
             // Object rest element needs to be the last AssignmenProperty in ObjectAssignmentPattern.
             '{...rest, b}',
-            //'function test({...[]}) {}',
-//            'var {...[]} = {}',
-            //'function test({...{a}}) {}',
-            //"({...obj}) => {}",
-            //"({...[a,b]}) => {}",
-            //"({...(obj)} = foo)",
-            //"({...obj1,...obj2} = foo)",
-            //"({...obj1,a} = foo)",
-            //"({...obj1,} = foo)",
-            //"let {...[a,b]} = foo",
-            //"let {...{a,b}} = foo",
+            'function test({...[]}) {}',
+            'var {...[]} = {}',
+            'function test({...{a}}) {}',
+            // '({...obj}) => {}',
+            // '({...[a,b]}) => {}',
+            // '({...(obj)} = foo)',
+            // '({...obj1,a} = foo)',
+            // '({...obj1,} = foo)',
+            'let {...[a,b]} = foo',
+            'let {...{a,b}} = foo',
         ];
         for (const arg of miscInvalidSyntax) {
 

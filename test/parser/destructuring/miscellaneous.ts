@@ -22,6 +22,7 @@ describe('Destructuring - Miscellaneous', () => {
         'for ([{b: foo()} = {}] of {}) { }',
         'for (var a in {b: foo().bar()} = {}) { }',
         '({x : , y} = {});',
+        'var {...[z]} = {0:0 };',
         'var {x :  , y} = {};',
         'var {x :  } = {};',
         'var {x :  , } = {};',
@@ -105,6 +106,8 @@ describe('Destructuring - Miscellaneous', () => {
         'var e = 1;       ( {ghijkl  = (((((foo)) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
         'var e = 1;       ( {abcdef  = (((((foo)) = (1))))} = (e)) => {  try{ } catch(e) {}}',
         'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+        // Babylon PR: 'https://github.com/babel/babylon/pull/317'
+        '({set = {}}) => set;',
         // Babylon issue: https://github.com/babel/babylon/issues/397
         'for (var a = 0 in {});',
         `function test() {

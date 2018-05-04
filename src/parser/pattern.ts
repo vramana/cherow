@@ -78,19 +78,40 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
 }
 
 /**
- * Parse assignment rest element or assignment rest property
+ * Parse assignment rest element
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+
+function parseAssignmentRestElement(parser: Parser, context: Context): ESTree.RestElement {
+    const pos = getLocation(parser);
+    expect(parser, context, Token.Ellipsis);
+    const argument = parseBindingIdentifierOrPattern(parser, context);
+    if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
+    return finishNode(context, parser, pos, {
+        type: 'RestElement',
+        argument,
+    });
+}
+
+/**
+ * Parse rest property
+ *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
  *
  * @param parser  Parser object
  * @param context Context masks
  */
 
-function parseAssignmentRestElementOrProperty(parser: Parser, context: Context): ESTree.RestElement {
+function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
+    const { token } = parser;
     const argument = parseBindingIdentifierOrPattern(parser, context);
+    if (hasBit(token, Token.IsBindingPattern)) tolerant(parser, context, Errors.InvalidRestBindingPattern);
     if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
@@ -139,7 +160,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
             elements.push(null);
         } else {
             if (parser.token === Token.Ellipsis) {
-                elements.push(parseAssignmentRestElementOrProperty(parser, context));
+                elements.push(parseAssignmentRestElement(parser, context));
                 break;
             } else {
                 elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseBindingInitializer));
@@ -170,7 +191,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
 
     while (parser.token !== Token.RightBrace) {
         if (parser.token === Token.Ellipsis) {
-            properties.push(parseAssignmentRestElementOrProperty(parser, context));
+            properties.push(AssignmentRestProperty(parser, context));
             break;
         }
         properties.push(parseAssignmentProperty(parser, context));
