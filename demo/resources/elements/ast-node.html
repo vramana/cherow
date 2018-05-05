@@ -3,8 +3,8 @@
   <div if.bind="item.value.type" class="ast-node-type">${item.value.type}</div>
   <div if.bind="!item.value.type" class="ast-node-name">${item.key}</div>
   <template repeat.for="prop of item.value | toProperties | sortByType">
-    <ast-list if.bind="prop.$type === 'list'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-list>
-    <ast-node if.bind="prop.$type === 'node'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-node>
-    <ast-prop if.bind="prop.$type === 'prop'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-prop>
+    <ast-list if.bind="prop.$type === 'list'" item.bind="prop" propagate-dispatch.delegate="handleAstPropagate($event)"></ast-list>
+    <ast-node if.bind="prop.$type === 'node' || prop.$type === 'obj'" item.bind="prop" propagate-dispatch.delegate="handleAstPropagate($event)"></ast-node>
+    <ast-prop if.bind="prop.$type === 'prop'" item.bind="prop" propagate-dispatch.delegate="handleAstPropagate($event)"></ast-prop>
   </template>
 </template>

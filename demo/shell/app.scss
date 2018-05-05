@@ -68,6 +68,15 @@ ast-node {
     }
 }
 
+ast-list {
+  &>ast-node,
+    ast-list,
+    ast-obj,
+    ast-prop {
+      margin-left: 12px;
+    }
+}
+
 .ast-node-type {
   font-weight: 700;
 }

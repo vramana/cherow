@@ -11,8 +11,9 @@ export class ToProperties {
         const key = keys[i];
         const value = input[key];
         switch (typeof value) {
-          case 'string':
           case 'undefined':
+            break;
+          case 'string':
           case 'number':
           case 'boolean':
             results.push({ key, value, $type: 'prop' });
@@ -26,6 +27,8 @@ export class ToProperties {
               } else {
                 results.push({ key, value, $type: 'list' });
               }
+            } else if (value.type === undefined) {
+              results.push({ key, value, $type: 'obj' });
             } else {
               results.push({ key, value, $type: 'node' });
             }

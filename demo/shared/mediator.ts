@@ -17,15 +17,17 @@ export class Mediator {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        const loc = node.item.value.loc;
-        this.editor.editor.setSelection({
-          startColumn: loc.start.column + 1,
-          startLineNumber: loc.start.line,
-          endColumn: loc.end.column + 1,
-          endLineNumber: loc.end.line
-        });
-        for (const otherNode of this.astNodes.keys()) {
-          otherNode.isSelected = otherNode === node;
+        const loc = node && node.item && node.item.value && node.item.value.loc;
+        if (loc) {
+          this.editor.editor.setSelection({
+            startColumn: loc.start.column + 1,
+            startLineNumber: loc.start.line,
+            endColumn: loc.end.column + 1,
+            endLineNumber: loc.end.line
+          });
+          for (const otherNode of this.astNodes.keys()) {
+            otherNode.isSelected = otherNode === node;
+          }
         }
       } else if (event.type === 'mouseleave') {
         node.isSelected = false;
@@ -37,8 +39,9 @@ export class Mediator {
       const position = e && e.target && e.target.position;
       if (position) {
         for (const node of this.astNodes.keys()) {
-          const loc = node.item.value.loc;
+          const loc = node && node.item && node.item.value && node.item.value.loc;
           if (
+            loc &&
             position.lineNumber >= loc.start.line &&
             loc.end.line >= position.lineNumber &&
             position.column >= (loc.start.column + 1) &&
