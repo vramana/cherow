@@ -16,10 +16,12 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * Conforms to the standard ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification 
 * Support for all stage 3 proposals via option.
 * JSX support via option.
+* Experimental feature support via option.
 * Optionally track syntactic node locations
+* Modular
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~45 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
-* Lightweight - ~68 KB minified (*20 kb smaller than Acorn*)
+* Very well tested (~46 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Lightweight - ~70 KB minified (*18 kb smaller than Acorn*)
 
 ## ESNext features
 
@@ -101,12 +103,12 @@ There is a second argument to both methods that allows you to specify various op
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
 | `skipShebang`     | Allow to skip shebang - '#' |
-| `impliedStrict`   | Enable implied strict mode |
+| `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `jsx`             | Enable React JSX parsing  |
 | `tolerant`        | Create a top-level error array containing all "skipped" errors |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
-| `experimental`    | Enable experimental features such as decorators
+| `experimental`    | Enable experimental features
 | `raw`             | Attach raw property to each literal node    |
 | `rawIdentifier`   | Attach raw property to each identifier node    |
 | `node`            | Allow to bypass scoping when run in a NodejS environment |
