@@ -5,7 +5,7 @@
 
   </div>
   <div class="content-area area-left">
-    <monaco-editor options.bind="{language: 'javascript'}" code.bind="code"></monaco-editor>
+    <monaco-editor options.bind="{language: 'javascript'}" code.bind="code & debounce"></monaco-editor>
   </div>
   <div class="content-area area-right">
     <ast-node item.bind="nodeItem"></ast-node>

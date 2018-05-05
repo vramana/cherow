@@ -1,5 +1,5 @@
 import { valueConverter } from 'aurelia-binding';
-import { Item } from '../../common';
+import { Item } from '../index';
 
 @valueConverter('toProperties')
 export class ToProperties {
@@ -26,8 +26,6 @@ export class ToProperties {
               } else {
                 results.push({ key, value, $type: 'list' });
               }
-            } else if (value.type === undefined) {
-              results.push({ key, value, $type: 'obj' });
             } else {
               results.push({ key, value, $type: 'node' });
             }

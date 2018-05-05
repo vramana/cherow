@@ -2,7 +2,9 @@ import { observable } from 'aurelia-binding';
 import { Program } from '../../src/estree';
 import { parseScript, parseModule, Context } from '../../src/cherow';
 import { getLogger } from 'aurelia-logging';
-import { initialCodeValue, NodeItem } from '../common';
+import { initialCodeValue } from '../shared/common';
+import { autoinject } from 'aurelia-framework';
+import { NodeItem } from '../resources/elements/ast-node';
 
 const logger = getLogger('app');
 
@@ -22,7 +24,6 @@ export class App {
     try {
       this.program = parseModule(this.code, {
         loc: true,
-        ranges: true,
         tolerant: true
       });
       this.nodeItem = { key: 'Root', value: this.program, $type: 'node' };

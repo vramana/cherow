@@ -1,9 +1,10 @@
-<template>
-  <div class="ast-node-type">${item.value.type}</div>
+<template class="${isSelected ? 'ast-node-selected' : ''}" mousemove.delegate="mediator.send({$event, $this})" mouseleave.trigger="mediator.send({$event, $this})">
+  <require from="./ast-node.scss"></require>
+  <div if.bind="item.value.type" class="ast-node-type">${item.value.type}</div>
+  <div if.bind="!item.value.type" class="ast-node-name">${item.key}</div>
   <template repeat.for="prop of item.value | toProperties | sortByType">
-    <ast-list if.bind="prop.$type === 'list'" item.bind="prop"></ast-list>
-    <ast-node if.bind="prop.$type === 'node'" item.bind="prop"></ast-node>
-    <ast-prop if.bind="prop.$type === 'prop'" item.bind="prop"></ast-prop>
-    <ast-obj if.bind="prop.$type === 'obj'" item.bind="prop"></ast-obj>
+    <ast-list if.bind="prop.$type === 'list'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-list>
+    <ast-node if.bind="prop.$type === 'node'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-node>
+    <ast-prop if.bind="prop.$type === 'prop'" item.bind="prop" propagate-dispatch.trigger="handleAstPropagate($event)"></ast-prop>
   </template>
 </template>

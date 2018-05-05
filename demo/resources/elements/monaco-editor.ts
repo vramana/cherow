@@ -3,6 +3,7 @@ import { bindable, customElement } from 'aurelia-framework';
 import { PLATFORM } from 'aurelia-pal';
 import { TaskQueue } from 'aurelia-task-queue';
 import * as monaco from 'monaco-editor';
+import { Mediator } from '../../shared/mediator';
 
 @customElement('monaco-editor')
 export class MonacoEditor {
@@ -23,8 +24,12 @@ export class MonacoEditor {
   private isUpdatingCode: boolean;
   private isUpdatingEditorValue: boolean;
 
-  constructor(tq: TaskQueue) {
+  private mediator: Mediator;
+
+  constructor(tq: TaskQueue, mediator: Mediator) {
     this.tq = tq;
+    this.mediator = mediator;
+    this.mediator.registerMonacoEditor(this);
     this.isLoaded = false;
     this.isUpdatingCode = false;
     this.isUpdatingEditorValue = false;
@@ -34,6 +39,11 @@ export class MonacoEditor {
     PLATFORM.addEventListener('resize', this.handleResize);
 
     this.editor = monaco.editor.create(this.editorHost, this.options);
+    this.editor.onMouseDown(e => {
+      if (!this.isUpdatingCode && !this.isUpdatingEditorValue) {
+        this.mediator.send(e);
+      }
+    });
     this.isLoaded = true;
     if (this.needsUpdateEditorValue) {
       this.needsUpdateEditorValue = false;
@@ -83,5 +93,5 @@ export class MonacoEditor {
     if (!(this.editor === null || this.editor === undefined)) {
       this.editor.layout();
     }
-  };
+  }
 }

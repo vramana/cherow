@@ -2,10 +2,6 @@
   "extends": "./tsconfig.json",
   "include": ["../src", "../demo"],
   "compilerOptions": {
-    "lib": ["dom", "es2017"],
-    "baseUrl": "../",
-    "paths": {
-      "*": ["*"]
-    }
+    "lib": ["dom", "es2017"]
   }
 }

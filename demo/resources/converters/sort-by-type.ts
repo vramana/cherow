@@ -1,5 +1,5 @@
 import { valueConverter } from 'aurelia-binding';
-import { Item } from '../../common';
+import { Item } from '../index';
 
 const sortOrder = Object.create(null, {
   prop: { value: 0 },
@@ -21,7 +21,7 @@ export class SortByType {
           return 1;
         }
       }
-      return sortOrder[a.$type] - sortOrder[b.$type]
+      return sortOrder[a.$type] - sortOrder[b.$type];
     });
   }
 }
