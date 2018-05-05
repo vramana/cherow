@@ -248,10 +248,10 @@ export function finishNode < T extends ESTree.Node >(
 export function expect(
     parser: Parser,
     context: Context,
-    t: Token,
+    token: Token,
     err: Errors = Errors.UnexpectedToken,
 ): boolean {
-    if (parser.token !== t) report(parser, err, tokenDesc(parser.token));
+    if (parser.token !== token) report(parser, err, tokenDesc(parser.token));
     nextToken(parser, context);
     return true;
 }
@@ -264,8 +264,8 @@ export function expect(
  * @param context Context masks
  * @param t Token
  */
-export function consume(parser: Parser, context: Context, t: Token): boolean {
-    if (parser.token !== t) return false;
+export function consume(parser: Parser, context: Context, token: Token): boolean {
+    if (parser.token !== token) return false;
     nextToken(parser, context);
     return true;
 }
