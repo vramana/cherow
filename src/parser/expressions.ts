@@ -1688,11 +1688,14 @@ function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExp
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const { token } = parser;
     let state = ObjectState.None;
-    if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
-    const id = (token !== Token.LeftBrace && token !== Token.ExtendsKeyword) ?
-        parseBindingIdentifier(parser, context | Context.Strict) :
-        null;
+    let id: ESTree.Expression | null = null;
     let superClass: ESTree.Expression | null = null;
+    if ((token !== Token.LeftBrace && token !== Token.ExtendsKeyword)) {
+        if (context & Context.Async && token & Token.IsAwait) {
+            tolerant(parser, context, Errors.AwaitBindingIdentifier);
+        }
+        id = parseBindingIdentifier(parser, context | Context.Strict);
+    }
 
     if (consume(parser, context, Token.ExtendsKeyword)) {
         superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
