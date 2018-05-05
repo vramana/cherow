@@ -249,9 +249,9 @@ export function expect(
     parser: Parser,
     context: Context,
     t: Token,
-    err: Errors = Errors.ExpectedToken,
+    err: Errors = Errors.UnexpectedToken,
 ): boolean {
-    if (parser.token !== t) report(parser, err, tokenDesc(t));
+    if (parser.token !== t) report(parser, err, tokenDesc(parser.token));
     nextToken(parser, context);
     return true;
 }

@@ -4,7 +4,6 @@ import { Context } from './utilities';
 export const enum Errors {
     Unexpected,
     UnexpectedToken,
-    ExpectedToken,
     InvalidEscapedReservedWord,
     UnexpectedKeyword,
     InvalidLHSInAssignment,
@@ -194,7 +193,6 @@ export const ErrorMessages: {
     [Errors.TrailingDecorators]: 'Trailing decorator may be followed by method',
     [Errors.GeneratorConstructor]: 'Decorators can\'t be used with a constructor',
     [Errors.InvalidRestBindingPattern]: '`...` must be followed by an identifier in declaration contexts',
-    [Errors.ExpectedToken]: 'Expected \'%0\'',
 };
 
 /**
