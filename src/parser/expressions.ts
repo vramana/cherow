@@ -1683,8 +1683,7 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 
 function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
-    let decorators: ESTree.Decorator[] = [];
-    if (context & Context.OptionsExperimental) decorators = parseDecorators(parser, context);
+    const decorators: ESTree.Decorator[] = parseDecorators(parser, context);
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ClassKeyword);
     const { token } = parser;
     let state = ObjectState.None;
@@ -2238,7 +2237,10 @@ function parseDecoratorList(parser: Parser, context: Context): ESTree.Decorator 
  */
 export function parseDecorators(parser: Parser, context: Context): ESTree.Decorator[] {
     const decoratorList: ESTree.Decorator[] = [];
-    if (!(context & Context.OptionsExperimental)) return decoratorList;
+    if (!(context & Context.OptionsExperimental)) {
+        if (parser.token !== Token.At) return decoratorList;
+        report(parser, Errors.UnexpectedToken, '@');
+    }
     while (consume(parser, context, Token.At)) {
        decoratorList.push(parseDecoratorList(parser, context | Context.AllowDecorator));
     }

@@ -231,7 +231,7 @@ export function constructError(parser: Parser, context: Context, index: number, 
  */
 
 function getErrorLocation(parser: Parser) {
-    let { index, line, column } = parser;
+    let { index, startLine: line, startColumn: column } = parser;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
         index = errorLoc.index;

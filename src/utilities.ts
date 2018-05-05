@@ -701,11 +701,10 @@ export function nameIsArgumentsOrEval(value: string): boolean {
  * @param parser Parser object
  */
 export function setPendingError(parser: Parser) {
-
     parser.errorLocation = {
-        line: parser.line,
-        column: parser.column,
-        index: parser.index,
+        line: parser.startLine,
+        column: parser.startColumn,
+        index: parser.startIndex,
     };
 }
 

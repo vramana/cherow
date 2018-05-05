@@ -58,6 +58,7 @@ export function parseModuleItemList(parser: Parser, context: Context): ESTree.St
 export function parseModuleItem(parser: Parser, context: Context) {
     switch (parser.token) {
 
+        // @decorator
         case Token.At:
             return parseDecorators(parser, context);
 
