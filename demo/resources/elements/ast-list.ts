@@ -5,8 +5,4 @@ import { ListItem } from '../../common';
 export class AstList {
   @bindable()
   public item: ListItem;
-
-  public activate(item: ListItem): void {
-    this.item = item;
-  }
 }

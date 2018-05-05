@@ -7,8 +7,7 @@ export class ToProperties {
     const results = [];
     if (input !== null && typeof input === 'object') {
       const keys = Object.keys(input);
-      let i = keys.length;
-      while (i--) {
+      for (let i = 0, ii = keys.length; i < ii; i++) {
         const key = keys[i];
         const value = input[key];
         switch (typeof value) {
@@ -27,6 +26,8 @@ export class ToProperties {
               } else {
                 results.push({ key, value, $type: 'list' });
               }
+            } else if (value.type === undefined) {
+              results.push({ key, value, $type: 'obj' });
             } else {
               results.push({ key, value, $type: 'node' });
             }

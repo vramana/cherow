@@ -10,13 +10,18 @@ export interface NodeItem {
   value: ESTree.Node;
   $type: 'node';
 }
+export interface ObjItem {
+  key: string;
+  value: Object;
+  $type: 'obj';
+}
 export interface ListItem {
   key: string;
   value: any[];
   $type: 'list';
 }
 
-export type Item = PropItem | NodeItem | ListItem;
+export type Item = PropItem | NodeItem | ObjItem | ListItem;
 
 // tslint:disable-next-line:no-multiline-string
 export const initialCodeValue = `export class Foo {

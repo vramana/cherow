@@ -1,3 +1,10 @@
-<template class="description">
-  ${item.key}: ${item.value | toString}
+<template>
+  <div class="ast-node-prop">
+    <div class="key">
+      ${item.key}:&nbsp;
+    </div>
+    <div class="value">
+      ${item.value | toString}
+    </div>
+  </div>
 </template>

@@ -37,6 +37,48 @@ router-view {
   overflow-y: auto;
 }
 
+ast-node {
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: 0px;
+}
+
+ast-node,
+ast-list,
+ast-obj,
+ast-prop {
+  display: flex;
+  flex-flow: column nowrap;
+
+  position: relative;
+  box-sizing: border-box;
+  overflow: visible;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+ast-node {
+  &>ast-node,
+    ast-list,
+    ast-obj,
+    ast-prop {
+      margin-left: 12px;
+    }
+}
+
+.ast-node-type {
+  font-weight: 700;
+}
+.ast-node-name {
+  font-weight: 700;
+}
+.ast-node-prop {
+  display: flex;
+  flex-direction: row nowrap;
+}
+
 .content-area  {
   border: 1px solid grey;
 }

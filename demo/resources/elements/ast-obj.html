@@ -1,5 +1,5 @@
 <template>
-  <div class="ast-node-type">${item.value.type}</div>
+  <div class="ast-node-name">${item.key}</div>
   <template repeat.for="prop of item.value | toProperties | sortByType">
     <ast-list if.bind="prop.$type === 'list'" item.bind="prop"></ast-list>
     <ast-node if.bind="prop.$type === 'node'" item.bind="prop"></ast-node>

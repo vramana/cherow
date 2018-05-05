@@ -9,6 +9,7 @@ export function configure(config: FrameworkConfiguration): void {
     PLATFORM.moduleName('resources/elements/ast-list'),
     PLATFORM.moduleName('resources/elements/ast-prop'),
     PLATFORM.moduleName('resources/elements/ast-node'),
+    PLATFORM.moduleName('resources/elements/ast-obj'),
     PLATFORM.moduleName('resources/elements/monaco-editor')
   ]);
 }

@@ -5,8 +5,4 @@ import { PropItem } from '../../common';
 export class AstProp {
   @bindable()
   public item: PropItem;
-
-  public activate(item: PropItem): void {
-    this.item = item;
-  }
 }
