@@ -47,7 +47,7 @@
     //"outDir": "",
     //"outFile": "",
     //"paths": {},
-    "preserveConstEnums": true, //default: false
+    //"preserveConstEnums": false,
     //"preserveSymlinks": false,
     "pretty": true,
     //"removeComments": false,
