@@ -23,6 +23,7 @@ module.exports = {
       development: webpack('webpack-dev-server', '--hot --env.server'),
       production: webpack('webpack', '--env.production')
     },
+    test: package(`TS_NODE_PROJECT=\'${config('test')}\' mocha test/**/*.ts`),
     build: {
       default: series.nps('build.before', 'build.all.default'),
       minify: series.nps('build.all.minify'),

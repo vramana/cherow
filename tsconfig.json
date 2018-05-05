@@ -1,10 +1,5 @@
 {
   "extends": "./configs/tsconfig-build.json",
-  "compilerOptions": {
-    "outDir": "build/",
-    "typeRoots": ["node_modules/@types/"],
-    "types": ["mocha", "node"]
-  },
   "include": ["src", "test"],
   "compileOnSave": false,
   "buildOnSave": false

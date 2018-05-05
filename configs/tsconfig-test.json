@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig-build.json",
+  "compilerOptions": {
+    "outDir": "../build/",
+    "typeRoots": ["../node_modules/@types/"],
+    "types": ["mocha", "node"],
+    "module": "umd",
+    "sourceMap": true
+  },
+  "include": ["../src", "../test"]
+}
