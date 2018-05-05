@@ -49,10 +49,9 @@
     "demo-prod": "cross-env ./node_modules/.bin/nps demo.production",
     "ghpages": "cross-env ./node_modules/.bin/nps ghpages",
     "test": "cross-env ./node_modules/.bin/nps test",
-    "coverage": "rimraf build && npm run pretest && nyc mocha ./build/test/**/*.js",
-    "post_coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "clean": "rimraf lib dist build coverage",
-    "prepublish": "npm run build"
+    "coverage": "cross-env ./node_modules/.bin/nps coverage",
+    "post_coverage": "cross-env ./node_modules/.bin/nps coverage.post",
+    "prepublish": "cross-env ./node_modules/.bin/nps prepublish"
   },
   "devDependencies": {
     "@types/bluebird-global": "^3.5.5",

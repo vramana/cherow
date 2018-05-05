@@ -9,7 +9,11 @@ function rollup(mod, minify) {
 }
 
 function webpack(tool, arg) {
-  return crossEnv(`TS_NODE_PROJECT=\'${config('tsnode')}\' ${tool} --config webpack.config.ts ${arg}`);
+  return crossEnv(`TS_NODE_PROJECT=\'${config('tsnode')}\' ${package(tool)} --config webpack.config.ts ${arg}`);
+}
+
+function mocha(arg) {
+  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' ${package('mocha')} ${arg}`);
 }
 
 function package(script) {
@@ -23,7 +27,15 @@ module.exports = {
       development: webpack('webpack-dev-server', '--hot --env.server'),
       production: webpack('webpack', '--env.production')
     },
-    test: package(`TS_NODE_PROJECT=\'${config('test')}\' mocha test/**/*.ts`),
+    test: mocha('test/**/*.ts'),
+    coverage: {
+      default: series.nps('coverage.before', 'coverage.run'),
+      before: series.nps('coverage.clean', 'coverage.build'),
+      clean: rimraf('build'),
+      build: package(`tsc --project ${config('test')}`),
+      run: package('nyc mocha ./build/test/**/*.js'),
+      post: crossEnv('cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js')
+    },
     build: {
       default: series.nps('build.before', 'build.all.default'),
       minify: series.nps('build.all.minify'),
@@ -49,6 +61,7 @@ module.exports = {
           'build.system.minify'
         )
       },
+      prepublish: series.nps('build.all.default', 'build.all.minify'),
       amd: {
         default: rollup('amd'),
         minify: rollup('amd', true)
