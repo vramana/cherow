@@ -80,7 +80,7 @@ export function scanOctalOrBinary(parser: Parser, context: Context, base: number
         digits++;
     }
 
-    if (digits === 0) report(parser, Errors.InvalidOrUnexpectedToken);
+    if (digits === 0) report(parser, Errors.Unexpected);
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
     return assembleNumericLiteral(parser, context, value, consumeOpt(parser, Chars.LowerN));
 }
@@ -163,7 +163,7 @@ export function scanSignedInteger(parser: Parser, end: number): string {
     }
 
     if (!(next >= Chars.Zero && next <= Chars.Nine)) {
-        report(parser, Errors.InvalidOrUnexpectedToken);
+        report(parser, Errors.Unexpected);
     }
 
     const preNumericPart = parser.index;

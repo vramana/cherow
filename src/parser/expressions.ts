@@ -567,7 +567,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
         if (parser.token & Token.IsAwait) tolerant(parser, context, Errors.DisallowedInContext);
         return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
     }
-    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterAsync);
+    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, 'async');
 
     while (parser.token === Token.LeftParen) {
         expr = parseMemberExpression(parser, context, pos, expr);
@@ -1432,7 +1432,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
 
 function parseArrowFunction(parser: Parser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterArrow);
+    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, '=>');
     expect(parser, context, Token.Arrow);
     return parseArrowBody(parser, context & ~Context.Async, params, pos, ModifierState.None);
 }
@@ -1448,7 +1448,7 @@ function parseArrowFunction(parser: Parser, context: Context, pos: Location, par
 
 function parseAsyncArrowFunction(parser: Parser, context: Context, state: ModifierState, pos: Location, params: any): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.LineBreakAfterAsync);
+    if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, 'async');
     expect(parser, context, Token.Arrow);
     return parseArrowBody(parser, context | Context.Async, params, pos, state);
 }
@@ -1618,11 +1618,11 @@ export function parseFormalParameters(
     }
 
     if (state & ObjectState.Setter && params.length !== 1) {
-        tolerant(parser, context, Errors.BadSetterArity);
+        tolerant(parser, context, Errors.AccessorWrongArgs, 'Setter', 'one', '');
     }
 
     if (state & ObjectState.Getter && params.length > 0) {
-        tolerant(parser, context, Errors.BadGetterArity);
+        tolerant(parser, context, Errors.AccessorWrongArgs, 'Getter', 'no', 's');
     }
 
     expect(parser, context, Token.RightParen);
@@ -1785,7 +1785,7 @@ export function parseClassElement(
     if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
 
     if (parser.tokenValue === 'constructor') {
-        if (state & ObjectState.Generator) tolerant(parser, context, Errors.ConstructorIsGenerator);
+        if (state & ObjectState.Generator) tolerant(parser, context, Errors.InvalidConstructor, 'generator');
         state |= ObjectState.Constructor;
     }
 
@@ -1836,7 +1836,7 @@ export function parseClassElement(
             if (tokenValue === 'prototype') {
                 tolerant(parser, context, Errors.StaticPrototype);
             } else if (!(state & ObjectState.Static) && tokenValue === 'constructor') {
-                tolerant(parser, context, Errors.ConstructorSpecialMethod);
+                tolerant(parser, context, Errors.InvalidConstructor, 'accessor');
             }
         }
     }

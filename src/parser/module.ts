@@ -421,7 +421,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
-    expect(parser, context, Token.AsKeyword, Errors.UnexpectedAsBinding);
+    expect(parser, context, Token.AsKeyword, Errors.AsAfterImportStart);
     const local = parseBindingIdentifier(parser, context);
     specifiers.push(finishNode(context, parser, pos, {
         type: 'ImportNamespaceSpecifier',
