@@ -61,7 +61,6 @@ module.exports = {
           'build.system.minify'
         )
       },
-      prepublish: series.nps('build.all.default', 'build.all.minify'),
       amd: {
         default: rollup('amd'),
         minify: rollup('amd', true)
@@ -91,6 +90,7 @@ module.exports = {
         minify: rollup('system', true)
       },
     },
+    prepublish: series.nps('build.all.default', 'build.all.minify'),
     ghpages: series(
       'git checkout gh-pages',
       'git merge master --no-edit',
