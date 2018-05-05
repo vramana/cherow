@@ -175,7 +175,7 @@ export function throwStringError(parser: Parser, context: Context, code: Escape)
             report(parser, Errors.InvalidEightAndNine);
 
         case Escape.InvalidHex:
-            report(parser, Errors.InvalidHexEscapeSequence);
+            report(parser, Errors.MalformedEscape, 'hexadecimal');
 
         case Escape.OutOfRange:
             report(parser, Errors.UnicodeOutOfRange);

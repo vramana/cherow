@@ -69,7 +69,7 @@ export function parseStatementListItem(parser: Parser, context: Context) {
         }
         case Token.ExportKeyword:
             if (context & Context.Module) {
-                tolerant(parser, context, parser.token === Token.ImportKeyword ? Errors.ImportDeclAtTopLevel : Errors.ExportDeclAtTopLevel);
+                tolerant(parser, context, Errors.ImportExportDeclAtTopLevel, tokenDesc(parser.token));
             }
         default:
             return parseStatement(parser, context | Context.AllowSingleStatement);

@@ -123,7 +123,7 @@ function scanUnicodeCodePointEscape(parser: Parser): string | void {
         }
 
         if (!isIdentifierPart(code)) {
-            report(parser, Errors.InvalidUnicodeEscapeSequence);
+            report(parser, Errors.MalformedEscape, 'unicode');
         }
 
         return fromCodePoint(code);
@@ -161,7 +161,7 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
         }
 
         if (parser.source.charCodeAt(parser.index) !== Chars.RightBrace) {
-            report(parser, Errors.InvalidHexEscapeSequence);
+            report(parser, Errors.MalformedEscape, 'unicode');
         }
 
         consumeOpt(parser, Chars.RightBrace);
@@ -172,7 +172,7 @@ function scanIdentifierUnicodeEscape(parser: Parser): Chars {
         for (let i = 0; i < 4; i++) {
             ch = parser.source.charCodeAt(parser.index);
             const digit = toHex(ch);
-            if (digit < 0) report(parser, Errors.InvalidHexEscapeSequence);
+            if (digit < 0) report(parser, Errors.MalformedEscape, 'unicode');
             codePoint = (codePoint << 4) | digit;
             parser.index++; parser.column++;
         }
