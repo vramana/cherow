@@ -24,7 +24,7 @@ module.exports = {
   scripts: {
     lint: package(`tslint --project ${config('build')}`),
     demo: {
-      development: webpack('webpack-dev-server', '--hot --env.server'),
+      development: webpack('webpack-dev-server', '--env.server'),
       production: webpack('webpack', '--env.production')
     },
     test: mocha('test/**/*.ts'),

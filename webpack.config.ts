@@ -1,6 +1,7 @@
 // tslint:disable:import-name
+// tslint:disable:no-require-imports
 import { AureliaPlugin, ModuleDependenciesPlugin } from 'aurelia-webpack-plugin';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 import { readFileSync } from 'fs';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import * as path from 'path';
@@ -44,14 +45,30 @@ function createHtmlWebpackPlugin(env: IEnv = {}): HtmlWebpackPlugin {
   return new HtmlWebpackPlugin(opts);
 }
 
+const styleLoader = { loader: 'style-loader' };
+const cssLoader = { loader: 'css-loader' };
+const postcssLoader = {
+  loader: 'postcss-loader',
+  options: { plugins: () => [require('autoprefixer')({ browsers: ['last 2 versions'] })] }
+};
+const htmlLoader = { loader: 'html-loader' };
+const sassLoader = { loader: 'sass-loader' };
+const jsonLoader = { loader: 'json-loader' };
+const tsLoader = {
+  loader: 'ts-loader',
+  options: { configFile: path.resolve(__dirname, 'configs/tsconfig-demo.json') }
+};
+const fileLoader = { loader: 'file-loader', options: { name: '[path][name].[hash].[ext]' } };
+const exposeLoader = { loader: 'expose-loader?Promise' };
+
 function configure(env: IEnv = {}): webpack.Configuration {
   return {
     mode: env.production ? 'production' : 'development',
     resolve: {
       extensions: ['.ts', '.js'],
-      modules: ['src', 'demo', 'node_modules'],
+      modules: [path.resolve(__dirname, 'src'), path.resolve(__dirname, 'demo'), 'node_modules'],
       alias: {
-        bluebird: path.resolve(__dirname, 'node_modules/bluebird/js/browser/bluebird.core')
+        bluebird: path.resolve(__dirname, 'node_modules/bluebird/js/browser/bluebird')
       }
     },
     entry: {
@@ -59,80 +76,64 @@ function configure(env: IEnv = {}): webpack.Configuration {
       vendor: ['bluebird']
     },
     output: {
-      path: path.resolve(__dirname),
+      path: path.resolve(__dirname, 'demo'),
       publicPath: env.production ? prodBaseUrl : devBaseUrl,
-      filename: env.production ? '[name].[chunkhash].bundle.js' : '[name].[hash].bundle.js',
-      sourceMapFilename: env.production ? '[name].[chunkhash].bundle.map' : '[name].[hash].bundle.map',
-      chunkFilename: env.production ? '[name].[chunkhash].chunk.js' : '[name].[hash].chunk.js'
+      filename: '[name].bundle.js'
     },
     devtool: env.production ? 'nosources-source-map' : 'cheap-module-eval-source-map',
     performance: { hints: false },
     devServer: {
       historyApiFallback: true,
       lazy: false,
-      open: true,
-      overlay: {
-        warnings: true,
-        errors: true
-      }
+      open: true
     },
     module: {
       rules: [
         {
           test: /\.css$/,
-          use: ExtractTextPlugin.extract({
-            fallback: 'style-loader',
-            use: [{ loader: 'css-loader' }]
-          }),
+          use: [styleLoader, cssLoader, postcssLoader],
           issuer: [{ not: [{ test: /\.html$/i }] }]
         },
         {
           test: /\.css$/,
-          use: [{ loader: 'css-loader' }],
+          use: [cssLoader, postcssLoader],
           issuer: [{ test: /\.html$/i }]
         },
         {
           test: /\.html$/,
-          use: [{ loader: 'html-loader' }]
+          use: [htmlLoader]
         },
         {
           test: /\.scss$/,
-          use: ['style-loader', 'css-loader', 'sass-loader'],
+          use: [styleLoader, cssLoader, postcssLoader, sassLoader],
           issuer: /\.[tj]s$/i
         },
         {
           test: /\.scss$/,
-          use: ['css-loader', 'sass-loader'],
+          use: [cssLoader, postcssLoader, sassLoader],
           issuer: /\.html?$/i
         },
         {
           test: /\.ts$/,
-          loader: 'ts-loader',
-          exclude: /node_modules/,
-          options: {
-            configFile: path.resolve(__dirname, 'configs/tsconfig-demo.json')
-          }
+          use: [tsLoader],
+          exclude: /node_modules/
         },
         {
           test: /[\/\\]node_modules[\/\\]bluebird[\/\\].+\.js$/,
-          use: [{ loader: 'expose-loader?Promise' }]
+          use: [exposeLoader]
         },
         {
-          test: /\.(jpe?g|png|gif|svg)$/i,
-          use: {
-            loader: 'file-loader',
-            options: {
-              name: '[path][name].[hash].[ext]'
-            }
-          }
+          test: /\.(jpe?g|png|gif|svg|tff|eot|otf|woff2?)$/i,
+          use: [fileLoader]
         }
       ]
     },
     plugins: [
+      createHtmlWebpackPlugin(env),
+      new MonacoWebpackPlugin(),
+      new webpack.IgnorePlugin(/^((fs)|(path)|(os)|(crypto)|(source-map-support))$/, /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/),
       new AureliaPlugin(),
       new webpack.ProvidePlugin({ Promise: 'bluebird' }),
-      new ModuleDependenciesPlugin({}),
-      createHtmlWebpackPlugin(env)
     ]
   };
 }
