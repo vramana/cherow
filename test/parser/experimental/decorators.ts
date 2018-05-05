@@ -56,6 +56,27 @@ describe('Experimental - Decorators', () => {
             `class A { @foo set setter(bar){} }`,
             `class A { @foo async bar(){} }`, // allowed?
             '@foo class Foo {}',
+            `@outer({
+                store: @inner class Foo {}
+              })
+              class Bar {
+
+              }`,
+              `@({
+                store: @inner class Foo {}
+              })
+              class Bar {
+
+              }`,
+              `class Bar{
+                @outer(
+                  @classDec class {
+                    @inner
+                    innerMethod() {}
+                  }
+                )
+                outerMethod() {}
+              }`,
             `@foo(@bar class Bar{})
             class Foo {}`,
             'class Foo { @foo @bar bar() {} }',
