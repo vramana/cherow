@@ -4,10 +4,10 @@
   <div class="area-top">
 
   </div>
-  <div class="area-left">
+  <div class="content-area area-left">
     <monaco-editor options.bind="{language: 'javascript'}" code.bind="code"></monaco-editor>
   </div>
-  <div class="area-right">
-
+  <div class="content-area area-right">
+    <ast-node class="ui" item.bind="nodeItem"></ast-node>
   </div>
 </template>

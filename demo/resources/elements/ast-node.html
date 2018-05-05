@@ -1,0 +1,13 @@
+<template class="list">
+  <div class="item">
+    <i class="minus icon"></i>
+    <div class="content">
+      <div class="header">${item.value.type}</div>
+      <template repeat.for="prop of item.value | toProperties | sortByType">
+        <ast-list if.bind="prop.$type === 'list'" item.bind="prop"></ast-list>
+        <ast-node if.bind="prop.$type === 'node'" item.bind="prop"></ast-node>
+        <ast-prop if.bind="prop.$type === 'prop'" item.bind="prop"></ast-prop>
+      </template>
+    </div>
+  </div>
+</template>

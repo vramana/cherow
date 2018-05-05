@@ -12,11 +12,11 @@ body,
 
 [aurelia-app] {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr .5rem 1fr;
   grid-template-rows: 5rem 1fr;
   grid-template-areas:
-    'top top'
-    'left right';
+    'top top top'
+    'left . right';
 }
 
 router-view {
@@ -33,4 +33,10 @@ router-view {
 
 .area-right {
   grid-area: right;
+  padding: .5rem 0 0 1rem;
+  overflow-y: auto;
+}
+
+.content-area  {
+  border: 1px solid grey;
 }
