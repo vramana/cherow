@@ -1,0 +1,36 @@
+html,
+body,
+[aurelia-app] {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+[aurelia-app] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 5rem 1fr;
+  grid-template-areas:
+    'top top'
+    'left right';
+}
+
+router-view {
+  display: block;
+}
+
+.area-top {
+  grid-area: top;
+}
+
+.area-left {
+  grid-area: left;
+}
+
+.area-right {
+  grid-area: right;
+}
