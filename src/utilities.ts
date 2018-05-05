@@ -415,14 +415,16 @@ export function swapContext <T>(
  * @param params Array of token values
  */
 
-export function validateParams(parser: Parser, context: Context, params: string[]) {
+export function validateParams(parser: Parser, context: Context) {
     const paramSet: any = new Map();
+    const { params } = parser;
     for (let i = 0; i < params.length; i++) {
         const key = '@' + params[i];
         if (paramSet.get(key)) {
         tolerant(parser, context, Errors.ParamDupe);
         } else paramSet.set(key, true);
     }
+    parser.params = [];
 }
 
 /**

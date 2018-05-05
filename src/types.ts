@@ -118,6 +118,7 @@ export interface Parser {
     tokenRegExp: any;
     token: Token;
     errors: any[];
+    params: string[];
 }
 
 /**

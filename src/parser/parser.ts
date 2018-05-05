@@ -54,6 +54,7 @@ export function createParser(
         labelSet: undefined,
         errorLocation: undefined,
         errors: [],
+        params: [],
     };
 }
 

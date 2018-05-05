@@ -404,11 +404,11 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
  * @param context Context masks
  */
 
-export function parseRestElement(parser: Parser, context: Context, args: string[] = []): any {
+export function parseRestElement(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     if (context & Context.InParen && parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
-    const argument = parseBindingIdentifierOrPattern(parser, context, args);
+    const argument = parseBindingIdentifierOrPattern(parser, context);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
         argument,
@@ -1493,10 +1493,8 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  */
 
 export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
-    const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
-    const args = paramList.args;
-    const params = paramList.params;
-    const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
+    const params = parseFormalParameters(parser, context | Context.InParameter, state);
+    const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody);
     return { params, body };
 }
 
@@ -1509,7 +1507,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
  * @param context Context masks
  */
 
-export function parseFunctionBody(parser: Parser, context: Context, params: any): ESTree.BlockStatement {
+export function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatement {
     // Note! The 'params' has an 'any' type now because it's really shouldn't be there. This should have been
     // on the parser object instead. So for now the 'params' arg are only used within the
     // 'parseFormalListAndBody' method, and not within the arrow function body.
@@ -1533,7 +1531,7 @@ export function parseFunctionBody(parser: Parser, context: Context, params: any)
     }
 
     if (context & Context.Strict) {
-        validateParams(parser, context, params);
+        validateParams(parser, context);
     }
 
     const { labelSet } = parser;
@@ -1575,7 +1573,7 @@ export function parseFormalParameters(
     parser: Parser,
     context: Context,
     state: ObjectState,
-): { params: ESTree.Identifier[]; args: string[]; } {
+): any {
 
     // FormalParameterList :
     //   [empty]
@@ -1608,11 +1606,11 @@ export function parseFormalParameters(
         if (parser.token === Token.Ellipsis) {
             if (state & ObjectState.Setter) tolerant(parser, context, Errors.BadSetterRestParameter);
             parser.flags |= Flags.SimpleParameterList;
-            params.push(parseRestElement(parser, context, args));
+            params.push(parseRestElement(parser, context));
             break;
         }
 
-        params.push(parseFormalParameterList(parser, context, args));
+        params.push(parseFormalParameterList(parser, context));
         if (!consume(parser, context, Token.Comma)) break;
         if (parser.token === Token.RightParen) break;
     }
@@ -1627,7 +1625,7 @@ export function parseFormalParameters(
 
     expect(parser, context, Token.RightParen);
 
-    return { params, args };
+    return params;
 }
 
 /**
@@ -1639,7 +1637,7 @@ export function parseFormalParameters(
  * @param context Context masks
  */
 
-export function parseFormalParameterList(parser: Parser, context: Context, args: string[]): any {
+export function parseFormalParameterList(parser: Parser, context: Context): any {
 
     const pos = getLocation(parser);
 
@@ -1656,7 +1654,7 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
         parser.flags |= Flags.SimpleParameterList;
     }
 
-    const left: any = parseBindingIdentifierOrPattern(parser, context, args);
+    const left: any = parseBindingIdentifierOrPattern(parser, context);
     if (!consume(parser, context, Token.Assign)) return left;
 
     if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {

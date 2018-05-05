@@ -26,7 +26,7 @@ import {
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: string[] = []): ESTree.Node {
+export function parseBindingIdentifierOrPattern(parser: Parser, context: Context): ESTree.Node {
     const { token } = parser;
     if (token & Token.IsBindingPattern) {
         return token === Token.LeftBrace ?
@@ -39,7 +39,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
             tolerant(parser, context, Errors.YieldBindingIdentifier);
         }
     }
-    args.push(parser.tokenValue);
+    parser.params.push(parser.tokenValue);
     return parseBindingIdentifier(parser, context);
 }
 
