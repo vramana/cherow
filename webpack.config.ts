@@ -58,7 +58,7 @@ const tsLoader = {
   loader: 'ts-loader',
   options: { configFile: path.resolve(__dirname, 'configs/tsconfig-demo.json') }
 };
-const fileLoader = { loader: 'file-loader', options: { name: '[path][name].[hash].[ext]' } };
+const fileLoader = { loader: 'file-loader', options: { name: '[path][name].[ext]' } };
 const exposeLoader = { loader: 'expose-loader?Promise' };
 
 function configure(env: IEnv = {}): webpack.Configuration {
@@ -130,10 +130,16 @@ function configure(env: IEnv = {}): webpack.Configuration {
     },
     plugins: [
       createHtmlWebpackPlugin(env),
-      new MonacoWebpackPlugin(),
-      new webpack.IgnorePlugin(/^((fs)|(path)|(os)|(crypto)|(source-map-support))$/, /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/),
+      new MonacoWebpackPlugin({
+        languages: ['typescript'],
+        features: ['colorDetector']
+      }),
+      new webpack.IgnorePlugin(
+        /^((fs)|(path)|(os)|(crypto)|(source-map-support))$/,
+        /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/
+      ),
       new AureliaPlugin(),
-      new webpack.ProvidePlugin({ Promise: 'bluebird' }),
+      new webpack.ProvidePlugin({ Promise: 'bluebird' })
     ]
   };
 }
