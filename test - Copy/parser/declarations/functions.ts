@@ -9,13 +9,13 @@ describe('Declarations - Functions', () => {
 
         // Esprima issue: https://github.com/jquery/esprima/issues/1509
         const invalidDuplicates = [
-            //'function l(w,[w]) { }',
+            'function l(w,[w]) { }',
             'function l(w,w=12) { }',
-            //'function l(w,{w}) { }',
-            //'function l([w,w]) { }',
-            //'function l({w,w}) { }',
-            //'function l([w], w) { }',
-            //'function l({w}, w) { }  ',
+            // 'function l(w,{w}) { }',
+             'function l([w,w]) { }',
+            // 'function l({w,w}) { }',
+             'function l([w], w) { }',
+            // 'function l({w}, w) { }  ',
         ];
 
         for (const arg of invalidDuplicates) {
