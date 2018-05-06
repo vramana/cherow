@@ -31,7 +31,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
     if (token & Token.IsBindingPattern) {
         return token === Token.LeftBrace ?
             parserObjectAssignmentPattern(parser, context) :
-            parseArrayAssignmentPattern(parser, context);
+            parseArrayAssignmentPattern(parser, context, args);
     } else if (token & (Token.IsAwait | Token.IsYield)) {
         if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
             tolerant(parser, context, Errors.AwaitBindingIdentifier);
@@ -86,10 +86,10 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 
-function parseAssignmentRestElement(parser: Parser, context: Context): ESTree.RestElement {
+function parseAssignmentRestElement(parser: Parser, context: Context, args: string[]): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
-    const argument = parseBindingIdentifierOrPattern(parser, context);
+    const argument = parseBindingIdentifierOrPattern(parser, context, args);
     if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
     return finishNode(context, parser, pos, {
         type: 'RestElement',
@@ -147,7 +147,7 @@ function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestEl
  * @param {context} Context masks
  */
 
-function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.ArrayPattern {
+function parseArrayAssignmentPattern(parser: Parser, context: Context, args: string[]): ESTree.ArrayPattern {
 
     const pos = getLocation(parser);
 
@@ -160,7 +160,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context): ESTree.A
             elements.push(null);
         } else {
             if (parser.token === Token.Ellipsis) {
-                elements.push(parseAssignmentRestElement(parser, context));
+                elements.push(parseAssignmentRestElement(parser, context, args));
                 break;
             } else {
                 elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseBindingInitializer));

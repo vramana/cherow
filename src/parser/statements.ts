@@ -35,6 +35,7 @@ import {
     addLabel,
     popLabel,
     restoreExpressionCoverGrammar,
+    validateParams
 } from '../utilities';
 
 // Statements
@@ -301,7 +302,9 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
     if (context & Context.OptionsNext
         ? consume(parser, context, Token.LeftParen)
         : expect(parser, context, Token.LeftParen)) {
-        param = parseBindingIdentifierOrPattern(parser, context);
+        const params: string[] = [];
+        param = parseBindingIdentifierOrPattern(parser, context, params);
+        validateParams(parser, context, params)
         expect(parser, context, Token.RightParen);
     }
     const body = parseBlockStatement(parser, context);
