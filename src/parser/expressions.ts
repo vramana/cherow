@@ -78,7 +78,6 @@ export function parseSequenceExpression(parser: Parser, context: Context, left: 
     while (consume(parser, context, Token.Comma)) {
         expressions.push(parseExpressionCoverGrammar(parser, context, parseAssignmentExpression));
     }
-
     return finishNode(context, parser, pos, {
         type: 'SequenceExpression',
         expressions,
@@ -1742,7 +1741,10 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
                     report(parser, Errors.GeneratorConstructor);
                 }
             }
-            body.push(parseClassElement(parser, context, state, decorators));
+
+            body.push(context & Context.OptionsNext && parser.token === Token.Hash
+                ? parsePrivateFields(parser, context, decorators)
+                : parseClassElement(parser, context, state, decorators));
         }
     }
 
@@ -1774,33 +1776,29 @@ export function parseClassElement(
     const pos = getLocation(parser);
 
     let { tokenValue, token } = parser;
-    const isEscaped = !!(parser.flags & Flags.EscapedKeyword);
+    const flags = parser.flags;
 
-    if (context & Context.OptionsNext && token === Token.Hash) {
-        return parsePrivateFields(parser, context, pos, decorators);
+    if (consume(parser, context, Token.Multiply)) {
+        state |= ObjectState.Generator;
     }
-
-    if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
 
     if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
 
     if (parser.tokenValue === 'constructor') {
         if (state & ObjectState.Generator) tolerant(parser, context, Errors.InvalidConstructor, 'generator');
+        else if (state & ObjectState.Heritage) context |= Context.AllowSuperProperty;
         state |= ObjectState.Constructor;
     }
 
     let key = parsePropertyName(parser, context);
 
-    if (context & Context.OptionsNext && isInstanceField(parser)) {
-        return parseFieldDefinition(parser, context, key, state, pos, decorators);
-    }
-
     let value;
 
     if (!(parser.token & Token.IsShorthandProperty)) {
 
-        if (isEscaped) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
-        else if (token === Token.StaticKeyword) {
+        if (flags & Flags.EscapedKeyword) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
+
+        if (token === Token.StaticKeyword) {
             token = parser.token;
             if (consume(parser, context, Token.Multiply)) state |= ObjectState.Generator;
             tokenValue = parser.tokenValue;
@@ -1842,25 +1840,17 @@ export function parseClassElement(
     }
 
     if (parser.token === Token.LeftParen) {
-        if (!(state & (ObjectState.Getter | ObjectState.Setter))) state |= ObjectState.Method;
-        if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
-            context |= Context.AllowSuperProperty;
-        }
         value = parseMethodDeclaration(parser, context, state);
     } else {
-        // Class fields - Stage 3 proposal
         if (context & Context.OptionsNext) return parseFieldDefinition(parser, context, key, state, pos, decorators);
         tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
     }
+    const kind =  (state & ObjectState.Constructor) ? 'constructor' : (state & ObjectState.Getter) ? 'get' :
+    (state & ObjectState.Setter) ? 'set' : 'method';
 
-    return parseMethodDefinition(parser, context, key, value, state, pos, decorators);
-}
-
-function parseMethodDefinition(parser: Parser, context: Context, key: any, value: any, state: ObjectState, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.MethodDefinition {
     return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
         type: 'MethodDefinition',
-        kind: (state & ObjectState.Constructor) ? 'constructor' : (state & ObjectState.Getter) ? 'get' :
-            (state & ObjectState.Setter) ? 'set' : 'method',
+        kind,
         static: !!(state & ObjectState.Static),
         computed: !!(state & ObjectState.Computed),
         key,
@@ -1868,8 +1858,7 @@ function parseMethodDefinition(parser: Parser, context: Context, key: any, value
         decorators
     } : {
         type: 'MethodDefinition',
-        kind: (state & ObjectState.Constructor) ? 'constructor' : (state & ObjectState.Getter) ? 'get' :
-            (state & ObjectState.Setter) ? 'set' : 'method',
+        kind,
         static: !!(state & ObjectState.Static),
         computed: !!(state & ObjectState.Computed),
         key,
@@ -1937,7 +1926,8 @@ function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTr
  * @param context Context masks
  */
 
-function parsePrivateFields(parser: Parser, context: Context, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
+function parsePrivateFields(parser: Parser, context: Context, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
+    const pos = getLocation(parser);
     expect(parser, context | Context.InClass, Token.Hash);
     if (parser.tokenValue === 'constructor') tolerant(parser, context, Errors.PrivateFieldConstructor);
 
@@ -1970,7 +1960,23 @@ function parsePrivateFields(parser: Parser, context: Context, pos: Location, dec
 function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.MethodDefinition {
     const value = parseMethodDeclaration(parser, context | Context.Strict, ObjectState.None);
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-    return parseMethodDefinition(parser, context, key, value, ObjectState.Method, pos, decorators);
+    return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
+        type: 'MethodDefinition',
+        kind: 'method',
+        static: false,
+        computed: false,
+        key,
+        value,
+        decorators
+    } : {
+        type: 'MethodDefinition',
+        kind: 'method',
+        static: false,
+        computed: false,
+        key,
+        value,
+    });
+
 }
 
 /**
