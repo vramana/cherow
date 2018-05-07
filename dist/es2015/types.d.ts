@@ -20,6 +20,7 @@ export interface Options {
 }
 export interface Parser {
     source: string;
+    length: number;
     index: number;
     line: number;
     column: number;
