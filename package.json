@@ -8,6 +8,9 @@
   "types": "dist/umd/cherow.d.ts",
   "typings": "dist/umd/cherow.d.ts",
   "author": "KFlash",
+  "contributors": [
+    "Fred Kleuver <https://github.com/fkleuver>"
+  ],
   "license": "ISC",
   "homepage": "https://github.com/cherow/cherow",
   "repository": {
