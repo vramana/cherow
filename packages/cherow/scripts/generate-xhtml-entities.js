@@ -95,6 +95,7 @@ function generate() {
 
       stream.write(`
       // XHTML entities
+      // tslint:disable
       export const XHTMLEntities = {
           ${lines.join(',\n')}
         };`)
