@@ -13,7 +13,6 @@ import { Context } from './utilities';
  * @param source source code to parse
  * @param options parser options
  */
-
 export function parseScript(source: string, options?: Options): ESTree.Program {
     return parse(source, options, Context.Empty);
 }
@@ -26,7 +25,6 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
  * @param source source code to parse
  * @param options parser options
  */
-
 export function parseModule(source: string, options?: Options): ESTree.Program {
     return parse(source, options, Context.Strict | Context.Module);
 }

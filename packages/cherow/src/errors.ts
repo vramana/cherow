@@ -1,6 +1,7 @@
 import { IParser } from './types';
 import { Context } from './utilities';
 
+/*@internal*/
 export const enum Errors {
     Unexpected,
     UnexpectedToken,
@@ -97,8 +98,9 @@ export const enum Errors {
     InvalidRestBindingPattern
 }
 
-export const ErrorMessages: {
-    [key: string]: string,
+/*@internal*/
+export const errorMessages: {
+    [key: string]: string;
 } = {
     [Errors.Unexpected]: 'Unexpected token',
     [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',
@@ -207,7 +209,7 @@ export const ErrorMessages: {
  * @param parser The 0-based end index of the current node.
  * @param description Error description
  */
-export function constructError(parser: IParser, context: Context, index: number, line: number, column: number, description: string) {
+export function constructError(parser: IParser, context: Context, index: number, line: number, column: number, description: string): void {
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
     );
@@ -228,7 +230,7 @@ export function constructError(parser: IParser, context: Context, index: number,
  * @param parser Parser instance
  */
 
-function getErrorLocation(parser: IParser) {
+function getErrorLocation(parser: IParser): { index: number; line: number; column: number } {
     let { index, startLine: line, startColumn: column } = parser;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
@@ -247,9 +249,9 @@ function getErrorLocation(parser: IParser) {
  * @param type Error type
  * @param params Error params
  */
-export function report(parser: IParser, type: Errors, ...params: string[]) {
+export function report(parser: IParser, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
-    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, Context.Empty, index, line, column, errorMessage);
 }
 
@@ -262,8 +264,8 @@ export function report(parser: IParser, type: Errors, ...params: string[]) {
  * @param type Error type
  * @param params Error params
  */
-export function tolerant(parser: IParser, context: Context, type: Errors, ...params: string[]) {
+export function tolerant(parser: IParser, context: Context, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
-    const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+    const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, context, index, line, column, errorMessage);
 }
