@@ -1,3 +1,3 @@
-import * as ESTree from '../../cherow/src/estree';
 import { Options } from './types';
+import { ESTree } from 'cherow';
 export declare function parseTS(source: string, options?: Options): ESTree.Program;
