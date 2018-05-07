@@ -1,43 +1,18 @@
-git:
-  depth: 10
-sudo: false
 language: node_js
 cache:
-  yarn: true
   directories:
-    - node_modules
+    - ~/.npm
+notifications:
+  email: false
 node_js:
-  # We test the latest version on circleci
-  - '8'
-  - '6'
-
+  - '10'
 env:
-  global:
-    - PATH=$HOME/.yarn/bin:$PATH
-    - JOB=test
+  matrix:
+    - PACKAGE=foo
+      #- PACKAGE=cherow
+      #- PACKAGE=cherow-ts
 
-before_install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
-
-install: yarn --ignore-engines
-
-before_script:
-  - 'if [ "$JOB" = "cherow-tests" ]; then make bootstrap-cherow-tests; fi'
-  - 'if [ "$JOB" = "cherow-ts-test" ]; then make bootstrap-cherow-ts-tests; fi'
-
-script:
-  - 'if [ "$JOB" = "test" ]; then make test-ci; fi'
-  - 'if [ "$JOB" = "cherow-ts-test" ]; then make cherow-ts-ci; fi'
-
-matrix:
-  fast_finish: true
-  include:
-    - node_js: "node"
-      env: JOB=lint
-    - node_js: "node"
-      env: JOB=cherow-test
-    - node_js: "node"
-      env: JOB=cherow-ts-test
+script: lerna run test --scope $PACKAGE
 
 branches:
   except:
