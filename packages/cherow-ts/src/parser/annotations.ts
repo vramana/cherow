@@ -18,7 +18,7 @@ import {
 
 // AST from Babylon / ESLint
 
-/**
+/*
  * Parses mapped type parameter
  *
  * @param {Parser} parser object
@@ -46,10 +46,10 @@ function parseMappedTypeParameter(parser: Parser, context: Context): any {
 
 function parseIntersectionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  const type = parseTypeOperator(parser, context);
+  const tsType = parseTypeOperator(parser, context);
 
-  if (parser.token !== Token.BitwiseAnd) return type;
-  const types = [type];
+  if (parser.token !== Token.BitwiseAnd) return tsType;
+  const types = [tsType];
   while (consume(parser, context, Token.BitwiseAnd)) {
       types.push(parseTypeOperator(parser, context));
   }
@@ -68,11 +68,11 @@ function parseIntersectionType(parser: Parser, context: Context): any {
 function parseUnionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
 
-  const type = parseIntersectionType(parser, context);
+  const tsType = parseIntersectionType(parser, context);
 
-  if (parser.token !== Token.BitwiseOr) return type;
+  if (parser.token !== Token.BitwiseOr) return tsType;
 
-  const types = [type];
+  const types = [tsType];
 
   while (consume(parser, context, Token.BitwiseOr)) {
       types.push(parseIntersectionType(parser, context));
@@ -114,8 +114,8 @@ function parseMappedType(parser: Parser, context: Context, pos: Location): any {
 
 function parseIdentifierTypedNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  const type: any = keywordTypeFromName(parser.tokenValue);
-  if (type) {
+  const tsType: any = keywordTypeFromName(parser.tokenValue);
+  if (tsType) {
       expect(parser, context, Token.Identifier);
       return finishNode(context, parser, pos, {
           type: keywordTypeFromName(parser.tokenValue),
@@ -352,7 +352,9 @@ function parseTypeQuery(parser: Parser, context: Context): any {
 }
 
 function parseTypeMember(parser: Parser, context: Context): any {
-  // TODO
+  if (!consume(parser, context, Token.Comma)) {
+    consumeSemicolon(parser, context);
+  }
 }
 
 function parseObjectTypeMembers(parser: Parser, context: Context): any {
@@ -366,25 +368,25 @@ function parseObjectTypeMembers(parser: Parser, context: Context): any {
 
 function parseArrayType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  let type = parseNonArrayType(parser, context);
+  let elementType = parseNonArrayType(parser, context);
 
   while (!(parser.flags & Flags.NewLine) && consume(parser, context, Token.LeftBracket)) {
       if (consume(parser, context, Token.RightBracket)) {
-          type = finishNode(context, parser, pos, {
+        elementType = finishNode(context, parser, pos, {
               type: 'TSArrayType',
-              elementType: type
+              elementType
           });
       } else {
           const indexType = parseType(parser, context);
           expect(parser, context, Token.RightBracket);
-          type = finishNode(context, parser, pos, {
+          elementType = finishNode(context, parser, pos, {
               type: 'TSIndexedAccessType',
-              elementType: type,
+              elementType,
               indexType
           });
       }
   }
-  return type;
+  return elementType;
 }
 
 function parseTypeOperatorWithOperatpr(parser: Parser, context: Context, token: Token): any {
