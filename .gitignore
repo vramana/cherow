@@ -15,5 +15,5 @@
 package-lock.json
 yarn.lock
 yarn-error.log
+lerna-debug.log
 .rollupcache
-.lerna-debug.log
