@@ -84,17 +84,6 @@ module.exports = {
         default: rollup('system'),
         minify: rollup('system', true)
       },
-    },
-    prepublish: series.nps('build.all.default', 'build.all.minify'),
-    ghpages: series(
-      'git checkout gh-pages',
-      'git merge master --no-edit',
-      rimraf('*.bundle.js'),
-      package('nps demo.production'),
-      'git add index.html *.bundle.js',
-      "git commit -m 'doc(demo): build demo'",
-      'git push',
-      'git checkout master'
-    )
+    }
   }
 };
