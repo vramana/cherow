@@ -18,7 +18,7 @@ export interface Options {
     tolerant?: boolean;
     node?: boolean;
 }
-export interface Parser {
+export interface IParser {
     source: string;
     length: number;
     index: number;

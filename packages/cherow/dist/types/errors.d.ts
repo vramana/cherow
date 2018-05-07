@@ -1,4 +1,4 @@
-import { Parser } from './types';
+import { IParser } from './types';
 import { Context } from './utilities';
 export declare const enum Errors {
     Unexpected = 0,
@@ -98,6 +98,6 @@ export declare const enum Errors {
 export declare const ErrorMessages: {
     [key: string]: string;
 };
-export declare function constructError(parser: Parser, context: Context, index: number, line: number, column: number, description: string): void;
-export declare function report(parser: Parser, type: Errors, ...params: string[]): void;
-export declare function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]): void;
+export declare function constructError(parser: IParser, context: Context, index: number, line: number, column: number, description: string): void;
+export declare function report(parser: IParser, type: Errors, ...params: string[]): void;
+export declare function tolerant(parser: IParser, context: Context, type: Errors, ...params: string[]): void;
