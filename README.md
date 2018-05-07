@@ -52,7 +52,7 @@ Here is a quick example:
 
 ```js
 
-cherow.parseScript('const fooBar = 123;', { ranges: true });
+cherow.parseScript('x = async() => { for await (x of xs); }', { ranges: true });
 
 ```
 
@@ -60,37 +60,45 @@ This will return when serialized in json:
 
 ```js
 {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
-        {
-            "type": "VariableDeclaration",
-            "declarations": [
-                {
-                    "type": "VariableDeclarator",
-                    "init": {
-                        "type": "Literal",
-                        "value": 123,
-                        "start": 15,
-                        "end": 18
-                    },
-                    "id": {
-                        "type": "Identifier",
-                        "name": "fooBar",
-                        "start": 6,
-                        "end": 12
-                    },
-                    "start": 6,
-                    "end": 18
-                }
-            ],
-            "kind": "const",
-            "start": 0,
-            "end": 19
-        }
-    ],
-    "start": 0,
-    "end": 19
+    body: [{
+        expression: {
+            left: {
+                name: 'x',
+                type: 'Identifier'
+            },
+            operator: '=',
+            right: {
+                async: true,
+                body: {
+                    body: [{
+                        await: true,
+                        body: {
+                            type: 'EmptyStatement',
+                        },
+                        left: {
+                            name: 'x',
+                            type: 'Identifier',
+                        },
+                        right: {
+                            name: 'xs',
+                            type: 'Identifier',
+                        },
+                        type: 'ForOfStatement',
+                    }],
+                    type: 'BlockStatement'
+                },
+                expression: false,
+                generator: false,
+                id: null,
+                params: [],
+                type: 'ArrowFunctionExpression'
+            },
+            type: 'AssignmentExpression'
+        },
+        type: 'ExpressionStatement'
+    }],
+    sourceType: 'script',
+    type: 'Program'
 }
 ```
 
