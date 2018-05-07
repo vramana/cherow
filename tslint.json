@@ -5,7 +5,7 @@
      * or are recommended in the Microsoft Secure Development Lifecycle (SDL)
      */
     "insecure-random": true,
-    "no-banned-terms": true,
+    "no-banned-terms": false,
     "no-cookies": true,
     "no-delete-expression": true,
     "no-disable-auto-sanitization": true,
