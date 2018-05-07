@@ -9,7 +9,7 @@
     "sourceMap": true,
     "baseUrl": "../packages",
     "paths": {
-      "@cherow/*": "./*/src"
+      "@cherow/*": ["./*/src"]
     }
   },
   "include": ["../src"]
