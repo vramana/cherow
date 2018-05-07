@@ -52,7 +52,7 @@ Here is a quick example:
 
 ```js
 
-cherow.parseScript('x = async() => { for await (x of xs); }', { ranges: true });
+cherow.parseScript('x = async() => { for await (x of xs); }');
 
 ```
 
