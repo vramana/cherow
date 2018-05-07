@@ -1,19 +1,44 @@
-language: node_js
+git:
+  depth: 10
 sudo: false
+language: node_js
+cache:
+  yarn: true
+  directories:
+    - node_modules
+node_js:
+  # We test the latest version on circleci
+  - '8'
+  - '6'
+
+env:
+  global:
+    - PATH=$HOME/.yarn/bin:$PATH
+    - JOB=test
+
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+
+install: yarn --ignore-engines
+
+before_script:
+  - 'if [ "$JOB" = "cherow-tests" ]; then make bootstrap-cherow-tests; fi'
+  - 'if [ "$JOB" = "cherow-ts-test" ]; then make bootstrap-cherow-ts-tests; fi'
+
+script:
+  - 'if [ "$JOB" = "test" ]; then make test-ci; fi'
+  - 'if [ "$JOB" = "cherow-ts-test" ]; then make cherow-ts-ci; fi'
+
 matrix:
+  fast_finish: true
   include:
-  - node_js: '8'
-  - node_js: '10'
-  - node_js: 'node'
-  - node_js: 'node'
-    env: TEST_SUITE=cherow
-script: >
-  if [ "$TEST_SUITE" != "cherow" ]; then
-    set -e
-#    npm run coverage
-    npm run coverage
-    set +e
-    npm run post_coverage
-  else
-    npm test
-  fi
+    - node_js: "node"
+      env: JOB=lint
+    - node_js: "node"
+      env: JOB=cherow-test
+    - node_js: "node"
+      env: JOB=cherow-ts-test
+
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
