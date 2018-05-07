@@ -19,7 +19,7 @@ import {
   tolerant,
   Errors,
   IParser
-} from '@cherow';
+} from 'cherow';
 import { parseTypeAnnotation } from './annotations';
 
 /**

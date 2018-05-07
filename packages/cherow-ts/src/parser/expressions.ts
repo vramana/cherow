@@ -10,7 +10,7 @@ import {
   consumeSemicolon,
   nextToken,
   ESTree
-} from '@cherow';
+} from 'cherow';
 
 /**
  * Parses identifier

@@ -1,5 +1,5 @@
 import { Options } from './types';
-import { ESTree, Parser, Context } from '@cherow';
+import { ESTree, Parser, Context } from 'cherow';
 
 /**
  * Parse TypeScript

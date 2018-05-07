@@ -1,16 +1,15 @@
 {
   "extends": "./tsconfig-build.json",
   "compilerOptions": {
-    "types": ["mocha", "node"],
     "module": "umd",
     "sourceMap": true,
     "baseUrl": "../packages",
     "paths": {
-      "@cherow": ["cherow/src/cherow"],
-      "@cherow/flow": ["cherow-flow/src/cherow-flow"],
-      "@cherow/linter": ["cherow-linter/src/cherow-linter"],
-      "@cherow/minify": ["cherow-minify/src/cherow-minify"],
-      "@cherow/ts": ["cherow-ts/src/cherow-ts"]
+      "cherow": ["cherow/src/cherow"],
+      "cherow-flow": ["cherow-flow/src/cherow-flow"],
+      "cherow-linter": ["cherow-linter/src/cherow-linter"],
+      "cherow-minify": ["cherow-minify/src/cherow-minify"],
+      "cherow-ts": ["cherow-ts/src/cherow-ts"]
     }
   }
 }

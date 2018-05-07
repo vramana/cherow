@@ -12,7 +12,7 @@ import {
   consumeSemicolon,
   nextToken,
   IParser
-} from '@cherow';
+} from 'cherow';
 
 /**
  * Parses expression statement

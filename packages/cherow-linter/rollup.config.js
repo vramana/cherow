@@ -46,7 +46,8 @@ function output(target, format, opts = {}) {
           }
         })
       )
-    ]
+    ],
+    external: ["cherow"]
   };
 }
 

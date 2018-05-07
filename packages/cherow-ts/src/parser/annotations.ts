@@ -14,7 +14,7 @@ import {
   expect,
   consumeSemicolon,
   nextToken
-} from '@cherow';
+} from 'cherow';
 import { parseIdentifier } from './expressions';
 import { keywordTypeFromName } from '../utilities';
 import * as ESTree from '../estree';

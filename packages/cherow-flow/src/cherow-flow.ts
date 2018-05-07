@@ -1,4 +1,4 @@
-import { Context, Parser, ESTree } from '@cherow';
+import { Context, Parser, ESTree } from 'cherow';
 import { Options } from './types';
 
 /**

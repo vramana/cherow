@@ -1,6 +1,7 @@
 {
   "extends": "../../../configs/tsconfig-test.json",
   "compilerOptions": {
+    "types": ["mocha", "node"],
     "outDir": "../build/",
     "typeRoots": ["../node_modules/@types/"]
   },
