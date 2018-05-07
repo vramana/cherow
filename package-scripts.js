@@ -19,7 +19,7 @@ function package(script) {
 
 function getConfig(pkgName) {
 
-  return {
+  const output = {
     scripts: {
       lint: package(`tslint --project ${config('build')}`),
       test: {
@@ -95,6 +95,13 @@ function getConfig(pkgName) {
       }
     }
   };
+
+  if (!(pkgName && pkgName.length)) {
+    output.scripts.build.moveTypes.move = copy(`**/*.d.ts dist/types --parents --cwd=.`);
+    output.scripts.build.moveTypes.clean = rimraf(`!(dist)**/*.d.ts *.d.ts`);
+  }
+
+  return output;
 }
 
 module.exports = getConfig;

@@ -1,1 +1,1 @@
-module.exports = require('../../package-scripts')('cherow');
+module.exports = require('../../package-scripts')();
