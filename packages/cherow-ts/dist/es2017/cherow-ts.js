@@ -1,3 +1,0 @@
-function parseTS() { }
-
-export { parseTS };

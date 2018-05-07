@@ -1,0 +1,11 @@
+import { Parser } from '../types';
+import { Token } from '../token';
+import { Context, NumericState } from '../utilities';
+export declare function scanHexIntegerLiteral(parser: Parser, context: Context): Token;
+export declare function scanOctalOrBinary(parser: Parser, context: Context, base: number): Token;
+export declare function scanImplicitOctalDigits(parser: Parser, context: Context): Token;
+export declare function scanSignedInteger(parser: Parser, end: number): string;
+export declare function scanNumericLiteral(parser: Parser, context: Context, state?: NumericState): Token;
+export declare function scanNumericSeparator(parser: Parser, state: NumericState): NumericState;
+export declare function scanDecimalDigitsOrSeparator(parser: Parser): string;
+export declare function scanDecimalAsSmi(parser: Parser, context: Context): number;

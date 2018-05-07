@@ -5051,6 +5051,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return parse(source, options, 4096 | 8192);
 }
-const version = '1.5.5';
+const version = '1.5.7';
 
 export { parseScript, parseModule, version, estree as ESTree, index as Parser, index$1 as Scanner, CharacterType, ErrorMessages, constructError, report, tolerant, tokenDesc, descKeyword, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, expect, consume, nextToken, hasBit, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, validateParams, reinterpret, lookahead, isValidSimpleAssignmentTarget, getLocation, isValidIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, parseAndValidateIdentifier, nameIsArgumentsOrEval, setPendingError, isEqualTagNames, isInstanceField, validateUpdateExpression, setPendingExpressionError, validateCoverParenthesizedExpression, validateAsyncArgumentList };
