@@ -19,3 +19,11 @@ parseTS('function foo(bar: string): void {}', )
 parseTS('function foo(bar: string): void {}', { module: true })
 ```
 
+## Options
+
+`Cherow TypeScript parser` share the same options as in `Cherow`, but extended to include:
+
+| Name        | Description |
+| ----------- | ------------------------------------------------------------ |
+| `module`    | Enable module code parsing |
+
