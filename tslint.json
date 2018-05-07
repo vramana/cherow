@@ -16,7 +16,7 @@
     "no-function-constructor-with-string-args": true,
     "no-http-string": [true, "http://www.example.com/?.*", "http://www.examples.com/?.*"],
     "no-inner-html": true,
-    "no-octal-literal": true,
+    "no-octal-literal": false,
     "no-reserved-keywords": false,
     "no-string-based-set-immediate": true,
     "no-string-based-set-interval": true,
