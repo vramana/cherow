@@ -5,29 +5,10 @@
 	],
 	"devDependencies": {
 		"lerna": "^2.9.0",
-    "nps-utils": "^1.5.0",
-    "@semantic-release/git": "^3.0.1",
-    "semantic-release": "^15.0.0",
+		"nps-utils": "^1.5.0",
 		"tsconfig-paths": "^3.3.1",
 		"tslint": "^5.10.0",
 		"tslint-microsoft-contrib": "^5.0.3",
 		"typescript": "^2.8.3"
-  },
-  "scripts": {
-    "semantic-release": "semantic-release"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cherow/cherow.git"
-  },
-  "release": {
-    "publish": [
-      {
-        "path": "@semantic-release/npm",
-        "npmPublish": false
-      },
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ]
-  }
+	}
 }
