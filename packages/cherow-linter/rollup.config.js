@@ -26,6 +26,7 @@ function output(target, format, opts = {}) {
       ts({
         tsconfig: `configs/tsconfig-build.json`,
         tsconfigOverride: { compilerOptions: { target } },
+        useTsconfigDeclarationDir: true,
         cacheRoot: `.rollupcache/${mod}`
       }),
       when(

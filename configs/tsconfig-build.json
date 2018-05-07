@@ -1,12 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "declaration": true,
     "diagnostics": true,
     "noUnusedParameters": true,
     "removeComments": true,
+    "sourceMap": true,
     "strict": true,
     "stripInternal": true,
-    "sourceMap": true,
     "baseUrl": "../packages",
     "paths": {
       "cherow": ["cherow/src/cherow"],

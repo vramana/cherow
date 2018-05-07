@@ -1,1 +1,1 @@
-module.exports = require('../../package-scripts');
+module.exports = require('../../package-scripts')('cherow-minify');
