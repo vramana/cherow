@@ -5053,7 +5053,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
   function parseModule(source, options) {
       return parse(source, options, 4096 | 8192);
   }
-  const version = '1.5.4';
+  const version = '1.5.5';
 
   exports.parseScript = parseScript;
   exports.parseModule = parseModule;
