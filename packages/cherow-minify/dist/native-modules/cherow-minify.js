@@ -1,0 +1,3 @@
+function minify() { }
+
+export { minify };

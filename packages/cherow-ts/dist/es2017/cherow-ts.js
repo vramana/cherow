@@ -1,0 +1,3 @@
+function parseTS() { }
+
+export { parseTS };

@@ -1,0 +1,7 @@
+{
+  "extends": "../../../configs/tsconfig-declaration.json",
+  "compilerOptions": {
+    "declarationDir": "../dist/types"
+  },
+  "include": ["../src"]
+}

@@ -1,7 +1,10 @@
 {
   "lerna": "2.9.0",
   "packages": [
-    "packages/cherow"
+    "packages/cherow",
+    "packages/cherow-ts",
+    "packages/cherow-flow",
+    "packages/cherow-minify"
   ],
   "version": "independent"
 }
