@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
 import { Chars } from './chars';
-import { Errors, report, tolerant, ErrorMessages, constructError } from './errors';
+import { Errors, report, tolerant, errorMessages, constructError } from './errors';
 import { IParser, Location } from './types';
 import { Token, tokenDesc } from './token';
 import { scan } from './lexer/scan';
@@ -773,9 +773,9 @@ export function validateUpdateExpression(parser: IParser, context: Context, expr
  * @param parser Parser object
  * @param error Error message
  */
-export function setPendingExpressionError(parser: IParser, $type: Errors): void {
+export function setPendingExpressionError(parser: IParser, type: Errors): void {
   parser.pendingExpressionError = {
-    error: ErrorMessages[$type],
+    error: errorMessages[type],
     line: parser.line,
     column: parser.column,
     index: parser.index

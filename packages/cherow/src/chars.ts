@@ -13,7 +13,8 @@ export const enum CharacterFlags {
     Decimals = IdentifierStart | Decimal,
 }
 
-export const CharacterType = [
+/*@internal*/
+export const characterType = [
     CharacterFlags.Unknown,
     CharacterFlags.Unknown,
     CharacterFlags.Unknown,
@@ -147,7 +148,6 @@ export const CharacterType = [
 /**
  * A list of character constants with much more human-readable names.
  */
-
 export const enum Chars {
 
     // Optimized for the  0...127 range
@@ -156,10 +156,10 @@ export const enum Chars {
     Null           = 0x00,
     Backspace      = 0x08,
     Tab            = 0x09,
-    LineFeed       = 0x0a,
-    VerticalTab    = 0x0b,
-    FormFeed       = 0x0c,
-    CarriageReturn = 0x0d,
+    LineFeed       = 0x0A,
+    VerticalTab    = 0x0B,
+    FormFeed       = 0x0C,
+    CarriageReturn = 0x0D,
     Space          = 0x20,
     Exclamation    = 0x21,
     DoubleQuote    = 0x22,
@@ -170,29 +170,29 @@ export const enum Chars {
     SingleQuote    = 0x27,
     LeftParen      = 0x28,
     RightParen     = 0x29,
-    Asterisk       = 0x2a,
-    Plus           = 0x2b,
-    Comma          = 0x2c,
-    Hyphen         = 0x2d,
-    Period         = 0x2e,
-    Slash          = 0x2f,
+    Asterisk       = 0x2A,
+    Plus           = 0x2B,
+    Comma          = 0x2C,
+    Hyphen         = 0x2D,
+    Period         = 0x2E,
+    Slash          = 0x2F,
     At             = 0x40,
     Backtick       = 0x60,
-    LeftBracket    = 0x5b,
-    Backslash      = 0x5c,
-    RightBracket   = 0x5d,
-    Caret          = 0x5e,
-    Underscore     = 0x5f,
-    LeftBrace      = 0x7b,
-    VerticalBar    = 0x7c,
-    RightBrace     = 0x7d,
-    Tilde          = 0x7e,
-    Colon          = 0x3a,
-    Semicolon      = 0x3b,
-    LessThan       = 0x3c,
-    EqualSign      = 0x3d,
-    GreaterThan    = 0x3e,
-    QuestionMark   = 0x3f,
+    LeftBracket    = 0x5B,
+    Backslash      = 0x5C,
+    RightBracket   = 0x5D,
+    Caret          = 0x5E,
+    Underscore     = 0x5F,
+    LeftBrace      = 0x7B,
+    VerticalBar    = 0x7C,
+    RightBrace     = 0x7D,
+    Tilde          = 0x7E,
+    Colon          = 0x3A,
+    Semicolon      = 0x3B,
+    LessThan       = 0x3C,
+    EqualSign      = 0x3D,
+    GreaterThan    = 0x3E,
+    QuestionMark   = 0x3F,
 
     /* Numbers  */
 
@@ -217,12 +217,12 @@ export const enum Chars {
     UpperG = 0x47,
     UpperH = 0x48,
     UpperI = 0x49,
-    UpperJ = 0x4a,
-    UpperK = 0x4b,
-    UpperL = 0x4c,
-    UpperM = 0x4d,
-    UpperN = 0x4e,
-    UpperO = 0x4f,
+    UpperJ = 0x4A,
+    UpperK = 0x4B,
+    UpperL = 0x4C,
+    UpperM = 0x4D,
+    UpperN = 0x4E,
+    UpperO = 0x4F,
     UpperP = 0x50,
     UpperQ = 0x51,
     UpperR = 0x52,
@@ -233,7 +233,7 @@ export const enum Chars {
     UpperW = 0x57,
     UpperX = 0x58,
     UpperY = 0x59,
-    UpperZ = 0x5a,
+    UpperZ = 0x5A,
 
     /* 'a' - 'z' */
 
@@ -246,12 +246,12 @@ export const enum Chars {
     LowerG  = 0x67,
     LowerH  = 0x68,
     LowerI  = 0x69,
-    LowerJ  = 0x6a,
-    LowerK  = 0x6b,
-    LowerL  = 0x6c,
-    LowerM  = 0x6d,
-    LowerN  = 0x6e,
-    LowerO  = 0x6f,
+    LowerJ  = 0x6A,
+    LowerK  = 0x6B,
+    LowerL  = 0x6C,
+    LowerM  = 0x6D,
+    LowerN  = 0x6E,
+    LowerO  = 0x6F,
     LowerP  = 0x70,
     LowerQ  = 0x71,
     LowerR  = 0x72,
@@ -262,11 +262,11 @@ export const enum Chars {
     LowerW  = 0x77,
     LowerX  = 0x78,
     LowerY  = 0x79,
-    LowerZ  = 0x7a,
+    LowerZ  = 0x7A,
 
     /* Zs space */
     NextLine           = 0x85,
-    NonBreakingSpace   = 0xa0,
+    NonBreakingSpace   = 0xA0,
     Ogham              = 0x1680,
     EnQuad             = 0x2000,
     EmQuad             = 0x2001,
@@ -278,17 +278,17 @@ export const enum Chars {
     FigureSpace        = 0x2007,
     PunctuationSpace   = 0x2008,
     ThinSpace          = 0x2009,
-    HairSpace          = 0x200a,
-    ZeroWidthSpace     = 0x200b,
-    Zwnj               = 0x200c,
-    Zwj                = 0x200d,
-    Zwnbs              = 0xfeff,
+    HairSpace          = 0x200A,
+    ZeroWidthSpace     = 0x200B,
+    Zwnj               = 0x200C,
+    Zwj                = 0x200D,
+    Zwnbs              = 0xFEFF,
     LineSeparator      = 0x2028,
     ParagraphSeparator = 0x2029,
-    NarrowNoBreakSpace = 0x202f,
-    MathematicalSpace  = 0x205f,
+    NarrowNoBreakSpace = 0x202F,
+    MathematicalSpace  = 0x205F,
     IdeographicSpace   = 0x3000,
-    ByteOrderMark = 0xffef,
+    ByteOrderMark = 0xFFEF,
 
     /* Surrogate pair values */
 
@@ -298,5 +298,5 @@ export const enum Chars {
     TrailSurrogateMax = 0xDFFF,
 
     NonBMPMin = 0x10000,
-    NonBMPMax  = 0x10ffff,
+    NonBMPMax = 0x10FFFF,
 }

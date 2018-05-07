@@ -1,4 +1,4 @@
-import { Chars, CharacterFlags, CharacterType } from '../chars';
+import { Chars, CharacterFlags, characterType } from '../chars';
 import { IParser } from '../types';
 import { Errors, report } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
@@ -26,7 +26,7 @@ export function nextUnicodeChar(parser: IParser) {
  * @param code Codepoint
  */
 
-export const isIdentifierPart = (code: number) => (CharacterType[code] & CharacterFlags.IdentifierStart) !== 0 || isValidIdentifierPart(code);
+export const isIdentifierPart = (code: number) => (characterType[code] & CharacterFlags.IdentifierStart) !== 0 || isValidIdentifierPart(code);
 
 export function escapeForPrinting(code: number): string {
     switch (code) {

@@ -3,7 +3,7 @@
  * The token types and attributes.
  */
 export const enum Token {
-    Type = 0xff,
+    Type = 0xFF,
 
     /* Precedence for binary operators (always positive) */
     PrecStart = 8,
@@ -187,7 +187,7 @@ export const enum Token {
 // utter hack.
 //
 // All to lower it to a single monomorphic array access.
-const KeywordDescTable = [
+const keywordDescTable = [
     'end of source',
 
     /* Constants/Bindings */
@@ -237,12 +237,12 @@ const KeywordDescTable = [
  * The conversion function between token and its string description/representation.
  */
 export function tokenDesc(token: Token): string {
-  return KeywordDescTable[token & Token.Type];
+  return keywordDescTable[token & Token.Type];
 }
 
 // Used `Object.create(null)` to avoid potential `Object.prototype`
 // interference.
-const DescKeywordTable: {[key: string]: Token} = Object.create(null, {
+const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     this: {value: Token.ThisKeyword},
     function: {value: Token.FunctionKeyword},
     if: {value: Token.IfKeyword},
@@ -304,5 +304,5 @@ const DescKeywordTable: {[key: string]: Token} = Object.create(null, {
  });
 
 export function descKeyword(value: string): Token {
-    return (DescKeywordTable[value] | 0) as Token;
+    return (descKeywordTable[value] | 0) as Token;
 }

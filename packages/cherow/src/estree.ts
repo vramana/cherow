@@ -570,7 +570,7 @@ export interface ObjectPattern extends _Pattern<'ObjectPattern'> {
 export interface RegExpLiteral extends _Expression<'Literal'> {
     value: RegExp | null;
     raw?: string;
-    regex: { pattern: string, flags: string };
+    regex: { pattern: string; flags: string };
 }
 
 export interface RestElement extends _Pattern<'RestElement'> {
@@ -611,7 +611,7 @@ export interface TaggedTemplateExpression extends _Expression<'TaggedTemplateExp
 }
 
 export interface TemplateElement extends _Node<'TemplateElement'> {
-    value: {cooked: string | null, raw: string};
+    value: {cooked: string | null; raw: string};
     tail: boolean;
 }
 
