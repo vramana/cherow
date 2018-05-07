@@ -36,7 +36,7 @@ function parseMappedTypeParameter(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TypeParameter',
     name
-  });
+  } as any);
 }
 
 /*
@@ -59,7 +59,7 @@ function parseIntersectionType(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSIntersectionType',
     types
-  });
+  } as any);
 }
 
 /*
@@ -84,7 +84,7 @@ function parseUnionType(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSUnionType',
     types
-  });
+  } as any);
 }
 
 function parseType(parser: IParser, context: Context): any {
@@ -112,7 +112,7 @@ function parseMappedType(parser: IParser, context: Context, pos: Location): any 
     typeParameter,
     optional,
     typeAnnotation
-  });
+  } as any);
 }
 
 function parseIdentifierTypedNode(parser: IParser, context: Context): any {
@@ -122,7 +122,7 @@ function parseIdentifierTypedNode(parser: IParser, context: Context): any {
     expect(parser, context, Token.Identifier);
     return finishNode(context, parser, pos, {
       type: keywordTypeFromName(parser.tokenValue)
-    });
+    } as any);
   }
   return parseTypeReference(parser, context);
 }
@@ -136,7 +136,7 @@ function parseEntityName(parser: IParser, context: Context): any {
       type: 'TSQualifiedName',
       left: entity,
       right: parseIdentifier(parser, context)
-    });
+    } as any);
   }
 
   return entity;
@@ -161,7 +161,7 @@ function parseTypeArguments(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TypeParameterInstantiation',
     params
-  });
+  } as any);
 }
 
 function parseTypeReference(parser: IParser, context: Context): any {
@@ -176,7 +176,7 @@ function parseTypeReference(parser: IParser, context: Context): any {
     type: 'TSTypeReference',
     typeName,
     typeParameters
-  });
+  } as any);
 }
 
 function parseNullTypedNode(parser: IParser, context: Context): any {
@@ -184,7 +184,7 @@ function parseNullTypedNode(parser: IParser, context: Context): any {
   expect(parser, context, Token.NullKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSNullKeyword'
-  });
+  } as any);
 }
 
 function parseSubtractTypeNode(parser: IParser, context: Context): any {
@@ -196,7 +196,7 @@ function parseSubtractTypeNode(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSLiteralType',
     literal: Parser.parseLiteral(parser, context)
-  });
+  } as any);
 }
 
 function parseThisTypeNode(parser: IParser, context: Context): any {
@@ -205,7 +205,7 @@ function parseThisTypeNode(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSThisType',
     literal: Parser.parseLiteral(parser, context)
-  });
+  } as any);
 }
 
 function parseThisTypePredicate(parser: IParser, context: Context, parameterName: any): any {
@@ -215,7 +215,7 @@ function parseThisTypePredicate(parser: IParser, context: Context, parameterName
     type: 'TSTypePredicate',
     parameterName,
     typeAnnotation: parseTypeAnnotation(parser, context, /* consumeColon */ false)
-  });
+  } as any);
 }
 
 export function parseTypeAnnotation(parser: IParser, context: Context, consumeColon: boolean = true): any {
@@ -224,7 +224,7 @@ export function parseTypeAnnotation(parser: IParser, context: Context, consumeCo
   return finishNode(context, parser, pos, {
     type: 'TypeAnnotation',
     typeAnnotation: parseType(parser, context)
-  });
+  } as any);
 }
 
 function parseVoidTypedNode(parser: IParser, context: Context): any {
@@ -232,7 +232,7 @@ function parseVoidTypedNode(parser: IParser, context: Context): any {
   expect(parser, context, Token.VoidKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSVoidKeyword'
-  });
+  } as any);
 }
 
 function parseLiteralTypedNode(parser: IParser, context: Context): any {
@@ -262,7 +262,7 @@ function parseLiteralTypedNode(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSLiteralType',
     literal
-  });
+  } as any);
 }
 
 function parseNonArrayType(parser: IParser, context: Context): any {
@@ -315,14 +315,14 @@ function parseParenthesizedType(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSParenthesizedType',
     typeAnnotation
-  });
+  } as any);
 }
 
 function parseTupleElementTypes(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TupleElementTypes'
-  });
+  } as any);
 }
 
 function parseTupleType(parser: IParser, context: Context): any {
@@ -336,14 +336,14 @@ function parseTupleType(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSTupleType',
     elementTypes
-  });
+  } as any);
 }
 
 function parseTypeLiteral(parser: IParser, context: Context, pos: Location): any {
   return finishNode(context, parser, pos, {
     type: 'TSTypeLiteral',
     members: parseObjectTypeMembers(parser, context)
-  });
+  } as any);
 }
 
 function parseTypeQuery(parser: IParser, context: Context): any {
@@ -352,7 +352,7 @@ function parseTypeQuery(parser: IParser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSTypeQuery',
     exprName: parseEntityName(parser, context)
-  });
+  } as any);
 }
 
 function parseTypeMember(parser: IParser, context: Context): any {
@@ -379,7 +379,7 @@ function parseArrayType(parser: IParser, context: Context): any {
       elementType = finishNode(context, parser, pos, {
         type: 'TSArrayType',
         elementType
-      });
+      } as any);
     } else {
       const indexType = parseType(parser, context);
       expect(parser, context, Token.RightBracket);
@@ -387,7 +387,7 @@ function parseArrayType(parser: IParser, context: Context): any {
         type: 'TSIndexedAccessType',
         elementType,
         indexType
-      });
+      } as any);
     }
   }
   return elementType;
@@ -401,7 +401,7 @@ function parseTypeOperatorWithOperatpr(parser: IParser, context: Context, token:
     type: 'TSTypeOperator',
     operator: tokenDesc(token),
     typeAnnotation: parseTypeOperator(parser, context)
-  });
+  } as any);
 }
 
 function parseTypeOperator(parser: IParser, context: Context): any {

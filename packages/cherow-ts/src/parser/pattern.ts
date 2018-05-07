@@ -113,5 +113,5 @@ function parseArrayAssignmentPattern(parser: IParser, context: Context, args: st
     type: 'ArrayPattern',
     elements,
     typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
-  });
+  } as any);
 }
