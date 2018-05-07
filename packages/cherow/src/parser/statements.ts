@@ -304,7 +304,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
         : expect(parser, context, Token.LeftParen)) {
         const params: string[] = [];
         param = parseBindingIdentifierOrPattern(parser, context, params);
-        validateParams(parser, context, params)
+        validateParams(parser, context, params);
         expect(parser, context, Token.RightParen);
     }
     const body = parseBlockStatement(parser, context);

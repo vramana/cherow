@@ -4,7 +4,17 @@ import { Token, tokenDesc } from '../../../cherow/src/token';
 import { parseLiteral } from '../../../cherow/src/parser/expressions';
 import { parseIdentifier } from './/expressions';
 import { keywordTypeFromName } from '../utilities';
-import { Context, Flags, getLocation, consume, finishNode, expect, consumeSemicolon, nextToken } from '../../../cherow/src/utilities';
+import * as ESTree from '../estree';
+import {
+  Context,
+  Flags,
+  getLocation,
+  consume,
+  finishNode,
+  expect,
+  consumeSemicolon,
+  nextToken
+} from '../../../cherow/src/utilities';
 
 // AST from Babylon / ESLint
 
@@ -16,7 +26,7 @@ import { Context, Flags, getLocation, consume, finishNode, expect, consumeSemico
  * @returns {*}
  */
 function parseMappedTypeParameter(parser: Parser, context: Context): any {
-  let pos = getLocation(parser);
+  const pos = getLocation(parser);
   const name = parseIdentifier(parser, context);
   expect(parser, context, Token.InKeyword);
   const constraint = parseType(parser, context);
@@ -26,19 +36,20 @@ function parseMappedTypeParameter(parser: Parser, context: Context): any {
   });
 }
 
-/**
+/*
 * Parser TS intersection types
 *
 * @param {Parser} parser Parser object
 * @param {Context} context Context masks
 * @returns {*}
 */
+
 function parseIntersectionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const type = parseTypeOperator(parser, context);
 
   if (parser.token !== Token.BitwiseAnd) return type;
-  let types = [type];
+  const types = [type];
   while (consume(parser, context, Token.BitwiseAnd)) {
       types.push(parseTypeOperator(parser, context));
   }
@@ -48,7 +59,7 @@ function parseIntersectionType(parser: Parser, context: Context): any {
   });
 }
 
-/**
+/*
 * Parse TS union types
 *
 * @param parser Parser object
@@ -57,11 +68,11 @@ function parseIntersectionType(parser: Parser, context: Context): any {
 function parseUnionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
 
-  let type = parseIntersectionType(parser, context);
+  const type = parseIntersectionType(parser, context);
 
   if (parser.token !== Token.BitwiseOr) return type;
 
-  let types = [type];
+  const types = [type];
 
   while (consume(parser, context, Token.BitwiseOr)) {
       types.push(parseIntersectionType(parser, context));
@@ -98,7 +109,7 @@ function parseMappedType(parser: Parser, context: Context, pos: Location): any {
       typeParameter,
       optional,
       typeAnnotation
-  })
+  });
 }
 
 function parseIdentifierTypedNode(parser: Parser, context: Context): any {
@@ -129,11 +140,11 @@ function parseEntityName(parser: Parser, context: Context): any {
 }
 
 function parseTypeArgumentElements(parser: Parser, context: Context): any {
-  let params: any = [];
-  expect(parser, context, Token.LessThan)
+  const params: any = [];
+  expect(parser, context, Token.LessThan);
 
   while (parser.token !== Token.GreaterThan) {
-      params.push(parseType(parser, context))
+      params.push(parseType(parser, context));
   }
 
   expect(parser, context, Token.GreaterThan);
@@ -142,7 +153,7 @@ function parseTypeArgumentElements(parser: Parser, context: Context): any {
 
 function parseTypeArguments(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  let params = parseTypeArgumentElements(parser, context);
+  const params = parseTypeArgumentElements(parser, context);
 
   return finishNode(context, parser, pos, {
       type: 'TypeParameterInstantiation',
@@ -194,7 +205,7 @@ function parseThisTypeNode(parser: Parser, context: Context): any {
   });
 }
 
-function parseThisTypePredicate(parser: Parser, context: Context, parameterName: any) {
+function parseThisTypePredicate(parser: Parser, context: Context, parameterName: any): any {
   const pos = getLocation(parser);
   nextToken(parser, context);
   return finishNode(context, parser, pos, {
@@ -242,7 +253,7 @@ function parseLiteralTypedNode(parser: Parser, context: Context): any {
           };
           break;
       default:
-          report(parser, Errors.Unexpected)
+          report(parser, Errors.Unexpected);
   }
 
   return finishNode(context, parser, pos, {
@@ -287,7 +298,7 @@ function parseNonArrayType(parser: Parser, context: Context): any {
       case Token.LeftParen:
           return parseParenthesizedType(parser, context);
       default:
-          report(parser, Errors.Unexpected)
+          report(parser, Errors.Unexpected);
   }
 }
 

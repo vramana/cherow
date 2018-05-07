@@ -43,7 +43,6 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
   });
 }
 
-
 /**
  * ArrayAssignmentPattern[Yield] :
  *   [ Elisionopt AssignmentRestElement[?Yield]opt ]
