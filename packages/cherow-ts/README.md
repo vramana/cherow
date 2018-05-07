@@ -19,4 +19,3 @@ parseTS('function foo(bar: string): void {}', )
 parseTS('function foo(bar: string): void {}', { module: true })
 ```
 
-Chero
