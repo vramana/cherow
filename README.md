@@ -13,7 +13,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 ## Features
 
-* Conforms to the standard ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification
+* Conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 * Support for all stage 3 proposals via option.
 * JSX support via option.
 * Experimental feature support via option.
