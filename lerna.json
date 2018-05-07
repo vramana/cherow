@@ -1,11 +1,7 @@
 {
   "lerna": "2.9.0",
-  "packages": [
-    "packages/cherow",
-    "packages/cherow-ts",
-    "packages/cherow-flow",
-    "packages/cherow-minify",
-    "packages/cherow-linter"
-  ],
-  "version": "independent"
+  "packages": ["packages/*"],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "version": "1.5.8"
 }
