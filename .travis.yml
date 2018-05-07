@@ -10,7 +10,8 @@ matrix:
 script: >
   if [ "$TEST_SUITE" != "cherow" ]; then
     set -e
-    npm run coverage
+#    npm run coverage
+    npm run test
     set +e
     npm run post_coverage
   else
