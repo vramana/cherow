@@ -1,11 +1,11 @@
-import { Parser, Location } from '../../../cherow/src/types';
-import { report, Errors } from '../../../cherow/src/errors';
-import { Token, tokenDesc } from '../../../cherow/src/token';
-import { parseLiteral } from '../../../cherow/src/parser/expressions';
-import { parseIdentifier } from './/expressions';
-import { keywordTypeFromName } from '../utilities';
-import * as ESTree from '../estree';
 import {
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
   Context,
   Flags,
   getLocation,
@@ -14,7 +14,10 @@ import {
   expect,
   consumeSemicolon,
   nextToken
-} from '../../../cherow/src/utilities';
+} from '@cherow';
+import { parseIdentifier } from './expressions';
+import { keywordTypeFromName } from '../utilities';
+import * as ESTree from '../estree';
 
 // AST from Babylon / ESLint
 
@@ -25,14 +28,14 @@ import {
  * @param {Context} context Context masks
  * @returns {*}
  */
-function parseMappedTypeParameter(parser: Parser, context: Context): any {
+function parseMappedTypeParameter(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   const name = parseIdentifier(parser, context);
   expect(parser, context, Token.InKeyword);
   const constraint = parseType(parser, context);
   return finishNode(context, parser, pos, {
-      type: 'TypeParameter',
-      name
+    type: 'TypeParameter',
+    name
   });
 }
 
@@ -44,18 +47,18 @@ function parseMappedTypeParameter(parser: Parser, context: Context): any {
 * @returns {*}
 */
 
-function parseIntersectionType(parser: Parser, context: Context): any {
+function parseIntersectionType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   const tsType = parseTypeOperator(parser, context);
 
   if (parser.token !== Token.BitwiseAnd) return tsType;
   const types = [tsType];
   while (consume(parser, context, Token.BitwiseAnd)) {
-      types.push(parseTypeOperator(parser, context));
+    types.push(parseTypeOperator(parser, context));
   }
   return finishNode(context, parser, pos, {
-      type: 'TSIntersectionType',
-      types
+    type: 'TSIntersectionType',
+    types
   });
 }
 
@@ -65,7 +68,7 @@ function parseIntersectionType(parser: Parser, context: Context): any {
 * @param parser Parser object
 * @param context Context masks
 */
-function parseUnionType(parser: Parser, context: Context): any {
+function parseUnionType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
 
   const tsType = parseIntersectionType(parser, context);
@@ -75,24 +78,24 @@ function parseUnionType(parser: Parser, context: Context): any {
   const types = [tsType];
 
   while (consume(parser, context, Token.BitwiseOr)) {
-      types.push(parseIntersectionType(parser, context));
+    types.push(parseIntersectionType(parser, context));
   }
 
   return finishNode(context, parser, pos, {
-      type: 'TSUnionType',
-      types
+    type: 'TSUnionType',
+    types
   });
 }
 
-function parseType(parser: Parser, context: Context): any {
+function parseType(parser: IParser, context: Context): any {
   return parseUnionType(parser, context);
 }
 
-function parseBindingList(parser: Parser, context: Context): any {
+function parseBindingList(parser: IParser, context: Context): any {
   return parseIdentifier(parser, context);
 }
 
-function parseMappedType(parser: Parser, context: Context, pos: Location): any {
+function parseMappedType(parser: IParser, context: Context, pos: Location): any {
   const readonly = consume(parser, context, Token.ReadOnlyKeyword);
   expect(parser, context, Token.LeftBracket);
   const typeParameter = parseMappedTypeParameter(parser, context);
@@ -104,304 +107,305 @@ function parseMappedType(parser: Parser, context: Context, pos: Location): any {
   expect(parser, context, Token.RightBrace);
 
   return finishNode(context, parser, pos, {
-      type: 'TSMappedType',
-      readonly,
-      typeParameter,
-      optional,
-      typeAnnotation
+    type: 'TSMappedType',
+    readonly,
+    typeParameter,
+    optional,
+    typeAnnotation
   });
 }
 
-function parseIdentifierTypedNode(parser: Parser, context: Context): any {
+function parseIdentifierTypedNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   const tsType: any = keywordTypeFromName(parser.tokenValue);
   if (tsType) {
-      expect(parser, context, Token.Identifier);
-      return finishNode(context, parser, pos, {
-          type: keywordTypeFromName(parser.tokenValue),
-      });
+    expect(parser, context, Token.Identifier);
+    return finishNode(context, parser, pos, {
+      type: keywordTypeFromName(parser.tokenValue)
+    });
   }
   return parseTypeReference(parser, context);
 }
 
-function parseEntityName(parser: Parser, context: Context): any {
+function parseEntityName(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   let entity = parseIdentifier(parser, context);
 
   while (consume(parser, context, Token.Period)) {
-      entity = finishNode(context, parser, pos, {
-          type: 'TSQualifiedName',
-          left: entity,
-          right: parseIdentifier(parser, context)
-      });
+    entity = finishNode(context, parser, pos, {
+      type: 'TSQualifiedName',
+      left: entity,
+      right: parseIdentifier(parser, context)
+    });
   }
 
   return entity;
 }
 
-function parseTypeArgumentElements(parser: Parser, context: Context): any {
+function parseTypeArgumentElements(parser: IParser, context: Context): any {
   const params: any = [];
   expect(parser, context, Token.LessThan);
 
   while (parser.token !== Token.GreaterThan) {
-      params.push(parseType(parser, context));
+    params.push(parseType(parser, context));
   }
 
   expect(parser, context, Token.GreaterThan);
   return params;
 }
 
-function parseTypeArguments(parser: Parser, context: Context): any {
+function parseTypeArguments(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   const params = parseTypeArgumentElements(parser, context);
 
   return finishNode(context, parser, pos, {
-      type: 'TypeParameterInstantiation',
-      params
+    type: 'TypeParameterInstantiation',
+    params
   });
 }
 
-function parseTypeReference(parser: Parser, context: Context): any {
+function parseTypeReference(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   const typeName = parseEntityName(parser, context);
   let typeParameters: any = [];
 
   if (!(parser.flags & Flags.NewLine) && parser.token === Token.LessThan) {
-      typeParameters = parseTypeArguments(parser, context);
+    typeParameters = parseTypeArguments(parser, context);
   }
   return finishNode(context, parser, pos, {
-      type: 'TSTypeReference',
-      typeName,
-      typeParameters
+    type: 'TSTypeReference',
+    typeName,
+    typeParameters
   });
 }
 
-function parseNullTypedNode(parser: Parser, context: Context): any {
+function parseNullTypedNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.NullKeyword);
   return finishNode(context, parser, pos, {
-      type: 'TSNullKeyword',
+    type: 'TSNullKeyword'
   });
 }
 
-function parseSubtractTypeNode(parser: Parser, context: Context): any {
+function parseSubtractTypeNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.Subtract);
   // has to be followed by a numeric value
   if (parser.token !== Token.NumericLiteral) report(parser, Errors.Unexpected);
 
   return finishNode(context, parser, pos, {
-      type: 'TSLiteralType',
-      literal: parseLiteral(parser, context)
+    type: 'TSLiteralType',
+    literal: Parser.parseLiteral(parser, context)
   });
 }
 
-function parseThisTypeNode(parser: Parser, context: Context): any {
+function parseThisTypeNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.ThisKeyword);
   return finishNode(context, parser, pos, {
-      type: 'TSThisType',
-      literal: parseLiteral(parser, context)
+    type: 'TSThisType',
+    literal: Parser.parseLiteral(parser, context)
   });
 }
 
-function parseThisTypePredicate(parser: Parser, context: Context, parameterName: any): any {
+function parseThisTypePredicate(parser: IParser, context: Context, parameterName: any): any {
   const pos = getLocation(parser);
   nextToken(parser, context);
   return finishNode(context, parser, pos, {
-      type: 'TSTypePredicate',
-      parameterName,
-      typeAnnotation: parseTypeAnnotation(parser, context, /* consumeColon */ false)
+    type: 'TSTypePredicate',
+    parameterName,
+    typeAnnotation: parseTypeAnnotation(parser, context, /* consumeColon */ false)
   });
 }
 
-export function parseTypeAnnotation(parser: Parser, context: Context, consumeColon: boolean = true): any {
+export function parseTypeAnnotation(parser: IParser, context: Context, consumeColon: boolean = true): any {
   const pos = getLocation(parser);
   if (consumeColon) expect(parser, context, Token.Colon);
   return finishNode(context, parser, pos, {
-      type: 'TypeAnnotation',
-      typeAnnotation: parseType(parser, context)
+    type: 'TypeAnnotation',
+    typeAnnotation: parseType(parser, context)
   });
 }
 
-function parseVoidTypedNode(parser: Parser, context: Context): any {
+function parseVoidTypedNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.VoidKeyword);
   return finishNode(context, parser, pos, {
-      type: 'TSVoidKeyword',
+    type: 'TSVoidKeyword'
   });
 }
 
-function parseLiteralTypedNode(parser: Parser, context: Context): any {
+function parseLiteralTypedNode(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   let literal: any;
   switch (parser.token) {
-      case Token.StringLiteral:
-      case Token.NumericLiteral:
-          literal = parseLiteral(parser, context);
-          break;
-      case Token.TrueKeyword:
-          literal = {
-              type: 'Literal',
-              value: false
-          };
-          break;
-      case Token.FalseKeyword:
-          literal = {
-              type: 'Literal',
-              value: false
-          };
-          break;
-      default:
-          report(parser, Errors.Unexpected);
+    case Token.StringLiteral:
+    case Token.NumericLiteral:
+      literal = Parser.parseLiteral(parser, context);
+      break;
+    case Token.TrueKeyword:
+      literal = {
+        type: 'Literal',
+        value: false
+      };
+      break;
+    case Token.FalseKeyword:
+      literal = {
+        type: 'Literal',
+        value: false
+      };
+      break;
+    default:
+      report(parser, Errors.Unexpected);
   }
 
   return finishNode(context, parser, pos, {
-      type: 'TSLiteralType',
-      literal
+    type: 'TSLiteralType',
+    literal
   });
 }
 
-function parseNonArrayType(parser: Parser, context: Context): any {
+function parseNonArrayType(parser: IParser, context: Context): any {
   switch (parser.token) {
-      case Token.Identifier:
-          return parseIdentifierTypedNode(parser, context);
-      case Token.VoidKeyword:
-          return parseVoidTypedNode(parser, context);
-      case Token.NullKeyword:
-          return parseNullTypedNode(parser, context);
-      case Token.StringLiteral:
-      case Token.NumericLiteral:
-      case Token.TrueKeyword:
-      case Token.FalseKeyword:
-          return parseLiteralTypedNode(parser, context);
-      case Token.Subtract:
-          return parseSubtractTypeNode(parser, context);
-      case Token.ThisKeyword:
-          const thisType = parseThisTypeNode(parser, context);
-          switch (parser.token) {
-              case Token.IsKeyword:
-                  if (!(parser.flags & Flags.NewLine)) return parseThisTypePredicate(parser, context, thisType);
-                  // falls through
-              default:
-                  return thisType;
-          }
-      case Token.TypeofKeyword:
-          return parseTypeQuery(parser, context);
-      case Token.LeftBrace:
-          const pos = getLocation(parser);
-          expect(parser, context, Token.LeftBrace);
-          if (parser.token === Token.LeftBracket || parser.token === Token.ReadOnlyKeyword) return parseMappedType(parser, context, pos);
-          return parseTypeLiteral(parser, context, pos);
-      case Token.LeftBracket:
-          return parseTupleType(parser, context);
-      case Token.LeftParen:
-          return parseParenthesizedType(parser, context);
-      default:
-          report(parser, Errors.Unexpected);
+    case Token.Identifier:
+      return parseIdentifierTypedNode(parser, context);
+    case Token.VoidKeyword:
+      return parseVoidTypedNode(parser, context);
+    case Token.NullKeyword:
+      return parseNullTypedNode(parser, context);
+    case Token.StringLiteral:
+    case Token.NumericLiteral:
+    case Token.TrueKeyword:
+    case Token.FalseKeyword:
+      return parseLiteralTypedNode(parser, context);
+    case Token.Subtract:
+      return parseSubtractTypeNode(parser, context);
+    case Token.ThisKeyword:
+      const thisType = parseThisTypeNode(parser, context);
+      switch (parser.token) {
+        case Token.IsKeyword:
+          if (!(parser.flags & Flags.NewLine)) return parseThisTypePredicate(parser, context, thisType);
+        // falls through
+        default:
+          return thisType;
+      }
+    case Token.TypeofKeyword:
+      return parseTypeQuery(parser, context);
+    case Token.LeftBrace:
+      const pos = getLocation(parser);
+      expect(parser, context, Token.LeftBrace);
+      if (parser.token === Token.LeftBracket || parser.token === Token.ReadOnlyKeyword)
+        return parseMappedType(parser, context, pos);
+      return parseTypeLiteral(parser, context, pos);
+    case Token.LeftBracket:
+      return parseTupleType(parser, context);
+    case Token.LeftParen:
+      return parseParenthesizedType(parser, context);
+    default:
+      report(parser, Errors.Unexpected);
   }
 }
 
-function parseParenthesizedType(parser: Parser, context: Context): any {
+function parseParenthesizedType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftParen);
   const typeAnnotation = parseType(parser, context);
   expect(parser, context, Token.RightParen);
 
   return finishNode(context, parser, pos, {
-      type: 'TSParenthesizedType',
-      typeAnnotation
+    type: 'TSParenthesizedType',
+    typeAnnotation
   });
 }
 
-function parseTupleElementTypes(parser: Parser, context: Context): any {
+function parseTupleElementTypes(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
-      type: 'TupleElementTypes'
+    type: 'TupleElementTypes'
   });
 }
 
-function parseTupleType(parser: Parser, context: Context): any {
+function parseTupleType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftBracket);
   const elementTypes = [parseTupleElementTypes(parser, context)];
 
   while (parser.token === Token.RightBracket) {
-      elementTypes.push(parseType(parser, context));
+    elementTypes.push(parseType(parser, context));
   }
   return finishNode(context, parser, pos, {
-      type: 'TSTupleType',
-      elementTypes
+    type: 'TSTupleType',
+    elementTypes
   });
 }
 
-function parseTypeLiteral(parser: Parser, context: Context, pos: Location): any {
+function parseTypeLiteral(parser: IParser, context: Context, pos: Location): any {
   return finishNode(context, parser, pos, {
-      type: 'TSTypeLiteral',
-      members: parseObjectTypeMembers(parser, context)
+    type: 'TSTypeLiteral',
+    members: parseObjectTypeMembers(parser, context)
   });
 }
 
-function parseTypeQuery(parser: Parser, context: Context): any {
+function parseTypeQuery(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.KeyOfKeyword);
   return finishNode(context, parser, pos, {
-      type: 'TSTypeQuery',
-      exprName: parseEntityName(parser, context)
+    type: 'TSTypeQuery',
+    exprName: parseEntityName(parser, context)
   });
 }
 
-function parseTypeMember(parser: Parser, context: Context): any {
+function parseTypeMember(parser: IParser, context: Context): any {
   if (!consume(parser, context, Token.Comma)) {
     consumeSemicolon(parser, context);
   }
 }
 
-function parseObjectTypeMembers(parser: Parser, context: Context): any {
+function parseObjectTypeMembers(parser: IParser, context: Context): any {
   const members: any = [];
   while (parser.token !== Token.RightBrace) {
-      members.push(parseTypeMember(parser, context));
+    members.push(parseTypeMember(parser, context));
   }
   expect(parser, context, Token.RightBrace);
   return members;
 }
 
-function parseArrayType(parser: Parser, context: Context): any {
+function parseArrayType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
   let elementType = parseNonArrayType(parser, context);
 
   while (!(parser.flags & Flags.NewLine) && consume(parser, context, Token.LeftBracket)) {
-      if (consume(parser, context, Token.RightBracket)) {
-        elementType = finishNode(context, parser, pos, {
-              type: 'TSArrayType',
-              elementType
-          });
-      } else {
-          const indexType = parseType(parser, context);
-          expect(parser, context, Token.RightBracket);
-          elementType = finishNode(context, parser, pos, {
-              type: 'TSIndexedAccessType',
-              elementType,
-              indexType
-          });
-      }
+    if (consume(parser, context, Token.RightBracket)) {
+      elementType = finishNode(context, parser, pos, {
+        type: 'TSArrayType',
+        elementType
+      });
+    } else {
+      const indexType = parseType(parser, context);
+      expect(parser, context, Token.RightBracket);
+      elementType = finishNode(context, parser, pos, {
+        type: 'TSIndexedAccessType',
+        elementType,
+        indexType
+      });
+    }
   }
   return elementType;
 }
 
-function parseTypeOperatorWithOperatpr(parser: Parser, context: Context, token: Token): any {
+function parseTypeOperatorWithOperatpr(parser: IParser, context: Context, token: Token): any {
   const pos = getLocation(parser);
   expect(parser, context, token);
 
   return finishNode(context, parser, pos, {
-      type: 'TSTypeOperator',
-      operator: tokenDesc(token),
-      typeAnnotation: parseTypeOperator(parser, context)
+    type: 'TSTypeOperator',
+    operator: tokenDesc(token),
+    typeAnnotation: parseTypeOperator(parser, context)
   });
 }
 
-function parseTypeOperator(parser: Parser, context: Context): any {
-  return parser.token === Token.KeyOfKeyword ?
-      parseTypeOperatorWithOperatpr(parser, context, Token.KeyOfKeyword) :
-      parseArrayType(parser, context);
+function parseTypeOperator(parser: IParser, context: Context): any {
+  return parser.token === Token.KeyOfKeyword
+    ? parseTypeOperatorWithOperatpr(parser, context, Token.KeyOfKeyword)
+    : parseArrayType(parser, context);
 }

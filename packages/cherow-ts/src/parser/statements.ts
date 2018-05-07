@@ -1,8 +1,18 @@
-import { Parser, Location } from '../../../cherow/src/types';
-import { Token } from '../../../cherow/src/token';
-import { parseExpression } from '../../../cherow/src/parser/expressions';
-import * as ESTree from '../../../cherow/src/estree';
-import { Context, Flags, getLocation, consume, finishNode, expect, consumeSemicolon, nextToken } from '../../../cherow/src/utilities';
+import {
+  Parser,
+  Location,
+  Token,
+  ESTree,
+  Context,
+  Flags,
+  getLocation,
+  consume,
+  finishNode,
+  expect,
+  consumeSemicolon,
+  nextToken,
+  IParser
+} from '@cherow';
 
 /**
  * Parses expression statement
@@ -12,12 +22,12 @@ import { Context, Flags, getLocation, consume, finishNode, expect, consumeSemico
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseExpressionStatement(parser: Parser, context: Context): ESTree.ExpressionStatement {
+export function parseExpressionStatement(parser: IParser, context: Context): ESTree.ExpressionStatement {
   const pos = getLocation(parser);
-  const expr: ESTree.Expression = parseExpression(parser, context & ~Context.AllowDecorator | Context.AllowIn);
+  const expr: ESTree.Expression = Parser.parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
-      type: 'ExpressionStatement',
-      expression: expr,
+    type: 'ExpressionStatement',
+    expression: expr
   });
 }

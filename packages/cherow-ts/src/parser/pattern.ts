@@ -1,9 +1,25 @@
-import { Parser, Location } from '../../../cherow/src/types';
-import * as ESTree from '../../../cherow/src/estree';
-import { Context, Flags, getLocation, hasBit, consume, finishNode, isValidIdentifier, parseExpressionCoverGrammar, expect, consumeSemicolon, nextToken } from '../../../cherow/src/utilities';
-import { Token, tokenDesc } from '../../../cherow/src/token';
-import { report, tolerant, Errors } from '../../../cherow/src/errors';
-import { parseAssignmentRestElement, parseBindingInitializer } from '../../../cherow/src/parser/pattern';
+import {
+  Parser,
+  Location,
+  ESTree,
+  Context,
+  Flags,
+  getLocation,
+  hasBit,
+  consume,
+  finishNode,
+  isValidIdentifier,
+  parseExpressionCoverGrammar,
+  expect,
+  consumeSemicolon,
+  nextToken,
+  Token,
+  tokenDesc,
+  report,
+  tolerant,
+  Errors,
+  IParser
+} from '@cherow';
 import { parseTypeAnnotation } from './annotations';
 
 /**
@@ -14,20 +30,19 @@ import { parseTypeAnnotation } from './annotations';
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
-
+export function parseBindingIdentifier(parser: IParser, context: Context): ESTree.Identifier {
   const { token } = parser;
   if (token & Token.IsEvalOrArguments) {
-      if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
-      parser.flags |= Flags.StrictEvalArguments;
+    if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
+    parser.flags |= Flags.StrictEvalArguments;
   } else if (context & Context.BlockScope && token === Token.LetKeyword) {
-      // let is disallowed as a lexically bound name
-      tolerant(parser, context, Errors.LetInLexicalBinding);
+    // let is disallowed as a lexically bound name
+    tolerant(parser, context, Errors.LetInLexicalBinding);
   } else if (hasBit(token, Token.FutureReserved)) {
-      if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
-      parser.flags |= Flags.StrictFunctionName;
+    if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
+    parser.flags |= Flags.StrictFunctionName;
   } else if (!isValidIdentifier(context, token)) {
-      tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
+    tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
   }
 
   const pos = getLocation(parser);
@@ -36,10 +51,10 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
   nextToken(parser, context);
 
   return finishNode(context, parser, pos, {
-      type: 'Identifier',
-      name,
-      optional: false,
-      typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
+    type: 'Identifier',
+    name,
+    optional: false,
+    typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
   });
 }
 
@@ -71,8 +86,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @param {context} Context masks
  */
 
-function parseArrayAssignmentPattern(parser: Parser, context: Context, args: string[]): ESTree.ArrayPattern {
-
+function parseArrayAssignmentPattern(parser: IParser, context: Context, args: string[]): ESTree.ArrayPattern {
   const pos = getLocation(parser);
 
   expect(parser, context, Token.LeftBracket);
@@ -80,24 +94,24 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
   const elements: (ESTree.Node | null)[] = [];
 
   while (parser.token !== Token.RightBracket) {
-      if (consume(parser, context, Token.Comma)) {
-          elements.push(null);
+    if (consume(parser, context, Token.Comma)) {
+      elements.push(null);
+    } else {
+      if (parser.token === Token.Ellipsis) {
+        elements.push(Parser.parseAssignmentRestElement(parser, context, args));
+        break;
       } else {
-          if (parser.token === Token.Ellipsis) {
-              elements.push(parseAssignmentRestElement(parser, context, args));
-              break;
-          } else {
-              elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseBindingInitializer));
-          }
-          if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
+        elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, Parser.parseBindingInitializer));
       }
+      if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
+    }
   }
 
   expect(parser, context, Token.RightBracket);
 
   return finishNode(context, parser, pos, {
-      type: 'ArrayPattern',
-      elements,
-      typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
+    type: 'ArrayPattern',
+    elements,
+    typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
   });
 }
