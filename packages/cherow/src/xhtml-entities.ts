@@ -1,5 +1,6 @@
 
       // XHTML entities
+      // tslint:disable
       export const XHTMLEntities = {
               quot: '\u0022',
     amp: '\u0026',

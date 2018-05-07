@@ -132,6 +132,7 @@ exports.generate = generate
 
 async function generate(opts) {
     await opts.write(`// Unicode v. 10 support
+// tslint:disable
 `)
 
     const exportKeys = Object.keys(opts.exports)
@@ -152,7 +153,7 @@ async function generate(opts) {
         }
 
         await opts.write(`
-function ${exported}(code${opts.eval ? "" : ":number"}) { 
+function ${exported}(code${opts.eval ? "" : ":number"}) {
     return (convert[(code >>> ${VectorBitCount}) + ${index * VectorByteSize}] >>> code & ${VectorMask} & 1) !== 0
 }`)
     }
