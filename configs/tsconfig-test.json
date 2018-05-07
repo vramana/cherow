@@ -3,6 +3,7 @@
   "compilerOptions": {
     "module": "umd",
     "sourceMap": true,
+    "preserveConstEnums": true,
     "types": ["mocha", "node"],
     "typeRoots": ["../node_modules/@types/"],
     "paths": {
