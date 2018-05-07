@@ -8,10 +8,6 @@ function rollup(mod, minify) {
   return package(`rollup --c --environment mod:${mod},${minify ? 'minify' : ''}`);
 }
 
-function webpack(tool, arg) {
-  return crossEnv(`TS_NODE_PROJECT=\'${config('tsnode')}\' ${package(tool)} --config webpack.config.ts ${arg}`);
-}
-
 function mocha(arg) {
   return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' ${package('mocha')} ${arg}`);
 }
@@ -23,11 +19,10 @@ function package(script) {
 module.exports = {
   scripts: {
     lint: package(`tslint --project ${config('build')}`),
-    demo: {
-      development: webpack('webpack-dev-server', '--env.server'),
-      production: webpack('webpack', '--env.production')
+    test: {
+      default: mocha('test/**/*.ts'),
+      watch: mocha('test/**/*.ts --watch')
     },
-    test: mocha('test/**/*.ts'),
     coverage: {
       default: series.nps('coverage.before', 'coverage.run'),
       before: series.nps('coverage.clean', 'coverage.build'),
