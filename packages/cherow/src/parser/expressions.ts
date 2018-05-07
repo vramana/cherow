@@ -149,7 +149,7 @@ function parseYieldExpression(parser: IParser, context: Context, pos: Location):
  * @param context Context masks
  */
 
-export function parseAssignmentExpression(parser: IParser, context: Context): any {
+export function parseAssignmentExpression(parser: IParser, context: Context): ESTree.Expression {
 
     const pos = getLocation(parser);
 
@@ -220,7 +220,7 @@ export function parseAssignmentExpression(parser: IParser, context: Context): an
             left: expr,
             operator: tokenDesc(token),
             right,
-        });
+        } as any);
 
     }
     return expr;
@@ -293,7 +293,7 @@ function parseBinaryExpression(
             left,
             right: parseBinaryExpression(parser, context & ~Context.AllowIn, prec, getLocation(parser)),
             operator: tokenDesc(t),
-        });
+        } as any);
     }
 
     return left;
@@ -347,7 +347,7 @@ function parseUnaryExpression(parser: IParser, context: Context): ESTree.UnaryEx
             operator: tokenDesc(token),
             argument,
             prefix: true,
-        });
+        } as any);
     }
 
     return context & Context.Async && token & Token.IsAwait
@@ -374,7 +374,7 @@ function parseUpdateExpression(parser: IParser, context: Context, pos: Location)
             argument: expr,
             operator: tokenDesc(token as Token),
             prefix: true,
-        });
+        } as any);
     } else if (context & Context.OptionsJSX && token === Token.LessThan) {
         return parseJSXRootElement(parser, context | Context.InJSXChild);
     }
@@ -388,7 +388,7 @@ function parseUpdateExpression(parser: IParser, context: Context, pos: Location)
             argument: expression,
             operator: tokenDesc(operator as Token),
             prefix: false,
-        });
+        } as any);
     }
 
     return expression;
@@ -1116,8 +1116,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: IParser,
 
                     parser.flags &= ~(Flags.AllowBinding | Flags.HasAwait | Flags.HasYield);
 
-                    const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
-                    return params;
+                    return (state & CoverParenthesizedState.SequenceExpression ? (expr as any).expressions : [expr]);
                 }
 
                 parser.flags &= ~(Flags.HasAwait | Flags.HasYield | Flags.AllowBinding);
@@ -1370,7 +1369,7 @@ function parsePropertyDefinition(parser: IParser, context: Context): ESTree.Prop
                     setPendingError(parser);
                     parser.flags |= parser.token & Token.IsYield ? Flags.HasYield : Flags.HasAwait;
                 }
-                value = parseAssignmentPattern(parser, context, key, pos);
+                value = parseAssignmentPattern(parser, context, key as any, pos);
 
             } else {
                 if (t & Token.IsAwait) {
@@ -1391,7 +1390,7 @@ function parsePropertyDefinition(parser: IParser, context: Context): ESTree.Prop
         computed: t === Token.LeftBracket,
         method: !!(state & ObjectState.Method),
         shorthand: !!(state & ObjectState.Shorthand),
-    });
+    } as any);
 }
 
 /**
@@ -1567,7 +1566,7 @@ export function parseFunctionBody(parser: IParser, context: Context, params: any
  *
  * @param Parser object
  * @param Context masks
- * @param {state} Optional objectstate. Default to none
+ * @param Optional objectstate. Default to none
  */
 
 export function parseFormalParameters(
@@ -1856,7 +1855,7 @@ export function parseClassElement(
         key,
         value,
         decorators
-    } : {
+    } as any : {
         type: 'MethodDefinition',
         kind,
         static: !!(state & ObjectState.Static),
@@ -1892,7 +1891,7 @@ function parseFieldDefinition(parser: IParser, context: Context, key: any, state
         computed: !!(state & ObjectState.Computed),
         static: !!(state & ObjectState.Static),
         decorators
-    } : {
+    } as any : {
         type: 'FieldDefinition',
         key,
         value,
@@ -1948,7 +1947,7 @@ function parsePrivateFields(parser: IParser, context: Context, decorators: ESTre
         computed: false,
         static: false, // Note: This deviates from the ESTree specs. Added to support static field names
         decorators
-    } : {
+    } as any : {
         type: 'FieldDefinition',
         key,
         value,
@@ -2004,7 +2003,7 @@ function parseCallImportOrMetaProperty(parser: IParser, context: Context): ESTre
         type: 'CallExpression',
         callee: expr,
         arguments: [args],
-    });
+    }) as any;
     return expr;
 }
 

@@ -31,12 +31,12 @@ import {
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseModuleItemList(parser: IParser, context: Context): ESTree.Statement[] {
+export function parseModuleItemList(parser: IParser, context: Context): (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] {
 
     // Prime the scanner
     nextToken(parser, context);
 
-    const statements: ESTree.Statement[] = [];
+    const statements: (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] = [];
 
     while (parser.token !== Token.EndOfSource) {
         statements.push(parser.token === Token.StringLiteral ?
@@ -474,5 +474,5 @@ function parseImportDefaultSpecifier(parser: IParser, context: Context): ESTree.
 function parseAsyncFunctionOrAssignmentExpression(parser: IParser, context: Context): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | Context.RequireIdentifier) :
-        parseAssignmentExpression(parser, context | Context.AllowIn);
+        parseAssignmentExpression(parser, context | Context.AllowIn) as any;
 }

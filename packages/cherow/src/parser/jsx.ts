@@ -79,7 +79,7 @@ export function parseJSXRootElement(
 export function parseJSXOpeningElement(
     parser: IParser,
     context: Context,
-    name: string,
+    name: ESTree.JSXIdentifier | ESTree.JSXMemberExpression | ESTree.JSXNamespacedName,
     attributes: any,
     selfClosing: boolean,
     pos: Location,
@@ -104,17 +104,17 @@ export function parseJSXOpeningElement(
  */
 function parseJSXFragment(parser: IParser, context: Context, openingElement: ESTree.JSXOpeningFragment, pos: Location): ESTree.JSXFragment {
     const children = parseJSXChildren(parser, context);
-    const closingElement = parseJSXClosingFragment(parser, context);
+    const closingFragment = parseJSXClosingFragment(parser, context);
     return finishNode(context, parser, pos, {
         type: 'JSXFragment',
         children,
         openingElement,
-        closingElement,
-    });
+        closingFragment,
+    } as any);
 }
 
 /**
- * Parse JSX opening fragment
+ * Parse JSX opening fragmentD
  *
  * @param parser Parser object
  * @param context Context masks
@@ -124,7 +124,7 @@ function parseJSXOpeningFragment(parser: IParser, context: Context, pos: Locatio
     nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningFragment',
-    });
+    } as any);
 }
 
 /**
@@ -194,7 +194,7 @@ export function parseJSXText(parser: IParser, context: Context): ESTree.JSXText 
     const node: any = finishNode(context, parser, pos, {
         type: 'JSXText',
         value,
-    });
+    } as any);
 
     if (context & Context.OptionsRaw) node.raw = value;
 
@@ -208,7 +208,11 @@ export function parseJSXText(parser: IParser, context: Context): ESTree.JSXText 
  * @param context Context masks
  */
 
-function parseJSXChild(parser: IParser, context: Context): any {
+function parseJSXChild(parser: IParser, context: Context): ReturnType<
+  typeof parseJSXText |
+  typeof parseJSXExpression |
+  typeof parseJSXRootElement
+  > {
     switch (parser.token) {
         case Token.Identifier:
         case Token.JSXText:
@@ -220,6 +224,7 @@ function parseJSXChild(parser: IParser, context: Context): any {
         default:
             report(parser, Errors.Unexpected);
     }
+    return undefined as any; // note: get rid of this
 }
 
 /**
@@ -229,8 +234,8 @@ function parseJSXChild(parser: IParser, context: Context): any {
  * @param context Context masks
  */
 
-export function parseJSXAttributes(parser: IParser, context: Context): any[] {
-    const attributes: ESTree.JSXAttribute[] = [];
+export function parseJSXAttributes(parser: IParser, context: Context): ReturnType<typeof parseJSXAttribute>[] {
+    const attributes: ReturnType<typeof parseJSXAttribute>[] = [];
     while (parser.index < parser.source.length) {
         if (parser.token === Token.Divide || parser.token === Token.GreaterThan) break;
         attributes.push(parseJSXAttribute(parser, context));
@@ -270,7 +275,7 @@ export function parseJSXSpreadAttribute(parser: IParser, context: Context): ESTr
 export function parseJSXNamespacedName(
     parser: IParser,
     context: Context,
-    namespace: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
+    namespace: ESTree.JSXIdentifier,
     pos: Location,
 ): ESTree.JSXNamespacedName {
     expect(parser, context, Token.Colon);
@@ -304,7 +309,11 @@ export function parseJSXAttributeName(parser: IParser, context: Context): ESTree
  * @param context Context masks
  */
 
-function parseJSXAttributeValue(parser: IParser, context: Context): any {
+function parseJSXAttributeValue(parser: IParser, context: Context): ReturnType<
+  typeof parseLiteral |
+  typeof parseJSXExpressionContainer |
+  typeof parseJSXRootElement
+  > {
 
     switch (scanJSXAttributeValue(parser, context)) {
         case Token.StringLiteral:
@@ -315,8 +324,8 @@ function parseJSXAttributeValue(parser: IParser, context: Context): any {
             return parseJSXRootElement(parser, context | Context.InJSXChild);
         default:
             tolerant(parser, context, Errors.InvalidJSXAttributeValue);
-
     }
+    return undefined as any; // note: get rid of this
 }
 /**
  * Parses JSX Attribute
@@ -324,7 +333,7 @@ function parseJSXAttributeValue(parser: IParser, context: Context): any {
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseJSXAttribute(parser: IParser, context: Context): any {
+export function parseJSXAttribute(parser: IParser, context: Context): ESTree.JSXAttribute | ESTree.JSXSpreadAttribute {
     const pos = getLocation(parser);
     if (parser.token === Token.LeftBrace) return parseJSXSpreadAttribute(parser, context);
     scanJSXIdentifier(parser);
@@ -332,7 +341,7 @@ export function parseJSXAttribute(parser: IParser, context: Context): any {
     const value = parser.token === Token.Assign ? parseJSXAttributeValue(parser, context) : null;
     return finishNode(context, parser, pos, {
         type: 'JSXAttribute',
-        value,
+        value: value as Exclude<null, typeof value>,
         name: attrName,
     });
 }
@@ -474,7 +483,7 @@ export function parseJSXClosingFragment(parser: IParser, context: Context): ESTr
     expect(parser, context, Token.GreaterThan);
     return finishNode(context, parser, pos, {
         type: 'JSXClosingFragment',
-    });
+    } as any);
 }
 
 /**
