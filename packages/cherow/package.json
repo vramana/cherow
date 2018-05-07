@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "dist/umd/cherow.js",
   "module": "dist/es2015/cherow.js",
@@ -12,10 +12,10 @@
     "Fred Kleuver <https://github.com/fkleuver>"
   ],
   "license": "ISC",
-  "homepage": "https://github.com/cherow/cherow",
+  "homepage": "https://github.com/cherow/cherow/tree/master/packages/cherow",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cherow/cherow.git"
+    "url": "git+https://github.com/cherow/cherow/tree/master/packages/cherow.git"
   },
   "bugs": {
     "url": "https://github.com/cherow/cherow/issues"

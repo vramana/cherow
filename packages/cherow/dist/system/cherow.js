@@ -5108,7 +5108,7 @@ System.register([], function (exports, module) {
       function parseModule(source, options) {
           return parse(source, options, 4096 | 8192);
       }
-      const version = exports('version', '1.5.7');
+      const version = exports('version', '1.5.8');
 
     }
   };

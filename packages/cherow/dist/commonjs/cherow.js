@@ -5061,7 +5061,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return parse(source, options, 4096 | 8192);
 }
-const version = '1.5.7';
+const version = '1.5.8';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;
