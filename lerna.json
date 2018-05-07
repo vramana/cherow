@@ -4,7 +4,8 @@
     "packages/cherow",
     "packages/cherow-ts",
     "packages/cherow-flow",
-    "packages/cherow-minify"
+    "packages/cherow-minify",
+    "packages/cherow-linter"
   ],
   "version": "independent"
 }

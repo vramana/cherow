@@ -1,8 +1,8 @@
 import * as assert from 'clean-assert';
-import * as ESTree from '../../cherow/src/estree';
-import { Context } from '../../cherow/src/utilities';
 import * as t from 'assert';
-import { parse } from '../../cherow/src/parser/parser';
+import { parse } from '../src/parser/parser';
+import { Context } from '../src/utilities';
+import * as ESTree from '../src/estree';
 
 export interface Opts {
     source: string;

@@ -1,6 +1,6 @@
 # Cherow TypeScript parser
 
-**TODO**
+**Work in progress**
 
 `Cherow Typescript Parser` *is* `Cherow` and it also parses Javascript files, but it uses the modular concept of Cherow
 to extend some of the code to accept TypeScript syntax.

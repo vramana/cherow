@@ -1,8 +1,8 @@
-# Cherow minify
+# Cherow linter
 
 **TODO**
 
-Fast, lightweight minifier.
+Fast and lightweight code quality tool for identifying and reporting on patterns found in ECMAScript code.
 
 ## Features
 

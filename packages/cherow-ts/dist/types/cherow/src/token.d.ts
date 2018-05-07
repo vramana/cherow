@@ -144,6 +144,9 @@ export declare const enum Token {
     BigIntLiteral = 33554551,
     At = 120,
     JSXText = 121,
+    KeyOfKeyword = 65658,
+    ReadOnlyKeyword = 65659,
+    IsKeyword = 65660,
 }
 export declare function tokenDesc(token: Token): string;
 export declare function descKeyword(value: string): Token;
