@@ -6,7 +6,7 @@
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-Cherow is a very fast, modular and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
+Cherow is a very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
 ## Packages
 
@@ -16,7 +16,7 @@ This repo is managed as a monorepo that is composed of many independent [npm](ht
 * [Cherow TypeScript parser](https://github.com/cherow/cherow/tree/master/packages/cherow-ts)
 * [Cherow Flow parser](https://github.com/cherow/cherow/tree/master/packages/cherow-flow)
 
-**Note** Both the TypeScript and Flow parser are still work in progress
+All packages conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 
 
 
