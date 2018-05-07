@@ -5,8 +5,8 @@
   "main": "dist/umd/cherow.js",
   "module": "dist/es2015/cherow.js",
   "jsnext:main": "dist/es2015/cherow.js",
-  "types": "dist/umd/cherow.d.ts",
-  "typings": "dist/umd/cherow.d.ts",
+  "types": "dist/types/cherow.d.ts",
+  "typings": "dist/types/cherow.d.ts",
   "author": "KFlash",
   "contributors": [
     "Fred Kleuver <https://github.com/fkleuver>"

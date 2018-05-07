@@ -44,7 +44,8 @@ module.exports = {
           'build.es2017.default',
           'build.es2015.default',
           'build.nativeModules.default',
-          'build.system.default'
+          'build.system.default',
+          'build.declaration'
         ),
         minify: concurrent.nps(
           'build.amd.minify',
@@ -84,6 +85,7 @@ module.exports = {
         default: rollup('system'),
         minify: rollup('system', true)
       },
+      declaration: package(`tsc --project ${config('declaration')}`)
     }
   }
 };

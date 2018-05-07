@@ -1,12 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "../dist/types",
+    "emitDeclarationOnly": true,
     "diagnostics": true,
     "noUnusedParameters": true,
     "removeComments": true,
     "strict": true,
-    "stripInternal": true,
-    "sourceMap": true
+    "stripInternal": true
   },
   "include": ["../src"]
 }

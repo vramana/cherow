@@ -4,7 +4,7 @@ import * as Scanner from './lexer/index';
 import { Options } from './types';
 export declare function parseScript(source: string, options?: Options): ESTree.Program;
 export declare function parseModule(source: string, options?: Options): ESTree.Program;
-export declare const version = "1.5.5";
+export declare const version = "__VERSION__";
 export { ESTree, Parser, Scanner };
 export * from './chars';
 export * from './errors';
