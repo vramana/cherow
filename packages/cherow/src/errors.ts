@@ -1,4 +1,4 @@
-import { Parser } from './types';
+import { IParser } from './types';
 import { Context } from './utilities';
 
 export const enum Errors {
@@ -207,7 +207,7 @@ export const ErrorMessages: {
  * @param parser The 0-based end index of the current node.
  * @param description Error description
  */
-export function constructError(parser: Parser, context: Context, index: number, line: number, column: number, description: string) {
+export function constructError(parser: IParser, context: Context, index: number, line: number, column: number, description: string) {
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
     );
@@ -228,7 +228,7 @@ export function constructError(parser: Parser, context: Context, index: number, 
  * @param parser Parser instance
  */
 
-function getErrorLocation(parser: Parser) {
+function getErrorLocation(parser: IParser) {
     let { index, startLine: line, startColumn: column } = parser;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
@@ -247,7 +247,7 @@ function getErrorLocation(parser: Parser) {
  * @param type Error type
  * @param params Error params
  */
-export function report(parser: Parser, type: Errors, ...params: string[]) {
+export function report(parser: IParser, type: Errors, ...params: string[]) {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, Context.Empty, index, line, column, errorMessage);
@@ -262,7 +262,7 @@ export function report(parser: Parser, type: Errors, ...params: string[]) {
  * @param type Error type
  * @param params Error params
  */
-export function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]) {
+export function tolerant(parser: IParser, context: Context, type: Errors, ...params: string[]) {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, context, index, line, column, errorMessage);

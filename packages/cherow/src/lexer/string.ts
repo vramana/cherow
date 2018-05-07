@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { Parser } from '../types';
+import { IParser } from '../types';
 import { Errors, report } from '../errors';
 import { Token } from '../token';
 import { Context, Flags, Escape } from '../utilities';
@@ -11,7 +11,7 @@ import { toHex, readNext, fromCodePoint } from './common';
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanEscapeSequence(parser: Parser, context: Context, first: number): number {
+export function scanEscapeSequence(parser: IParser, context: Context, first: number): number {
     switch (first) {
         case Chars.LowerB:
             return Chars.Backspace;
@@ -162,7 +162,7 @@ export function scanEscapeSequence(parser: Parser, context: Context, first: numb
  * @param parser Parser object
  * @param context Context masks
  */
-export function throwStringError(parser: Parser, context: Context, code: Escape) {
+export function throwStringError(parser: IParser, context: Context, code: Escape) {
     switch (code) {
         case Escape.Empty:
             return;
@@ -194,7 +194,7 @@ export function throwStringError(parser: Parser, context: Context, code: Escape)
  * @param context Context masks
  * @param quote codepoint
  */
-export function scanString(parser: Parser, context: Context, quote: number): Token {
+export function scanString(parser: IParser, context: Context, quote: number): Token {
     const { index: start, lastValue} = parser;
     let ret = '';
     parser.index++; parser.column++;  // consume quote

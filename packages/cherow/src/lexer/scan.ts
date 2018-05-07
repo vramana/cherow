@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { Parser } from '../types';
+import { IParser } from '../types';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { scanTemplate } from './template';
 import { scanNumericLiteral, scanImplicitOctalDigits, scanOctalOrBinary, scanHexIntegerLiteral } from './numbers';
@@ -18,7 +18,7 @@ import { consumeLineFeed, consumeOpt, advanceNewline, scanPrivateName } from './
  * @param parser Parser object
  * @param context Context masks
  */
-export function scan(parser: Parser, context: Context): Token {
+export function scan(parser: IParser, context: Context): Token {
 
     parser.flags &= ~Flags.NewLine | Flags.EscapedKeyword;
 

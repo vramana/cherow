@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { Parser } from '../types';
+import { IParser } from '../types';
 import { Errors, report, tolerant } from '../errors';
 import { Token } from '../token';
 import { isValidIdentifierStart } from '../unicode';
@@ -13,7 +13,7 @@ import { isIdentifierPart, fromCodePoint } from './common';
  * @param context Context masks
  */
 
-export function scanRegularExpression(parser: Parser, context: Context): Token {
+export function scanRegularExpression(parser: IParser, context: Context): Token {
 
     const bodyStart = parser.index;
 
@@ -127,7 +127,7 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
  * @param flags Regexp flags
  */
 function validate(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     pattern: string,
     flags: string) {

@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { Parser } from '../types';
+import { IParser } from '../types';
 import { Errors, report, tolerant } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
@@ -14,7 +14,7 @@ import { readNext, fromCodePoint } from './common';
  * @param context Context masks
  */
 
-export function consumeTemplateBrace(parser: Parser, context: Context): Token {
+export function consumeTemplateBrace(parser: IParser, context: Context): Token {
     if (parser.index >= parser.length) report(parser, Errors.UnterminatedTemplate);
     // Upon reaching a '}', consume it and rewind the scanner state
     parser.index--;
@@ -29,7 +29,7 @@ export function consumeTemplateBrace(parser: Parser, context: Context): Token {
  * @param context Context masks
  * @param first Codepoint
  */
-export function scanTemplate(parser: Parser, context: Context): Token {
+export function scanTemplate(parser: IParser, context: Context): Token {
     const { index: start, lastValue } = parser;
     let tail = true;
     let ret: string | void = '';
@@ -117,7 +117,7 @@ export function scanTemplate(parser: Parser, context: Context): Token {
  * @param parser Parser object
  * @param ch codepoint
  */
-function scanLooserTemplateSegment(parser: Parser, ch: number): number {
+function scanLooserTemplateSegment(parser: IParser, ch: number): number {
     while (ch !== Chars.Backtick) {
         if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
             parser.index++; parser.column++;

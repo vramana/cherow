@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
-import { Parser, Location } from '../types';
+import { IParser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart } from '../unicode';
@@ -27,7 +27,7 @@ import {
  * @param context Context masks
  */
 export function parseJSXRootElement(
-    parser: Parser,
+    parser: IParser,
     context: Context,
 ): ESTree.JSXElement | ESTree.JSXFragment {
     const pos = getLocation(parser);
@@ -77,7 +77,7 @@ export function parseJSXRootElement(
  * @param pos Line / Column tracking
  */
 export function parseJSXOpeningElement(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     name: string,
     attributes: any,
@@ -102,7 +102,7 @@ export function parseJSXOpeningElement(
  * @param openingElement Opening fragment
  * @param pos Line / Column location
  */
-function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTree.JSXOpeningFragment, pos: Location): ESTree.JSXFragment {
+function parseJSXFragment(parser: IParser, context: Context, openingElement: ESTree.JSXOpeningFragment, pos: Location): ESTree.JSXFragment {
     const children = parseJSXChildren(parser, context);
     const closingElement = parseJSXClosingFragment(parser, context);
     return finishNode(context, parser, pos, {
@@ -120,7 +120,7 @@ function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTr
  * @param context Context masks
  * @param pos Line / Column location
  */
-function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location): ESTree.JSXOpeningFragment {
+function parseJSXOpeningFragment(parser: IParser, context: Context, pos: Location): ESTree.JSXOpeningFragment {
     nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningFragment',
@@ -133,7 +133,7 @@ function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location
  * @param parser Parser object
  * @param context Context masks
  */
-export function nextJSXToken(parser: Parser): Token {
+export function nextJSXToken(parser: IParser): Token {
     return parser.token = scanJSXToken(parser);
 }
 
@@ -143,7 +143,7 @@ export function nextJSXToken(parser: Parser): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanJSXToken(parser: Parser): Token {
+export function scanJSXToken(parser: IParser): Token {
     if (parser.index >= parser.source.length) return Token.EndOfSource;
     parser.lastIndex = parser.startIndex = parser.index;
     const char = parser.source.charCodeAt(parser.index);
@@ -171,7 +171,7 @@ export function scanJSXToken(parser: Parser): Token {
  * @param context Context masks
  */
 
-function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[] {
+function parseJSXChildren(parser: IParser, context: Context): ESTree.JSXElement[] {
     const children: any[] = [];
     while (parser.token !== Token.JSXClose) {
         children.push(parseJSXChild(parser, context));
@@ -187,7 +187,7 @@ function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[]
  * @param context Context masks
  */
 
-export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
+export function parseJSXText(parser: IParser, context: Context): ESTree.JSXText {
     const pos = getLocation(parser);
     const value = parser.source.slice(parser.startIndex, parser.index);
     parser.token = scanJSXToken(parser);
@@ -208,7 +208,7 @@ export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
  * @param context Context masks
  */
 
-function parseJSXChild(parser: Parser, context: Context): any {
+function parseJSXChild(parser: IParser, context: Context): any {
     switch (parser.token) {
         case Token.Identifier:
         case Token.JSXText:
@@ -229,7 +229,7 @@ function parseJSXChild(parser: Parser, context: Context): any {
  * @param context Context masks
  */
 
-export function parseJSXAttributes(parser: Parser, context: Context): any[] {
+export function parseJSXAttributes(parser: IParser, context: Context): any[] {
     const attributes: ESTree.JSXAttribute[] = [];
     while (parser.index < parser.source.length) {
         if (parser.token === Token.Divide || parser.token === Token.GreaterThan) break;
@@ -245,7 +245,7 @@ export function parseJSXAttributes(parser: Parser, context: Context): any[] {
  * @param context Context masks
  */
 
-export function parseJSXSpreadAttribute(parser: Parser, context: Context): ESTree.JSXSpreadAttribute {
+export function parseJSXSpreadAttribute(parser: IParser, context: Context): ESTree.JSXSpreadAttribute {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     expect(parser, context, Token.Ellipsis);
@@ -268,7 +268,7 @@ export function parseJSXSpreadAttribute(parser: Parser, context: Context): ESTre
  */
 
 export function parseJSXNamespacedName(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     namespace: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
     pos: Location,
@@ -289,7 +289,7 @@ export function parseJSXNamespacedName(
  * @param context Context masks
  */
 
-export function parseJSXAttributeName(parser: Parser, context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
+export function parseJSXAttributeName(parser: IParser, context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
     const pos = getLocation(parser);
     const identifier = parseJSXIdentifier(parser, context);
     return parser.token === Token.Colon ?
@@ -304,7 +304,7 @@ export function parseJSXAttributeName(parser: Parser, context: Context): ESTree.
  * @param context Context masks
  */
 
-function parseJSXAttributeValue(parser: Parser, context: Context): any {
+function parseJSXAttributeValue(parser: IParser, context: Context): any {
 
     switch (scanJSXAttributeValue(parser, context)) {
         case Token.StringLiteral:
@@ -324,7 +324,7 @@ function parseJSXAttributeValue(parser: Parser, context: Context): any {
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseJSXAttribute(parser: Parser, context: Context): any {
+export function parseJSXAttribute(parser: IParser, context: Context): any {
     const pos = getLocation(parser);
     if (parser.token === Token.LeftBrace) return parseJSXSpreadAttribute(parser, context);
     scanJSXIdentifier(parser);
@@ -344,7 +344,7 @@ export function parseJSXAttribute(parser: Parser, context: Context): any {
  * @param context Context masks
  */
 
-function scanJSXAttributeValue(parser: Parser, context: Context): Token {
+function scanJSXAttributeValue(parser: IParser, context: Context): Token {
     parser.lastIndex = parser.index;
     const ch = parser.source.charCodeAt(parser.index);
     switch (ch) {
@@ -363,7 +363,7 @@ function scanJSXAttributeValue(parser: Parser, context: Context): Token {
  * @param context Context masks
  * @param quote Code point
  */
-function scanJSXString(parser: Parser, context: Context, quote: number): Token {
+function scanJSXString(parser: IParser, context: Context, quote: number): Token {
 
     const rawStart = parser.index;
     parser.index++; parser.column++;
@@ -394,7 +394,7 @@ function scanJSXString(parser: Parser, context: Context, quote: number): Token {
  * @param context Context masks
  */
 
-export function parseJSXEmptyExpression(parser: Parser, context: Context): ESTree.JSXEmptyExpression {
+export function parseJSXEmptyExpression(parser: IParser, context: Context): ESTree.JSXEmptyExpression {
     const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXEmptyExpression',
@@ -407,7 +407,7 @@ export function parseJSXEmptyExpression(parser: Parser, context: Context): ESTre
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseJSXSpreadChild(parser: Parser, context: Context): ESTree.JSXSpreadChild {
+export function parseJSXSpreadChild(parser: IParser, context: Context): ESTree.JSXSpreadChild {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const expression = parseExpression(parser, context);
@@ -425,7 +425,7 @@ export function parseJSXSpreadChild(parser: Parser, context: Context): ESTree.JS
  * @param context Context masks
  */
 
-export function parseJSXExpressionContainer(parser: Parser, context: Context): ESTree.JSXExpressionContainer {
+export function parseJSXExpressionContainer(parser: IParser, context: Context): ESTree.JSXExpressionContainer {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     // Note: JSX Expressions can't be empty
@@ -446,7 +446,7 @@ export function parseJSXExpressionContainer(parser: Parser, context: Context): E
  * @param pos Line / Column location
  */
 
-export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+export function parseJSXExpression(parser: IParser, context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     if (parser.token === Token.Ellipsis) return parseJSXSpreadChild(parser, context);
@@ -468,7 +468,7 @@ export function parseJSXExpression(parser: Parser, context: Context): ESTree.JSX
  * @param context Context masks
  */
 
-export function parseJSXClosingFragment(parser: Parser, context: Context): ESTree.JSXClosingFragment {
+export function parseJSXClosingFragment(parser: IParser, context: Context): ESTree.JSXClosingFragment {
     const pos = getLocation(parser);
     expect(parser, context, Token.JSXClose);
     expect(parser, context, Token.GreaterThan);
@@ -484,7 +484,7 @@ export function parseJSXClosingFragment(parser: Parser, context: Context): ESTre
  * @param context Context masks
  * @param pos Line / Column location
  */
-export function parseJSXClosingElement(parser: Parser, context: Context): ESTree.JSXClosingElement {
+export function parseJSXClosingElement(parser: IParser, context: Context): ESTree.JSXClosingElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.JSXClose);
     const name = parseJSXElementName(parser, context);
@@ -503,7 +503,7 @@ export function parseJSXClosingElement(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 
-export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSXIdentifier {
+export function parseJSXIdentifier(parser: IParser, context: Context): ESTree.JSXIdentifier {
     const { token, tokenValue: name, tokenRaw: raw } = parser;
 
     if (!(token & (Token.IsIdentifier | Token.Keyword))) {
@@ -528,7 +528,7 @@ export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSX
  * @param pos Line / Column location
  */
 
-export function parseJSXMemberExpression(parser: Parser, context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
+export function parseJSXMemberExpression(parser: IParser, context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
     // Note: In order to be able to parse cases like ''<A.B.C.D.E.foo-bar />', where the dash is located at the
     // end, we must rescan for the JSX Identifier now. This because JSX identifiers differ from normal identifiers
     scanJSXIdentifier(parser);
@@ -546,7 +546,7 @@ export function parseJSXMemberExpression(parser: Parser, context: Context, expr:
  * @param context Context masks
  */
 
-export function parseJSXElementName(parser: Parser, context: Context): any {
+export function parseJSXElementName(parser: IParser, context: Context): any {
     const pos = getLocation(parser);
     scanJSXIdentifier(parser);
     let elementName: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = parseJSXIdentifier(parser, context);
@@ -563,7 +563,7 @@ export function parseJSXElementName(parser: Parser, context: Context): any {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanJSXIdentifier(parser: Parser): Token {
+export function scanJSXIdentifier(parser: IParser): Token {
     const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         const firstCharPosition = parser.index;

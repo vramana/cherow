@@ -1,7 +1,7 @@
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
 import { Errors, tolerant, report } from '../errors';
-import { Parser, CommentType } from '../types';
+import { IParser, CommentType } from '../types';
 import { Context, ScannerState } from '../utilities';
 import { consumeLineFeed, consumeOpt, advanceNewline } from './common';
 
@@ -16,7 +16,7 @@ import { consumeLineFeed, consumeOpt, advanceNewline } from './common';
  * @param type   Comment type
  */
 export function skipSingleHTMLComment(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     state: ScannerState,
     type: CommentType) {
@@ -38,7 +38,7 @@ export function skipSingleHTMLComment(
  */
 
 export function skipSingleLineComment(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     state: ScannerState,
     type: CommentType,
@@ -78,7 +78,7 @@ export function skipSingleLineComment(
  * @param state
  */
 export function skipMultiLineComment(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     state: ScannerState): any {
 
@@ -124,7 +124,7 @@ export function skipMultiLineComment(
     tolerant(parser, context, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number) {
+export function addComment(parser: IParser, context: Context, type: ESTree.CommentType, start: number) {
 
     const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
 

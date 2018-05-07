@@ -1,7 +1,7 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
-import { Location, Parser } from '../types';
+import { Location, IParser } from '../types';
 import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
 import {
     expect,
@@ -26,7 +26,7 @@ import {
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: string[] = []): ESTree.Node {
+export function parseBindingIdentifierOrPattern(parser: IParser, context: Context, args: string[] = []): ESTree.Node {
     const { token } = parser;
     if (token & Token.IsBindingPattern) {
         return token === Token.LeftBrace ?
@@ -52,7 +52,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
  * @param context Context masks
  */
 
-export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
+export function parseBindingIdentifier(parser: IParser, context: Context): ESTree.Identifier {
 
     const { token } = parser;
     if (token & Token.IsEvalOrArguments) {
@@ -86,7 +86,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 
-export function parseAssignmentRestElement(parser: Parser, context: Context, args: string[]): ESTree.RestElement {
+export function parseAssignmentRestElement(parser: IParser, context: Context, args: string[]): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context, args);
@@ -106,7 +106,7 @@ export function parseAssignmentRestElement(parser: Parser, context: Context, arg
  * @param context Context masks
  */
 
-function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestElement {
+function AssignmentRestProperty(parser: IParser, context: Context): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const { token } = parser;
@@ -143,11 +143,11 @@ function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestEl
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser object
+ * @param {IParser} Parser object
  * @param {context} Context masks
  */
 
-function parseArrayAssignmentPattern(parser: Parser, context: Context, args: string[]): ESTree.ArrayPattern {
+function parseArrayAssignmentPattern(parser: IParser, context: Context, args: string[]): ESTree.ArrayPattern {
 
     const pos = getLocation(parser);
 
@@ -184,7 +184,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
  * @param Context Context masks
  */
 
-function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree.ObjectPattern {
+function parserObjectAssignmentPattern(parser: IParser, context: Context): ESTree.ObjectPattern {
     const pos = getLocation(parser);
     const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
     expect(parser, context, Token.LeftBrace);
@@ -218,7 +218,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context): ESTree
  */
 
 export function parseAssignmentPattern(
-    parser: Parser,
+    parser: IParser,
     context: Context,
     left: ESTree.Node,
     pos: Location,
@@ -239,7 +239,7 @@ export function parseAssignmentPattern(
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseBindingInitializer(parser: Parser, context: Context): ESTree.AssignmentPattern {
+export function parseBindingInitializer(parser: IParser, context: Context): ESTree.AssignmentPattern {
     const pos = getLocation(parser);
     const left: any = parseBindingIdentifierOrPattern(parser, context);
     return !consume(parser, context, Token.Assign) ?
@@ -260,7 +260,7 @@ export function parseBindingInitializer(parser: Parser, context: Context): ESTre
  * @param context Context masks
  */
 
-function parseAssignmentProperty(parser: Parser, context: Context): ESTree.AssignmentProperty {
+function parseAssignmentProperty(parser: IParser, context: Context): ESTree.AssignmentProperty {
 
     const pos = getLocation(parser);
     const { token } = parser;

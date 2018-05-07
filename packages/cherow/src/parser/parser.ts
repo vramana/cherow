@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import {  Options, Location, Parser } from '../types';
+import {  Options, Location, IParser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
 import { Context, Flags, nextToken } from '../utilities';
@@ -14,7 +14,7 @@ import { Context, Flags, nextToken } from '../utilities';
 export function createParser(
     source: string,
     sourceFile: string | void,
-): Parser {
+): IParser {
     return {
         // The source code to parse
         source,
@@ -146,11 +146,11 @@ export function parse(source: string, options: Options | void, context: Context)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param {Parser} Parser instance
+ * @param {IParser} Parser instance
  * @param {context} Context masks
  */
 
-export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
+export function parseStatementList(parser: IParser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
     nextToken(parser, context | Context.DisallowEscapedKeyword);
     while (parser.token === Token.StringLiteral) {
