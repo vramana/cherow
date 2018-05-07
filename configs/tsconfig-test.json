@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "umd",
     "sourceMap": true,
-    "baseUrl": "../packages",
+    "types": ["mocha", "node"],
+    "typeRoots": ["../node_modules/@types/"],
     "paths": {
       "cherow": ["cherow/src/cherow"],
       "cherow-flow": ["cherow-flow/src/cherow-flow"],
