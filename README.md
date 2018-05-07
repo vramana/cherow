@@ -10,7 +10,7 @@ Cherow is a very fast, modular and lightweight, standards-compliant, self-hosted
 
 ## Packages
 
-This repo is managed as a monorepo that is composed of many npm packages.
+This repo is managed as a monorepo that is composed of many independent [npm](https://www.npmjs.com/) packages.
 
 * [Cherow JS parser](https://github.com/cherow/cherow/tree/master/packages/cherow)
 * [Cherow TypeScript parser](https://github.com/cherow/cherow/tree/master/packages/cherow-ts)
