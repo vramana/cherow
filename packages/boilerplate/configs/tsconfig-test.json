@@ -1,8 +1,0 @@
-{
-  "extends": "../../../configs/tsconfig-test.json",
-  "compilerOptions": {
-    "outDir": "../build/",
-    "typeRoots": ["../node_modules/@types/"]
-  },
-  "include": ["../src", "../test"]
-}
