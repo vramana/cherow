@@ -1,5 +1,4 @@
 language: node_js
-sudo: false
 cache:
   directories:
     - ~/.npm
@@ -7,21 +6,14 @@ notifications:
   email: false
 node_js:
   - '8'
-  - '10'
 env:
   matrix:
     - PACKAGE=cherow
-      #- PACKAGE=cherow-ts
+      #- PACKAGE=bar
+      #- PACKAGE=baz
 
-script: >
-  if [ "$TEST_SUITE" != "cherow" ]; then
-    # set -e
-    lerna run test --scope $PACKAGE
-    # set +e
-    # lerna run post_coverage --scope $PACKAGE
-  else
-    lerna run test --scope $PACKAGE
-  fi
+script: lerna run test --scope $PACKAGE
+
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
