@@ -25,7 +25,12 @@ function output(target, format, opts = {}) {
       commonJS(),
       ts({
         tsconfig: `configs/tsconfig-build.json`,
-        tsconfigOverride: { compilerOptions: { target } },
+        tsconfigOverride: {
+          compilerOptions: {
+            target,
+            declaration: !minify
+          }
+        },
         useTsconfigDeclarationDir: true,
         cacheRoot: `.rollupcache/${mod}`
       }),
