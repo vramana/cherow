@@ -1,7 +1,8 @@
 import { Parser, Location } from '../../../cherow/src/types';
 import { report, Errors } from '../../../cherow/src/errors';
 import { Token, tokenDesc } from '../../../cherow/src/token';
-import { parseIdentifier, parseLiteral } from '../../../cherow/src/parser/expressions';
+import { parseLiteral } from '../../../cherow/src/parser/expressions';
+import { parseIdentifier } from './/expressions';
 import { keywordTypeFromName } from '../utilities';
 import { Context, Flags, getLocation, consume, finishNode, expect, consumeSemicolon, nextToken } from '../../../cherow/src/utilities';
 
@@ -203,7 +204,7 @@ function parseThisTypePredicate(parser: Parser, context: Context, parameterName:
   });
 }
 
-function parseTypeAnnotation(parser: Parser, context: Context, consumeColon: boolean = true): any {
+export function parseTypeAnnotation(parser: Parser, context: Context, consumeColon: boolean = true): any {
   const pos = getLocation(parser);
   if (consumeColon) expect(parser, context, Token.Colon);
   return finishNode(context, parser, pos, {

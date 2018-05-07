@@ -86,7 +86,7 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 
-function parseAssignmentRestElement(parser: Parser, context: Context, args: string[]): ESTree.RestElement {
+export function parseAssignmentRestElement(parser: Parser, context: Context, args: string[]): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context, args);
@@ -239,7 +239,7 @@ export function parseAssignmentPattern(
  * @param parser Parser object
  * @param context Context masks
  */
-function parseBindingInitializer(parser: Parser, context: Context): ESTree.AssignmentPattern {
+export function parseBindingInitializer(parser: Parser, context: Context): ESTree.AssignmentPattern {
     const pos = getLocation(parser);
     const left: any = parseBindingIdentifierOrPattern(parser, context);
     return !consume(parser, context, Token.Assign) ?
