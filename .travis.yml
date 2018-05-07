@@ -15,10 +15,10 @@ env:
 
 script: >
   if [ "$TEST_SUITE" != "cherow" ]; then
-    set -e
-    lerna run coverage --scope $PACKAGE
-    set +e
-    lerna run post_coverage --scope $PACKAGE
+    # set -e
+    lerna run test --scope $PACKAGE
+    # set +e
+    # lerna run post_coverage --scope $PACKAGE
   else
     lerna run test --scope $PACKAGE
   fi
