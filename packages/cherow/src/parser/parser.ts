@@ -110,7 +110,7 @@ export function parse(source: string, options: Options | void, context: Context)
     const node: ESTree.Program = {
         type: 'Program',
         sourceType: context & Context.Module ? 'module' : 'script',
-        body,
+        body: body as any,
     };
 
     if (context & Context.OptionsRanges) {
