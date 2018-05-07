@@ -174,6 +174,11 @@ export const enum Token {
     At                 = 120,
     JSXText            = 121,
 
+    /** TS */
+    KeyOfKeyword        = 122 | IsIdentifier,
+    ReadOnlyKeyword     = 123 | IsIdentifier,
+    IsKeyword           = 124 | IsIdentifier,
+
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -223,6 +228,9 @@ const KeywordDescTable = [
     '#',
 
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
+
+    /** TS */
+    'KeyOf', 'ReadOnly', 'is'
 ];
 
 /**
@@ -260,6 +268,9 @@ const DescKeywordTable: {[key: string]: Token} = Object.create(null, {
     void: {value: Token.VoidKeyword},
     finally: {value: Token.FinallyKeyword},
     arguments: {value: Token.Arguments},
+    keyof: {value: Token.KeyOfKeyword},
+    readonly: {value: Token.ReadOnlyKeyword},
+    is: {value: Token.IsKeyword},
     as: {value: Token.AsKeyword},
     async: {value: Token.AsyncKeyword},
     await: {value: Token.AwaitKeyword},

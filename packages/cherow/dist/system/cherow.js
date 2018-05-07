@@ -65,6 +65,7 @@ System.register([], function (exports, module) {
           'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
           '#',
           'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
+          'KeyOf', 'ReadOnly', 'is'
       ];
       function tokenDesc(token) {
           return KeywordDescTable[token & 255];
@@ -95,6 +96,9 @@ System.register([], function (exports, module) {
           void: { value: 302002220 },
           finally: { value: 12373 },
           arguments: { value: 37814389 },
+          keyof: { value: 65658 },
+          readonly: { value: 65659 },
+          is: { value: 65660 },
           as: { value: 36971 },
           async: { value: 299116 },
           await: { value: 33788013 },
