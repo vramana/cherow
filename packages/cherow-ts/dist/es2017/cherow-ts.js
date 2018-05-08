@@ -60,9 +60,9 @@ function nextToken$1(parser, context) {
 }
 const hasBit = (mask, flags) => (mask & flags) === flags;
 function consumeSemicolon$1(parser, context) {
-    return parser.token & 524288 || parser.flags & 1
-        ? consume$1(parser, context, 17301521)
-        : report(parser, !(context & 131072) && parser.token & 131072 ? 36 : 1, tokenDesc(parser.token));
+    return parser.token & 524288 || parser.flags & 1 ?
+        consume$1(parser, context, 17301521) :
+        report(parser, !(context & 131072) && parser.token & 131072 ? 36 : 1, tokenDesc(parser.token));
 }
 function parseExpressionCoverGrammar(parser, context, callback) {
     const { flags, pendingExpressionError } = parser;
@@ -345,6 +345,46 @@ function validateAsyncArgumentList(parser, context, state) {
     }
     return state;
 }
+function isStartOfFunctionType(parser, context) {
+    switch (parser.token) {
+        case 167774015:
+            return true;
+        case 50331659:
+            return lookahead(parser, context, isUnambiguouslyStartOfFunctionType);
+        default:
+            return false;
+    }
+}
+function isUnambiguouslyStartOfFunctionType(parser, context) {
+    nextToken$1(parser, context);
+    switch (parser.token) {
+        case 16:
+        case 14:
+            return true;
+        case 33619969:
+        case 33566815:
+            {
+                nextToken$1(parser, context);
+                switch (parser.token) {
+                    case 16777237:
+                    case 16777234:
+                    case 22:
+                    case 83886109:
+                        return true;
+                    case 16:
+                        {
+                            nextToken$1(parser, context);
+                            if (parser.token === 10)
+                                return true;
+                        }
+                    default:
+                        return false;
+                }
+            }
+        default:
+            return false;
+    }
+}
 function keywordTypeFromName(value) {
     switch (value) {
         case 'any':
@@ -366,6 +406,27 @@ function keywordTypeFromName(value) {
         default:
             return undefined;
     }
+}
+function iStartOfMappedType(parser, context) {
+    nextToken$1(parser, context);
+    if (parser.token === 65659) {
+        nextToken$1(parser, context);
+    }
+    if (parser.token !== 41943059) {
+        return false;
+    }
+    nextToken$1(parser, context);
+    if (!(parser.token & 65536))
+        return false;
+    nextToken$1(parser, context);
+    return parser.token === 168834865;
+}
+function isUnambiguouslyIndexSignature(parser, context) {
+    nextToken$1(parser, context);
+    if (!(parser.token & 65536))
+        return false;
+    nextToken$1(parser, context);
+    return parser.token === 16777237;
 }
 
 function parseStatementListItem(parser, context) {
@@ -2587,6 +2648,73 @@ function parseIntersectionType(parser, context) {
         types
     });
 }
+function parseTypeParameter(parser, context) {
+    const pos = getLocation(parser);
+    const { tokenValue: name } = parser;
+    nextToken(parser, context);
+    consume(parser, context, 83886109);
+    return finishNode(context, parser, pos, {
+        type: 'TSTypeParameter',
+        name,
+        constraint: consume(parser, context, 12372) ? parseType(parser, context) : null,
+        default: consume(parser, context, 83886109) ? parseType(parser, context) : null
+    });
+}
+function parseTypeParameters(parser, context) {
+    const pos = getLocation(parser);
+    if (parser.token === 167774015 || parser.token === 25) {
+        nextToken(parser, context);
+    }
+    else {
+        report(parser, 0);
+    }
+    const params = [];
+    while (!consume(parser, context, 167774016)) {
+        params.push(parseTypeParameter(parser, context));
+    }
+    return finishNode(context, parser, pos, {
+        type: 'TSTypeParameterDeclaration',
+        params
+    });
+}
+function parseFunctionType(parser, context) {
+    const pos = getLocation(parser);
+    const typeParameters = parseTypeParameters(parser, context);
+    expect(parser, context, 50331659);
+    const parameters = [parseBindingIdentifier(parser, context)];
+    expect(parser, context, 16);
+    let typeAnnotation = null;
+    if (parser.token === 10) {
+        typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, 10);
+    }
+    return finishNode(context, parser, pos, {
+        type: 'TSFunctionType',
+        typeParameters,
+        parameters,
+        typeAnnotation,
+    });
+}
+function parseTypeOrTypePredicateAnnotation(parser, context, token) {
+    expect(parser, context, token);
+    const typePredicateVariable = parser.token & 65536 && ((parser.token === 16777237) ? parseTypeAnnotation(parser, context) : false);
+    return parseTypeAnnotation(parser, context, false);
+}
+function parseConstructorType(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 33566811);
+    return finishNode(context, parser, pos, {
+        type: 'TSConstructorType',
+    });
+}
+function parseType(parser, context) {
+    if (isStartOfFunctionType(parser, context)) {
+        return parseFunctionType(parser, context);
+    }
+    else if (consume(parser, context, 33566811)) {
+        return parseConstructorType(parser, context);
+    }
+    return parseUnionType(parser, context);
+}
 function parseUnionType(parser, context) {
     const pos = getLocation(parser);
     const tsType = parseIntersectionType(parser, context);
@@ -2601,10 +2729,9 @@ function parseUnionType(parser, context) {
         types
     });
 }
-function parseType(parser, context) {
-    return parseUnionType(parser, context);
-}
-function parseMappedType(parser, context, pos) {
+function parseMappedType(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 41943052);
     const readonly = consume(parser, context, 65659);
     expect(parser, context, 41943059);
     const typeParameter = parseMappedTypeParameter(parser, context);
@@ -2737,14 +2864,16 @@ function parseLiteralTypedNode(parser, context) {
         case 33566726:
             literal = {
                 type: 'Literal',
-                value: false
+                value: true
             };
+            nextToken(parser, context);
             break;
         case 33566725:
             literal = {
                 type: 'Literal',
                 value: false
             };
+            nextToken(parser, context);
             break;
         default:
             report(parser, 0);
@@ -2781,11 +2910,9 @@ function parseNonArrayType(parser, context) {
         case 302002218:
             return parseTypeQuery(parser, context);
         case 41943052:
-            const pos = getLocation(parser);
-            expect(parser, context, 41943052);
-            if (parser.token === 41943059 || parser.token === 65659)
-                return parseMappedType(parser, context, pos);
-            return parseTypeLiteral(parser, context, pos);
+            return lookahead(parser, context, iStartOfMappedType)
+                ? parseMappedType(parser, context)
+                : parseTypeLiteral(parser, context);
         case 41943059:
             return parseTupleType(parser, context);
         case 50331659:
@@ -2822,7 +2949,8 @@ function parseTupleType(parser, context) {
         elementTypes
     });
 }
-function parseTypeLiteral(parser, context, pos) {
+function parseTypeLiteral(parser, context) {
+    const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
         type: 'TSTypeLiteral',
         members: parseObjectTypeMembers(parser, context)
@@ -2836,13 +2964,59 @@ function parseTypeQuery(parser, context) {
         exprName: parseEntityName(parser, context)
     });
 }
-function parseTypeMember(parser, context) {
-    if (!consume(parser, context, 16777234)) {
-        consumeSemicolon(parser, context);
+function parseIndexSignature(parser, context) {
+    if (!(parser.token === 41943059 &&
+        lookahead(parser, context, isUnambiguouslyIndexSignature))) {
+        return undefined;
     }
+    const pos = getLocation(parser);
+    expect(parser, context, 41943059);
+    const id = parseIdentifier(parser, context);
+    const typeAnnotation = parseTypeAnnotation(parser, context, true);
+    expect(parser, context, 20);
+    const type = parser.token === 16777237 ? parseTypeAnnotation(parser, context, true) : null;
+    if (parser.token !== 16777234)
+        consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TSIndexSignature',
+        typeAnnotation: type,
+        parameters: [id]
+    });
+}
+function parsePropertyOrMethodSignature(parser, context, readonly) {
+    const pos = getLocation(parser);
+    const key = Parser.parsePropertyName(parser, context);
+    const option = consume(parser, context, 22);
+    if (!readonly && (parser.token === 50331659 || parser.token === 167774015)) {
+        if (parser.token !== 16777234)
+            consumeSemicolon(parser, context);
+        return finishNode(context, parser, pos, {
+            type: 'TSMethodSignature',
+            readonly
+        });
+    }
+    else {
+        const typeAnnotation = parseTypeAnnotation(parser, context);
+        if (parser.token === 17301521)
+            consumeSemicolon(parser, context);
+        return finishNode(context, parser, pos, {
+            type: 'TSPropertySignature',
+            readonly,
+            typeAnnotation
+        });
+    }
+}
+function parseTypeMember(parser, context) {
+    if (parser.token === 50331659 || parser.token === 167774015) ;
+    const readonly = false;
+    const idx = parseIndexSignature(parser, context);
+    if (idx)
+        return idx;
+    return parsePropertyOrMethodSignature(parser, context, readonly);
 }
 function parseObjectTypeMembers(parser, context) {
     const members = [];
+    expect(parser, context, 41943052);
     while (parser.token !== 17301519) {
         members.push(parseTypeMember(parser, context));
     }
@@ -2871,19 +3045,17 @@ function parseArrayType(parser, context) {
     }
     return elementType;
 }
-function parseTypeOperatorWithOperatpr(parser, context, token) {
+function parseTypeOperator(parser, context) {
+    if (parser.token !== 65658) {
+        return parseArrayType(parser, context);
+    }
     const pos = getLocation(parser);
-    expect(parser, context, token);
+    expect(parser, context, 65658);
     return finishNode(context, parser, pos, {
         type: 'TSTypeOperator',
-        operator: tokenDesc(token),
+        operator: tokenDesc(65658),
         typeAnnotation: parseTypeOperator(parser, context)
     });
-}
-function parseTypeOperator(parser, context) {
-    return parser.token === 65658
-        ? parseTypeOperatorWithOperatpr(parser, context, 65658)
-        : parseArrayType(parser, context);
 }
 
 function parseBindingIdentifierOrPattern(parser, context, args = []) {

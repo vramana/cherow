@@ -34,4 +34,7 @@ export declare function validateUpdateExpression(parser: IParser, context: Conte
 export declare function setPendingExpressionError(parser: IParser, type: Errors): void;
 export declare function validateCoverParenthesizedExpression(parser: IParser, state: CoverParenthesizedState): CoverParenthesizedState;
 export declare function validateAsyncArgumentList(parser: IParser, context: Context, state: CoverCallState): CoverCallState;
+export declare function isStartOfFunctionType(parser: IParser, context: Context): boolean;
 export declare function keywordTypeFromName(value: string): string | undefined;
+export declare function iStartOfMappedType(parser: IParser, context: Context): boolean;
+export declare function isUnambiguouslyIndexSignature(parser: IParser, context: Context): boolean;
