@@ -132,7 +132,7 @@
     "no-default-export": false,
     "no-duplicate-imports": true,
     "no-empty-interface": false,
-    "no-for-in": true,
+    "no-for-in": false,
     "no-function-expression": true,
     "no-inferrable-types": false, // turn no-inferrable-types off in order to make the code consistent in its use of type decorations
     "no-multiline-string": true, // multiline-strings often introduce unnecessary whitespace into the string literals

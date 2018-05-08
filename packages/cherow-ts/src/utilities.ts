@@ -40,45 +40,45 @@ export function validateBreakOrContinueLabel(
 }
 
 /**
-* Add label to the stack
-*
-* @param parser Parser object
-* @param label label
-*/
+ * Add label to the stack
+ *
+ * @param parser Parser object
+ * @param label label
+ */
 export function addLabel(parser: Parser, label: string): void {
   if (parser.labelSet === undefined) parser.labelSet = {};
   parser.labelSet[`$${label}`] = parser.token & Token.IsIterationStatement ? Labels.Nested : Labels.NotNested;
 }
 
 /**
-* Remove label from the stack
-*
-* @param parser Parser object
-* @param label label
-*/
+ * Remove label from the stack
+ *
+ * @param parser Parser object
+ * @param label label
+ */
 export function popLabel(parser: Parser, label: string): void {
   parser.labelSet[`$${label}`] = Labels.None;
 }
 
 /**
-* Returns either true or false. Depends if the label exist.
-*
-* @param parser Parser object
-* @param label Label
-*/
+ * Returns either true or false. Depends if the label exist.
+ *
+ * @param parser Parser object
+ * @param label Label
+ */
 export function hasLabel(parser: Parser, label: string): Labels {
   return !parser.labelSet ? Labels.None : parser.labelSet[`$${label}`];
 }
 
 /**
-* Finish each the node for each parse. Set line / and column on the node if the
-* options are set for it
-*
-* @param parser Parser object
-* @param context Context masks
-* @param meta Line / column
-* @param node AST node
-*/
+ * Finish each the node for each parse. Set line / and column on the node if the
+ * options are set for it
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param meta Line / column
+ * @param node AST node
+ */
 export function finishNode < T extends ESTree.Node > (
   context: Context,
   parser: Parser,
@@ -116,14 +116,14 @@ export function finishNode < T extends ESTree.Node > (
   return node as T;
 }
 /**
-* Consumes the next token. If the consumed token is not of the expected type
-* then report an error and return null. Otherwise return true.
-*
-* @param parser Parser object
-* @param context Context masks
-* @param t Token
-* @param Err Optionally error message to be thrown
-*/
+ * Consumes the next token. If the consumed token is not of the expected type
+ * then report an error and return null. Otherwise return true.
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param t Token
+ * @param Err Optionally error message to be thrown
+ */
 export function expect(parser: Parser, context: Context, token: Token, err: Errors = Errors.UnexpectedToken): boolean {
   if (parser.token !== token) report(parser, err, tokenDesc(parser.token));
   nextToken(parser, context);
@@ -131,13 +131,13 @@ export function expect(parser: Parser, context: Context, token: Token, err: Erro
 }
 
 /**
-* If the next token matches the given token, this consumes the token
-* and returns true. Otherwise return false.
-*
-* @param parser Parser object
-* @param context Context masks
-* @param t Token
-*/
+ * If the next token matches the given token, this consumes the token
+ * and returns true. Otherwise return false.
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param t Token
+ */
 export function consume(parser: Parser, context: Context, token: Token): boolean {
   if (parser.token !== token) return false;
   nextToken(parser, context);
@@ -145,11 +145,11 @@ export function consume(parser: Parser, context: Context, token: Token): boolean
 }
 
 /**
-* Advance and return the next token in the stream
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Advance and return the next token in the stream
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function nextToken(parser: Parser, context: Context): Token {
   parser.lastIndex = parser.index;
   parser.lastLine = parser.line;
@@ -160,13 +160,13 @@ export function nextToken(parser: Parser, context: Context): Token {
 export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
 
 /**
-* Automatic Semicolon Insertion
-*
-* @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Automatic Semicolon Insertion
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
   return parser.token & Token.ASI || parser.flags & Flags.NewLine ?
       consume(parser, context, Token.Semicolon) :
@@ -177,19 +177,19 @@ export function consumeSemicolon(parser: Parser, context: Context): void | boole
 }
 
 /**
-* Bit fiddle current grammar state and keep track of the state during the parse and restore
-* it back to original state after finish parsing or throw.
-*
-* Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way.
-*
-* However this implementation is an major improvement over similiar implementations, and
-* does not require additonal bitmasks to be set / unset during the parsing outside this function.
-*
-* @param parser Parser state
-* @param context Context mask
-* @param callback Callback function
-* @param errMsg Optional error message
-*/
+ * Bit fiddle current grammar state and keep track of the state during the parse and restore
+ * it back to original state after finish parsing or throw.
+ *
+ * Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way.
+ *
+ * However this implementation is an major improvement over similiar implementations, and
+ * does not require additonal bitmasks to be set / unset during the parsing outside this function.
+ *
+ * @param parser Parser state
+ * @param context Context mask
+ * @param callback Callback function
+ * @param errMsg Optional error message
+ */
 export function parseExpressionCoverGrammar < T > (
   parser: Parser,
   context: Context,
@@ -226,12 +226,12 @@ export function parseExpressionCoverGrammar < T > (
 }
 
 /**
-* Restor current grammar to previous state, or unset necessary bitmasks
-*
-* @param parser Parser state
-* @param context Context mask
-* @param callback Callback function
-*/
+ * Restor current grammar to previous state, or unset necessary bitmasks
+ *
+ * @param parser Parser state
+ * @param context Context mask
+ * @param callback Callback function
+ */
 export function restoreExpressionCoverGrammar < T > (
   parser: Parser,
   context: Context,
@@ -265,16 +265,16 @@ export function restoreExpressionCoverGrammar < T > (
 }
 
 /**
-* Set / unset yield / await context masks based on the
-* ModifierState masks before invoking the callback and
-* returning it's content
-*
-* @param parser Parser object
-* @param context Context masks
-* @param state Modifier state
-* @param callback Callback function to be invoked
-* @param methodState Optional Objectstate.
-*/
+ * Set / unset yield / await context masks based on the
+ * ModifierState masks before invoking the callback and
+ * returning it's content
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param state Modifier state
+ * @param callback Callback function to be invoked
+ * @param methodState Optional Objectstate.
+ */
 
 export function swapContext < T > (
   parser: Parser,
@@ -290,17 +290,17 @@ export function swapContext < T > (
 }
 
 /**
-* Validates function params
-*
-* Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar
-* object on the parser object itself. Then push / set the tokenValue to
-* it an use an bitmask to mark it as an 'variable' not 'blockscope'. Then when
-* implementing lexical scoping, you can use that for validation.
-*
-* @param parser  Parser object
-* @param context Context masks
-* @param params Array of token values
-*/
+ * Validates function params
+ *
+ * Note! In case anyone want to enable full scoping, replace 'paramSet' with an similiar
+ * object on the parser object itself. Then push / set the tokenValue to
+ * it an use an bitmask to mark it as an 'variable' not 'blockscope'. Then when
+ * implementing lexical scoping, you can use that for validation.
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ * @param params Array of token values
+ */
 
 export function validateParams(parser: Parser, context: Context, params: string[]): void {
   const paramSet: any = new Map();
@@ -313,13 +313,13 @@ export function validateParams(parser: Parser, context: Context, params: string[
 }
 
 /**
-* Reinterpret various expressions as pattern
-* This is only used for assignment and arrow parameter list
-*
-* @param parser  Parser object
-* @param context Context masks
-* @param node AST node
-*/
+ * Reinterpret various expressions as pattern
+ * This is only used for assignment and arrow parameter list
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ * @param node AST node
+ */
 
 export const reinterpret = (parser: Parser, context: Context, node: any) => {
   switch (node.type) {
@@ -385,12 +385,12 @@ export const reinterpret = (parser: Parser, context: Context, node: any) => {
 };
 
 /**
-* Does a lookahead.
-*
-* @param parser Parser object
-* @param context  Context masks
-* @param callback Callback function to be invoked
-*/
+ * Does a lookahead.
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ * @param callback Callback function to be invoked
+ */
 export function lookahead < T > (parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): T {
   const {
       tokenValue,
@@ -430,21 +430,21 @@ export function lookahead < T > (parser: Parser, context: Context, callback: (pa
 }
 
 /**
-* Returns true if this an valid simple assignment target
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Returns true if this an valid simple assignment target
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
   return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
 
 /**
-* Get current node location
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Get current node location
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function getLocation(parser: Parser): Location {
   return {
       line: parser.startLine,
@@ -454,11 +454,11 @@ export function getLocation(parser: Parser): Location {
 }
 
 /**
-* Returns true if this is an valid identifier
-*
-* @param context  Context masks
-* @param t  Token
-*/
+ * Returns true if this is an valid identifier
+ *
+ * @param context  Context masks
+ * @param t  Token
+ */
 export function isValidIdentifier(context: Context, t: Token): boolean {
   if (context & Context.Strict) {
       if (context & Context.Module && t & Token.IsAwait) return false;
@@ -475,11 +475,11 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 }
 
 /**
-* Returns true if this an valid lexical binding and not an identifier
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Returns true if this an valid lexical binding and not an identifier
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function isLexical(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   const {
@@ -493,10 +493,10 @@ export function isLexical(parser: Parser, context: Context): boolean {
 }
 
 /**
-* Returns true if this is end of case or default clauses
-*
-* @param parser Parser object
-*/
+ * Returns true if this is end of case or default clauses
+ *
+ * @param parser Parser object
+ */
 export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
   return (
       parser.token === Token.DefaultKeyword || parser.token === Token.RightBrace || parser.token === Token.CaseKeyword
@@ -504,22 +504,22 @@ export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
 }
 
 /**
-* Validates if the next token in the stream is a left paren or a period
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Validates if the next token in the stream is a left paren or a period
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.Period;
 }
 
 /**
-* Validates if the next token in the stream is a identifier or left paren
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Validates if the next token in the stream is a identifier or left paren
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): boolean | number {
   nextToken(parser, context);
   const {
@@ -529,43 +529,43 @@ export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): 
 }
 
 /**
-* Validates if the next token in the stream is left parenthesis.
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Validates if the next token in the stream is left parenthesis.
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return parser.token === Token.LeftParen;
 }
 
 /**
-* Validates if the next token in the stream is a function keyword on the same line.
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Validates if the next token in the stream is a function keyword on the same line.
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return !(parser.flags & Flags.NewLine) && parser.token === Token.FunctionKeyword;
 }
 
 /**
-* Checks if the property has any private field key
-*
-* @param parser Parser object
-* @param context  Context masks
-*/
+ * Checks if the property has any private field key
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
 export function isPropertyWithPrivateFieldKey(expr: any): boolean {
   return !expr.property ? false : expr.property.type === 'PrivateName';
 }
 
 /**
-* Validates an identifier and either parse it or throw
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Validates an identifier and either parse it or throw
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function parseAndValidateIdentifier(parser: Parser, context: Context): void | ESTree.Identifier {
   const {
       token
@@ -607,11 +607,11 @@ export function nameIsArgumentsOrEval(value: string): boolean {
 }
 
 /**
-* Records an error from current position. If we report an error later, we'll do it from
-* this position.
-*
-* @param parser Parser object
-*/
+ * Records an error from current position. If we report an error later, we'll do it from
+ * this position.
+ *
+ * @param parser Parser object
+ */
 export function setPendingError(parser: Parser): void {
   parser.errorLocation = {
       line: parser.startLine,
@@ -621,10 +621,10 @@ export function setPendingError(parser: Parser): void {
 }
 
 /**
-* Returns tagName for JSX element
-*
-* @param elementName JSX Element name
-*/
+ * Returns tagName for JSX element
+ *
+ * @param elementName JSX Element name
+ */
 export function isEqualTagNames(
   elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression
 ): string {
@@ -640,10 +640,10 @@ export function isEqualTagNames(
 }
 
 /**
-* Returns true if this is an instance field ( stage 3 proposal)
-*
-* @param parser Parser object
-*/
+ * Returns true if this is an instance field ( stage 3 proposal)
+ *
+ * @param parser Parser object
+ */
 export function isInstanceField(parser: Parser): boolean {
   const {
       token
@@ -652,12 +652,12 @@ export function isInstanceField(parser: Parser): boolean {
 }
 
 /**
-*
-* @param parser Parser object
-* @param context Context masks
-* @param expr  AST expressions
-* @param prefix prefix
-*/
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param expr  AST expressions
+ * @param prefix prefix
+ */
 export function validateUpdateExpression(
   parser: Parser,
   context: Context,
@@ -673,11 +673,11 @@ export function validateUpdateExpression(
 }
 
 /**
-* Record expression error
-*
-* @param parser Parser object
-* @param error Error message
-*/
+ * Record expression error
+ *
+ * @param parser Parser object
+ * @param error Error message
+ */
 export function setPendingExpressionError(parser: Parser, type: Errors): void {
   parser.pendingExpressionError = {
       error: errorMessages[type],
@@ -688,11 +688,11 @@ export function setPendingExpressionError(parser: Parser, type: Errors): void {
 }
 
 /**
-* Validate coer parenthesized expression
-*
-* @param parser Parser object
-* @param state CoverParenthesizedState
-*/
+ * Validate coer parenthesized expression
+ *
+ * @param parser Parser object
+ * @param state CoverParenthesizedState
+ */
 export function validateCoverParenthesizedExpression(
   parser: Parser,
   state: CoverParenthesizedState
@@ -718,11 +718,11 @@ export function validateCoverParenthesizedExpression(
 }
 
 /**
-* Validate coer parenthesized expression
-*
-* @param parser Parser object
-* @param state CoverParenthesizedState
-*/
+ * Validate coer parenthesized expression
+ *
+ * @param parser Parser object
+ * @param state CoverParenthesizedState
+ */
 export function validateAsyncArgumentList(parser: Parser, context: Context, state: CoverCallState): CoverCallState {
   const {
       token
@@ -816,23 +816,23 @@ export function keywordTypeFromName(value: string): string | undefined {
 }
 
 export function iStartOfMappedType(parser: Parser, context: Context): boolean {
-  nextToken(parser, context)
+  nextToken(parser, context);
   if (parser.token === Token.ReadOnlyKeyword) {
-    nextToken(parser, context)
+    nextToken(parser, context);
   }
   if (parser.token !== Token.LeftBracket) {
     return false;
   }
-  nextToken(parser, context)
- if (!(parser.token & Token.IsIdentifier)) return false;
+  nextToken(parser, context);
+  if (!(parser.token & Token.IsIdentifier)) return false;
 
- nextToken(parser, context)
- return parser.token === Token.InKeyword;
+  nextToken(parser, context);
+  return parser.token === Token.InKeyword;
 }
 
 export function isUnambiguouslyIndexSignature(parser: Parser, context: Context): boolean {
-  nextToken(parser, context)
+  nextToken(parser, context);
   if (!(parser.token & Token.IsIdentifier)) return false;
-  nextToken(parser, context)
+  nextToken(parser, context);
   return parser.token === Token.Colon;
 }

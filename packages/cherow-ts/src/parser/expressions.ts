@@ -776,7 +776,7 @@ function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifi
  * @param parser Parser object
  * @param context  context mask
  */
-function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context) {
+function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context): any {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) :
         parseIdentifier(parser, context);
@@ -1579,7 +1579,7 @@ export function parseFormalParameters(
     parser: Parser,
     context: Context,
     state: ObjectState,
-): { params: ESTree.Identifier[]; args: string[]; } {
+): { params: ESTree.Identifier[]; args: string[] } {
 
     // FormalParameterList :
     //   [empty]

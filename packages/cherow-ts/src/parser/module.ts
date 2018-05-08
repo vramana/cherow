@@ -61,7 +61,7 @@ export function parseModuleItemList(parser: Parser, context: Context): (ReturnTy
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseModuleItem(parser: Parser, context: Context) {
+export function parseModuleItem(parser: Parser, context: Context): any {
     switch (parser.token) {
 
         // @decorator
@@ -367,7 +367,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
  * @param context Context masks
  */
 
-function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
+function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]): any {
 
     expect(parser, context, Token.LeftBrace);
 
@@ -425,7 +425,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
  * @param context Context masks
  */
 
-function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
+function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.AsAfterImportStart);
