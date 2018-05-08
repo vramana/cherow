@@ -15,5 +15,5 @@ env:
 script: lerna run test --scope $PACKAGE
 
 branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
+  only:
+  - master
