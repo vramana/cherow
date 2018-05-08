@@ -1,4 +1,4 @@
-import { Token } from 'cherow';
+import { Token, Flags } from 'cherow';
 
 /**
  * The parser options.

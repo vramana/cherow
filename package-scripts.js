@@ -31,7 +31,7 @@ function getConfig(pkgName) {
         before: series.nps('coverage.clean', 'coverage.build'),
         clean: rimraf('build'),
         build: package(`tsc --project ${config('test')}`),
-        run: package('nyc mocha ./build/test/**/*.js'),
+        run: package(`nyc mocha ./build/test/**/*.js`),
         post: crossEnv(`cat ./coverage/lcov.info | ${package('coveralls')}`)
       },
       build: {
@@ -99,6 +99,10 @@ function getConfig(pkgName) {
   if (!(pkgName && pkgName.length)) {
     output.scripts.build.moveTypes.move = copy(`**/*.d.ts dist/types --parents --cwd=.`);
     output.scripts.build.moveTypes.clean = rimraf(`!(dist)**/*.d.ts *.d.ts`);
+  }
+
+  if (pkgName && pkgName.length) {
+    output.scripts.coverage.run = package(`nyc mocha ./build/${pkgName}/test/**/*.js`);
   }
 
   return output;
