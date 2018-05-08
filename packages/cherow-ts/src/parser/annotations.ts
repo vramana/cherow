@@ -5,7 +5,7 @@ import {
   keywordTypeFromName,
   isStartOfFunctionType
 } from '../utilities';
-import { parseIdentifier } from './expressions';
+import { parseIdentifier, parseRestElement } from './expressions';
 import {
   Parser,
   Location,
@@ -79,14 +79,16 @@ function parseTypeParameter(parser: Parser, context: Context): any {
   });
 }
 
-function parseTypeParameters(parser: Parser, context: Context): any {
+function parseTypeParameters(parser: Parser, context: Context ): any {
+  const params: any[] = [];
+  if (parser.token !== Token.LessThan) return params;
   const pos = getLocation(parser);
   if (parser.token === Token.LessThan || parser.token === Token.JSXClose) {
     nextToken(parser, context);
   } else {
     report(parser, Errors.Unexpected);
   }
-  const params: any[] = [];
+
   while (!consume(parser, context, Token.GreaterThan)) {
     params.push(parseTypeParameter(parser, context));
   }
@@ -96,15 +98,17 @@ function parseTypeParameters(parser: Parser, context: Context): any {
   });
 }
 
+
 function parseFunctionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const typeParameters = parseTypeParameters(parser, context);
-
   expect(parser, context, Token.LeftParen);
   const parameters: any[] = [];
-  while (parser.token & Token.IsIdentifier) {
-    parameters.push(parseBindingIdentifier(parser, context));
-    consume(parser, context, Token.Comma);
+    while (parser.token !== Token.RightParen) {
+      parameters.push(parser.token === Token.Ellipsis
+        ? parseRestElement(parser, context)
+        : parseBindingIdentifier(parser, context));
+     consume(parser, context, Token.Comma);
   }
 
   expect(parser, context, Token.RightParen);
@@ -225,8 +229,12 @@ function parseTypeArgumentElements(parser: Parser, context: Context): any {
 
 function parseTypeArguments(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  const params = parseTypeArgumentElements(parser, context);
-
+  expect(parser, context, Token.LessThan);
+  const params: any[] = [];
+  while (parser.token !== Token.GreaterThan) {
+    params.push(parseType(parser, context));
+  }
+  expect(parser, context, Token.GreaterThan);
   return finishNode(context, parser, pos, {
     type: 'TypeParameterInstantiation',
     params

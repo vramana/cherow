@@ -456,4 +456,119 @@ describe('Types', () => {
     }
 });
 
+pass('let x: Array<() => void>;', Context.Empty, {
+  source: 'let x: Array<() => void>;',
+  expected: {
+      "body": [
+        {
+          "declarations": [
+            {
+              "id": {
+                "name": "x",
+                "type": "Identifier",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                      "name": "Array",
+                      "type": "Identifier",
+                    },
+                    "typeParameters": {
+                      "params": [
+                        {
+                          "parameters": [],
+                          "type": "TSFunctionType",
+                          "typeAnnotation": {
+                            "type": "TypeAnnotation",
+                            "typeAnnotation": {
+                              "type": "TSVoidKeyword",
+                            },
+                          },
+                          "typeParameters": []
+                        }
+                      ],
+                      "type": "TypeParameterInstantiation"
+                    }
+                  }
+                }
+              },
+              "init": null,
+              "type": "VariableDeclarator"
+            }
+          ],
+          "kind": "let",
+          "type": "VariableDeclaration"
+        }
+     ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
+pass('let f: (this: number) => void;', Context.Empty, {
+  source: 'let f: (a: number, /*b?: number,*/ ...c: number[]) => void;',
+  expected: {
+      "body": [
+        {
+          "declarations": [
+            {
+              "id": {
+               "name": "f",
+                "type": "Identifier",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                    "parameters": [
+                      {
+                        "name": "a",
+                        "type": "Identifier",
+                        "typeAnnotation": {
+                          "type": "TypeAnnotation",
+                          "typeAnnotation": {
+                            "type": "TSNumberKeyword",
+                          }
+                        }
+                      },
+                     {
+                        "argument": {
+                          "name": "c",
+                          "type": "Identifier",
+                          "typeAnnotation": {
+                            "type": "TypeAnnotation",
+                            "typeAnnotation": {
+                             "elementType": {
+                                "type": "TSNumberKeyword",
+                              },
+                              "type": "TSArrayType",
+                            }
+                          }
+                        },
+                        "type": "RestElement"
+                      }
+                    ],
+                    "type": "TSFunctionType",
+                    "typeAnnotation": {
+                      "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                        "type": "TSVoidKeyword",
+                      }
+                    },
+                    "typeParameters": []
+                  }
+                }
+             },
+              "init": null,
+              "type": "VariableDeclarator",
+            },
+          ],
+          "kind": "let",
+          "type": "VariableDeclaration",
+        },
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
 });
