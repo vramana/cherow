@@ -15,7 +15,7 @@ import {
   ModifierState,
   CoverCallState,
   CoverParenthesizedState,
-  ObjectState
+  ObjectState,
 } from 'cherow';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { parseStatementListItem, parseDirective } from './statements';
@@ -48,7 +48,6 @@ import {
   validateCoverParenthesizedExpression,
   validateAsyncArgumentList
 } from '../utilities';
-import { scanRegularExpression, consumeTemplateBrace } from 'cherow/src/lexer';
 
 /**
  * Expression :
@@ -734,7 +733,7 @@ export function parsePrimaryExpression(parser: IParser, context: Context): any {
             return parseSuperProperty(parser, context);
         case Token.Divide:
         case Token.DivideAssign:
-            scanRegularExpression(parser, context);
+            Scanner.scanRegularExpression(parser, context);
             return parseRegularExpressionLiteral(parser, context);
         case Token.TemplateTail:
             return parseTemplateLiteral(parser, context);
@@ -2156,7 +2155,7 @@ function parseTemplateLiteral(parser: IParser, context: Context): ESTree.Templat
  */
 
 function parseTemplateHead(parser: IParser, context: Context, cooked: string | null = null, raw: string, pos: Location): ESTree.TemplateElement {
-    parser.token = consumeTemplateBrace(parser, context);
+    parser.token = Scanner.consumeTemplateBrace(parser, context);
 
     return finishNode(context, parser, pos, {
         type: 'TemplateElement',

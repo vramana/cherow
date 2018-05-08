@@ -1,0 +1,6 @@
+import { IParser, ESTree, Context } from 'cherow';
+import { parseDirective } from './statements';
+export declare function parseModuleItemList(parser: IParser, context: Context): (ReturnType<typeof parseDirective | typeof parseModuleItem>)[];
+export declare function parseModuleItem(parser: IParser, context: Context): ESTree.ExpressionStatement | ESTree.Decorator[] | ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration | ESTree.ImportDeclaration | ESTree.BlockStatement | ESTree.EmptyStatement | ESTree.DebuggerStatement | ESTree.WithStatement | ESTree.ReturnStatement | ESTree.LabeledStatement | ESTree.BreakStatement | ESTree.ContinueStatement | ESTree.IfStatement | ESTree.SwitchStatement | ESTree.ThrowStatement | ESTree.TryStatement | ESTree.WhileStatement | ESTree.DoWhileStatement | ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement | ESTree.FunctionDeclaration | ESTree.VariableDeclaration | ESTree.ClassDeclaration;
+export declare function parseExportDeclaration(parser: IParser, context: Context): ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration;
+export declare function parseImportDeclaration(parser: IParser, context: Context): ESTree.ImportDeclaration;

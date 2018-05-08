@@ -25,7 +25,7 @@ import {
   isEqualTagNames,
   parseExpressionCoverGrammar
 } from '../utilities';
-import { consumeOpt, fromCodePoint, readNext } from 'cherow/src/lexer/common';
+
 
 // JSX Specification
 // https://facebook.github.io/jsx/
@@ -159,7 +159,7 @@ export function scanJSXToken(parser: IParser): Token {
     const char = parser.source.charCodeAt(parser.index);
     if (char === Chars.LessThan) {
         parser.index++; parser.column++;
-        return consumeOpt(parser, Chars.Slash) ? Token.JSXClose : Token.LessThan;
+        return Scanner.consumeOpt(parser, Chars.Slash) ? Token.JSXClose : Token.LessThan;
     } else if (char === Chars.LeftBrace) {
         parser.index++; parser.column++;
         return Token.LeftBrace;
@@ -390,7 +390,7 @@ function scanJSXString(parser: IParser, context: Context, quote: number): Token 
     let ret = '';
     let ch = parser.source.charCodeAt(parser.index);
     while (ch !== quote) {
-        ret += fromCodePoint(ch);
+        ret += Scanner.fromCodePoint(ch);
         parser.index++; parser.column++;
         ch = parser.source.charCodeAt(parser.index);
         if (parser.index >= parser.source.length) report(parser, Errors.UnterminatedString);
@@ -588,7 +588,7 @@ export function scanJSXIdentifier(parser: IParser): Token {
         const firstCharPosition = parser.index;
         let ch = parser.source.charCodeAt(parser.index);
         while ((parser.index < parser.source.length) && (ch === Chars.Hyphen || (isValidIdentifierPart(ch)))) {
-            ch = readNext(parser);
+            ch = Scanner.readNext(parser);
         }
         parser.tokenValue += parser.source.substr(firstCharPosition, parser.index - firstCharPosition);
     }
