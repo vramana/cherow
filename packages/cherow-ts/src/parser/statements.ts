@@ -1,5 +1,5 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc } from '../token';
+import { Token, tokenDesc, Context, Flags } from 'cherow';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern } from './pattern';
 import { Location, ForStatementType, IParser } from '../types';
@@ -12,9 +12,7 @@ import {
 import { parseExpression, parseIdentifier, parseAssignmentExpression, parseSequenceExpression } from './expressions';
 import {
   expect,
-  Context,
   finishNode,
-  Flags,
   nextToken,
   consume,
   getLocation,

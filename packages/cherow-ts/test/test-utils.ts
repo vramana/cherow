@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as ESTree from '../../cherow/src/estree';
-import { Context } from '../../cherow/src/utilities';
+import { Context } from 'cherow';
 import * as t from 'assert';
 import { parse } from '../src/parser/parser';
 

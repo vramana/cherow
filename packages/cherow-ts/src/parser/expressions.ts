@@ -1,5 +1,5 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc } from '../token';
+import { Token, tokenDesc, Context, Flags } from 'cherow';
 import { scanRegularExpression } from '../lexer/regexp';
 import { consumeTemplateBrace } from '../lexer/template';
 import { Errors, report, tolerant } from '../errors';
@@ -9,10 +9,8 @@ import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
     expect,
-    Context,
     hasBit,
     finishNode,
-    Flags,
     nextToken,
     consume,
     isInstanceField,

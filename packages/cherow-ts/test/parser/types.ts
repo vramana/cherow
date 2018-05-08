@@ -1,5 +1,5 @@
 import { pass } from '../test-utils';
-import { Context } from '../../../cherow/src/utilities';
+import { Context } from 'cherow';
 import * as t from 'assert';
 import { parse } from '../../../cherow/src/parser/parser';
 

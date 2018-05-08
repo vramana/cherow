@@ -3,7 +3,8 @@ import { Token } from '../token';
 import {  Options, Location, IParser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
-import { Context, Flags, nextToken } from '../utilities';
+import { nextToken } from '../utilities';
+import { Context, Flags } from 'cherow';
 
 /**
  * Creates the parser object
@@ -14,7 +15,7 @@ import { Context, Flags, nextToken } from '../utilities';
 export function createParser(
     source: string,
     sourceFile: string | void,
-): IParser {
+): any {
     return {
         // The source code to parse
         source,

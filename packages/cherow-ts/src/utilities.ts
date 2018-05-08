@@ -2,7 +2,7 @@ import * as ESTree from './estree';
 import { Chars } from './chars';
 import { Errors, report, tolerant, errorMessages, constructError } from './errors';
 import { IParser, Location } from './types';
-import { Token, tokenDesc } from './token';
+import { Token, tokenDesc } from 'cherow';
 import { scan } from './lexer/scan';
 import { parseIdentifier } from './parser/expressions';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
