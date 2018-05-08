@@ -1,5 +1,7 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags, consumeTemplateBrace, scanRegularExpression } from 'cherow';
+import { Token, tokenDesc } from '../token';
+import { scanRegularExpression } from '../lexer/regexp';
+import { consumeTemplateBrace } from '../lexer/template';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Location, IParser } from '../types';
@@ -7,8 +9,10 @@ import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
     expect,
+    Context,
     hasBit,
     finishNode,
+    Flags,
     nextToken,
     consume,
     isInstanceField,
@@ -1161,7 +1165,7 @@ export function parseFunctionExpression(parser: IParser, context: Context): ESTr
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
         id,
-    });
+    } as any);
 }
 
 /**
@@ -1200,7 +1204,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: IParser, co
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
         id,
-    });
+    } as any);
 }
 
 /**
@@ -1412,7 +1416,7 @@ function parseMethodDeclaration(parser: IParser, context: Context, state: Object
         generator: !!(state & ObjectState.Generator),
         expression: false,
         id: null,
-    });
+    } as any);
 }
 
 /**
@@ -1473,7 +1477,7 @@ function parseArrowBody(parser: IParser, context: Context, params: any, pos: Loc
         async: !!(state & ModifierState.Await),
         generator: false,
         expression,
-    });
+    } as any);
 }
 
 /**
@@ -1703,7 +1707,7 @@ function parseClassExpression(parser: IParser, context: Context): ESTree.ClassEx
         superClass,
         body,
         decorators
-    } : {
+    } as any : {
         type: 'ClassExpression',
         id,
         superClass,
@@ -1963,7 +1967,7 @@ function parsePrivateMethod(parser: IParser, context: Context, key: any, pos: Lo
         key,
         value,
         decorators
-    } : {
+    } as any : {
         type: 'MethodDefinition',
         kind: 'method',
         static: false,

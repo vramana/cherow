@@ -1,15 +1,17 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
+import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { Location, IParser } from '../types';
 import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
 import {
     expect,
+    Context,
     finishNode,
     nextToken,
     consume,
     getLocation,
     isValidIdentifier,
+    Flags,
     parseExpressionCoverGrammar,
     restoreExpressionCoverGrammar,
     hasBit,
@@ -287,5 +289,5 @@ function parseAssignmentProperty(parser: IParser, context: Context): ESTree.Assi
         value,
         method: false,
         shorthand,
-    });
+    } as any);
 }

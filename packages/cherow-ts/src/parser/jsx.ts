@@ -1,10 +1,11 @@
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
 import { IParser, Location } from '../types';
-import { Token, tokenDesc, Scanner } from 'cherow';
+import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { isValidIdentifierPart } from '../unicode';
 import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
+import { consumeOpt, fromCodePoint, readNext } from '../lexer/common';
 import {
     Context,
     expect,

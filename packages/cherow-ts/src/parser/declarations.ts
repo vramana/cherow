@@ -1,5 +1,5 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
+import { Token, tokenDesc } from '../token';
 import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
 import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
@@ -7,6 +7,7 @@ import { IParser, Location } from '../types';
 import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecorators } from './expressions';
 import {
     expect,
+    Context,
     finishNode,
     consume,
     getLocation,
@@ -49,7 +50,7 @@ export function parseClassDeclaration(parser: IParser, context: Context): ESTree
         superClass,
         body,
         decorators
-    } : {
+    } as any : {
         type: 'ClassDeclaration',
         id,
         superClass,
@@ -101,7 +102,7 @@ function parseFunctionDeclarationBody(parser: IParser, context: Context, state: 
         generator: !!(state & ModifierState.Generator),
         expression: false,
         id,
-    });
+    } as any);
 }
 
 /**

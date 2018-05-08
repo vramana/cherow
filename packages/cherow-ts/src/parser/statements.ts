@@ -1,8 +1,8 @@
 import * as ESTree from '../estree';
-import { Token, tokenDesc } from 'cherow';
+import { Token, tokenDesc } from '../token';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern } from './pattern';
-import { Location, ForStatementType, IParser } from 'cherow';
+import { Location, ForStatementType, IParser } from '../types';
 import {
   parseFunctionDeclaration,
   parseVariableDeclarationList,

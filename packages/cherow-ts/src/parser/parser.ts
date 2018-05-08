@@ -1,9 +1,9 @@
 import * as ESTree from '../estree';
-import { Token, Context, Flags } from 'cherow';
+import { Token } from '../token';
 import {  Options, Location, IParser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
-import { nextToken } from '../utilities';
+import { Context, Flags, nextToken } from '../utilities';
 
 /**
  * Creates the parser object
