@@ -12,7 +12,9 @@ env:
       #- PACKAGE=bar
       #- PACKAGE=baz
 
-script: lerna run test --scope $PACKAGE
+script:
+- lerna bootstrap
+- lerna run test --scope $PACKAGE
 
 branches:
   only:
