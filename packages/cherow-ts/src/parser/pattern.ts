@@ -1,26 +1,45 @@
+import * as ESTree from '../estree';
+import { Token, tokenDesc, Context, Flags } from 'cherow';
+import { Errors, report, tolerant } from '../errors';
+import { Location, IParser } from '../types';
+import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
 import {
-  Parser,
-  Location,
-  ESTree,
-  Context,
-  Flags,
-  getLocation,
-  hasBit,
-  consume,
-  finishNode,
-  isValidIdentifier,
-  parseExpressionCoverGrammar,
-  expect,
-  consumeSemicolon,
-  nextToken,
-  Token,
-  tokenDesc,
-  report,
-  tolerant,
-  Errors,
-  IParser
-} from 'cherow';
-import { parseTypeAnnotation } from './annotations';
+    expect,
+    finishNode,
+    nextToken,
+    consume,
+    getLocation,
+    isValidIdentifier,
+    parseExpressionCoverGrammar,
+    restoreExpressionCoverGrammar,
+    hasBit,
+    setPendingError
+} from '../utilities';
+
+// 12.15.5 Destructuring Assignment
+
+/**
+ * Parses either a binding identifier or binding pattern
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseBindingIdentifierOrPattern(parser: IParser, context: Context, args: string[] = []): ESTree.PatternTop {
+    const { token } = parser;
+    if (token & Token.IsBindingPattern) {
+        return token === Token.LeftBrace ?
+            parserObjectAssignmentPattern(parser, context) :
+            parseArrayAssignmentPattern(parser, context, args);
+    } else if (token & (Token.IsAwait | Token.IsYield)) {
+        if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
+            tolerant(parser, context, Errors.AwaitBindingIdentifier);
+        } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
+            tolerant(parser, context, Errors.YieldBindingIdentifier);
+        }
+    }
+    args.push(parser.tokenValue);
+    return parseBindingIdentifier(parser, context);
+}
 
 /**
  * Parse binding identifier
@@ -31,31 +50,68 @@ import { parseTypeAnnotation } from './annotations';
  * @param context Context masks
  */
 export function parseBindingIdentifier(parser: IParser, context: Context): ESTree.Identifier {
-  const { token } = parser;
-  if (token & Token.IsEvalOrArguments) {
-    if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
-    parser.flags |= Flags.StrictEvalArguments;
-  } else if (context & Context.BlockScope && token === Token.LetKeyword) {
-    // let is disallowed as a lexically bound name
-    tolerant(parser, context, Errors.LetInLexicalBinding);
-  } else if (hasBit(token, Token.FutureReserved)) {
-    if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
-    parser.flags |= Flags.StrictFunctionName;
-  } else if (!isValidIdentifier(context, token)) {
-    tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
-  }
 
-  const pos = getLocation(parser);
-  const name = parser.tokenValue;
+    const { token } = parser;
+    if (token & Token.IsEvalOrArguments) {
+        if (context & Context.Strict) tolerant(parser, context, Errors.StrictLHSAssignment);
+        parser.flags |= Flags.StrictEvalArguments;
+    } else if (context & Context.BlockScope && token === Token.LetKeyword) {
+        // let is disallowed as a lexically bound name
+        tolerant(parser, context, Errors.LetInLexicalBinding);
+    } else if (hasBit(token, Token.FutureReserved)) {
+        if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
+        parser.flags |= Flags.StrictFunctionName;
+    } else if (!isValidIdentifier(context, token)) {
+        tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));
+    }
 
-  nextToken(parser, context);
+    const pos = getLocation(parser);
+    const name = parser.tokenValue;
+    nextToken(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'Identifier',
+        name,
+    });
+}
 
-  return finishNode(context, parser, pos, {
-    type: 'Identifier',
-    name,
-    optional: false,
-    typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
-  });
+/**
+ * Parse assignment rest element
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseAssignmentRestElement(parser: IParser, context: Context, args: string[]): ESTree.RestElement {
+    const pos = getLocation(parser);
+    expect(parser, context, Token.Ellipsis);
+    const argument = parseBindingIdentifierOrPattern(parser, context, args);
+    if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
+    return finishNode(context, parser, pos, {
+        type: 'RestElement',
+        argument,
+    });
+}
+
+/**
+ * Parse rest property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function AssignmentRestProperty(parser: IParser, context: Context): ESTree.RestElement {
+    const pos = getLocation(parser);
+    expect(parser, context, Token.Ellipsis);
+    const { token } = parser;
+    const argument = parseBindingIdentifierOrPattern(parser, context);
+    if (hasBit(token, Token.IsBindingPattern)) tolerant(parser, context, Errors.InvalidRestBindingPattern);
+    if (parser.token === Token.Comma) tolerant(parser, context, Errors.RestWithComma);
+    return finishNode(context, parser, pos, {
+        type: 'RestElement',
+        argument,
+    });
 }
 
 /**
@@ -82,36 +138,154 @@ export function parseBindingIdentifier(parser: IParser, context: Context): ESTre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser object
+ * @param {IParser} Parser object
  * @param {context} Context masks
  */
-
 function parseArrayAssignmentPattern(parser: IParser, context: Context, args: string[]): ESTree.ArrayPattern {
-  const pos = getLocation(parser);
 
-  expect(parser, context, Token.LeftBracket);
+    const pos = getLocation(parser);
 
-  const elements: (ESTree.Node | null)[] = [];
+    expect(parser, context, Token.LeftBracket);
 
-  while (parser.token !== Token.RightBracket) {
-    if (consume(parser, context, Token.Comma)) {
-      elements.push(null);
-    } else {
-      if (parser.token === Token.Ellipsis) {
-        elements.push(Parser.parseAssignmentRestElement(parser, context, args));
-        break;
-      } else {
-        elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, Parser.parseBindingInitializer));
-      }
-      if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
+    const elements: (ESTree.Node | null)[] = [];
+
+    while (parser.token !== Token.RightBracket) {
+        if (consume(parser, context, Token.Comma)) {
+            elements.push(null);
+        } else {
+            if (parser.token === Token.Ellipsis) {
+                elements.push(parseAssignmentRestElement(parser, context, args));
+                break;
+            } else {
+                elements.push(parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseBindingInitializer));
+            }
+            if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
+        }
     }
-  }
 
-  expect(parser, context, Token.RightBracket);
+    expect(parser, context, Token.RightBracket);
 
-  return finishNode(context, parser, pos, {
-    type: 'ArrayPattern',
-    elements,
-    typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
-  } as any);
+    // tslint:disable-next-line:no-object-literal-type-assertion
+    return finishNode(context, parser, pos, {
+        type: 'ArrayPattern',
+        elements,
+    } as ESTree.ArrayPattern);
+}
+
+/**
+ * Parse object assignment pattern
+ *
+ * @param Parser Parser object
+ * @param Context Context masks
+ */
+function parserObjectAssignmentPattern(parser: IParser, context: Context): ESTree.ObjectPattern {
+    const pos = getLocation(parser);
+    const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+    expect(parser, context, Token.LeftBrace);
+
+    while (parser.token !== Token.RightBrace) {
+        if (parser.token === Token.Ellipsis) {
+            properties.push(AssignmentRestProperty(parser, context));
+            break;
+        }
+        properties.push(parseAssignmentProperty(parser, context));
+        if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
+    }
+
+    expect(parser, context, Token.RightBrace);
+
+    return finishNode(context, parser, pos, {
+        type: 'ObjectPattern',
+        properties,
+    });
+}
+
+/** Parse assignment pattern
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param left LHS of assignment pattern
+ * @param pos Location
+ */
+export function parseAssignmentPattern(
+    parser: IParser,
+    context: Context,
+    left: ESTree.PatternTop,
+    pos: Location,
+): ESTree.AssignmentPattern {
+    return finishNode(context, parser, pos, {
+        type: 'AssignmentPattern',
+        left,
+        right: parseExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression),
+    });
+}
+
+/**
+ * Parse binding initializer
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function parseBindingInitializer(parser: IParser, context: Context): ESTree.AssignmentPattern {
+    const pos = getLocation(parser);
+    const left: any = parseBindingIdentifierOrPattern(parser, context);
+    return !consume(parser, context, Token.Assign) ?
+        left :
+        finishNode(context, parser, pos, {
+            type: 'AssignmentPattern',
+            left,
+            right: parseAssignmentExpression(parser, context | Context.AllowIn),
+        });
+}
+
+/**
+ * Parse assignment property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentProperty)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseAssignmentProperty(parser: IParser, context: Context): ESTree.AssignmentProperty {
+
+    const pos = getLocation(parser);
+    const { token } = parser;
+    let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
+    let value;
+    let computed = false;
+    let shorthand = false;
+    // single name binding
+    if (token & (Token.IsIdentifier | Token.Keyword)) {
+        key = parseIdentifier(parser, context);
+        shorthand = !consume(parser, context, Token.Colon);
+        if (shorthand) {
+            const hasInitializer = consume(parser, context, Token.Assign);
+            if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
+            if (!isValidIdentifier(context, token)) tolerant(parser, context, Errors.UnexpectedReserved);
+            value = hasInitializer ? parseAssignmentPattern(parser, context, key, pos) : key;
+        } else value = parseBindingInitializer(parser, context);
+    } else {
+        computed = token === Token.LeftBracket;
+        key = parsePropertyName(parser, context);
+        expect(parser, context, Token.Colon);
+        value = parseExpressionCoverGrammar(parser, context, parseBindingInitializer);
+    }
+
+    // Note! The specs specifically state that this is "assignment property", but
+    // nothing in ESTree specs explains the difference between this "property" and the "property" for object literals.
+    return finishNode(context, parser, pos, {
+        type: 'Property',
+        kind: 'init',
+        key,
+        computed,
+        value,
+        method: false,
+        shorthand,
+    });
 }
