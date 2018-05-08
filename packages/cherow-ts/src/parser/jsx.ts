@@ -26,7 +26,6 @@ import {
   parseExpressionCoverGrammar
 } from '../utilities';
 
-
 // JSX Specification
 // https://facebook.github.io/jsx/
 

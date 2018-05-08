@@ -19,7 +19,8 @@ describe('Types', () => {
       'let x: -1;',
       'let precedence1: number | string & boolean;',
       'let precedence2: number & string | boolean;',
-      'let x: T;'
+      'let x: T;',
+      'let x: Array<number>;'
     ];
 
     for (const arg of validSyntax) {

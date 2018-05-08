@@ -1,3 +1,5 @@
+import { keywordTypeFromName, isStartOfFunctionType } from '../utilities';
+import { parseIdentifier } from './expressions';
 import {
   IParser,
   Location,
@@ -15,8 +17,6 @@ import {
   consumeSemicolon,
   nextToken
 } from 'cherow';
-import { keywordTypeFromName } from '../utilities';
-import { parseIdentifier } from './expressions';
 
 // AST from Babylon / ESLint
 
@@ -61,21 +61,35 @@ function parseIntersectionType(parser: IParser, context: Context): any {
   } as any);
 }
 
-/*
-* Parse TS union types
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+function parseFunctionType(parser: IParser, context: Context): any {
+  const pos = getLocation(parser);
+  return finishNode(context, parser, pos, {
+    type: 'TSFunctionType',
+  } as any);
+}
+
+function parseConstructorType(parser: IParser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.NewKeyword);
+  return finishNode(context, parser, pos, {
+    type: 'TSConstructorType',
+  } as any);
+}
+
+function parseType(parser: IParser, context: Context): any {
+  if (isStartOfFunctionType(parser, context)) {
+    return parseFunctionType(parser, context);
+  } else if (consume(parser, context, Token.NewKeyword)) {
+    return parseConstructorType(parser, context);
+  }
+  return parseUnionType(parser, context);
+}
+
 function parseUnionType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
-
   const tsType = parseIntersectionType(parser, context);
-
   if (parser.token !== Token.BitwiseOr) return tsType;
-
   const types = [tsType];
-
   while (consume(parser, context, Token.BitwiseOr)) {
     types.push(parseIntersectionType(parser, context));
   }
@@ -84,14 +98,6 @@ function parseUnionType(parser: IParser, context: Context): any {
     type: 'TSUnionType',
     types
   } as any);
-}
-
-function parseType(parser: IParser, context: Context): any {
-  return parseUnionType(parser, context);
-}
-
-function parseBindingList(parser: IParser, context: Context): any {
-  return parseIdentifier(parser, context);
 }
 
 function parseMappedType(parser: IParser, context: Context, pos: Location): any {
@@ -123,6 +129,7 @@ function parseIdentifierTypedNode(parser: IParser, context: Context): any {
       type: keywordTypeFromName(parser.tokenValue)
     } as any);
   }
+
   return parseTypeReference(parser, context);
 }
 
@@ -217,7 +224,18 @@ function parseThisTypePredicate(parser: IParser, context: Context, parameterName
   } as any);
 }
 
-export function parseTypeAnnotation(parser: IParser, context: Context, consumeColon: boolean = true): any {
+/**
+ * Parse type annotation
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ * @param consumeColon True if should consume semicolon
+ */
+export function parseTypeAnnotation(
+  parser: IParser,
+  context: Context,
+  consumeColon: boolean = true
+): any {
   const pos = getLocation(parser);
   if (consumeColon) expect(parser, context, Token.Colon);
   return finishNode(context, parser, pos, {
@@ -265,6 +283,7 @@ function parseLiteralTypedNode(parser: IParser, context: Context): any {
 }
 
 function parseNonArrayType(parser: IParser, context: Context): any {
+
   switch (parser.token) {
     case Token.Identifier:
       return parseIdentifierTypedNode(parser, context);
@@ -392,19 +411,17 @@ function parseArrayType(parser: IParser, context: Context): any {
   return elementType;
 }
 
-function parseTypeOperatorWithOperatpr(parser: IParser, context: Context, token: Token): any {
+function parseTypeOperator(parser: IParser, context: Context): any {
+  if (parser.token !== Token.KeyOfKeyword) {
+    return parseArrayType(parser, context);
+}
   const pos = getLocation(parser);
-  expect(parser, context, token);
+  expect(parser, context, Token.KeyOfKeyword);
 
   return finishNode(context, parser, pos, {
-    type: 'TSTypeOperator',
-    operator: tokenDesc(token),
-    typeAnnotation: parseTypeOperator(parser, context)
-  } as any);
-}
+        type: 'TSTypeOperator',
+        operator: tokenDesc(Token.KeyOfKeyword),
+        typeAnnotation: parseTypeOperator(parser, context)
+    } as any);
 
-function parseTypeOperator(parser: IParser, context: Context): any {
-  return parser.token === Token.KeyOfKeyword
-    ? parseTypeOperatorWithOperatpr(parser, context, Token.KeyOfKeyword)
-    : parseArrayType(parser, context);
 }
