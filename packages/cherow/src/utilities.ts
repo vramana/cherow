@@ -208,7 +208,7 @@ export function hasLabel(parser: IParser, label: string): Labels {
  * @param meta Line / column
  * @param node AST node
  */
-export function finishNode<T extends ESTree.Node>(context: Context, parser: IParser, meta: Location, node: Partial<T>): T {
+export function finishNode<T extends ESTree.Node>(context: Context, parser: IParser, meta: Location, node: any): T {
   const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
 
   if (context & Context.OptionsRanges) {
