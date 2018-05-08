@@ -32,7 +32,7 @@ function getConfig(pkgName) {
         clean: rimraf('build'),
         build: package(`tsc --project ${config('test')}`),
         run: package('nyc mocha ./build/test/**/*.js'),
-        post: crossEnv('cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js')
+        post: crossEnv(`cat ./coverage/lcov.info | ${package('coveralls')}`)
       },
       build: {
         default: series.nps('build.before', 'build.all.default', 'build.moveTypes'),

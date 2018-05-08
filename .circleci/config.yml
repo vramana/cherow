@@ -10,11 +10,18 @@ jobs:
       - checkout
       - run: node --version
       - run: npm --version
+      - run: yarn --version
       - restore_cache:
-          key: v1-npm-dependencies-{{ .Branch }}-{{ checksum "package.json" }}
-      - run: npm install
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          - v1-dependencies-
+
+      - run: yarn install --frozen-lockfile
+      - run: ./node_modules/.bin/lerna bootstrap
+      - run: ./node_modules/.bin/lerna run test --scope cherow
+      - run: ./node_modules/.bin/lerna run test --scope cherow-ts
+
       - save_cache:
-          key: v1-npm-dependencies-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
-            - ./node_modules
-      - run: npm run test
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}

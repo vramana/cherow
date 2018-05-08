@@ -1,21 +1,32 @@
 language: node_js
-cache:
-  directories:
-    - ~/.npm
-notifications:
-  email: false
+
+sudo: false
+
 node_js:
   - '8'
+
 env:
   matrix:
     - PACKAGE=cherow
-      #- PACKAGE=bar
-      #- PACKAGE=baz
-
-script:
-- lerna bootstrap
-- lerna run test --scope $PACKAGE
+    #- PACKAGE=cherow-ts
 
 branches:
   only:
-  - master
+  - ci
+
+cache: yarn
+
+matrix:
+  fast_finish: true
+
+install:
+  - yarn install
+  - ./node_modules/.bin/lerna bootstrap
+
+notifications:
+  email: false
+
+script:
+  - ./node_modules/.bin/lerna bootstrap
+  - ./node_modules/.bin/lerna run coverage --scope $PACKAGE
+  - ./node_modules/.bin/lerna run post_coverage --scope $PACKAGE
