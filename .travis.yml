@@ -8,7 +8,7 @@ node_js:
 
 env:
   matrix:
-    - PACKAGE=cherow-ts
+    #- PACKAGE=cherow-ts
     - PACKAGE=cherow
 
 branches:
