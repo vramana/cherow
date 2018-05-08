@@ -53,14 +53,13 @@ function parseMappedTypeParameter(parser: Parser, context: Context): any {
 */
 function parseIntersectionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
+  consume(parser, context, Token.BitwiseAnd);
   const tsType = parseTypeOperator(parser, context);
-
-  if (parser.token !== Token.BitwiseAnd) return tsType;
   const types = [tsType];
   while (consume(parser, context, Token.BitwiseAnd)) {
     types.push(parseTypeOperator(parser, context));
   }
-  return finishNode(context, parser, pos, {
+  return types.length === 1 ? tsType : finishNode(context, parser, pos, {
     type: 'TSIntersectionType',
     types
   });
@@ -152,14 +151,14 @@ function parseType(parser: Parser, context: Context): any {
 
 function parseUnionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  const tsType = parseIntersectionType(parser, context);
-  if (parser.token !== Token.BitwiseOr) return tsType;
-  const types = [tsType];
-  while (consume(parser, context, Token.BitwiseOr)) {
-    types.push(parseIntersectionType(parser, context));
+  consume(parser, context, Token.BitwiseOr);
+  const type = parseIntersectionType(parser, context);
+  const types = [type];
+ while (consume(parser, context, Token.BitwiseOr)) {
+     types.push(parseIntersectionType(parser, context));
   }
-
-  return finishNode(context, parser, pos, {
+  return types.length === 1 ?
+                type : finishNode(context, parser, pos, {
     type: 'TSUnionType',
     types
   } as any);

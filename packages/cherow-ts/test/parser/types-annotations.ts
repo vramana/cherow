@@ -68,7 +68,7 @@ describe('Types', () => {
       //'var a: Map<string, Array<string> >',
       'var x: typeof Y = Y;',
       'var x: typeof Y | number = Y;',
-      //'var a: | 1 | 2, b: & 3 & 4'
+      'var a: | 1 | 2, b: & 3 & 4',
       'var a: Promise<bool>[]',
       'var a: { [a: number]: string; [b: number]: string; };',
       'var foo = bar ? (foo) : number;',
