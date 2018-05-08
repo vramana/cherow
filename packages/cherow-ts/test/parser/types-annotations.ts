@@ -364,4 +364,96 @@ describe('Types', () => {
       }
   });
 
+  pass('let f: <T>(a: T, b: T, c: T) => T;', Context.Empty, {
+    source: 'let f: <T>(a: T, b: T, c: T) => T;',
+    expected: {
+        'body': [{
+            'declarations': [{
+                'id': {
+                    'name': 'f',
+                    'type': 'Identifier',
+                    'typeAnnotation': {
+                        'type': 'TypeAnnotation',
+                        'typeAnnotation': {
+                            'parameters': [{
+                                    'name': 'a',
+                                    'type': 'Identifier',
+                                    'typeAnnotation': {
+                                        'type': 'TypeAnnotation',
+                                        'typeAnnotation': {
+                                            'type': 'TSTypeReference',
+                                            'typeName': {
+                                                'name': 'T',
+                                                'type': 'Identifier',
+                                            },
+                                            'typeParameters': [],
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "b",
+                                    "type": "Identifier",
+                                    "typeAnnotation": {
+                                        "type": "TypeAnnotation",
+                                        "typeAnnotation": {
+                                            "type": "TSTypeReference",
+                                            "typeName": {
+                                                "name": "T",
+                                                "type": "Identifier",
+                                            },
+                                            "typeParameters": [],
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "c",
+                                    "type": "Identifier",
+                                    "typeAnnotation": {
+                                        "type": "TypeAnnotation",
+                                        "typeAnnotation": {
+                                            "type": "TSTypeReference",
+                                            "typeName": {
+                                                "name": "T",
+                                                "type": "Identifier",
+                                            },
+                                            "typeParameters": []
+                                        }
+                                    }
+                                }
+                            ],
+                            'type': 'TSFunctionType',
+                            'typeAnnotation': {
+                                'type': 'TypeAnnotation',
+                                'typeAnnotation': {
+                                    'type': 'TSTypeReference',
+                                    'typeName': {
+                                        'name': 'T',
+                                        'type': 'Identifier',
+                                    },
+                                    'typeParameters': [],
+                                },
+                            },
+                            'typeParameters': {
+                                'params': [{
+                                    'constraint': null,
+                                    'default': null,
+                                    'name': 'T',
+                                    'type': 'TSTypeParameter',
+                                }, ],
+                                'type': 'TSTypeParameterDeclaration'
+                            }
+                        }
+                    }
+                },
+                'init': null,
+                'type': 'VariableDeclarator'
+            }],
+            'kind': 'let',
+            'type': 'VariableDeclaration'
+        }, ],
+        'sourceType': 'script',
+        'type': 'Program'
+    }
+});
+
 });

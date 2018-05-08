@@ -97,7 +97,12 @@ function parseFunctionType(parser: Parser, context: Context): any {
   const typeParameters = parseTypeParameters(parser, context);
 
   expect(parser, context, Token.LeftParen);
-  const parameters = [parseBindingIdentifier(parser, context)];
+  let parameters: any[] = [];
+  while(parser.token & Token.IsIdentifier) {
+   parameters.push(parseBindingIdentifier(parser, context));
+   consume(parser, context, Token.Comma)
+  }
+
   expect(parser, context, Token.RightParen);
   let typeAnnotation: any = null;
   if (parser.token === Token.Arrow) {
