@@ -23,7 +23,7 @@ describe('Types', () => {
       'var command: string[]|string',
       'first: T, second: U',
       'var x = extend({ a: "hello" }, { b: 42 });',
-      // 'var nameNumber: [string, number];',
+       'var nameNumber: [string, number];',
       'let a: any;',
       'let b: boolean;',
       'let ne: never;',
@@ -42,7 +42,6 @@ describe('Types', () => {
       'let x: T[K];',
       'let x: false;',
       'let x: true;',
-      //'type T = ({});',
       'let map: { [P in string]: number; };',
       'let map: { readonly [P in string]?: number; };',
       'let x: "foo";',
@@ -589,4 +588,41 @@ pass('let f: (this: number) => void;', Context.Empty, {
     }
 });
 
+pass('var nameNumber: [string, number];', Context.Empty, {
+  source: 'var nameNumber: [string, number];',
+  expected: {
+      "body": [
+        {
+          "declarations": [
+           {
+              "id": {
+                "name": "nameNumber",
+                "type": "Identifier",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                    "elementTypes": [
+                      {
+                        "type": "TSStringKeyword",
+                      },
+                      {
+                        "type": "TSNumberKeyword",
+                      }
+                   ],
+                    "type": "TSTupleType",
+                  }
+                }
+              },
+              "init": null,
+              "type": "VariableDeclarator"
+            }
+          ],
+          "kind": "var",
+          "type": "VariableDeclaration"
+        }
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
 });

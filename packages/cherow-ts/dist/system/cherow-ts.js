@@ -2682,6 +2682,9 @@ System.register(['cherow'], function (exports, module) {
           });
       }
       function parseTypeParameters(parser, context) {
+          const params = [];
+          if (parser.token !== 167774015)
+              return params;
           const pos = getLocation(parser);
           if (parser.token === 167774015 || parser.token === 25) {
               nextToken(parser, context);
@@ -2689,7 +2692,6 @@ System.register(['cherow'], function (exports, module) {
           else {
               report(parser, 0);
           }
-          const params = [];
           while (!consume(parser, context, 167774016)) {
               params.push(parseTypeParameter(parser, context));
           }
@@ -2702,7 +2704,13 @@ System.register(['cherow'], function (exports, module) {
           const pos = getLocation(parser);
           const typeParameters = parseTypeParameters(parser, context);
           expect(parser, context, 50331659);
-          const parameters = [parseBindingIdentifier(parser, context)];
+          const parameters = [];
+          while (parser.token !== 16) {
+              parameters.push(parser.token === 14
+                  ? parseRestElement(parser, context)
+                  : parseBindingIdentifier(parser, context));
+              consume(parser, context, 16777234);
+          }
           expect(parser, context, 16);
           let typeAnnotation = null;
           if (parser.token === 10) {
@@ -2712,19 +2720,19 @@ System.register(['cherow'], function (exports, module) {
               type: 'TSFunctionType',
               typeParameters,
               parameters,
-              typeAnnotation,
+              typeAnnotation
           });
       }
       function parseTypeOrTypePredicateAnnotation(parser, context, token) {
           expect(parser, context, token);
-          const typePredicateVariable = parser.token & 65536 && ((parser.token === 16777237) ? parseTypeAnnotation(parser, context) : false);
+          const typePredicateVariable = parser.token & 65536 && (parser.token === 16777237 ? parseTypeAnnotation(parser, context) : false);
           return parseTypeAnnotation(parser, context, false);
       }
       function parseConstructorType(parser, context) {
           const pos = getLocation(parser);
           expect(parser, context, 33566811);
           return finishNode(context, parser, pos, {
-              type: 'TSConstructorType',
+              type: 'TSConstructorType'
           });
       }
       function parseType(parser, context) {
@@ -2794,18 +2802,14 @@ System.register(['cherow'], function (exports, module) {
           }
           return entity;
       }
-      function parseTypeArgumentElements(parser, context) {
-          const params = [];
+      function parseTypeArguments(parser, context) {
+          const pos = getLocation(parser);
           expect(parser, context, 167774015);
+          const params = [];
           while (parser.token !== 167774016) {
               params.push(parseType(parser, context));
           }
           expect(parser, context, 167774016);
-          return params;
-      }
-      function parseTypeArguments(parser, context) {
-          const pos = getLocation(parser);
-          const params = parseTypeArgumentElements(parser, context);
           return finishNode(context, parser, pos, {
               type: 'TypeParameterInstantiation',
               params
@@ -2952,19 +2956,14 @@ System.register(['cherow'], function (exports, module) {
               typeAnnotation
           });
       }
-      function parseTupleElementTypes(parser, context) {
-          const pos = getLocation(parser);
-          return finishNode(context, parser, pos, {
-              type: 'TupleElementTypes'
-          });
-      }
       function parseTupleType(parser, context) {
           const pos = getLocation(parser);
           expect(parser, context, 41943059);
-          const elementTypes = [parseTupleElementTypes(parser, context)];
-          while (parser.token === 20) {
+          const elementTypes = [parseType(parser, context)];
+          while (consume(parser, context, 16777234)) {
               elementTypes.push(parseType(parser, context));
           }
+          expect(parser, context, 20);
           return finishNode(context, parser, pos, {
               type: 'TSTupleType',
               elementTypes
@@ -2986,8 +2985,7 @@ System.register(['cherow'], function (exports, module) {
           });
       }
       function parseIndexSignature(parser, context) {
-          if (!(parser.token === 41943059 &&
-              lookahead(parser, context, isUnambiguouslyIndexSignature))) {
+          if (!(parser.token === 41943059 && lookahead(parser, context, isUnambiguouslyIndexSignature))) {
               return undefined;
           }
           const pos = getLocation(parser);
@@ -3135,7 +3133,7 @@ System.register(['cherow'], function (exports, module) {
               argument,
           });
       }
-      function AssignmentRestProperty(parser, context) {
+      function assignmentRestProperty(parser, context) {
           const pos = getLocation$1(parser);
           expect$1(parser, context, 14);
           const { token } = parser;
@@ -3181,7 +3179,7 @@ System.register(['cherow'], function (exports, module) {
           expect$1(parser, context, 41943052);
           while (parser.token !== 17301519) {
               if (parser.token === 14) {
-                  properties.push(AssignmentRestProperty(parser, context));
+                  properties.push(assignmentRestProperty(parser, context));
                   break;
               }
               properties.push(parseAssignmentProperty(parser, context));

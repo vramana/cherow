@@ -1,2 +1,2 @@
-import { IParser, Context } from 'cherow';
-export declare function parseTypeAnnotation(parser: IParser, context: Context, consumeColon?: boolean): any;
+import { Parser, Context } from 'cherow';
+export declare function parseTypeAnnotation(parser: Parser, context: Context, consumeColon?: boolean): any;

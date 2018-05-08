@@ -411,11 +411,11 @@ function parseTupleElementTypes(parser: Parser, context: Context): any {
 function parseTupleType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftBracket);
-  const elementTypes = [parseTupleElementTypes(parser, context)];
-
-  while (parser.token === Token.RightBracket) {
+  const elementTypes = [parseType(parser, context)];
+  while (consume(parser, context, Token.Comma)) {
     elementTypes.push(parseType(parser, context));
   }
+  expect(parser, context, Token.RightBracket);
   return finishNode(context, parser, pos, {
     type: 'TSTupleType',
     elementTypes
