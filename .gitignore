@@ -13,7 +13,6 @@
 /packages/*/.nyc_output
 /packages/*/.rpt2_cache
 package-lock.json
-yarn.lock
 yarn-error.log
 lerna-debug.log
 .rollupcache
