@@ -815,3 +815,25 @@ export function keywordTypeFromName(value: string): string | undefined {
           return undefined;
   }
 }
+
+export function iStartOfMappedType(parser: IParser, context: Context): boolean {
+  nextToken(parser, context)
+  if (parser.token === Token.ReadOnlyKeyword) {
+    nextToken(parser, context)
+  }
+  if (parser.token !== Token.LeftBracket) {
+    return false;
+  }
+  nextToken(parser, context)
+ if (!(parser.token & Token.IsIdentifier)) return false;
+
+ nextToken(parser, context)
+ return parser.token === Token.InKeyword;
+}
+
+export function isUnambiguouslyIndexSignature(parser: IParser, context: Context): boolean {
+  nextToken(parser, context)
+  if (!(parser.token & Token.IsIdentifier)) return false;
+  nextToken(parser, context)
+  return parser.token === Token.Colon;
+}

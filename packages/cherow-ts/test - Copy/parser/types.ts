@@ -20,7 +20,20 @@ describe('Types', () => {
       'let precedence1: number | string & boolean;',
       'let precedence2: number & string | boolean;',
       'let x: T;',
-      'let x: Array<number>;'
+      'let x: Array<number>;',
+      'let x: T[K];',
+      'let x: false;',
+      'let x: true;',
+      //'type T = ({});',
+      'let map: { [P in string]: number; };',
+      'let map: { readonly [P in string]?: number; };',
+      'let x: "foo";',
+      'let x: 0;',
+      'let union: number | null | undefined;',
+      'var numVal:number = otherNumVal;',
+      'var numVal:number;',
+      'var a: {numVal: number; [indexer: string]: number};',
+      'var a: {numVal: number; strVal: string}',
     ];
 
     for (const arg of validSyntax) {
@@ -31,6 +44,40 @@ describe('Types', () => {
             });
         });
     }
+
+    pass('let a: true;', Context.Empty, {
+      source: 'let a: true;',
+      expected: {
+          "body": [
+            {
+              "declarations": [
+                {
+                  "id": {
+                    "name": "a",
+                    "type": "Identifier",
+                    "typeAnnotation": {
+                      "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                       "literal": {
+                          "type": "Literal",
+                          "value": true,
+                        },
+                        "type": "TSLiteralType"
+                      },
+                   },
+                  },
+                  "init": null,
+                  "type": "VariableDeclarator",
+                },
+              ],
+              "kind": "let",
+              "type": "VariableDeclaration",
+            },
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
 
     pass('let a: any;', Context.Empty, {
     source: 'let a: any;',
@@ -196,4 +243,55 @@ describe('Types', () => {
       }
   });
 
+  pass('var a: {numVal: number; strVal: string}', Context.Empty, {
+    source: 'var a: {numVal: number; strVal: string}',
+    expected: {
+        "body": [
+          {
+            "declarations": [
+              {
+                "id": {
+                  "name": "a",
+                  "type": "Identifier",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "members": [
+                        {
+                          "readonly": false,
+                          "type": "TSPropertySignature",
+                          "typeAnnotation": {
+                            "type": "TypeAnnotation",
+                            "typeAnnotation": {
+                              "type": "TSNumberKeyword",
+                            }
+                          }
+                        },
+                        {
+                          "readonly": false,
+                          "type": "TSPropertySignature",
+                          "typeAnnotation": {
+                            "type": "TypeAnnotation",
+                            "typeAnnotation": {
+                              "type": "TSStringKeyword",
+                            }
+                          }
+                        }
+                      ],
+                      "type": "TSTypeLiteral",
+                    }
+                  }
+                },
+                "init": null,
+                "type": "VariableDeclarator"
+              }
+            ],
+            "kind": "var",
+            "type": "VariableDeclaration"
+          }
+        ],
+        "sourceType": "script",
+        "type": "Program"
+      }
+  });
 });

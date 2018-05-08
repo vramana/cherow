@@ -1,4 +1,4 @@
-import { keywordTypeFromName, isStartOfFunctionType } from '../utilities';
+import { iStartOfMappedType, isUnambiguouslyIndexSignature, lookahead, keywordTypeFromName, isStartOfFunctionType } from '../utilities';
 import { parseIdentifier } from './expressions';
 import {
   IParser,
@@ -15,8 +15,10 @@ import {
   finishNode,
   expect,
   consumeSemicolon,
-  nextToken
+  nextToken,
 } from 'cherow';
+import { parseBindingIdentifier } from './pattern';
+
 
 // AST from Babylon / ESLint
 
@@ -61,11 +63,62 @@ function parseIntersectionType(parser: IParser, context: Context): any {
   } as any);
 }
 
+function parseTypeParameter(parser: IParser, context: Context): any {
+  const pos = getLocation(parser);
+  const { tokenValue: name } = parser;
+  nextToken(parser, context)
+  consume(parser, context, Token.Assign)
+  return finishNode(context, parser, pos, {
+    type: 'TSTypeParameter',
+    name,
+    constraint: consume(parser, context, Token.ExtendsKeyword) ? parseType(parser, context) : null,
+    default: consume(parser, context, Token.Assign) ? parseType(parser, context) : null
+  } as any);
+}
+
+function parseTypeParameters(parser: IParser, context: Context) {
+  const pos = getLocation(parser);
+  if (parser.token === Token.LessThan || parser.token === Token.JSXClose) {
+    nextToken(parser, context);
+  } else {
+    report(parser, Errors.Unexpected);
+  }
+  const params: any[] = [];
+  while(!consume(parser, context, Token.GreaterThan)) {
+    params.push(parseTypeParameter(parser, context));
+  }
+  return finishNode(context, parser, pos, {
+    type: 'TSTypeParameterDeclaration',
+    params
+  })
+}
+
 function parseFunctionType(parser: IParser, context: Context): any {
   const pos = getLocation(parser);
+  const typeParameters = parseTypeParameters(parser, context);
+
+  expect(parser, context, Token.LeftParen);
+  const parameters = [parseBindingIdentifier(parser, context)];
+  expect(parser, context, Token.RightParen);
+  let typeAnnotation: any = null;
+  if (parser.token === Token.Arrow) {
+    typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, Token.Arrow);
+
+  }
   return finishNode(context, parser, pos, {
     type: 'TSFunctionType',
+    typeParameters,
+    parameters,
+    typeAnnotation,
   } as any);
+}
+
+function parseTypeOrTypePredicateAnnotation(parser: IParser, context: Context, token: Token): any {
+  expect(parser, context, token);
+
+  const typePredicateVariable = parser.token & Token.IsIdentifier && ((parser.token === Token.Colon) ? parseTypeAnnotation(parser, context) : false)
+  return parseTypeAnnotation(parser, context, false)
+
 }
 
 function parseConstructorType(parser: IParser, context: Context): any {
@@ -82,6 +135,7 @@ function parseType(parser: IParser, context: Context): any {
   } else if (consume(parser, context, Token.NewKeyword)) {
     return parseConstructorType(parser, context);
   }
+
   return parseUnionType(parser, context);
 }
 
@@ -100,7 +154,9 @@ function parseUnionType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseMappedType(parser: IParser, context: Context, pos: Location): any {
+function parseMappedType(parser: IParser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.LeftBrace);
   const readonly = consume(parser, context, Token.ReadOnlyKeyword);
   expect(parser, context, Token.LeftBracket);
   const typeParameter = parseMappedTypeParameter(parser, context);
@@ -220,7 +276,7 @@ function parseThisTypePredicate(parser: IParser, context: Context, parameterName
   return finishNode(context, parser, pos, {
     type: 'TSTypePredicate',
     parameterName,
-    typeAnnotation: parseTypeAnnotation(parser, context, /* consumeColon */ false)
+    typeAnnotation: parseTypeAnnotation(parser, context, false)
   } as any);
 }
 
@@ -253,6 +309,7 @@ function parseVoidTypedNode(parser: IParser, context: Context): any {
 }
 
 function parseLiteralTypedNode(parser: IParser, context: Context): any {
+
   const pos = getLocation(parser);
   let literal: any;
   switch (parser.token) {
@@ -263,19 +320,20 @@ function parseLiteralTypedNode(parser: IParser, context: Context): any {
     case Token.TrueKeyword:
       literal = {
         type: 'Literal',
-        value: false
+        value: true
       };
+      nextToken(parser, context);
       break;
     case Token.FalseKeyword:
       literal = {
         type: 'Literal',
         value: false
       };
+      nextToken(parser, context);
       break;
     default:
       report(parser, Errors.Unexpected);
   }
-
   return finishNode(context, parser, pos, {
     type: 'TSLiteralType',
     literal
@@ -310,11 +368,9 @@ function parseNonArrayType(parser: IParser, context: Context): any {
     case Token.TypeofKeyword:
       return parseTypeQuery(parser, context);
     case Token.LeftBrace:
-      const pos = getLocation(parser);
-      expect(parser, context, Token.LeftBrace);
-      if (parser.token === Token.LeftBracket || parser.token === Token.ReadOnlyKeyword)
-        return parseMappedType(parser, context, pos);
-      return parseTypeLiteral(parser, context, pos);
+      return lookahead(parser, context, iStartOfMappedType)
+      ? parseMappedType(parser, context)
+      : parseTypeLiteral(parser, context);
     case Token.LeftBracket:
       return parseTupleType(parser, context);
     case Token.LeftParen:
@@ -357,7 +413,8 @@ function parseTupleType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeLiteral(parser: IParser, context: Context, pos: Location): any {
+function parseTypeLiteral(parser: IParser, context: Context): any {
+  const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TSTypeLiteral',
     members: parseObjectTypeMembers(parser, context)
@@ -373,14 +430,75 @@ function parseTypeQuery(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeMember(parser: IParser, context: Context): any {
-  if (!consume(parser, context, Token.Comma)) {
-    consumeSemicolon(parser, context);
+
+function parseModifier (parser: IParser, allowedModifiers: any): any {
+
+  if (!(parser.token & Token.IsIdentifier)) return undefined;
+  let a = allowedModifiers;
+  return undefined;
+}
+
+
+function parseIndexSignature(parser: IParser, context: Context): any {
+  if (
+    !(
+      parser.token === Token.LeftBracket &&
+      lookahead(parser, context, isUnambiguouslyIndexSignature)
+    )
+  ) {
+    return undefined;
   }
+
+  const pos = getLocation(parser);
+  expect(parser, context, Token.LeftBracket);
+  const id = parseIdentifier(parser, context);
+  const typeAnnotation = parseTypeAnnotation(parser, context, true);
+  expect(parser, context, Token.RightBracket);
+  const type = parser.token === Token.Colon ? parseTypeAnnotation(parser, context, true) : null;
+  if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+    type: 'TSIndexSignature',
+    typeAnnotation: type,
+    parameters: [id]
+  });
+}
+
+function parsePropertyOrMethodSignature(parser: IParser, context: Context, readonly: boolean): any {
+  const pos = getLocation(parser);
+  const key = Parser.parsePropertyName(parser, context);
+  const option = consume(parser, context, Token.QuestionMark);
+  if (!readonly && (parser.token === Token.LeftParen || parser.token === Token.LessThan)) {
+    // this.tsFillSignature(tt.colon, method);
+    if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+      type: 'TSMethodSignature',
+      readonly
+    });
+  } else {
+    const typeAnnotation = parseTypeAnnotation(parser, context);
+    if (parser.token === Token.Semicolon) consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+      type: 'TSPropertySignature',
+      readonly,
+      typeAnnotation
+    });
+  }
+}
+
+
+function parseTypeMember(parser: IParser, context: Context): any {
+  if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
+    // TODO
+  }
+  const readonly = false;
+  const idx = parseIndexSignature(parser, context);
+  if (idx) return idx;
+  return parsePropertyOrMethodSignature(parser, context, readonly);
 }
 
 function parseObjectTypeMembers(parser: IParser, context: Context): any {
   const members: any = [];
+  expect(parser, context, Token.LeftBrace);
   while (parser.token !== Token.RightBrace) {
     members.push(parseTypeMember(parser, context));
   }
