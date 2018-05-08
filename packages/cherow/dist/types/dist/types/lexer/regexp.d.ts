@@ -1,4 +1,4 @@
-import { IParser } from '../types';
+import { Parser } from '../types';
 import { Token } from '../token';
 import { Context } from '../utilities';
-export declare function scanRegularExpression(parser: IParser, context: Context): Token;
+export declare function scanRegularExpression(parser: Parser, context: Context): Token;

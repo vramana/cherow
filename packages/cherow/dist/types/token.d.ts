@@ -147,6 +147,7 @@ export declare const enum Token {
     KeyOfKeyword = 65658,
     ReadOnlyKeyword = 65659,
     IsKeyword = 65660,
+    UniqueKeyword = 65661,
 }
 export declare function tokenDesc(token: Token): string;
 export declare function descKeyword(value: string): Token;

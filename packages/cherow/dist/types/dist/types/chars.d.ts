@@ -11,7 +11,6 @@ export declare const enum CharacterFlags {
     Hexadecimal = 7,
     Decimals = 9,
 }
-export declare const CharacterType: CharacterFlags[];
 export declare const enum Chars {
     MaxAsciiCharacter = 128,
     Null = 0,

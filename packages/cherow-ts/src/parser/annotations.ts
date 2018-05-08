@@ -351,6 +351,7 @@ function parseLiteralTypedNode(parser: Parser, context: Context): any {
 }
 
 function parseNonArrayType(parser: Parser, context: Context): any {
+
   switch (parser.token) {
     case Token.Identifier:
       return parseIdentifierTypedNode(parser, context);
@@ -432,7 +433,7 @@ function parseTypeLiteral(parser: Parser, context: Context): any {
 
 function parseTypeQuery(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-  expect(parser, context, Token.KeyOfKeyword);
+  expect(parser, context, Token.TypeofKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSTypeQuery',
     exprName: parseEntityName(parser, context)
@@ -469,7 +470,20 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
   const key = Parser.parsePropertyName(parser, context);
   const option = consume(parser, context, Token.QuestionMark);
   if (!readonly && (parser.token === Token.LeftParen || parser.token === Token.LessThan)) {
-    // this.tsFillSignature(tt.colon, method);
+    const typeParameters = parseTypeParameters(parser, context);
+    expect(parser, context, Token.LeftParen)
+    const parameters: any[] = [];
+    while (parser.token !== Token.RightParen) {
+      parameters.push(parser.token === Token.Ellipsis
+        ? parseRestElement(parser, context)
+        : parseBindingIdentifier(parser, context));
+     consume(parser, context, Token.Comma);
+  }
+  expect(parser, context, Token.RightParen);
+  let typeAnnotation: any = null;
+  if (parser.token === Token.Colon) {
+    typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
+  }
     if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
       type: 'TSMethodSignature',
@@ -533,9 +547,10 @@ function parseTypeOperator(parser: Parser, context: Context): any {
   if (parser.token !== Token.KeyOfKeyword) {
     return parseArrayType(parser, context);
   }
-  const pos = getLocation(parser);
-  expect(parser, context, Token.KeyOfKeyword);
 
+  const pos = getLocation(parser);
+  //expect(parser, context, Token.KeyOfKeyword);
+nextToken(parser, context);
   return finishNode(context, parser, pos, {
     type: 'TSTypeOperator',
     operator: tokenDesc(Token.KeyOfKeyword),

@@ -1,0 +1,14 @@
+import * as ESTree from './estree';
+import * as Parser from './parser/index';
+import * as Scanner from './lexer/index';
+import { Options } from './types';
+export declare function parseScript(source: string, options?: Options): ESTree.Program;
+export declare function parseModule(source: string, options?: Options): ESTree.Program;
+export declare const version = "__VERSION__";
+export { ESTree, Parser, Scanner };
+export * from './chars';
+export * from './errors';
+export * from './token';
+export * from './types';
+export * from './unicode';
+export * from './utilities';

@@ -1,5 +1,6 @@
 import { Flags } from './utilities';
 import { Token } from './token';
+import * as parser from './parser/index';
 export declare type ForStatementType = 'ForStatement' | 'ForOfStatement' | 'ForInStatement';
 export declare type CommentType = 'MultiLine' | 'SingleLine' | 'SheBang' | 'HTMLOpen' | 'HTMLClose';
 export interface Options {
@@ -18,7 +19,7 @@ export interface Options {
     tolerant?: boolean;
     node?: boolean;
 }
-export interface IParser {
+export interface Parser {
     source: string;
     length: number;
     index: number;
@@ -43,6 +44,9 @@ export interface IParser {
     token: Token;
     errors: any[];
 }
+export declare const Parser: {
+    [P in keyof typeof parser]: typeof parser[P];
+};
 export interface Location {
     index: number;
     column: number;

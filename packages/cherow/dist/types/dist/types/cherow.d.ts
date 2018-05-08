@@ -1,11 +1,9 @@
+import { parse, parseModule, parseScript } from './parser/parser';
 import * as ESTree from './estree';
-import * as Parser from './parser/index';
 import * as Scanner from './lexer/index';
-import { Options } from './types';
-export declare function parseScript(source: string, options?: Options): ESTree.Program;
-export declare function parseModule(source: string, options?: Options): ESTree.Program;
+import { Parser } from './types';
 export declare const version = "1.5.8";
-export { ESTree, Parser, Scanner };
+export { ESTree, Parser, Scanner, parse, parseModule, parseScript };
 export * from './chars';
 export * from './errors';
 export * from './token';

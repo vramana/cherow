@@ -178,6 +178,7 @@ export const enum Token {
     KeyOfKeyword        = 122 | IsIdentifier,
     ReadOnlyKeyword     = 123 | IsIdentifier,
     IsKeyword           = 124 | IsIdentifier,
+    UniqueKeyword       = 125 | IsIdentifier,
 
 }
 
@@ -230,7 +231,7 @@ const keywordDescTable = [
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
 
     /** TS */
-    'KeyOf', 'ReadOnly', 'is'
+    'KeyOf', 'ReadOnly', 'is', 'unique'
 ];
 
 /**
@@ -270,6 +271,7 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     arguments: {value: Token.Arguments},
     keyof: {value: Token.KeyOfKeyword},
     readonly: {value: Token.ReadOnlyKeyword},
+    unique: {value: Token.UniqueKeyword},
     is: {value: Token.IsKeyword},
     as: {value: Token.AsKeyword},
     async: {value: Token.AsyncKeyword},
