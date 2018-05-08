@@ -1,4 +1,4 @@
-import { IParser, Location, report, Errors, Token, tokenDesc, Parser, Flags, ESTree, Context, tolerant } from 'cherow';
+import { Location, report, Errors, Token, tokenDesc, Parser, Flags, ESTree, Context, tolerant } from 'cherow';
 import { parseBindingIdentifier } from './pattern';
 import { parseStatementListItem, parseVariableStatement, parseDirective } from './statements';
 import {
@@ -37,7 +37,7 @@ import {
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseModuleItemList(parser: IParser, context: Context): (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] {
+export function parseModuleItemList(parser: Parser, context: Context): (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] {
 
     // Prime the scanner
     nextToken(parser, context);
@@ -61,7 +61,7 @@ export function parseModuleItemList(parser: IParser, context: Context): (ReturnT
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseModuleItem(parser: IParser, context: Context) {
+export function parseModuleItem(parser: Parser, context: Context) {
     switch (parser.token) {
 
         // @decorator
@@ -92,7 +92,7 @@ export function parseModuleItem(parser: IParser, context: Context) {
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseExportDeclaration(parser: IParser, context: Context): ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration {
+export function parseExportDeclaration(parser: Parser, context: Context): ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration {
 
     const pos = getLocation(parser);
     const specifiers: ESTree.ExportSpecifier[] = [];
@@ -188,7 +188,7 @@ export function parseExportDeclaration(parser: IParser, context: Context): ESTre
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseExportAllDeclaration(parser: IParser, context: Context, pos: Location): ESTree.ExportAllDeclaration {
+function parseExportAllDeclaration(parser: Parser, context: Context, pos: Location): ESTree.ExportAllDeclaration {
     expect(parser, context, Token.Multiply);
     const source = parseModuleSpecifier(parser, context);
     consumeSemicolon(parser, context);
@@ -204,7 +204,7 @@ function parseExportAllDeclaration(parser: IParser, context: Context, pos: Locat
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseNamedExportDeclaration(parser: IParser, context: Context): ESTree.ExportSpecifier {
+function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.ExportSpecifier {
     const pos = getLocation(parser);
     // ExportSpecifier :
     // IdentifierName
@@ -231,7 +231,7 @@ function parseNamedExportDeclaration(parser: IParser, context: Context): ESTree.
  * @param context Context masks
  * @param pos Location
  */
-function parseExportDefault(parser: IParser, context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
+function parseExportDefault(parser: Parser, context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
 
     expect(parser, context | Context.DisallowEscapedKeyword, Token.DefaultKeyword);
 
@@ -278,7 +278,7 @@ function parseExportDefault(parser: IParser, context: Context, pos: Location): E
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseImportDeclaration(parser: IParser, context: Context): ESTree.ImportDeclaration {
+export function parseImportDeclaration(parser: Parser, context: Context): ESTree.ImportDeclaration {
 
     const pos = getLocation(parser);
 
@@ -313,7 +313,7 @@ export function parseImportDeclaration(parser: IParser, context: Context): ESTre
  * @param context Context masks
  */
 
-function parseImportClause(parser: IParser, context: Context): ESTree.Specifiers[] {
+function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[] {
 
     const specifiers: ESTree.Specifiers[] = [];
 
@@ -367,7 +367,7 @@ function parseImportClause(parser: IParser, context: Context): ESTree.Specifiers
  * @param context Context masks
  */
 
-function parseNamedImports(parser: IParser, context: Context, specifiers: ESTree.Specifiers[]) {
+function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
 
     expect(parser, context, Token.LeftBrace);
 
@@ -390,7 +390,7 @@ function parseNamedImports(parser: IParser, context: Context, specifiers: ESTree
  * @param context Context masks
  */
 
-function parseImportSpecifier(parser: IParser, context: Context): ESTree.ImportSpecifier {
+function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSpecifier {
 
     const pos = getLocation(parser);
     const { token } = parser;
@@ -425,7 +425,7 @@ function parseImportSpecifier(parser: IParser, context: Context): ESTree.ImportS
  * @param context Context masks
  */
 
-function parseImportNamespaceSpecifier(parser: IParser, context: Context, specifiers: ESTree.Specifiers[]) {
+function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]) {
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.AsAfterImportStart);
@@ -444,7 +444,7 @@ function parseImportNamespaceSpecifier(parser: IParser, context: Context, specif
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseModuleSpecifier(parser: IParser, context: Context): ESTree.Literal {
+function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal {
     // ModuleSpecifier :
     //   StringLiteral
     expect(parser, context, Token.FromKeyword);
@@ -460,7 +460,7 @@ function parseModuleSpecifier(parser: IParser, context: Context): ESTree.Literal
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseImportDefaultSpecifier(parser: IParser, context: Context): ESTree.ImportDefaultSpecifier {
+function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.ImportDefaultSpecifier {
     return finishNode(context, parser, getLocation(parser), {
         type: 'ImportDefaultSpecifier',
         local: parseIdentifier(parser, context),
@@ -477,7 +477,7 @@ function parseImportDefaultSpecifier(parser: IParser, context: Context): ESTree.
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseAsyncFunctionOrAssignmentExpression(parser: IParser, context: Context): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
+function parseAsyncFunctionOrAssignmentExpression(parser: Parser, context: Context): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | Context.RequireIdentifier) :
         parseAssignmentExpression(parser, context | Context.AllowIn) as any;

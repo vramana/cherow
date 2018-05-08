@@ -1,6 +1,7 @@
 import { CommentType, Node } from './estree';
 import { Flags } from './utilities';
 import { Token } from './token';
+import * as parser from './parser/index';
 
 /**
  * ForStatement types.
@@ -62,7 +63,7 @@ export interface Options {
 /**
  * The parser interface.
  */
-export interface IParser {
+export interface Parser {
   // The source code to parse
   source: string;
 
@@ -114,6 +115,9 @@ export interface IParser {
   token: Token;
   errors: any[];
 }
+
+// tslint:disable-next-line:variable-name
+export const Parser: {[P in keyof typeof parser]: typeof parser[P]} = parser;
 
 /**
  *  Line / column location

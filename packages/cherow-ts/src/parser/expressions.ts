@@ -1,11 +1,10 @@
 import {
-  IParser,
+  Parser,
   Location,
   report,
   Errors,
   Token,
   tokenDesc,
-  Parser,
   consumeSemicolon,
   ESTree,
   Context,
@@ -64,7 +63,7 @@ import {
  * @param context Context masks
  */
 
-export function parseExpression(parser: IParser, context: Context): ESTree.Expression {
+export function parseExpression(parser: Parser, context: Context): ESTree.Expression {
     const pos = getLocation(parser);
     const saveDecoratorContext = parser.flags;
     const expr = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
@@ -80,7 +79,7 @@ export function parseExpression(parser: IParser, context: Context): ESTree.Expre
  * @param context Context masks
  */
 
-export function parseSequenceExpression(parser: IParser, context: Context, left: ESTree.Expression, pos: Location): ESTree.SequenceExpression {
+export function parseSequenceExpression(parser: Parser, context: Context, left: ESTree.Expression, pos: Location): ESTree.SequenceExpression {
     const expressions: ESTree.Expression[] = [left];
     while (consume(parser, context, Token.Comma)) {
         expressions.push(parseExpressionCoverGrammar(parser, context, parseAssignmentExpression));
@@ -100,7 +99,7 @@ export function parseSequenceExpression(parser: IParser, context: Context, left:
  * @param context Context masks
  */
 
-function parseYieldExpression(parser: IParser, context: Context, pos: Location): ESTree.YieldExpression | ESTree.Identifier {
+function parseYieldExpression(parser: Parser, context: Context, pos: Location): ESTree.YieldExpression | ESTree.Identifier {
 
     // YieldExpression[In] :
     //    yield
@@ -156,7 +155,7 @@ function parseYieldExpression(parser: IParser, context: Context, pos: Location):
  * @param context Context masks
  */
 
-export function parseAssignmentExpression(parser: IParser, context: Context): ESTree.Expression {
+export function parseAssignmentExpression(parser: Parser, context: Context): ESTree.Expression {
 
     const pos = getLocation(parser);
 
@@ -242,7 +241,7 @@ export function parseAssignmentExpression(parser: IParser, context: Context): ES
  * @param context Context masks
  */
 
-function parseConditionalExpression(parser: IParser, context: Context, pos: any): ESTree.Expression {
+function parseConditionalExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
     const test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, Token.QuestionMark)) return test;
     const consequent = parseExpressionCoverGrammar(parser, context & ~Context.AllowDecorator | Context.AllowIn, parseAssignmentExpression);
@@ -274,7 +273,7 @@ function parseConditionalExpression(parser: IParser, context: Context, pos: any)
  * @param Left Left hand side of the binary expression
  */
 function parseBinaryExpression(
-    parser: IParser,
+    parser: Parser,
     context: Context,
     minPrec: number,
     pos: Location,
@@ -316,7 +315,7 @@ function parseBinaryExpression(
  * @param pos Location info
  */
 
-function parseAwaitExpression(parser: IParser, context: Context, pos: Location): ESTree.AwaitExpression {
+function parseAwaitExpression(parser: Parser, context: Context, pos: Location): ESTree.AwaitExpression {
     if (context & Context.InParameter) tolerant(parser, context, Errors.AwaitInParameter);
     expect(parser, context, Token.AwaitKeyword);
     return finishNode(context, parser, pos, {
@@ -333,7 +332,7 @@ function parseAwaitExpression(parser: IParser, context: Context, pos: Location):
  * @param parser Parser object
  * @param context Context masks
  */
-function parseUnaryExpression(parser: IParser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
+function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExpression | ESTree.Expression {
     const pos = getLocation(parser);
     const { token } = parser;
 
@@ -370,7 +369,7 @@ function parseUnaryExpression(parser: IParser, context: Context): ESTree.UnaryEx
  * @param parser Parser object
  * @param context Context masks
  */
-function parseUpdateExpression(parser: IParser, context: Context, pos: Location): ESTree.Expression {
+function parseUpdateExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     const { token } = parser;
     if (hasBit(parser.token, Token.IsUpdateOp)) {
         nextToken(parser, context);
@@ -410,7 +409,7 @@ function parseUpdateExpression(parser: IParser, context: Context, pos: Location)
  * @param context Context masks
  */
 
-export function parseRestElement(parser: IParser, context: Context, args: string[] = []): any {
+export function parseRestElement(parser: Parser, context: Context, args: string[] = []): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     if (context & Context.InParen && parser.token & Token.IsAwait) parser.flags |= Flags.HasAwait;
@@ -429,7 +428,7 @@ export function parseRestElement(parser: IParser, context: Context, args: string
  * @param parser Parser object
  * @param context Context masks
  */
-function parseSpreadElement(parser: IParser, context: Context): any {
+function parseSpreadElement(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
@@ -449,7 +448,7 @@ function parseSpreadElement(parser: IParser, context: Context): any {
  * @param pos Location info
  */
 
-export function parseLeftHandSideExpression(parser: IParser, context: Context, pos: Location): ESTree.Expression {
+export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     const expr = context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
         parseCallImportOrMetaProperty(parser, context | Context.AllowIn) :
         parseMemberExpression(parser, context | Context.AllowIn, pos);
@@ -468,7 +467,7 @@ export function parseLeftHandSideExpression(parser: IParser, context: Context, p
  */
 
 function parseMemberExpression(
-    parser: IParser,
+    parser: Parser,
     context: Context,
     pos: Location,
     expr: ESTree.CallExpression | ESTree.Expression = parsePrimaryExpression(parser, context),
@@ -537,7 +536,7 @@ function parseMemberExpression(
  * @param pos Line / Colum info
  * @param expr Expression
  */
-function parseCallExpression(parser: IParser, context: Context, pos: Location, expr: ESTree.Expression): ESTree.Expression | ESTree.CallExpression {
+function parseCallExpression(parser: Parser, context: Context, pos: Location, expr: ESTree.Expression): ESTree.Expression | ESTree.CallExpression {
 
     while (true) {
         expr = parseMemberExpression(parser, context, pos, expr);
@@ -560,7 +559,7 @@ function parseCallExpression(parser: IParser, context: Context, pos: Location, e
  * @param context Context masks
  */
 
-function parserCoverCallExpressionAndAsyncArrowHead(parser: IParser, context: Context): ESTree.Expression {
+function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Context): ESTree.Expression {
     const pos = getLocation(parser);
     let expr = parseMemberExpression(parser, context | Context.AllowIn, pos);
     // Here we jump right into it and parse a simple, faster sub-grammar for
@@ -599,7 +598,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: IParser, context: Co
  * @param Parser Parser object
  * @param Context Context masks
  */
-function parseArgumentList(parser: IParser, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
+function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
     // ArgumentList :
     //   AssignmentOrSpreadExpression
     //   ArgumentList , AssignmentOrSpreadExpression
@@ -636,7 +635,7 @@ function parseArgumentList(parser: IParser, context: Context): (ESTree.Expressio
  * @param Context Context masks
  */
 
-function parseAsyncArgumentList(parser: IParser, context: Context): ESTree.Expression[] {
+function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expression[] {
     // Here we are parsing an "extended" argument list tweaked to handle async arrows. This is
     // done here to avoid overhead and possible performance loss if we only
     // parse out a simple call expression - E.g 'async(foo, bar)' or 'async(foo, bar)()';
@@ -697,7 +696,7 @@ function parseAsyncArgumentList(parser: IParser, context: Context): ESTree.Expre
  * @param Parser Parser object
  * @param Context Context masks
  */
-export function parsePrimaryExpression(parser: IParser, context: Context): any {
+export function parsePrimaryExpression(parser: Parser, context: Context): any {
     switch (parser.token) {
         case Token.NumericLiteral:
         case Token.StringLiteral:
@@ -754,7 +753,7 @@ export function parsePrimaryExpression(parser: IParser, context: Context): any {
  * @param parser Parser object
  * @param context context mask
  */
-function parseLetAsIdentifier(parser: IParser, context: Context): ESTree.Identifier {
+function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifier {
     if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedStrictReserved);
     const pos = getLocation(parser);
     const name = parser.tokenValue;
@@ -777,7 +776,7 @@ function parseLetAsIdentifier(parser: IParser, context: Context): ESTree.Identif
  * @param parser Parser object
  * @param context  context mask
  */
-function parseAsyncFunctionOrIdentifier(parser: IParser, context: Context) {
+function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context) {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) :
         parseIdentifier(parser, context);
@@ -792,7 +791,7 @@ function parseAsyncFunctionOrIdentifier(parser: IParser, context: Context) {
  * @param context Context masks
  */
 
-export function parseIdentifier(parser: IParser, context: Context): ESTree.Identifier {
+export function parseIdentifier(parser: Parser, context: Context): ESTree.Identifier {
     const pos = getLocation(parser);
     const name = parser.tokenValue;
     nextToken(parser, context | Context.TaggedTemplate);
@@ -814,7 +813,7 @@ export function parseIdentifier(parser: IParser, context: Context): ESTree.Ident
  * @param context Context masks
  */
 
-function parseRegularExpressionLiteral(parser: IParser, context: Context): ESTree.RegExpLiteral {
+function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree.RegExpLiteral {
     const pos = getLocation(parser);
     const { tokenRegExp, tokenValue, tokenRaw } = parser;
     nextToken(parser, context);
@@ -838,7 +837,7 @@ function parseRegularExpressionLiteral(parser: IParser, context: Context): ESTre
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseLiteral(parser: IParser, context: Context): ESTree.Literal {
+export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
     const value = parser.tokenValue;
     if (context & Context.Strict && parser.flags & Flags.HasOctal) {
@@ -863,7 +862,7 @@ export function parseLiteral(parser: IParser, context: Context): ESTree.Literal 
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBigIntLiteral(parser: IParser, context: Context): ESTree.Literal {
+export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
     const { tokenValue, tokenRaw } = parser;
     nextToken(parser, context);
@@ -885,7 +884,7 @@ export function parseBigIntLiteral(parser: IParser, context: Context): ESTree.Li
  * @param parser
  * @param context
  */
-function parseNullOrTrueOrFalseLiteral(parser: IParser, context: Context): ESTree.Literal {
+function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
     const { token } = parser;
     const raw = tokenDesc(token);
@@ -909,7 +908,7 @@ function parseNullOrTrueOrFalseLiteral(parser: IParser, context: Context): ESTre
  * @param context Context masks
  */
 
-function parseThisExpression(parser: IParser, context: Context): ESTree.ThisExpression {
+function parseThisExpression(parser: Parser, context: Context): ESTree.ThisExpression {
    if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context,  Errors.InvalidEscapedReservedWord);
    const pos = getLocation(parser);
    nextToken(parser, context | Context.DisallowEscapedKeyword);
@@ -928,7 +927,7 @@ function parseThisExpression(parser: IParser, context: Context): ESTree.ThisExpr
  * @param t token
  */
 
-export function parseIdentifierName(parser: IParser, context: Context, t: Token): ESTree.Identifier {
+export function parseIdentifierName(parser: Parser, context: Context, t: Token): ESTree.Identifier {
     if (!(t & (Token.IsIdentifier | Token.Keyword))) tolerant(parser, context, Errors.UnexpectedKeyword, tokenDesc(t));
     return parseIdentifier(parser, context);
 }
@@ -942,7 +941,7 @@ export function parseIdentifierName(parser: IParser, context: Context, t: Token)
  * @param context Context masks
  */
 
-function parseIdentifierNameOrPrivateName(parser: IParser, context: Context): ESTree.PrivateName | ESTree.Identifier {
+function parseIdentifierNameOrPrivateName(parser: Parser, context: Context): ESTree.PrivateName | ESTree.Identifier {
     if (!consume(parser, context, Token.Hash)) return parseIdentifierName(parser, context, parser.token);
     const { tokenValue } = parser;
     const pos = getLocation(parser);
@@ -982,7 +981,7 @@ function parseIdentifierNameOrPrivateName(parser: IParser, context: Context): ES
  * @param context Context masks
  */
 
-function parseArrayLiteral(parser: IParser, context: Context): ESTree.ArrayExpression {
+function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpression {
 
     const pos = getLocation(parser);
 
@@ -1022,7 +1021,7 @@ function parseArrayLiteral(parser: IParser, context: Context): ESTree.ArrayExpre
  * @param context Context masks
  */
 
-function parseCoverParenthesizedExpressionAndArrowParameterList(parser: IParser, context: Context): any {
+function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, context: Context): any {
     expect(parser, context, Token.LeftParen);
 
     switch (parser.token) {
@@ -1144,7 +1143,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: IParser,
  * @param context Context masks
  */
 
-export function parseFunctionExpression(parser: IParser, context: Context): ESTree.FunctionExpression {
+export function parseFunctionExpression(parser: Parser, context: Context): ESTree.FunctionExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
@@ -1184,7 +1183,7 @@ export function parseFunctionExpression(parser: IParser, context: Context): ESTr
  * @param context Context masks
  */
 
-export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: IParser, context: Context): ESTree.FunctionExpression {
+export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, context: Context): ESTree.FunctionExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.AsyncKeyword);
     expect(parser, context, Token.FunctionKeyword);
@@ -1223,7 +1222,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: IParser, co
  * @param context Context masks
  */
 
-function parseComputedPropertyName(parser: IParser, context: Context): ESTree.Expression {
+function parseComputedPropertyName(parser: Parser, context: Context): ESTree.Expression {
     expect(parser, context, Token.LeftBracket);
     const key = parseAssignmentExpression(parser, context | Context.AllowIn);
     expect(parser, context, Token.RightBracket);
@@ -1239,7 +1238,7 @@ function parseComputedPropertyName(parser: IParser, context: Context): ESTree.Ex
  * @param context Context masks
  */
 
-export function parsePropertyName(parser: IParser, context: Context): ESTree.Expression {
+export function parsePropertyName(parser: Parser, context: Context): ESTree.Expression {
     switch (parser.token) {
         case Token.NumericLiteral:
         case Token.StringLiteral:
@@ -1260,7 +1259,7 @@ export function parsePropertyName(parser: IParser, context: Context): ESTree.Exp
  * @param context Context masks
  */
 
-function parseSpreadProperties(parser: IParser, context: Context): any {
+function parseSpreadProperties(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     if (parser.token & Token.IsBindingPattern) parser.flags &= ~Flags.AllowDestructuring;
@@ -1280,7 +1279,7 @@ function parseSpreadProperties(parser: IParser, context: Context): any {
  * @param context Context masks
  */
 
-export function parseObjectLiteral(parser: IParser, context: Context): ESTree.ObjectExpression {
+export function parseObjectLiteral(parser: Parser, context: Context): ESTree.ObjectExpression {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const properties: ESTree.Property[] = [];
@@ -1310,7 +1309,7 @@ export function parseObjectLiteral(parser: IParser, context: Context): ESTree.Ob
  * @param context Context masks
  */
 
-function parsePropertyDefinition(parser: IParser, context: Context): ESTree.Property {
+function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Property {
     const pos = getLocation(parser);
     const flags = parser.flags;
     let value;
@@ -1409,7 +1408,7 @@ function parsePropertyDefinition(parser: IParser, context: Context): ESTree.Prop
  * @param context Context masks
  */
 
-function parseMethodDeclaration(parser: IParser, context: Context, state: ObjectState): ESTree.FunctionExpression {
+function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectState): ESTree.FunctionExpression {
     const pos = getLocation(parser);
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
@@ -1435,7 +1434,7 @@ function parseMethodDeclaration(parser: IParser, context: Context, state: Object
  * @param context Context masks
  */
 
-function parseArrowFunction(parser: IParser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
+function parseArrowFunction(parser: Parser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, '=>');
     expect(parser, context, Token.Arrow);
@@ -1451,7 +1450,7 @@ function parseArrowFunction(parser: IParser, context: Context, pos: Location, pa
  * @param context Context masks
  */
 
-function parseAsyncArrowFunction(parser: IParser, context: Context, state: ModifierState, pos: Location, params: any): ESTree.ArrowFunctionExpression {
+function parseAsyncArrowFunction(parser: Parser, context: Context, state: ModifierState, pos: Location, params: any): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, 'async');
     expect(parser, context, Token.Arrow);
@@ -1470,7 +1469,7 @@ function parseAsyncArrowFunction(parser: IParser, context: Context, state: Modif
 
 // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
 
-function parseArrowBody(parser: IParser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
+function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
@@ -1497,7 +1496,7 @@ function parseArrowBody(parser: IParser, context: Context, params: any, pos: Loc
  * @param context Context masks
  */
 
-export function parseFormalListAndBody(parser: IParser, context: Context, state: ObjectState) {
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
@@ -1514,7 +1513,7 @@ export function parseFormalListAndBody(parser: IParser, context: Context, state:
  * @param context Context masks
  */
 
-export function parseFunctionBody(parser: IParser, context: Context, params: any): ESTree.BlockStatement {
+export function parseFunctionBody(parser: Parser, context: Context, params: any): ESTree.BlockStatement {
     // Note! The 'params' has an 'any' type now because it's really shouldn't be there. This should have been
     // on the parser object instead. So for now the 'params' arg are only used within the
     // 'parseFormalListAndBody' method, and not within the arrow function body.
@@ -1577,7 +1576,7 @@ export function parseFunctionBody(parser: IParser, context: Context, params: any
  */
 
 export function parseFormalParameters(
-    parser: IParser,
+    parser: Parser,
     context: Context,
     state: ObjectState,
 ): { params: ESTree.Identifier[]; args: string[]; } {
@@ -1644,7 +1643,7 @@ export function parseFormalParameters(
  * @param context Context masks
  */
 
-export function parseFormalParameterList(parser: IParser, context: Context, args: string[]): any {
+export function parseFormalParameterList(parser: Parser, context: Context, args: string[]): any {
 
     const pos = getLocation(parser);
 
@@ -1686,7 +1685,7 @@ export function parseFormalParameterList(parser: IParser, context: Context, args
  * @param context Context masks
  */
 
-function parseClassExpression(parser: IParser, context: Context): ESTree.ClassExpression {
+function parseClassExpression(parser: Parser, context: Context): ESTree.ClassExpression {
     const pos = getLocation(parser);
     let decorators: ESTree.Decorator[] = [];
     if (context & Context.OptionsExperimental) decorators = parseDecorators(parser, context);
@@ -1733,7 +1732,7 @@ function parseClassExpression(parser: IParser, context: Context): ESTree.ClassEx
  * @param context Context masks
  */
 
-export function parseClassBodyAndElementList(parser: IParser, context: Context, state: ObjectState): ESTree.ClassBody {
+export function parseClassBodyAndElementList(parser: Parser, context: Context, state: ObjectState): ESTree.ClassBody {
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
@@ -1773,7 +1772,7 @@ export function parseClassBodyAndElementList(parser: IParser, context: Context, 
  */
 
 export function parseClassElement(
-    parser: IParser,
+    parser: Parser,
     context: Context,
     state: ObjectState,
     decorators: ESTree.Decorator[]
@@ -1879,7 +1878,7 @@ export function parseClassElement(
  * @param context Context masks
  */
 
-function parseFieldDefinition(parser: IParser, context: Context, key: any, state: ObjectState, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition {
+function parseFieldDefinition(parser: Parser, context: Context, key: any, state: ObjectState, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition {
     if (state & ObjectState.Constructor) tolerant(parser, context, Errors.Unexpected);
     let value: ESTree.Expression | null = null;
 
@@ -1914,7 +1913,7 @@ function parseFieldDefinition(parser: IParser, context: Context, key: any, state
  * @param context Context masks
  */
 
-function parsePrivateName(parser: IParser, context: Context, pos: Location): ESTree.PrivateName {
+function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTree.PrivateName {
     const name = parser.tokenValue;
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
@@ -1932,7 +1931,7 @@ function parsePrivateName(parser: IParser, context: Context, pos: Location): EST
  * @param context Context masks
  */
 
-function parsePrivateFields(parser: IParser, context: Context, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
+function parsePrivateFields(parser: Parser, context: Context, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
     const pos = getLocation(parser);
     expect(parser, context | Context.InClass, Token.Hash);
     if (parser.tokenValue === 'constructor') tolerant(parser, context, Errors.PrivateFieldConstructor);
@@ -1963,7 +1962,7 @@ function parsePrivateFields(parser: IParser, context: Context, decorators: ESTre
     });
 }
 
-function parsePrivateMethod(parser: IParser, context: Context, key: any, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.MethodDefinition {
+function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.MethodDefinition {
     const value = parseMethodDeclaration(parser, context | Context.Strict, ObjectState.None);
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
@@ -1992,7 +1991,7 @@ function parsePrivateMethod(parser: IParser, context: Context, key: any, pos: Lo
  * @param context Context masks
  */
 
-function parseCallImportOrMetaProperty(parser: IParser, context: Context): ESTree.Expression {
+function parseCallImportOrMetaProperty(parser: Parser, context: Context): ESTree.Expression {
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
 
@@ -2021,7 +2020,7 @@ function parseCallImportOrMetaProperty(parser: IParser, context: Context): ESTre
  * @param context Context masks
  * @param pos Location
  */
-function parseImportExpression(parser: IParser, context: Context, pos: Location): ESTree.ImportExpression {
+function parseImportExpression(parser: Parser, context: Context, pos: Location): ESTree.ImportExpression {
     return finishNode(context, parser, pos, {
         type: 'Import',
     });
@@ -2038,7 +2037,7 @@ function parseImportExpression(parser: IParser, context: Context, pos: Location)
  * @param pos Location
  */
 
-function parseMetaProperty(parser: IParser, context: Context, meta: ESTree.Identifier, pos: Location): ESTree.MetaProperty {
+function parseMetaProperty(parser: Parser, context: Context, meta: ESTree.Identifier, pos: Location): ESTree.MetaProperty {
     return finishNode(context, parser, pos, {
         meta,
         type: 'MetaProperty',
@@ -2055,7 +2054,7 @@ function parseMetaProperty(parser: IParser, context: Context, meta: ESTree.Ident
  * @param context Context masks
  */
 
-function parseNewExpressionOrMetaProperty(parser: IParser, context: Context): ESTree.NewExpression | ESTree.MetaProperty {
+function parseNewExpressionOrMetaProperty(parser: Parser, context: Context): ESTree.NewExpression | ESTree.MetaProperty {
 
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
@@ -2082,7 +2081,7 @@ function parseNewExpressionOrMetaProperty(parser: IParser, context: Context): ES
  * @param context Context masks
  */
 
-function parseImportOrMemberExpression(parser: IParser, context: Context, pos: Location): ESTree.Expression {
+function parseImportOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     const { token } = parser;
     if (context & Context.OptionsNext && token === Token.ImportKeyword) {
         // Invalid: '"new import(x)"'
@@ -2102,7 +2101,7 @@ function parseImportOrMemberExpression(parser: IParser, context: Context, pos: L
  * @param context Context masks
  */
 
-function parseSuperProperty(parser: IParser, context: Context): ESTree.Super {
+function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
     // SuperProperty[Yield, Await]:
     //  super[Expression[+In, ?Yield, ?Await]]
     //  super.IdentifierName
@@ -2136,7 +2135,7 @@ function parseSuperProperty(parser: IParser, context: Context): ESTree.Super {
  * @param context Context masks
  */
 
-function parseTemplateLiteral(parser: IParser, context: Context): ESTree.TemplateLiteral {
+function parseTemplateLiteral(parser: Parser, context: Context): ESTree.TemplateLiteral {
     const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
         type: 'TemplateLiteral',
@@ -2154,7 +2153,7 @@ function parseTemplateLiteral(parser: IParser, context: Context): ESTree.Templat
  * @param context Context masks
  */
 
-function parseTemplateHead(parser: IParser, context: Context, cooked: string | null = null, raw: string, pos: Location): ESTree.TemplateElement {
+function parseTemplateHead(parser: Parser, context: Context, cooked: string | null = null, raw: string, pos: Location): ESTree.TemplateElement {
     parser.token = Scanner.consumeTemplateBrace(parser, context);
 
     return finishNode(context, parser, pos, {
@@ -2177,7 +2176,7 @@ function parseTemplateHead(parser: IParser, context: Context, cooked: string | n
  */
 
 function parseTemplate(
-    parser: IParser,
+    parser: Parser,
     context: Context,
     expressions: ESTree.Expression[] = [],
     quasis: ESTree.TemplateElement[] = [],
@@ -2213,7 +2212,7 @@ function parseTemplate(
  * @param context Context masks
  */
 
-function parseTemplateSpans(parser: IParser, context: Context, pos: Location = getLocation(parser)): ESTree.TemplateElement {
+function parseTemplateSpans(parser: Parser, context: Context, pos: Location = getLocation(parser)): ESTree.TemplateElement {
     const { tokenValue, tokenRaw } = parser;
 
     expect(parser, context, Token.TemplateTail);
@@ -2234,7 +2233,7 @@ function parseTemplateSpans(parser: IParser, context: Context, pos: Location = g
  * @param parser Parser object
  * @param context Context masks
  */
-function parseDecoratorList(parser: IParser, context: Context): ESTree.Decorator {
+function parseDecoratorList(parser: Parser, context: Context): ESTree.Decorator {
     const pos = getLocation(parser);
     return finishNode(context, parser, pos, {
             type: 'Decorator',
@@ -2248,7 +2247,7 @@ function parseDecoratorList(parser: IParser, context: Context): ESTree.Decorator
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseDecorators(parser: IParser, context: Context): ESTree.Decorator[] {
+export function parseDecorators(parser: Parser, context: Context): ESTree.Decorator[] {
     const decoratorList: ESTree.Decorator[] = [];
     while (consume(parser, context, Token.At)) {
        decoratorList.push(parseDecoratorList(parser, context | Context.AllowDecorator));

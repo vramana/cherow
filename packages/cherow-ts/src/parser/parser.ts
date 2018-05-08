@@ -1,4 +1,4 @@
-import { ESTree, IParser, Token, Flags, Context } from 'cherow';
+import { ESTree, Parser, Token, Flags, Context } from 'cherow';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
 import { Options } from '../types';
@@ -145,11 +145,11 @@ export function parse(source: string, options: Options | void, context: Context)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param {IParser} Parser instance
+ * @param {Parser} Parser instance
  * @param {context} Context masks
  */
 
-export function parseStatementList(parser: IParser, context: Context): ESTree.Statement[] {
+export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
     nextToken(parser, context | Context.DisallowEscapedKeyword);
     while (parser.token === Token.StringLiteral) {

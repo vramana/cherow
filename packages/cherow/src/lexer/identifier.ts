@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { IParser } from '../types';
+import { Parser } from '../types';
 import { Errors, report, tolerant } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
@@ -21,11 +21,11 @@ import {
  * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
- * @param {IParser} Parser instance
+ * @param {Parser} Parser instance
  * @param {context} Context masks
  */
 
-export function scanIdentifier(parser: IParser, context: Context, first ?: number): Token {
+export function scanIdentifier(parser: Parser, context: Context, first ?: number): Token {
     let start = parser.index;
     let ret: string = '';
     let isEscaped = false;
@@ -89,7 +89,7 @@ export function scanIdentifier(parser: IParser, context: Context, first ?: numbe
  * @param first Code point
  */
 
-export function scanMaybeIdentifier(parser: IParser, context: Context, first: number): Token {
+export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
         report(parser, Errors.UnexpectedChar, escapeForPrinting(first));
@@ -100,10 +100,10 @@ export function scanMaybeIdentifier(parser: IParser, context: Context, first: nu
 /**
  * Scan unicode codepoint escape
  *
- * @param {IParser} Parser instance
+ * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanUnicodeCodePointEscape(parser: IParser): string | void {
+function scanUnicodeCodePointEscape(parser: Parser): string | void {
 
     const { index } = parser;
 
@@ -135,10 +135,10 @@ function scanUnicodeCodePointEscape(parser: IParser): string | void {
 /**
  * Scan identifier unicode escape
  *
- * @param {IParser} Parser instance
+ * @param {Parser} Parser instance
  * @param {context} Context masks
  */
-function scanIdentifierUnicodeEscape(parser: IParser): Chars {
+function scanIdentifierUnicodeEscape(parser: Parser): Chars {
 
     // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
     // hex digits between { } is arbitrary. \ and u have already been read.

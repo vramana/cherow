@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import {  Options, Location, IParser } from '../types';
+import {  Options, Location, Parser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
 import { Context, Flags, nextToken } from '../utilities';
@@ -14,7 +14,7 @@ import { Context, Flags, nextToken } from '../utilities';
 export function createParser(
     source: string,
     sourceFile: string | void,
-): IParser {
+): Parser {
     return {
         // The source code to parse
         source,
@@ -146,11 +146,11 @@ export function parse(source: string, options: Options | void, context: Context)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param {IParser} Parser instance
+ * @param {Parser} Parser instance
  * @param {context} Context masks
  */
 
-export function parseStatementList(parser: IParser, context: Context): ESTree.Statement[] {
+export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
     nextToken(parser, context | Context.DisallowEscapedKeyword);
     while (parser.token === Token.StringLiteral) {
@@ -166,4 +166,28 @@ export function parseStatementList(parser: IParser, context: Context): ESTree.St
     }
 
     return statements;
+}
+
+/**
+ * Parse script code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parseScript(source: string, options?: Options): ESTree.Program {
+  return parse(source, options, Context.Empty);
+}
+
+/**
+ * Parse module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parseModule(source: string, options?: Options): ESTree.Program {
+  return parse(source, options, Context.Strict | Context.Module);
 }

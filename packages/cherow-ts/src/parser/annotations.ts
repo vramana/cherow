@@ -1,13 +1,12 @@
 import { iStartOfMappedType, isUnambiguouslyIndexSignature, lookahead, keywordTypeFromName, isStartOfFunctionType } from '../utilities';
 import { parseIdentifier } from './expressions';
 import {
-  IParser,
+  Parser,
   Location,
   report,
   Errors,
   Token,
   tokenDesc,
-  Parser,
   Context,
   Flags,
   getLocation,
@@ -29,7 +28,7 @@ import { parseBindingIdentifier } from './pattern';
  * @param {Context} context Context masks
  * @returns {*}
  */
-function parseMappedTypeParameter(parser: IParser, context: Context): any {
+function parseMappedTypeParameter(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const name = parseIdentifier(parser, context);
   expect(parser, context, Token.InKeyword);
@@ -48,7 +47,7 @@ function parseMappedTypeParameter(parser: IParser, context: Context): any {
 * @returns {*}
 */
 
-function parseIntersectionType(parser: IParser, context: Context): any {
+function parseIntersectionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const tsType = parseTypeOperator(parser, context);
 
@@ -63,7 +62,7 @@ function parseIntersectionType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeParameter(parser: IParser, context: Context): any {
+function parseTypeParameter(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const { tokenValue: name } = parser;
   nextToken(parser, context)
@@ -76,7 +75,7 @@ function parseTypeParameter(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeParameters(parser: IParser, context: Context) {
+function parseTypeParameters(parser: Parser, context: Context) {
   const pos = getLocation(parser);
   if (parser.token === Token.LessThan || parser.token === Token.JSXClose) {
     nextToken(parser, context);
@@ -93,7 +92,7 @@ function parseTypeParameters(parser: IParser, context: Context) {
   })
 }
 
-function parseFunctionType(parser: IParser, context: Context): any {
+function parseFunctionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const typeParameters = parseTypeParameters(parser, context);
 
@@ -113,7 +112,7 @@ function parseFunctionType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeOrTypePredicateAnnotation(parser: IParser, context: Context, token: Token): any {
+function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any {
   expect(parser, context, token);
 
   const typePredicateVariable = parser.token & Token.IsIdentifier && ((parser.token === Token.Colon) ? parseTypeAnnotation(parser, context) : false)
@@ -121,7 +120,7 @@ function parseTypeOrTypePredicateAnnotation(parser: IParser, context: Context, t
 
 }
 
-function parseConstructorType(parser: IParser, context: Context): any {
+function parseConstructorType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.NewKeyword);
   return finishNode(context, parser, pos, {
@@ -129,7 +128,7 @@ function parseConstructorType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseType(parser: IParser, context: Context): any {
+function parseType(parser: Parser, context: Context): any {
   if (isStartOfFunctionType(parser, context)) {
     return parseFunctionType(parser, context);
   } else if (consume(parser, context, Token.NewKeyword)) {
@@ -139,7 +138,7 @@ function parseType(parser: IParser, context: Context): any {
   return parseUnionType(parser, context);
 }
 
-function parseUnionType(parser: IParser, context: Context): any {
+function parseUnionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const tsType = parseIntersectionType(parser, context);
   if (parser.token !== Token.BitwiseOr) return tsType;
@@ -154,7 +153,7 @@ function parseUnionType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseMappedType(parser: IParser, context: Context): any {
+function parseMappedType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftBrace);
   const readonly = consume(parser, context, Token.ReadOnlyKeyword);
@@ -176,7 +175,7 @@ function parseMappedType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseIdentifierTypedNode(parser: IParser, context: Context): any {
+function parseIdentifierTypedNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const tsType: any = keywordTypeFromName(parser.tokenValue);
   if (tsType) {
@@ -189,7 +188,7 @@ function parseIdentifierTypedNode(parser: IParser, context: Context): any {
   return parseTypeReference(parser, context);
 }
 
-function parseEntityName(parser: IParser, context: Context): any {
+function parseEntityName(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   let entity = parseIdentifier(parser, context);
 
@@ -204,7 +203,7 @@ function parseEntityName(parser: IParser, context: Context): any {
   return entity;
 }
 
-function parseTypeArgumentElements(parser: IParser, context: Context): any {
+function parseTypeArgumentElements(parser: Parser, context: Context): any {
   const params: any = [];
   expect(parser, context, Token.LessThan);
 
@@ -216,7 +215,7 @@ function parseTypeArgumentElements(parser: IParser, context: Context): any {
   return params;
 }
 
-function parseTypeArguments(parser: IParser, context: Context): any {
+function parseTypeArguments(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const params = parseTypeArgumentElements(parser, context);
 
@@ -226,7 +225,7 @@ function parseTypeArguments(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeReference(parser: IParser, context: Context): any {
+function parseTypeReference(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const typeName = parseEntityName(parser, context);
   let typeParameters: any = [];
@@ -241,7 +240,7 @@ function parseTypeReference(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseNullTypedNode(parser: IParser, context: Context): any {
+function parseNullTypedNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.NullKeyword);
   return finishNode(context, parser, pos, {
@@ -249,7 +248,7 @@ function parseNullTypedNode(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseSubtractTypeNode(parser: IParser, context: Context): any {
+function parseSubtractTypeNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.Subtract);
   // has to be followed by a numeric value
@@ -261,7 +260,7 @@ function parseSubtractTypeNode(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseThisTypeNode(parser: IParser, context: Context): any {
+function parseThisTypeNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.ThisKeyword);
   return finishNode(context, parser, pos, {
@@ -270,7 +269,7 @@ function parseThisTypeNode(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseThisTypePredicate(parser: IParser, context: Context, parameterName: any): any {
+function parseThisTypePredicate(parser: Parser, context: Context, parameterName: any): any {
   const pos = getLocation(parser);
   nextToken(parser, context);
   return finishNode(context, parser, pos, {
@@ -288,7 +287,7 @@ function parseThisTypePredicate(parser: IParser, context: Context, parameterName
  * @param consumeColon True if should consume semicolon
  */
 export function parseTypeAnnotation(
-  parser: IParser,
+  parser: Parser,
   context: Context,
   consumeColon: boolean = true
 ): any {
@@ -300,7 +299,7 @@ export function parseTypeAnnotation(
   } as any);
 }
 
-function parseVoidTypedNode(parser: IParser, context: Context): any {
+function parseVoidTypedNode(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.VoidKeyword);
   return finishNode(context, parser, pos, {
@@ -308,7 +307,7 @@ function parseVoidTypedNode(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseLiteralTypedNode(parser: IParser, context: Context): any {
+function parseLiteralTypedNode(parser: Parser, context: Context): any {
 
   const pos = getLocation(parser);
   let literal: any;
@@ -340,7 +339,7 @@ function parseLiteralTypedNode(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseNonArrayType(parser: IParser, context: Context): any {
+function parseNonArrayType(parser: Parser, context: Context): any {
 
   switch (parser.token) {
     case Token.Identifier:
@@ -380,7 +379,7 @@ function parseNonArrayType(parser: IParser, context: Context): any {
   }
 }
 
-function parseParenthesizedType(parser: IParser, context: Context): any {
+function parseParenthesizedType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftParen);
   const typeAnnotation = parseType(parser, context);
@@ -392,14 +391,14 @@ function parseParenthesizedType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTupleElementTypes(parser: IParser, context: Context): any {
+function parseTupleElementTypes(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TupleElementTypes'
   } as any);
 }
 
-function parseTupleType(parser: IParser, context: Context): any {
+function parseTupleType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftBracket);
   const elementTypes = [parseTupleElementTypes(parser, context)];
@@ -413,7 +412,7 @@ function parseTupleType(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeLiteral(parser: IParser, context: Context): any {
+function parseTypeLiteral(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TSTypeLiteral',
@@ -421,7 +420,7 @@ function parseTypeLiteral(parser: IParser, context: Context): any {
   } as any);
 }
 
-function parseTypeQuery(parser: IParser, context: Context): any {
+function parseTypeQuery(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.KeyOfKeyword);
   return finishNode(context, parser, pos, {
@@ -431,7 +430,7 @@ function parseTypeQuery(parser: IParser, context: Context): any {
 }
 
 
-function parseModifier (parser: IParser, allowedModifiers: any): any {
+function parseModifier (parser: Parser, allowedModifiers: any): any {
 
   if (!(parser.token & Token.IsIdentifier)) return undefined;
   let a = allowedModifiers;
@@ -439,7 +438,7 @@ function parseModifier (parser: IParser, allowedModifiers: any): any {
 }
 
 
-function parseIndexSignature(parser: IParser, context: Context): any {
+function parseIndexSignature(parser: Parser, context: Context): any {
   if (
     !(
       parser.token === Token.LeftBracket &&
@@ -463,7 +462,7 @@ function parseIndexSignature(parser: IParser, context: Context): any {
   });
 }
 
-function parsePropertyOrMethodSignature(parser: IParser, context: Context, readonly: boolean): any {
+function parsePropertyOrMethodSignature(parser: Parser, context: Context, readonly: boolean): any {
   const pos = getLocation(parser);
   const key = Parser.parsePropertyName(parser, context);
   const option = consume(parser, context, Token.QuestionMark);
@@ -486,7 +485,7 @@ function parsePropertyOrMethodSignature(parser: IParser, context: Context, reado
 }
 
 
-function parseTypeMember(parser: IParser, context: Context): any {
+function parseTypeMember(parser: Parser, context: Context): any {
   if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
     // TODO
   }
@@ -496,7 +495,7 @@ function parseTypeMember(parser: IParser, context: Context): any {
   return parsePropertyOrMethodSignature(parser, context, readonly);
 }
 
-function parseObjectTypeMembers(parser: IParser, context: Context): any {
+function parseObjectTypeMembers(parser: Parser, context: Context): any {
   const members: any = [];
   expect(parser, context, Token.LeftBrace);
   while (parser.token !== Token.RightBrace) {
@@ -506,7 +505,7 @@ function parseObjectTypeMembers(parser: IParser, context: Context): any {
   return members;
 }
 
-function parseArrayType(parser: IParser, context: Context): any {
+function parseArrayType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   let elementType = parseNonArrayType(parser, context);
 
@@ -529,7 +528,7 @@ function parseArrayType(parser: IParser, context: Context): any {
   return elementType;
 }
 
-function parseTypeOperator(parser: IParser, context: Context): any {
+function parseTypeOperator(parser: Parser, context: Context): any {
   if (parser.token !== Token.KeyOfKeyword) {
     return parseArrayType(parser, context);
 }

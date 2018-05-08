@@ -1,11 +1,10 @@
 import {
-  IParser,
+  Parser,
   Location,
   report,
   Errors,
   Token,
   tokenDesc,
-  Parser,
   ESTree,
   Context,
   Flags,
@@ -30,7 +29,7 @@ import { parseIdentifier } from './parser/expressions';
  * @param isContinue true if validation continue statement
  */
 export function validateBreakOrContinueLabel(
-  parser: IParser,
+  parser: Parser,
   context: Context,
   label: string,
   isContinue: boolean
@@ -46,7 +45,7 @@ export function validateBreakOrContinueLabel(
 * @param parser Parser object
 * @param label label
 */
-export function addLabel(parser: IParser, label: string): void {
+export function addLabel(parser: Parser, label: string): void {
   if (parser.labelSet === undefined) parser.labelSet = {};
   parser.labelSet[`$${label}`] = parser.token & Token.IsIterationStatement ? Labels.Nested : Labels.NotNested;
 }
@@ -57,7 +56,7 @@ export function addLabel(parser: IParser, label: string): void {
 * @param parser Parser object
 * @param label label
 */
-export function popLabel(parser: IParser, label: string): void {
+export function popLabel(parser: Parser, label: string): void {
   parser.labelSet[`$${label}`] = Labels.None;
 }
 
@@ -67,7 +66,7 @@ export function popLabel(parser: IParser, label: string): void {
 * @param parser Parser object
 * @param label Label
 */
-export function hasLabel(parser: IParser, label: string): Labels {
+export function hasLabel(parser: Parser, label: string): Labels {
   return !parser.labelSet ? Labels.None : parser.labelSet[`$${label}`];
 }
 
@@ -82,7 +81,7 @@ export function hasLabel(parser: IParser, label: string): Labels {
 */
 export function finishNode < T extends ESTree.Node > (
   context: Context,
-  parser: IParser,
+  parser: Parser,
   meta: Location,
   node: Partial < T >
 ): T {
@@ -125,7 +124,7 @@ export function finishNode < T extends ESTree.Node > (
 * @param t Token
 * @param Err Optionally error message to be thrown
 */
-export function expect(parser: IParser, context: Context, token: Token, err: Errors = Errors.UnexpectedToken): boolean {
+export function expect(parser: Parser, context: Context, token: Token, err: Errors = Errors.UnexpectedToken): boolean {
   if (parser.token !== token) report(parser, err, tokenDesc(parser.token));
   nextToken(parser, context);
   return true;
@@ -139,7 +138,7 @@ export function expect(parser: IParser, context: Context, token: Token, err: Err
 * @param context Context masks
 * @param t Token
 */
-export function consume(parser: IParser, context: Context, token: Token): boolean {
+export function consume(parser: Parser, context: Context, token: Token): boolean {
   if (parser.token !== token) return false;
   nextToken(parser, context);
   return true;
@@ -151,7 +150,7 @@ export function consume(parser: IParser, context: Context, token: Token): boolea
 * @param parser Parser object
 * @param context Context masks
 */
-export function nextToken(parser: IParser, context: Context): Token {
+export function nextToken(parser: Parser, context: Context): Token {
   parser.lastIndex = parser.index;
   parser.lastLine = parser.line;
   parser.lastColumn = parser.column;
@@ -168,7 +167,7 @@ export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
 * @param parser Parser object
 * @param context Context masks
 */
-export function consumeSemicolon(parser: IParser, context: Context): void | boolean {
+export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
   return parser.token & Token.ASI || parser.flags & Flags.NewLine ?
       consume(parser, context, Token.Semicolon) :
       report(
@@ -192,9 +191,9 @@ export function consumeSemicolon(parser: IParser, context: Context): void | bool
 * @param errMsg Optional error message
 */
 export function parseExpressionCoverGrammar < T > (
-  parser: IParser,
+  parser: Parser,
   context: Context,
-  callback: (parser: IParser, context: Context) => T
+  callback: (parser: Parser, context: Context) => T
 ): T {
   const {
       flags,
@@ -234,9 +233,9 @@ export function parseExpressionCoverGrammar < T > (
 * @param callback Callback function
 */
 export function restoreExpressionCoverGrammar < T > (
-  parser: IParser,
+  parser: Parser,
   context: Context,
-  callback: (parser: IParser, context: Context) => T
+  callback: (parser: Parser, context: Context) => T
 ): T {
   const {
       flags,
@@ -278,10 +277,10 @@ export function restoreExpressionCoverGrammar < T > (
 */
 
 export function swapContext < T > (
-  parser: IParser,
+  parser: Parser,
   context: Context,
   state: ModifierState,
-  callback: (parser: IParser, context: Context, state: ObjectState) => T,
+  callback: (parser: Parser, context: Context, state: ObjectState) => T,
   methodState: ObjectState = ObjectState.None
 ): T {
   context &= ~(Context.Async | Context.Yield | Context.InParameter);
@@ -303,7 +302,7 @@ export function swapContext < T > (
 * @param params Array of token values
 */
 
-export function validateParams(parser: IParser, context: Context, params: string[]): void {
+export function validateParams(parser: Parser, context: Context, params: string[]): void {
   const paramSet: any = new Map();
   for (let i = 0; i < params.length; i++) {
       const key = `@${params[i]}`;
@@ -322,7 +321,7 @@ export function validateParams(parser: IParser, context: Context, params: string
 * @param node AST node
 */
 
-export const reinterpret = (parser: IParser, context: Context, node: any) => {
+export const reinterpret = (parser: Parser, context: Context, node: any) => {
   switch (node.type) {
       case 'Identifier':
       case 'ArrayPattern':
@@ -392,7 +391,7 @@ export const reinterpret = (parser: IParser, context: Context, node: any) => {
 * @param context  Context masks
 * @param callback Callback function to be invoked
 */
-export function lookahead < T > (parser: IParser, context: Context, callback: (parser: IParser, context: Context) => T): T {
+export function lookahead < T > (parser: Parser, context: Context, callback: (parser: Parser, context: Context) => T): T {
   const {
       tokenValue,
       flags,
@@ -446,7 +445,7 @@ export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
 * @param parser Parser object
 * @param context  Context masks
 */
-export function getLocation(parser: IParser): Location {
+export function getLocation(parser: Parser): Location {
   return {
       line: parser.startLine,
       column: parser.startColumn,
@@ -481,7 +480,7 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 * @param parser Parser object
 * @param context  Context masks
 */
-export function isLexical(parser: IParser, context: Context): boolean {
+export function isLexical(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   const {
       token
@@ -498,7 +497,7 @@ export function isLexical(parser: IParser, context: Context): boolean {
 *
 * @param parser Parser object
 */
-export function isEndOfCaseOrDefaultClauses(parser: IParser): boolean {
+export function isEndOfCaseOrDefaultClauses(parser: Parser): boolean {
   return (
       parser.token === Token.DefaultKeyword || parser.token === Token.RightBrace || parser.token === Token.CaseKeyword
   );
@@ -510,7 +509,7 @@ export function isEndOfCaseOrDefaultClauses(parser: IParser): boolean {
 * @param parser Parser object
 * @param context  Context masks
 */
-export function nextTokenIsLeftParenOrPeriod(parser: IParser, context: Context): boolean {
+export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.Period;
 }
@@ -521,7 +520,7 @@ export function nextTokenIsLeftParenOrPeriod(parser: IParser, context: Context):
 * @param parser Parser object
 * @param context  Context masks
 */
-export function nextTokenisIdentifierOrParen(parser: IParser, context: Context): boolean | number {
+export function nextTokenisIdentifierOrParen(parser: Parser, context: Context): boolean | number {
   nextToken(parser, context);
   const {
       token
@@ -535,7 +534,7 @@ export function nextTokenisIdentifierOrParen(parser: IParser, context: Context):
 * @param parser Parser object
 * @param context  Context masks
 */
-export function nextTokenIsLeftParen(parser: IParser, context: Context): boolean {
+export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return parser.token === Token.LeftParen;
 }
@@ -546,7 +545,7 @@ export function nextTokenIsLeftParen(parser: IParser, context: Context): boolean
 * @param parser Parser object
 * @param context  Context masks
 */
-export function nextTokenIsFuncKeywordOnSameLine(parser: IParser, context: Context): boolean {
+export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return !(parser.flags & Flags.NewLine) && parser.token === Token.FunctionKeyword;
 }
@@ -567,7 +566,7 @@ export function isPropertyWithPrivateFieldKey(expr: any): boolean {
 * @param parser Parser object
 * @param context Context masks
 */
-export function parseAndValidateIdentifier(parser: IParser, context: Context): void | ESTree.Identifier {
+export function parseAndValidateIdentifier(parser: Parser, context: Context): void | ESTree.Identifier {
   const {
       token
   } = parser;
@@ -613,7 +612,7 @@ export function nameIsArgumentsOrEval(value: string): boolean {
 *
 * @param parser Parser object
 */
-export function setPendingError(parser: IParser): void {
+export function setPendingError(parser: Parser): void {
   parser.errorLocation = {
       line: parser.startLine,
       column: parser.startColumn,
@@ -645,7 +644,7 @@ export function isEqualTagNames(
 *
 * @param parser Parser object
 */
-export function isInstanceField(parser: IParser): boolean {
+export function isInstanceField(parser: Parser): boolean {
   const {
       token
   } = parser;
@@ -660,7 +659,7 @@ export function isInstanceField(parser: IParser): boolean {
 * @param prefix prefix
 */
 export function validateUpdateExpression(
-  parser: IParser,
+  parser: Parser,
   context: Context,
   expr: ESTree.Expression,
   prefix: string
@@ -679,7 +678,7 @@ export function validateUpdateExpression(
 * @param parser Parser object
 * @param error Error message
 */
-export function setPendingExpressionError(parser: IParser, type: Errors): void {
+export function setPendingExpressionError(parser: Parser, type: Errors): void {
   parser.pendingExpressionError = {
       error: errorMessages[type],
       line: parser.line,
@@ -695,7 +694,7 @@ export function setPendingExpressionError(parser: IParser, type: Errors): void {
 * @param state CoverParenthesizedState
 */
 export function validateCoverParenthesizedExpression(
-  parser: IParser,
+  parser: Parser,
   state: CoverParenthesizedState
 ): CoverParenthesizedState {
   const {
@@ -724,7 +723,7 @@ export function validateCoverParenthesizedExpression(
 * @param parser Parser object
 * @param state CoverParenthesizedState
 */
-export function validateAsyncArgumentList(parser: IParser, context: Context, state: CoverCallState): CoverCallState {
+export function validateAsyncArgumentList(parser: Parser, context: Context, state: CoverCallState): CoverCallState {
   const {
       token
   } = parser;
@@ -747,7 +746,7 @@ export function validateAsyncArgumentList(parser: IParser, context: Context, sta
   return state;
 }
 
-export function isStartOfFunctionType(parser: IParser, context: Context): boolean {
+export function isStartOfFunctionType(parser: Parser, context: Context): boolean {
   switch (parser.token) {
       case Token.LessThan:
           return true;
@@ -760,7 +759,7 @@ export function isStartOfFunctionType(parser: IParser, context: Context): boolea
   }
 }
 
-function isUnambiguouslyStartOfFunctionType(parser: IParser, context: Context): boolean {
+function isUnambiguouslyStartOfFunctionType(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
 
   switch (parser.token) {
@@ -816,7 +815,7 @@ export function keywordTypeFromName(value: string): string | undefined {
   }
 }
 
-export function iStartOfMappedType(parser: IParser, context: Context): boolean {
+export function iStartOfMappedType(parser: Parser, context: Context): boolean {
   nextToken(parser, context)
   if (parser.token === Token.ReadOnlyKeyword) {
     nextToken(parser, context)
@@ -831,7 +830,7 @@ export function iStartOfMappedType(parser: IParser, context: Context): boolean {
  return parser.token === Token.InKeyword;
 }
 
-export function isUnambiguouslyIndexSignature(parser: IParser, context: Context): boolean {
+export function isUnambiguouslyIndexSignature(parser: Parser, context: Context): boolean {
   nextToken(parser, context)
   if (!(parser.token & Token.IsIdentifier)) return false;
   nextToken(parser, context)

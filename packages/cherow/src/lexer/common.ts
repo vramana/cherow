@@ -1,5 +1,5 @@
 import { Chars, CharacterFlags, characterType } from '../chars';
-import { IParser } from '../types';
+import { Parser } from '../types';
 import { Errors, report } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
@@ -11,7 +11,7 @@ import { Flags, Context, ScannerState } from '../utilities';
  *
  * @param parser Parser object
  */
-export function nextUnicodeChar(parser: IParser) {
+export function nextUnicodeChar(parser: Parser) {
     const { index } = parser;
     const hi = parser.source.charCodeAt(index);
     if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
@@ -61,7 +61,7 @@ export function escapeForPrinting(code: number): string {
  * @param parser Parser object
  * @param context  Context masks
  */
-export function consumeOpt(parser: IParser, code: number): boolean {
+export function consumeOpt(parser: Parser, code: number): boolean {
     if (parser.source.charCodeAt(parser.index) !== code) return false;
     parser.index++;
     parser.column++;
@@ -74,7 +74,7 @@ export function consumeOpt(parser: IParser, code: number): boolean {
  * @param parser Parser object
  * @param state  Scanner state
  */
-export function consumeLineFeed(parser: IParser, state: ScannerState) {
+export function consumeLineFeed(parser: Parser, state: ScannerState) {
     parser.flags |= Flags.NewLine;
     parser.index++;
     if ((state & ScannerState.LastIsCR) === 0) {
@@ -89,7 +89,7 @@ export function consumeLineFeed(parser: IParser, state: ScannerState) {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanPrivateName(parser: IParser, context: Context): Token {
+export function scanPrivateName(parser: Parser, context: Context): Token {
     if (!(context & Context.InClass) || !isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
         report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
@@ -101,7 +101,7 @@ export function scanPrivateName(parser: IParser, context: Context): Token {
  *
  * @param parser Parser object
  */
-export function advanceNewline(parser: IParser) {
+export function advanceNewline(parser: Parser) {
     parser.flags |= Flags.NewLine;
     parser.index++;
     parser.column = 0;
@@ -115,7 +115,7 @@ export const fromCodePoint = (code: Chars) => {
             Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 };
 
-export function readNext(parser: IParser): number {
+export function readNext(parser: Parser): number {
     parser.index++; parser.column++;
     if (parser.index >= parser.source.length) report(parser, Errors.UnicodeOutOfRange);
     return nextUnicodeChar(parser);
@@ -131,7 +131,7 @@ export function toHex(code: number): number {
     return -1;
 }
 
-export function advanceOnMaybeAstral(parser: IParser, ch: number) {
+export function advanceOnMaybeAstral(parser: Parser, ch: number) {
     parser.index++; parser.column++;
     if (ch > 0xFFFF) parser.index++;
 }

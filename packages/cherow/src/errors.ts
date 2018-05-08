@@ -1,4 +1,4 @@
-import { IParser } from './types';
+import { Parser } from './types';
 import { Context } from './utilities';
 
 /*@internal*/
@@ -209,7 +209,7 @@ export const errorMessages: {
  * @param parser The 0-based end index of the current node.
  * @param description Error description
  */
-export function constructError(parser: IParser, context: Context, index: number, line: number, column: number, description: string): void {
+export function constructError(parser: Parser, context: Context, index: number, line: number, column: number, description: string): void {
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
     );
@@ -230,7 +230,7 @@ export function constructError(parser: IParser, context: Context, index: number,
  * @param parser Parser instance
  */
 
-function getErrorLocation(parser: IParser): { index: number; line: number; column: number } {
+function getErrorLocation(parser: Parser): { index: number; line: number; column: number } {
     let { index, startLine: line, startColumn: column } = parser;
     const errorLoc = parser.errorLocation;
     if (!!errorLoc) {
@@ -249,7 +249,7 @@ function getErrorLocation(parser: IParser): { index: number; line: number; colum
  * @param type Error type
  * @param params Error params
  */
-export function report(parser: IParser, type: Errors, ...params: string[]): void {
+export function report(parser: Parser, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, Context.Empty, index, line, column, errorMessage);
@@ -264,7 +264,7 @@ export function report(parser: IParser, type: Errors, ...params: string[]): void
  * @param type Error type
  * @param params Error params
  */
-export function tolerant(parser: IParser, context: Context, type: Errors, ...params: string[]): void {
+export function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     constructError(parser, context, index, line, column, errorMessage);

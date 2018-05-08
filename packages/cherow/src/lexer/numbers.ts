@@ -1,5 +1,5 @@
 import { Chars } from '../chars';
-import { IParser } from '../types';
+import { Parser } from '../types';
 import { Errors, report, tolerant } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
 import { isValidIdentifierStart } from '../unicode';
@@ -17,7 +17,7 @@ import { consumeLineFeed, consumeOpt, toHex } from './common';
  * @param context Context masks
  */
 
-export function scanHexIntegerLiteral(parser: IParser, context: Context): Token {
+export function scanHexIntegerLiteral(parser: Parser, context: Context): Token {
     parser.index++; parser.column++;
     let state = NumericState.None;
     let value = toHex(parser.source.charCodeAt(parser.index));
@@ -53,7 +53,7 @@ export function scanHexIntegerLiteral(parser: IParser, context: Context): Token 
  * @param context Context masks
  */
 
-export function scanOctalOrBinary(parser: IParser, context: Context, base: number): Token {
+export function scanOctalOrBinary(parser: Parser, context: Context, base: number): Token {
 
     parser.index++; parser.column++;
 
@@ -93,7 +93,7 @@ export function scanOctalOrBinary(parser: IParser, context: Context, base: numbe
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanImplicitOctalDigits(parser: IParser, context: Context): Token {
+export function scanImplicitOctalDigits(parser: Parser, context: Context): Token {
 
     switch (parser.source.charCodeAt(parser.index)) {
 
@@ -154,7 +154,7 @@ export function scanImplicitOctalDigits(parser: IParser, context: Context): Toke
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanSignedInteger(parser: IParser, end: number): string {
+export function scanSignedInteger(parser: Parser, end: number): string {
     let next = parser.source.charCodeAt(parser.index);
 
     if (next === Chars.Plus || next === Chars.Hyphen) {
@@ -180,7 +180,7 @@ export function scanSignedInteger(parser: IParser, end: number): string {
  * @param context Context masks
  */
 
-export function scanNumericLiteral(parser: IParser, context: Context, state: NumericState = NumericState.None): Token {
+export function scanNumericLiteral(parser: Parser, context: Context, state: NumericState = NumericState.None): Token {
 
     let value: any = state & NumericState.Float ?
         0 :
@@ -227,7 +227,7 @@ export function scanNumericLiteral(parser: IParser, context: Context, state: Num
  * @param context Context masks
  * @param state NumericState state
  */
-export function scanNumericSeparator(parser: IParser, state: NumericState): NumericState {
+export function scanNumericSeparator(parser: Parser, state: NumericState): NumericState {
     parser.index++; parser.column++;
     if (state & NumericState.SeenSeparator) report(parser, Errors.TrailingNumericSeparator);
     state |= NumericState.SeenSeparator;
@@ -240,7 +240,7 @@ export function scanNumericSeparator(parser: IParser, state: NumericState): Nume
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanDecimalDigitsOrSeparator(parser: IParser): string {
+export function scanDecimalDigitsOrSeparator(parser: Parser): string {
 
     let start = parser.index;
     let state = NumericState.None;
@@ -284,7 +284,7 @@ export function scanDecimalDigitsOrSeparator(parser: IParser): string {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanDecimalAsSmi(parser: IParser, context: Context): number {
+export function scanDecimalAsSmi(parser: Parser, context: Context): number {
     let state = NumericState.None;
     let value = 0;
     let next = parser.source.charCodeAt(parser.index);
@@ -311,7 +311,7 @@ export function scanDecimalAsSmi(parser: IParser, context: Context): number {
  * @param context Context masks
  * @param value The numeric value
  */
-function assembleNumericLiteral(parser: IParser, context: Context, value: number, isBigInt = false): Token {
+function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt = false): Token {
     parser.tokenValue = value;
     if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
     return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;

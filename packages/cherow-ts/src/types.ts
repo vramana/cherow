@@ -54,7 +54,7 @@ export interface Options {
 /**
  * The parser interface.
  */
-export interface IParser {
+export interface Parser {
   // The source code to parse
   source: string;
 

@@ -1,11 +1,10 @@
 import {
-  IParser,
+  Parser,
   Location,
   report,
   Errors,
   Token,
   tokenDesc,
-  Parser,
   Flags,
   consumeSemicolon,
   nextToken,
@@ -35,7 +34,7 @@ import { expect, finishNode, consume, getLocation, swapContext, parseExpressionC
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseClassDeclaration(parser: IParser, context: Context): ESTree.ClassDeclaration {
+export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
     const pos = getLocation(parser);
     let decorators: ESTree.Decorator[] = [];
     if (context & Context.OptionsExperimental) decorators = parseDecorators(parser, context);
@@ -74,7 +73,7 @@ export function parseClassDeclaration(parser: IParser, context: Context): ESTree
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseFunctionDeclaration(parser: IParser, context: Context): ESTree.FunctionDeclaration {
+export function parseFunctionDeclaration(parser: Parser, context: Context): ESTree.FunctionDeclaration {
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     let isGenerator = ModifierState.None;
@@ -99,7 +98,7 @@ export function parseFunctionDeclaration(parser: IParser, context: Context): EST
  * @param state Modifier state
  * @param pos Current location
  */
-function parseFunctionDeclarationBody(parser: IParser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
+function parseFunctionDeclarationBody(parser: Parser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
     const id = parseFunctionDeclarationName(parser, context);
     const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
@@ -122,7 +121,7 @@ function parseFunctionDeclarationBody(parser: IParser, context: Context, state: 
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: IParser, context: Context): ESTree.FunctionDeclaration {
+export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, context: Context): ESTree.FunctionDeclaration {
     const pos = getLocation(parser);
     expect(parser, context, Token.AsyncKeyword);
     expect(parser, context, Token.FunctionKeyword);
@@ -139,7 +138,7 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: IParser, c
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseFunctionDeclarationName(parser: IParser, context: Context): ESTree.Identifier | null {
+function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
     const { token } = parser;
     let id: ESTree.Identifier | undefined | null = null;
     if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
@@ -167,7 +166,7 @@ function parseFunctionDeclarationName(parser: IParser, context: Context): ESTree
  * @param context Context masks
  */
 
-function parseVariableDeclaration(parser: IParser, context: Context, isConst: boolean): ESTree.VariableDeclarator {
+function parseVariableDeclaration(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator {
 
     const pos = getLocation(parser);
     const isBindingPattern = (parser.token & Token.IsBindingPattern) !== 0;
@@ -205,7 +204,7 @@ function parseVariableDeclaration(parser: IParser, context: Context, isConst: bo
  * @param context Context masks
  */
 
-export function parseVariableDeclarationList(parser: IParser, context: Context, isConst: boolean): ESTree.VariableDeclarator[] {
+export function parseVariableDeclarationList(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator[] {
     const list: ESTree.VariableDeclarator[] = [parseVariableDeclaration(parser, context, isConst)];
     while (consume(parser, context, Token.Comma)) list.push(parseVariableDeclaration(parser, context, isConst));
     if (context & Context.ForStatement && parser.token & Token.IsInOrOf && list.length !== 1) {
