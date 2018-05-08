@@ -15,6 +15,7 @@ import {
   consumeSemicolon,
   nextToken
 } from 'cherow';
+import { keywordTypeFromName } from '../utilities';
 import { parseIdentifier } from './expressions';
 
 // AST from Babylon / ESLint

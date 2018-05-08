@@ -1,6 +1,7 @@
-import { ESTree, IParser, Token, Flags, Context, Options } from 'cherow';
+import { ESTree, IParser, Token, Flags, Context } from 'cherow';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
+import { Options } from '../types';
 import { nextToken } from '../utilities';
 
 /**

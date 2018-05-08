@@ -1,5 +1,6 @@
 import { ESTree, IParser, Context, Token, Errors, tolerant, tokenDesc, Flags, Location } from 'cherow';
 import { parseIdentifier, parseAssignmentExpression, parsePropertyName } from './expressions';
+import { parseTypeAnnotation } from './annotations';
 import {
   expect,
   finishNode,
@@ -68,6 +69,7 @@ export function parseBindingIdentifier(parser: IParser, context: Context): ESTre
     return finishNode(context, parser, pos, {
         type: 'Identifier',
         name,
+        typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
     });
 }
 
