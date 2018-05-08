@@ -1,21 +1,16 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc } from '../token';
-import { Errors, report, tolerant } from '../errors';
-import { Location, IParser } from '../types';
-import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
+import { ESTree, IParser, Context, Token, Errors, tolerant, tokenDesc, Flags, Location } from 'cherow';
+import { parseIdentifier, parseAssignmentExpression, parsePropertyName } from './expressions';
 import {
-    expect,
-    Context,
-    finishNode,
-    nextToken,
-    consume,
-    getLocation,
-    isValidIdentifier,
-    Flags,
-    parseExpressionCoverGrammar,
-    restoreExpressionCoverGrammar,
-    hasBit,
-    setPendingError
+  expect,
+  finishNode,
+  nextToken,
+  consume,
+  getLocation,
+  isValidIdentifier,
+  parseExpressionCoverGrammar,
+  restoreExpressionCoverGrammar,
+  hasBit,
+  setPendingError
 } from '../utilities';
 
 // 12.15.5 Destructuring Assignment

@@ -1,9 +1,6 @@
-import { parse } from './parser/parser';
-import * as ESTree from './estree';
-import * as Parser from './parser/index';
-import * as Scanner from './lexer/index';
-import { Options } from './types';
-import { Context } from './utilities';
+import { Options, ESTree, Context } from 'cherow';
+import { parse } from './parser';
+
 /**
  * Parse TypeScript
  *

@@ -1,20 +1,29 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
-import { Errors, tolerant } from '../errors';
-import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
-import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
-import { IParser, Location } from '../types';
-import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecorators } from './expressions';
 import {
-    expect,
-    finishNode,
-    consume,
-    getLocation,
-    ModifierState,
-    swapContext,
-    ObjectState,
-    parseExpressionCoverGrammar
-} from '../utilities';
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
+  Flags,
+  consumeSemicolon,
+  nextToken,
+  ESTree,
+  Context,
+  ObjectState,
+  ModifierState,
+  tolerant
+} from 'cherow';
+import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
+import {
+  parseAssignmentExpression,
+  parseFormalListAndBody,
+  parseClassBodyAndElementList,
+  parseLeftHandSideExpression,
+  parseDecorators
+} from './expressions';
+import { expect, finishNode, consume, getLocation, swapContext, parseExpressionCoverGrammar } from '../utilities';
 
 // Declarations
 

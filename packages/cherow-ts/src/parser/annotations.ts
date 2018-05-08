@@ -16,8 +16,6 @@ import {
   nextToken
 } from 'cherow';
 import { parseIdentifier } from './expressions';
-import { keywordTypeFromName } from '../utilities';
-import * as ESTree from '../estree';
 
 // AST from Babylon / ESLint
 

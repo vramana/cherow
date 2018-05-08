@@ -1,44 +1,54 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
-import { scanRegularExpression } from '../lexer/regexp';
-import { consumeTemplateBrace } from '../lexer/template';
-import { Errors, report, tolerant } from '../errors';
+import {
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
+  consumeSemicolon,
+  ESTree,
+  Context,
+  Scanner,
+  tolerant,
+  Flags,
+  ModifierState,
+  CoverCallState,
+  CoverParenthesizedState,
+  ObjectState
+} from 'cherow';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
-import { Location, IParser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
-    expect,
-    hasBit,
-    finishNode,
-    nextToken,
-    consume,
-    isInstanceField,
-    restoreExpressionCoverGrammar,
-    parseAndValidateIdentifier,
-    parseExpressionCoverGrammar,
-    isValidSimpleAssignmentTarget,
-    validateUpdateExpression,
-    swapContext,
-    ModifierState,
-    getLocation,
-    reinterpret,
-    nextTokenIsFuncKeywordOnSameLine,
-    lookahead,
-    isPropertyWithPrivateFieldKey,
-    ObjectState,
-    CoverParenthesizedState,
-    isValidIdentifier,
-    nextTokenIsLeftParen,
-    nameIsArgumentsOrEval,
-    nextTokenisIdentifierOrParen,
-    setPendingError,
-    CoverCallState,
-    validateParams,
-    setPendingExpressionError,
-    validateCoverParenthesizedExpression,
-    validateAsyncArgumentList
+  expect,
+  hasBit,
+  finishNode,
+  nextToken,
+  consume,
+  isInstanceField,
+  restoreExpressionCoverGrammar,
+  parseAndValidateIdentifier,
+  parseExpressionCoverGrammar,
+  isValidSimpleAssignmentTarget,
+  validateUpdateExpression,
+  swapContext,
+  getLocation,
+  reinterpret,
+  nextTokenIsFuncKeywordOnSameLine,
+  lookahead,
+  isPropertyWithPrivateFieldKey,
+  isValidIdentifier,
+  nextTokenIsLeftParen,
+  nameIsArgumentsOrEval,
+  nextTokenisIdentifierOrParen,
+  setPendingError,
+  validateParams,
+  setPendingExpressionError,
+  validateCoverParenthesizedExpression,
+  validateAsyncArgumentList
 } from '../utilities';
+import { scanRegularExpression, consumeTemplateBrace } from 'cherow/src/lexer';
 
 /**
  * Expression :

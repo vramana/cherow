@@ -1,154 +1,25 @@
-import * as ESTree from './estree';
-import { Chars } from './chars';
-import { Errors, report, tolerant, errorMessages, constructError } from './errors';
-import { IParser, Location } from './types';
-import { Token, tokenDesc } from 'cherow';
-import { scan } from './lexer/scan';
+import {
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
+  ESTree,
+  Context,
+  Flags,
+  tolerant,
+  Labels,
+  Scanner,
+  constructError,
+  ModifierState,
+  ObjectState,
+  CoverParenthesizedState,
+  CoverCallState,
+  errorMessages
+} from 'cherow';
 import { parseIdentifier } from './parser/expressions';
-import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
-
-// Context masks
-export const enum Context {
-  Empty                  = 0,
-  OptionsNext            = 1 << 0,
-  OptionsRanges          = 1 << 1,
-  OptionsJSX             = 1 << 2,
-  OptionsRaw             = 1 << 3,
-  OptionsLoc             = 1 << 4,
-  OptionsGlobalReturn    = 1 << 5,
-  OptionsComments        = 1 << 6,
-  OptionsShebang         = 1 << 7,
-  OptionsRawidentifiers  = 1 << 8,
-  OptionsTolerant        = 1 << 9,
-  OptionsNode            = 1 << 10,
-  OptionsExperimental    = 1 << 11,
-  Strict                 = 1 << 12,
-  Module                 = 1 << 13,
-  TaggedTemplate         = 1 << 14,
-  InClass                = 1 << 15,
-  AllowIn                = 1 << 16,
-  Async                  = 1 << 17,
-  Yield                  = 1 << 18,
-  InParameter            = 1 << 19,
-  InFunctionBody         = 1 << 20,
-  AllowSingleStatement   = 1 << 21,
-  BlockScope             = 1 << 22,
-  ForStatement           = 1 << 23,
-  RequireIdentifier      = 1 << 24,
-  Method                 = 1 << 25,
-  AllowSuperProperty     = 1 << 26,
-  InParen                = 1 << 27,
-  InJSXChild             = 1 << 28,
-  DisallowEscapedKeyword = 1 << 29,
-  AllowDecorator         = 1 << 30,
-}
-
-// Mutual parser flags
-export const enum Flags {
-  None                   = 0,
-  NewLine                = 1 << 0,
-  AllowBinding           = 1 << 1,
-  AllowDestructuring     = 1 << 2,
-  SimpleParameterList    = 1 << 3,
-  InSwitchStatement      = 1 << 4,
-  InIterationStatement   = 1 << 5,
-  HasStrictReserved      = 1 << 6,
-  HasOctal               = 1 << 7,
-  SimpleAssignmentTarget = 1 << 8,
-  HasProtoField          = 1 << 9,
-  StrictFunctionName     = 1 << 10,
-  StrictEvalArguments    = 1 << 11,
-  InFunctionBody         = 1 << 12,
-  HasAwait               = 1 << 13,
-  HasYield               = 1 << 14,
-  EscapedKeyword         = 1 << 15,
-  AllowBreakOrContinue   = InSwitchStatement | InIterationStatement,
-}
-
-// Label tracking state
-export const enum Labels {
-  None        = 0,
-  NotNested   = 1 << 0,
-  Nested      = 1 << 1,
-}
-
-export const enum NumericState {
-  None            = 0,
-  SeenSeparator   = 1 << 0,
-  EigthOrNine     = 1 << 1,
-  Float           = 1 << 2,
-  BigInt          = 1 << 3,
-}
-
-export const enum ScannerState {
-  None        = 0,
-  NewLine     = 1 << 0,
-  LastIsCR    = 1 << 1,
-}
-
-export const enum ModifierState {
-  None        = 0,
-  Generator   = 1 << 0,
-  Await       = 1 << 1,
-}
-
-export const enum CoverParenthesizedState {
-  None,
-  SequenceExpression  = 1 << 0,
-  HasEvalOrArguments  = 1 << 1,
-  HasReservedWords    = 1 << 2,
-  HasYield            = 1 << 3,
-  HasBinding          = 1 << 4,
-}
-
-export const enum Escape {
-  Empty        = -1,
-  StrictOctal  = -2,
-  EightOrNine  = -3,
-  InvalidHex   = -4,
-  OutOfRange   = -5,
-}
-
-export const enum RegexFlags {
-  Empty       = 0,
-  IgnoreCase = 1 << 0,
-  Global     = 1 << 1,
-  Multiline  = 1 << 2,
-  Unicode    = 1 << 3,
-  Sticky     = 1 << 4,
-  DotAll     = 1 << 5,
-}
-
-export const enum CoverCallState {
-  Empty           = 0,
-  SeenSpread      = 1 << 0,
-  HasSpread       = 1 << 1,
-  SimpleParameter = 1 << 2,
-  EvalOrArguments = 1 << 3,
-  Yield           = 1 << 4,
-  Await           = 1 << 5,
-}
-
-export const enum RegexState {
-  Empty  = 0,
-  Escape = 0x1,
-  Class  = 0x2,
-}
-
-// Shared between class expr / decl & object literal
-export const enum ObjectState {
-  None        = 0,
-  Async       = 1 << 0,
-  Generator   = 1 << 1,
-  Getter      = 1 << 2,
-  Setter      = 1 << 3,
-  Computed    = 1 << 4,
-  Method      = 1 << 5,
-  Shorthand   = 1 << 6,
-  Static      = 1 << 7,
-  Constructor = 1 << 8,
-  Heritage    = 1 << 9,
-}
 
 /**
  * Validate break and continue statement
@@ -208,7 +79,12 @@ export function hasLabel(parser: IParser, label: string): Labels {
  * @param meta Line / column
  * @param node AST node
  */
-export function finishNode<T extends ESTree.Node>(context: Context, parser: IParser, meta: Location, node: Partial<T>): T {
+export function finishNode<T extends ESTree.Node>(
+  context: Context,
+  parser: IParser,
+  meta: Location,
+  node: Partial<T>
+): T {
   const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
 
   if (context & Context.OptionsRanges) {
@@ -272,7 +148,7 @@ export function nextToken(parser: IParser, context: Context): Token {
   parser.lastIndex = parser.index;
   parser.lastLine = parser.line;
   parser.lastColumn = parser.column;
-  return (parser.token = scan(parser, context));
+  return (parser.token = Scanner.scan(parser, context));
 }
 
 export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
@@ -758,7 +634,12 @@ export function isInstanceField(parser: IParser): boolean {
  * @param expr  AST expressions
  * @param prefix prefix
  */
-export function validateUpdateExpression(parser: IParser, context: Context, expr: ESTree.Expression, prefix: string): void {
+export function validateUpdateExpression(
+  parser: IParser,
+  context: Context,
+  expr: ESTree.Expression,
+  prefix: string
+): void {
   if (context & Context.Strict && nameIsArgumentsOrEval((expr as ESTree.Identifier).name)) {
     tolerant(parser, context, Errors.StrictLHSPrefixPostFix, prefix);
   }

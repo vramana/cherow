@@ -1,23 +1,30 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
-import { Errors, report, tolerant } from '../errors';
-import { Location, IParser } from '../types';
+import { IParser, Location, report, Errors, Token, tokenDesc, Parser, Flags, ESTree, Context, tolerant } from 'cherow';
 import { parseBindingIdentifier } from './pattern';
 import { parseStatementListItem, parseVariableStatement, parseDirective } from './statements';
-import { parseIdentifierName, parseLiteral,  parseIdentifier,  parseAssignmentExpression, parseDecorators } from './expressions';
-import { parseClassDeclaration, parseFunctionDeclaration,  parseAsyncFunctionOrAsyncGeneratorDeclaration } from './declarations';
 import {
-    expect,
-    finishNode,
-    nextToken,
-    consume,
-    getLocation,
-    consumeSemicolon,
-    lookahead,
-    nextTokenIsFuncKeywordOnSameLine,
-    nextTokenIsLeftParenOrPeriod,
-    setPendingError,
-    hasBit,
+  parseIdentifierName,
+  parseLiteral,
+  parseIdentifier,
+  parseAssignmentExpression,
+  parseDecorators
+} from './expressions';
+import {
+  parseClassDeclaration,
+  parseFunctionDeclaration,
+  parseAsyncFunctionOrAsyncGeneratorDeclaration
+} from './declarations';
+import {
+  expect,
+  finishNode,
+  nextToken,
+  consume,
+  getLocation,
+  consumeSemicolon,
+  lookahead,
+  nextTokenIsFuncKeywordOnSameLine,
+  nextTokenIsLeftParenOrPeriod,
+  setPendingError,
+  hasBit
 } from '../utilities';
 
 // 15.2 Modules

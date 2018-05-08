@@ -1,8 +1,17 @@
-import * as ESTree from '../estree';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
-import { Errors, report, tolerant } from '../errors';
-import { parseBindingIdentifierOrPattern } from './pattern';
-import { Location, ForStatementType, IParser } from '../types';
+import {
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
+  ESTree,
+  Context,
+  Flags,
+  tolerant,
+  ForStatementType
+} from 'cherow';
 import {
   parseFunctionDeclaration,
   parseVariableDeclarationList,
@@ -30,6 +39,7 @@ import {
   restoreExpressionCoverGrammar,
   validateParams
 } from '../utilities';
+import { parseBindingIdentifierOrPattern } from './pattern';
 
 // Statements
 

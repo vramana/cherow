@@ -1,20 +1,31 @@
-import * as ESTree from '../estree';
-import { Chars } from '../chars';
-import { IParser, Location } from '../types';
-import { Token, tokenDesc, Context, Flags } from 'cherow';
-import { Errors, report, tolerant } from '../errors';
-import { isValidIdentifierPart } from '../unicode';
-import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
-import { consumeOpt, fromCodePoint, readNext } from '../lexer/common';
 import {
-    expect,
-    getLocation,
-    consume,
-    finishNode,
-    nextToken,
-    isEqualTagNames,
-    parseExpressionCoverGrammar,
+  IParser,
+  Location,
+  report,
+  Errors,
+  Token,
+  tokenDesc,
+  Parser,
+  Flags,
+  consumeSemicolon,
+  ESTree,
+  Context,
+  Scanner,
+  Chars,
+  tolerant,
+  isValidIdentifierPart
+} from 'cherow';
+import { parseLiteral, parseAssignmentExpression, parseExpression } from './expressions';
+import {
+  expect,
+  getLocation,
+  consume,
+  finishNode,
+  nextToken,
+  isEqualTagNames,
+  parseExpressionCoverGrammar
 } from '../utilities';
+import { consumeOpt, fromCodePoint, readNext } from 'cherow/src/lexer/common';
 
 // JSX Specification
 // https://facebook.github.io/jsx/
