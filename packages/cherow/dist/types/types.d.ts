@@ -1,9 +1,19 @@
 import { Flags } from './utilities';
 import { Token } from './token';
 import * as parser from './parser/index';
+/**
+ * ForStatement types.
+ */
 export declare type ForStatementType = 'ForStatement' | 'ForOfStatement' | 'ForInStatement';
+/**
+ * Comment types.
+ */
 export declare type CommentType = 'MultiLine' | 'SingleLine' | 'SheBang' | 'HTMLOpen' | 'HTMLClose';
+/**
+ * The parser options.
+ */
 export interface Options {
+    module?: boolean;
     comments?: boolean;
     next?: boolean;
     ranges?: boolean;
@@ -19,6 +29,9 @@ export interface Options {
     tolerant?: boolean;
     node?: boolean;
 }
+/**
+ * The parser interface.
+ */
 export interface Parser {
     source: string;
     length: number;
@@ -47,6 +60,10 @@ export interface Parser {
 export declare const Parser: {
     [P in keyof typeof parser]: typeof parser[P];
 };
+/**
+ *  Line / column location
+ *
+ */
 export interface Location {
     index: number;
     column: number;

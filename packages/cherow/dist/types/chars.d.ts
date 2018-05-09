@@ -11,6 +11,9 @@ export declare const enum CharacterFlags {
     Hexadecimal = 7,
     Decimals = 9,
 }
+/**
+ * A list of character constants with much more human-readable names.
+ */
 export declare const enum Chars {
     MaxAsciiCharacter = 128,
     Null = 0,

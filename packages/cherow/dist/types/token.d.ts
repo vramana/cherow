@@ -1,3 +1,6 @@
+/**
+ * The token types and attributes.
+ */
 export declare const enum Token {
     Type = 255,
     PrecStart = 8,
@@ -144,6 +147,7 @@ export declare const enum Token {
     BigIntLiteral = 33554551,
     At = 120,
     JSXText = 121,
+    /** TS */
     KeyOfKeyword = 65658,
     ReadOnlyKeyword = 65659,
     IsKeyword = 65660,
@@ -154,5 +158,8 @@ export declare const enum Token {
     AbstractKeyword = 65665,
     ModuleKeyword = 65666,
 }
+/**
+ * The conversion function between token and its string description/representation.
+ */
 export declare function tokenDesc(token: Token): string;
 export declare function descKeyword(value: string): Token;

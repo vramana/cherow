@@ -153,7 +153,9 @@ export interface SourceLocation {
     source?: string;
 }
 export interface Position {
+    /** >= 1 */
     line: number;
+    /** >= 0 */
     column: number;
 }
 export declare type CommentType = 'SingleLine' | 'MultiLine' | 'HTMLClose' | 'HTMLOpen' | 'SheBang';
@@ -164,6 +166,9 @@ export interface Comment {
     end?: number | undefined;
     loc?: any;
 }
+/**
+ * Core types
+ */
 export interface Program extends _Node<'Program'> {
     sourceType: 'script' | 'module';
     body: (Statement | ModuleDeclaration)[];
@@ -486,6 +491,11 @@ export interface YieldExpression extends _Expression<'YieldExpression'> {
     argument: Expression | null;
     delegate: boolean;
 }
+/**
+ * JSX types
+ *
+ * Reference: https://github.com/facebook/jsx/blob/master/AST.md
+ */
 export interface JSXIdentifier extends _Node<'JSXIdentifier'> {
     name: string;
 }
