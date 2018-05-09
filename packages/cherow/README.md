@@ -53,6 +53,10 @@ Here is a quick example to parse a script:
 
 ```js
 
+cherow.parseScript('x = async() => { for await (x of xs); }');
+
+// or
+
 cherow.parse('x = async() => { for await (x of xs); }');
 
 ```
