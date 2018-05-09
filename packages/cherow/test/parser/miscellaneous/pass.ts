@@ -1,6 +1,6 @@
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Pass', () => {
 
@@ -33,37 +33,37 @@ describe('Miscellaneous - Pass', () => {
     for (const arg of validStatementSyntax) {
         it(`while (false) ${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`while (false) ${arg}`, undefined, Context.Empty);
+                parseSource(`while (false) ${arg}`, undefined, Context.Empty);
             });
         });
 
         it(`switch (12) { default: ${arg}}`, () => {
             t.doesNotThrow(() => {
-                parse(`switch (12) { default: ${arg}}`, undefined, Context.Empty);
+                parseSource(`switch (12) { default: ${arg}}`, undefined, Context.Empty);
             });
         });
 
         it(`with ({}) ${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`with ({}) ${arg}`, undefined, Context.Empty);
+                parseSource(`with ({}) ${arg}`, undefined, Context.Empty);
             });
         });
 
         it(`if (true) {} else ${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`if (true) {} else ${arg}`, undefined, Context.Empty);
+                parseSource(`if (true) {} else ${arg}`, undefined, Context.Empty);
             });
         });
 
         it(`if (true) ${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`if (true) ${arg}`, undefined, Context.Empty);
+                parseSource(`if (true) ${arg}`, undefined, Context.Empty);
             });
         });
 
         it(`do { ${arg} } while (false)`, () => {
             t.doesNotThrow(() => {
-                parse(`do { ${arg} } while (false)`, undefined, Context.Empty);
+                parseSource(`do { ${arg} } while (false)`, undefined, Context.Empty);
             });
         });
     }
@@ -100,19 +100,19 @@ describe('Miscellaneous - Pass', () => {
     for (const arg of validBodySyntax) {
         it(`function f() {${arg}}`, () => {
             t.doesNotThrow(() => {
-                parse(`function f() {${arg}}`, undefined, Context.Empty);
+                parseSource(`function f() {${arg}}`, undefined, Context.Empty);
             });
         });
 
         it(`var f = () => {${arg}}`, () => {
             t.doesNotThrow(() => {
-                parse(`var f = () => {${arg}}`, undefined, Context.Empty);
+                parseSource(`var f = () => {${arg}}`, undefined, Context.Empty);
             });
         });
 
         it(`var f = () => {${arg}}`, () => {
             t.doesNotThrow(() => {
-                parse(`class C { constructor() {${arg}} }`, undefined, Context.Empty);
+                parseSource(`class C { constructor() {${arg}} }`, undefined, Context.Empty);
             });
         });
     }
@@ -827,7 +827,7 @@ describe('Miscellaneous - Pass', () => {
     for (const arg of programs) {
         it(`${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
     }

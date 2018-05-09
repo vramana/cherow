@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 // Cover grammar tests
 //
@@ -116,37 +116,37 @@ describe('Miscellaneous - Cover grammar', () => {
 
             it(`let x, y, z; (${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`let x, y, z; (${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`let x, y, z; (${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`var x, y, z; (${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; (${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`var x, y, z; (${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x in ${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x in ${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`'use strict'; let x, y, z; for (x in ${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of ${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x of ${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`'use strict'; let x, y, z; for (x of ${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`var x, y, z; for (x in ${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; for (x in ${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`var x, y, z; for (x in ${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`var x, y, z; for (x of ${arg}= {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; for (x of ${arg}= {});`, undefined, Context.OptionsNext);
+                    parseSource(`var x, y, z; for (x of ${arg}= {});`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -251,37 +251,37 @@ describe('Miscellaneous - Cover grammar', () => {
 
             it(`class C { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`function f(${arg}) {}`, undefined, Context.OptionsNext);
+                    parseSource(`function f(${arg}) {}`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`"use strict"; let ${arg} = {};`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; const ${arg} = {};`, undefined, Context.OptionsNext);
+                    parseSource(`"use strict"; const ${arg} = {};`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`"use strict"; const ${arg} = {};`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; const ${arg} = {};`, undefined, Context.OptionsNext);
+                    parseSource(`"use strict"; const ${arg} = {};`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`function f(argument1, ${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`function f(argument1, ${arg}) {}`, undefined, Context.OptionsNext);
+                    parseSource(`function f(argument1, ${arg}) {}`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`var f = (argument1, f(${arg}) {}) => {};`, () => {
                 t.throws(() => {
-                    parse(`var f = (argument1, f(${arg}) {}) => {};`, undefined, Context.OptionsNext);
+                    parseSource(`var f = (argument1, f(${arg}) {}) => {};`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`try {} catch(${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`try {} catch(${arg}) {}`, undefined, Context.OptionsNext);
+                    parseSource(`try {} catch(${arg}) {}`, undefined, Context.OptionsNext);
                 });
             });
         }

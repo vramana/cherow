@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Module - Import', () => {
 
@@ -113,7 +113,7 @@ describe('Module - Import', () => {
       for (const arg of failures) {
           it(`${arg}`, () => {
               t.throws(() => {
-                  parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                  parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
               });
           });
       }
@@ -189,7 +189,7 @@ describe('Module - Import', () => {
 
           it(`${arg}`, () => {
               t.doesNotThrow(() => {
-                  parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                  parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
               });
           });
       }

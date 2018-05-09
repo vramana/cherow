@@ -1,6 +1,6 @@
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Reserved words', () => {
 
@@ -26,19 +26,19 @@ describe('Miscellaneous - Reserved words', () => {
 
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Module);
                 });
             });
         }

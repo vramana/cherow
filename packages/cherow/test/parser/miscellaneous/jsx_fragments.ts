@@ -1,6 +1,6 @@
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - JSX Fragments', () => {
 
@@ -60,14 +60,14 @@ describe('Miscellaneous - JSX Fragments', () => {
       // Sloppy mode
       it(`${arg}`, () => {
           t.doesNotThrow(() => {
-              parse(`${arg}`, undefined, Context.OptionsJSX);
+              parseSource(`${arg}`, undefined, Context.OptionsJSX);
           });
       });
 
       // Module Code
       it(`${arg}`, () => {
         t.doesNotThrow(() => {
-            parse(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
+            parseSource(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
         });
     });
     }

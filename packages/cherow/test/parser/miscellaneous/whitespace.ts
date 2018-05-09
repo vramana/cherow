@@ -1,7 +1,7 @@
 import { pass } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Whitespace', () => {
 
@@ -28,7 +28,7 @@ describe('Miscellaneous - Whitespace', () => {
 
         it(`${arg}`, () => {
             t.throws(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
     }
@@ -73,7 +73,7 @@ describe('Miscellaneous - Whitespace', () => {
 
         it(`${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
     }

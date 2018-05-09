@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Destructuring - Assignment', () => {
 
@@ -169,61 +169,61 @@ describe('Destructuring - Assignment', () => {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; (${arg} = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; (${arg} = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x in x =  ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x in x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x in x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of x =  ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x of x = ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; (x = ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; (x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; (x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of ${arg}= z = {});`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x in ${arg} = z = {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x in x = ${arg}  = z = {});`, () => {
                 t.throws(() => {
-                    parse(`var x, y, z; for (x in x = ${arg}  = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x in x = ${arg}  = z = {});`, undefined, Context.Empty);
                 });
             });
         }
@@ -433,7 +433,7 @@ for (new.target of b);
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -587,67 +587,67 @@ for (new.target of b);
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; (${arg} = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; (${arg} = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x in x =  ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; for (x in x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x in x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of x =  ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x of x = ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x of x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; (x = ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var x, y, z; (x = ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; (x = ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; let x, y, z; for (x of ${arg}= z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`'use strict'; let x, y, z; for (x of ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x in ${arg} = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x in ${arg} = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x in x = ${arg}  = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var x, y, z; for (x in x = ${arg}  = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x in x = ${arg}  = z = {});`, undefined, Context.Empty);
                 });
             });
 
             it(`var x, y, z; for (x of x = ${arg}  = z = {});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var x, y, z; for (x of x = ${arg}  = z = {});`, undefined, Context.Empty);
+                    parseSource(`var x, y, z; for (x of x = ${arg}  = z = {});`, undefined, Context.Empty);
                 });
             });
         }
@@ -673,13 +673,13 @@ for (new.target of b);
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }

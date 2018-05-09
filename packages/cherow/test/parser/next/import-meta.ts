@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Next - Import meta', () => {
 
@@ -58,7 +58,7 @@ describe('Next - Import meta', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
         }

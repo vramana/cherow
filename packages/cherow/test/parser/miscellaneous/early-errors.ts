@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Early errors', () => {
 
@@ -463,7 +463,7 @@ describe('Miscellaneous - Early errors', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -486,7 +486,7 @@ describe('Miscellaneous - Early errors', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }

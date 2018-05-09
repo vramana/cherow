@@ -1,7 +1,7 @@
 import { fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Simple parameter list', () => {
 
@@ -102,67 +102,67 @@ describe('Miscellaneous - Simple parameter list', () => {
         for (const arg of invalidSyntax) {
             it(`function f(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`function f(${arg}) { "use strict"; }`, undefined, Context.Empty);
+                    parseSource(`function f(${arg}) { "use strict"; }`, undefined, Context.Empty);
                 });
             });
 
             it(`void function(${arg}) { "use strict"; };`, () => {
                 t.throws(() => {
-                    parse(`void function(${arg}) { "use strict"; };`, undefined, Context.Empty);
+                    parseSource(`void function(${arg}) { "use strict"; };`, undefined, Context.Empty);
                 });
             });
 
             it(`function* g(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`function* g(${arg}) { "use strict"; }`, undefined, Context.Empty);
+                    parseSource(`function* g(${arg}) { "use strict"; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function g(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`async function g(${arg}) { "use strict"; }`, undefined, Context.Empty);
+                    parseSource(`async function g(${arg}) { "use strict"; }`, undefined, Context.Empty);
                 });
             });
 
             it(`(class { constructor(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`(class { constructor(${arg}) { "use strict"; } });`, undefined, Context.Empty);
+                    parseSource(`(class { constructor(${arg}) { "use strict"; } });`, undefined, Context.Empty);
                 });
             });
 
             it(`(${arg}) => { "use strict"; };`, () => {
                 t.throws(() => {
-                    parse(`(${arg}) => { "use strict"; };`, undefined, Context.Empty);
+                    parseSource(`(${arg}) => { "use strict"; };`, undefined, Context.Empty);
                 });
             });
 
             it(`({ get m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ get m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
+                    parseSource(`({ get m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
                 });
             });
 
             it(`class C { async m(${arg}) { "use strict"; } }`, () => {
                 t.throws(() => {
-                    parse(`class C { async m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
+                    parseSource(`class C { async m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
                 });
             });
 
             it(`({ async set m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ async set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
+                    parseSource(`({ async set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
                 });
             });
 
             it(`({ set m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
+                    parseSource(`({ set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
                 });
             });
 
             it(`class C { *m(${arg}) { "use strict"; } }`, () => {
                 t.throws(() => {
-                    parse(`class C { *m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
+                    parseSource(`class C { *m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
                 });
             });
         }

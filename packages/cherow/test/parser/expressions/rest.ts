@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Rest', () => {
 
@@ -27,7 +27,7 @@ describe('Expressions - Rest', () => {
 
       it(`${arg}`, () => {
           t.throws(() => {
-              parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+              parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
           });
       });
   }
@@ -50,7 +50,7 @@ describe('Expressions - Rest', () => {
 
       it(`function foo(${arg}){ return args;}(1, [], /regexp/, 'str', function(){});`, () => {
           t.throws(() => {
-              parse(`function foo(${arg}){ return args;}`, undefined, Context.OptionsNext | Context.Module);
+              parseSource(`function foo(${arg}){ return args;}`, undefined, Context.OptionsNext | Context.Module);
           });
       });
   }
@@ -117,7 +117,7 @@ describe('Expressions - Rest', () => {
 
           it(`function foo(${arg}){ return args;}(1, [], /regexp/, 'str', function(){});`, () => {
               t.doesNotThrow(() => {
-                  parse(`function foo(${arg}){ return args;}`, undefined, Context.OptionsNext | Context.Module);
+                  parseSource(`function foo(${arg}){ return args;}`, undefined, Context.OptionsNext | Context.Module);
               });
           });
       }

@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Rest property', () => {
 
@@ -55,7 +55,7 @@ describe('Expressions - Rest property', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -80,7 +80,7 @@ describe('Expressions - Rest property', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

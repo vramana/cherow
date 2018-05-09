@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Exponentiation', () => {
 
@@ -45,19 +45,19 @@ describe('Expressions - Exponentiation', () => {
 
             it(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, () => {
                 t.throws(() => {
-                    parse(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`var O = { p: 1 }, x = 10; ; (${arg})`, () => {
                 t.throws(() => {
-                    parse(`var O = { p: 1 }, x = 10; ; (${arg})`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; ; (${arg})`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`var O = { p: 1 }, x = 10; foo(${arg})`, () => {
                 t.throws(() => {
-                    parse(`var O = { p: 1 }, x = 10; foo(${arg})`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; foo(${arg})`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
         }
@@ -102,19 +102,19 @@ describe('Expressions - Exponentiation', () => {
 
             it(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`var O = { p: 1 }, x = 10; ; (${arg})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var O = { p: 1 }, x = 10; ; (${arg})`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; ; (${arg})`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`var O = { p: 1 }, x = 10; foo(${arg})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var O = { p: 1 }, x = 10; foo(${arg})`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`var O = { p: 1 }, x = 10; foo(${arg})`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 

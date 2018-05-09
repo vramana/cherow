@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Arrows', () => {
 
@@ -29,7 +29,7 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.throws(() => {
-                    parse(`${arg};`, undefined, Context.Empty);
+                    parseSource(`${arg};`, undefined, Context.Empty);
                 });
             });
         }
@@ -59,19 +59,19 @@ describe('Expressions - Arrows', () => {
 
             it(`(function *g(z = ( ${arg} ) => {}) { });`, () => {
                 t.throws(() => {
-                    parse(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
+                    parseSource(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; (function *g(z = ( ${arg} ) => {}) { });`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; (function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
+                    parseSource(`"use strict"; (function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Empty);
                 });
             });
 
             it(`(function *g(z = ( ${arg} ) => {}) { });`, () => {
                 t.throws(() => {
-                    parse(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Strict | Context.Module);
+                    parseSource(`(function *g(z = ( ${arg} ) => {}) { });`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -88,7 +88,7 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg};`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg};`, undefined, Context.Empty);
                 });
             });
         }
@@ -116,61 +116,61 @@ describe('Expressions - Arrows', () => {
 
             it(`()${arg} =>{}`, () => {
                 t.throws(() => {
-                    parse(`()${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`()${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`()${arg} =>{}:`, () => {
                 t.throws(() => {
-                    parse(`()${arg} =>{};`, undefined, Context.Empty);
+                    parseSource(`()${arg} =>{};`, undefined, Context.Empty);
                 });
             });
 
             it(`var x = ()${arg} =>{}`, () => {
                 t.throws(() => {
-                    parse(`var x = ()${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`var x = ()${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; var x = ()${arg} =>{}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; var x = ()${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; var x = ()${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`(...a)${arg} =>{}`, () => {
                 t.throws(() => {
-                    parse(`(...a)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`(...a)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`var x = (...a)${arg};`, () => {
                 t.throws(() => {
-                    parse(`var x = (...a)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`var x = (...a)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`(a,b)${arg};`, () => {
                 t.throws(() => {
-                    parse(`(a,b)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`(a,b)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`var x = (a,b)${arg};`, () => {
                 t.throws(() => {
-                    parse(`var x = (a,b)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`var x = (a,b)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`(a,...b)${arg};`, () => {
                 t.throws(() => {
-                    parse(`(a,...b)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`(a,...b)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
 
             it(`var x = (a,...b)${arg};`, () => {
                 t.throws(() => {
-                    parse(`var x = (a,...b)${arg} =>{}`, undefined, Context.Empty);
+                    parseSource(`var x = (a,...b)${arg} =>{}`, undefined, Context.Empty);
                 });
             });
         }
@@ -314,31 +314,31 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.throws(() => {
-                    parse(`${arg};`, undefined, Context.Empty);
+                    parseSource(`${arg};`, undefined, Context.Empty);
                 });
             });
 
             it(`bar ? (${arg}) : baz;`, () => {
                 t.throws(() => {
-                    parse(`bar ? (${arg}) : baz;`, undefined, Context.Empty);
+                    parseSource(`bar ? (${arg}) : baz;`, undefined, Context.Empty);
                 });
             });
 
             it(`bar ? baz : (${arg});`, () => {
                 t.throws(() => {
-                    parse(`bar ? baz : (${arg});`, undefined, Context.Empty);
+                    parseSource(`bar ? baz : (${arg});`, undefined, Context.Empty);
                 });
             });
 
             it(`bar[${arg}];`, () => {
                 t.throws(() => {
-                    parse(`bar[${arg}];`, undefined, Context.Empty);
+                    parseSource(`bar[${arg}];`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}, bar;`, () => {
                 t.throws(() => {
-                    parse(`${arg}, bar;`, undefined, Context.Empty);
+                    parseSource(`${arg}, bar;`, undefined, Context.Empty);
                 });
             });
         }
@@ -852,7 +852,7 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg};`, undefined, Context.Empty);
+                    parseSource(`${arg};`, undefined, Context.Empty);
                 });
             });
         }
@@ -935,37 +935,37 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg};`, undefined, Context.Empty);
+                    parseSource(`${arg};`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg};`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`${arg};`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`bar ? (${arg}) : baz;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar ? (${arg}) : baz;`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`bar ? (${arg}) : baz;`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`bar ? baz : (${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar ? baz : (${arg});`, undefined, Context.Empty);
+                    parseSource(`bar ? baz : (${arg});`, undefined, Context.Empty);
                 });
             });
 
             it(`bar, ${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar, ${arg};`, undefined, Context.Empty);
+                    parseSource(`bar, ${arg};`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}, bar;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}, bar;`, undefined, Context.Empty);
+                    parseSource(`${arg}, bar;`, undefined, Context.Empty);
                 });
             });
         }
@@ -992,31 +992,31 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg};`, undefined, Context.Empty);
+                    parseSource(`${arg};`, undefined, Context.Empty);
                 });
             });
 
             it(`bar ? (${arg}) : baz;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar ? (${arg}) : baz;`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`bar ? (${arg}) : baz;`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
 
             it(`bar ? baz : (${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar ? baz : (${arg});`, undefined, Context.Empty);
+                    parseSource(`bar ? baz : (${arg});`, undefined, Context.Empty);
                 });
             });
 
             it(`bar, ${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar, ${arg};`, undefined, Context.Empty);
+                    parseSource(`bar, ${arg};`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}, bar;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}, bar;`, undefined, Context.Empty);
+                    parseSource(`${arg}, bar;`, undefined, Context.Empty);
                 });
             });
         }
@@ -1034,25 +1034,25 @@ describe('Expressions - Arrows', () => {
 
             it(`${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function f() { (${arg}); });`, undefined, Context.Empty);
+                    parseSource(`(function f() { (${arg}); });`, undefined, Context.Empty);
                 });
             });
 
             it(`(function *f() { (${arg}); });`, () => {
                 t.throws(() => {
-                    parse(`(function *f() { (${arg}); });`, undefined, Context.Empty);
+                    parseSource(`(function *f() { (${arg}); });`, undefined, Context.Empty);
                 });
             });
 
             it(`(function f() { "use strict"; (${arg}); });`, () => {
                 t.throws(() => {
-                    parse(`(function f() { "use strict"; (${arg}); });`, undefined, Context.Empty);
+                    parseSource(`(function f() { "use strict"; (${arg}); });`, undefined, Context.Empty);
                 });
             });
 
             it(`(function *f() { "use strict"; (${arg}); });`, () => {
                 t.throws(() => {
-                    parse(`(function *f() { "use strict"; (${arg}); });`, undefined, Context.Empty);
+                    parseSource(`(function *f() { "use strict"; (${arg}); });`, undefined, Context.Empty);
                 });
             });
         }

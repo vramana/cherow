@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Call', () => {
 
@@ -20,7 +20,7 @@ describe('Expressions - Call', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -34,13 +34,13 @@ describe('Expressions - Call', () => {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.throws(() => {
-                    parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+                    parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
                 });
             });
 
             it(`function fn() { } fn(${arg});`, () => {
                 t.throws(() => {
-                    parse(`function fn() { } fn(${arg});`, undefined, Context.Empty);
+                    parseSource(`function fn() { } fn(${arg});`, undefined, Context.Empty);
                 });
             });
         }
@@ -75,7 +75,7 @@ describe('Expressions - Call', () => {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+                    parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
                 });
             });
         }
@@ -102,13 +102,13 @@ describe('Expressions - Call', () => {
 
             it(`function fn() { 'use strict';} fn(${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+                    parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
                 });
             });
 
             it(`function fn() { } fn(${arg});`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function fn() { } fn(${arg});`, undefined, Context.Empty);
+                    parseSource(`function fn() { } fn(${arg});`, undefined, Context.Empty);
                 });
             });
         }
@@ -144,7 +144,7 @@ describe('Expressions - Call', () => {
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }

@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Keywords', () => {
 
@@ -32,19 +32,19 @@ describe('Miscellaneous - Keywords', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`var ${arg}`, () => {
                 t.throws(() => {
-                    parse(`var ${arg}`, undefined, Context.Empty);
+                    parseSource(`var ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`function () { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`function () { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function () { ${arg} }`, undefined, Context.Empty);
                 });
             });
         }

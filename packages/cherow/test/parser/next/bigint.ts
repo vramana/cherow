@@ -1,7 +1,7 @@
 import { pass } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Next - Bignt', () => {
 
@@ -28,7 +28,7 @@ describe('Next - Bignt', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -101,7 +101,7 @@ describe('Next - Bignt', () => {
         for (const arg of validSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
 
             });

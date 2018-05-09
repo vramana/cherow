@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Template', () => {
 
@@ -109,13 +109,13 @@ describe('Expressions - Template', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -129,7 +129,7 @@ describe('Expressions - Template', () => {
             if (c == '`' || c == '\\' || c == '\r') continue;
             it('`' + c + '`', () => {
                 t.doesNotThrow(() => {
-                    parse('`' + c + '`', undefined, Context.Empty);
+                    parseSource('`' + c + '`', undefined, Context.Empty);
                 });
             });
         }
@@ -143,7 +143,7 @@ describe('Expressions - Template', () => {
 
                 it(`'${escape}'`, () => {
                     t.doesNotThrow(() => {
-                        parse(`'${escape}'`, undefined, Context.Empty);
+                        parseSource(`'${escape}'`, undefined, Context.Empty);
                     });
                 });
             }
@@ -157,7 +157,7 @@ describe('Expressions - Template', () => {
 
             it(`'${arg0}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg0}'`, undefined, Context.Empty);
+                    parseSource(`'${arg0}'`, undefined, Context.Empty);
                 });
             });
 
@@ -165,13 +165,13 @@ describe('Expressions - Template', () => {
 
             it(`'${arg1}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg1}'`, undefined, Context.Empty);
+                    parseSource(`'${arg1}'`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; '${arg1}'`, () => {
                   t.throws(() => {
-                      parse(`"use strict"; '${arg1}'`, undefined, Context.Empty);
+                      parseSource(`"use strict"; '${arg1}'`, undefined, Context.Empty);
                   });
               });
 
@@ -179,13 +179,13 @@ describe('Expressions - Template', () => {
 
             it(`'${arg2}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg2}'`, undefined, Context.Empty);
+                    parseSource(`'${arg2}'`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; '${arg2}'`, () => {
                  t.throws(() => {
-                     parse(`"use strict"; '${arg2}'`, undefined, Context.Empty);
+                     parseSource(`"use strict"; '${arg2}'`, undefined, Context.Empty);
                  });
             });
         }
@@ -196,7 +196,7 @@ describe('Expressions - Template', () => {
 
             it(`'${arg}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg}'`, undefined, Context.Empty);
+                    parseSource(`'${arg}'`, undefined, Context.Empty);
                 });
             });
 
@@ -204,20 +204,20 @@ describe('Expressions - Template', () => {
 
             it(`'${arg0}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg0}'`, undefined, Context.Empty);
+                    parseSource(`'${arg0}'`, undefined, Context.Empty);
                 });
             });
 
             it(`'${arg0}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg0}'`, undefined, Context.Empty);
+                    parseSource(`'${arg0}'`, undefined, Context.Empty);
                 });
             });
             const arg000 = `\\u{000${code.toString(16)}}`;
 
             it(`'${arg000}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg000}'`, undefined, Context.Empty);
+                    parseSource(`'${arg000}'`, undefined, Context.Empty);
                 });
             });
         }
@@ -228,7 +228,7 @@ describe('Expressions - Template', () => {
 
             it(`'${arg}'`, () => {
                 t.doesNotThrow(() => {
-                    parse(`'${arg}'`, undefined, Context.Empty);
+                    parseSource(`'${arg}'`, undefined, Context.Empty);
                 });
             });
         }
@@ -257,19 +257,19 @@ describe('Expressions - Template', () => {
 
             it(`\`${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -278,19 +278,19 @@ describe('Expressions - Template', () => {
             const letter = String.fromCharCode(code);
             it(`\`${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
                 });
             });
          }
@@ -299,19 +299,19 @@ describe('Expressions - Template', () => {
             const letter = String.fromCharCode(code);
             it(`\`${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Empty);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Empty);
                 });
             });
 
             it(`\`\\${letter}\``, () => {
                 t.doesNotThrow(() => {
-                    parse(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
+                    parseSource(`\`\\${letter}\``, undefined, Context.Strict | Context.Module);
                 });
             });
          }
@@ -322,7 +322,7 @@ describe('Expressions - Template', () => {
         const letter = String.fromCharCode(code);
         it(`\`${letter}\``, () => {
             t.doesNotThrow(() => {
-                parse(`\`${letter}\``, undefined, Context.Strict | Context.Module);
+                parseSource(`\`${letter}\``, undefined, Context.Strict | Context.Module);
             });
         });
     }
@@ -365,7 +365,7 @@ describe('Expressions - Template', () => {
 
         it(`${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
     }
@@ -480,19 +480,19 @@ describe('Expressions - Template', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }

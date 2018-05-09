@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Destructuring - Params', () => {
 
@@ -28,47 +28,47 @@ describe('Destructuring - Params', () => {
             // Plain function
             it(`function fn(${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`function fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`function fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Generators
             it(`function fn(${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`function *fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`function *fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Generator expression - no name
             it(`(function *(${arg}) {})`, () => {
                 t.throws(() => {
-                    parse(`(function *(${arg}) {})`, undefined, Context.Empty);
+                    parseSource(`(function *(${arg}) {})`, undefined, Context.Empty);
                 });
             });
             // Async function
             it(`async function fn(${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`async function fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Async Generator
             it(`async function *fn(${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`async function *fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function *fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
             // Arrows
             it(`(${arg}) => x;`, () => {
                 t.throws(() => {
-                    parse(`(${arg}) => x;`, undefined, Context.Empty);
+                    parseSource(`(${arg}) => x;`, undefined, Context.Empty);
                 });
             });
 
             // Async arrows
             it(`(${arg}) => x;`, () => {
                 t.throws(() => {
-                    parse(`(${arg}) => x;`, undefined, Context.Empty);
+                    parseSource(`(${arg}) => x;`, undefined, Context.Empty);
                 });
             });
 
@@ -100,47 +100,47 @@ describe('Destructuring - Params', () => {
             // Plain function
             it(`function fn(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`function fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Generators
             it(`function fn(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function *fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`function *fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Generator expression - no name
             it(`(function *(${arg}) {})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function *(${arg}) {})`, undefined, Context.Empty);
+                    parseSource(`(function *(${arg}) {})`, undefined, Context.Empty);
                 });
             });
             // Async function
             it(`async function fn(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             // Async Generator
             it(`async function *fn(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function *fn(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function *fn(${arg}) {}`, undefined, Context.Empty);
                 });
             });
             // Arrows
             it(`(${arg}) => x;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(${arg}) => x;`, undefined, Context.Empty);
+                    parseSource(`(${arg}) => x;`, undefined, Context.Empty);
                 });
             });
 
             // Async arrows
             it(`(${arg}) => x;`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(${arg}) => x;`, undefined, Context.Empty);
+                    parseSource(`(${arg}) => x;`, undefined, Context.Empty);
                 });
             });
         }
@@ -178,7 +178,7 @@ describe('Destructuring - Params', () => {
             // Plain function
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

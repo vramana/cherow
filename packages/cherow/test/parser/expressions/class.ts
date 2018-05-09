@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions  - Class', () => {
 
@@ -80,19 +80,19 @@ describe('Expressions  - Class', () => {
         for (const arg of invalidSyntax) {
             it(`(class {${arg}})`, () => {
                 t.throws(() => {
-                    parse(`(class {${arg}})`, undefined, Context.Empty);
+                    parseSource(`(class {${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`(class {${arg}})`, () => {
                 t.throws(() => {
-                    parse(`var = (class {${arg}})`, undefined, Context.Empty);
+                    parseSource(`var = (class {${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`(class {${arg}})`, () => {
                 t.throws(() => {
-                    parse(`bar, (class {${arg}})`, undefined, Context.Empty);
+                    parseSource(`bar, (class {${arg}})`, undefined, Context.Empty);
                 });
             });
         }
@@ -238,7 +238,7 @@ describe('Expressions  - Class', () => {
         for (const arg of validCombos) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -259,19 +259,19 @@ describe('Expressions  - Class', () => {
         for (const arg of extendSyntax) {
             it(`(${arg})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(${arg})`, undefined, Context.Empty);
+                    parseSource(`(${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`var C = ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(${arg})`, undefined, Context.Empty);
+                    parseSource(`(${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`bar, ${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`bar, ${arg};`, undefined, Context.Empty);
+                    parseSource(`bar, ${arg};`, undefined, Context.Empty);
                 });
             });
         }
@@ -407,31 +407,31 @@ describe('Expressions  - Class', () => {
         for (const arg of validSyntax) {
             it(`(class { ${arg}})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(class { ${arg}})`, undefined, Context.Empty);
+                    parseSource(`(class { ${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`(class { ${arg}}) (class { ${arg}})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(class { ${arg}}) (class { ${arg}})`, undefined, Context.Empty);
+                    parseSource(`(class { ${arg}}) (class { ${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`var foo = (class { ${arg}})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var foo = (class { ${arg}})`, undefined, Context.Empty);
+                    parseSource(`var foo = (class { ${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`function foo() { (class { ${arg}}) }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo() { (class { ${arg}}) }`, undefined, Context.Empty);
+                    parseSource(`function foo() { (class { ${arg}}) }`, undefined, Context.Empty);
                 });
             });
 
             it(`() => { (class { ${arg}}) }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`() => { (class { ${arg}}) }`, undefined, Context.Empty);
+                    parseSource(`() => { (class { ${arg}}) }`, undefined, Context.Empty);
                 });
             });
         }

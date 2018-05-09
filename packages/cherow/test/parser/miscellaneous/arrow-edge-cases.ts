@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 // Validate miscellaneous combinations of call expr, arrows and async arrows
 describe('Miscellaneous - Edge cases', () => {
@@ -492,13 +492,13 @@ describe('Miscellaneous - Edge cases', () => {
 
           it(`${arg}`, () => {
               t.doesNotThrow(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
+                  parseSource(`${arg}`, undefined, Context.Empty);
               });
           });
 
           it(`function foo() { ${arg} }`, () => {
               t.doesNotThrow(() => {
-                  parse(`function foo() { ${arg} }`, undefined, Context.Empty);
+                  parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
               });
           });
       }

@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Eval and arguments', () => {
 
@@ -55,13 +55,13 @@ describe('Miscellaneous - Eval and arguments', () => {
 
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -89,19 +89,19 @@ describe('Miscellaneous - Eval and arguments', () => {
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`function foo() { "use strict"; ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo() { "use strict";  ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function foo() { "use strict";  ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`() => { "use strict"; ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`() => { "use strict";  ${arg} }`, undefined, Context.Empty);
+                    parseSource(`() => { "use strict";  ${arg} }`, undefined, Context.Empty);
                 });
             });
         }
@@ -139,13 +139,13 @@ describe('Miscellaneous - Eval and arguments', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`function foo() { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
                 });
             });
         }

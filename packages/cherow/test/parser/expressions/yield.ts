@@ -2,7 +2,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Yield', () => {
 
@@ -28,37 +28,37 @@ describe('Expressions - Yield', () => {
       for (const arg of StrictErrors) {
           it(`"use strict"; ${arg}`, () => {
               t.throws(() => {
-                  parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                  parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; function foo() { ${arg}}`, () => {
               t.throws(() => {
-                  parse(`"use strict"; function foo() { ${arg}}`, undefined, Context.Empty);
+                  parseSource(`"use strict"; function foo() { ${arg}}`, undefined, Context.Empty);
               });
           });
 
           it(`function foo() { "use strict"; ${arg} }`, () => {
               t.throws(() => {
-                  parse(`function foo() { "use strict"; ${arg} }`, undefined, Context.Empty);
+                  parseSource(`function foo() { "use strict"; ${arg} }`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; (function foo() {${arg}})`, () => {
               t.throws(() => {
-                  parse(`"use strict"; (function foo() {${arg}})`, undefined, Context.Empty);
+                  parseSource(`"use strict"; (function foo() {${arg}})`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; (function * gen() { function foo() { ${arg}} }`, () => {
               t.throws(() => {
-                  parse(`"use strict"; (function * gen() { function foo() { ${arg}} }`, undefined, Context.Empty);
+                  parseSource(`"use strict"; (function * gen() { function foo() { ${arg}} }`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; (function * gen() { (function foo() { ${arg}}) })`, () => {
               t.throws(() => {
-                  parse(`"use strict"; (function * gen() { (function foo() { ${arg}}) })`, undefined, Context.Empty);
+                  parseSource(`"use strict"; (function * gen() { (function foo() { ${arg}}) })`, undefined, Context.Empty);
               });
           });
       }
@@ -140,13 +140,13 @@ describe('Expressions - Yield', () => {
       for (const arg of invalidSyntax) {
           it(`${arg}`, () => {
               t.throws(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
+                  parseSource(`${arg}`, undefined, Context.Empty);
               });
           });
 
           it(`${arg}`, () => {
             t.throws(() => {
-                parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
             });
         });
       }
@@ -201,21 +201,21 @@ describe('Expressions - Yield', () => {
           // Script context.
           it(`"use strict"; ${test}`, () => {
               t.throws(() => {
-                  parse(`"use strict"; ${test}`, undefined, Context.Empty);
+                  parseSource(`"use strict"; ${test}`, undefined, Context.Empty);
               });
           });
 
           // Function context.
           it(`"use strict"; function f() { ${test} }`, () => {
               t.throws(() => {
-                  parse(`"use strict"; function f() { ${test} }`, undefined, Context.Empty);
+                  parseSource(`"use strict"; function f() { ${test} }`, undefined, Context.Empty);
               });
           });
 
           // Generator
           it(`"use strict"; function* g() { ${test} }`, () => {
               t.throws(() => {
-                  parse(`"use strict"; function* g() { ${test} }`, undefined, Context.Empty);
+                  parseSource(`"use strict"; function* g() { ${test} }`, undefined, Context.Empty);
               });
           });
       }
@@ -224,7 +224,7 @@ describe('Expressions - Yield', () => {
       for (const test of yieldInParameters) {
           it(`function* g() { ${test} }`, () => {
               t.throws(() => {
-                  parse(`function* g() { ${test} }`, undefined, Context.Empty);
+                  parseSource(`function* g() { ${test} }`, undefined, Context.Empty);
               });
           });
       }
@@ -232,7 +232,7 @@ describe('Expressions - Yield', () => {
       for (const arg of ['(function * yield() { })']) {
           it(`function not_gen() { ${arg}}`, () => {
               t.throws(() => {
-                  parse(`function a() { ${arg}}`, undefined, Context.Empty);
+                  parseSource(`function a() { ${arg}}`, undefined, Context.Empty);
               });
           });
       }
@@ -417,25 +417,25 @@ describe('Expressions - Yield', () => {
 
           it(`function foo() {${arg}}`, () => {
               t.doesNotThrow(() => {
-                  parse(`function foo() {${arg}}`, undefined, Context.Empty);
+                  parseSource(`function foo() {${arg}}`, undefined, Context.Empty);
               });
           });
 
           it(`(function foo() {${arg}})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(function foo() {${arg}})`, undefined, Context.Empty);
+                  parseSource(`(function foo() {${arg}})`, undefined, Context.Empty);
               });
           });
 
           it(`(() => {${arg}})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(() => {${arg}})`, undefined, Context.Empty);
+                  parseSource(`(() => {${arg}})`, undefined, Context.Empty);
               });
           });
 
           it(`(async () => {${arg}})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(async () => {${arg}})`, undefined, Context.Empty);
+                  parseSource(`(async () => {${arg}})`, undefined, Context.Empty);
               });
           });
       }
@@ -585,25 +585,25 @@ describe('Expressions - Yield', () => {
 
           it(`function foo() { ${arg}}`, () => {
               t.doesNotThrow(() => {
-                  parse(`function not_gen() { ${arg}}`, undefined, Context.Empty);
+                  parseSource(`function not_gen() { ${arg}}`, undefined, Context.Empty);
               });
           });
 
           it(`function * gen() { function not_gen() { ${arg} }}`, () => {
               t.doesNotThrow(() => {
-                  parse(`function * gen() { function not_gen() { ${arg} }}`, undefined, Context.Empty);
+                  parseSource(`function * gen() { function not_gen() { ${arg} }}`, undefined, Context.Empty);
               });
           });
 
           it(`(function foo() { ${arg}})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(function foo() { ${arg}})`, undefined, Context.Empty);
+                  parseSource(`(function foo() { ${arg}})`, undefined, Context.Empty);
               });
           });
 
           it(`(function * gen() { function not_gen() { ${arg} }})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(function * gen() { function not_gen() { ${arg} }})`, undefined, Context.Empty);
+                  parseSource(`(function * gen() { function not_gen() { ${arg} }})`, undefined, Context.Empty);
               });
           });
       }

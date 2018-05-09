@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - HTML Comments', () => {
 
@@ -19,7 +19,7 @@ describe('Miscellaneous - HTML Comments', () => {
 
                it(`${arg}`, () => {
                    t.throws(() => {
-                       parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                       parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                    });
                });
            }
@@ -35,7 +35,7 @@ describe('Miscellaneous - HTML Comments', () => {
 
                it(`${arg}`, () => {
                    t.throws(() => {
-                       parse(`${arg}`, undefined, Context.Empty);
+                       parseSource(`${arg}`, undefined, Context.Empty);
                    });
                });
            }
@@ -71,7 +71,7 @@ describe('Miscellaneous - HTML Comments', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

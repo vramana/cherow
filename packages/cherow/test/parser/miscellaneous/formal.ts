@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Formal params', () => {
 
@@ -26,43 +26,43 @@ describe('Miscellaneous - Formal params', () => {
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`var a = (${arg}) => { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var a = (${arg}) => { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var a = (${arg}) => { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; function f(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; function f(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; function f(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
         }
@@ -90,13 +90,13 @@ describe('Miscellaneous - Formal params', () => {
 
             it(`var o = { m(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`var o = { m(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; function f(${arg}) { 'use strict'; }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; function f(${arg}) { 'use strict'; }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; function f(${arg}) { 'use strict'; }`, undefined, Context.Empty);
                 });
             });
         }

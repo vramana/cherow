@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Declarations - Functions', () => {
 
@@ -21,7 +21,7 @@ describe('Declarations - Functions', () => {
         for (const arg of invalidDuplicates) {
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -40,19 +40,19 @@ describe('Declarations - Functions', () => {
 
             it(`function ${arg}() {};`, () => {
                 t.throws(() => {
-                    parse(`function ${arg}() {};`, undefined, Context.Empty);
+                    parseSource(`function ${arg}() {};`, undefined, Context.Empty);
                 });
             });
 
             it(`function ${arg}() {};`, () => {
                 t.throws(() => {
-                    parse(`function ${arg}() {};`, undefined, Context.Strict | Context.Module);
+                    parseSource(`function ${arg}() {};`, undefined, Context.Strict | Context.Module);
                 });
             });
 
             it(`(function ${arg}() {});`, () => {
                 t.throws(() => {
-                    parse(`(function ${arg}() {});`, undefined, Context.Empty);
+                    parseSource(`(function ${arg}() {});`, undefined, Context.Empty);
                 });
             });
         }
@@ -109,7 +109,7 @@ describe('Declarations - Functions', () => {
         for (const arg of Failures) {
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -368,7 +368,7 @@ describe('Declarations - Functions', () => {
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

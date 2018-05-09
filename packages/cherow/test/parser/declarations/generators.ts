@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Declarations - Generators', () => {
 
@@ -53,7 +53,7 @@ describe('Declarations - Generators', () => {
         for (const arg of failures) {
             it(`function * gen() { ${arg} } `, () => {
                 t.throws(() => {
-                    parse(`async function * gen() { ${arg} } `, undefined, Context.Empty);
+                    parseSource(`async function * gen() { ${arg} } `, undefined, Context.Empty);
                 });
             });
         }
@@ -123,19 +123,19 @@ describe('Declarations - Generators', () => {
 
             it(`function * gen() {${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function * gen() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function * gen() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`(function * gen() {${arg} })`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function * gen() {${arg} })`, undefined, Context.Empty);
+                    parseSource(`(function * gen() {${arg} })`, undefined, Context.Empty);
                 });
             });
 
             it(`(function * () {${arg} })`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function * () {${arg} })`, undefined, Context.Empty);
+                    parseSource(`(function * () {${arg} })`, undefined, Context.Empty);
                 });
             });
         }

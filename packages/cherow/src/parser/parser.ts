@@ -58,14 +58,25 @@ export function createParser(
 }
 
 /**
+ * Parse either script code or module code
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parse(source: string, options?: Options): ESTree.Program {
+  return options && options.module
+    ? parseSource(source, options, Context.Strict | Context.Module)
+    : parseSource(source, options, Context.Empty);
+}
+
+/**
  * Creating the parser
  *
  * @param source The source coode to parser
  * @param options The parser options
  * @param context Context masks
  */
-
-export function parse(source: string, options: Options | void, context: Context): ESTree.Program {
+export function parseSource(source: string, options: Options | void, /*@internal*/ context: Context): ESTree.Program {
 
     let sourceFile: string = '';
 
@@ -177,7 +188,7 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
  * @param options parser options
  */
 export function parseScript(source: string, options?: Options): ESTree.Program {
-  return parse(source, options, Context.Empty);
+  return parseSource(source, options, Context.Empty);
 }
 
 /**
@@ -189,5 +200,5 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
  * @param options parser options
  */
 export function parseModule(source: string, options?: Options): ESTree.Program {
-  return parse(source, options, Context.Strict | Context.Module);
+  return parseSource(source, options, Context.Strict | Context.Module);
 }

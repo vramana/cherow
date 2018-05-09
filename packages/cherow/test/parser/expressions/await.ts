@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Await', () => {
 
@@ -93,7 +93,7 @@ describe('Expressions - Await', () => {
         for (const arg of invalidInModule) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -158,43 +158,43 @@ describe('Expressions - Await', () => {
         for (const arg of formalParams) {
             it(`async function f( ${arg}) {}`, () => {
                 t.throws(() => {
-                    parse(`async function f( ${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function f( ${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; function f() { ${arg}) }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; function f() { ${arg}) }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; function f() { ${arg}) }`, undefined, Context.Empty);
                 });
             });
 
             it(`let f = () => {${arg})`, () => {
                 t.throws(() => {
-                    parse(`let f = () => {${arg})`, undefined, Context.Empty);
+                    parseSource(`let f = () => {${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; async function* f() {${arg})`, () => {
                 t.throws(() => {
-                    parse(`let f = () => {${arg})`, undefined, Context.Empty);
+                    parseSource(`let f = () => {${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`function* f() {${arg})`, () => {
                 t.throws(() => {
-                    parse(`function* f() {${arg})`, undefined, Context.Empty);
+                    parseSource(`function* f() {${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`function* f() {${arg})`, () => {
                 t.throws(() => {
-                    parse(`function* f() {${arg})`, undefined, Context.Empty);
+                    parseSource(`function* f() {${arg})`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; function* f() {"${arg})`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; function* f() {"${arg})`, undefined, Context.Empty);
+                    parseSource(`'use strict'; function* f() {"${arg})`, undefined, Context.Empty);
                 });
             });
         }
@@ -313,31 +313,31 @@ describe('Expressions - Await', () => {
         for (const arg of bodyErrors) {
             it(`async function f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`async function f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`async function f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; async function f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`async function f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`async function f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; var f = async function() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; var f = async function() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; var f = async function() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; var f = async() => { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; var f = async() => { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; var f = async() => { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`'use strict'; var O = { async method() {${arg} }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; var O = { async method() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; var O = { async method() { ${arg} }`, undefined, Context.Empty);
                 });
             });
         }
@@ -355,7 +355,7 @@ describe('Expressions - Await', () => {
         for (const arg of invalidInModuleCode) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -390,49 +390,49 @@ describe('Expressions - Await', () => {
         for (const arg of invalidDestructuringTarget) {
             it(`let f = () => { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`let f = () => { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`let f = () => { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`let f = () => { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`let f = () => { ${arg} }`, undefined, Context.Module);
+                    parseSource(`let f = () => { ${arg} }`, undefined, Context.Module);
                 });
             });
 
             it(`'use strict'; async function* f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; async function* f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; async function* f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`function* f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`function* f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function* f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`let f = async() => { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`let f = async() => { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`let f = async() => { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function* f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`async function* f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`async function* f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function* f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`async function* f() { ${arg} }`, undefined, Context.Module);
+                    parseSource(`async function* f() { ${arg} }`, undefined, Context.Module);
                 });
             });
 
             it(`'use strict'; async function f() { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`'use strict'; async function f() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`'use strict'; async function f() { ${arg} }`, undefined, Context.Empty);
                 });
             });
         }
@@ -488,7 +488,7 @@ describe('Expressions - Await', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -508,7 +508,7 @@ describe('Expressions - Await', () => {
         for (const arg of validStrictSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -522,37 +522,37 @@ describe('Expressions - Await', () => {
         for (const arg of formalParams) {
             it(`async function f( ${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f( ${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`async function f( ${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             it(`var f = async function f(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var f = async function f( ${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`var f = async function f( ${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             it(`var f = async(${arg}) => {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var f = async(${arg}) => {}`, undefined, Context.Empty);
+                    parseSource(`var f = async(${arg}) => {}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; async function f( ${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; async function f( ${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; async function f( ${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict";  var f = async function f(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict";  var f = async function f(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`"use strict";  var f = async function f(${arg}) {}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; var f = async(${arg}) => {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; var f = async(${arg}) => {}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; var f = async(${arg}) => {}`, undefined, Context.Empty);
                 });
             });
         }
@@ -607,31 +607,31 @@ describe('Expressions - Await', () => {
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; var O = { *method() {${arg}}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function f() {${arg}}`, undefined, Context.Empty);
+                    parseSource(`function f() {${arg}}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; function* g() {${arg}}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; function* g() {${arg}}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; function* g() {${arg}}`, undefined, Context.Empty);
                 });
             });
         }

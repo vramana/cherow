@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Statements - For await of', () => {
 
@@ -170,37 +170,37 @@ describe('Statements - For await of', () => {
         for (const arg of Failures) {
             it(`async function f() { for await ${arg} { } } `, () => {
                 t.throws(() => {
-                    parse(`async function f() { for await ${arg} { } }`, undefined, Context.Empty);
+                    parseSource(`async function f() { for await ${arg} { } }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { for await ${arg} { } }`, () => {
                 t.throws(() => {
-                    parse(`async function * f() { for await ${arg} { } }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { for await ${arg} { } }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { for await ${arg} { } }`, () => {
                 t.throws(() => {
-                    parse(`async function * f() { for await ${arg} { } }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { for await ${arg} { } }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function f() { 'use strict'; for await ${arg}; }`, () => {
                 t.throws(() => {
-                    parse(`async function f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; for await ${arg}; }`, () => {
                 t.throws(() => {
-                    parse(`async function * f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; for await ${arg} { } }`, () => {
                 t.throws(() => {
-                    parse(`async function * f() { 'use strict'; for await ${arg} { } }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; for await ${arg} { } }`, undefined, Context.Empty);
                 });
             });
         }
@@ -305,7 +305,7 @@ describe('Statements - For await of', () => {
 
             it(`async function f() { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { for await ${arg} {} }`, undefined, Context.Empty);
+                    parseSource(`async function f() { for await ${arg} {} }`, undefined, Context.Empty);
                 });
             });
         }
@@ -384,79 +384,79 @@ describe('Statements - For await of', () => {
         for (const arg of programs) {
             it(`async function f() { 'use strict'; let a; for await ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { 'use strict'; let a; for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { 'use strict'; let a; for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function f() { let a; for await ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { let a; for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { let a; for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function f() { for await ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { let a; for\nawait ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { let a; for\nawait ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { let a; for\nawait ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { let a; for\nawait ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { let a; for\nawait ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { let a; for\nawait ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function f() { 'use strict'; for\nawait ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { 'use strict'; for\nawait ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { 'use strict'; for\nawait ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { for await\n ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { for await\n ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { for await\n ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; let a; for await\n ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { for await ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function f() { for\nawait ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function f() { for\nawait ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function f() { for\nawait ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; for await ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; for await ${arg}; }`, undefined, Context.Empty);
                 });
             });
 
             it(`async function * f() { 'use strict'; for\nawait ${arg}; }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * f() { 'use strict'; for\nawait ${arg}; }`, undefined, Context.Empty);
+                    parseSource(`async function * f() { 'use strict'; for\nawait ${arg}; }`, undefined, Context.Empty);
                 });
             });
         }

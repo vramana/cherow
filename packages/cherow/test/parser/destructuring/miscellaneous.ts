@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Destructuring - Miscellaneous', () => {
 
@@ -38,7 +38,7 @@ describe('Destructuring - Miscellaneous', () => {
 
         it(`${arg}`, () => {
             t.throws(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
       }
@@ -120,7 +120,7 @@ describe('Destructuring - Miscellaneous', () => {
 
         it(`${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
       }
@@ -189,37 +189,37 @@ describe('Destructuring - Miscellaneous', () => {
 
             it(`var ${arg} = {};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var ${arg} = {};`, undefined, Context.Empty);
+                    parseSource(`var ${arg} = {};`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; let ${arg} = {};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; let ${arg} = {};`, undefined, Context.Empty);
+                    parseSource(`"use strict"; let ${arg} = {};`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; const ${arg} = {};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`"use strict"; const ${arg} = {};`, undefined, Context.Empty);
+                    parseSource(`"use strict"; const ${arg} = {};`, undefined, Context.Empty);
                 });
             });
 
             it(`function foo(arg1, ${arg}) {};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo(arg1, ${arg}) {};`, undefined, Context.Empty);
+                    parseSource(`function foo(arg1, ${arg}) {};`, undefined, Context.Empty);
                 });
             });
 
             it(`var f = (arg, ${arg}) => {};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var f = (arg, ${arg}) => {};`, undefined, Context.Empty);
+                    parseSource(`var f = (arg, ${arg}) => {};`, undefined, Context.Empty);
                 });
             });
 
             it(`try {} catch(${arg}) {}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`try {} catch(${arg}) {}`, undefined, Context.Empty);
+                    parseSource(`try {} catch(${arg}) {}`, undefined, Context.Empty);
                 });
             });
         }

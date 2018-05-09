@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Comments', () => {
 
@@ -323,7 +323,7 @@ describe('Miscellaneous - Comments', () => {
 
             it(`"use strict"; ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsComments);
+                    parseSource(`${arg}`, undefined, Context.OptionsComments);
                 });
             });
 
@@ -331,7 +331,7 @@ describe('Miscellaneous - Comments', () => {
                 ${arg}
             }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function foo() {
+                    parseSource(`function foo() {
                         ${arg}
                     }`, undefined, Context.OptionsComments);
                 });

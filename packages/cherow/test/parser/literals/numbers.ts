@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Literals - numbers', () => {
 
@@ -31,13 +31,13 @@ describe('Literals - numbers', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -137,15 +137,15 @@ describe('Literals - numbers', () => {
         for (const arg of validSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
                 t.doesNotThrow(() => {
-                    parse(`var foo = ${arg};`, undefined, Context.OptionsNext);
+                    parseSource(`var foo = ${arg};`, undefined, Context.OptionsNext);
                 });
             });
             it(`var foo = ${arg};`, () => {
                   t.doesNotThrow(() => {
-                    parse(`var foo = ${arg};`, undefined, Context.OptionsNext);
+                    parseSource(`var foo = ${arg};`, undefined, Context.OptionsNext);
                 });
             });
         }

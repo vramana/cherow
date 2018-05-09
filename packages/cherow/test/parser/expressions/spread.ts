@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Spread', () => {
 
@@ -27,13 +27,13 @@ describe('Expressions - Spread', () => {
 
       it(`function fn() { 'use strict';} fn(${arg});`, () => {
           t.throws(() => {
-              parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
+              parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
           });
       });
 
       it(`function fn() {} fn(${arg});`, () => {
         t.throws(() => {
-            parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
+            parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
         });
     });
     }
@@ -110,13 +110,13 @@ describe('Expressions - Spread', () => {
 
       it(`function fn() { 'use strict';} fn(${arg});`, () => {
           t.doesNotThrow(() => {
-              parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
+              parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
           });
       });
 
       it(`function fn() {} fn(${arg});`, () => {
         t.doesNotThrow(() => {
-            parse(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
+            parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.OptionsNext | Context.Module);
         });
     });
     }

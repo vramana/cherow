@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Function', () => {
 
@@ -31,16 +31,16 @@ describe('Expressions - Function', () => {
       for (const arg of invalidFormalParams) {
           it(`(function (${arg}) {})`, () => {
               t.throws(() => {
-                  parse(`(function (${arg}) {})`, undefined, Context.Empty);
+                  parseSource(`(function (${arg}) {})`, undefined, Context.Empty);
               });
 
               t.throws(() => {
-                  parse(`const foo = (function (${arg}) {})`, undefined, Context.Empty);
+                  parseSource(`const foo = (function (${arg}) {})`, undefined, Context.Empty);
               });
 
               it(`(function (${arg}) {})`, () => {
                   t.throws(() => {
-                      parse(`(function (${arg}) {})`, undefined, Context.Strict | Context.Module);
+                      parseSource(`(function (${arg}) {})`, undefined, Context.Strict | Context.Module);
                   });
               });
           });
@@ -59,13 +59,13 @@ describe('Expressions - Function', () => {
       for (const arg of validSyntax) {
          it(`${arg}`, () => {
              t.throws(() => {
-                 parse(`${arg}`, undefined, Context.Empty);
+                 parseSource(`${arg}`, undefined, Context.Empty);
              });
          });
 
          it(`${arg}`, () => {
            t.throws(() => {
-               parse(`${arg}`, undefined, Context.Strict | Context.Module);
+               parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
            });
        });
      }
@@ -155,7 +155,7 @@ describe('Expressions - Function', () => {
       for (const arg of validFormalparams) {
           it(`(function(${arg}) {})`, () => {
               t.doesNotThrow(() => {
-                  parse(`(function(${arg}) {})`, undefined, Context.Empty);
+                  parseSource(`(function(${arg}) {})`, undefined, Context.Empty);
               });
           });
       }
@@ -177,13 +177,13 @@ describe('Expressions - Function', () => {
       for (const arg of validSyntax) {
         it(`${arg}`, () => {
             t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
 
         it(`${arg}`, () => {
           t.doesNotThrow(() => {
-              parse(`${arg}`, undefined, Context.Strict | Context.Module);
+              parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
           });
       });
     }

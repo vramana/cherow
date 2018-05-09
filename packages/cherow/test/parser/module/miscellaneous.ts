@@ -1,7 +1,7 @@
 import { fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Module - Miscellaneous', () => {
 
@@ -27,7 +27,7 @@ describe('Module - Miscellaneous', () => {
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -88,7 +88,7 @@ describe('Module - Miscellaneous', () => {
         for (const arg of moduleTopLevel) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }

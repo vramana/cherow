@@ -17,6 +17,9 @@ export type CommentType = 'MultiLine' | 'SingleLine' | 'SheBang' | 'HTMLOpen' | 
  * The parser options.
  */
 export interface Options {
+  // The flag to allow module code
+  module?: boolean;
+
   // Create a top-level comments array containing all comments
   comments?: boolean;
 

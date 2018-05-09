@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Super property', () => {
 
@@ -18,61 +18,61 @@ describe('Expressions - Super property', () => {
 
           it(`class C { method() { ${arg} } }`, () => {
               t.throws(() => {
-                  parse(`class C { method() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { method() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { *method() { ${arg} } }`, () => {
               t.throws(() => {
-                  parse(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { get x() { ${arg} } }`, () => {
               t.throws(() => {
-                  parse(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { set x(_) { ${arg} } }`, () => {
               t.throws(() => {
-                  parse(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`({ method() { ${arg} } })`, () => {
               t.throws(() => {
-                  parse(`({ method() { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`({ method() { ${arg} } })`, undefined, Context.Empty);
               });
           });
 
           it(`(function() { ${arg} } )`, () => {
               t.throws(() => {
-                  parse(`(function() { ${arg} } )`, undefined, Context.Empty);
+                  parseSource(`(function() { ${arg} } )`, undefined, Context.Empty);
               });
           });
 
           it(`var f = function() { ${arg} }`, () => {
               t.throws(() => {
-                  parse(`var f = function() { ${arg} }`, undefined, Context.Empty);
+                  parseSource(`var f = function() { ${arg} }`, undefined, Context.Empty);
               });
           });
 
           it(`({ f: function*() {${arg} } })`, () => {
               t.throws(() => {
-                  parse(`({ f: function*() { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`({ f: function*() { ${arg} } })`, undefined, Context.Empty);
               });
           });
 
           it(`(function*() { ${arg} })`, () => {
               t.throws(() => {
-                  parse(`(function*() { ${arg} })`, undefined, Context.Empty);
+                  parseSource(`(function*() { ${arg} })`, undefined, Context.Empty);
               });
           });
 
           it(`var f = function*() { ${arg} }`, () => {
               t.throws(() => {
-                  parse(`var f = function*() { ${arg} }`, undefined, Context.Empty);
+                  parseSource(`var f = function*() { ${arg} }`, undefined, Context.Empty);
               });
           });
       }
@@ -164,55 +164,55 @@ describe('Expressions - Super property', () => {
 
           it(`${arg}`, () => {
               t.throws(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
+                  parseSource(`${arg}`, undefined, Context.Empty);
               });
           });
 
           it(`icefapper = ${arg}`, () => {
               t.throws(() => {
-                  parse(`icefapper = ${arg}`, undefined, Context.Empty);
+                  parseSource(`icefapper = ${arg}`, undefined, Context.Empty);
               });
           });
 
           it(`foo(${arg})`, () => {
               t.throws(() => {
-                  parse(`foo(${arg})`, undefined, Context.Empty);
+                  parseSource(`foo(${arg})`, undefined, Context.Empty);
               });
           });
 
           it(`if (${arg}) {}`, () => {
               t.throws(() => {
-                  parse(`if (${arg}) {}`, undefined, Context.Empty);
+                  parseSource(`if (${arg}) {}`, undefined, Context.Empty);
               });
           });
 
           it(`if (false) {} else {${arg}}`, () => {
               t.throws(() => {
-                  parse(`if (false) {} else {${arg}}`, undefined, Context.Empty);
+                  parseSource(`if (false) {} else {${arg}}`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { function f() {${arg}} } }`, () => {
               t.throws(() => {
-                  parse(`class C { m() { function f() {${arg}} } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { function f() {${arg}} } }`, undefined, Context.Empty);
               });
           });
 
           it(`({ m() { function f() {${arg}} } })`, () => {
               t.throws(() => {
-                  parse(`({ m() { function f() {${arg}} } })`, undefined, Context.Empty);
+                  parseSource(`({ m() { function f() {${arg}} } })`, undefined, Context.Empty);
               });
           });
 
           it(`while (true) {${arg}}`, () => {
               t.throws(() => {
-                  parse(`while (true) {${arg}}`, undefined, Context.Empty);
+                  parseSource(`while (true) {${arg}}`, undefined, Context.Empty);
               });
           });
 
           it(`class C extends (${arg}) {}`, () => {
               t.throws(() => {
-                  parse(`class C extends (${arg}) {}`, undefined, Context.Empty);
+                  parseSource(`class C extends (${arg}) {}`, undefined, Context.Empty);
               });
           });
       }
@@ -241,7 +241,7 @@ describe('Expressions - Super property', () => {
 
           it(`${arg}`, () => {
               t.throws(() => {
-                  parse(`${arg}`, undefined, Context.Empty);
+                  parseSource(`${arg}`, undefined, Context.Empty);
               });
           });
       }
@@ -263,25 +263,25 @@ describe('Expressions - Super property', () => {
 
           it(`class C { m() { ${arg}; } }`, () => {
               t.throws(() => {
-                  parse(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { k = ${arg}; } }`, () => {
               t.throws(() => {
-                  parse(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { foo(${arg}); } }`, () => {
               t.throws(() => {
-                  parse(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { () => ${arg}; } }`, () => {
               t.throws(() => {
-                  parse(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
               });
           });
       }
@@ -451,49 +451,49 @@ describe('Expressions - Super property', () => {
 
           it(`class C { constructor() { ${arg} } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { constructor() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { constructor() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { *method() { ${arg} } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { get x() { ${arg} } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { set x(_) { ${arg} } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
+                  parseSource(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
               });
           });
 
           it(`({ method() { ${arg} } })`, () => {
               t.doesNotThrow(() => {
-                  parse(`({ method() { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`({ method() { ${arg} } })`, undefined, Context.Empty);
               });
           });
 
           it(`({ *method() { ${arg} } })`, () => {
               t.doesNotThrow(() => {
-                  parse(`({ *method() { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`({ *method() { ${arg} } })`, undefined, Context.Empty);
               });
           });
 
           it(`(class C { get x() { ${arg} } })`, () => {
               t.doesNotThrow(() => {
-                  parse(`(class C { get x() { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`(class C { get x() { ${arg} } })`, undefined, Context.Empty);
               });
           });
 
           it(`(class C { set x(_) { ${arg} } })`, () => {
               t.doesNotThrow(() => {
-                  parse(`(class C { set x(_) { ${arg} } })`, undefined, Context.Empty);
+                  parseSource(`(class C { set x(_) { ${arg} } })`, undefined, Context.Empty);
               });
           });
       }
@@ -513,25 +513,25 @@ describe('Expressions - Super property', () => {
 
           it(`class C { m() { ${arg}; } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { ${arg}; } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { k = ${arg}; } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { k = ${arg}; } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { foo(${arg}); } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { foo(${arg}); } }`, undefined, Context.Empty);
               });
           });
 
           it(`class C { m() { () => ${arg}; } }`, () => {
               t.doesNotThrow(() => {
-                  parse(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
+                  parseSource(`class C { m() { () => ${arg}; } }`, undefined, Context.Empty);
               });
           });
       }

@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 // This tests both public fields and public static fields
 //
@@ -41,7 +41,7 @@ describe('Next - Class fields', () => {
         for (const arg of fieldErrors) {
             it(`class C { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`class C { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -74,7 +74,7 @@ describe('Next - Class fields', () => {
         for (const arg of staticFieldErrors) {
             it(`class C { ${arg} }`, () => {
                 t.throws(() => {
-                    parse(`class C { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -213,13 +213,13 @@ describe('Next - Class fields', () => {
         for (const arg of programs) {
             it(`class C { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`class C { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`class C extends Base { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`class C extends Base { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C extends Base { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -291,13 +291,13 @@ describe('Next - Class fields', () => {
         for (const arg of staticFields) {
             it(`class C { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`class C { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`class C extends Base { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`class C extends Base { ${arg} }`, undefined, Context.OptionsNext);
+                    parseSource(`class C extends Base { ${arg} }`, undefined, Context.OptionsNext);
                 });
             });
         }

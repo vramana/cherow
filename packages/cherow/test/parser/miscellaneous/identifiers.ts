@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Miscellaneous - Identifiers', () => {
 
@@ -105,31 +105,31 @@ describe('Miscellaneous - Identifiers', () => {
           for (const arg of programs) {
               it(`${arg}`, () => {
                   t.doesNotThrow(() => {
-                      parse(`${arg}`, undefined, Context.Empty);
+                      parseSource(`${arg}`, undefined, Context.Empty);
                   });
               });
 
               it(`function foo() { ${arg} }`, () => {
                   t.doesNotThrow(() => {
-                      parse(`function foo() { ${arg} }`, undefined, Context.Empty);
+                      parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
                   });
               });
 
               it(`(function foo() { ${arg}}`, () => {
                   t.doesNotThrow(() => {
-                      parse(`(function foo() { ${arg}})`, undefined, Context.Empty);
+                      parseSource(`(function foo() { ${arg}})`, undefined, Context.Empty);
                   });
               });
 
               it(`function * gen() { function not_gen() { ${arg}}}`, () => {
                   t.doesNotThrow(() => {
-                      parse(`function * gen() { function not_gen() { ${arg}}}`, undefined, Context.Empty);
+                      parseSource(`function * gen() { function not_gen() { ${arg}}}`, undefined, Context.Empty);
                   });
               });
 
               it(`(function foo() { ${arg}}`, () => {
                   t.doesNotThrow(() => {
-                      parse(`(function foo() { ${arg}})`, undefined, Context.Empty);
+                      parseSource(`(function foo() { ${arg}})`, undefined, Context.Empty);
                   });
               });
           }
@@ -148,7 +148,7 @@ describe('Miscellaneous - Identifiers', () => {
 
                   it(`${arg}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`${arg}`, undefined, Context.Empty);
+                          parseSource(`${arg}`, undefined, Context.Empty);
                       });
                   });
               }
@@ -181,7 +181,7 @@ describe('Miscellaneous - Identifiers', () => {
 
                   it(`${arg}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`${arg}`, undefined, Context.Empty);
+                          parseSource(`${arg}`, undefined, Context.Empty);
                       });
                   });
               }
@@ -214,7 +214,7 @@ describe('Miscellaneous - Identifiers', () => {
 
                   it(`${arg}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`${arg}`, undefined, Context.Empty);
+                          parseSource(`${arg}`, undefined, Context.Empty);
                       });
                   });
               }
@@ -251,13 +251,13 @@ describe('Miscellaneous - Identifiers', () => {
 
                   it(`${arg}`, () => {
                       t.throws(() => {
-                          parse(`${arg}`, undefined, Context.Empty);
+                          parseSource(`${arg}`, undefined, Context.Empty);
                       });
                   });
 
                   it(`(function() {${arg}})()`, () => {
                       t.throws(() => {
-                          parse(`(function() {${arg}})()`, undefined, Context.Empty);
+                          parseSource(`(function() {${arg}})()`, undefined, Context.Empty);
                       });
                   });
               }
@@ -298,25 +298,25 @@ describe('Miscellaneous - Identifiers', () => {
 
                   it(`function f() { ${arg}}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`function f() { ${arg}}`, undefined, Context.Empty);
+                          parseSource(`function f() { ${arg}}`, undefined, Context.Empty);
                       });
                   });
 
                   it(`function f() { ${arg}}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`(function f() { ${arg}})`, undefined, Context.Empty);
+                          parseSource(`(function f() { ${arg}})`, undefined, Context.Empty);
                       });
                   });
 
                   it(`function * gen() { function not_gen() { ${arg}}}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`function * gen() { function not_gen() { ${arg}}}`, undefined, Context.Empty);
+                          parseSource(`function * gen() { function not_gen() { ${arg}}}`, undefined, Context.Empty);
                       });
                   });
 
                   it(`(function foo() { ${arg}}`, () => {
                       t.doesNotThrow(() => {
-                          parse(`(function foo() { ${arg}})`, undefined, Context.Empty);
+                          parseSource(`(function foo() { ${arg}})`, undefined, Context.Empty);
                       });
                   });
               }

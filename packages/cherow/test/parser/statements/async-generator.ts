@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Statements - Async generators', () => {
 
@@ -74,19 +74,19 @@ describe('Statements - Async generators', () => {
         for (const arg of Failures) {
             it(`async function * gen() { ${arg} } `, () => {
                 t.throws(() => {
-                    parse(`async function * gen() { ${arg} } `, undefined, Context.Empty);
+                    parseSource(`async function * gen() { ${arg} } `, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; async function * gen() { ${arg} } `, () => {
                 t.throws(() => {
-                    parse(`"use strict"; async function * gen() { ${arg} } `, undefined, Context.Empty);
+                    parseSource(`"use strict"; async function * gen() { ${arg} } `, undefined, Context.Empty);
                 });
             });
 
             it(`async function * gen() { ${arg} } `, () => {
                 t.throws(() => {
-                    parse(`async function * gen() { ${arg} } `, undefined, Context.Strict | Context.Module);
+                    parseSource(`async function * gen() { ${arg} } `, undefined, Context.Strict | Context.Module);
                 });
             });
         }
@@ -205,25 +205,25 @@ describe('Statements - Async generators', () => {
         for (const arg of programs) {
             it(`async function * gen() { ${arg} }`, () => {
                 t.doesNotThrow(() => {
-                    parse(`async function * gen() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`async function * gen() { ${arg} }`, undefined, Context.Empty);
                 });
             });
 
             it(`(async function * () { ${arg} })`, () => {
               t.doesNotThrow(() => {
-               parse(`(async function * () { ${arg} })`, undefined, Context.Empty);
+               parseSource(`(async function * () { ${arg} })`, undefined, Context.Empty);
              });
              });
 
             it(`(async function * gen() { ${arg} })`, () => {
               t.doesNotThrow(() => {
-                parse(`(async function * gen() { ${arg} })`, undefined, Context.Empty);
+                parseSource(`(async function * gen() { ${arg} })`, undefined, Context.Empty);
             });
             });
 
             it(`({ async * gen () { ${arg} } })`, () => {
               t.doesNotThrow(() => {
-                parse(`({ async * gen () { ${arg} } })`, undefined, Context.Empty);
+                parseSource(`({ async * gen () { ${arg} } })`, undefined, Context.Empty);
             });
 
             });

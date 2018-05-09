@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Object literal', () => {
 
@@ -135,19 +135,19 @@ foo() { }`,
       for (const arg of invalidSyntax) {
           it(`({ ${arg} })`, () => {
               t.throws(() => {
-                  parse(`({ ${arg} })`, undefined, Context.OptionsNext);
+                  parseSource(`({ ${arg} })`, undefined, Context.OptionsNext);
               });
           });
 
           it(`({ ${arg} })`, () => {
               t.throws(() => {
-                  parse(`({ ${arg}, })`, undefined, Context.OptionsNext);
+                  parseSource(`({ ${arg}, })`, undefined, Context.OptionsNext);
               });
           });
 
           it(`"use strict"; ({ ${arg} })`, () => {
               t.throws(() => {
-                  parse(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
+                  parseSource(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
               });
           });
       }
@@ -164,13 +164,13 @@ foo() { }`,
 
           it(`({ ${arg}});`, () => {
               t.throws(() => {
-                  parse(`({ ${arg}});`, undefined, Context.Empty);
+                  parseSource(`({ ${arg}});`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; ({ ${arg}});`, () => {
               t.throws(() => {
-                  parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+                  parseSource(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
               });
           });
       }
@@ -190,13 +190,13 @@ foo() { }`,
 
           it(`"use strict"; ({ ${arg}});`, () => {
               t.throws(() => {
-                  parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+                  parseSource(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
               });
           });
 
           it(`"use strict"; ({ ${arg}});`, () => {
             t.throws(() => {
-                parse(`"use strict"; ({ ${arg}});`, undefined, Context.Strict | Context.Module);
+                parseSource(`"use strict"; ({ ${arg}});`, undefined, Context.Strict | Context.Module);
             });
         });
       }
@@ -384,25 +384,25 @@ async *method() {
     for (const arg of methodDefinition) {
       it(`({ ${arg} })`, () => {
           t.doesNotThrow(() => {
-              parse(`({ ${arg} })`, undefined, Context.OptionsNext);
+              parseSource(`({ ${arg} })`, undefined, Context.OptionsNext);
           });
       });
 
       it(`({ *${arg} })`, () => {
         t.doesNotThrow(() => {
-            parse(`({ *${arg} })`, undefined, Context.OptionsNext);
+            parseSource(`({ *${arg} })`, undefined, Context.OptionsNext);
         });
     });
 
       it(`"use strict"; ({ *${arg} })`, () => {
       t.doesNotThrow(() => {
-          parse(`"use strict"; ({ *${arg} })`, undefined, Context.OptionsNext);
+          parseSource(`"use strict"; ({ *${arg} })`, undefined, Context.OptionsNext);
       });
   });
 
       it(`"use strict"; ({ ${arg} })`, () => {
         t.doesNotThrow(() => {
-            parse(`"use strict"; ({ ${arg} })`, undefined, Context.OptionsNext);
+            parseSource(`"use strict"; ({ ${arg} })`, undefined, Context.OptionsNext);
         });
     });
     }
@@ -423,7 +423,7 @@ async *method() {
 
       it(`({ ${arg}(x, y) {}});`, () => {
           t.doesNotThrow(() => {
-              parse(`({ ${arg}(x, y) {}});`, undefined, Context.Empty);
+              parseSource(`({ ${arg}(x, y) {}});`, undefined, Context.Empty);
           });
       });
     }
@@ -438,19 +438,19 @@ async *method() {
 
       it(`"use strict";  ({method(${arg}){}});`, () => {
           t.throws(() => {
-              parse(`"use strict";  ({method(${arg}){}});`, undefined, Context.Empty);
+              parseSource(`"use strict";  ({method(${arg}){}});`, undefined, Context.Empty);
           });
       });
 
       it(`"use strict";  ({method(${arg}){}});`, () => {
         t.throws(() => {
-            parse(`"use strict";  ({*method(${arg}){}});`, undefined, Context.Empty);
+            parseSource(`"use strict";  ({*method(${arg}){}});`, undefined, Context.Empty);
         });
     });
 
       it(`({method(${arg}){}});`, () => {
       t.doesNotThrow(() => {
-          parse(`({*method(${arg}){}});`, undefined, Context.Empty);
+          parseSource(`({*method(${arg}){}});`, undefined, Context.Empty);
       });
   });
     }
@@ -481,7 +481,7 @@ async *method() {
 
       it(`"use strict"; ({ ${arg} })`, () => {
           t.doesNotThrow(() => {
-              parse(`"use strict";  ({ ${arg} });`, undefined, Context.OptionsNext);
+              parseSource(`"use strict";  ({ ${arg} });`, undefined, Context.OptionsNext);
           });
       });
     }
@@ -508,7 +508,7 @@ async *method() {
 
       it(`${arg}`, () => {
           t.doesNotThrow(() => {
-              parse(`${arg}`, undefined, Context.OptionsNext);
+              parseSource(`${arg}`, undefined, Context.OptionsNext);
           });
       });
     }
@@ -771,19 +771,19 @@ async *method() {
     for (const arg of validSyntax) {
           it(`({ ${arg} })`, () => {
               t.doesNotThrow(() => {
-                  parse(`({ ${arg} })`, undefined, Context.OptionsNext);
+                  parseSource(`({ ${arg} })`, undefined, Context.OptionsNext);
               });
           });
 
           it(`({ ${arg} })`, () => {
               t.doesNotThrow(() => {
-                  parse(`({ ${arg}, })`, undefined, Context.OptionsNext);
+                  parseSource(`({ ${arg}, })`, undefined, Context.OptionsNext);
               });
           });
 
           it(`"use strict"; ({ ${arg} })`, () => {
               t.doesNotThrow(() => {
-                  parse(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
+                  parseSource(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
               });
           });
       }

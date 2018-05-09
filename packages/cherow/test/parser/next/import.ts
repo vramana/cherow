@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Next - Import', () => {
 
@@ -43,19 +43,19 @@ describe('Next - Import', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext | Context.Strict | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Strict | Context.Module);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
             });
 
             it(`let ${arg}`, () => {
                 t.throws(() => {
-                    parse(`let ${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`let ${arg}`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -95,7 +95,7 @@ describe('Next - Import', () => {
 
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
                 });
             });
         }

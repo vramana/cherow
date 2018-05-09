@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Next - Numeric separator', () => {
 
@@ -73,7 +73,7 @@ describe('Next - Numeric separator', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
             });
         }
@@ -144,15 +144,15 @@ describe('Next - Numeric separator', () => {
         for (const arg of validSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.OptionsNext);
+                    parseSource(`${arg}`, undefined, Context.OptionsNext);
                 });
                 t.doesNotThrow(() => {
-                    parse(`var foo = ${arg};`, undefined, Context.OptionsNext);
+                    parseSource(`var foo = ${arg};`, undefined, Context.OptionsNext);
                 });
             });
             it(`var foo = ${arg};`, () => {
                 t.doesNotThrow(() => {
-                    parse(`var foo = ${arg};`, undefined, Context.OptionsNext);
+                    parseSource(`var foo = ${arg};`, undefined, Context.OptionsNext);
                 });
             });
         }

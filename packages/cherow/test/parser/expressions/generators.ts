@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Generators', () => {
 
@@ -49,13 +49,13 @@ describe('Expressions - Generators', () => {
         for (const arg of invalidYieldInGenerator) {
             it(`function * icefapper() {${arg}}`, () => {
                 t.throws(() => {
-                    parse(`function * icefapper() {${arg}}`, undefined, Context.Empty);
+                    parseSource(`function * icefapper() {${arg}}`, undefined, Context.Empty);
                 });
             });
 
             it(`"use strict"; function * icefapper() {${arg}}`, () => {
                 t.throws(() => {
-                    parse(`"use strict"; function * icefapper() {${arg}}`, undefined, Context.Empty);
+                    parseSource(`"use strict"; function * icefapper() {${arg}}`, undefined, Context.Empty);
                 });
             });
         }
@@ -82,7 +82,7 @@ describe('Expressions - Generators', () => {
         for (const arg of invalidSyntax) {
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -140,19 +140,19 @@ describe('Expressions - Generators', () => {
         for (const arg of validYieldInGenerator) {
             it(`function * icefapper() {${arg}}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`function * icefapper() {${arg}}`, undefined, Context.Empty);
+                    parseSource(`function * icefapper() {${arg}}`, undefined, Context.Empty);
                 });
             });
 
             it(`(function * icefapper() {${arg}})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function * icefapper() {${arg}})`, undefined, Context.Empty);
+                    parseSource(`(function * icefapper() {${arg}})`, undefined, Context.Empty);
                 });
             });
 
             it(`(function *() {${arg}})`, () => {
                 t.doesNotThrow(() => {
-                    parse(`(function *() {${arg}})`, undefined, Context.Empty);
+                    parseSource(`(function *() {${arg}})`, undefined, Context.Empty);
                 });
             });
         }
@@ -244,7 +244,7 @@ describe('Expressions - Generators', () => {
         for (const arg of validSyntax) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parse(`${arg}`, undefined, Context.Empty);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }
