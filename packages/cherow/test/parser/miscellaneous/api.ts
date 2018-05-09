@@ -1,10 +1,24 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { parseModule, parseScript } from '../../../src//cherow';
+import { parseModule, parseScript, parse } from '../../../src//cherow';
 import { Context } from '../../../src/utilities';
 import * as ESTree from '../../../src/estree';
 
 describe('Cherow - API', () => {
+  
+   it('should parse script code with "parse"', () => {
+      assert.match(parse('foo'), {
+          body: [{
+              expression: {
+                  name: 'foo',
+                  type: 'Identifier'
+              },
+              type: 'ExpressionStatement'
+          }, ],
+          sourceType: 'script',
+          type: 'Program'
+      });
+  });
 
   it('should parse module code', () => {
       assert.match(parseModule('foo'), {
