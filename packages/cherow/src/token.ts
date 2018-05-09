@@ -181,7 +181,9 @@ export const enum Token {
     UniqueKeyword       = 125 | IsIdentifier,
     DeclareKeyword      = 126 | IsIdentifier,
     TypeKeyword         = 127 | IsIdentifier,
-
+    NameSpaceKeyword    = 128 | IsIdentifier,
+    AbstractKeyword     = 129 | IsIdentifier,
+    ModuleKeyword     = 130 | IsIdentifier,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -233,7 +235,7 @@ const keywordDescTable = [
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
 
     /** TS */
-    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
 ];
 
 /**
@@ -275,9 +277,6 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     readonly: {value: Token.ReadOnlyKeyword},
     unique: {value: Token.UniqueKeyword},
     declare: {value: Token.DeclareKeyword},
-    is: {value: Token.IsKeyword},
-    type: {value: Token.TypeKeyword},
-    as: {value: Token.AsKeyword},
     async: {value: Token.AsyncKeyword},
     await: {value: Token.AwaitKeyword},
     class: {value: Token.ClassKeyword},
@@ -307,6 +306,14 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     true: {value: Token.TrueKeyword},
     with: {value: Token.WithKeyword},
     yield: {value: Token.YieldKeyword},
+    is: {value: Token.IsKeyword},
+    type: {value: Token.TypeKeyword},
+    namespace: {value: Token.NameSpaceKeyword},
+    abstract: {value: Token.AbstractKeyword},
+    as: {value: Token.AsKeyword},
+    module: {value: Token.ModuleKeyword},
+
+
  });
 
 export function descKeyword(value: string): Token {

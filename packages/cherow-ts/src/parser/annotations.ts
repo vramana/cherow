@@ -574,11 +574,3 @@ function parseTypeOperator(parser: Parser, context: Context): any {
     typeAnnotation: parseTypeOperator(parser, context)
   } as any);
 }
-
-function parseTypePredicatePrefix(parser: Parser, context: Context): any {
-  const id = parseIdentifier(parser, context);
-  if (parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine)) {
-      nextToken(parser, context);
-      return id;
-  }
-}

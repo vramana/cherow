@@ -66,7 +66,7 @@ System.register([], function (exports, module) {
           'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
           '#',
           'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
-          'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type'
+          'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract'
       ];
       function tokenDesc(token) {
           return keywordDescTable[token & 255];
@@ -101,9 +101,6 @@ System.register([], function (exports, module) {
           readonly: { value: 65659 },
           unique: { value: 65661 },
           declare: { value: 65662 },
-          is: { value: 65660 },
-          type: { value: 65663 },
-          as: { value: 36971 },
           async: { value: 299116 },
           await: { value: 33788013 },
           class: { value: 33566797 },
@@ -133,6 +130,11 @@ System.register([], function (exports, module) {
           true: { value: 33566726 },
           with: { value: 12387 },
           yield: { value: 1107316842 },
+          is: { value: 65660 },
+          type: { value: 65663 },
+          namespace: { value: 65664 },
+          abstract: { value: 65665 },
+          as: { value: 36971 },
       });
       function descKeyword(value) {
           return (descKeywordTable[value] | 0);

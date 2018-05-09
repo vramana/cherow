@@ -1,8 +1,11 @@
+import { Identifier } from './../../../cherow/dist/types/build/src/estree.d';
+import { ModuleDeclaration } from './../../../cherow/src/estree';
 import { Token, tokenDesc, Context, Parser, Location } from 'cherow';
 import { nextToken, getLocation, consumeSemicolon, finishNode, expect } from '../utilities';
 import { parseExpressionOrLabelledStatement } from './statements';
 import { parseIdentifier } from './expressions';
 import { parseTypeParameters, parseType } from './annotations';
+
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -32,24 +35,59 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
   } = parser;
   switch (parser.token) {
 
-     // 'declare'
+      // 'declare'
       case Token.DeclareKeyword:
           {
               switch (nextToken(parser, context)) {
+
+                // 'class'
                   case Token.ClassKeyword:
-                  case Token.Identifier:
-                  case Token.FunctionKeyword:
-                  case Token.VarKeyword:
-                  case Token.TypeKeyword:
-                  case Token.ExportKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.TypeKeyword:
+                          default: // ignore
+                      }
+
+                  // 'class'
+                  case Token.NameSpaceKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.Identifier:
+                          default: // ignore
+                      }
+
+                  // 'interface'
                   case Token.InterfaceKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.Identifier:
+                          default: // ignore
+                      }
+                 // 'enum'
+                  case Token.EnumKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.Identifier:
+                          default: // ignore
+                      }
+
+                  // 'module'
+                  case Token.ModuleKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.StringLiteral:
+                          case Token.Identifier:
+                          default: // ignore
+                      }
+
+                  // 'type'
+                  case Token.TypeKeyword:
+                      switch (nextToken(parser, context)) {
+                          case Token.Identifier:
+                          default: // ignore
+                      }
                   default: // ignore
               }
 
               break;
           }
 
-      // 'interface'
+          // 'interface'
       case Token.InterfaceKeyword:
           {
               switch (nextToken(parser, context)) {
@@ -59,12 +97,12 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
               break;
           }
 
-      // 'type'
+          // 'type'
       case Token.TypeKeyword:
           {
               switch (nextToken(parser, context)) {
                   case Token.Identifier:
-                    return parseTypeAlias(parser, context, pos);
+                      return parseTypeAlias(parser, context, pos);
                   default: // ignore
               }
               break;
@@ -95,13 +133,13 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
 }
 
 /**
- * Parses type alias
- *
- * @param {Parser} parser  Parser object
- * @param {Context} context  Context object
- * @param {Location} pos  Location
- * @returns {*}
- */
+* Parses type alias
+*
+* @param {Parser} parser  Parser object
+* @param {Context} context  Context object
+* @param {Location} pos  Location
+* @returns {*}
+*/
 function parseTypeAlias(
   parser: Parser,
   context: Context,
@@ -112,16 +150,17 @@ function parseTypeAlias(
   let typeParameters: any = null;
 
   if (parser.token === Token.LessThan) {
-     typeParameters = parseTypeParameters(parser, context);
+      typeParameters = parseTypeParameters(parser, context);
   }
   expect(parser, context, Token.Assign);
   const typeAnnotation = parseType(parser, context);
   consumeSemicolon(parser, context);
 
   return finishNode(context, parser, pos, {
-      type: 'TSTypeAliasDeclaration',
-      typeParameters,
-      id,
-      typeAnnotation
-  } as any);
+          type: 'TSTypeAliasDeclaration',
+          typeParameters,
+          id,
+          typeAnnotation
+      }
+      as any);
 }
