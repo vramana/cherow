@@ -1,5 +1,3 @@
-import { Identifier } from './../../../cherow/dist/types/build/src/estree.d';
-import { ModuleDeclaration } from './../../../cherow/src/estree';
 import { ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
 import { nextToken, getLocation, consumeSemicolon, finishNode, expect,consume } from '../utilities';
 import { parseExpressionOrLabelledStatement } from './statements';

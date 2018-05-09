@@ -1,5 +1,4 @@
-const { concurrent, crossEnv, rimraf, series, copy } = require('nps-utils');
-const path = require('path');
+const { concurrent, crossEnv, rimraf, series } = require('nps-utils');
 
 function config(name) {
   return `configs/tsconfig-${name}.json`;
@@ -17,9 +16,8 @@ function package(script) {
   return crossEnv(`./node_modules/.bin/${script}`);
 }
 
-function getConfig(pkgName) {
-
-  const output = {
+module.exports = (pkgName) => {
+  return {
     scripts: {
       lint: package(`tslint --project ${config('build')}`),
       test: {
@@ -35,7 +33,7 @@ function getConfig(pkgName) {
         post: crossEnv(`cat ./coverage/lcov.info | ${package('coveralls')}`)
       },
       build: {
-        default: series.nps('build.before', 'build.all.default', 'build.moveTypes'),
+        default: series.nps('build.before', 'build.all.default'),
         minify: series.nps('build.all.minify'),
         before: series.nps('lint', 'build.clean'),
         clean: rimraf('dist'),
@@ -86,26 +84,8 @@ function getConfig(pkgName) {
         system: {
           default: rollup('system'),
           minify: rollup('system', true)
-        },
-        moveTypes: {
-          default: series.nps('build.moveTypes.move', 'build.moveTypes.clean'),
-          move: copy(`**/*.d.ts ../../dist/types --parents --cwd=${pkgName}/src`),
-          clean: rimraf(`${pkgName}`)
         }
       }
     }
   };
-
-  if (!(pkgName && pkgName.length)) {
-    output.scripts.build.moveTypes.move = copy(`!(dist|build)**/*.d.ts dist/types --parents --cwd=.`);
-    output.scripts.build.moveTypes.clean = rimraf(`!(dist)/**/*.d.ts *.d.ts`);
-  }
-
-  if (pkgName && pkgName.length) {
-    output.scripts.coverage.run = package(`nyc mocha ./build/${pkgName}/test/**/*.js`);
-  }
-
-  return output;
-}
-
-module.exports = getConfig;
+};
