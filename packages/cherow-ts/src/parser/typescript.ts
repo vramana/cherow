@@ -72,7 +72,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
   }
 
   // Note: this 'rewind' will only happen if 'types', 'declare' or 'interface' 
-  // should be treated as identifer
+  // should be treated as identifer. E.g 'interface:foo' is valid JS syntax.
   
   parser.index = index;
   parser.token = token;
