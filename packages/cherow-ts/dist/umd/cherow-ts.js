@@ -444,6 +444,10 @@
       nextToken(parser, context);
       return parser.token === 65660 && !(parser.flags & 1);
   }
+  function nextTokenIsStartOfConstructSignature(parser, context) {
+      nextToken(parser, context);
+      return parser.token === 50331659 || parser.token === 167774015;
+  }
 
   function parseMappedTypeParameter(parser, context) {
       const pos = cherow.getLocation(parser);
@@ -862,11 +866,38 @@
   }
   function parseTypeMember(parser, context) {
       if (parser.token === 50331659 || parser.token === 167774015) ;
+      if (parser.token === 33566811 && lookahead(parser, context, nextTokenIsStartOfConstructSignature)) {
+          cherow.expect(parser, context, 33566811);
+          return parseSignatureMember(parser, context);
+      }
       const readonly = parseModifier(parser, context, ['readonly']);
       const idx = parseIndexSignature(parser, context);
       if (idx)
           return idx;
       return parsePropertyOrMethodSignature(parser, context, readonly);
+  }
+  function parseSignatureMember(parser, context) {
+      const pos = cherow.getLocation(parser);
+      cherow.expect(parser, context, 50331659);
+      const parameters = [];
+      while (parser.token !== 16) {
+          parameters.push(parser.token === 14
+              ? parseRestElement(parser, context)
+              : parseBindingIdentifier(parser, context));
+          cherow.consume(parser, context, 16777234);
+      }
+      cherow.expect(parser, context, 16);
+      let typeAnnotation = null;
+      if (parser.token === 16777237) {
+          typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, 16777237);
+      }
+      if (parser.token !== 16777234)
+          cherow.consumeSemicolon(parser, context);
+      return cherow.finishNode(context, parser, pos, {
+          type: 'TSConstructSignatureDeclaration',
+          parameters,
+          typeAnnotation
+      });
   }
   function parseObjectTypeMembers(parser, context) {
       const members = [];
@@ -980,6 +1011,7 @@
               {
                   switch (nextToken(parser, context)) {
                       case 33619969:
+                          return parseInterfaceDeclaration(parser, context);
                       default:
                   }
                   break;
@@ -1032,12 +1064,11 @@
       const pos = getLocation(parser);
       return finishNode(context, parser, pos, {
           type: 'TSInterfaceBody',
-          body: []
+          body: parseObjectTypeMembers(parser, context)
       });
   }
-  function parseInterfaceDeclaration(parser, context) {
+  function parseInterfaceDeclaration(parser, context, id = parseIdentifier(parser, context)) {
       const pos = getLocation(parser);
-      const id = parseIdentifier(parser, context);
       const typeParameters = parser.token === 16777237 ? parseTypeParameters(parser, context) : null;
       if (consume(parser, context, 12372)) ;
       const body = parseInterfaceDeclarationBody(parser, context);

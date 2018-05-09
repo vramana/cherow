@@ -40,3 +40,4 @@ export declare function iStartOfMappedType(parser: Parser, context: Context): bo
 export declare function isUnambiguouslyIndexSignature(parser: Parser, context: Context): boolean;
 export declare function isNextTokenCanFollowModifier(parser: Parser, context: Context): boolean;
 export declare function isTypePredicatePrefix(parser: Parser, context: Context): any;
+export declare function nextTokenIsStartOfConstructSignature(parser: Parser, context: Context): boolean;

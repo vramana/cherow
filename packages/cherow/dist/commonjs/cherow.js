@@ -21,7 +21,7 @@ const keywordDescTable = [
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
     '#',
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
-    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
 ];
 function tokenDesc(token) {
     return keywordDescTable[token & 255];
@@ -90,6 +90,7 @@ const descKeywordTable = Object.create(null, {
     namespace: { value: 65664 },
     abstract: { value: 65665 },
     as: { value: 36971 },
+    module: { value: 65666 },
 });
 function descKeyword(value) {
     return (descKeywordTable[value] | 0);
@@ -5084,7 +5085,6 @@ const version = '1.5.8';
 
 exports.version = version;
 exports.ESTree = estree;
-exports.Parser = Parser;
 exports.Scanner = index;
 exports.parse = parse;
 exports.parseModule = parseModule;
@@ -5096,6 +5096,7 @@ exports.report = report;
 exports.tolerant = tolerant;
 exports.tokenDesc = tokenDesc;
 exports.descKeyword = descKeyword;
+exports.Parser = Parser;
 exports.isValidIdentifierPart = isValidIdentifierPart;
 exports.isValidIdentifierStart = isValidIdentifierStart;
 exports.mustEscape = mustEscape;
