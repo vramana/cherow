@@ -28,7 +28,8 @@ function output(target, format, opts = {}) {
         tsconfigOverride: {
           compilerOptions: {
             target,
-            declaration: !minify
+            declaration: !minify,
+            removeComments: !!minify
           }
         },
         useTsconfigDeclarationDir: true,

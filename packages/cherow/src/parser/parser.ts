@@ -81,6 +81,8 @@ export function parseSource(source: string, options: Options | void, /*@internal
     let sourceFile: string = '';
 
     if (!!options) {
+        // The flag to enable module syntax support
+        if (options.module) context |= Context.Module;
         // The flag to enable stage 3 support (ESNext)
         if (options.next) context |= Context.OptionsNext;
         // The flag to enable React JSX parsing
