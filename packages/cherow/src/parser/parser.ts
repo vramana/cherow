@@ -157,8 +157,8 @@ export function parseSource(source: string, options: Options | void, /*@internal
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
  *
- * @param {Parser} Parser instance
- * @param {context} Context masks
+ * @param Parser instance
+ * @param Context masks
  */
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {

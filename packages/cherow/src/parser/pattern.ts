@@ -103,6 +103,7 @@ export function parseAssignmentRestElement(parser: Parser, context: Context, arg
  * @param parser  Parser object
  * @param context Context masks
  */
+// tslint:disable-next-line:function-name
 function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestElement {
     const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
@@ -140,8 +141,8 @@ function AssignmentRestProperty(parser: Parser, context: Context): ESTree.RestEl
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser object
- * @param {context} Context masks
+ * @param Parser object
+ * @param Context masks
  */
 function parseArrayAssignmentPattern(parser: Parser, context: Context, args: string[]): ESTree.ArrayPattern {
 

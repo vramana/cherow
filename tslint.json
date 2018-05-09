@@ -282,5 +282,10 @@
     "valid-typeof": true
   },
   "rulesDirectory": "node_modules/tslint-microsoft-contrib",
-  "defaultSeverity": "warning"
+  "defaultSeverity": "warning",
+  "linterOptions": {
+      "exclude": [
+          "packages/*/test/**/*.ts"
+      ]
+  }
 }

@@ -770,7 +770,7 @@ function parseLetAsIdentifier(parser: Parser, context: Context): ESTree.Identifi
  * @param parser Parser object
  * @param context  context mask
  */
-function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context) {
+function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context): ESTree.FunctionExpression | ESTree.Identifier {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorExpression(parser, context) :
         parseIdentifier(parser, context);
@@ -875,8 +875,8 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BooleanLiteral)
  *
- * @param parser
- * @param context
+ * @param parser  Parser object
+ * @param context Context masks
  */
 function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
@@ -1490,7 +1490,10 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @param context Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): {
+  params: ESTree.Identifier[];
+  body: ESTree.BlockStatement;
+} {
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
@@ -1573,7 +1576,7 @@ export function parseFormalParameters(
     parser: Parser,
     context: Context,
     state: ObjectState,
-): { params: ESTree.Identifier[]; args: string[]; } {
+): { params: ESTree.Identifier[]; args: string[] } {
 
     // FormalParameterList :
     //   [empty]

@@ -19,7 +19,7 @@ export function skipSingleHTMLComment(
     parser: Parser,
     context: Context,
     state: ScannerState,
-    type: CommentType) {
+    type: CommentType): ScannerState {
     if (context & Context.Module) report(parser, Errors.HtmlCommentInModule);
     return skipSingleLineComment(parser, context, state, type);
 }
@@ -73,9 +73,9 @@ export function skipSingleLineComment(
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
- * @param parser
+ * @param parser Parser instance
  * @param context Context masks
- * @param state
+ * @param state Scanner state
  */
 export function skipMultiLineComment(
     parser: Parser,
@@ -124,7 +124,7 @@ export function skipMultiLineComment(
     tolerant(parser, context, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number) {
+export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number): void {
 
     const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
 

@@ -130,7 +130,7 @@ function validate(
     parser: Parser,
     context: Context,
     pattern: string,
-    flags: string) {
+    flags: string): RegExp | null {
 
     if (!(context & Context.OptionsNode)) {
         try {

@@ -2,19 +2,18 @@ import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier } from './pattern';
-import { parseAssignmentExpression, parseFormalListAndBody } from './expressions';
+import { parseAssignmentExpression, parseFormalListAndBody, parseClassBodyAndElementList, parseLeftHandSideExpression, parseDecorators } from './expressions';
 import { Parser, Location } from '../types';
-import { parseClassBodyAndElementList,  parseLeftHandSideExpression, parseDecorators } from './expressions';
 import {
-    expect,
-    Context,
-    finishNode,
-    consume,
-    getLocation,
-    ModifierState,
-    swapContext,
-    ObjectState,
-    parseExpressionCoverGrammar
+  expect,
+  Context,
+  finishNode,
+  consume,
+  getLocation,
+  ModifierState,
+  swapContext,
+  ObjectState,
+  parseExpressionCoverGrammar
 } from '../utilities';
 
 // Declarations

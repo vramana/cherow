@@ -162,7 +162,7 @@ export function scanEscapeSequence(parser: Parser, context: Context, first: numb
  * @param parser Parser object
  * @param context Context masks
  */
-export function throwStringError(parser: Parser, context: Context, code: Escape) {
+export function throwStringError(parser: Parser, context: Context, code: Escape): void {
     switch (code) {
         case Escape.Empty:
             return;
