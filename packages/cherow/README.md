@@ -46,7 +46,7 @@ Experimental features support as in `NodeJS`. These need to be enabled with the 
 
 Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules).
 
-The `parse` method exposed by Cherow takes a an optional `options` object which allows you to specify whether to parse in [`script`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) mode (the default) or in [`module`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) mode.
+The `parse` method exposed by Cherow takes an optional `options` object which allows you to specify whether to parse in [`script`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) mode (the default) or in [`module`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) mode.
 
 
 Here is a quick example to parse a script:
