@@ -847,3 +847,9 @@ export function isNextTokenCanFollowModifier(parser: Parser, context: Context): 
     parser.token !== Token.QuestionMark
   );
 }
+
+export function isTypePredicatePrefix(parser: Parser, context: Context): any {
+  nextToken(parser, context);
+  return parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine)
+}
+

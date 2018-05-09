@@ -4,7 +4,8 @@ import {
   lookahead,
   keywordTypeFromName,
   isStartOfFunctionType,
-  isNextTokenCanFollowModifier
+  isNextTokenCanFollowModifier,
+  isTypePredicatePrefix
 } from '../utilities';
 import { parseIdentifier, parseRestElement } from './expressions';
 import {
@@ -127,10 +128,18 @@ function parseFunctionType(parser: Parser, context: Context): any {
 
 export function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any {
   expect(parser, context, token);
-
-  const typePredicateVariable =
-    parser.token & Token.IsIdentifier && (parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : false);
-  return parseTypeAnnotation(parser, context, false);
+  if (!lookahead(parser, context, isTypePredicatePrefix)) {
+    return parseTypeAnnotation(parser, context, false);
+  }
+  const pos = getLocation(parser);
+   const parameterName = parseIdentifier(parser, context)
+   nextToken(parser, context);
+   const typeAnnotation = parseTypeAnnotation(parser, context, false);
+   return finishNode(context, parser, pos, {
+     type: 'TSTypePredicate',
+     parameterName,
+     typeAnnotation
+   } as any);
 }
 
 function parseConstructorType(parser: Parser, context: Context): any {
@@ -566,3 +575,10 @@ function parseTypeOperator(parser: Parser, context: Context): any {
   } as any);
 }
 
+function parseTypePredicatePrefix(parser: Parser, context: Context): any {
+  const id = parseIdentifier(parser, context);
+  if (parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine)) {
+      nextToken(parser, context);
+      return id;
+  }
+}

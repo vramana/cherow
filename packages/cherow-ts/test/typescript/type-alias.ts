@@ -8,6 +8,7 @@ describe('Type alias', () => {
   const validSyntax = [
       'type:foo', // type as identifier - valid JS syntax
       'type T = number;',
+      'function f<  T    >() {}',
       'type T<U extends object = { x: number }> = Array<U>;',
     //  'export type T = number;',
       'type T<U> = U;',
