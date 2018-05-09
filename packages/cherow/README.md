@@ -44,14 +44,16 @@ Experimental features support as in `NodeJS`. These need to be enabled with the 
 
 ## API
 
-Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
+Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules).
+
+The `parse` method exposed by Cherow takes a an optional `options` object which allows you to specify whether to parse in [`script`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) mode (the default) or in [`module`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) mode.
 
 
-Here is a quick example:
+Here is a quick example to parse a script:
 
 ```js
 
-cherow.parseScript('x = async() => { for await (x of xs); }');
+cherow.parse('x = async() => { for await (x of xs); }');
 
 ```
 
@@ -103,11 +105,12 @@ This will return when serialized in json:
 
 ## Options
 
-There is a second argument to both methods that allows you to specify various options:
+The second argument allows you to specify various options:
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
-| `loc      `       | Attach line/column location information to each node |
+| `module`          | Enable module syntax |
+| `loc`             | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
 | `skipShebang`     | Allow to skip shebang - '#' |
