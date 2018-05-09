@@ -672,383 +672,382 @@ describe('Types', () => {
   pass('let y: unique symbol;', Context.Empty, {
       source: 'let y: unique symbol;',
       expected: {
-          "body": [{
-              "declarations": [{
-                  "id": {
-                      "name": "y",
-                      "type": "Identifier",
-                      "typeAnnotation": {
-                          "type": "TypeAnnotation",
-                          "typeAnnotation": {
-                              "operator": "unique",
-                              "type": "TSTypeOperator",
-                              "typeAnnotation": {
-                                  "type": "TSSymbolKeyword"
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'y',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'operator': 'unique',
+                              'type': 'TSTypeOperator',
+                              'typeAnnotation': {
+                                  'type': 'TSSymbolKeyword'
                               },
                           }
                       },
                   },
-                  "init": null,
-                  "type": "VariableDeclarator",
+                  'init': null,
+                  'type': 'VariableDeclarator',
               }, ],
-              "kind": "let",
-              "type": "VariableDeclaration",
+              'kind': 'let',
+              'type': 'VariableDeclaration',
           }, ],
-          "sourceType": "script",
-          "type": "Program",
+          'sourceType': 'script',
+          'type': 'Program',
       }
   });
 
   pass('var [x]: Array<string> = [ "hello" ];', Context.Empty, {
       source: 'var [x]: Array<string> = [ "hello" ];',
       expected: {
-          "body": [{
-              "declarations": [{
-                  "id": {
-                      "elements": [{
-                          "name": "x",
-                          "type": "Identifier",
-                          "typeAnnotation": null,
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'elements': [{
+                          'name': 'x',
+                          'type': 'Identifier',
+                          'typeAnnotation': null,
                       }],
-                      "type": "ArrayPattern",
-                      "typeAnnotation": {
-                          "type": "TypeAnnotation",
-                          "typeAnnotation": {
-                              "type": "TSTypeReference",
-                              "typeName": {
-                                  "name": "Array",
-                                  "type": "Identifier",
+                      'type': 'ArrayPattern',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSTypeReference',
+                              'typeName': {
+                                  'name': 'Array',
+                                  'type': 'Identifier',
                               },
-                              "typeParameters": {
-                                  "params": [{
-                                      "type": "TSStringKeyword",
+                              'typeParameters': {
+                                  'params': [{
+                                      'type': 'TSStringKeyword',
                                   }],
-                                  "type": "TypeParameterInstantiation",
+                                  'type': 'TypeParameterInstantiation',
                               }
                           }
                       }
                   },
-                  "init": {
-                      "elements": [{
-                          "type": "Literal",
-                          "value": "hello",
+                  'init': {
+                      'elements': [{
+                          'type': 'Literal',
+                          'value': 'hello',
                       }],
-                      "type": "ArrayExpression",
+                      'type': 'ArrayExpression',
                   },
-                  "type": "VariableDeclarator"
+                  'type': 'VariableDeclarator'
               }],
-              "kind": "var",
-              "type": "VariableDeclaration",
+              'kind': 'var',
+              'type': 'VariableDeclaration',
           }, ],
-          "sourceType": "script",
-          "type": "Program"
+          'sourceType': 'script',
+          'type': 'Program'
       }
   });
-
 
   pass('function extend<T, U>() {}  ', Context.Empty, {
       source: 'function extend<T, U>() {}',
       expected: {
-          "body": [{
-              "async": false,
-              "body": {
-                  "body": [],
-                  "type": "BlockStatement",
+          'body': [{
+              'async': false,
+              'body': {
+                  'body': [],
+                  'type': 'BlockStatement',
               },
-              "expression": false,
-              "generator": false,
-              "id": {
-                  "name": "extend",
-                  "type": "Identifier",
-                  "typeAnnotation": null,
+              'expression': false,
+              'generator': false,
+              'id': {
+                  'name': 'extend',
+                  'type': 'Identifier',
+                  'typeAnnotation': null,
               },
-              "params": [],
-              "type": "FunctionDeclaration",
-              "returnType": null,
-              "typeParameters": {
-                  "params": [{
-                          "constraint": null,
-                          "default": null,
-                          "name": "T",
-                          "type": "TSTypeParameter",
+              'params': [],
+              'type': 'FunctionDeclaration',
+              'returnType': null,
+              'typeParameters': {
+                  'params': [{
+                          'constraint': null,
+                          'default': null,
+                          'name': 'T',
+                          'type': 'TSTypeParameter',
                       },
                       {
-                          "constraint": null,
-                          "default": null,
-                          "name": "T",
-                          "type": "TSTypeParameter",
+                          'constraint': null,
+                          'default': null,
+                          'name': 'T',
+                          'type': 'TSTypeParameter',
                       },
                       {
-                          "constraint": null,
-                          "default": null,
-                          "name": "U",
-                          "type": "TSTypeParameter",
+                          'constraint': null,
+                          'default': null,
+                          'name': 'U',
+                          'type': 'TSTypeParameter',
                       },
                   ],
-                  "type": "TSTypeParameterDeclaration",
+                  'type': 'TSTypeParameterDeclaration',
               }
           }],
-          "sourceType": "script",
-          "type": "Program"
+          'sourceType': 'script',
+          'type': 'Program'
       }
   });
 
   pass('function extend<T, U>(first: T, second: U) {}  ', Context.Empty, {
       source: 'function extend<T, U>(first: T, second: U) {}',
       expected: {
-          "body": [{
-              "async": false,
-              "body": {
-                  "body": [],
-                  "type": "BlockStatement",
+          'body': [{
+              'async': false,
+              'body': {
+                  'body': [],
+                  'type': 'BlockStatement',
               },
-              "expression": false,
-              "generator": false,
-              "id": {
-                  "name": "extend",
-                  "type": "Identifier",
-                  "typeAnnotation": null,
+              'expression': false,
+              'generator': false,
+              'id': {
+                  'name': 'extend',
+                  'type': 'Identifier',
+                  'typeAnnotation': null,
               },
-              "params": [{
-                      "name": "first",
-                      "type": "Identifier",
-                      "typeAnnotation": {
-                          "type": "TypeAnnotation",
-                          "typeAnnotation": {
-                              "type": "TSTypeReference",
-                              "typeName": {
-                                  "name": "T",
-                                  "type": "Identifier",
+              'params': [{
+                      'name': 'first',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSTypeReference',
+                              'typeName': {
+                                  'name': 'T',
+                                  'type': 'Identifier',
                               },
-                              "typeParameters": []
+                              'typeParameters': []
                           }
                       }
                   },
                   {
-                      "name": "second",
-                      "type": "Identifier",
-                      "typeAnnotation": {
-                          "type": "TypeAnnotation",
-                          "typeAnnotation": {
-                              "type": "TSTypeReference",
-                              "typeName": {
-                                  "name": "U",
-                                  "type": "Identifier",
+                      'name': 'second',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSTypeReference',
+                              'typeName': {
+                                  'name': 'U',
+                                  'type': 'Identifier',
                               },
-                              "typeParameters": [],
+                              'typeParameters': [],
                           }
                       }
                   }
               ],
-              "type": "FunctionDeclaration",
-              "returnType": null,
-              "typeParameters": {
-                  "params": [{
-                          "constraint": null,
-                          "default": null,
-                          "name": "T",
-                          "type": "TSTypeParameter",
+              'type': 'FunctionDeclaration',
+              'returnType': null,
+              'typeParameters': {
+                  'params': [{
+                          'constraint': null,
+                          'default': null,
+                          'name': 'T',
+                          'type': 'TSTypeParameter',
                       },
                       {
-                          "constraint": null,
-                          "default": null,
-                          "name": "T",
-                          "type": "TSTypeParameter",
+                          'constraint': null,
+                          'default': null,
+                          'name': 'T',
+                          'type': 'TSTypeParameter',
                       },
                       {
-                          "constraint": null,
-                          "default": null,
-                          "name": "U",
-                          "type": "TSTypeParameter",
+                          'constraint': null,
+                          'default': null,
+                          'name': 'U',
+                          'type': 'TSTypeParameter',
                       }
                   ],
-                  "type": "TSTypeParameterDeclaration",
+                  'type': 'TSTypeParameterDeclaration',
               }
           }],
-          "sourceType": "script",
-          "type": "Program"
+          'sourceType': 'script',
+          'type': 'Program'
       }
   });
 
   pass('function extend<T, U>(first: T, second: U) {}  ', Context.Empty, {
       source: 'function foo(): string {}',
       expected: {
-          "body": [{
-              "async": false,
-              "body": {
-                  "body": [],
-                  "type": "BlockStatement",
+          'body': [{
+              'async': false,
+              'body': {
+                  'body': [],
+                  'type': 'BlockStatement',
               },
-              "expression": false,
-              "generator": false,
-              "id": {
-                  "name": "foo",
-                  "type": "Identifier",
-                  "typeAnnotation": null,
+              'expression': false,
+              'generator': false,
+              'id': {
+                  'name': 'foo',
+                  'type': 'Identifier',
+                  'typeAnnotation': null,
               },
-              "params": [],
-              "returnType": {
-                  "type": "TypeAnnotation",
-                  "typeAnnotation": {
-                      "type": "TSStringKeyword",
+              'params': [],
+              'returnType': {
+                  'type': 'TypeAnnotation',
+                  'typeAnnotation': {
+                      'type': 'TSStringKeyword',
                   }
               },
-              "type": "FunctionDeclaration",
-              "typeParameters": null,
+              'type': 'FunctionDeclaration',
+              'typeParameters': null,
           }, ],
-          "sourceType": "script",
-          "type": "Program"
+          'sourceType': 'script',
+          'type': 'Program'
       }
   });
 
   pass('({f: function <T>() {}})', Context.Empty, {
       source: '({f: function <T>() {}})',
       expected: {
-          "body": [{
-              "expression": {
-                  "properties": [{
-                      "computed": false,
-                      "key": {
-                          "name": "f",
-                          "type": "Identifier",
+          'body': [{
+              'expression': {
+                  'properties': [{
+                      'computed': false,
+                      'key': {
+                          'name': 'f',
+                          'type': 'Identifier',
                       },
-                      "kind": "init",
-                      "method": false,
-                      "shorthand": false,
-                      "type": "Property",
-                      "value": {
-                          "async": false,
-                          "body": {
-                              "body": [],
-                              "type": "BlockStatement",
+                      'kind': 'init',
+                      'method': false,
+                      'shorthand': false,
+                      'type': 'Property',
+                      'value': {
+                          'async': false,
+                          'body': {
+                              'body': [],
+                              'type': 'BlockStatement',
                           },
-                          "expression": false,
-                          "generator": false,
-                          "id": null,
-                          "params": [],
-                          "typeParameters": {
-                              "params": [{
-                                  "constraint": null,
-                                  "default": null,
-                                  "name": "T",
-                                  "type": "TSTypeParameter"
+                          'expression': false,
+                          'generator': false,
+                          'id': null,
+                          'params': [],
+                          'typeParameters': {
+                              'params': [{
+                                  'constraint': null,
+                                  'default': null,
+                                  'name': 'T',
+                                  'type': 'TSTypeParameter'
                               }, ],
-                              "type": "TSTypeParameterDeclaration",
+                              'type': 'TSTypeParameterDeclaration',
                           },
-                          "returnType": null,
-                          "type": "FunctionExpression",
+                          'returnType': null,
+                          'type': 'FunctionExpression',
                       }
                   }],
-                  "type": "ObjectExpression",
+                  'type': 'ObjectExpression',
               },
-              "type": "ExpressionStatement",
+              'type': 'ExpressionStatement',
           }],
-          "sourceType": "script",
-          "type": "Program"
+          'sourceType': 'script',
+          'type': 'Program'
       }
   });
 
   pass('function extend<T, U>(first: T, second: U): T & U { }', Context.Empty, {
     source: 'function extend<T, U>(first: T, second: U): T & U { }',
     expected: {
-        "body": [
+        'body': [
           {
-            "async": false,
-            "body": {
-              "body": [],
-              "type": "BlockStatement",
+            'async': false,
+            'body': {
+              'body': [],
+              'type': 'BlockStatement',
             },
-            "expression": false,
-            "generator": false,
-           "id": {
-              "name": "extend",
-              "type": "Identifier",
-              "typeAnnotation": null,
+            'expression': false,
+            'generator': false,
+           'id': {
+              'name': 'extend',
+              'type': 'Identifier',
+              'typeAnnotation': null,
             },
-            "params": [
+            'params': [
               {
-                "name": "first",
-                "type": "Identifier",
-                "typeAnnotation": {
-                  "type": "TypeAnnotation",
-                 "typeAnnotation": {
-                    "type": "TSTypeReference",
-                    "typeName": {
-                      "name": "T",
-                      "type": "Identifier",
+                'name': 'first',
+                'type': 'Identifier',
+                'typeAnnotation': {
+                  'type': 'TypeAnnotation',
+                 'typeAnnotation': {
+                    'type': 'TSTypeReference',
+                    'typeName': {
+                      'name': 'T',
+                      'type': 'Identifier',
                     },
-                    "typeParameters": [],
+                    'typeParameters': [],
                   }
                 }
               },
               {
-                "name": "second",
-                "type": "Identifier",
-                "typeAnnotation": {
-                  "type": "TypeAnnotation",
-                 "typeAnnotation": {
-                    "type": "TSTypeReference",
-                    "typeName": {
-                      "name": "U",
-                      "type": "Identifier",
+                'name': 'second',
+                'type': 'Identifier',
+                'typeAnnotation': {
+                  'type': 'TypeAnnotation',
+                 'typeAnnotation': {
+                    'type': 'TSTypeReference',
+                    'typeName': {
+                      'name': 'U',
+                      'type': 'Identifier',
                    },
-                    "typeParameters": []
+                    'typeParameters': []
                   }
                 }
               }
             ],
-            "returnType": {
-              "type": "TypeAnnotation",
-              "typeAnnotation": {
-               "type": "TSIntersectionType",
-                "types": [
+            'returnType': {
+              'type': 'TypeAnnotation',
+              'typeAnnotation': {
+               'type': 'TSIntersectionType',
+                'types': [
                   {
-                    "type": "TSTypeReference",
-                    "typeName": {
-                      "name": "T",
-                      "type": "Identifier",
+                    'type': 'TSTypeReference',
+                    'typeName': {
+                      'name': 'T',
+                      'type': 'Identifier',
                     },
-                    "typeParameters": [],
+                    'typeParameters': [],
                   },
                  {
-                    "type": "TSTypeReference",
-                    "typeName": {
-                     "name": "U",
-                      "type": "Identifier",
+                    'type': 'TSTypeReference',
+                    'typeName': {
+                     'name': 'U',
+                      'type': 'Identifier',
                     },
-                    "typeParameters": [],
+                    'typeParameters': [],
                   }
                 ]
               }
             },
-            "type": "FunctionDeclaration",
-            "typeParameters": {
-              "params": [
+            'type': 'FunctionDeclaration',
+            'typeParameters': {
+              'params': [
                 {
-                  "constraint": null,
-                  "default": null,
-                  "name": "T",
-                  "type": "TSTypeParameter",
+                  'constraint': null,
+                  'default': null,
+                  'name': 'T',
+                  'type': 'TSTypeParameter',
                 },
                 {
-                  "constraint": null,
-                  "default": null,
-                  "name": "T",
-                  "type": "TSTypeParameter",
+                  'constraint': null,
+                  'default': null,
+                  'name': 'T',
+                  'type': 'TSTypeParameter',
                 },
                 {
-                  "constraint": null,
-                  "default": null,
-                  "name": "U",
-                  "type": "TSTypeParameter",
+                  'constraint': null,
+                  'default': null,
+                  'name': 'U',
+                  'type': 'TSTypeParameter',
                 }
              ],
-              "type": "TSTypeParameterDeclaration"
+              'type': 'TSTypeParameterDeclaration'
             }
           }
         ],
-        "sourceType": "script",
-        "type": "Program"
+        'sourceType': 'script',
+        'type': 'Program'
       }
 });
 });
