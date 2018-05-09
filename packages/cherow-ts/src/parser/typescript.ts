@@ -71,8 +71,9 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
       default: // ignore
   }
 
-  // Note: this 'rewind' will only happen if someone try to parse invalid
-  // 'types', 'declare' or 'interface' syntax
+  // Note: this 'rewind' will only happen if 'types', 'declare' or 'interface' 
+  // should be treated as identifer
+  
   parser.index = index;
   parser.token = token;
   parser.tokenValue = tokenValue;
