@@ -123,13 +123,17 @@ export function parseStatement(parser: Parser, context: Context): ESTree.Stateme
         tolerant(parser, context, Errors.AsyncFunctionInSingleStatementContext);
       }
       return parseExpressionOrLabelledStatement(parser, context | Context.AllowSingleStatement);
+    case Token.DeclareKeyword:
+    case Token.InterfaceKeyword:
+    case Token.TypeKeyword:
+        return parseExpressionOrDeclareStatement(parser, context);
     case Token.FunctionKeyword:
       // V8
       tolerant(parser, context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
     case Token.ClassKeyword:
       tolerant(parser, context, Errors.ForbiddenAsStatement, tokenDesc(parser.token));
     default:
-      return parseExpressionOrDeclareStatement(parser, context);
+      return parseExpressionOrLabelledStatement(parser, context);
   }
 }
 
