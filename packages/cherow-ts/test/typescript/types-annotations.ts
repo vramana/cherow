@@ -642,31 +642,70 @@ describe('Types', () => {
   pass('var a: { id<T>(x: T): T; }', Context.Empty, {
       source: 'var a: { id<T>(x: T): T; }',
       expected: {
-          'body': [{
-              'declarations': [{
-                  'id': {
-                      'name': 'a',
-                      'type': 'Identifier',
-                      'typeAnnotation': {
-                          'type': 'TypeAnnotation',
-                          'typeAnnotation': {
-                              'members': [{
-                                  'readonly': false,
-                                  'type': 'TSMethodSignature',
-                              }, ],
-                              'type': 'TSTypeLiteral'
+          "body": [
+            {
+              "declarations": [
+                {
+                  "id": {
+                    "name": "a",
+                    "type": "Identifier",
+                    "typeAnnotation": {
+                      "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                        "members": [
+                          {
+                            "computed": false,
+                            "key": {
+                              "name": "id",
+                              "type": "Identifier",
+                           },
+                            "parameters": [
+                              {
+                                "name": "x",
+                                "type": "Identifier",
+                                "typeAnnotation": {
+                                  "type": "TypeAnnotation",
+                                  "typeAnnotation": {
+                                    "type": "TSTypeReference",
+                                    "typeName": {
+                                      "name": "T",
+                                     "type": "Identifier",
+                                    },
+                                    "typeParameters": [],
+                                  }
+                                }
+                              }
+                            ],
+                            "readonly": false,
+                            "type": "TSMethodSignature",
+                            "typeAnnotation": {
+                             "type": "TypeAnnotation",
+                              "typeAnnotation": {
+                                "type": "TSTypeReference",
+                                "typeName": {
+                                  "name": "T",
+                                  "type": "Identifier",
+                                },
+                                "typeParameters": [],
+                              }
+                            }
                           }
+                        ],
+                        "type": "TSTypeLiteral"
                       }
+                    }
                   },
-                  'init': null,
-                  'type': 'VariableDeclarator'
-              }, ],
-              'kind': 'var',
-              'type': 'VariableDeclaration'
-          }, ],
-          'sourceType': 'script',
-          'type': 'Program'
-      }
+                  "init": null,
+                 "type": "VariableDeclarator"
+                },
+              ],
+              "kind": "var",
+              "type": "VariableDeclaration",
+            },
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
   });
 
   pass('let y: unique symbol;', Context.Empty, {

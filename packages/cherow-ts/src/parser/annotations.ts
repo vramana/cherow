@@ -495,6 +495,10 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
     if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
     return finishNode(context, parser, pos, {
       type: 'TSMethodSignature',
+      key,
+      computed: false,
+      parameters,
+      typeAnnotation,
       readonly
     });
   } else {

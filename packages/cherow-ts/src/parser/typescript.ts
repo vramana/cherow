@@ -241,7 +241,7 @@ function parseInterfaceDeclaration(
   id = parseIdentifier(parser, context)): any {
   const pos = getLocation(parser);
   const typeParameters = parser.token === Token.Colon ? parseTypeParameters(parser, context) : null;
-  let extend: any = false;
+  let extend: any = null;
   if (consume(parser, context, Token.ExtendsKeyword)) {
     extend = parseHeritageClause(parser, context);
   }
@@ -250,6 +250,7 @@ function parseInterfaceDeclaration(
     type: 'TSInterfaceDeclaration',
     id,
     body,
+    extends: extend,
     typeParameters
   } as any);
 }

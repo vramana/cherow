@@ -28,6 +28,7 @@ describe('Declare', () => {
               'body': [],
               'type': 'TSInterfaceBody',
             },
+            "extends": null,
             'id': {
               'name': 'I',
               'type': 'Identifier',
