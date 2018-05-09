@@ -239,7 +239,7 @@ function parseTypeArgumentElements(parser: Parser, context: Context): any {
   return params;
 }
 
-function parseTypeArguments(parser: Parser, context: Context): any {
+export function parseTypeArguments(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
 
   expect(parser, context, Token.LessThan);
@@ -518,13 +518,13 @@ function parseModifier(parser: Parser, context: Context, allowedModifiers: any):
 }
 
 function parseTypeMember(parser: Parser, context: Context): any {
-
+  // call
   if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
-    // TODO
+    return parseSignatureMember(parser, context, 'TSConstructSignatureDeclaration');
   }
   if (parser.token === Token.NewKeyword && lookahead(parser, context, nextTokenIsStartOfConstructSignature)) {
     expect(parser, context, Token.NewKeyword);
-    return parseSignatureMember(parser, context);
+    return parseSignatureMember(parser, context, 'TSConstructSignatureDeclaration');
   }
 
   const readonly = parseModifier(parser, context, ['readonly']);
@@ -532,7 +532,7 @@ function parseTypeMember(parser: Parser, context: Context): any {
   if (idx) return idx;
   return parsePropertyOrMethodSignature(parser, context, readonly);
 }
-export function parseSignatureMember(parser: Parser, context: Context): any {
+export function parseSignatureMember(parser: Parser, context: Context, type: string): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftParen);
     const parameters: any[] = [];
@@ -550,11 +550,10 @@ export function parseSignatureMember(parser: Parser, context: Context): any {
   }
   if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
-    type: 'TSConstructSignatureDeclaration',
+    type,
     parameters,
     typeAnnotation
   });
-
 }
 
 export function parseObjectTypeMembers(parser: Parser, context: Context): any {

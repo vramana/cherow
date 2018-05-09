@@ -2,7 +2,7 @@ import { ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
 import { nextToken, getLocation, consumeSemicolon, finishNode, expect,consume } from '../utilities';
 import { parseExpressionOrLabelledStatement } from './statements';
 import { parseIdentifier } from './expressions';
-import { parseTypeParameters, parseType, parseObjectTypeMembers } from './annotations';
+import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
 
 /**
@@ -190,10 +190,41 @@ function parseTypeAlias(
       typeAnnotation
   } as any);
 }
+// HeritageClauseElement
+// tsParseExpressionWithTypeArguments
+function parseHeritageClause(parser: Parser, context: Context): any {
+  const clauses: any[] = [];
+  while (parser.token !== Token.LeftBrace) {
+    clauses.push(parseExpressionWithTypeArguments(parser, context));
+  }
+  return clauses;
 
-function parseHeritageClause(): any {
-  // TODO
-  return false;
+}
+function parseExpressionWithTypeArguments(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  const expression = parseEntityName(parser, context);
+  let typeParameters: any = null;
+  if (parser.token === Token.LessThan) {
+    typeParameters = parseTypeArguments(parser, context);
+  }
+return finishNode(context, parser, pos, {
+  type: 'TSExpressionWithTypeArguments',
+  expression,
+  typeParameters
+} as any)
+
+}
+function parseEntityName(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  let entity: any = parseIdentifier(parser, context);
+  while (consume(parser, context, Token.Period)) {
+    entity = finishNode(context, parser, getLocation(parser), {
+      type: 'TSQualifiedName',
+      left: entity,
+      right: parseIdentifier(parser, context)
+    } as any);
+  }
+  return entity;
 }
 
 function parseInterfaceDeclarationBody(parser: Parser, context: Context): any {
@@ -212,7 +243,7 @@ function parseInterfaceDeclaration(
   const typeParameters = parser.token === Token.Colon ? parseTypeParameters(parser, context) : null;
   let extend: any = false;
   if (consume(parser, context, Token.ExtendsKeyword)) {
-    extend = parseHeritageClause();
+    extend = parseHeritageClause(parser, context);
   }
   const body = parseInterfaceDeclarationBody(parser, context);
   return finishNode(context, parser, pos, {
@@ -222,7 +253,6 @@ function parseInterfaceDeclaration(
     typeParameters
   } as any);
 }
-
 
 function parseEnumDeclaration(
   parser: Parser,

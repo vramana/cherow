@@ -20,7 +20,6 @@ describe('Interface', () => {
       });
   }
 
-
   pass('interface I { new (x: number): void; }', Context.Empty, {
   source: 'interface I { new (x: number): void; }',
   expected: {
@@ -65,4 +64,47 @@ describe('Interface', () => {
     }
 });
 
+pass('interface I { (x: number): void; }', Context.Empty, {
+  source: 'interface I { (x: number): void; }',
+  expected: {
+      "body": [
+        {
+          "body": {
+            "body": [
+              {
+                "parameters": [
+                  {
+                    "name": "x",
+                    "type": "Identifier",
+                    "typeAnnotation": {
+                      "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                        "type": "TSNumberKeyword",
+                      }
+                   }
+                  }
+                ],
+                "type": "TSConstructSignatureDeclaration",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                    "type": "TSVoidKeyword",
+                  }
+                }
+              }
+            ],
+           "type": "TSInterfaceBody",
+          },
+          "id": {
+            "name": "I",
+            "type": "Identifier",
+          },
+          "type": "TSInterfaceDeclaration",
+          "typeParameters": null,
+        }
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
 });
