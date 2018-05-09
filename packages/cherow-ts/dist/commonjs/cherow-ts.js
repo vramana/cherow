@@ -2640,14 +2640,13 @@ function parseMappedTypeParameter(parser, context) {
 }
 function parseIntersectionType(parser, context) {
     const pos = cherow.getLocation(parser);
+    cherow.consume(parser, context, 167773508);
     const tsType = parseTypeOperator(parser, context);
-    if (parser.token !== 167773508)
-        return tsType;
     const types = [tsType];
     while (cherow.consume(parser, context, 167773508)) {
         types.push(parseTypeOperator(parser, context));
     }
-    return cherow.finishNode(context, parser, pos, {
+    return types.length === 1 ? tsType : cherow.finishNode(context, parser, pos, {
         type: 'TSIntersectionType',
         types
     });
@@ -2729,14 +2728,14 @@ function parseType(parser, context) {
 }
 function parseUnionType(parser, context) {
     const pos = cherow.getLocation(parser);
-    const tsType = parseIntersectionType(parser, context);
-    if (parser.token !== 167772997)
-        return tsType;
-    const types = [tsType];
+    cherow.consume(parser, context, 167772997);
+    const type = parseIntersectionType(parser, context);
+    const types = [type];
     while (cherow.consume(parser, context, 167772997)) {
         types.push(parseIntersectionType(parser, context));
     }
-    return cherow.finishNode(context, parser, pos, {
+    return types.length === 1 ?
+        type : cherow.finishNode(context, parser, pos, {
         type: 'TSUnionType',
         types
     });
@@ -2961,7 +2960,7 @@ function parseTypeLiteral(parser, context) {
 }
 function parseTypeQuery(parser, context) {
     const pos = cherow.getLocation(parser);
-    cherow.expect(parser, context, 65658);
+    cherow.expect(parser, context, 302002218);
     return cherow.finishNode(context, parser, pos, {
         type: 'TSTypeQuery',
         exprName: parseEntityName(parser, context)
@@ -2990,6 +2989,20 @@ function parsePropertyOrMethodSignature(parser, context, readonly) {
     const key = cherow.Parser.parsePropertyName(parser, context);
     const option = cherow.consume(parser, context, 22);
     if (!readonly && (parser.token === 50331659 || parser.token === 167774015)) {
+        const typeParameters = parseTypeParameters(parser, context);
+        cherow.expect(parser, context, 50331659);
+        const parameters = [];
+        while (parser.token !== 16) {
+            parameters.push(parser.token === 14
+                ? parseRestElement(parser, context)
+                : parseBindingIdentifier(parser, context));
+            cherow.consume(parser, context, 16777234);
+        }
+        cherow.expect(parser, context, 16);
+        let typeAnnotation = null;
+        if (parser.token === 16777237) {
+            typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, 16777237);
+        }
         if (parser.token !== 16777234)
             cherow.consumeSemicolon(parser, context);
         return cherow.finishNode(context, parser, pos, {
@@ -3052,7 +3065,7 @@ function parseTypeOperator(parser, context) {
         return parseArrayType(parser, context);
     }
     const pos = cherow.getLocation(parser);
-    cherow.expect(parser, context, 65658);
+    cherow.nextToken(parser, context);
     return cherow.finishNode(context, parser, pos, {
         type: 'TSTypeOperator',
         operator: cherow.tokenDesc(65658),

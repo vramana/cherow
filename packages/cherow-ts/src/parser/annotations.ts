@@ -56,10 +56,11 @@ function parseIntersectionType(parser: Parser, context: Context): any {
   consume(parser, context, Token.BitwiseAnd);
   const tsType = parseTypeOperator(parser, context);
   const types = [tsType];
+  if (parser.token !== Token.BitwiseAnd) return tsType;
   while (consume(parser, context, Token.BitwiseAnd)) {
     types.push(parseTypeOperator(parser, context));
   }
-  return types.length === 1 ? tsType : finishNode(context, parser, pos, {
+  return finishNode(context, parser, pos, {
     type: 'TSIntersectionType',
     types
   });
@@ -153,12 +154,12 @@ function parseUnionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   consume(parser, context, Token.BitwiseOr);
   const type = parseIntersectionType(parser, context);
+  if (parser.token !== Token.BitwiseOr) return type;
   const types = [type];
  while (consume(parser, context, Token.BitwiseOr)) {
      types.push(parseIntersectionType(parser, context));
   }
-  return types.length === 1 ?
-                type : finishNode(context, parser, pos, {
+  return finishNode(context, parser, pos, {
     type: 'TSUnionType',
     types
   } as any);
@@ -216,6 +217,7 @@ function parseEntityName(parser: Parser, context: Context): any {
 
 function parseTypeArgumentElements(parser: Parser, context: Context): any {
   const params: any = [];
+
   expect(parser, context, Token.LessThan);
 
   while (parser.token !== Token.GreaterThan) {
@@ -228,6 +230,7 @@ function parseTypeArgumentElements(parser: Parser, context: Context): any {
 
 function parseTypeArguments(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
+
   expect(parser, context, Token.LessThan);
   const params: any[] = [];
   while (parser.token !== Token.GreaterThan) {
@@ -500,6 +503,7 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
 }
 
 function parseTypeMember(parser: Parser, context: Context): any {
+
   if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
     // TODO
   }
@@ -543,16 +547,16 @@ function parseArrayType(parser: Parser, context: Context): any {
 }
 
 function parseTypeOperator(parser: Parser, context: Context): any {
-  if (parser.token !== Token.KeyOfKeyword) {
+ if (parser.token !== Token.KeyOfKeyword && parser.token !== Token.UniqueKeyword) {
     return parseArrayType(parser, context);
   }
 
   const pos = getLocation(parser);
-  //expect(parser, context, Token.KeyOfKeyword);
-nextToken(parser, context);
+  const operator = parser.token;
+  nextToken(parser, context);
   return finishNode(context, parser, pos, {
     type: 'TSTypeOperator',
-    operator: tokenDesc(Token.KeyOfKeyword),
+    operator: tokenDesc(operator),
     typeAnnotation: parseTypeOperator(parser, context)
   } as any);
 }

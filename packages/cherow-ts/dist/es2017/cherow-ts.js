@@ -2636,14 +2636,13 @@ function parseMappedTypeParameter(parser, context) {
 }
 function parseIntersectionType(parser, context) {
     const pos = getLocation(parser);
+    consume(parser, context, 167773508);
     const tsType = parseTypeOperator(parser, context);
-    if (parser.token !== 167773508)
-        return tsType;
     const types = [tsType];
     while (consume(parser, context, 167773508)) {
         types.push(parseTypeOperator(parser, context));
     }
-    return finishNode(context, parser, pos, {
+    return types.length === 1 ? tsType : finishNode(context, parser, pos, {
         type: 'TSIntersectionType',
         types
     });
@@ -2725,14 +2724,14 @@ function parseType(parser, context) {
 }
 function parseUnionType(parser, context) {
     const pos = getLocation(parser);
-    const tsType = parseIntersectionType(parser, context);
-    if (parser.token !== 167772997)
-        return tsType;
-    const types = [tsType];
+    consume(parser, context, 167772997);
+    const type = parseIntersectionType(parser, context);
+    const types = [type];
     while (consume(parser, context, 167772997)) {
         types.push(parseIntersectionType(parser, context));
     }
-    return finishNode(context, parser, pos, {
+    return types.length === 1 ?
+        type : finishNode(context, parser, pos, {
         type: 'TSUnionType',
         types
     });
@@ -2957,7 +2956,7 @@ function parseTypeLiteral(parser, context) {
 }
 function parseTypeQuery(parser, context) {
     const pos = getLocation(parser);
-    expect(parser, context, 65658);
+    expect(parser, context, 302002218);
     return finishNode(context, parser, pos, {
         type: 'TSTypeQuery',
         exprName: parseEntityName(parser, context)
@@ -2986,6 +2985,20 @@ function parsePropertyOrMethodSignature(parser, context, readonly) {
     const key = Parser.parsePropertyName(parser, context);
     const option = consume(parser, context, 22);
     if (!readonly && (parser.token === 50331659 || parser.token === 167774015)) {
+        const typeParameters = parseTypeParameters(parser, context);
+        expect(parser, context, 50331659);
+        const parameters = [];
+        while (parser.token !== 16) {
+            parameters.push(parser.token === 14
+                ? parseRestElement(parser, context)
+                : parseBindingIdentifier(parser, context));
+            consume(parser, context, 16777234);
+        }
+        expect(parser, context, 16);
+        let typeAnnotation = null;
+        if (parser.token === 16777237) {
+            typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, 16777237);
+        }
         if (parser.token !== 16777234)
             consumeSemicolon(parser, context);
         return finishNode(context, parser, pos, {
@@ -3048,7 +3061,7 @@ function parseTypeOperator(parser, context) {
         return parseArrayType(parser, context);
     }
     const pos = getLocation(parser);
-    expect(parser, context, 65658);
+    nextToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'TSTypeOperator',
         operator: tokenDesc(65658),

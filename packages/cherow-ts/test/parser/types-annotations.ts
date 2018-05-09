@@ -5,12 +5,12 @@ import { parse } from '../../src/parser/parser';
 
 describe('Types', () => {
 
-    const validSyntax = [
+  const validSyntax = [
       'let x: keyof T;',
       'let x: typeof y.z;',
       'let obj: { x: number };',
       'let x: T;',
-//      'let y: unique symbol;',
+      'let y: unique symbol;',
       'var args: any[]',
       'var num: number = 123;',
       'var num: number;',
@@ -28,7 +28,7 @@ describe('Types', () => {
       'var command: string[]|string',
       'first: T, second: U',
       'var x = extend({ a: "hello" }, { b: 42 });',
-       'var nameNumber: [string, number];',
+      'var nameNumber: [string, number];',
       'let a: any;',
       'let b: boolean;',
       'let ne: never;',
@@ -61,10 +61,10 @@ describe('Types', () => {
       'var a: {param1: number; param2: string}',
       'var a: {param1: number; param2?: string}',
       'var a: { [a: number]: string; [b: number]: string; };',
-      //'var a: {add(x:number, ...y:Array<string>): void}',
+      'var a: {add(x:number, ...y:Array<string>): void}',
       'var a: { id<T>(x: T): T; }',
       'var a:Array<number> = [1, 2, 3]',
-      //'var [x]: Array<string> = [ "hello" ];',
+      'var [x]: Array<string> = [ "hello" ];',
       //'var a: Map<string, Array<string> >',
       'var x: typeof Y = Y;',
       'var x: typeof Y | number = Y;',
@@ -74,658 +74,670 @@ describe('Types', () => {
       'var foo = bar ? (foo) : number;',
       '((...rest: Array<number>) => rest)',
       'var a:(...rest:Array<number>) => number',
-      //'({f: function <T>() {}})',
+      //   '({f: function <T>() {}})',
       'var a: {param1?: number; param2: string; param3: string;}',
       'var identity: <T>(x: T, ...y:T[]) => T'
-    ];
+  ];
 
-    for (const arg of validSyntax) {
+  for (const arg of validSyntax) {
 
-        it(`${arg}`, () => {
-            t.doesNotThrow(() => {
-                parse(`${arg}`, undefined, Context.Empty);
-            });
-        });
-    }
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parse(`${arg}`, undefined, Context.Empty);
+          });
+      });
+  }
 
-    pass('let a: true;', Context.Empty, {
+  pass('let a: true;', Context.Empty, {
       source: 'let a: true;',
       expected: {
-          'body': [
-            {
-              'declarations': [
-                {
+          'body': [{
+              'declarations': [{
                   'id': {
-                    'name': 'a',
-                    'type': 'Identifier',
-                    'typeAnnotation': {
-                      'type': 'TypeAnnotation',
+                      'name': 'a',
+                      'type': 'Identifier',
                       'typeAnnotation': {
-                       'literal': {
-                          'type': 'Literal',
-                          'value': true,
-                        },
-                        'type': 'TSLiteralType'
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'literal': {
+                                  'type': 'Literal',
+                                  'value': true,
+                              },
+                              'type': 'TSLiteralType'
+                          },
                       },
-                   },
                   },
                   'init': null,
                   'type': 'VariableDeclarator',
-                },
-              ],
+              }, ],
               'kind': 'let',
               'type': 'VariableDeclaration',
-            },
-          ],
+          }, ],
           'sourceType': 'script',
           'type': 'Program'
-        }
-    });
-
-    pass('let a: any;', Context.Empty, {
-    source: 'let a: any;',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-                'id': {
-                  'name': 'a',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'type': 'TSAnyKeyword',
-                    },
-                  },
-                },
-                'init': null,
-                'type': 'VariableDeclarator',
-              },
-            ],
-            'kind': 'let',
-            'type': 'VariableDeclaration',
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program',
       }
   });
 
-    pass('let intersection: number & string;', Context.Empty, {
-    source: 'let intersection: number & string;',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-             {
-                'id': {
-                  'name': 'intersection',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'type': 'TSIntersectionType',
-                      'types': [
-                        {
-                          'type': 'TSNumberKeyword',
-                        },
-                        {
-                          'type': 'TSStringKeyword'
-                        }
-                      ]
-                    }
-                  }
-                },
-                'init': null,
-                'type': 'VariableDeclarator'
-              },
-            ],
-            'kind': 'let',
-            'type': 'VariableDeclaration',
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program',
+  pass('let a: any;', Context.Empty, {
+      source: 'let a: any;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'a',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSAnyKeyword',
+                          },
+                      },
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program',
+      }
+  });
+
+  pass('let intersection: number & string;', Context.Empty, {
+      source: 'let intersection: number & string;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'intersection',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSIntersectionType',
+                              'types': [{
+                                      'type': 'TSNumberKeyword',
+                                  },
+                                  {
+                                      'type': 'TSStringKeyword'
+                                  }
+                              ]
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program',
       },
   });
 
-    pass('let x: T;', Context.Empty, {
-    source: 'let x: T;',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-                'id': {
-                  'name': 'x',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'type': 'TSTypeReference',
-                      'typeName': {
-                        'name': 'T',
-                        'type': 'Identifier',
-                      },
-                      'typeParameters': []
-                    },
-                  },
-                },
-                'init': null,
-                'type': 'VariableDeclarator',
-              },
-           ],
-            'kind': 'let',
-            'type': 'VariableDeclaration',
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program'
-      }
-  });
-
-    pass('let arr: number[][];', Context.Empty, {
-    source: 'let arr: number[][];',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-                'id': {
-                  'name': 'arr',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'elementType': {
-                        'elementType': {
-                          'type': 'TSNumberKeyword',
-                        },
-                        'type': 'TSArrayType',
-                      },
-                      'type': 'TSArrayType',
-                    }
-                  }
-                },
-                'init': null,
-                'type': 'VariableDeclarator',
-              }
-            ],
-            'kind': 'let',
-           'type': 'VariableDeclaration',
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program'
-      }
-  });
-
-    pass('simple let + identifier', Context.Empty, {
-    source: 'let arr',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-               'id': {
-                  'name': 'arr',
-                  'type': 'Identifier',
-                  typeAnnotation: null,
-                },
-                'init': null,
-                'type': 'VariableDeclarator',
-              },
-            ],
-            'kind': 'let',
-            'type': 'VariableDeclaration',
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program',
-      }
-  });
-
-    pass('var a: {numVal: number; strVal: string}', Context.Empty, {
-    source: 'var a: {numVal: number; strVal: string}',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-                'id': {
-                  'name': 'a',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'members': [
-                        {
-                          'readonly': false,
-                          'type': 'TSPropertySignature',
-                          'typeAnnotation': {
-                            'type': 'TypeAnnotation',
-                            'typeAnnotation': {
-                              'type': 'TSNumberKeyword',
-                            }
-                          }
-                        },
-                        {
-                          'readonly': false,
-                          'type': 'TSPropertySignature',
-                          'typeAnnotation': {
-                            'type': 'TypeAnnotation',
-                            'typeAnnotation': {
-                              'type': 'TSStringKeyword',
-                            }
-                          }
-                        }
-                      ],
-                      'type': 'TSTypeLiteral',
-                    }
-                  }
-                },
-                'init': null,
-                'type': 'VariableDeclarator'
-              }
-            ],
-            'kind': 'var',
-            'type': 'VariableDeclaration'
-          }
-        ],
-        'sourceType': 'script',
-        'type': 'Program'
-      }
-  });
-
-    pass('let f: <T>(a: T) => T;', Context.Empty, {
-    source: 'let f: <T>(a: T) => T;',
-    expected: {
-        'body': [
-          {
-            'declarations': [
-              {
-                'id': {
-                  'name': 'f',
-                  'type': 'Identifier',
-                  'typeAnnotation': {
-                    'type': 'TypeAnnotation',
-                    'typeAnnotation': {
-                      'parameters': [
-                        {
-                          'name': 'a',
-                          'type': 'Identifier',
-                          'typeAnnotation': {
-                            'type': 'TypeAnnotation',
-                            'typeAnnotation': {
-                              'type': 'TSTypeReference',
-                              'typeName': {
-                                'name': 'T',
-                                'type': 'Identifier',
-                              },
-                              'typeParameters': [],
-                            }
-                          }
-                        }
-                      ],
-                      'type': 'TSFunctionType',
-                      'typeAnnotation': {
-                        'type': 'TypeAnnotation',
-                        'typeAnnotation': {
-                          'type': 'TSTypeReference',
-                          'typeName': {
-                            'name': 'T',
-                            'type': 'Identifier',
-                          },
-                          'typeParameters': [],
-                        },
-                      },
-                     'typeParameters': {
-                        'params': [
-                          {
-                            'constraint': null,
-                            'default': null,
-                            'name': 'T',
-                            'type': 'TSTypeParameter',
-                          },
-                        ],
-                        'type': 'TSTypeParameterDeclaration'
-                      }
-                    }
-                  }
-                },
-                'init': null,
-                'type': 'VariableDeclarator'
-              }
-            ],
-            'kind': 'let',
-            'type': 'VariableDeclaration'
-          },
-        ],
-        'sourceType': 'script',
-        'type': 'Program'
-      }
-  });
-
-    pass('let f: <T>(a: T, b: T, c: T) => T;', Context.Empty, {
-    source: 'let f: <T>(a: T, b: T, c: T) => T;',
-    expected: {
-        'body': [{
-            'declarations': [{
-                'id': {
-                    'name': 'f',
-                    'type': 'Identifier',
-                    'typeAnnotation': {
-                        'type': 'TypeAnnotation',
-                        'typeAnnotation': {
-                            'parameters': [{
-                                    'name': 'a',
-                                    'type': 'Identifier',
-                                    'typeAnnotation': {
-                                        'type': 'TypeAnnotation',
-                                        'typeAnnotation': {
-                                            'type': 'TSTypeReference',
-                                            'typeName': {
-                                                'name': 'T',
-                                                'type': 'Identifier',
-                                            },
-                                            'typeParameters': [],
-                                        }
-                                    }
-                                },
-                                {
-                                    'name': 'b',
-                                    'type': 'Identifier',
-                                    'typeAnnotation': {
-                                        'type': 'TypeAnnotation',
-                                        'typeAnnotation': {
-                                            'type': 'TSTypeReference',
-                                            'typeName': {
-                                                'name': 'T',
-                                                'type': 'Identifier',
-                                            },
-                                            'typeParameters': [],
-                                        }
-                                    }
-                                },
-                                {
-                                    'name': 'c',
-                                    'type': 'Identifier',
-                                    'typeAnnotation': {
-                                        'type': 'TypeAnnotation',
-                                        'typeAnnotation': {
-                                            'type': 'TSTypeReference',
-                                            'typeName': {
-                                                'name': 'T',
-                                                'type': 'Identifier',
-                                            },
-                                            'typeParameters': []
-                                        }
-                                    }
-                                }
-                            ],
-                            'type': 'TSFunctionType',
-                            'typeAnnotation': {
-                                'type': 'TypeAnnotation',
-                                'typeAnnotation': {
-                                    'type': 'TSTypeReference',
-                                    'typeName': {
-                                        'name': 'T',
-                                        'type': 'Identifier',
-                                    },
-                                    'typeParameters': [],
-                                },
-                            },
-                            'typeParameters': {
-                                'params': [{
-                                    'constraint': null,
-                                    'default': null,
-                                    'name': 'T',
-                                    'type': 'TSTypeParameter',
-                                }, ],
-                                'type': 'TSTypeParameterDeclaration'
-                            }
-                        }
-                    }
-                },
-                'init': null,
-                'type': 'VariableDeclarator'
-            }],
-            'kind': 'let',
-            'type': 'VariableDeclaration'
-        }, ],
-        'sourceType': 'script',
-        'type': 'Program'
-    }
-});
-
-    pass('let x: Array<() => void>;', Context.Empty, {
-  source: 'let x: Array<() => void>;',
-  expected: {
-      'body': [
-        {
-          'declarations': [
-            {
-              'id': {
-                'name': 'x',
-                'type': 'Identifier',
-                'typeAnnotation': {
-                  'type': 'TypeAnnotation',
-                  'typeAnnotation': {
-                    'type': 'TSTypeReference',
-                    'typeName': {
-                      'name': 'Array',
+  pass('let x: T;', Context.Empty, {
+      source: 'let x: T;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'x',
                       'type': 'Identifier',
-                    },
-                    'typeParameters': {
-                      'params': [
-                        {
-                          'parameters': [],
-                          'type': 'TSFunctionType',
-                          'typeAnnotation': {
-                            'type': 'TypeAnnotation',
-                            'typeAnnotation': {
-                              'type': 'TSVoidKeyword',
-                            },
-                          },
-                          'typeParameters': []
-                        }
-                      ],
-                      'type': 'TypeParameterInstantiation'
-                    }
-                  }
-                }
-              },
-              'init': null,
-              'type': 'VariableDeclarator'
-            }
-          ],
-          'kind': 'let',
-          'type': 'VariableDeclaration'
-        }
-     ],
-      'sourceType': 'script',
-      'type': 'Program'
-    }
-});
-
-    pass('let f: (this: number) => void;', Context.Empty, {
-  source: 'let f: (a: number, /*b?: number,*/ ...c: number[]) => void;',
-  expected: {
-      'body': [
-        {
-          'declarations': [
-            {
-              'id': {
-               'name': 'f',
-                'type': 'Identifier',
-                'typeAnnotation': {
-                  'type': 'TypeAnnotation',
-                  'typeAnnotation': {
-                    'parameters': [
-                      {
-                        'name': 'a',
-                        'type': 'Identifier',
-                        'typeAnnotation': {
+                      'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
-                            'type': 'TSNumberKeyword',
-                          }
-                        }
+                              'type': 'TSTypeReference',
+                              'typeName': {
+                                  'name': 'T',
+                                  'type': 'Identifier',
+                              },
+                              'typeParameters': []
+                          },
                       },
-                     {
-                        'argument': {
-                          'name': 'c',
-                          'type': 'Identifier',
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('let arr: number[][];', Context.Empty, {
+      source: 'let arr: number[][];',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'arr',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
                           'typeAnnotation': {
-                            'type': 'TypeAnnotation',
-                            'typeAnnotation': {
-                             'elementType': {
-                                'type': 'TSNumberKeyword',
+                              'elementType': {
+                                  'elementType': {
+                                      'type': 'TSNumberKeyword',
+                                  },
+                                  'type': 'TSArrayType',
                               },
                               'type': 'TSArrayType',
-                            }
                           }
-                        },
-                        'type': 'RestElement'
                       }
-                    ],
-                    'type': 'TSFunctionType',
-                    'typeAnnotation': {
-                      'type': 'TypeAnnotation',
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('simple let + identifier', Context.Empty, {
+      source: 'let arr',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'arr',
+                      'type': 'Identifier',
+                      typeAnnotation: null,
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program',
+      }
+  });
+
+  pass('var a: {numVal: number; strVal: string}', Context.Empty, {
+      source: 'var a: {numVal: number; strVal: string}',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'a',
+                      'type': 'Identifier',
                       'typeAnnotation': {
-                        'type': 'TSVoidKeyword',
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'members': [{
+                                      'readonly': false,
+                                      'type': 'TSPropertySignature',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSNumberKeyword',
+                                          }
+                                      }
+                                  },
+                                  {
+                                      'readonly': false,
+                                      'type': 'TSPropertySignature',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSStringKeyword',
+                                          }
+                                      }
+                                  }
+                              ],
+                              'type': 'TSTypeLiteral',
+                          }
                       }
-                    },
-                    'typeParameters': []
-                  }
-                }
-             },
-              'init': null,
-              'type': 'VariableDeclarator',
-            },
-          ],
-          'kind': 'let',
-          'type': 'VariableDeclaration',
-        },
-      ],
-      'sourceType': 'script',
-      'type': 'Program'
-    }
-});
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }],
+              'kind': 'var',
+              'type': 'VariableDeclaration'
+          }],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
 
-    pass('var nameNumber: [string, number];', Context.Empty, {
-  source: 'var nameNumber: [string, number];',
-  expected: {
-      'body': [
-        {
-          'declarations': [
-           {
-              'id': {
-                'name': 'nameNumber',
-                'type': 'Identifier',
-                'typeAnnotation': {
-                  'type': 'TypeAnnotation',
-                  'typeAnnotation': {
-                    'elementTypes': [
-                      {
-                        'type': 'TSStringKeyword',
-                      },
-                      {
-                        'type': 'TSNumberKeyword',
+  pass('let f: <T>(a: T) => T;', Context.Empty, {
+      source: 'let f: <T>(a: T) => T;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'f',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'parameters': [{
+                                  'name': 'a',
+                                  'type': 'Identifier',
+                                  'typeAnnotation': {
+                                      'type': 'TypeAnnotation',
+                                      'typeAnnotation': {
+                                          'type': 'TSTypeReference',
+                                          'typeName': {
+                                              'name': 'T',
+                                              'type': 'Identifier',
+                                          },
+                                          'typeParameters': [],
+                                      }
+                                  }
+                              }],
+                              'type': 'TSFunctionType',
+                              'typeAnnotation': {
+                                  'type': 'TypeAnnotation',
+                                  'typeAnnotation': {
+                                      'type': 'TSTypeReference',
+                                      'typeName': {
+                                          'name': 'T',
+                                          'type': 'Identifier',
+                                      },
+                                      'typeParameters': [],
+                                  },
+                              },
+                              'typeParameters': {
+                                  'params': [{
+                                      'constraint': null,
+                                      'default': null,
+                                      'name': 'T',
+                                      'type': 'TSTypeParameter',
+                                  }, ],
+                                  'type': 'TSTypeParameterDeclaration'
+                              }
+                          }
                       }
-                   ],
-                    'type': 'TSTupleType',
-                  }
-                }
-              },
-              'init': null,
-              'type': 'VariableDeclarator'
-            }
-          ],
-          'kind': 'var',
-          'type': 'VariableDeclaration'
-        }
-      ],
-      'sourceType': 'script',
-      'type': 'Program'
-    }
-});
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }],
+              'kind': 'let',
+              'type': 'VariableDeclaration'
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
 
-    pass('let x: typeof y.z;', Context.Empty, {
-  source: 'let x: typeof y.z;',
-  expected: {
-     'body': [
-        {
-          'declarations': [
-            {
-             'id': {
-               'name': 'x',
-                'type': 'Identifier',
-                'typeAnnotation': {
-                  'type': 'TypeAnnotation',
-                  'typeAnnotation': {
-                    'exprName': {
-                      'left': {
-                        'name': 'y',
-                        'type': 'Identifier',
-                      },
-                      'right': {
-                        'name': 'z',
-                        'type': 'Identifier',
-                      },
-                      'type': 'TSQualifiedName',
-                    },
-                    'type': 'TSTypeQuery',
-                  }
-                }
-             },
-              'init': null,
-              'type': 'VariableDeclarator',
-            },
-          ],
-          'kind': 'let',
-          'type': 'VariableDeclaration',
-        },
-      ],
-      'sourceType': 'script',
-      'type': 'Program',
-    }
-});
+  pass('let f: <T>(a: T, b: T, c: T) => T;', Context.Empty, {
+      source: 'let f: <T>(a: T, b: T, c: T) => T;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'f',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'parameters': [{
+                                      'name': 'a',
+                                      'type': 'Identifier',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSTypeReference',
+                                              'typeName': {
+                                                  'name': 'T',
+                                                  'type': 'Identifier',
+                                              },
+                                              'typeParameters': [],
+                                          }
+                                      }
+                                  },
+                                  {
+                                      'name': 'b',
+                                      'type': 'Identifier',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSTypeReference',
+                                              'typeName': {
+                                                  'name': 'T',
+                                                  'type': 'Identifier',
+                                              },
+                                              'typeParameters': [],
+                                          }
+                                      }
+                                  },
+                                  {
+                                      'name': 'c',
+                                      'type': 'Identifier',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSTypeReference',
+                                              'typeName': {
+                                                  'name': 'T',
+                                                  'type': 'Identifier',
+                                              },
+                                              'typeParameters': []
+                                          }
+                                      }
+                                  }
+                              ],
+                              'type': 'TSFunctionType',
+                              'typeAnnotation': {
+                                  'type': 'TypeAnnotation',
+                                  'typeAnnotation': {
+                                      'type': 'TSTypeReference',
+                                      'typeName': {
+                                          'name': 'T',
+                                          'type': 'Identifier',
+                                      },
+                                      'typeParameters': [],
+                                  },
+                              },
+                              'typeParameters': {
+                                  'params': [{
+                                      'constraint': null,
+                                      'default': null,
+                                      'name': 'T',
+                                      'type': 'TSTypeParameter',
+                                  }, ],
+                                  'type': 'TSTypeParameterDeclaration'
+                              }
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }],
+              'kind': 'let',
+              'type': 'VariableDeclaration'
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
 
-    pass('var a: { id<T>(x: T): T; }', Context.Empty, {
-  source: 'var a: { id<T>(x: T): T; }',
-  expected: {
-      'body': [
-        {
-          'declarations': [
-            {
-              'id': {
-                'name': 'a',
-                'type': 'Identifier',
-                'typeAnnotation': {
-                 'type': 'TypeAnnotation',
-                  'typeAnnotation': {
-                    'members': [
-                      {
-                        'readonly': false,
-                        'type': 'TSMethodSignature',
+  pass('let x: Array<() => void>;', Context.Empty, {
+      source: 'let x: Array<() => void>;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'x',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'type': 'TSTypeReference',
+                              'typeName': {
+                                  'name': 'Array',
+                                  'type': 'Identifier',
+                              },
+                              'typeParameters': {
+                                  'params': [{
+                                      'parameters': [],
+                                      'type': 'TSFunctionType',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSVoidKeyword',
+                                          },
+                                      },
+                                      'typeParameters': []
+                                  }],
+                                  'type': 'TypeParameterInstantiation'
+                              }
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }],
+              'kind': 'let',
+              'type': 'VariableDeclaration'
+          }],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('let f: (this: number) => void;', Context.Empty, {
+      source: 'let f: (a: number, /*b?: number,*/ ...c: number[]) => void;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'f',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'parameters': [{
+                                      'name': 'a',
+                                      'type': 'Identifier',
+                                      'typeAnnotation': {
+                                          'type': 'TypeAnnotation',
+                                          'typeAnnotation': {
+                                              'type': 'TSNumberKeyword',
+                                          }
+                                      }
+                                  },
+                                  {
+                                      'argument': {
+                                          'name': 'c',
+                                          'type': 'Identifier',
+                                          'typeAnnotation': {
+                                              'type': 'TypeAnnotation',
+                                              'typeAnnotation': {
+                                                  'elementType': {
+                                                      'type': 'TSNumberKeyword',
+                                                  },
+                                                  'type': 'TSArrayType',
+                                              }
+                                          }
+                                      },
+                                      'type': 'RestElement'
+                                  }
+                              ],
+                              'type': 'TSFunctionType',
+                              'typeAnnotation': {
+                                  'type': 'TypeAnnotation',
+                                  'typeAnnotation': {
+                                      'type': 'TSVoidKeyword',
+                                  }
+                              },
+                              'typeParameters': []
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('var nameNumber: [string, number];', Context.Empty, {
+      source: 'var nameNumber: [string, number];',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'nameNumber',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'elementTypes': [{
+                                      'type': 'TSStringKeyword',
+                                  },
+                                  {
+                                      'type': 'TSNumberKeyword',
+                                  }
+                              ],
+                              'type': 'TSTupleType',
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }],
+              'kind': 'var',
+              'type': 'VariableDeclaration'
+          }],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('let x: typeof y.z;', Context.Empty, {
+      source: 'let x: typeof y.z;',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'x',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'exprName': {
+                                  'left': {
+                                      'name': 'y',
+                                      'type': 'Identifier',
+                                  },
+                                  'right': {
+                                      'name': 'z',
+                                      'type': 'Identifier',
+                                  },
+                                  'type': 'TSQualifiedName',
+                              },
+                              'type': 'TSTypeQuery',
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator',
+              }, ],
+              'kind': 'let',
+              'type': 'VariableDeclaration',
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program',
+      }
+  });
+
+  pass('var a: { id<T>(x: T): T; }', Context.Empty, {
+      source: 'var a: { id<T>(x: T): T; }',
+      expected: {
+          'body': [{
+              'declarations': [{
+                  'id': {
+                      'name': 'a',
+                      'type': 'Identifier',
+                      'typeAnnotation': {
+                          'type': 'TypeAnnotation',
+                          'typeAnnotation': {
+                              'members': [{
+                                  'readonly': false,
+                                  'type': 'TSMethodSignature',
+                              }, ],
+                              'type': 'TSTypeLiteral'
+                          }
+                      }
+                  },
+                  'init': null,
+                  'type': 'VariableDeclarator'
+              }, ],
+              'kind': 'var',
+              'type': 'VariableDeclaration'
+          }, ],
+          'sourceType': 'script',
+          'type': 'Program'
+      }
+  });
+
+  pass('let y: unique symbol;', Context.Empty, {
+      source: 'let y: unique symbol;',
+      expected: {
+          "body": [{
+              "declarations": [{
+                  "id": {
+                      "name": "y",
+                      "type": "Identifier",
+                      "typeAnnotation": {
+                          "type": "TypeAnnotation",
+                          "typeAnnotation": {
+                              "operator": "unique",
+                              "type": "TSTypeOperator",
+                              "typeAnnotation": {
+                                  "type": "TSSymbolKeyword"
+                              },
+                          }
                       },
-                    ],
-                    'type': 'TSTypeLiteral'
-                  }
-                }
-              },
-              'init': null,
-              'type': 'VariableDeclarator'
-            },
-          ],
-         'kind': 'var',
-          'type': 'VariableDeclaration'
-        },
-      ],
-      'sourceType': 'script',
-      'type': 'Program'
-    }
-});
+                  },
+                  "init": null,
+                  "type": "VariableDeclarator",
+              }, ],
+              "kind": "let",
+              "type": "VariableDeclaration",
+          }, ],
+          "sourceType": "script",
+          "type": "Program",
+      }
+  });
+
+  pass('var [x]: Array<string> = [ "hello" ];', Context.Empty, {
+      source: 'var [x]: Array<string> = [ "hello" ];',
+      expected: {
+          "body": [{
+              "declarations": [{
+                  "id": {
+                      "elements": [{
+                          "name": "x",
+                          "type": "Identifier",
+                          "typeAnnotation": null,
+                      }],
+                      "type": "ArrayPattern",
+                      "typeAnnotation": {
+                          "type": "TypeAnnotation",
+                          "typeAnnotation": {
+                              "type": "TSTypeReference",
+                              "typeName": {
+                                  "name": "Array",
+                                  "type": "Identifier",
+                              },
+                              "typeParameters": {
+                                  "params": [{
+                                      "type": "TSStringKeyword",
+                                  }],
+                                  "type": "TypeParameterInstantiation",
+                              }
+                          }
+                      }
+                  },
+                  "init": {
+                      "elements": [{
+                          "type": "Literal",
+                          "value": "hello",
+                      }],
+                      "type": "ArrayExpression",
+                  },
+                  "type": "VariableDeclarator"
+              }],
+              "kind": "var",
+              "type": "VariableDeclaration",
+          }, ],
+          "sourceType": "script",
+          "type": "Program"
+      }
+  });
 });

@@ -23,7 +23,7 @@ import {
  * @param context Context masks
  */
 export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: string[] = []): ESTree.PatternTop {
-    const { token } = parser;
+  const { token } = parser;
     if (token & Token.IsBindingPattern) {
         return token === Token.LeftBrace ?
             parserObjectAssignmentPattern(parser, context) :
@@ -168,6 +168,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
     return finishNode(context, parser, pos, {
         type: 'ArrayPattern',
         elements,
+        typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null,
     } as ESTree.ArrayPattern);
 }
 
