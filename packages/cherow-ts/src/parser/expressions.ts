@@ -19,6 +19,7 @@ import {
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
+import { parseTypeOrTypePredicateAnnotation, parseTypeParameters } from './annotations';
 import {
   expect,
   hasBit,
@@ -1148,6 +1149,7 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.FunctionKeyword);
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     let id: ESTree.Identifier | null = null;
+    let typeParameters: any = null;
     const { token } = parser;
 
     if (token & (Token.IsIdentifier | Token.Keyword)) {
@@ -1158,10 +1160,13 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) {
             tolerant(parser, context, Errors.YieldBindingIdentifier);
         }
+
         id = parseBindingIdentifier(parser, context);
+    } else if (parser.token === Token.LessThan) {
+      typeParameters = parseTypeParameters(parser, context);
     }
 
-    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
+    const { params, body, returnType } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1171,6 +1176,8 @@ export function parseFunctionExpression(parser: Parser, context: Context): ESTre
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
         id,
+        typeParameters,
+        returnType
     } as any);
 }
 
@@ -1190,6 +1197,7 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     const isAwait = ModifierState.Await;
     let id: ESTree.Identifier | null = null;
+    let typeParameters: any = null;
     const { token } = parser;
     if (token & (Token.IsIdentifier | Token.Keyword)) {
         if (token & Token.IsEvalOrArguments) {
@@ -1199,8 +1207,10 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         if (token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
         if (parser.token & Token.IsYield && isGenerator & ModifierState.Generator) tolerant(parser, context, Errors.YieldBindingIdentifier);
         id = parseBindingIdentifier(parser, context);
+    } else if (parser.token === Token.LessThan) {
+      typeParameters = parseTypeParameters(parser, context);
     }
-    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
+    const { params, body, returnType } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty), isGenerator | isAwait, parseFormalListAndBody);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1210,6 +1220,8 @@ export function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, con
         generator: !!(isGenerator & ModifierState.Generator),
         expression: false,
         id,
+        typeParameters,
+        returnType
     } as any);
 }
 
@@ -1412,7 +1424,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
     const pos = getLocation(parser);
     const isGenerator = state & ObjectState.Generator ? ModifierState.Generator : ModifierState.None;
     const isAsync = state & ObjectState.Async ? ModifierState.Await : ModifierState.None;
-    const { params, body } = swapContext(parser, context | Context.Method, isGenerator | isAsync, parseFormalListAndBody, state);
+    const { params, body, returnType } = swapContext(parser, context | Context.Method, isGenerator | isAsync, parseFormalListAndBody, state);
 
     return finishNode(context, parser, pos, {
         type: 'FunctionExpression',
@@ -1422,6 +1434,7 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
         generator: !!(state & ObjectState.Generator),
         expression: false,
         id: null,
+        returnType
     } as any);
 }
 
@@ -1496,12 +1509,21 @@ function parseArrowBody(parser: Parser, context: Context, params: any, pos: Loca
  * @param context Context masks
  */
 
-export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState) {
+export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): any {
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
+
+    let predicate: any = null;
+    let returnType: any = null;
+    let predicateInitialiser: any;
+
+
+    if (parser.token === Token.Colon) {
+      returnType = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
+    }
     const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
-    return { params, body };
+    return { params, body, returnType };
 }
 
 /**

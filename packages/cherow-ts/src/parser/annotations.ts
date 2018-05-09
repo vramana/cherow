@@ -3,7 +3,8 @@ import {
   isUnambiguouslyIndexSignature,
   lookahead,
   keywordTypeFromName,
-  isStartOfFunctionType
+  isStartOfFunctionType,
+  isNextTokenCanFollowModifier
 } from '../utilities';
 import { parseIdentifier, parseRestElement } from './expressions';
 import {
@@ -79,7 +80,7 @@ function parseTypeParameter(parser: Parser, context: Context): any {
   });
 }
 
-function parseTypeParameters(parser: Parser, context: Context ): any {
+export function parseTypeParameters(parser: Parser, context: Context ): any {
   const params: any[] = [];
   if (parser.token !== Token.LessThan) return params;
   const pos = getLocation(parser);
@@ -124,7 +125,7 @@ function parseFunctionType(parser: Parser, context: Context): any {
   } as any);
 }
 
-function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any {
+export function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any {
   expect(parser, context, token);
 
   const typePredicateVariable =
@@ -442,11 +443,6 @@ function parseTypeQuery(parser: Parser, context: Context): any {
   } as any);
 }
 
-function parseModifier(parser: Parser, allowedModifiers: any): any {
-  if (!(parser.token & Token.IsIdentifier)) return undefined;
-  const a = allowedModifiers;
-  return undefined;
-}
 
 function parseIndexSignature(parser: Parser, context: Context): any {
   if (!(parser.token === Token.LeftBracket && lookahead(parser, context, isUnambiguouslyIndexSignature))) {
@@ -502,12 +498,23 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
   }
 }
 
+
+
+function parseModifier(parser: Parser, context: Context, allowedModifiers: any): any {
+  if (!(parser.token & Token.IsIdentifier)) return false;
+  if (allowedModifiers.indexOf(parser.tokenValue) !== -1 &&
+  lookahead(parser, context, isNextTokenCanFollowModifier)) {
+    return parser.tokenValue;
+  }
+  return false;
+}
+
 function parseTypeMember(parser: Parser, context: Context): any {
 
   if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
     // TODO
   }
-  const readonly = false;
+  const readonly = parseModifier(parser, context, ['readonly']);
   const idx = parseIndexSignature(parser, context);
   if (idx) return idx;
   return parsePropertyOrMethodSignature(parser, context, readonly);
@@ -560,3 +567,4 @@ function parseTypeOperator(parser: Parser, context: Context): any {
     typeAnnotation: parseTypeOperator(parser, context)
   } as any);
 }
+

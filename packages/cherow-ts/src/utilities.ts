@@ -755,7 +755,6 @@ export function isStartOfFunctionType(parser: Parser, context: Context): boolean
           return lookahead(parser, context, isUnambiguouslyStartOfFunctionType);
       default:
           return false;
-
   }
 }
 
@@ -835,4 +834,16 @@ export function isUnambiguouslyIndexSignature(parser: Parser, context: Context):
   if (!(parser.token & Token.IsIdentifier)) return false;
   nextToken(parser, context);
   return parser.token === Token.Colon;
+}
+
+
+export function isNextTokenCanFollowModifier(parser: Parser, context: Context): boolean {
+  nextToken(parser, context);
+  return (
+    !(parser.flags & Flags.NewLine) &&
+    parser.token !== Token.LeftParen &&
+    parser.token !== Token.Colon &&
+    parser.token !== Token.Assign &&
+    parser.token !== Token.QuestionMark
+  );
 }

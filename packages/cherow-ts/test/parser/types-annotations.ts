@@ -6,6 +6,10 @@ import { parse } from '../../src/parser/parser';
 describe('Types', () => {
 
   const validSyntax = [
+      'function extend<T, U>(first: T, second: U): T & U { }',
+      //      'const f: <T extends {+readonly [K in keyof T]-? : T[Exclude<null, K>] extends infer Function ? keyof K & T | Extract<never, typeof f> : ReturnType<typeof f>}>() => InstanceType<typeof Object>;',
+      'let arr: number[][];',
+      'let x: 0;',
       'let x: keyof T;',
       'let x: typeof y.z;',
       'let obj: { x: number };',
@@ -740,4 +744,311 @@ describe('Types', () => {
           "type": "Program"
       }
   });
+
+
+  pass('function extend<T, U>() {}  ', Context.Empty, {
+      source: 'function extend<T, U>() {}',
+      expected: {
+          "body": [{
+              "async": false,
+              "body": {
+                  "body": [],
+                  "type": "BlockStatement",
+              },
+              "expression": false,
+              "generator": false,
+              "id": {
+                  "name": "extend",
+                  "type": "Identifier",
+                  "typeAnnotation": null,
+              },
+              "params": [],
+              "type": "FunctionDeclaration",
+              "returnType": null,
+              "typeParameters": {
+                  "params": [{
+                          "constraint": null,
+                          "default": null,
+                          "name": "T",
+                          "type": "TSTypeParameter",
+                      },
+                      {
+                          "constraint": null,
+                          "default": null,
+                          "name": "T",
+                          "type": "TSTypeParameter",
+                      },
+                      {
+                          "constraint": null,
+                          "default": null,
+                          "name": "U",
+                          "type": "TSTypeParameter",
+                      },
+                  ],
+                  "type": "TSTypeParameterDeclaration",
+              }
+          }],
+          "sourceType": "script",
+          "type": "Program"
+      }
+  });
+
+  pass('function extend<T, U>(first: T, second: U) {}  ', Context.Empty, {
+      source: 'function extend<T, U>(first: T, second: U) {}',
+      expected: {
+          "body": [{
+              "async": false,
+              "body": {
+                  "body": [],
+                  "type": "BlockStatement",
+              },
+              "expression": false,
+              "generator": false,
+              "id": {
+                  "name": "extend",
+                  "type": "Identifier",
+                  "typeAnnotation": null,
+              },
+              "params": [{
+                      "name": "first",
+                      "type": "Identifier",
+                      "typeAnnotation": {
+                          "type": "TypeAnnotation",
+                          "typeAnnotation": {
+                              "type": "TSTypeReference",
+                              "typeName": {
+                                  "name": "T",
+                                  "type": "Identifier",
+                              },
+                              "typeParameters": []
+                          }
+                      }
+                  },
+                  {
+                      "name": "second",
+                      "type": "Identifier",
+                      "typeAnnotation": {
+                          "type": "TypeAnnotation",
+                          "typeAnnotation": {
+                              "type": "TSTypeReference",
+                              "typeName": {
+                                  "name": "U",
+                                  "type": "Identifier",
+                              },
+                              "typeParameters": [],
+                          }
+                      }
+                  }
+              ],
+              "type": "FunctionDeclaration",
+              "returnType": null,
+              "typeParameters": {
+                  "params": [{
+                          "constraint": null,
+                          "default": null,
+                          "name": "T",
+                          "type": "TSTypeParameter",
+                      },
+                      {
+                          "constraint": null,
+                          "default": null,
+                          "name": "T",
+                          "type": "TSTypeParameter",
+                      },
+                      {
+                          "constraint": null,
+                          "default": null,
+                          "name": "U",
+                          "type": "TSTypeParameter",
+                      }
+                  ],
+                  "type": "TSTypeParameterDeclaration",
+              }
+          }],
+          "sourceType": "script",
+          "type": "Program"
+      }
+  });
+
+  pass('function extend<T, U>(first: T, second: U) {}  ', Context.Empty, {
+      source: 'function foo(): string {}',
+      expected: {
+          "body": [{
+              "async": false,
+              "body": {
+                  "body": [],
+                  "type": "BlockStatement",
+              },
+              "expression": false,
+              "generator": false,
+              "id": {
+                  "name": "foo",
+                  "type": "Identifier",
+                  "typeAnnotation": null,
+              },
+              "params": [],
+              "returnType": {
+                  "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                      "type": "TSStringKeyword",
+                  }
+              },
+              "type": "FunctionDeclaration",
+              "typeParameters": null,
+          }, ],
+          "sourceType": "script",
+          "type": "Program"
+      }
+  });
+
+  pass('({f: function <T>() {}})', Context.Empty, {
+      source: '({f: function <T>() {}})',
+      expected: {
+          "body": [{
+              "expression": {
+                  "properties": [{
+                      "computed": false,
+                      "key": {
+                          "name": "f",
+                          "type": "Identifier",
+                      },
+                      "kind": "init",
+                      "method": false,
+                      "shorthand": false,
+                      "type": "Property",
+                      "value": {
+                          "async": false,
+                          "body": {
+                              "body": [],
+                              "type": "BlockStatement",
+                          },
+                          "expression": false,
+                          "generator": false,
+                          "id": null,
+                          "params": [],
+                          "typeParameters": {
+                              "params": [{
+                                  "constraint": null,
+                                  "default": null,
+                                  "name": "T",
+                                  "type": "TSTypeParameter"
+                              }, ],
+                              "type": "TSTypeParameterDeclaration",
+                          },
+                          "returnType": null,
+                          "type": "FunctionExpression",
+                      }
+                  }],
+                  "type": "ObjectExpression",
+              },
+              "type": "ExpressionStatement",
+          }],
+          "sourceType": "script",
+          "type": "Program"
+      }
+  });
+
+  pass('function extend<T, U>(first: T, second: U): T & U { }', Context.Empty, {
+    source: 'function extend<T, U>(first: T, second: U): T & U { }',
+    expected: {
+        "body": [
+          {
+            "async": false,
+            "body": {
+              "body": [],
+              "type": "BlockStatement",
+            },
+            "expression": false,
+            "generator": false,
+           "id": {
+              "name": "extend",
+              "type": "Identifier",
+              "typeAnnotation": null,
+            },
+            "params": [
+              {
+                "name": "first",
+                "type": "Identifier",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                 "typeAnnotation": {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                      "name": "T",
+                      "type": "Identifier",
+                    },
+                    "typeParameters": [],
+                  }
+                }
+              },
+              {
+                "name": "second",
+                "type": "Identifier",
+                "typeAnnotation": {
+                  "type": "TypeAnnotation",
+                 "typeAnnotation": {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                      "name": "U",
+                      "type": "Identifier",
+                   },
+                    "typeParameters": []
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "type": "TypeAnnotation",
+              "typeAnnotation": {
+               "type": "TSIntersectionType",
+                "types": [
+                  {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                      "name": "T",
+                      "type": "Identifier",
+                    },
+                    "typeParameters": [],
+                  },
+                 {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                     "name": "U",
+                      "type": "Identifier",
+                    },
+                    "typeParameters": [],
+                  }
+                ]
+              }
+            },
+            "type": "FunctionDeclaration",
+            "typeParameters": {
+              "params": [
+                {
+                  "constraint": null,
+                  "default": null,
+                  "name": "T",
+                  "type": "TSTypeParameter",
+                },
+                {
+                  "constraint": null,
+                  "default": null,
+                  "name": "T",
+                  "type": "TSTypeParameter",
+                },
+                {
+                  "constraint": null,
+                  "default": null,
+                  "name": "U",
+                  "type": "TSTypeParameter",
+                }
+             ],
+              "type": "TSTypeParameterDeclaration"
+            }
+          }
+        ],
+        "sourceType": "script",
+        "type": "Program"
+      }
+});
 });

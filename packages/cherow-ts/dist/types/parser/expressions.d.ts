@@ -13,10 +13,7 @@ export declare function parseFunctionExpression(parser: Parser, context: Context
 export declare function parseAsyncFunctionOrAsyncGeneratorExpression(parser: Parser, context: Context): ESTree.FunctionExpression;
 export declare function parsePropertyName(parser: Parser, context: Context): ESTree.Expression;
 export declare function parseObjectLiteral(parser: Parser, context: Context): ESTree.ObjectExpression;
-export declare function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): {
-    params: ESTree.Identifier[];
-    body: ESTree.BlockStatement;
-};
+export declare function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): any;
 export declare function parseFunctionBody(parser: Parser, context: Context, params: any): ESTree.BlockStatement;
 export declare function parseFormalParameters(parser: Parser, context: Context, state: ObjectState): {
     params: ESTree.Identifier[];
