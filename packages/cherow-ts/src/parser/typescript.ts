@@ -40,14 +40,14 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
           {
               switch (nextToken(parser, context)) {
 
-                // 'class'
-                  case Token.ClassKeyword:
+                  // 'abstract'
+                  case Token.AbstractKeyword:
                       switch (nextToken(parser, context)) {
-                          case Token.TypeKeyword:
+                          case Token.ClassKeyword:
                           default: // ignore
                       }
 
-                  // 'class'
+                  // 'namespace'
                   case Token.NameSpaceKeyword:
                       switch (nextToken(parser, context)) {
                           case Token.Identifier:
@@ -150,17 +150,16 @@ function parseTypeAlias(
   let typeParameters: any = null;
 
   if (parser.token === Token.LessThan) {
-      typeParameters = parseTypeParameters(parser, context);
+     typeParameters = parseTypeParameters(parser, context);
   }
   expect(parser, context, Token.Assign);
   const typeAnnotation = parseType(parser, context);
   consumeSemicolon(parser, context);
 
   return finishNode(context, parser, pos, {
-          type: 'TSTypeAliasDeclaration',
-          typeParameters,
-          id,
-          typeAnnotation
-      }
-      as any);
+      type: 'TSTypeAliasDeclaration',
+      typeParameters,
+      id,
+      typeAnnotation
+  } as any);
 }
