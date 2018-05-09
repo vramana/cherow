@@ -52,7 +52,7 @@ describe('Statements - Continue', () => {
 x++;
 (function(){continue LABEL1;})();
 y++;
-} while(0);`, Context.Empty, {
+} while(0);`,Context.Empty, {
             source: `LABEL1 : do {
   x++;
   (function(){continue LABEL1;})();
@@ -73,7 +73,7 @@ LABEL2 : do {
   x++;
   y++;
 } while(0);
-};`, Context.Empty, {
+};`,         Context.Empty, {
             source: `try{
   LABEL1 : do {
     x++;
@@ -103,7 +103,7 @@ LABEL2 : do {
   x++;
   y++;
 } while(0);
-};`, Context.Empty, {
+};`,         Context.Empty, {
             source: `try{
   LABEL1 : do {
     x++;

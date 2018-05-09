@@ -1,10 +1,11 @@
 import { Identifier } from './../../../cherow/dist/types/build/src/estree.d';
 import { ModuleDeclaration } from './../../../cherow/src/estree';
-import { Token, tokenDesc, Context, Parser, Location } from 'cherow';
-import { nextToken, getLocation, consumeSemicolon, finishNode, expect } from '../utilities';
+import { ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
+import { nextToken, getLocation, consumeSemicolon, finishNode, expect,consume } from '../utilities';
 import { parseExpressionOrLabelledStatement } from './statements';
 import { parseIdentifier } from './expressions';
-import { parseTypeParameters, parseType } from './annotations';
+import { parseTypeParameters, parseType, parseObjectTypeMembers } from './annotations';
+import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
 
 /**
  * Parse either expression statement or declare (TypeScript)
@@ -40,6 +41,31 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
           {
               switch (nextToken(parser, context)) {
 
+                case Token.ConstKeyword: {
+                  switch (nextToken(parser, context)) {
+                      case Token.EnumKeyword:
+                        expect(parser, context, Token.EnumKeyword);
+                        return parseEnumDeclaration(parser, context, true);
+                      default:
+                        return parseVariableStatement(parser, context | Context.BlockScope, false)
+                  }
+                }
+                case Token.VarKeyword:
+                  return parseVariableStatement(parser, context)
+
+                case Token.LetKeyword:
+                  return parseVariableStatement(parser, context | Context.BlockScope)
+
+                case Token.FunctionKeyword:
+                  return parseFunctionDeclaration(parser, context);
+
+                case Token.At:
+                case Token.ClassKeyword:
+                  return parseClassDeclaration(parser, context);
+
+                case Token.AsyncKeyword:
+                  return parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+
                   // 'abstract'
                   case Token.AbstractKeyword:
                       switch (nextToken(parser, context)) {
@@ -58,6 +84,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
                   case Token.InterfaceKeyword:
                       switch (nextToken(parser, context)) {
                           case Token.Identifier:
+                            return parseInterfaceDeclaration(parser, context);
                           default: // ignore
                       }
                  // 'enum'
@@ -140,6 +167,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
 * @param {Location} pos  Location
 * @returns {*}
 */
+
 function parseTypeAlias(
   parser: Parser,
   context: Context,
@@ -162,4 +190,70 @@ function parseTypeAlias(
       id,
       typeAnnotation
   } as any);
+}
+
+function parseHeritageClause(): any {
+  // TODO
+  return false;
+}
+
+function parseInterfaceDeclarationBody(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  return finishNode(context, parser, pos, {
+    type: 'TSInterfaceBody',
+    body: [] // parseObjectTypeMembers(parser, context)
+  } as any);
+}
+
+function parseInterfaceDeclaration(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  const id = parseIdentifier(parser, context);
+  const typeParameters = parser.token === Token.Colon ? parseTypeParameters(parser, context) : null;
+  let extend: any = false;
+  if (consume(parser, context, Token.ExtendsKeyword)) {
+    extend = parseHeritageClause();
+  }
+  const body = parseInterfaceDeclarationBody(parser, context);
+  return finishNode(context, parser, pos, {
+    type: 'TSInterfaceDeclaration',
+    id,
+    body,
+    typeParameters
+  } as any);
+}
+
+
+function parseEnumDeclaration(
+  parser: Parser,
+  context: Context,
+  isConst: boolean = false
+): any {
+
+  const pos = getLocation(parser);
+  const id = parseIdentifier(parser, context);
+
+  return finishNode(context, parser, pos, {
+    type: 'TSEnumDeclaration',
+    const: isConst,
+    id
+  } as any);
+}
+
+// TEMPORARY!!!!
+export function parseVariableStatement(
+  parser: Parser,
+  context: Context,
+  shouldConsume: boolean = true
+): ESTree.VariableDeclaration {
+  const pos = getLocation(parser);
+  const { token } = parser;
+  const isConst = token === Token.ConstKeyword;
+  if (shouldConsume) nextToken(parser, context);
+  const declarations = parseVariableDeclarationList(parser, context, isConst);
+  consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+    type: 'VariableDeclaration',
+    kind: tokenDesc(token) as 'var' | 'let' | 'const',
+    declarations
+  });
 }

@@ -527,7 +527,7 @@ function parseTypeMember(parser: Parser, context: Context): any {
   return parsePropertyOrMethodSignature(parser, context, readonly);
 }
 
-function parseObjectTypeMembers(parser: Parser, context: Context): any {
+export function parseObjectTypeMembers(parser: Parser, context: Context): any {
   const members: any = [];
   expect(parser, context, Token.LeftBrace);
   while (parser.token !== Token.RightBrace) {

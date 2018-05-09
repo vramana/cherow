@@ -34,7 +34,7 @@ describe('Statements - Labeled', () => {
 });
 
      fail(` L: let
-[a] = 0;`, Context.Empty, {
+[a] = 0;`,Context.Empty, {
     source: ` L: let
     [a] = 0;`
 });
@@ -51,6 +51,5 @@ describe('Statements - Labeled', () => {
         source: 'label: let x;',
     });
   });
-
 
 });

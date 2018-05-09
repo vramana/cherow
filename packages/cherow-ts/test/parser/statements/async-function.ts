@@ -99,7 +99,7 @@ describe('Statements - Async function', () => {
     fail(`async function f() {
     let
     await 0;
-}`, Context.Empty, {
+}`,      Context.Empty, {
     source: `async function f() {
       let
       await 0;

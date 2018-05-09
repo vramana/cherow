@@ -39,3 +39,4 @@ export declare function keywordTypeFromName(value: string): string | undefined;
 export declare function iStartOfMappedType(parser: Parser, context: Context): boolean;
 export declare function isUnambiguouslyIndexSignature(parser: Parser, context: Context): boolean;
 export declare function isNextTokenCanFollowModifier(parser: Parser, context: Context): boolean;
+export declare function isTypePredicatePrefix(parser: Parser, context: Context): any;

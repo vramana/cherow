@@ -436,6 +436,10 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
           parser.token !== 83886109 &&
           parser.token !== 22);
   }
+  function isTypePredicatePrefix(parser, context) {
+      nextToken(parser, context);
+      return parser.token === 65660 && !(parser.flags & 1);
+  }
 
   function parseMappedTypeParameter(parser, context) {
       const pos = cherow.getLocation(parser);
@@ -518,8 +522,18 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
   }
   function parseTypeOrTypePredicateAnnotation(parser, context, token) {
       cherow.expect(parser, context, token);
-      const typePredicateVariable = parser.token & 65536 && (parser.token === 16777237 ? parseTypeAnnotation(parser, context) : false);
-      return parseTypeAnnotation(parser, context, false);
+      if (!lookahead(parser, context, isTypePredicatePrefix)) {
+          return parseTypeAnnotation(parser, context, false);
+      }
+      const pos = cherow.getLocation(parser);
+      const parameterName = parseIdentifier(parser, context);
+      cherow.nextToken(parser, context);
+      const typeAnnotation = parseTypeAnnotation(parser, context, false);
+      return cherow.finishNode(context, parser, pos, {
+          type: 'TSTypePredicate',
+          parameterName,
+          typeAnnotation
+      });
   }
   function parseConstructorType(parser, context) {
       const pos = cherow.getLocation(parser);
@@ -902,13 +916,58 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
           case 65662:
               {
                   switch (nextToken(parser, context)) {
-                      case 33566797:
-                      case 33619969:
-                      case 33566808:
+                      case 33566793: {
+                          switch (nextToken(parser, context)) {
+                              case 12406:
+                                  expect(parser, context, 12406);
+                                  return parseEnumDeclaration(parser, context, true);
+                              default:
+                                  return parseVariableStatement(parser, context | 4194304, false);
+                          }
+                      }
                       case 33566791:
-                      case 65663:
-                      case 12371:
+                          return parseVariableStatement(parser, context);
+                      case 33574984:
+                          return parseVariableStatement(parser, context | 4194304);
+                      case 33566808:
+                          return parseFunctionDeclaration(parser, context);
+                      case 120:
+                      case 33566797:
+                          return parseClassDeclaration(parser, context);
+                      case 299116:
+                          return parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+                      case 65665:
+                          switch (nextToken(parser, context)) {
+                              case 33566797:
+                              default:
+                          }
+                      case 65664:
+                          switch (nextToken(parser, context)) {
+                              case 33619969:
+                              default:
+                          }
                       case 20580:
+                          switch (nextToken(parser, context)) {
+                              case 33619969:
+                                  return parseInterfaceDeclaration(parser, context);
+                              default:
+                          }
+                      case 12406:
+                          switch (nextToken(parser, context)) {
+                              case 33619969:
+                              default:
+                          }
+                      case 65666:
+                          switch (nextToken(parser, context)) {
+                              case 33554435:
+                              case 33619969:
+                              default:
+                          }
+                      case 65663:
+                          switch (nextToken(parser, context)) {
+                              case 33619969:
+                              default:
+                          }
                       default:
                   }
                   break;
@@ -965,6 +1024,49 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
           typeAnnotation
       });
   }
+  function parseInterfaceDeclarationBody(parser, context) {
+      const pos = getLocation(parser);
+      return finishNode(context, parser, pos, {
+          type: 'TSInterfaceBody',
+          body: []
+      });
+  }
+  function parseInterfaceDeclaration(parser, context) {
+      const pos = getLocation(parser);
+      const id = parseIdentifier(parser, context);
+      const typeParameters = parser.token === 16777237 ? parseTypeParameters(parser, context) : null;
+      if (consume(parser, context, 12372)) ;
+      const body = parseInterfaceDeclarationBody(parser, context);
+      return finishNode(context, parser, pos, {
+          type: 'TSInterfaceDeclaration',
+          id,
+          body,
+          typeParameters
+      });
+  }
+  function parseEnumDeclaration(parser, context, isConst = false) {
+      const pos = getLocation(parser);
+      const id = parseIdentifier(parser, context);
+      return finishNode(context, parser, pos, {
+          type: 'TSEnumDeclaration',
+          const: isConst,
+          id
+      });
+  }
+  function parseVariableStatement(parser, context, shouldConsume = true) {
+      const pos = getLocation(parser);
+      const { token } = parser;
+      const isConst = token === 33566793;
+      if (shouldConsume)
+          nextToken(parser, context);
+      const declarations = parseVariableDeclarationList(parser, context, isConst);
+      consumeSemicolon(parser, context);
+      return finishNode(context, parser, pos, {
+          type: 'VariableDeclaration',
+          kind: cherow.tokenDesc(token),
+          declarations
+      });
+  }
 
   function parseStatementListItem(parser, context) {
       switch (parser.token) {
@@ -976,7 +1078,7 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
           case 33574984:
               return parseLetOrExpressionStatement(parser, context | 65536);
           case 33566793:
-              return parseVariableStatement(parser, context | 4194304 | 65536);
+              return parseVariableStatement$1(parser, context | 4194304 | 65536);
           case 299116:
               return parseAsyncFunctionDeclarationOrStatement(parser, context);
           case 33566810: {
@@ -995,7 +1097,7 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
   function parseStatement(parser, context) {
       switch (parser.token) {
           case 33566791:
-              return parseVariableStatement(parser, context | 65536);
+              return parseVariableStatement$1(parser, context | 65536);
           case 17301521:
               return parseEmptyStatement(parser, context);
           case 33566814:
@@ -1339,7 +1441,7 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
           consequent
       });
   }
-  function parseVariableStatement(parser, context, shouldConsume = true) {
+  function parseVariableStatement$1(parser, context, shouldConsume = true) {
       const pos = getLocation(parser);
       const { token } = parser;
       const isConst = token === 33566793;
@@ -1355,7 +1457,7 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
   }
   function parseLetOrExpressionStatement(parser, context, shouldConsume = true) {
       return lookahead(parser, context, isLexical)
-          ? parseVariableStatement(parser, context | 4194304, shouldConsume)
+          ? parseVariableStatement$1(parser, context | 4194304, shouldConsume)
           : parseExpressionOrLabelledStatement(parser, context);
   }
   function parseAsyncFunctionDeclarationOrStatement(parser, context) {
@@ -1377,10 +1479,10 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
       let update = null;
       let right;
       if (token === 33566793 || (token === 33574984 && lookahead(parser, context, isLexical))) {
-          variableStatement = parseVariableStatement(parser, (context & ~65536) | 4194304, false);
+          variableStatement = parseVariableStatement$1(parser, (context & ~65536) | 4194304, false);
       }
       else if (token === 33566791) {
-          variableStatement = parseVariableStatement(parser, context & ~65536, false);
+          variableStatement = parseVariableStatement$1(parser, context & ~65536, false);
       }
       else if (token !== 17301521) {
           sequencePos = getLocation(parser);
@@ -3531,10 +3633,10 @@ define('cherow-ts', ['exports', 'cherow'], function (exports, cherow) { 'use str
               break;
           case 33574984:
           case 33566793:
-              declaration = parseVariableStatement(parser, context | 4194304);
+              declaration = parseVariableStatement$1(parser, context | 4194304);
               break;
           case 33566791:
-              declaration = parseVariableStatement(parser, context);
+              declaration = parseVariableStatement$1(parser, context);
               break;
           case 33566808:
               declaration = parseFunctionDeclaration(parser, context);

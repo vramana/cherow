@@ -19,54 +19,54 @@ describe('Functions', () => {
       });
   }
 
-pass('function f(x: any): x is boolean {}', Context.Empty, {
+  pass('function f(x: any): x is boolean {}', Context.Empty, {
   source: 'function f(x: any): x is boolean {}',
   expected: {
-      "body": [
+      'body': [
         {
-          "async": false,
-          "body": {
-            "body": [],
-            "type": "BlockStatement"
+          'async': false,
+          'body': {
+            'body': [],
+            'type': 'BlockStatement'
           },
-          "expression": false,
-          "generator": false,
-          "id": {
-            "name": "f",
-            "type": "Identifier",
-            "typeAnnotation": null,
+          'expression': false,
+          'generator': false,
+          'id': {
+            'name': 'f',
+            'type': 'Identifier',
+            'typeAnnotation': null,
           },
-          "params": [
+          'params': [
            {
-              "name": "x",
-              "type": "Identifier",
-              "typeAnnotation": {
-                "type": "TypeAnnotation",
-                "typeAnnotation": {
-                  "type": "TSAnyKeyword"
+              'name': 'x',
+              'type': 'Identifier',
+              'typeAnnotation': {
+                'type': 'TypeAnnotation',
+                'typeAnnotation': {
+                  'type': 'TSAnyKeyword'
                 }
               }
             }
           ],
-          "returnType": {
-            "parameterName": {
-              "name": "x",
-              "type": "Identifier",
+          'returnType': {
+            'parameterName': {
+              'name': 'x',
+              'type': 'Identifier',
             },
-            "type": "TSTypePredicate",
-            "typeAnnotation": {
-              "type": "TypeAnnotation",
-              "typeAnnotation": {
-                "type": "TSBooleanKeyword",
+            'type': 'TSTypePredicate',
+            'typeAnnotation': {
+              'type': 'TypeAnnotation',
+              'typeAnnotation': {
+                'type': 'TSBooleanKeyword',
               }
             }
          },
-          "type": "FunctionDeclaration",
-          "typeParameters": null,
+          'type': 'FunctionDeclaration',
+          'typeParameters': null,
         }
       ],
-      "sourceType": "script",
-      "type": "Program",
+      'sourceType': 'script',
+      'type': 'Program',
     }
 });
 

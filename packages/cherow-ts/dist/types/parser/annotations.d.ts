@@ -4,3 +4,4 @@ export declare function parseTypeParameters(parser: Parser, context: Context): a
 export declare function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any;
 export declare function parseType(parser: Parser, context: Context): any;
 export declare function parseTypeAnnotation(parser: Parser, context: Context, consumeColon?: boolean): any;
+export declare function parseObjectTypeMembers(parser: Parser, context: Context): any;

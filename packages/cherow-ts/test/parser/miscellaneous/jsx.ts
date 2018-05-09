@@ -34,7 +34,7 @@ describe('Miscellaneous - Binary', () => {
     });
 
     // Module Code
-      it(`${arg}`, () => {
+       it(`${arg}`, () => {
       t.throws(() => {
           parse(`${arg}`, undefined, Context.OptionsJSX | Context.Strict | Context.Module);
       });

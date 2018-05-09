@@ -35,7 +35,7 @@ describe('Statements - With', () => {
     fail(`if (false) {
       with ({}) let
       [a] = 0;
-  }`, Context.Empty, {
+  }`,    Context.Empty, {
       source: `if (false) {
         with ({}) let
         [a] = 0;

@@ -27,121 +27,121 @@ describe('Type alias', () => {
   pass('type T = number;', Context.Empty, {
     source: 'type T = number;',
     expected: {
-        "body": [
+        'body': [
           {
-            "id": {
-              "name": "T",
-              "type": "Identifier",
+            'id': {
+              'name': 'T',
+              'type': 'Identifier',
             },
-            "type": "TSTypeAliasDeclaration",
-            "typeAnnotation": {
-              "type": "TSNumberKeyword",
+            'type': 'TSTypeAliasDeclaration',
+            'typeAnnotation': {
+              'type': 'TSNumberKeyword',
            },
-            "typeParameters": null,
+            'typeParameters': null,
           },
         ],
-        "sourceType": "script",
-        "type": "Program"
+        'sourceType': 'script',
+        'type': 'Program'
       }
 });
 
-pass('type T<U> = U;', Context.Empty, {
+  pass('type T<U> = U;', Context.Empty, {
   source: 'type T<U> = U;',
   expected: {
-      "body": [
+      'body': [
         {
-          "id": {
-            "name": "T",
-            "type": "Identifier",
+          'id': {
+            'name': 'T',
+            'type': 'Identifier',
           },
-          "type": "TSTypeAliasDeclaration",
-          "typeAnnotation": {
-            "type": "TSTypeReference",
-            "typeName": {
-              "name": "U",
-              "type": "Identifier",
+          'type': 'TSTypeAliasDeclaration',
+          'typeAnnotation': {
+            'type': 'TSTypeReference',
+            'typeName': {
+              'name': 'U',
+              'type': 'Identifier',
             },
-            "typeParameters": [],
+            'typeParameters': [],
           },
-          "typeParameters": {
-            "params": [
+          'typeParameters': {
+            'params': [
               {
-                "constraint": null,
-                "default": null,
-                "name": "U",
-                "type": "TSTypeParameter",
+                'constraint': null,
+                'default': null,
+                'name': 'U',
+                'type': 'TSTypeParameter',
               },
             ],
-            "type": "TSTypeParameterDeclaration",
+            'type': 'TSTypeParameterDeclaration',
           }
         }
       ],
-      "sourceType": "script",
-      "type": "Program"
+      'sourceType': 'script',
+      'type': 'Program'
     }
 });
 
-pass('type T<U extends object = { x: number }> = Array<U>;', Context.Empty, {
+  pass('type T<U extends object = { x: number }> = Array<U>;', Context.Empty, {
   source: 'type T<U extends object = { x: number }> = Array<U>;',
   expected: {
-    "body": [
+    'body': [
       {
-        "id": {
-          "name": "T",
-          "type": "Identifier",
+        'id': {
+          'name': 'T',
+          'type': 'Identifier',
        },
-        "type": "TSTypeAliasDeclaration",
-        "typeAnnotation": {
-          "type": "TSTypeReference",
-          "typeName": {
-            "name": "Array",
-            "type": "Identifier",
+        'type': 'TSTypeAliasDeclaration',
+        'typeAnnotation': {
+          'type': 'TSTypeReference',
+          'typeName': {
+            'name': 'Array',
+            'type': 'Identifier',
           },
-          "typeParameters": {
-            "params": [
+          'typeParameters': {
+            'params': [
               {
-                "type": "TSTypeReference",
-                "typeName": {
-                  "name": "U",
-                  "type": "Identifier",
+                'type': 'TSTypeReference',
+                'typeName': {
+                  'name': 'U',
+                  'type': 'Identifier',
                 },
-                "typeParameters": []
+                'typeParameters': []
              },
             ],
-            "type": "TypeParameterInstantiation",
+            'type': 'TypeParameterInstantiation',
           },
         },
-        "typeParameters": {
-          "params": [
+        'typeParameters': {
+          'params': [
             {
-              "constraint": {
-                "type": "TSObjectKeyword",
+              'constraint': {
+                'type': 'TSObjectKeyword',
               },
-              "default": {
-                "members": [
+              'default': {
+                'members': [
                   {
-                    "readonly": false,
-                    "type": "TSPropertySignature",
-                    "typeAnnotation": {
-                      "type": "TypeAnnotation",
-                      "typeAnnotation": {
-                        "type": "TSNumberKeyword",
+                    'readonly': false,
+                    'type': 'TSPropertySignature',
+                    'typeAnnotation': {
+                      'type': 'TypeAnnotation',
+                      'typeAnnotation': {
+                        'type': 'TSNumberKeyword',
                       }
                     }
                   }
                ],
-                "type": "TSTypeLiteral",
+                'type': 'TSTypeLiteral',
               },
-              "name": "U",
-              "type": "TSTypeParameter",
+              'name': 'U',
+              'type': 'TSTypeParameter',
             },
           ],
-          "type": "TSTypeParameterDeclaration",
+          'type': 'TSTypeParameterDeclaration',
         },
       },
     ],
-    "sourceType": "script",
-    "type": "Program",
+    'sourceType': 'script',
+    'type': 'Program',
   }
 });
 
