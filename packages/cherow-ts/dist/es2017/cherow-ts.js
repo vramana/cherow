@@ -437,6 +437,59 @@ function isNextTokenCanFollowModifier(parser, context) {
         parser.token !== 22);
 }
 
+function parseExpressionOrDeclareStatement(parser, context) {
+    const { tokenValue, flags, line, column, startColumn, index, lastColumn, startLine, lastLine, lastIndex, startIndex, tokenRaw, token, lastValue, tokenRegExp } = parser;
+    switch (parser.token) {
+        case 65662:
+            {
+                switch (nextToken$1(parser, context)) {
+                    case 33566797:
+                    case 33619969:
+                    case 33566808:
+                    case 33566791:
+                    case 65663:
+                    case 12371:
+                    case 20580:
+                    default:
+                }
+                break;
+            }
+        case 20580:
+            {
+                switch (nextToken$1(parser, context)) {
+                    case 33619969:
+                    default:
+                }
+                break;
+            }
+        case 65663:
+            {
+                switch (nextToken$1(parser, context)) {
+                    case 33619969:
+                    default:
+                }
+                break;
+            }
+        default:
+    }
+    parser.index = index;
+    parser.token = token;
+    parser.tokenValue = tokenValue;
+    parser.flags = flags;
+    parser.line = line;
+    parser.column = column;
+    parser.tokenRaw = tokenRaw;
+    parser.lastValue = lastValue;
+    parser.startColumn = startColumn;
+    parser.lastColumn = lastColumn;
+    parser.startLine = startLine;
+    parser.lastLine = lastLine;
+    parser.lastIndex = lastIndex;
+    parser.startIndex = startIndex;
+    parser.tokenRegExp = tokenRegExp;
+    return parseExpressionOrLabelledStatement(parser, context);
+}
+
 function parseStatementListItem(parser, context) {
     switch (parser.token) {
         case 33566808:
@@ -505,7 +558,7 @@ function parseStatement(parser, context) {
         case 33566797:
             tolerant(parser, context, 19, tokenDesc(parser.token));
         default:
-            return parseExpressionOrLabelledStatement(parser, context);
+            return parseExpressionOrDeclareStatement(parser, context);
     }
 }
 function parseEmptyStatement(parser, context) {

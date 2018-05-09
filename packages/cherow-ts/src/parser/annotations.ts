@@ -498,8 +498,6 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
   }
 }
 
-
-
 function parseModifier(parser: Parser, context: Context, allowedModifiers: any): any {
   if (!(parser.token & Token.IsIdentifier)) return false;
   if (allowedModifiers.indexOf(parser.tokenValue) !== -1 &&

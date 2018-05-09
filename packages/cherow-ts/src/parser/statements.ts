@@ -18,6 +18,7 @@ import {
   parseAsyncFunctionOrAsyncGeneratorDeclaration
 } from './declarations';
 import { parseExpression, parseIdentifier, parseAssignmentExpression, parseSequenceExpression } from './expressions';
+import { parseExpressionOrDeclareStatement } from './typescript';
 import {
   expect,
   finishNode,
@@ -128,9 +129,10 @@ export function parseStatement(parser: Parser, context: Context): ESTree.Stateme
     case Token.ClassKeyword:
       tolerant(parser, context, Errors.ForbiddenAsStatement, tokenDesc(parser.token));
     default:
-      return parseExpressionOrLabelledStatement(parser, context);
+      return parseExpressionOrDeclareStatement(parser, context);
   }
 }
+
 
 /**
  * Parses empty statement
