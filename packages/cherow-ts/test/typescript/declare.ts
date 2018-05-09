@@ -35,10 +35,6 @@ describe('Declare', () => {
             'type': 'TSInterfaceDeclaration',
             'typeParameters': null,
           },
-          {
-           'body': [],
-            'type': 'BlockStatement',
-          },
         ],
         'sourceType': 'script',
         'type': 'Program'

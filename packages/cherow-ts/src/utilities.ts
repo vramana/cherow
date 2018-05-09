@@ -852,3 +852,8 @@ export function isTypePredicatePrefix(parser: Parser, context: Context): any {
   nextToken(parser, context);
   return parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine)
 }
+
+export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Context) {
+  nextToken(parser, context);
+  return parser.token === Token.LeftParen || parser.token === Token.LessThan;
+  }

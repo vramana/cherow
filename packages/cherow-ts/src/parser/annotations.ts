@@ -5,7 +5,8 @@ import {
   keywordTypeFromName,
   isStartOfFunctionType,
   isNextTokenCanFollowModifier,
-  isTypePredicatePrefix
+  isTypePredicatePrefix,
+  nextTokenIsStartOfConstructSignature
 } from '../utilities';
 import { parseIdentifier, parseRestElement } from './expressions';
 import {
@@ -521,10 +522,39 @@ function parseTypeMember(parser: Parser, context: Context): any {
   if (parser.token === Token.LeftParen || parser.token === Token.LessThan) {
     // TODO
   }
+  if (parser.token === Token.NewKeyword && lookahead(parser, context, nextTokenIsStartOfConstructSignature)) {
+    expect(parser, context, Token.NewKeyword);
+    return parseSignatureMember(parser, context);
+  }
+
   const readonly = parseModifier(parser, context, ['readonly']);
   const idx = parseIndexSignature(parser, context);
   if (idx) return idx;
   return parsePropertyOrMethodSignature(parser, context, readonly);
+}
+export function parseSignatureMember(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.LeftParen);
+    const parameters: any[] = [];
+    while (parser.token !== Token.RightParen) {
+      parameters.push(parser.token === Token.Ellipsis
+        ? parseRestElement(parser, context)
+        : parseBindingIdentifier(parser, context));
+     consume(parser, context, Token.Comma);
+  }
+
+  expect(parser, context, Token.RightParen);
+  let typeAnnotation: any = null;
+  if (parser.token === Token.Colon) {
+    typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
+  }
+  if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+    type: 'TSConstructSignatureDeclaration',
+    parameters,
+    typeAnnotation
+  });
+
 }
 
 export function parseObjectTypeMembers(parser: Parser, context: Context): any {

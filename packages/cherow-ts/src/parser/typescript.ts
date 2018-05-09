@@ -119,6 +119,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
           {
               switch (nextToken(parser, context)) {
                   case Token.Identifier:
+                    return parseInterfaceDeclaration(parser, context);
                   default: // ignore
               }
               break;
@@ -201,13 +202,15 @@ function parseInterfaceDeclarationBody(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TSInterfaceBody',
-    body: [] // parseObjectTypeMembers(parser, context)
+    body: parseObjectTypeMembers(parser, context)
   } as any);
 }
 
-function parseInterfaceDeclaration(parser: Parser, context: Context): any {
+function parseInterfaceDeclaration(
+  parser: Parser,
+  context: Context,
+  id = parseIdentifier(parser, context)): any {
   const pos = getLocation(parser);
-  const id = parseIdentifier(parser, context);
   const typeParameters = parser.token === Token.Colon ? parseTypeParameters(parser, context) : null;
   let extend: any = false;
   if (consume(parser, context, Token.ExtendsKeyword)) {
