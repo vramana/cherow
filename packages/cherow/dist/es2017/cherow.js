@@ -17,7 +17,7 @@ const keywordDescTable = [
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
     '#',
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
-    'KeyOf', 'ReadOnly', 'is', 'unique'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type'
 ];
 function tokenDesc(token) {
     return keywordDescTable[token & 255];
@@ -51,7 +51,9 @@ const descKeywordTable = Object.create(null, {
     keyof: { value: 65658 },
     readonly: { value: 65659 },
     unique: { value: 65661 },
+    declare: { value: 65662 },
     is: { value: 65660 },
+    type: { value: 65663 },
     as: { value: 36971 },
     async: { value: 299116 },
     await: { value: 33788013 },

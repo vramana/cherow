@@ -78,7 +78,7 @@ describe('Types', () => {
       'var foo = bar ? (foo) : number;',
       '((...rest: Array<number>) => rest)',
       'var a:(...rest:Array<number>) => number',
-      //   '({f: function <T>() {}})',
+      '({f: function <T>() {}})',
       'var a: {param1?: number; param2: string; param3: string;}',
       'var identity: <T>(x: T, ...y:T[]) => T'
   ];

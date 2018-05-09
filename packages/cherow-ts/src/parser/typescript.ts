@@ -1,7 +1,8 @@
-import { Token, Context, Parser } from 'cherow';
-import { nextToken } from '../utilities';
+import { Token, tokenDesc, Context, Parser, Location } from 'cherow';
+import { nextToken, getLocation, consumeSemicolon, finishNode, expect } from '../utilities';
 import { parseExpressionOrLabelledStatement } from './statements';
-
+import { parseIdentifier } from './expressions';
+import { parseTypeParameters, parseType } from './annotations';
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -11,7 +12,7 @@ import { parseExpressionOrLabelledStatement } from './statements';
  * @returns {*}
  */
 export function parseExpressionOrDeclareStatement(parser: Parser, context: Context): any {
-
+  const pos = getLocation(parser);
   const {
       tokenValue,
       flags,
@@ -63,6 +64,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
           {
               switch (nextToken(parser, context)) {
                   case Token.Identifier:
+                    return parseTypeAlias(parser, context, pos);
                   default: // ignore
               }
               break;
@@ -71,9 +73,9 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
       default: // ignore
   }
 
-  // Note: this 'rewind' will only happen if 'types', 'declare' or 'interface' 
+  // Note: this 'rewind' will only happen if 'types', 'declare' or 'interface'
   // should be treated as identifer. E.g 'interface:foo' is valid JS syntax.
-  
+
   parser.index = index;
   parser.token = token;
   parser.tokenValue = tokenValue;
@@ -90,4 +92,36 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
   parser.startIndex = startIndex;
   parser.tokenRegExp = tokenRegExp;
   return parseExpressionOrLabelledStatement(parser, context);
+}
+
+/**
+ * Parses type alias
+ *
+ * @param {Parser} parser  Parser object
+ * @param {Context} context  Context object
+ * @param {Location} pos  Location
+ * @returns {*}
+ */
+function parseTypeAlias(
+  parser: Parser,
+  context: Context,
+  pos: Location): any {
+
+  const id = parseIdentifier(parser, context);
+
+  let typeParameters: any = null;
+
+  if (parser.token === Token.LessThan) {
+     typeParameters = parseTypeParameters(parser, context);
+  }
+  expect(parser, context, Token.Assign);
+  const typeAnnotation = parseType(parser, context);
+  consumeSemicolon(parser, context);
+
+  return finishNode(context, parser, pos, {
+      type: 'TSTypeAliasDeclaration',
+      typeParameters,
+      id,
+      typeAnnotation
+  } as any);
 }

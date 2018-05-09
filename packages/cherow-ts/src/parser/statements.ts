@@ -87,6 +87,7 @@ export function parseStatementListItem(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 export function parseStatement(parser: Parser, context: Context): ESTree.Statement {
+
   switch (parser.token) {
     case Token.VarKeyword:
       return parseVariableStatement(parser, context | Context.AllowIn);
@@ -136,7 +137,6 @@ export function parseStatement(parser: Parser, context: Context): ESTree.Stateme
       return parseExpressionOrLabelledStatement(parser, context);
   }
 }
-
 
 /**
  * Parses empty statement

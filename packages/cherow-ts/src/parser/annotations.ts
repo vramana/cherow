@@ -67,7 +67,7 @@ function parseIntersectionType(parser: Parser, context: Context): any {
   });
 }
 
-function parseTypeParameter(parser: Parser, context: Context): any {
+export function parseTypeParameter(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const { tokenValue: name } = parser;
   nextToken(parser, context);
@@ -141,7 +141,7 @@ function parseConstructorType(parser: Parser, context: Context): any {
   } as any);
 }
 
-function parseType(parser: Parser, context: Context): any {
+export function parseType(parser: Parser, context: Context): any {
   if (isStartOfFunctionType(parser, context)) {
     return parseFunctionType(parser, context);
   } else if (consume(parser, context, Token.NewKeyword)) {
