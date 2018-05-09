@@ -21,8 +21,8 @@ import {
  * @see [Link](https://tc39.github.io/ecma262/#sec-names-and-keywords)
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
- * @param {Parser} Parser instance
- * @param {context} Context masks
+ * @param Parser instance
+ * @param Context masks
  */
 
 export function scanIdentifier(parser: Parser, context: Context, first ?: number): Token {
@@ -46,7 +46,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
                 default:
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
                         const lo = parser.source.charCodeAt(index + 1);
-                        ch = (ch & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+                        ch = (ch & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
                     }
                     if (!isIdentifierPart(ch)) break loop;
                     advanceOnMaybeAstral(parser, ch);
@@ -100,8 +100,8 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
 /**
  * Scan unicode codepoint escape
  *
- * @param {Parser} Parser instance
- * @param {context} Context masks
+ * @param Parser instance
+ * @param Context masks
  */
 function scanUnicodeCodePointEscape(parser: Parser): string | void {
 
@@ -135,8 +135,8 @@ function scanUnicodeCodePointEscape(parser: Parser): string | void {
 /**
  * Scan identifier unicode escape
  *
- * @param {Parser} Parser instance
- * @param {context} Context masks
+ * @param Parser instance
+ * @param Context masks
  */
 function scanIdentifierUnicodeEscape(parser: Parser): Chars {
 

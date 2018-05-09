@@ -65,7 +65,6 @@ export function scan(parser: Parser, context: Context): Token {
                 case Chars.IdeographicSpace:
                 case Chars.Zwnbs:
                 case Chars.Zwj:
-                case Chars.Zwnbs:
                     parser.index++; parser.column++;
                     break;
 

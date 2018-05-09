@@ -312,8 +312,6 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     abstract: {value: Token.AbstractKeyword},
     as: {value: Token.AsKeyword},
     module: {value: Token.ModuleKeyword},
-
-
  });
 
 export function descKeyword(value: string): Token {

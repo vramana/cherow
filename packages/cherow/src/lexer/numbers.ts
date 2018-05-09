@@ -198,7 +198,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
             report(parser, Errors.ZeroDigitNumericSeparator);
         }
         state |= NumericState.Float;
-        value = value + '.' + scanDecimalDigitsOrSeparator(parser);
+        value = `${value}.${scanDecimalDigitsOrSeparator(parser)}`;
     }
 
     const end = parser.index;
@@ -311,7 +311,7 @@ export function scanDecimalAsSmi(parser: Parser, context: Context): number {
  * @param context Context masks
  * @param value The numeric value
  */
-function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt = false): Token {
+function assembleNumericLiteral(parser: Parser, context: Context, value: number, isBigInt: boolean = false): Token {
     parser.tokenValue = value;
     if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
     return isBigInt ? Token.BigIntLiteral : Token.NumericLiteral;

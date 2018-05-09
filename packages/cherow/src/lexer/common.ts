@@ -2,8 +2,7 @@ import { Chars, CharacterFlags, characterType } from '../chars';
 import { Parser } from '../types';
 import { Errors, report } from '../errors';
 import { Token, descKeyword, tokenDesc } from '../token';
-import { isValidIdentifierStart } from '../unicode';
-import { isValidIdentifierPart, mustEscape } from '../unicode';
+import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from '../unicode';
 import { Flags, Context, ScannerState } from '../utilities';
 
 /**
@@ -11,7 +10,7 @@ import { Flags, Context, ScannerState } from '../utilities';
  *
  * @param parser Parser object
  */
-export function nextUnicodeChar(parser: Parser) {
+export function nextUnicodeChar(parser: Parser): number {
     const { index } = parser;
     const hi = parser.source.charCodeAt(index);
     if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
@@ -74,7 +73,7 @@ export function consumeOpt(parser: Parser, code: number): boolean {
  * @param parser Parser object
  * @param state  Scanner state
  */
-export function consumeLineFeed(parser: Parser, state: ScannerState) {
+export function consumeLineFeed(parser: Parser, state: ScannerState): void {
     parser.flags |= Flags.NewLine;
     parser.index++;
     if ((state & ScannerState.LastIsCR) === 0) {
@@ -101,7 +100,7 @@ export function scanPrivateName(parser: Parser, context: Context): Token {
  *
  * @param parser Parser object
  */
-export function advanceNewline(parser: Parser) {
+export function advanceNewline(parser: Parser): void {
     parser.flags |= Flags.NewLine;
     parser.index++;
     parser.column = 0;
@@ -111,8 +110,9 @@ export function advanceNewline(parser: Parser) {
 export const fromCodePoint = (code: Chars) => {
     return code <= 0xFFFF ?
         String.fromCharCode(code) :
-        String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
-            Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
+        String.fromCharCode(
+          ((code - Chars.NonBMPMin) >> 10) + Chars.LeadSurrogateMin,
+          ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 };
 
 export function readNext(parser: Parser): number {
@@ -131,7 +131,7 @@ export function toHex(code: number): number {
     return -1;
 }
 
-export function advanceOnMaybeAstral(parser: Parser, ch: number) {
+export function advanceOnMaybeAstral(parser: Parser, ch: number): void {
     parser.index++; parser.column++;
     if (ch > 0xFFFF) parser.index++;
 }

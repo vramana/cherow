@@ -4,7 +4,8 @@
     "tslint.exclude": [
       "**/node_modules/**",
       "**/dist/**",
-      "**/build/**"
+      "**/build/**",
+      "packages/*/test/**"
     ],
     "emmet.triggerExpansionOnTab": true,
     "search.exclude": {
