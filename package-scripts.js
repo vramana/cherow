@@ -97,8 +97,8 @@ function getConfig(pkgName) {
   };
 
   if (!(pkgName && pkgName.length)) {
-    output.scripts.build.moveTypes.move = copy(`**/*.d.ts dist/types --parents --cwd=.`);
-    output.scripts.build.moveTypes.clean = rimraf(`!(dist)**/*.d.ts *.d.ts`);
+    output.scripts.build.moveTypes.move = copy(`!(dist|build)**/*.d.ts dist/types --parents --cwd=.`);
+    output.scripts.build.moveTypes.clean = rimraf(`!(dist)/**/*.d.ts *.d.ts`);
   }
 
   if (pkgName && pkgName.length) {
