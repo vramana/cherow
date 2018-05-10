@@ -7,6 +7,12 @@ import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArgume
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
 import { parseAssignmentExpression } from 'cherow/src/parser';
 
+const enum TypeScriptContext {
+  Empty      = 0,
+  Declared   = 1 << 0,
+  Namespace  = 1 << 1,
+}
+
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -55,21 +61,6 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
                                   return parseVariableStatement(parser, context | Context.BlockScope, false);
                           }
                       }
-                  case Token.VarKeyword:
-                      return parseVariableStatement(parser, context);
-
-                  case Token.LetKeyword:
-                      return parseVariableStatement(parser, context | Context.BlockScope);
-
-                  case Token.FunctionKeyword:
-                      return parseFunctionDeclaration(parser, context);
-
-                  case Token.At:
-                  case Token.ClassKeyword:
-                      return parseClassDeclaration(parser, context);
-
-                  case Token.AsyncKeyword:
-                      return parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
 
                       // 'abstract'
                   case Token.AbstractKeyword:
@@ -78,25 +69,6 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
                           default: // ignore
                       }
 
-                      // 'namespace'
-                  case Token.NameSpaceKeyword:
-                      switch (nextToken(parser, context)) {
-                          case Token.Identifier:
-                            return parseNamespaceDeclaration(parser, context);
-                          default: // ignore
-                      }
-
-                      // 'interface'
-                  case Token.InterfaceKeyword:
-                      switch (nextToken(parser, context)) {
-                          case Token.Identifier:
-                              return parseInterfaceDeclaration(parser, context);
-                          default: // ignore
-                      }
-
-                            // 'global'
-                  case Token.GlobalKeyword:
-                    return parseAmbientExternalModuleDeclaration(parser, context);
                       // 'enum'
                   case Token.EnumKeyword:
                       {
@@ -118,13 +90,8 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
                           default: // ignore
                       }
 
-                      // 'type'
-                  case Token.TypeKeyword:
-                      switch (nextToken(parser, context)) {
-                          case Token.Identifier:
-                          default: // ignore
-                      }
                   default: // ignore
+                    return parseStatementListItem(parser, context | TypeScriptContext.Declared);
               }
 
               break;
