@@ -28,7 +28,6 @@ export const enum TypeScriptContext {
   Ambient  = 1 << 2,
 }
 
-
 /**
  * Validate break and continue statement
  *
@@ -548,6 +547,17 @@ export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean 
 }
 
 /**
+ * Validates if the next token in the stream is assign
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function nextTokenIsAssign(parser: Parser, context: Context): boolean {
+  nextToken(parser, context);
+  return parser.token === Token.Assign;
+}
+
+/**
  * Validates if the next token in the stream is a function keyword on the same line.
  *
  * @param parser Parser object
@@ -864,3 +874,4 @@ export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Co
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.LessThan;
 }
+

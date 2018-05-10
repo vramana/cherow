@@ -210,7 +210,7 @@ function parseIdentifierTypedNode(parser: Parser, context: Context): any {
   return parseTypeReference(parser, context);
 }
 
-function parseEntityName(parser: Parser, context: Context): any {
+export function parseEntityName(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   let entity = parseIdentifier(parser, context);
 

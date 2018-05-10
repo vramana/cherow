@@ -1527,7 +1527,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
     const args = paramList.args;
     const params = paramList.params;
 
-    let predicate: any = null;
+    const predicate: any = null;
     let returnType: any = null;
     let predicateInitialiser: any;
 

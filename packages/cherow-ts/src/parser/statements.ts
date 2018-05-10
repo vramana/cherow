@@ -125,13 +125,18 @@ export function parseStatement(parser: Parser, context: Context): ESTree.Stateme
         tolerant(parser, context, Errors.AsyncFunctionInSingleStatementContext);
       }
       return parseExpressionOrLabelledStatement(parser, context | Context.AllowSingleStatement);
+
+    // Start of an declaration
+    case Token.AbstractKeyword:
     case Token.DeclareKeyword:
     case Token.InterfaceKeyword:
     case Token.NameSpaceKeyword:
     case Token.TypeKeyword:
     case Token.EnumKeyword:
+    case Token.ModuleKeyword:
     case Token.GlobalKeyword:
         return parseExpressionOrDeclareStatement(parser, context);
+
     case Token.FunctionKeyword:
       // V8
       tolerant(parser, context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
