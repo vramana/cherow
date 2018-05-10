@@ -1,4 +1,3 @@
-import { UnaryExpression } from './../../build/cherow/src/estree.d';
 import { Errors, report, ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
 import { nextToken, getLocation, consumeSemicolon, finishNode, expect, consume } from '../utilities';
 import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListItem } from './statements';
