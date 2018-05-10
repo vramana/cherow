@@ -1500,7 +1500,7 @@ function parseEnumMembers(parser, context) {
         parseLiteral(parser, context) :
         parseIdentifier(parser, context);
     const initializer = consume(parser, context, 83886109 /* Assign */) ?
-        cherow.Parser.parseAssignmentExpression(parser, context) :
+        parseAssignmentExpression(parser, context) :
         null;
     return finishNode(context, parser, pos, {
         type: 'TSEnumMember',

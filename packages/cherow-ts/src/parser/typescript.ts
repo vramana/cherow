@@ -1,7 +1,7 @@
 import { Errors, report, ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
 import { nextToken, getLocation, consumeSemicolon, finishNode, expect, consume } from '../utilities';
 import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListItem } from './statements';
-import { parseIdentifier, parseLiteral } from './expressions';
+import { parseIdentifier, parseLiteral, parseAssignmentExpression } from './expressions';
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
 
@@ -340,7 +340,7 @@ export function parseEnumMembers(
       parseLiteral(parser, context) :
       parseIdentifier(parser, context);
   const initializer = consume(parser, context, Token.Assign) ?
-      Parser.parseAssignmentExpression(parser, context) :
+      parseAssignmentExpression(parser, context) :
       null;
   return finishNode(context, parser, pos, {
           type: 'TSEnumMember',

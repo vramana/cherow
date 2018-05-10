@@ -1517,7 +1517,7 @@ System.register(['cherow'], function (exports, module) {
               parseLiteral(parser, context) :
               parseIdentifier(parser, context);
           const initializer = consume$1(parser, context, 83886109 /* Assign */) ?
-              Parser.parseAssignmentExpression(parser, context) :
+              parseAssignmentExpression(parser, context) :
               null;
           return finishNode$1(context, parser, pos, {
               type: 'TSEnumMember',
