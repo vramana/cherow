@@ -897,8 +897,6 @@ export function parseBigIntLiteral(parser: Parser, context: Context): ESTree.Lit
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-BooleanLiteral)
  *
- * @param parser
- * @param context
  */
 function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
@@ -1532,7 +1530,6 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
     let predicate: any = null;
     let returnType: any = null;
     let predicateInitialiser: any;
-
 
     if (parser.token === Token.Colon) {
       returnType = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);

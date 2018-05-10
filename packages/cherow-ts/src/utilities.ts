@@ -836,7 +836,6 @@ export function isUnambiguouslyIndexSignature(parser: Parser, context: Context):
   return parser.token === Token.Colon;
 }
 
-
 export function isNextTokenCanFollowModifier(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return (
@@ -850,10 +849,10 @@ export function isNextTokenCanFollowModifier(parser: Parser, context: Context): 
 
 export function isTypePredicatePrefix(parser: Parser, context: Context): any {
   nextToken(parser, context);
-  return parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine)
+  return parser.token === Token.IsKeyword && !(parser.flags & Flags.NewLine);
 }
 
-export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Context) {
+export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Context): any {
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.LessThan;
-  }
+}

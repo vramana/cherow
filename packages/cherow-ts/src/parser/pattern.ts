@@ -24,19 +24,19 @@ import {
  */
 export function parseBindingIdentifierOrPattern(parser: Parser, context: Context, args: string[] = []): ESTree.PatternTop {
   const { token } = parser;
-    if (token & Token.IsBindingPattern) {
-        return token === Token.LeftBrace ?
-            parserObjectAssignmentPattern(parser, context) :
-            parseArrayAssignmentPattern(parser, context, args);
-    } else if (token & (Token.IsAwait | Token.IsYield)) {
-        if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
-            tolerant(parser, context, Errors.AwaitBindingIdentifier);
-        } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
-            tolerant(parser, context, Errors.YieldBindingIdentifier);
-        }
-    }
-    args.push(parser.tokenValue);
-    return parseBindingIdentifier(parser, context);
+  if (token & Token.IsBindingPattern) {
+      return token === Token.LeftBrace ?
+          parserObjectAssignmentPattern(parser, context) :
+          parseArrayAssignmentPattern(parser, context, args);
+  } else if (token & (Token.IsAwait | Token.IsYield)) {
+      if (token & Token.IsAwait && (context & (Context.Async | Context.Module))) {
+          tolerant(parser, context, Errors.AwaitBindingIdentifier);
+      } else if (token & Token.IsYield && (context & (Context.Yield | Context.Strict))) {
+          tolerant(parser, context, Errors.YieldBindingIdentifier);
+      }
+  }
+  args.push(parser.tokenValue);
+  return parseBindingIdentifier(parser, context);
 }
 
 /**
@@ -137,8 +137,8 @@ function assignmentRestProperty(parser: Parser, context: Context): ESTree.RestEl
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
  *
- * @param {Parser} Parser object
- * @param {context} Context masks
+ * @param Parser object
+ * @param Context masks
  */
 function parseArrayAssignmentPattern(parser: Parser, context: Context, args: string[]): ESTree.ArrayPattern {
 

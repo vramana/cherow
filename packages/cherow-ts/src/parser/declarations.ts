@@ -113,18 +113,18 @@ function parseFunctionDeclarationBody(parser: Parser, context: Context, state: M
   // Unnamed functions are forbidden in statement context.
   } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
 
-    const { params, body, returnType } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
-    return finishNode(context, parser, pos, {
-        type: 'FunctionDeclaration',
-        params,
-        body,
-        async: !!(state & ModifierState.Await),
-        generator: !!(state & ModifierState.Generator),
-        expression: false,
-        id,
-        typeParameters,
-        returnType
-    } as any);
+  const { params, body, returnType } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
+  return finishNode(context, parser, pos, {
+      type: 'FunctionDeclaration',
+      params,
+      body,
+      async: !!(state & ModifierState.Await),
+      generator: !!(state & ModifierState.Generator),
+      expression: false,
+      id,
+      typeParameters,
+      returnType
+  } as any);
 }
 
 /**

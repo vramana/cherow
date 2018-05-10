@@ -683,7 +683,6 @@ function nextTokenIsEnum(parser: Parser, context: Context): boolean {
   return parser.token === Token.EnumKeyword;
 }
 
-
 /**
  * Parses either an lexical declaration (const) or const enum declaration
  *

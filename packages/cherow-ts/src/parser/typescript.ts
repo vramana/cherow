@@ -1,6 +1,6 @@
 import { UnaryExpression } from './../../build/cherow/src/estree.d';
 import { Errors, report, ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
-import { nextToken, getLocation, consumeSemicolon, finishNode, expect,consume } from '../utilities';
+import { nextToken, getLocation, consumeSemicolon, finishNode, expect, consume } from '../utilities';
 import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListItem } from './statements';
 import { parseIdentifier, parseLiteral } from './expressions';
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
@@ -11,9 +11,8 @@ import { parseAssignmentExpression } from 'cherow/src/parser';
  * Parse either expression statement or declare (TypeScript)
  *
  * @export
- * @param {Parser} parser Parser object
- * @param {Context} context Context masks
- * @returns {*}
+ * @param parser Parser object
+ * @param context Context masks
  */
 export function parseExpressionOrDeclareStatement(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
@@ -53,14 +52,14 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
                                   expect(parser, context, Token.EnumKeyword);
                                   return parseEnumDeclaration(parser, context, true);
                               default:
-                                  return parseVariableStatement(parser, context | Context.BlockScope, false)
+                                  return parseVariableStatement(parser, context | Context.BlockScope, false);
                           }
                       }
                   case Token.VarKeyword:
-                      return parseVariableStatement(parser, context)
+                      return parseVariableStatement(parser, context);
 
                   case Token.LetKeyword:
-                      return parseVariableStatement(parser, context | Context.BlockScope)
+                      return parseVariableStatement(parser, context | Context.BlockScope);
 
                   case Token.FunctionKeyword:
                       return parseFunctionDeclaration(parser, context);
@@ -223,7 +222,7 @@ export function parseAmbientExternalModuleDeclaration(parser: Parser, context: C
   } else if (parser.token === Token.StringLiteral) {
     id = parseLiteral(parser, context);
   } else {
-    report(parser, Errors.UnexpectedToken)
+    report(parser, Errors.UnexpectedToken);
   }
   let body: any = null;
   if (parser.token === Token.LeftBrace) {
@@ -257,17 +256,17 @@ export function parseNamespaceDeclaration(parser: Parser, context: Context): any
       } as any);
 }
 
-export function parseStatementListBlock(parser: Parser, context: Context) {
+export function parseStatementListBlock(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-    expect(parser, context, Token.LeftBrace);
- const body: (ReturnType<typeof parseDirective | typeof parseStatementListItem>)[] = [];
+  expect(parser, context, Token.LeftBrace);
+  const body: (ReturnType<typeof parseDirective | typeof parseStatementListItem>)[] = [];
 
- while (parser.token !== Token.RightBrace) {
-  body.push(parser.token === Token.StringLiteral ?
-         parseDirective(parser, context) :
-         parseStatementListItem(parser, context | Context.AllowIn));
- }
- expect(parser, context, Token.RightBrace);
+  while (parser.token !== Token.RightBrace) {
+    body.push(parser.token === Token.StringLiteral ?
+          parseDirective(parser, context) :
+          parseStatementListItem(parser, context | Context.AllowIn));
+  }
+  expect(parser, context, Token.RightBrace);
   return finishNode(context, parser, pos, {
     type: 'TSModuleBlock',
     body
@@ -319,7 +318,7 @@ function parseExpressionWithTypeArguments(parser: Parser, context: Context): any
           type: 'TSExpressionWithTypeArguments',
           expression,
           typeParameters
-      } as any)
+      } as any);
 
 }
 
@@ -347,7 +346,7 @@ function parseInterfaceDeclarationBody(parser: Parser, context: Context): any {
 function parseInterfaceDeclaration(
   parser: Parser,
   context: Context,
-  id = parseIdentifier(parser, context)): any {
+  id: ESTree.Identifier = parseIdentifier(parser, context)): any {
   const pos = getLocation(parser);
 
   const typeParameters = parser.token === Token.LessThan ? parseTypeParameters(parser, context) : null;
@@ -374,7 +373,7 @@ export function parseEnumMembers(
   const pos = getLocation(parser);
   const id = parser.token === Token.StringLiteral ?
       parseLiteral(parser, context) :
-      parseIdentifier(parser, context)
+      parseIdentifier(parser, context);
   const initializer = consume(parser, context, Token.Assign) ?
       parseAssignmentExpression(parser, context) :
       null;

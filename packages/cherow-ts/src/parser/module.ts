@@ -107,104 +107,104 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
 
         // export * FromClause ;
         case Token.Multiply:
-            return parseExportAllDeclaration(parser, context, pos);
+          return parseExportAllDeclaration(parser, context, pos);
 
         case Token.DefaultKeyword:
-            return parseExportDefault(parser, context, pos);
+          return parseExportDefault(parser, context, pos);
 
         case Token.LeftBrace:
-            {
-                // export ExportClause FromClause ;
-                // export ExportClause ;
-                expect(parser, context, Token.LeftBrace);
+          {
+              // export ExportClause FromClause ;
+              // export ExportClause ;
+              expect(parser, context, Token.LeftBrace);
 
-                let hasReservedWord = false;
+              let hasReservedWord = false;
 
-                while (parser.token !== Token.RightBrace) {
-                    if (parser.token & Token.Reserved) {
-                        hasReservedWord = true;
-                        setPendingError(parser);
-                    }
-                    specifiers.push(parseNamedExportDeclaration(parser, context));
-                    if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
-                }
+              while (parser.token !== Token.RightBrace) {
+                  if (parser.token & Token.Reserved) {
+                      hasReservedWord = true;
+                      setPendingError(parser);
+                  }
+                  specifiers.push(parseNamedExportDeclaration(parser, context));
+                  if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
+              }
 
-                expect(parser, context | Context.DisallowEscapedKeyword, Token.RightBrace);
+              expect(parser, context | Context.DisallowEscapedKeyword, Token.RightBrace);
 
-                if (parser.token === Token.FromKeyword) {
-                    source = parseModuleSpecifier(parser, context);
-                //  The left hand side can't be a keyword where there is no
-                // 'from' keyword since it references a local binding.
-                } else if (hasReservedWord) {
-                    tolerant(parser, context, Errors.UnexpectedReserved);
-                }
+              if (parser.token === Token.FromKeyword) {
+                  source = parseModuleSpecifier(parser, context);
+              //  The left hand side can't be a keyword where there is no
+              // 'from' keyword since it references a local binding.
+              } else if (hasReservedWord) {
+                  tolerant(parser, context, Errors.UnexpectedReserved);
+              }
 
-                consumeSemicolon(parser, context);
+              consumeSemicolon(parser, context);
 
-                break;
-            }
+              break;
+          }
 
         case Token.NameSpaceKeyword:
-            declaration = parseModuleOrNamespaceDeclaration(parser, context);
-            break;
+          declaration = parseModuleOrNamespaceDeclaration(parser, context);
+          break;
 
         case Token.DeclareKeyword:
-            declaration = parseExportNamedDeclaration(parser, context)
-            break;
-          case Token.InterfaceKeyword:
-          declaration = parseExportNamedDeclaration(parser, context)
-            break;
+          declaration = parseExportNamedDeclaration(parser, context);
+          break;
+        case Token.InterfaceKeyword:
+          declaration = parseExportNamedDeclaration(parser, context);
+          break;
 
-          case Token.EnumKeyword:
-            nextToken(parser, context);
-            declaration = parseEnumDeclaration(parser, context)
-            break;
+        case Token.EnumKeyword:
+          nextToken(parser, context);
+          declaration = parseEnumDeclaration(parser, context);
+          break;
 
         case Token.TypeKeyword:
-            nextToken(parser, context);
-            declaration = parseTypeAlias(parser, context);
-            break;
+          nextToken(parser, context);
+          declaration = parseTypeAlias(parser, context);
+          break;
         case Token.ImportKeyword:
 
-        // `export = x;`
+          // `export = x;`
         case Token.Assign:
-            return parseExportAssignment(parser, context)
+          return parseExportAssignment(parser, context);
 
          // `export as namespace A;`
         case Token.AsKeyword:
-            return parseNamespaceExportDeclaration(parser, context)
+          return parseNamespaceExportDeclaration(parser, context);
 
-            // export ClassDeclaration
+          // export ClassDeclaration
         case Token.ClassKeyword:
-            declaration = parseClassDeclaration(parser, context);
-            break;
+          declaration = parseClassDeclaration(parser, context);
+          break;
 
-            // export LexicalDeclaration
+          // export LexicalDeclaration
         case Token.ConstKeyword:
-        declaration = parseConstOrEnumDeclaration(parser, context | Context.BlockScope);
-        break;
+          declaration = parseConstOrEnumDeclaration(parser, context | Context.BlockScope);
+          break;
 
-          case Token.LetKeyword:
-            declaration = parseVariableStatement(parser, context | Context.BlockScope);
-            break;
+        case Token.LetKeyword:
+          declaration = parseVariableStatement(parser, context | Context.BlockScope);
+          break;
 
-          // export VariableDeclaration
+        // export VariableDeclaration
         case Token.VarKeyword:
-            declaration = parseVariableStatement(parser, context);
-            break;
+          declaration = parseVariableStatement(parser, context);
+          break;
 
-            // export HoistableDeclaration
+          // export HoistableDeclaration
         case Token.FunctionKeyword:
-            declaration = parseFunctionDeclaration(parser, context);
-            break;
+          declaration = parseFunctionDeclaration(parser, context);
+          break;
 
-            // export HoistableDeclaration
+          // export HoistableDeclaration
         case Token.AsyncKeyword:
-            if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
-                declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
-                break;
-            }
-            // Falls through
+          if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
+              declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+              break;
+          }
+          // Falls through
         default:
             report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
@@ -566,7 +566,7 @@ export function parseModuleOrNamespaceDeclaration(parser: Parser, context: Conte
   let body: any;
   if (consume(parser, context, Token.Period)) {
     body = parseModuleOrNamespaceDeclaration(parser, context);
-  }else {
+  } else {
     body = parseModuleBlock(parser, context);
   }
   consumeSemicolon(parser, context);
@@ -577,17 +577,17 @@ export function parseModuleOrNamespaceDeclaration(parser: Parser, context: Conte
       } as any);
 }
 
-export function parseModuleBlock(parser: Parser, context: Context) {
+export function parseModuleBlock(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
-    expect(parser, context, Token.LeftBrace);
- const body: (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] = [];
+  expect(parser, context, Token.LeftBrace);
+  const body: (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] = [];
 
- while (parser.token !== Token.RightBrace) {
+  while (parser.token !== Token.RightBrace) {
   body.push(parser.token === Token.StringLiteral ?
-         parseDirective(parser, context) :
-         parseModuleItem(parser, context | Context.AllowIn));
- }
- expect(parser, context, Token.RightBrace);
+          parseDirective(parser, context) :
+          parseModuleItem(parser, context | Context.AllowIn));
+  }
+  expect(parser, context, Token.RightBrace);
   return finishNode(context, parser, pos, {
     type: 'TSModuleBlock',
     body
@@ -660,16 +660,16 @@ export function parseExportNamedDeclaration(parser: Parser, context: Context): a
           declaration = parseModuleOrNamespaceDeclaration(parser, context);
           break;
       case Token.DeclareKeyword:
-          declaration = parseExportNamedDeclaration(parser, context)
+          declaration = parseExportNamedDeclaration(parser, context);
           break;
       case Token.ImportKeyword:
           // `export = x;`
       case Token.Assign:
-          return parseExportAssignment(parser, context)
+          return parseExportAssignment(parser, context);
 
           // `export as namespace A;`
       case Token.AsKeyword:
-          return parseNamespaceExportDeclaration(parser, context)
+          return parseNamespaceExportDeclaration(parser, context);
 
           // export ClassDeclaration
       case Token.ClassKeyword:
@@ -711,7 +711,6 @@ export function parseExportNamedDeclaration(parser: Parser, context: Context): a
           declare: true
       } as any);
 }
-
 
 /**
  * Parses export assignment

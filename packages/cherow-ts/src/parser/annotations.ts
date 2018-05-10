@@ -82,7 +82,7 @@ export function parseTypeParameter(parser: Parser, context: Context): any {
   });
 }
 
-export function parseTypeParameters(parser: Parser, context: Context ): any {
+export function parseTypeParameters(parser: Parser, context: Context): any {
   const params: any[] = [];
   if (parser.token !== Token.LessThan) return params;
   const pos = getLocation(parser);
@@ -101,17 +101,16 @@ export function parseTypeParameters(parser: Parser, context: Context ): any {
   });
 }
 
-
 function parseFunctionType(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   const typeParameters = parseTypeParameters(parser, context);
   expect(parser, context, Token.LeftParen);
   const parameters: any[] = [];
-    while (parser.token !== Token.RightParen) {
-      parameters.push(parser.token === Token.Ellipsis
-        ? parseRestElement(parser, context)
-        : parseBindingIdentifier(parser, context));
-     consume(parser, context, Token.Comma);
+  while (parser.token !== Token.RightParen) {
+    parameters.push(parser.token === Token.Ellipsis
+      ? parseRestElement(parser, context)
+      : parseBindingIdentifier(parser, context));
+    consume(parser, context, Token.Comma);
   }
 
   expect(parser, context, Token.RightParen);
@@ -124,7 +123,7 @@ function parseFunctionType(parser: Parser, context: Context): any {
     typeParameters,
     parameters,
     typeAnnotation
-  } as any);
+  });
 }
 
 export function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Context, token: Token): any {
@@ -133,14 +132,14 @@ export function parseTypeOrTypePredicateAnnotation(parser: Parser, context: Cont
     return parseTypeAnnotation(parser, context, false);
   }
   const pos = getLocation(parser);
-   const parameterName = parseIdentifier(parser, context)
-   nextToken(parser, context);
-   const typeAnnotation = parseTypeAnnotation(parser, context, false);
-   return finishNode(context, parser, pos, {
+  const parameterName = parseIdentifier(parser, context);
+  nextToken(parser, context);
+  const typeAnnotation = parseTypeAnnotation(parser, context, false);
+  return finishNode(context, parser, pos, {
      type: 'TSTypePredicate',
      parameterName,
      typeAnnotation
-   } as any);
+   });
 }
 
 function parseConstructorType(parser: Parser, context: Context): any {
@@ -148,7 +147,7 @@ function parseConstructorType(parser: Parser, context: Context): any {
   expect(parser, context, Token.NewKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSConstructorType'
-  } as any);
+  });
 }
 
 export function parseType(parser: Parser, context: Context): any {
@@ -167,13 +166,13 @@ function parseUnionType(parser: Parser, context: Context): any {
   const type = parseIntersectionType(parser, context);
   if (parser.token !== Token.BitwiseOr) return type;
   const types = [type];
- while (consume(parser, context, Token.BitwiseOr)) {
+  while (consume(parser, context, Token.BitwiseOr)) {
      types.push(parseIntersectionType(parser, context));
   }
   return finishNode(context, parser, pos, {
     type: 'TSUnionType',
     types
-  } as any);
+  });
 }
 
 function parseMappedType(parser: Parser, context: Context): any {
@@ -195,7 +194,7 @@ function parseMappedType(parser: Parser, context: Context): any {
     typeParameter,
     optional,
     typeAnnotation
-  } as any);
+  });
 }
 
 function parseIdentifierTypedNode(parser: Parser, context: Context): any {
@@ -205,7 +204,7 @@ function parseIdentifierTypedNode(parser: Parser, context: Context): any {
     expect(parser, context, Token.Identifier);
     return finishNode(context, parser, pos, {
       type: tsType
-    } as any);
+    });
   }
 
   return parseTypeReference(parser, context);
@@ -220,7 +219,7 @@ function parseEntityName(parser: Parser, context: Context): any {
       type: 'TSQualifiedName',
       left: entity,
       right: parseIdentifier(parser, context)
-    } as any);
+    });
   }
 
   return entity;
@@ -251,7 +250,7 @@ export function parseTypeArguments(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TypeParameterInstantiation',
     params
-  } as any);
+  });
 }
 
 function parseTypeReference(parser: Parser, context: Context): any {
@@ -266,7 +265,7 @@ function parseTypeReference(parser: Parser, context: Context): any {
     type: 'TSTypeReference',
     typeName,
     typeParameters
-  } as any);
+  });
 }
 
 function parseNullTypedNode(parser: Parser, context: Context): any {
@@ -274,7 +273,7 @@ function parseNullTypedNode(parser: Parser, context: Context): any {
   expect(parser, context, Token.NullKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSNullKeyword'
-  } as any);
+  });
 }
 
 function parseSubtractTypeNode(parser: Parser, context: Context): any {
@@ -286,7 +285,7 @@ function parseSubtractTypeNode(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSLiteralType',
     literal: Parser.parseLiteral(parser, context)
-  } as any);
+  });
 }
 
 function parseThisTypeNode(parser: Parser, context: Context): any {
@@ -295,7 +294,7 @@ function parseThisTypeNode(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSThisType',
     literal: Parser.parseLiteral(parser, context)
-  } as any);
+  });
 }
 
 function parseThisTypePredicate(parser: Parser, context: Context, parameterName: any): any {
@@ -305,7 +304,7 @@ function parseThisTypePredicate(parser: Parser, context: Context, parameterName:
     type: 'TSTypePredicate',
     parameterName,
     typeAnnotation: parseTypeAnnotation(parser, context, false)
-  } as any);
+  });
 }
 
 /**
@@ -321,7 +320,7 @@ export function parseTypeAnnotation(parser: Parser, context: Context, consumeCol
   return finishNode(context, parser, pos, {
     type: 'TypeAnnotation',
     typeAnnotation: parseType(parser, context)
-  } as any);
+  });
 }
 
 function parseVoidTypedNode(parser: Parser, context: Context): any {
@@ -329,7 +328,7 @@ function parseVoidTypedNode(parser: Parser, context: Context): any {
   expect(parser, context, Token.VoidKeyword);
   return finishNode(context, parser, pos, {
     type: 'TSVoidKeyword'
-  } as any);
+  });
 }
 
 function parseLiteralTypedNode(parser: Parser, context: Context): any {
@@ -360,7 +359,7 @@ function parseLiteralTypedNode(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSLiteralType',
     literal
-  } as any);
+  });
 }
 
 function parseNonArrayType(parser: Parser, context: Context): any {
@@ -412,14 +411,14 @@ function parseParenthesizedType(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSParenthesizedType',
     typeAnnotation
-  } as any);
+  });
 }
 
 function parseTupleElementTypes(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   return finishNode(context, parser, pos, {
     type: 'TupleElementTypes'
-  } as any);
+  });
 }
 
 function parseTupleType(parser: Parser, context: Context): any {
@@ -433,7 +432,7 @@ function parseTupleType(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSTupleType',
     elementTypes
-  } as any);
+  });
 }
 
 function parseTypeLiteral(parser: Parser, context: Context): any {
@@ -441,7 +440,7 @@ function parseTypeLiteral(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSTypeLiteral',
     members: parseObjectTypeMembers(parser, context)
-  } as any);
+  });
 }
 
 function parseTypeQuery(parser: Parser, context: Context): any {
@@ -450,9 +449,8 @@ function parseTypeQuery(parser: Parser, context: Context): any {
   return finishNode(context, parser, pos, {
     type: 'TSTypeQuery',
     exprName: parseEntityName(parser, context)
-  } as any);
+  });
 }
-
 
 function parseIndexSignature(parser: Parser, context: Context): any {
   if (!(parser.token === Token.LeftBracket && lookahead(parser, context, isUnambiguouslyIndexSignature))) {
@@ -479,12 +477,12 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
   const option = consume(parser, context, Token.QuestionMark);
   if (!readonly && (parser.token === Token.LeftParen || parser.token === Token.LessThan)) {
       const typeParameters = parseTypeParameters(parser, context);
-      expect(parser, context, Token.LeftParen)
+      expect(parser, context, Token.LeftParen);
       const parameters: any[] = [];
       while (parser.token !== Token.RightParen) {
-          parameters.push(parser.token === Token.Ellipsis ?
-              parseRestElement(parser, context) :
-              parseBindingIdentifier(parser, context));
+          parameters.push(parser.token === Token.Ellipsis
+            ? parseRestElement(parser, context)
+            : parseBindingIdentifier(parser, context));
           consume(parser, context, Token.Comma);
       }
       expect(parser, context, Token.RightParen);
@@ -541,12 +539,12 @@ function parseTypeMember(parser: Parser, context: Context): any {
 export function parseSignatureMember(parser: Parser, context: Context, type: string): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftParen);
-    const parameters: any[] = [];
-    while (parser.token !== Token.RightParen) {
-      parameters.push(parser.token === Token.Ellipsis
-        ? parseRestElement(parser, context)
-        : parseBindingIdentifier(parser, context));
-     consume(parser, context, Token.Comma);
+  const parameters: any[] = [];
+  while (parser.token !== Token.RightParen) {
+    parameters.push(parser.token === Token.Ellipsis
+      ? parseRestElement(parser, context)
+      : parseBindingIdentifier(parser, context));
+    consume(parser, context, Token.Comma);
   }
 
   expect(parser, context, Token.RightParen);
@@ -581,7 +579,7 @@ function parseArrayType(parser: Parser, context: Context): any {
       elementType = finishNode(context, parser, pos, {
         type: 'TSArrayType',
         elementType
-      } as any);
+      });
     } else {
       const indexType = parseType(parser, context);
       expect(parser, context, Token.RightBracket);
@@ -589,14 +587,14 @@ function parseArrayType(parser: Parser, context: Context): any {
         type: 'TSIndexedAccessType',
         elementType,
         indexType
-      } as any);
+      });
     }
   }
   return elementType;
 }
 
 function parseTypeOperator(parser: Parser, context: Context): any {
- if (parser.token !== Token.KeyOfKeyword && parser.token !== Token.UniqueKeyword) {
+  if (parser.token !== Token.KeyOfKeyword && parser.token !== Token.UniqueKeyword) {
     return parseArrayType(parser, context);
   }
 
@@ -607,5 +605,5 @@ function parseTypeOperator(parser: Parser, context: Context): any {
     type: 'TSTypeOperator',
     operator: tokenDesc(operator),
     typeAnnotation: parseTypeOperator(parser, context)
-  } as any);
+  });
 }
