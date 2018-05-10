@@ -84,7 +84,8 @@ System.register([], function (exports, module) {
           '#',
           'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
           /** TS */
-          'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
+          'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
+          'global'
       ];
       /**
        * The conversion function between token and its string description/representation.
@@ -159,6 +160,7 @@ System.register([], function (exports, module) {
           abstract: { value: 65665 /* AbstractKeyword */ },
           as: { value: 36971 /* AsKeyword */ },
           module: { value: 65666 /* ModuleKeyword */ },
+          global: { value: 65667 /* GlobalKeyword */ },
       });
       function descKeyword(value) {
           return (descKeywordTable[value] | 0);
@@ -7167,7 +7169,7 @@ System.register([], function (exports, module) {
       // tslint:disable-next-line:variable-name
       const Parser = exports('Parser', parser);
 
-      const version = exports('version', '1.5.8');
+      const version = exports('version', '1.6.1');
 
     }
   };

@@ -1,6 +1,7 @@
 import { Location, report, Errors, Token, tokenDesc, Parser, Flags, ESTree, Context, tolerant } from 'cherow';
 import { parseBindingIdentifier } from './pattern';
-import { parseStatementListItem, parseVariableStatement, parseDirective } from './statements';
+import { parseStatementListItem, parseVariableStatement, parseDirective, parseConstOrEnumDeclaration } from './statements';
+import { parseExpressionOrDeclareStatement, parseTypeAlias, parseEnumDeclaration } from './typescript';
 import {
   parseIdentifierName,
   parseLiteral,
@@ -103,6 +104,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ExportKeyword);
 
     switch (parser.token) {
+
         // export * FromClause ;
         case Token.Multiply:
             return parseExportAllDeclaration(parser, context, pos);
@@ -142,14 +144,47 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                 break;
             }
 
+        case Token.NameSpaceKeyword:
+            declaration = parseModuleOrNamespaceDeclaration(parser, context);
+            break;
+
+        case Token.DeclareKeyword:
+            declaration = parseExportNamedDeclaration(parser, context)
+            break;
+          case Token.InterfaceKeyword:
+          declaration = parseExportNamedDeclaration(parser, context)
+            break;
+
+          case Token.EnumKeyword:
+            nextToken(parser, context);
+            declaration = parseEnumDeclaration(parser, context)
+            break;
+
+        case Token.TypeKeyword:
+            nextToken(parser, context);
+            declaration = parseTypeAlias(parser, context);
+            break;
+        case Token.ImportKeyword:
+
+        // `export = x;`
+        case Token.Assign:
+            return parseExportAssignment(parser, context)
+
+         // `export as namespace A;`
+        case Token.AsKeyword:
+            return parseNamespaceExportDeclaration(parser, context)
+
             // export ClassDeclaration
         case Token.ClassKeyword:
-            declaration = (parseClassDeclaration(parser, context));
+            declaration = parseClassDeclaration(parser, context);
             break;
 
             // export LexicalDeclaration
-        case Token.LetKeyword:
         case Token.ConstKeyword:
+        declaration = parseConstOrEnumDeclaration(parser, context | Context.BlockScope);
+        break;
+
+          case Token.LetKeyword:
             declaration = parseVariableStatement(parser, context | Context.BlockScope);
             break;
 
@@ -179,7 +214,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
         source,
         specifiers,
         declaration,
-    });
+    } as any);
 }
 
 /**
@@ -481,4 +516,223 @@ function parseAsyncFunctionOrAssignmentExpression(parser: Parser, context: Conte
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | Context.RequireIdentifier) :
         parseAssignmentExpression(parser, context | Context.AllowIn) as any;
+}
+
+/**
+ * Parses namespace export declaration
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseNamespaceExportDeclaration(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.AsKeyword);
+  expect(parser, context, Token.NameSpaceKeyword);
+  const id = parseIdentifier(parser, context) as any;
+  consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+          type: 'TSNamespaceExportDeclaration',
+          id
+      } as any);
+}
+
+/**
+ * Parses export assignment
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseExportAssignment(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.Assign);
+  const expression = parseAssignmentExpression(parser, context);
+  consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+          type: 'TsExportAssignment ',
+          expression
+      } as any);
+}
+
+/**
+ * Parses export assignment
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseModuleOrNamespaceDeclaration(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.NameSpaceKeyword);
+  const id = parseIdentifier(parser, context);
+  let body: any;
+  if (consume(parser, context, Token.Period)) {
+    body = parseModuleOrNamespaceDeclaration(parser, context);
+  }else {
+    body = parseModuleBlock(parser, context);
+  }
+  consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+          type: 'TSModuleDeclaration ',
+          id,
+          body
+      } as any);
+}
+
+export function parseModuleBlock(parser: Parser, context: Context) {
+  const pos = getLocation(parser);
+    expect(parser, context, Token.LeftBrace);
+ const body: (ReturnType<typeof parseDirective | typeof parseModuleItem>)[] = [];
+
+ while (parser.token !== Token.RightBrace) {
+  body.push(parser.token === Token.StringLiteral ?
+         parseDirective(parser, context) :
+         parseModuleItem(parser, context | Context.AllowIn));
+ }
+ expect(parser, context, Token.RightBrace);
+  return finishNode(context, parser, pos, {
+    type: 'TSModuleBlock',
+    body
+  } as any);
+}
+
+export function parseExportNamedDeclaration(parser: Parser, context: Context): any {
+
+  const isDeclare = consume(parser, context, Token.DeclareKeyword);
+  const pos = getLocation(parser);
+  const specifiers: ESTree.ExportSpecifier[] = [];
+
+  let source = null;
+  let declaration: ESTree.Statement | null = null;
+
+  switch (parser.token) {
+
+    case Token.ModuleKeyword:
+
+    declaration = parseModuleDeclaration(parser, context);
+    break;
+
+      case Token.Identifier:
+      case Token.TypeKeyword:
+      case Token.InterfaceKeyword:
+
+          declaration = parseExpressionOrDeclareStatement(parser, context);
+          break;
+
+          // export * FromClause ;
+      case Token.Multiply:
+          return parseExportAllDeclaration(parser, context, pos);
+
+      case Token.DefaultKeyword:
+          return parseExportDefault(parser, context, pos);
+
+      case Token.LeftBrace:
+          {
+              // export ExportClause FromClause ;
+              // export ExportClause ;
+              expect(parser, context, Token.LeftBrace);
+
+              let hasReservedWord = false;
+
+              while (parser.token !== Token.RightBrace) {
+                  if (parser.token & Token.Reserved) {
+                      hasReservedWord = true;
+                      setPendingError(parser);
+                  }
+                  specifiers.push(parseNamedExportDeclaration(parser, context));
+                  if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
+              }
+
+              expect(parser, context | Context.DisallowEscapedKeyword, Token.RightBrace);
+
+              if (parser.token === Token.FromKeyword) {
+                  source = parseModuleSpecifier(parser, context);
+                  //  The left hand side can't be a keyword where there is no
+                  // 'from' keyword since it references a local binding.
+              } else if (hasReservedWord) {
+                  tolerant(parser, context, Errors.UnexpectedReserved);
+              }
+
+              consumeSemicolon(parser, context);
+
+              break;
+          }
+
+      case Token.NameSpaceKeyword:
+          declaration = parseModuleOrNamespaceDeclaration(parser, context);
+          break;
+      case Token.DeclareKeyword:
+          declaration = parseExportNamedDeclaration(parser, context)
+          break;
+      case Token.ImportKeyword:
+          // `export = x;`
+      case Token.Assign:
+          return parseExportAssignment(parser, context)
+
+          // `export as namespace A;`
+      case Token.AsKeyword:
+          return parseNamespaceExportDeclaration(parser, context)
+
+          // export ClassDeclaration
+      case Token.ClassKeyword:
+          declaration = parseClassDeclaration(parser, context);
+          break;
+
+          // export LexicalDeclaration
+      case Token.LetKeyword:
+      case Token.ConstKeyword:
+          declaration = parseVariableStatement(parser, context | Context.BlockScope);
+          break;
+
+          // export VariableDeclaration
+      case Token.VarKeyword:
+          declaration = parseVariableStatement(parser, context);
+          break;
+
+          // export HoistableDeclaration
+      case Token.FunctionKeyword:
+          declaration = parseFunctionDeclaration(parser, context);
+          break;
+
+          // export HoistableDeclaration
+      case Token.AsyncKeyword:
+          if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
+              declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+              break;
+          }
+          // Falls through
+      default:
+          report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
+  }
+
+  return finishNode(context, parser, pos, {
+          type: 'ExportNamedDeclaration',
+          source,
+          specifiers,
+          declaration,
+          declare: true
+      } as any);
+}
+
+
+/**
+ * Parses export assignment
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseModuleDeclaration(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  expect(parser, context, Token.ModuleKeyword);
+  const id = parseIdentifier(parser, context);
+  let body: any;
+  if (consume(parser, context, Token.Period)) {
+    body = parseModuleOrNamespaceDeclaration(parser, context);
+  } else {
+    body = parseModuleBlock(parser, context);
+  }
+  consumeSemicolon(parser, context);
+  return finishNode(context, parser, pos, {
+          type: 'TSModuleDeclaration ',
+          id,
+          body
+      } as any);
 }

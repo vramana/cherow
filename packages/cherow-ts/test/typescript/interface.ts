@@ -6,12 +6,13 @@ import { parse } from '../../src/parser/parser';
 describe('Interface', () => {
 
   const validSyntax = [
-      // 'interface Comma { x: number, y: number }',
+  //    'export interface I {}',
+      'interface Comma { x: number, y: number }',
       'interface I { new (x: number): void; }',
-      //'interface I<T extends object = { x: number }> {}',
+      'interface I<T extends object = { x: number }> {}',
       'interface I { [s: string]: number; }',
       'interface I extends X.Y<Z> {}',
-      //'interface I { x; y: number; z?: number; }',
+      'interface I { x; y: number; z?: number; }',
       'interface I { y: number; z?: number; }',
       'interface I { [Symbol.iterator]: number;  [Symbol.iterator]?: number; }',
       'interface I { catch(): void; }',
@@ -399,5 +400,58 @@ pass(`interface Comma { x: number, y: number }
         "sourceType": "script",
         "type": "Program"
       }
+});
+
+pass('interface I<T extends object = { x: number }> {}', Context.Empty, {
+  source: 'interface I<T extends object = { x: number }> {}',
+  expected: {
+      "body": [
+        {
+          "body": {
+            "body": [],
+           "type": "TSInterfaceBody",
+          },
+         "extends": null,
+          "id": {
+            "name": "I",
+            "type": "Identifier",
+          },
+          "type": "TSInterfaceDeclaration",
+          "typeParameters": {
+            "params": [
+              {
+                "constraint": {
+                  "type": "TSObjectKeyword"
+                },
+                "default": {
+                  "members": [
+                    {
+                      "computed": false,
+                      "key": {
+                        "name": "x",
+                        "type": "Identifier"
+                     },
+                      "type": "TSPropertySignature",
+                      "typeAnnotation": {
+                        "type": "TypeAnnotation",
+                        "typeAnnotation": {
+                          "type": "TSNumberKeyword"
+                       }
+                      }
+                    }
+                  ],
+                  "type": "TSTypeLiteral"
+                },
+                "name": "T",
+                "type": "TSTypeParameter"
+              }
+            ],
+            "type": "TSTypeParameterDeclaration"
+          }
+        }
+     ],
+      "sourceType": "script",
+      "type": "Program",
+    }
 });
 });

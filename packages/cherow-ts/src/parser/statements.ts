@@ -18,7 +18,7 @@ import {
   parseAsyncFunctionOrAsyncGeneratorDeclaration
 } from './declarations';
 import { parseExpression, parseIdentifier, parseAssignmentExpression, parseSequenceExpression } from './expressions';
-import { parseExpressionOrDeclareStatement } from './typescript';
+import { parseExpressionOrDeclareStatement, parseEnumDeclaration } from './typescript';
 import {
   expect,
   finishNode,
@@ -61,7 +61,7 @@ export function parseStatementListItem(parser: Parser, context: Context): ESTree
     case Token.LetKeyword:
       return parseLetOrExpressionStatement(parser, context | Context.AllowIn);
     case Token.ConstKeyword:
-      return parseVariableStatement(parser, context | Context.BlockScope | Context.AllowIn);
+      return parseConstOrEnumDeclaration(parser, context);
     case Token.AsyncKeyword:
       return parseAsyncFunctionDeclarationOrStatement(parser, context);
     case Token.ImportKeyword: {
@@ -126,7 +126,10 @@ export function parseStatement(parser: Parser, context: Context): ESTree.Stateme
       return parseExpressionOrLabelledStatement(parser, context | Context.AllowSingleStatement);
     case Token.DeclareKeyword:
     case Token.InterfaceKeyword:
+    case Token.NameSpaceKeyword:
     case Token.TypeKeyword:
+    case Token.EnumKeyword:
+    case Token.GlobalKeyword:
         return parseExpressionOrDeclareStatement(parser, context);
     case Token.FunctionKeyword:
       // V8
@@ -674,6 +677,32 @@ function parseLetOrExpressionStatement(
   return lookahead(parser, context, isLexical)
     ? parseVariableStatement(parser, context | Context.BlockScope, shouldConsume)
     : parseExpressionOrLabelledStatement(parser, context);
+}
+function nextTokenIsEnum(parser: Parser, context: Context): boolean {
+  nextToken(parser, context);
+  return parser.token === Token.EnumKeyword;
+}
+
+
+/**
+ * Parses either an lexical declaration (const) or const enum declaration
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseConstOrEnumDeclaration(
+  parser: Parser,
+  context: Context,
+): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
+  if (!(lookahead(parser, context, nextTokenIsEnum))) return parseVariableStatement(parser, context | Context.BlockScope | Context.AllowIn);
+  expect(parser, context, Token.ConstKeyword);
+  expect(parser, context, Token.EnumKeyword);
+  return parseEnumDeclaration(parser, context,  true);
+/*
+  return lookahead(parser, context, nextTokenIsEnum)
+    ? parseEnumDeclaration(parser, context, true)
+    : parseVariableStatement(parser, context | Context.BlockScope | Context.AllowIn);
+    */
 }
 
 /**

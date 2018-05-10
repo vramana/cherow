@@ -36,7 +36,8 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       '#',
       'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
       /** TS */
-      'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
+      'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
+      'global'
   ];
   /**
    * The conversion function between token and its string description/representation.
@@ -111,6 +112,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       abstract: { value: 65665 /* AbstractKeyword */ },
       as: { value: 36971 /* AsKeyword */ },
       module: { value: 65666 /* ModuleKeyword */ },
+      global: { value: 65667 /* GlobalKeyword */ },
   });
   function descKeyword(value) {
       return (descKeywordTable[value] | 0);
@@ -7117,7 +7119,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
   // tslint:disable-next-line:variable-name
   const Parser = parser;
 
-  const version = '1.5.8';
+  const version = '1.6.1';
 
   exports.version = version;
   exports.ESTree = estree;

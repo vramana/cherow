@@ -34,7 +34,8 @@ const keywordDescTable = [
     '#',
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
     /** TS */
-    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
+    'global'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -109,6 +110,7 @@ const descKeywordTable = Object.create(null, {
     abstract: { value: 65665 /* AbstractKeyword */ },
     as: { value: 36971 /* AsKeyword */ },
     module: { value: 65666 /* ModuleKeyword */ },
+    global: { value: 65667 /* GlobalKeyword */ },
 });
 function descKeyword(value) {
     return (descKeywordTable[value] | 0);
@@ -7115,6 +7117,6 @@ var parser = /*#__PURE__*/Object.freeze({
 // tslint:disable-next-line:variable-name
 const Parser = parser;
 
-const version = '1.5.8';
+const version = '1.6.1';
 
 export { version, estree as ESTree, index as Scanner, parse, parseSource, parseModule, parseScript, characterType, errorMessages, constructError, report, tolerant, tokenDesc, descKeyword, Parser, isValidIdentifierPart, isValidIdentifierStart, mustEscape, validateBreakOrContinueLabel, addLabel, popLabel, hasLabel, finishNode, expect, consume, nextToken, hasBit, consumeSemicolon, parseExpressionCoverGrammar, restoreExpressionCoverGrammar, swapContext, validateParams, reinterpret, lookahead, isValidSimpleAssignmentTarget, getLocation, isValidIdentifier, isLexical, isEndOfCaseOrDefaultClauses, nextTokenIsLeftParenOrPeriod, nextTokenisIdentifierOrParen, nextTokenIsLeftParen, nextTokenIsFuncKeywordOnSameLine, isPropertyWithPrivateFieldKey, parseAndValidateIdentifier, nameIsArgumentsOrEval, setPendingError, isEqualTagNames, isInstanceField, validateUpdateExpression, setPendingExpressionError, validateCoverParenthesizedExpression, validateAsyncArgumentList };

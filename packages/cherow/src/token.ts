@@ -183,7 +183,9 @@ export const enum Token {
     TypeKeyword         = 127 | IsIdentifier,
     NameSpaceKeyword    = 128 | IsIdentifier,
     AbstractKeyword     = 129 | IsIdentifier,
-    ModuleKeyword     = 130 | IsIdentifier,
+    ModuleKeyword       = 130 | IsIdentifier,
+    GlobalKeyword       = 131 | IsIdentifier,
+
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -235,7 +237,9 @@ const keywordDescTable = [
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
 
     /** TS */
-    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
+
+    'global'
 ];
 
 /**
@@ -312,6 +316,7 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     abstract: {value: Token.AbstractKeyword},
     as: {value: Token.AsKeyword},
     module: {value: Token.ModuleKeyword},
+    global: {value: Token.GlobalKeyword},
  });
 
 export function descKeyword(value: string): Token {

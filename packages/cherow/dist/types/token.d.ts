@@ -157,6 +157,7 @@ export declare const enum Token {
     NameSpaceKeyword = 65664,
     AbstractKeyword = 65665,
     ModuleKeyword = 65666,
+    GlobalKeyword = 65667,
 }
 /**
  * The conversion function between token and its string description/representation.
