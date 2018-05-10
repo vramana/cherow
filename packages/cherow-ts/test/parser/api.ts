@@ -83,6 +83,7 @@ describe('Types', () => {
               }
             ],
             'kind': 'var',
+            "declared": false,
             'type': 'VariableDeclaration',
           },
         ],

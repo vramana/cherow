@@ -37,7 +37,8 @@ import {
   addLabel,
   popLabel,
   restoreExpressionCoverGrammar,
-  validateParams
+  validateParams,
+  TypeScriptContext
 } from '../utilities';
 import { parseBindingIdentifierOrPattern } from './pattern';
 
@@ -656,8 +657,9 @@ export function parseVariableStatement(
   return finishNode(context, parser, pos, {
     type: 'VariableDeclaration',
     kind: tokenDesc(token) as 'var' | 'let' | 'const',
-    declarations
-  });
+    declarations,
+    declared: !!(context & TypeScriptContext.Declared)
+  } as any);
 }
 
 /**

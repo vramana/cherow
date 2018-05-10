@@ -59,6 +59,7 @@ describe('Declare', () => {
             },
           ],
           'kind': 'let',
+          "declared": true,
          'type': 'VariableDeclaration',
         },
       ],

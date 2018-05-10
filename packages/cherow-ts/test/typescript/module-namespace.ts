@@ -258,6 +258,7 @@ pass('namespace N { const x = 0; }', Context.Strict | Context.Module, {
                   }
                 ],
                 "kind": "const",
+                "declared": false,
                 "type": "VariableDeclaration",
               }
             ],
@@ -303,6 +304,7 @@ pass('declare namespace A { namespace B { var x: number; } }', Context.Strict | 
                         }
                       ],
                       "kind": "var",
+                      "declared": true,
                       "type": "VariableDeclaration",
                     }
                   ],
@@ -354,6 +356,7 @@ pass('declare namespace N { var x: number; }', Context.Strict | Context.Module, 
                   }
                 ],
                "kind": "var",
+               "declared": true,
                 "type": "VariableDeclaration"
               }
             ],

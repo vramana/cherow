@@ -206,6 +206,7 @@ pass('export declare interface I {}', Context.Strict | Context.Module, {
                   }
                 ],
                 "kind": "var",
+                "declared": true,
                 "type": "VariableDeclaration",
               },
               "declare": true,

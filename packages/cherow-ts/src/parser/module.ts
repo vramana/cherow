@@ -25,7 +25,8 @@ import {
   nextTokenIsFuncKeywordOnSameLine,
   nextTokenIsLeftParenOrPeriod,
   setPendingError,
-  hasBit
+  hasBit,
+  TypeScriptContext
 } from '../utilities';
 
 // 15.2 Modules
@@ -149,7 +150,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
           break;
 
         case Token.DeclareKeyword:
-          declaration = parseExportNamedDeclaration(parser, context);
+          declaration = parseExportNamedDeclaration(parser, context | TypeScriptContext.Declared);
           break;
         case Token.InterfaceKeyword:
           declaration = parseExportNamedDeclaration(parser, context);

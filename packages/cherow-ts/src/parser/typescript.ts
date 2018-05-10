@@ -1,15 +1,9 @@
 import { Errors, report, ESTree, Token, tokenDesc, Context, Parser, Location } from 'cherow';
-import { nextToken, getLocation, consumeSemicolon, finishNode, expect, consume } from '../utilities';
+import { nextToken, getLocation, consumeSemicolon, finishNode, expect, consume, TypeScriptContext } from '../utilities';
 import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListItem } from './statements';
 import { parseIdentifier, parseLiteral, parseAssignmentExpression } from './expressions';
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
-
-const enum TypeScriptContext {
-  Empty      = 0,
-  Declared   = 1 << 0,
-  Namespace  = 1 << 1,
-}
 
 /**
  * Parse either expression statement or declare (TypeScript)

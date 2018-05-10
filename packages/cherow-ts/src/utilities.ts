@@ -21,6 +21,14 @@ import {
 
 import { parseIdentifier } from './parser/expressions';
 
+export const enum TypeScriptContext {
+  Empty      = 0,
+  Declared   = 1 << 0,
+  Namespace  = 1 << 1,
+  Ambient  = 1 << 2,
+}
+
+
 /**
  * Validate break and continue statement
  *

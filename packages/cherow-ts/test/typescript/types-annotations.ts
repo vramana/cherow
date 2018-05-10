@@ -115,6 +115,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -141,6 +142,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -174,6 +176,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator'
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -205,6 +208,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -237,6 +241,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -258,6 +263,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -317,6 +323,7 @@ describe('Types', () => {
                 }
               ],
               "kind": "var",
+              "declared": false,
               "type": "VariableDeclaration"
             }
           ],
@@ -379,6 +386,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator'
               }],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration'
           }, ],
           'sourceType': 'script',
@@ -471,6 +479,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator'
               }],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration'
           }, ],
           'sourceType': 'script',
@@ -515,6 +524,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator'
               }],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration'
           }],
           'sourceType': 'script',
@@ -575,6 +585,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -608,6 +619,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator'
               }],
               'kind': 'var',
+              "declared": false,
               'type': 'VariableDeclaration'
           }],
           'sourceType': 'script',
@@ -645,6 +657,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -713,6 +726,7 @@ describe('Types', () => {
                 },
               ],
               "kind": "var",
+              "declared": false,
               "type": "VariableDeclaration",
             },
           ],
@@ -744,6 +758,7 @@ describe('Types', () => {
                   'type': 'VariableDeclarator',
               }, ],
               'kind': 'let',
+              "declared": false,
               'type': 'VariableDeclaration',
           }, ],
           'sourceType': 'script',
@@ -789,6 +804,7 @@ describe('Types', () => {
                   },
                   'type': 'VariableDeclarator'
               }],
+              "declared": false,
               'kind': 'var',
               'type': 'VariableDeclaration',
           }, ],
