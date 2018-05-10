@@ -35,7 +35,7 @@ const keywordDescTable = [
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
     /** TS */
     'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
-    'global'
+    'global', 'require'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -111,6 +111,7 @@ const descKeywordTable = Object.create(null, {
     as: { value: 36971 /* AsKeyword */ },
     module: { value: 65666 /* ModuleKeyword */ },
     global: { value: 65667 /* GlobalKeyword */ },
+    require: { value: 65668 /* RequireKeyword */ },
 });
 function descKeyword(value) {
     return (descKeywordTable[value] | 0);

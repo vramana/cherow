@@ -4,7 +4,7 @@ import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListI
 import { parseIdentifier, parseLiteral, parseAssignmentExpression } from './expressions';
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
-
+import { parseModuleItem } from './module';
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -218,12 +218,12 @@ export function parseNamespaceDeclaration(parser: Parser, context: Context): any
 export function parseStatementListBlock(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   expect(parser, context, Token.LeftBrace);
-  const body: (ReturnType<typeof parseDirective | typeof parseStatementListItem>)[] = [];
+  const body: (ReturnType < typeof parseDirective | typeof parseModuleItem >)[] = [];
 
   while (parser.token !== Token.RightBrace) {
     body.push(parser.token === Token.StringLiteral ?
           parseDirective(parser, context) :
-          parseStatementListItem(parser, context | Context.AllowIn));
+          parseModuleItem(parser, context | Context.AllowIn));
   }
   expect(parser, context, Token.RightBrace);
   return finishNode(context, parser, pos, {

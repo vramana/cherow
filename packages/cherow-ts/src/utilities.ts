@@ -552,7 +552,7 @@ export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean 
  * @param parser Parser object
  * @param context  Context masks
  */
-export function nextTokenIsAssign(parser: Parser, context: Context): boolean {
+export function nextTokenIsAssignToken(parser: Parser, context: Context): boolean {
   nextToken(parser, context);
   return parser.token === Token.Assign;
 }

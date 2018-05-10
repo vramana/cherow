@@ -29,7 +29,7 @@ import {
   hasBit,
   TypeScriptContext,
   nextTokenIsLeftParen,
-  nextTokenIsAssign
+  nextTokenIsAssignToken
 } from '../utilities';
 
 // 15.2 Modules
@@ -149,7 +149,6 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
           }
 
       case Token.ImportKeyword:
-
           declaration = parseImportEqualsDeclaration(parser, context, true);
           break;
 
@@ -178,7 +177,6 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
           nextToken(parser, context);
           declaration = parseTypeAlias(parser, context);
           break;
-      case Token.ImportKeyword:
 
           // `export = x;`
       case Token.Assign:
@@ -341,8 +339,11 @@ export function parseImportDeclaration(parser: Parser, context: Context): ESTree
   if (parser.token === Token.StringLiteral) {
       source = parseLiteral(parser, context);
   } else {
-      specifiers = parseImportClause(parser, context | Context.DisallowEscapedKeyword);
-      source = parseModuleSpecifier(parser, context);
+    if (parser.token & Token.IsIdentifier && lookahead(parser, context, nextTokenIsAssignToken)) {
+     return parseImportEqualsDeclaration(parser, context);
+    }
+    specifiers = parseImportClause(parser, context | Context.DisallowEscapedKeyword);
+    source = parseModuleSpecifier(parser, context);
   }
 
   consumeSemicolon(parser, context);
@@ -372,9 +373,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
       // 'import' ModuleSpecifier ';'
       case Token.Identifier:
           {
-            if (lookahead(parser, context, nextTokenIsAssign)) {
-              specifiers.push(parseImportEqualsDeclaration(parser, context));
-            } else {
+
               specifiers.push(parseImportDefaultSpecifier(parser, context));
 
               if (consume(parser, context, Token.Comma)) {
@@ -391,7 +390,6 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
                           tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
                   }
               }
-            }
 
               break;
           }
@@ -791,6 +789,22 @@ function parseExternalModuleReference(parser: Parser, context: Context): any {
   } as any);
 }
 
+
+export function parseEntityName1(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  let entity = parseIdentifier(parser, context);
+
+  while (consume(parser, context, Token.Period)) {
+    entity = finishNode(context, parser, pos, {
+      type: 'TSQualifiedName',
+      left: entity,
+      right: parseIdentifier(parser, context)
+    } as any);
+  }
+
+  return entity;
+}
+
 /**
  * Parses module reference
  *
@@ -800,7 +814,7 @@ function parseExternalModuleReference(parser: Parser, context: Context): any {
 function parseModuleReference(parser: Parser, context: Context): any {
   return parser.token === Token.RequireKeyword && lookahead(parser, context, nextTokenIsLeftParen)
     ? parseExternalModuleReference(parser, context)
-    : parseEntityName(parser, context);
+    : parseEntityName1(parser, context);
 }
 
 /**
@@ -811,6 +825,7 @@ function parseModuleReference(parser: Parser, context: Context): any {
  */
 function parseImportEqualsDeclaration(parser: Parser, context: Context, isExport: boolean = false): any {
   const pos = getLocation(parser);
+  consume(parser, context, Token.ImportKeyword);
   const id = parseIdentifier(parser, context);
   expect(parser, context, Token.Assign);
   const moduleReference: any = parseModuleReference(parser, context);
