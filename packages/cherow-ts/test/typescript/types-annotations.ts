@@ -268,48 +268,61 @@ describe('Types', () => {
   pass('var a: {numVal: number; strVal: string}', Context.Empty, {
       source: 'var a: {numVal: number; strVal: string}',
       expected: {
-          'body': [{
-              'declarations': [{
-                  'id': {
-                      'name': 'a',
-                      'type': 'Identifier',
-                      'typeAnnotation': {
-                          'type': 'TypeAnnotation',
-                          'typeAnnotation': {
-                              'members': [{
-                                      'readonly': false,
-                                      'type': 'TSPropertySignature',
-                                      'typeAnnotation': {
-                                          'type': 'TypeAnnotation',
-                                          'typeAnnotation': {
-                                              'type': 'TSNumberKeyword',
-                                          }
-                                      }
-                                  },
-                                  {
-                                      'readonly': false,
-                                      'type': 'TSPropertySignature',
-                                      'typeAnnotation': {
-                                          'type': 'TypeAnnotation',
-                                          'typeAnnotation': {
-                                              'type': 'TSStringKeyword',
-                                          }
-                                      }
-                                  }
-                              ],
-                              'type': 'TSTypeLiteral',
+          "body": [
+            {
+              "declarations": [
+                {
+                  "id": {
+                    "name": "a",
+                    "type": "Identifier",
+                    "typeAnnotation": {
+                      "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                        "members": [
+                          {
+                            "computed": false,
+                            "key": {
+                              "name": "numVal",
+                             "type": "Identifier",
+                            },
+                            "type": "TSPropertySignature",
+                            "typeAnnotation": {
+                              "type": "TypeAnnotation",
+                              "typeAnnotation": {
+                                "type": "TSNumberKeyword",
+                              }
+                            }
+                          },
+                          {
+                            "computed": false,
+                            "key": {
+                              "name": "strVal",
+                              "type": "Identifier",
+                           },
+                            "type": "TSPropertySignature",
+                            "typeAnnotation": {
+                              "type": "TypeAnnotation",
+                              "typeAnnotation": {
+                                "type": "TSStringKeyword"
+                              }
+                            }
                           }
-                      }
+                        ],
+                        "type": "TSTypeLiteral"
+                     }
+                    },
                   },
-                  'init': null,
-                  'type': 'VariableDeclarator'
-              }],
-              'kind': 'var',
-              'type': 'VariableDeclaration'
-          }],
-          'sourceType': 'script',
-          'type': 'Program'
-      }
+                  "init": null,
+                  "type": "VariableDeclarator"
+                }
+              ],
+              "kind": "var",
+              "type": "VariableDeclaration"
+            }
+          ],
+          "sourceType": "script",
+          "type": "Program",
+        }
   });
 
   pass('let f: <T>(a: T) => T;', Context.Empty, {

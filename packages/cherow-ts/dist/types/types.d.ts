@@ -1,4 +1,7 @@
 import { Token, Flags } from 'cherow';
+/**
+ * The parser options.
+ */
 export interface Options {
     module?: boolean;
     comments?: boolean;
@@ -16,6 +19,9 @@ export interface Options {
     tolerant?: boolean;
     node?: boolean;
 }
+/**
+ * The parser interface.
+ */
 export interface Parser {
     source: string;
     length: number;

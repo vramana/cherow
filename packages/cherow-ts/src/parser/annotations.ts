@@ -8,7 +8,7 @@ import {
   isTypePredicatePrefix,
   nextTokenIsStartOfConstructSignature
 } from '../utilities';
-import { parseIdentifier, parseRestElement } from './expressions';
+import { parseIdentifier, parseIdentifierWTypeAnnotation, parseRestElement } from './expressions';
 import {
   Parser,
   Location,
@@ -204,7 +204,7 @@ function parseIdentifierTypedNode(parser: Parser, context: Context): any {
   if (tsType) {
     expect(parser, context, Token.Identifier);
     return finishNode(context, parser, pos, {
-      type: keywordTypeFromName(parser.tokenValue)
+      type: tsType
     } as any);
   }
 
@@ -456,19 +456,19 @@ function parseTypeQuery(parser: Parser, context: Context): any {
 
 function parseIndexSignature(parser: Parser, context: Context): any {
   if (!(parser.token === Token.LeftBracket && lookahead(parser, context, isUnambiguouslyIndexSignature))) {
-    return undefined;
+    return null;
   }
 
   const pos = getLocation(parser);
+
   expect(parser, context, Token.LeftBracket);
-  const id = parseIdentifier(parser, context);
-  const typeAnnotation = parseTypeAnnotation(parser, context, true);
+  const id = parseIdentifierWTypeAnnotation(parser, context);
   expect(parser, context, Token.RightBracket);
-  const type = parser.token === Token.Colon ? parseTypeAnnotation(parser, context, true) : null;
+  const typeAnnotation  = parser.token === Token.Colon ? parseTypeAnnotation(parser, context, true) : null;
   if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
     type: 'TSIndexSignature',
-    typeAnnotation: type,
+    typeAnnotation,
     parameters: [id]
   });
 }
@@ -478,40 +478,41 @@ function parsePropertyOrMethodSignature(parser: Parser, context: Context, readon
   const key = Parser.parsePropertyName(parser, context);
   const option = consume(parser, context, Token.QuestionMark);
   if (!readonly && (parser.token === Token.LeftParen || parser.token === Token.LessThan)) {
-    const typeParameters = parseTypeParameters(parser, context);
-    expect(parser, context, Token.LeftParen)
-    const parameters: any[] = [];
-    while (parser.token !== Token.RightParen) {
-      parameters.push(parser.token === Token.Ellipsis
-        ? parseRestElement(parser, context)
-        : parseBindingIdentifier(parser, context));
-     consume(parser, context, Token.Comma);
-  }
-  expect(parser, context, Token.RightParen);
-  let typeAnnotation: any = null;
-  if (parser.token === Token.Colon) {
-    typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
-  }
-    if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-      type: 'TSMethodSignature',
-      key,
-      computed: false,
-      parameters,
-      typeAnnotation,
-      readonly
-    });
+      const typeParameters = parseTypeParameters(parser, context);
+      expect(parser, context, Token.LeftParen)
+      const parameters: any[] = [];
+      while (parser.token !== Token.RightParen) {
+          parameters.push(parser.token === Token.Ellipsis ?
+              parseRestElement(parser, context) :
+              parseBindingIdentifier(parser, context));
+          consume(parser, context, Token.Comma);
+      }
+      expect(parser, context, Token.RightParen);
+      let typeAnnotation: any = null;
+      if (parser.token === Token.Colon) {
+          typeAnnotation = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
+      }
+
+      if (parser.token !== Token.Comma) consumeSemicolon(parser, context);
+      return finishNode(context, parser, pos, {
+          type: 'TSMethodSignature',
+          key,
+          computed: false,
+          parameters,
+          typeAnnotation,
+          readonly
+      });
   } else {
-    const typeAnnotation = parseTypeAnnotation(parser, context);
-    if (parser.token === Token.Semicolon) consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-      type: 'TSPropertySignature',
-      readonly,
-      typeAnnotation
-    });
+      const typeAnnotation = parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null;
+      if (parser.token === Token.Semicolon) consumeSemicolon(parser, context);
+      return finishNode(context, parser, pos, {
+          type: 'TSPropertySignature',
+          computed: false,
+          key,
+          typeAnnotation
+      });
   }
 }
-
 function parseModifier(parser: Parser, context: Context, allowedModifiers: any): any {
   if (!(parser.token & Token.IsIdentifier)) return false;
   if (allowedModifiers.indexOf(parser.tokenValue) !== -1 &&
@@ -534,6 +535,7 @@ function parseTypeMember(parser: Parser, context: Context): any {
   const readonly = parseModifier(parser, context, ['readonly']);
   const idx = parseIndexSignature(parser, context);
   if (idx) return idx;
+
   return parsePropertyOrMethodSignature(parser, context, readonly);
 }
 export function parseSignatureMember(parser: Parser, context: Context, type: string): any {

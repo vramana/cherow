@@ -19,7 +19,7 @@ import {
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
-import { parseTypeOrTypePredicateAnnotation, parseTypeParameters } from './annotations';
+import { parseTypeAnnotation, parseTypeOrTypePredicateAnnotation, parseTypeParameters } from './annotations';
 import {
   expect,
   hasBit,
@@ -803,6 +803,21 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
 
     if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
     return node;
+}
+
+export function parseIdentifierWTypeAnnotation(parser: Parser, context: Context): ESTree.Identifier {
+  const pos = getLocation(parser);
+  const name = parser.tokenValue;
+  nextToken(parser, context | Context.TaggedTemplate);
+  const node: any = finishNode(context, parser, pos, {
+      type: 'Identifier',
+      name,
+      typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context, true) : null
+  });
+
+  if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
+
+  return node;
 }
 
 /**

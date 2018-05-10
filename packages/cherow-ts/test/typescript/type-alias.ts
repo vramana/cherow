@@ -84,65 +84,69 @@ describe('Type alias', () => {
   pass('type T<U extends object = { x: number }> = Array<U>;', Context.Empty, {
   source: 'type T<U extends object = { x: number }> = Array<U>;',
   expected: {
-    'body': [
-      {
-        'id': {
-          'name': 'T',
-          'type': 'Identifier',
-       },
-        'type': 'TSTypeAliasDeclaration',
-        'typeAnnotation': {
-          'type': 'TSTypeReference',
-          'typeName': {
-            'name': 'Array',
-            'type': 'Identifier',
+      "body": [
+        {
+         "id": {
+            "name": "T",
+            "type": "Identifier",
           },
-          'typeParameters': {
-            'params': [
+          "type": "TSTypeAliasDeclaration",
+          "typeAnnotation": {
+            "type": "TSTypeReference",
+            "typeName": {
+              "name": "Array",
+              "type": "Identifier",
+            },
+            "typeParameters": {
+             "params": [
+                {
+                  "type": "TSTypeReference",
+                  "typeName": {
+                    "name": "U",
+                    "type": "Identifier",
+                  },
+                  "typeParameters": [],
+                }
+              ],
+              "type": "TypeParameterInstantiation"
+            }
+          },
+          "typeParameters": {
+            "params": [
               {
-                'type': 'TSTypeReference',
-                'typeName': {
-                  'name': 'U',
-                  'type': 'Identifier',
+                "constraint": {
+                  "type": "TSObjectKeyword"
                 },
-                'typeParameters': []
-             },
-            ],
-            'type': 'TypeParameterInstantiation',
-          },
-        },
-        'typeParameters': {
-          'params': [
-            {
-              'constraint': {
-                'type': 'TSObjectKeyword',
-              },
-              'default': {
-                'members': [
-                  {
-                    'readonly': false,
-                    'type': 'TSPropertySignature',
-                    'typeAnnotation': {
-                      'type': 'TypeAnnotation',
-                      'typeAnnotation': {
-                        'type': 'TSNumberKeyword',
+                "default": {
+                  "members": [
+                    {
+                      "computed": false,
+                      "key": {
+                        "name": "x",
+                        "type": "Identifier",
+                      },
+                      "type": "TSPropertySignature",
+                      "typeAnnotation": {
+                        "type": "TypeAnnotation",
+                        "typeAnnotation": {
+                          "type": "TSNumberKeyword"
+                        }
                       }
                     }
-                  }
-               ],
-                'type': 'TSTypeLiteral',
-              },
-              'name': 'U',
-              'type': 'TSTypeParameter',
-            },
-          ],
-          'type': 'TSTypeParameterDeclaration',
-        },
-      },
-    ],
-    'sourceType': 'script',
-    'type': 'Program',
-  }
+                  ],
+                  "type": "TSTypeLiteral"
+                },
+                "name": "U",
+                "type": "TSTypeParameter"
+              }
+            ],
+            "type": "TSTypeParameterDeclaration"
+          }
+        }
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
 });
 
 });

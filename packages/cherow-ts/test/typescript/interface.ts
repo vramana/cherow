@@ -6,13 +6,16 @@ import { parse } from '../../src/parser/parser';
 describe('Interface', () => {
 
   const validSyntax = [
-    'interface I { new (x: number): void; }',
+      // 'interface Comma { x: number, y: number }',
+      'interface I { new (x: number): void; }',
       //'interface I<T extends object = { x: number }> {}',
       'interface I { [s: string]: number; }',
       'interface I extends X.Y<Z> {}',
       //'interface I { x; y: number; z?: number; }',
       'interface I { y: number; z?: number; }',
-      'interface I { catch(): void; }'
+      'interface I { [Symbol.iterator]: number;  [Symbol.iterator]?: number; }',
+      'interface I { catch(): void; }',
+      'interface I { public: number; }'
   ];
 
   for (const arg of validSyntax) {
@@ -23,6 +26,44 @@ describe('Interface', () => {
           });
       });
   }
+
+  pass('interface I { public: number; }', Context.Empty, {
+    source: 'interface I { public: number; }',
+    expected: {
+        "body": [
+          {
+            "body": {
+              "body": [
+                {
+                  "computed": false,
+                              "key": {
+                                "name": "public",
+                                "type": "Identifier"
+                              },
+                 "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword",
+                    }
+                  }
+                }
+              ],
+              "type": "TSInterfaceBody",
+            },
+            "extends": null,
+            "id": {
+              "name": "I",
+              "type": "Identifier",
+           },
+            "type": "TSInterfaceDeclaration",
+            "typeParameters": null,
+          }
+        ],
+        "sourceType": "script",
+        "type": "Program"
+      }
+  });
 
   pass('interface I { catch(): void; }', Context.Empty, {
     source: 'interface I { catch(): void; }',
@@ -203,5 +244,160 @@ pass('interface I { (x: number): void; }', Context.Empty, {
       "sourceType": "script",
       "type": "Program"
     }
+});
+
+pass(`interface Comma { x: number, y: number }
+  interface Semi { x: number; y: number }
+  interface Newline {
+      x: number
+      y: number
+  }`, Context.Empty, {
+    source: `interface Comma { x: number, y: number }
+    interface Semi { x: number; y: number }
+    interface Newline {
+        x: number
+        y: number
+    }`,
+    expected: {
+        "body": [
+          {
+            "body": {
+              "body": [
+                {
+                  "computed": false,
+                  "key": {
+                    "name": "x",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword"
+                    }
+                  }
+                },
+                {
+                  "computed": false,
+                  "key": {
+                    "name": "number",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": null,
+                },
+                {
+                  "computed": false,
+                  "key": {
+                    "name": "y",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword",
+                   }
+                  }
+               }
+              ],
+              "type": "TSInterfaceBody",
+            },
+            "extends": null,
+            "id": {
+              "name": "Comma",
+              "type": "Identifier",
+            },
+            "type": "TSInterfaceDeclaration",
+            "typeParameters": null,
+          },
+          {
+            "body": {
+              "body": [
+                {
+                  "computed": false,
+                  "key": {
+                    "name": "x",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword"
+                    }
+                  }
+                },
+                {
+                  "computed": false,
+                  "key": {
+                    "name": "y",
+                    "type": "Identifier"
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword"
+                    }
+                  }
+                }
+              ],
+              "type": "TSInterfaceBody",
+            },
+            "extends": null,
+            "id": {
+              "name": "Semi",
+              "type": "Identifier",
+            },
+            "type": "TSInterfaceDeclaration",
+            "typeParameters": null,
+          },
+          {
+            "body": {
+              "body": [
+                {
+                  "computed": false,
+                  "key": {
+                   "name": "x",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword",
+                    },
+                  }
+                },
+                {
+                  "computed": false,
+                 "key": {
+                    "name": "y",
+                    "type": "Identifier",
+                  },
+                  "type": "TSPropertySignature",
+                  "typeAnnotation": {
+                    "type": "TypeAnnotation",
+                    "typeAnnotation": {
+                      "type": "TSNumberKeyword",
+                    }
+                  }
+                }
+              ],
+              "type": "TSInterfaceBody",
+            },
+            "extends": null,
+            "id": {
+             "name": "Newline",
+              "type": "Identifier",
+            },
+            "type": "TSInterfaceDeclaration",
+            "typeParameters": null,
+          },
+        ],
+        "sourceType": "script",
+        "type": "Program"
+      }
 });
 });
