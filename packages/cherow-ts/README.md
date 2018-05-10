@@ -27,3 +27,11 @@ parseTS('function foo(bar: string): void {}', { module: true })
 | ----------- | ------------------------------------------------------------ |
 | `module`    | Enable module code parsing |
 
+
+## AST 
+
+The parser emits an ESTree-compatible abstract syntax tree with a few additions for `TypeScript` support.
+E.g. `declared:true`on the returned AST node if parsed within a `declared` context and `ns` if parsed 
+in a namespace context.
+
+This will be updated with more accurate details soon as the parser is complete.
