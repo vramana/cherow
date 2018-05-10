@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "dist/umd/cherow.js",
   "module": "dist/es2015/cherow.js",
