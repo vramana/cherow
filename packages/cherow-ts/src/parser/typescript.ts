@@ -4,7 +4,6 @@ import { parseExpressionOrLabelledStatement, parseDirective, parseStatementListI
 import { parseIdentifier, parseLiteral } from './expressions';
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
-import { parseAssignmentExpression } from 'cherow/src/parser';
 
 const enum TypeScriptContext {
   Empty      = 0,
@@ -341,7 +340,7 @@ export function parseEnumMembers(
       parseLiteral(parser, context) :
       parseIdentifier(parser, context);
   const initializer = consume(parser, context, Token.Assign) ?
-      parseAssignmentExpression(parser, context) :
+      Parser.parseAssignmentExpression(parser, context) :
       null;
   return finishNode(context, parser, pos, {
           type: 'TSEnumMember',
