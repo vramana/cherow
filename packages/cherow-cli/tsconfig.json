@@ -1,0 +1,6 @@
+{
+  "extends": "./configs/tsconfig-build.json",
+  "include": ["src", "test"],
+  "compileOnSave": false,
+  "buildOnSave": false
+}

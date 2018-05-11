@@ -90,18 +90,33 @@ export function parseFunctionDeclaration(parser: Parser, context: Context): ESTr
  * @param state Modifier state
  * @param pos Current location
  */
-function parseFunctionDeclarationBody(parser: Parser, context: Context, state: ModifierState, pos: Location): ESTree.FunctionDeclaration {
-    const id = parseFunctionDeclarationName(parser, context);
-    const { params, body } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
-    return finishNode(context, parser, pos, {
-        type: 'FunctionDeclaration',
-        params,
-        body,
-        async: !!(state & ModifierState.Await),
-        generator: !!(state & ModifierState.Generator),
-        expression: false,
-        id,
-    });
+function parseFunctionDeclarationBody(
+  parser: Parser,
+  context: Context,
+  state: ModifierState,
+  pos: Location
+): ESTree.FunctionDeclaration {
+  const { token } = parser;
+  let id: ESTree.Identifier | undefined | null = null;
+  if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
+  if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
+  if (token !== Token.LeftParen) {
+      id = parseBindingIdentifier(parser, context);
+      // Unnamed functions are forbidden in statement context.
+  } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
+  const {
+      params,
+      body
+  } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
+  return finishNode(context, parser, pos, {
+      type: 'FunctionDeclaration',
+      params,
+      body,
+      async: !!(state & ModifierState.Await),
+      generator: !!(state & ModifierState.Generator),
+      expression: false,
+      id,
+  });
 }
 
 /**
@@ -120,26 +135,6 @@ export function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser: Parser, co
     const isAwait = ModifierState.Await;
     const isGenerator = consume(parser, context, Token.Multiply) ? ModifierState.Generator : ModifierState.None;
     return parseFunctionDeclarationBody(parser, context, isGenerator | isAwait, pos);
-}
-
-/**
- * Shared helper function for "parseFunctionDeclaration" and "parseAsyncFunctionOrAsyncGeneratorDeclaration"
- * so we can re-use the same logic when parsing out the function name, or throw an
- * error if the 'RequireIdentifier' mask is not set
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseFunctionDeclarationName(parser: Parser, context: Context): ESTree.Identifier | null {
-    const { token } = parser;
-    let id: ESTree.Identifier | undefined | null = null;
-    if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.YieldBindingIdentifier);
-    if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.AwaitBindingIdentifier);
-    if (token !== Token.LeftParen) {
-        id = parseBindingIdentifier(parser, context);
-    // Unnamed functions are forbidden in statement context.
-    } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
-    return id as ESTree.Identifier;
 }
 
 /**
