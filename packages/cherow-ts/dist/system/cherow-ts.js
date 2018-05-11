@@ -3615,9 +3615,9 @@ System.register(['cherow'], function (exports, module) {
                           parser.flags |= 2048 /* StrictEvalArguments */;
                       }
                   }
-                  expr = [expr];
+                  expr = { params: [expr] };
               }
-              return parseArrowFunction(parser, context &= ~131072 /* Async */, pos, expr);
+              return parseArrowFunction(parser, context &= ~(131072 /* Async */), pos, expr);
           }
           if (hasBit(parser.token, 67108864 /* IsAssignOp */)) {
               token = parser.token;
@@ -3682,13 +3682,17 @@ System.register(['cherow'], function (exports, module) {
           const test = parseBinaryExpression(parser, context, 0, pos);
           if (!consume$1(parser, context, 22 /* QuestionMark */))
               return test;
-          const consequent = parseExpressionCoverGrammar(parser, context & ~1073741824 /* AllowDecorator */ | 65536 /* AllowIn */, parseAssignmentExpression);
+          console.log(parser.tokenValue);
+          //parser.flags |= TypeScriptFlags.InConditionalExpression;
+          const consequent = parseExpressionCoverGrammar(parser, context & ~1073741824 /* AllowDecorator */ | 32 /* InConditionalExpression */ | 65536 /* AllowIn */, parseAssignmentExpression);
+          // parser.flags &= ~TypeScriptFlags.InConditionalExpression;
           expect$1(parser, context, 16777237 /* Colon */);
+          const alternate = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
           return finishNode$1(context, parser, pos, {
               type: 'ConditionalExpression',
               test,
               consequent,
-              alternate: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression),
+              alternate,
           });
       }
       /**
@@ -4240,10 +4244,15 @@ System.register(['cherow'], function (exports, module) {
       function parseIdentifier(parser, context) {
           const pos = getLocation$1(parser);
           const name = parser.tokenValue;
+          let typeAnnotation = null;
           nextToken$1(parser, context | 16384 /* TaggedTemplate */);
+          if (hasBit(context, 128 /* notworking */) && parser.token === 16777237 /* Colon */) {
+              typeAnnotation = parseTypeAnnotation(parser, context);
+          }
           const node = finishNode$1(context, parser, pos, {
               type: 'Identifier',
               name,
+              typeAnnotation
           });
           if (context & 256 /* OptionsRawidentifiers */)
               node.raw = parser.tokenRaw;
@@ -4462,34 +4471,58 @@ System.register(['cherow'], function (exports, module) {
        */
       function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context) {
           expect$1(parser, context, 50331659 /* LeftParen */);
+          let returnType = null;
+          let isNested = false;
           switch (parser.token) {
               // ')'
               case 16 /* RightParen */:
                   {
+                      if (parser.token === 50331659 /* LeftParen */)
+                          isNested = true;
                       expect$1(parser, context, 16 /* RightParen */);
+                      if (parser.token === 16777237 /* Colon */) {
+                          context |= 8 /* NoAnonFunctionType */;
+                          returnType = parseTypeAnnotation(parser, context | 16 /* InTypeAnnotation */);
+                      }
                       parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
                       if (parser.token === 10 /* Arrow */)
-                          return [];
+                          return {
+                              returnType,
+                              params: []
+                          };
                   }
               // '...'
               case 14 /* Ellipsis */:
                   {
                       const expr = parseRestElement(parser, context);
                       expect$1(parser, context, 16 /* RightParen */);
+                      if (parser.token === 16777237 /* Colon */) {
+                          returnType = parseTypeAnnotation(parser, context | 8 /* NoAnonFunctionType */ | 16 /* InTypeAnnotation */);
+                      }
                       parser.flags = parser.flags & ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */) | 8 /* SimpleParameterList */;
                       if (parser.token !== 10 /* Arrow */)
                           tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                      return [expr];
+                      return {
+                          returnType,
+                          params: [expr]
+                      };
                   }
               default:
                   {
                       let state = 0 /* None */;
                       // Record the sequence position
                       const sequencepos = getLocation$1(parser);
+                      isNested = parser.token === 50331659 /* LeftParen */;
                       state = validateCoverParenthesizedExpression(parser, state);
                       if (parser.token & 8388608 /* IsBindingPattern */)
                           state |= 16 /* HasBinding */;
-                      let expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
+                      let expr;
+                      if (!hasBit(context, 32 /* InConditionalExpression */) && parser.token & 65536 /* IsIdentifier */) {
+                          expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */ | 128 /* notworking */, parseAssignmentExpression);
+                      }
+                      else {
+                          expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
+                      }
                       // Sequence expression
                       if (parser.token === 16777234 /* Comma */) {
                           state |= 1 /* SequenceExpression */;
@@ -4509,7 +4542,13 @@ System.register(['cherow'], function (exports, module) {
                                               tolerant(parser, context, 76 /* ParamAfterRest */);
                                           parser.flags &= ~2 /* AllowBinding */;
                                           expressions.push(restElement);
-                                          return expressions;
+                                          if (parser.token === 16777237 /* Colon */) {
+                                              returnType = parseTypeAnnotation(parser, context | 8 /* NoAnonFunctionType */ | 16 /* InTypeAnnotation */);
+                                          }
+                                          return {
+                                              returnType,
+                                              params: expressions
+                                          };
                                       }
                                   // ')'
                                   case 16 /* RightParen */:
@@ -4517,10 +4556,14 @@ System.register(['cherow'], function (exports, module) {
                                           expect$1(parser, context, 16 /* RightParen */);
                                           if (parser.token !== 10 /* Arrow */)
                                               tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                                          return expressions;
+                                          return {
+                                              returnType,
+                                              params: expressions
+                                          };
                                       }
                                   default:
                                       {
+                                          isNested = parser.token === 50331659 /* LeftParen */;
                                           state = validateCoverParenthesizedExpression(parser, state);
                                           expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                                       }
@@ -4531,7 +4574,13 @@ System.register(['cherow'], function (exports, module) {
                               expressions,
                           });
                       }
+                      const typeAnnotation = parser.token === 16777237 /* Colon */ ?
+                          parseTypeAnnotation(parser, context | 16 /* InTypeAnnotation */) : null;
                       expect$1(parser, context, 16 /* RightParen */);
+                      if (!hasBit(context, 32 /* InConditionalExpression */) && !isNested && parser.token === 16777237 /* Colon */) {
+                          returnType = parseTypeAnnotation(parser, context);
+                          context |= 8 /* NoAnonFunctionType */;
+                      }
                       if (parser.token === 10 /* Arrow */) {
                           if (state & 2 /* HasEvalOrArguments */) {
                               if (context & 4096 /* Strict */)
@@ -4553,14 +4602,34 @@ System.register(['cherow'], function (exports, module) {
                               tolerant(parser, context, 50 /* AwaitInParameter */);
                           }
                           parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
-                          return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
+                          expr = (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
+                          return { returnType, params: expr };
                       }
                       parser.flags &= ~(8192 /* HasAwait */ | 16384 /* HasYield */ | 2 /* AllowBinding */);
                       if (!isValidSimpleAssignmentTarget(expr))
                           parser.flags &= ~4 /* AllowDestructuring */;
-                      return expr;
+                      return parser.token & 65536 /* IsIdentifier */ &&
+                          parser.token === 17301521 /* Semicolon */ &&
+                          context & 64 /* AllowTypeAnnotation */ ?
+                          parseTypeCastExpression(parser, context & ~64 /* AllowTypeAnnotation */, expr) : expr;
                   }
           }
+      }
+      /**
+       * Pares type cast expression
+       *
+       * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionExpression)
+       *
+       * @param parser  Parser object
+       * @param context Context masks
+       */
+      function parseTypeCastExpression(parser, context, expression, typeAnnotation = parseTypeAnnotation(parser, context | 16 /* InTypeAnnotation */)) {
+          const pos = getLocation$1(parser);
+          return finishNode$1(context, parser, pos, {
+              type: 'TypeCastExpression',
+              typeAnnotation,
+              expression
+          });
       }
       /**
        * Parses function expression
@@ -4873,12 +4942,12 @@ System.register(['cherow'], function (exports, module) {
        * @param parser Parser object
        * @param context Context masks
        */
-      function parseAsyncArrowFunction(parser, context, state, pos, params) {
+      function parseAsyncArrowFunction(parser, context, state, pos, args) {
           parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
           if (parser.flags & 1 /* NewLine */)
               tolerant(parser, context, 34 /* InvalidLineBreak */, 'async');
           expect$1(parser, context, 10 /* Arrow */);
-          return parseArrowBody(parser, context | 131072 /* Async */, params, pos, state);
+          return parseArrowBody(parser, context | 131072 /* Async */, { params: args }, pos, state);
       }
       /**
        * Shared helper function for both async arrow and arrows
@@ -4890,8 +4959,9 @@ System.register(['cherow'], function (exports, module) {
        * @param context Context masks
        */
       // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
-      function parseArrowBody(parser, context, params, pos, state) {
+      function parseArrowBody(parser, context, args, pos, state) {
           parser.pendingExpressionError = null;
+          const { returnType, params } = args;
           for (const i in params)
               reinterpret(parser, context | 524288 /* InParameter */, params[i]);
           const expression = parser.token !== 41943052 /* LeftBrace */;
@@ -4905,6 +4975,8 @@ System.register(['cherow'], function (exports, module) {
               async: !!(state & 2 /* Await */),
               generator: false,
               expression,
+              returnType,
+              typeParameters: null
           });
       }
       /**
@@ -5072,7 +5144,7 @@ System.register(['cherow'], function (exports, module) {
           else {
               parser.flags |= 8 /* SimpleParameterList */;
           }
-          const left = parseBindingIdentifierOrPattern(parser, context | 8 /* AllowTypeAnnotations */, args);
+          const left = parseBindingIdentifierOrPattern(parser, context | 64 /* AllowTypeAnnotation */, args);
           if (!consume$1(parser, context, 83886109 /* Assign */))
               return left;
           if (parser.token & (1073741824 /* IsYield */ | 131072 /* IsAwait */) && context & (262144 /* Yield */ | 131072 /* Async */)) {

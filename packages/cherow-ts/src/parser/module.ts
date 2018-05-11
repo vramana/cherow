@@ -789,7 +789,6 @@ function parseExternalModuleReference(parser: Parser, context: Context): any {
   } as any);
 }
 
-
 export function parseEntityName1(parser: Parser, context: Context): any {
   const pos = getLocation(parser);
   let entity = parseIdentifier(parser, context);

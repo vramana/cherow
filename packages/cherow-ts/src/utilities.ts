@@ -30,7 +30,7 @@ export const enum TypeScriptContext {
   InTypeAnnotation = 1 << 4,
   InConditionalExpression = 1 << 5,
   AllowTypeAnnotation = 1 << 6,
-  Idioten = 1 << 7,
+  notworking = 1 << 7,
 }
 
 export const enum TypeScriptFlags {
@@ -885,4 +885,3 @@ export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Co
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.LessThan;
 }
-

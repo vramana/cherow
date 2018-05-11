@@ -256,7 +256,7 @@ function parseNonNullExpression(parser: Parser, context: Context, expression: ES
 function parseConditionalExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
     const test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, Token.QuestionMark)) return test;
-    console.log(parser.tokenValue)
+    console.log(parser.tokenValue);
     //parser.flags |= TypeScriptFlags.InConditionalExpression;
     const consequent = parseExpressionCoverGrammar(parser, context & ~Context.AllowDecorator | TypeScriptContext.InConditionalExpression | Context.AllowIn, parseAssignmentExpression);
     // parser.flags &= ~TypeScriptFlags.InConditionalExpression;
@@ -288,7 +288,7 @@ function parseAsExpression(
       type: 'AsExpression',
       typeAnnotation: parseType(parser, context),
       expression: left
-    } as any)
+    } as any);
 }
 
 /**
@@ -332,7 +332,7 @@ function parseBinaryExpression(
 
         if (parser.token === Token.AsKeyword) {
           if (parser.flags & Flags.NewLine) break;
-          left = parseAsExpression(parser, context, left, getLocation(parser))
+          left = parseAsExpression(parser, context, left, getLocation(parser));
         } else {
           nextToken(parser, context);
           left = finishNode(context, parser, pos, {
@@ -423,7 +423,7 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
             operator: tokenDesc(token as Token),
             prefix: true,
         } as any);
-    } else if ( token === Token.LessThan) {
+    } else if (token === Token.LessThan) {
       if (context & Context.OptionsJSX) {
         return parseJSXRootElement(parser, context | Context.InJSXChild);
       } else if (consume(parser, context, Token.LessThan)) {
@@ -517,7 +517,7 @@ export function parseLeftHandSideExpression(parser: Parser, context: Context, po
   const expr = context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
         parseCallImportOrMetaProperty(parser, context | Context.AllowIn) :
         parseMemberExpression(parser, context | Context.AllowIn, pos);
-    return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
+  return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
 }
 
 /**
@@ -865,7 +865,7 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
     const name = parser.tokenValue;
     let typeAnnotation: any = null;
     nextToken(parser, context | Context.TaggedTemplate);
-    if (hasBit(context, TypeScriptContext.Idioten) && parser.token === Token.Colon) {
+    if (hasBit(context, TypeScriptContext.notworking) && parser.token === Token.Colon) {
       typeAnnotation = parseTypeAnnotation(parser, context);
     }
     const node: any = finishNode(context, parser, pos, {
@@ -1161,7 +1161,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
               let expr: any;
 
               if (!hasBit(context, TypeScriptContext.InConditionalExpression) && parser.token & Token.IsIdentifier) {
-                  expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn | TypeScriptContext.Idioten, parseAssignmentExpression);
+                  expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn | TypeScriptContext.notworking, parseAssignmentExpression);
               } else {
                   expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
               }
