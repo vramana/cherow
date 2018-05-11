@@ -1,4 +1,14 @@
 import { Parser, Location, Errors, Token, ESTree, Context, Labels, ModifierState, ObjectState, CoverParenthesizedState, CoverCallState } from 'cherow';
+export declare const enum TypeScriptContext {
+    Empty = 0,
+    Declared = 1,
+    Namespace = 2,
+    Ambient = 4,
+}
+export declare const enum TypeScriptFlags {
+    Empty = 0,
+    HasTypeAnnotation = 1,
+}
 /**
  * Validate break and continue statement
  *
@@ -194,6 +204,13 @@ export declare function nextTokenisIdentifierOrParen(parser: Parser, context: Co
  * @param context  Context masks
  */
 export declare function nextTokenIsLeftParen(parser: Parser, context: Context): boolean;
+/**
+ * Validates if the next token in the stream is assign
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export declare function nextTokenIsAssignToken(parser: Parser, context: Context): boolean;
 /**
  * Validates if the next token in the stream is a function keyword on the same line.
  *

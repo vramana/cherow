@@ -422,6 +422,16 @@ function nextTokenIsLeftParen(parser, context) {
     return parser.token === 50331659 /* LeftParen */;
 }
 /**
+ * Validates if the next token in the stream is assign
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+function nextTokenIsAssignToken(parser, context) {
+    nextToken(parser, context);
+    return parser.token === 83886109 /* Assign */;
+}
+/**
  * Validates if the next token in the stream is a function keyword on the same line.
  *
  * @param parser Parser object
@@ -1227,6 +1237,695 @@ function parseTypeOperator(parser, context) {
     });
 }
 
+// 15.2 Modules
+/**
+* Parse module item list
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItemList)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseModuleItemList(parser, context) {
+    // Prime the scanner
+    nextToken(parser, context);
+    const statements = [];
+    while (parser.token !== 524288 /* EndOfSource */) {
+        statements.push(parser.token === 33554435 /* StringLiteral */ ?
+            parseDirective(parser, context) :
+            parseModuleItem(parser, context | 65536 /* AllowIn */));
+    }
+    return statements;
+}
+/**
+* Parse module item
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItem)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseModuleItem(parser, context) {
+    switch (parser.token) {
+        // @decorator
+        case 120 /* At */:
+            return parseDecorators(parser, context);
+        // ExportDeclaration
+        case 12371 /* ExportKeyword */:
+            return parseExportDeclaration(parser, context);
+        // ImportDeclaration
+        case 33566810 /* ImportKeyword */:
+            // 'Dynamic Import' or meta property disallowed here
+            if (!(context & 1 /* OptionsNext */ && lookahead(parser, context, nextTokenIsLeftParenOrPeriod))) {
+                return parseImportDeclaration(parser, context);
+            }
+        default:
+            return parseStatementListItem(parser, context);
+    }
+}
+/**
+* Parse export declaration
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ExportDeclaration)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseExportDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    const specifiers = [];
+    let source = null;
+    let declaration = null;
+    expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 12371 /* ExportKeyword */);
+    switch (parser.token) {
+        // export * FromClause ;
+        case 167774771 /* Multiply */:
+            return parseExportAllDeclaration(parser, context, pos);
+        case 12368 /* DefaultKeyword */:
+            return parseExportDefault(parser, context, pos);
+        case 41943052 /* LeftBrace */:
+            {
+                // export ExportClause FromClause ;
+                // export ExportClause ;
+                expect(parser, context, 41943052 /* LeftBrace */);
+                let hasReservedWord = false;
+                while (parser.token !== 17301519 /* RightBrace */) {
+                    if (parser.token & 12288 /* Reserved */) {
+                        hasReservedWord = true;
+                        setPendingError(parser);
+                    }
+                    specifiers.push(parseNamedExportDeclaration(parser, context));
+                    if (parser.token !== 17301519 /* RightBrace */)
+                        expect(parser, context, 16777234 /* Comma */);
+                }
+                expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 17301519 /* RightBrace */);
+                if (parser.token === 36977 /* FromKeyword */) {
+                    source = parseModuleSpecifier(parser, context);
+                    //  The left hand side can't be a keyword where there is no
+                    // 'from' keyword since it references a local binding.
+                }
+                else if (hasReservedWord) {
+                    cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
+                }
+                consumeSemicolon(parser, context);
+                break;
+            }
+        case 33566810 /* ImportKeyword */:
+            declaration = parseImportEqualsDeclaration(parser, context, true);
+            break;
+        case 65664 /* NameSpaceKeyword */:
+            declaration = parseModuleOrNamespaceDeclaration(parser, context);
+            break;
+        case 65662 /* DeclareKeyword */:
+            declaration = parseExportNamedDeclaration(parser, context | 1 /* Declared */);
+            break;
+        case 20580 /* InterfaceKeyword */:
+            declaration = parseExportNamedDeclaration(parser, context);
+            break;
+        case 65666 /* ModuleKeyword */:
+            declaration = parseModuleDeclaration(parser, context);
+            break;
+        case 12406 /* EnumKeyword */:
+            nextToken(parser, context);
+            declaration = parseEnumDeclaration(parser, context);
+            break;
+        case 65663 /* TypeKeyword */:
+            nextToken(parser, context);
+            declaration = parseTypeAlias(parser, context);
+            break;
+        // `export = x;`
+        case 83886109 /* Assign */:
+            return parseExportAssignment(parser, context);
+        // `export as namespace A;`
+        case 167811947 /* AsKeyword */:
+            return parseNamespaceExportDeclaration(parser, context);
+        // export ClassDeclaration
+        case 33566797 /* ClassKeyword */:
+            declaration = parseClassDeclaration(parser, context);
+            break;
+        // export LexicalDeclaration
+        case 33566793 /* ConstKeyword */:
+            declaration = parseConstOrEnumDeclaration(parser, context | 4194304 /* BlockScope */);
+            break;
+        case 33574984 /* LetKeyword */:
+            declaration = parseVariableStatement$1(parser, context | 4194304 /* BlockScope */);
+            break;
+        // export VariableDeclaration
+        case 33566791 /* VarKeyword */:
+            declaration = parseVariableStatement$1(parser, context);
+            break;
+        // export HoistableDeclaration
+        case 33566808 /* FunctionKeyword */:
+            declaration = parseFunctionDeclaration(parser, context);
+            break;
+        // export HoistableDeclaration
+        case 299116 /* AsyncKeyword */:
+            if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
+                declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+                break;
+            }
+        // Falls through
+        default:
+            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
+    }
+    return finishNode(context, parser, pos, {
+        type: 'ExportNamedDeclaration',
+        source,
+        specifiers,
+        declaration,
+    });
+}
+/**
+* Parse export all declaration
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseExportAllDeclaration(parser, context, pos) {
+    expect(parser, context, 167774771 /* Multiply */);
+    const source = parseModuleSpecifier(parser, context);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'ExportAllDeclaration',
+        source,
+    });
+}
+/**
+* Parse named export declaration
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseNamedExportDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    // ExportSpecifier :
+    // IdentifierName
+    // IdentifierName as IdentifierName
+    const local = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, parser.token);
+    const exported = consume(parser, context, 167811947 /* AsKeyword */) ?
+        parseIdentifierName(parser, context, parser.token) :
+        local;
+    return finishNode(context, parser, pos, {
+        type: 'ExportSpecifier',
+        local,
+        exported,
+    });
+}
+/**
+* Parse export default
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
+* @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
+* @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
+*
+* @param parser  Parser object
+* @param context Context masks
+* @param pos Location
+*/
+function parseExportDefault(parser, context, pos) {
+    expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 12368 /* DefaultKeyword */);
+    let declaration;
+    switch (parser.token) {
+        // export default HoistableDeclaration[Default]
+        case 33566808 /* FunctionKeyword */:
+            declaration = parseFunctionDeclaration(parser, context | 16777216 /* RequireIdentifier */);
+            break;
+        // export default ClassDeclaration[Default]
+        // export default  @decl ClassDeclaration[Default]
+        case 120 /* At */:
+        case 33566797 /* ClassKeyword */:
+            declaration = parseClassDeclaration(parser, context & ~65536 /* AllowIn */ | 16777216 /* RequireIdentifier */);
+            break;
+        // export default HoistableDeclaration[Default]
+        case 299116 /* AsyncKeyword */:
+            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 16777216 /* RequireIdentifier */);
+            break;
+        default:
+            {
+                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+                declaration = parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
+                consumeSemicolon(parser, context);
+            }
+    }
+    return finishNode(context, parser, pos, {
+        type: 'ExportDefaultDeclaration',
+        declaration,
+    });
+}
+/**
+* Parse import declaration
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ImportDeclaration)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseImportDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 33566810 /* ImportKeyword */);
+    let source;
+    let specifiers = [];
+    // 'import' ModuleSpecifier ';'
+    if (parser.token === 33554435 /* StringLiteral */) {
+        source = parseLiteral(parser, context);
+    }
+    else {
+        if (parser.token & 65536 /* IsIdentifier */ && lookahead(parser, context, nextTokenIsAssignToken)) {
+            return parseImportEqualsDeclaration(parser, context);
+        }
+        specifiers = parseImportClause(parser, context | 536870912 /* DisallowEscapedKeyword */);
+        source = parseModuleSpecifier(parser, context);
+    }
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'ImportDeclaration',
+        specifiers,
+        source,
+    });
+}
+/**
+* Parse import clause
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ImportClause)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseImportClause(parser, context) {
+    const specifiers = [];
+    switch (parser.token) {
+        // 'import' ModuleSpecifier ';'
+        case 33619969 /* Identifier */:
+            {
+                specifiers.push(parseImportDefaultSpecifier(parser, context));
+                if (consume(parser, context, 16777234 /* Comma */)) {
+                    switch (parser.token) {
+                        // import a, * as foo
+                        case 167774771 /* Multiply */:
+                            parseImportNamespaceSpecifier(parser, context, specifiers);
+                            break;
+                        // import a, {bar}
+                        case 41943052 /* LeftBrace */:
+                            parseNamedImports(parser, context, specifiers);
+                            break;
+                        default:
+                            cherow.tolerant(parser, context, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
+                    }
+                }
+                break;
+            }
+        // import {bar}
+        case 41943052 /* LeftBrace */:
+            parseNamedImports(parser, context, specifiers);
+            break;
+        // import * as foo
+        case 167774771 /* Multiply */:
+            parseImportNamespaceSpecifier(parser, context, specifiers);
+            break;
+        default:
+            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
+    }
+    return specifiers;
+}
+/**
+* Parse named imports
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseNamedImports(parser, context, specifiers) {
+    expect(parser, context, 41943052 /* LeftBrace */);
+    while (parser.token !== 17301519 /* RightBrace */) {
+        specifiers.push(parseImportSpecifier(parser, context));
+        if (parser.token !== 17301519 /* RightBrace */) {
+            expect(parser, context, 16777234 /* Comma */);
+        }
+    }
+    expect(parser, context, 17301519 /* RightBrace */);
+}
+/**
+* Parse import specifier
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseImportSpecifier(parser, context) {
+    const pos = getLocation(parser);
+    const { token } = parser;
+    const imported = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, token);
+    let local;
+    if (parser.token === 167811947 /* AsKeyword */) {
+        expect(parser, context, 167811947 /* AsKeyword */);
+        local = parseBindingIdentifier(parser, context);
+    }
+    else {
+        // An import name that is a keyword is a syntax error if it is not followed
+        // by the keyword 'as'.
+        if (hasBit(token, 12288 /* Reserved */))
+            cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
+        if (hasBit(token, 4194304 /* IsEvalOrArguments */))
+            cherow.tolerant(parser, context, 45 /* StrictEvalArguments */);
+        local = imported;
+    }
+    return finishNode(context, parser, pos, {
+        type: 'ImportSpecifier',
+        local,
+        imported,
+    });
+}
+/**
+* Parse binding identifier
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseImportNamespaceSpecifier(parser, context, specifiers) {
+    const pos = getLocation(parser);
+    expect(parser, context, 167774771 /* Multiply */);
+    expect(parser, context, 167811947 /* AsKeyword */, 80 /* AsAfterImportStart */);
+    const local = parseBindingIdentifier(parser, context);
+    specifiers.push(finishNode(context, parser, pos, {
+        type: 'ImportNamespaceSpecifier',
+        local,
+    }));
+}
+/**
+* Parse binding identifier
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseModuleSpecifier(parser, context) {
+    // ModuleSpecifier :
+    //   StringLiteral
+    expect(parser, context, 36977 /* FromKeyword */);
+    if (parser.token !== 33554435 /* StringLiteral */)
+        cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
+    return parseLiteral(parser, context);
+}
+/**
+* Parse import default specifier
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseImportDefaultSpecifier(parser, context) {
+    return finishNode(context, parser, getLocation(parser), {
+        type: 'ImportDefaultSpecifier',
+        local: parseIdentifier(parser, context),
+    });
+}
+/**
+* Parses either async function or assignment expression
+*
+* @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
+* @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
+* @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseAsyncFunctionOrAssignmentExpression(parser, context) {
+    return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
+        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 16777216 /* RequireIdentifier */) :
+        parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
+}
+/**
+* Parses namespace export declaration
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseNamespaceExportDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 167811947 /* AsKeyword */);
+    expect(parser, context, 65664 /* NameSpaceKeyword */);
+    const id = parseIdentifier(parser, context);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TSNamespaceExportDeclaration',
+        id
+    });
+}
+/**
+* Parses export assignment
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseExportAssignment(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 83886109 /* Assign */);
+    const expression = parseAssignmentExpression(parser, context);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TsExportAssignment ',
+        expression
+    });
+}
+/**
+ * Parses export assignment
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseModuleOrNamespaceDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 65664 /* NameSpaceKeyword */);
+    const id = parseIdentifier(parser, context);
+    let body;
+    if (consume(parser, context, 16777229 /* Period */)) {
+        body = parseModuleOrNamespaceDeclaration(parser, context);
+    }
+    else {
+        body = parseModuleBlock(parser, context);
+    }
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TSModuleDeclaration ',
+        id,
+        body
+    });
+}
+/**
+ * Parses module block
+ *
+ * @param parser Parser object
+ * @param context Context mask
+ */
+function parseModuleBlock(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 41943052 /* LeftBrace */);
+    const body = [];
+    while (parser.token !== 17301519 /* RightBrace */) {
+        body.push(parser.token === 33554435 /* StringLiteral */ ?
+            parseDirective(parser, context) :
+            parseModuleItem(parser, context | 65536 /* AllowIn */));
+    }
+    expect(parser, context, 17301519 /* RightBrace */);
+    return finishNode(context, parser, pos, {
+        type: 'TSModuleBlock',
+        body
+    });
+}
+/**
+ * Parses export name declaration
+ *
+ * @param parser Parser object
+ * @param context Context mask
+ */
+function parseExportNamedDeclaration(parser, context) {
+    const isDeclare = consume(parser, context, 65662 /* DeclareKeyword */);
+    const pos = getLocation(parser);
+    const specifiers = [];
+    let source = null;
+    let declaration = null;
+    switch (parser.token) {
+        case 65666 /* ModuleKeyword */:
+            declaration = parseModuleDeclaration(parser, context);
+            break;
+        case 33619969 /* Identifier */:
+        case 65663 /* TypeKeyword */:
+        case 20580 /* InterfaceKeyword */:
+            declaration = parseExpressionOrDeclareStatement(parser, context);
+            break;
+        // export * FromClause ;
+        case 167774771 /* Multiply */:
+            return parseExportAllDeclaration(parser, context, pos);
+        case 12368 /* DefaultKeyword */:
+            return parseExportDefault(parser, context, pos);
+        case 41943052 /* LeftBrace */:
+            {
+                // export ExportClause FromClause ;
+                // export ExportClause ;
+                expect(parser, context, 41943052 /* LeftBrace */);
+                let hasReservedWord = false;
+                while (parser.token !== 17301519 /* RightBrace */) {
+                    if (parser.token & 12288 /* Reserved */) {
+                        hasReservedWord = true;
+                        setPendingError(parser);
+                    }
+                    specifiers.push(parseNamedExportDeclaration(parser, context));
+                    if (parser.token !== 17301519 /* RightBrace */)
+                        expect(parser, context, 16777234 /* Comma */);
+                }
+                expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 17301519 /* RightBrace */);
+                if (parser.token === 36977 /* FromKeyword */) {
+                    source = parseModuleSpecifier(parser, context);
+                    //  The left hand side can't be a keyword where there is no
+                    // 'from' keyword since it references a local binding.
+                }
+                else if (hasReservedWord) {
+                    cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
+                }
+                consumeSemicolon(parser, context);
+                break;
+            }
+        case 65664 /* NameSpaceKeyword */:
+            declaration = parseModuleOrNamespaceDeclaration(parser, context);
+            break;
+        case 65662 /* DeclareKeyword */:
+            declaration = parseExportNamedDeclaration(parser, context);
+            break;
+        case 33566810 /* ImportKeyword */:
+        // `export = x;`
+        case 83886109 /* Assign */:
+            return parseExportAssignment(parser, context);
+        // `export as namespace A;`
+        case 167811947 /* AsKeyword */:
+            return parseNamespaceExportDeclaration(parser, context);
+        // export ClassDeclaration
+        case 33566797 /* ClassKeyword */:
+            declaration = parseClassDeclaration(parser, context);
+            break;
+        // export LexicalDeclaration
+        case 33574984 /* LetKeyword */:
+        case 33566793 /* ConstKeyword */:
+            declaration = parseVariableStatement$1(parser, context | 4194304 /* BlockScope */);
+            break;
+        // export VariableDeclaration
+        case 33566791 /* VarKeyword */:
+            declaration = parseVariableStatement$1(parser, context);
+            break;
+        // export HoistableDeclaration
+        case 33566808 /* FunctionKeyword */:
+            declaration = parseFunctionDeclaration(parser, context);
+            break;
+        // export HoistableDeclaration
+        case 299116 /* AsyncKeyword */:
+            if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
+                declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
+                break;
+            }
+        // Falls through
+        default:
+            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
+    }
+    return finishNode(context, parser, pos, {
+        type: 'ExportNamedDeclaration',
+        source,
+        specifiers,
+        declaration,
+        declare: true
+    });
+}
+/**
+* Parses export assignment
+*
+* @param parser  Parser object
+* @param context Context masks
+*/
+function parseModuleDeclaration(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 65666 /* ModuleKeyword */);
+    const id = parseIdentifier(parser, context);
+    let body;
+    if (consume(parser, context, 16777229 /* Period */)) {
+        body = parseModuleOrNamespaceDeclaration(parser, context);
+    }
+    else {
+        body = parseModuleBlock(parser, context);
+    }
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TSModuleDeclaration ',
+        id,
+        body
+    });
+}
+/**
+ * Parses external module reference
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseExternalModuleReference(parser, context) {
+    const pos = getLocation(parser);
+    expect(parser, context, 65668 /* RequireKeyword */);
+    expect(parser, context, 50331659 /* LeftParen */);
+    if (parser.token !== 33554435 /* StringLiteral */)
+        cherow.report(parser, 0 /* Unexpected */);
+    const expression = parseLiteral(parser, context);
+    expect(parser, context, 16 /* RightParen */);
+    return finishNode(context, parser, pos, {
+        type: 'TSExternalModuleReference',
+        expression
+    });
+}
+function parseEntityName1(parser, context) {
+    const pos = getLocation(parser);
+    let entity = parseIdentifier(parser, context);
+    while (consume(parser, context, 16777229 /* Period */)) {
+        entity = finishNode(context, parser, pos, {
+            type: 'TSQualifiedName',
+            left: entity,
+            right: parseIdentifier(parser, context)
+        });
+    }
+    return entity;
+}
+/**
+ * Parses module reference
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseModuleReference(parser, context) {
+    return parser.token === 65668 /* RequireKeyword */ && lookahead(parser, context, nextTokenIsLeftParen)
+        ? parseExternalModuleReference(parser, context)
+        : parseEntityName1(parser, context);
+}
+/**
+ * Parses external module reference
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseImportEqualsDeclaration(parser, context, isExport = false) {
+    const pos = getLocation(parser);
+    consume(parser, context, 33566810 /* ImportKeyword */);
+    const id = parseIdentifier(parser, context);
+    expect(parser, context, 83886109 /* Assign */);
+    const moduleReference = parseModuleReference(parser, context);
+    consumeSemicolon(parser, context);
+    return finishNode(context, parser, pos, {
+        type: 'TSImportEqualsDeclaration',
+        id,
+        isExport,
+        moduleReference
+    });
+}
+
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -1413,7 +2112,7 @@ function parseStatementListBlock(parser, context) {
     while (parser.token !== 17301519 /* RightBrace */) {
         body.push(parser.token === 33554435 /* StringLiteral */ ?
             parseDirective(parser, context) :
-            parseStatementListItem(parser, context | 65536 /* AllowIn */));
+            parseModuleItem(parser, context | 65536 /* AllowIn */));
     }
     expect(parser, context, 17301519 /* RightBrace */);
     return finishNode(context, parser, pos, {
@@ -1621,11 +2320,14 @@ function parseStatement(parser, context) {
                 cherow.tolerant(parser, context, 33 /* AsyncFunctionInSingleStatementContext */);
             }
             return parseExpressionOrLabelledStatement(parser, context | 2097152 /* AllowSingleStatement */);
+        // Start of an declaration
+        case 65665 /* AbstractKeyword */:
         case 65662 /* DeclareKeyword */:
         case 20580 /* InterfaceKeyword */:
         case 65664 /* NameSpaceKeyword */:
         case 65663 /* TypeKeyword */:
         case 12406 /* EnumKeyword */:
+        case 65666 /* ModuleKeyword */:
         case 65667 /* GlobalKeyword */:
             return parseExpressionOrDeclareStatement(parser, context);
         case 33566808 /* FunctionKeyword */:
@@ -2124,7 +2826,8 @@ function parseVariableStatement$1(parser, context, shouldConsume = true) {
     return finishNode(context, parser, pos, {
         type: 'VariableDeclaration',
         kind: cherow.tokenDesc(token),
-        declarations
+        declarations,
+        declared: !!(context & 1 /* Declared */)
     });
 }
 /**
@@ -2964,6 +3667,20 @@ function parseConditionalExpression(parser, context, pos) {
     });
 }
 /**
+ * Parse as expression
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseAsExpression(parser, context, left, pos) {
+    consume(parser, context, 167811947 /* AsKeyword */);
+    return finishNode(context, parser, pos, {
+        type: 'AsExpression',
+        typeAnnotation: parseType(parser, context),
+        expression: left
+    });
+}
+/**
  * Parse binary expression.
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-exp-operator)
@@ -2995,13 +3712,20 @@ function parseBinaryExpression(parser, context, minPrec, pos, left = parseUnaryE
         // start of an expression, so we break the loop
         if (prec + delta <= minPrec)
             break;
-        nextToken(parser, context);
-        left = finishNode(context, parser, pos, {
-            type: t & 2097152 /* IsLogical */ ? 'LogicalExpression' : 'BinaryExpression',
-            left,
-            right: parseBinaryExpression(parser, context & ~65536 /* AllowIn */, prec, getLocation(parser)),
-            operator: cherow.tokenDesc(t),
-        });
+        if (parser.token === 167811947 /* AsKeyword */) {
+            if (parser.flags & 1 /* NewLine */)
+                break;
+            left = parseAsExpression(parser, context, left, getLocation(parser));
+        }
+        else {
+            nextToken(parser, context);
+            left = finishNode(context, parser, pos, {
+                type: t & 2097152 /* IsLogical */ ? 'LogicalExpression' : 'BinaryExpression',
+                left,
+                right: parseBinaryExpression(parser, context & ~65536 /* AllowIn */, prec, getLocation(parser)),
+                operator: cherow.tokenDesc(t),
+            });
+        }
     }
     return left;
 }
@@ -5264,613 +5988,6 @@ function parseVariableDeclarationList(parser, context, isConst) {
         cherow.tolerant(parser, context, 24 /* ForInOfLoopMultiBindings */, cherow.tokenDesc(parser.token));
     }
     return list;
-}
-
-// 15.2 Modules
-/**
- * Parse module item list
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItemList)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseModuleItemList(parser, context) {
-    // Prime the scanner
-    nextToken(parser, context);
-    const statements = [];
-    while (parser.token !== 524288 /* EndOfSource */) {
-        statements.push(parser.token === 33554435 /* StringLiteral */ ?
-            parseDirective(parser, context) :
-            parseModuleItem(parser, context | 65536 /* AllowIn */));
-    }
-    return statements;
-}
-/**
- * Parse module item
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleItem)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseModuleItem(parser, context) {
-    switch (parser.token) {
-        // @decorator
-        case 120 /* At */:
-            return parseDecorators(parser, context);
-        // ExportDeclaration
-        case 12371 /* ExportKeyword */:
-            return parseExportDeclaration(parser, context);
-        // ImportDeclaration
-        case 33566810 /* ImportKeyword */:
-            // 'Dynamic Import' or meta property disallowed here
-            if (!(context & 1 /* OptionsNext */ && lookahead(parser, context, nextTokenIsLeftParenOrPeriod))) {
-                return parseImportDeclaration(parser, context);
-            }
-        default:
-            return parseStatementListItem(parser, context);
-    }
-}
-/**
- * Parse export declaration
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ExportDeclaration)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseExportDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    const specifiers = [];
-    let source = null;
-    let declaration = null;
-    expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 12371 /* ExportKeyword */);
-    switch (parser.token) {
-        // export * FromClause ;
-        case 167774771 /* Multiply */:
-            return parseExportAllDeclaration(parser, context, pos);
-        case 12368 /* DefaultKeyword */:
-            return parseExportDefault(parser, context, pos);
-        case 41943052 /* LeftBrace */:
-            {
-                // export ExportClause FromClause ;
-                // export ExportClause ;
-                expect(parser, context, 41943052 /* LeftBrace */);
-                let hasReservedWord = false;
-                while (parser.token !== 17301519 /* RightBrace */) {
-                    if (parser.token & 12288 /* Reserved */) {
-                        hasReservedWord = true;
-                        setPendingError(parser);
-                    }
-                    specifiers.push(parseNamedExportDeclaration(parser, context));
-                    if (parser.token !== 17301519 /* RightBrace */)
-                        expect(parser, context, 16777234 /* Comma */);
-                }
-                expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 17301519 /* RightBrace */);
-                if (parser.token === 36977 /* FromKeyword */) {
-                    source = parseModuleSpecifier(parser, context);
-                    //  The left hand side can't be a keyword where there is no
-                    // 'from' keyword since it references a local binding.
-                }
-                else if (hasReservedWord) {
-                    cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
-                }
-                consumeSemicolon(parser, context);
-                break;
-            }
-        case 65664 /* NameSpaceKeyword */:
-            declaration = parseModuleOrNamespaceDeclaration(parser, context);
-            break;
-        case 65662 /* DeclareKeyword */:
-            declaration = parseExportNamedDeclaration(parser, context);
-            break;
-        case 20580 /* InterfaceKeyword */:
-            declaration = parseExportNamedDeclaration(parser, context);
-            break;
-        case 12406 /* EnumKeyword */:
-            nextToken(parser, context);
-            declaration = parseEnumDeclaration(parser, context);
-            break;
-        case 65663 /* TypeKeyword */:
-            nextToken(parser, context);
-            declaration = parseTypeAlias(parser, context);
-            break;
-        case 33566810 /* ImportKeyword */:
-        // `export = x;`
-        case 83886109 /* Assign */:
-            return parseExportAssignment(parser, context);
-        // `export as namespace A;`
-        case 36971 /* AsKeyword */:
-            return parseNamespaceExportDeclaration(parser, context);
-        // export ClassDeclaration
-        case 33566797 /* ClassKeyword */:
-            declaration = parseClassDeclaration(parser, context);
-            break;
-        // export LexicalDeclaration
-        case 33566793 /* ConstKeyword */:
-            declaration = parseConstOrEnumDeclaration(parser, context | 4194304 /* BlockScope */);
-            break;
-        case 33574984 /* LetKeyword */:
-            declaration = parseVariableStatement$1(parser, context | 4194304 /* BlockScope */);
-            break;
-        // export VariableDeclaration
-        case 33566791 /* VarKeyword */:
-            declaration = parseVariableStatement$1(parser, context);
-            break;
-        // export HoistableDeclaration
-        case 33566808 /* FunctionKeyword */:
-            declaration = parseFunctionDeclaration(parser, context);
-            break;
-        // export HoistableDeclaration
-        case 299116 /* AsyncKeyword */:
-            if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
-                declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
-                break;
-            }
-        // Falls through
-        default:
-            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
-    }
-    return finishNode(context, parser, pos, {
-        type: 'ExportNamedDeclaration',
-        source,
-        specifiers,
-        declaration,
-    });
-}
-/**
- * Parse export all declaration
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseExportAllDeclaration(parser, context, pos) {
-    expect(parser, context, 167774771 /* Multiply */);
-    const source = parseModuleSpecifier(parser, context);
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'ExportAllDeclaration',
-        source,
-    });
-}
-/**
- * Parse named export declaration
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseNamedExportDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    // ExportSpecifier :
-    // IdentifierName
-    // IdentifierName as IdentifierName
-    const local = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, parser.token);
-    const exported = consume(parser, context, 36971 /* AsKeyword */)
-        ? parseIdentifierName(parser, context, parser.token)
-        : local;
-    return finishNode(context, parser, pos, {
-        type: 'ExportSpecifier',
-        local,
-        exported,
-    });
-}
-/**
- * Parse export default
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
- * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
- * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
- *
- * @param parser  Parser object
- * @param context Context masks
- * @param pos Location
- */
-function parseExportDefault(parser, context, pos) {
-    expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 12368 /* DefaultKeyword */);
-    let declaration;
-    switch (parser.token) {
-        // export default HoistableDeclaration[Default]
-        case 33566808 /* FunctionKeyword */:
-            declaration = parseFunctionDeclaration(parser, context | 16777216 /* RequireIdentifier */);
-            break;
-        // export default ClassDeclaration[Default]
-        // export default  @decl ClassDeclaration[Default]
-        case 120 /* At */:
-        case 33566797 /* ClassKeyword */:
-            declaration = parseClassDeclaration(parser, context & ~65536 /* AllowIn */ | 16777216 /* RequireIdentifier */);
-            break;
-        // export default HoistableDeclaration[Default]
-        case 299116 /* AsyncKeyword */:
-            declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 16777216 /* RequireIdentifier */);
-            break;
-        default:
-            {
-                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
-                declaration = parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
-                consumeSemicolon(parser, context);
-            }
-    }
-    return finishNode(context, parser, pos, {
-        type: 'ExportDefaultDeclaration',
-        declaration,
-    });
-}
-/**
- * Parse import declaration
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ImportDeclaration)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 33566810 /* ImportKeyword */);
-    let source;
-    let specifiers = [];
-    // 'import' ModuleSpecifier ';'
-    if (parser.token === 33554435 /* StringLiteral */) {
-        source = parseLiteral(parser, context);
-    }
-    else {
-        specifiers = parseImportClause(parser, context | 536870912 /* DisallowEscapedKeyword */);
-        source = parseModuleSpecifier(parser, context);
-    }
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'ImportDeclaration',
-        specifiers,
-        source,
-    });
-}
-/**
- * Parse import clause
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ImportClause)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportClause(parser, context) {
-    const specifiers = [];
-    switch (parser.token) {
-        // 'import' ModuleSpecifier ';'
-        case 33619969 /* Identifier */:
-            {
-                specifiers.push(parseImportDefaultSpecifier(parser, context));
-                if (consume(parser, context, 16777234 /* Comma */)) {
-                    switch (parser.token) {
-                        // import a, * as foo
-                        case 167774771 /* Multiply */:
-                            parseImportNamespaceSpecifier(parser, context, specifiers);
-                            break;
-                        // import a, {bar}
-                        case 41943052 /* LeftBrace */:
-                            parseNamedImports(parser, context, specifiers);
-                            break;
-                        default:
-                            cherow.tolerant(parser, context, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
-                    }
-                }
-                break;
-            }
-        // import {bar}
-        case 41943052 /* LeftBrace */:
-            parseNamedImports(parser, context, specifiers);
-            break;
-        // import * as foo
-        case 167774771 /* Multiply */:
-            parseImportNamespaceSpecifier(parser, context, specifiers);
-            break;
-        default:
-            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
-    }
-    return specifiers;
-}
-/**
- * Parse named imports
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseNamedImports(parser, context, specifiers) {
-    expect(parser, context, 41943052 /* LeftBrace */);
-    while (parser.token !== 17301519 /* RightBrace */) {
-        specifiers.push(parseImportSpecifier(parser, context));
-        if (parser.token !== 17301519 /* RightBrace */) {
-            expect(parser, context, 16777234 /* Comma */);
-        }
-    }
-    expect(parser, context, 17301519 /* RightBrace */);
-}
-/**
- * Parse import specifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportSpecifier(parser, context) {
-    const pos = getLocation(parser);
-    const { token } = parser;
-    const imported = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, token);
-    let local;
-    if (parser.token === 36971 /* AsKeyword */) {
-        expect(parser, context, 36971 /* AsKeyword */);
-        local = parseBindingIdentifier(parser, context);
-    }
-    else {
-        // An import name that is a keyword is a syntax error if it is not followed
-        // by the keyword 'as'.
-        if (hasBit(token, 12288 /* Reserved */))
-            cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
-        if (hasBit(token, 4194304 /* IsEvalOrArguments */))
-            cherow.tolerant(parser, context, 45 /* StrictEvalArguments */);
-        local = imported;
-    }
-    return finishNode(context, parser, pos, {
-        type: 'ImportSpecifier',
-        local,
-        imported,
-    });
-}
-/**
- * Parse binding identifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportNamespaceSpecifier(parser, context, specifiers) {
-    const pos = getLocation(parser);
-    expect(parser, context, 167774771 /* Multiply */);
-    expect(parser, context, 36971 /* AsKeyword */, 80 /* AsAfterImportStart */);
-    const local = parseBindingIdentifier(parser, context);
-    specifiers.push(finishNode(context, parser, pos, {
-        type: 'ImportNamespaceSpecifier',
-        local,
-    }));
-}
-/**
- * Parse binding identifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseModuleSpecifier(parser, context) {
-    // ModuleSpecifier :
-    //   StringLiteral
-    expect(parser, context, 36977 /* FromKeyword */);
-    if (parser.token !== 33554435 /* StringLiteral */)
-        cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
-    return parseLiteral(parser, context);
-}
-/**
- * Parse import default specifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportDefaultSpecifier(parser, context) {
-    return finishNode(context, parser, getLocation(parser), {
-        type: 'ImportDefaultSpecifier',
-        local: parseIdentifier(parser, context),
-    });
-}
-/**
- * Parses either async function or assignment expression
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
- * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
- * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseAsyncFunctionOrAssignmentExpression(parser, context) {
-    return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
-        parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | 16777216 /* RequireIdentifier */) :
-        parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
-}
-/**
- * Parses namespace export declaration
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseNamespaceExportDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 36971 /* AsKeyword */);
-    expect(parser, context, 65664 /* NameSpaceKeyword */);
-    const id = parseIdentifier(parser, context);
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'TSNamespaceExportDeclaration',
-        id
-    });
-}
-/**
- * Parses export assignment
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseExportAssignment(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 83886109 /* Assign */);
-    const expression = parseAssignmentExpression(parser, context);
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'TsExportAssignment ',
-        expression
-    });
-}
-/**
- * Parses export assignment
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseModuleOrNamespaceDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 65664 /* NameSpaceKeyword */);
-    const id = parseIdentifier(parser, context);
-    let body;
-    if (consume(parser, context, 16777229 /* Period */)) {
-        body = parseModuleOrNamespaceDeclaration(parser, context);
-    }
-    else {
-        body = parseModuleBlock(parser, context);
-    }
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'TSModuleDeclaration ',
-        id,
-        body
-    });
-}
-function parseModuleBlock(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 41943052 /* LeftBrace */);
-    const body = [];
-    while (parser.token !== 17301519 /* RightBrace */) {
-        body.push(parser.token === 33554435 /* StringLiteral */ ?
-            parseDirective(parser, context) :
-            parseModuleItem(parser, context | 65536 /* AllowIn */));
-    }
-    expect(parser, context, 17301519 /* RightBrace */);
-    return finishNode(context, parser, pos, {
-        type: 'TSModuleBlock',
-        body
-    });
-}
-function parseExportNamedDeclaration(parser, context) {
-    const isDeclare = consume(parser, context, 65662 /* DeclareKeyword */);
-    const pos = getLocation(parser);
-    const specifiers = [];
-    let source = null;
-    let declaration = null;
-    switch (parser.token) {
-        case 65666 /* ModuleKeyword */:
-            declaration = parseModuleDeclaration(parser, context);
-            break;
-        case 33619969 /* Identifier */:
-        case 65663 /* TypeKeyword */:
-        case 20580 /* InterfaceKeyword */:
-            declaration = parseExpressionOrDeclareStatement(parser, context);
-            break;
-        // export * FromClause ;
-        case 167774771 /* Multiply */:
-            return parseExportAllDeclaration(parser, context, pos);
-        case 12368 /* DefaultKeyword */:
-            return parseExportDefault(parser, context, pos);
-        case 41943052 /* LeftBrace */:
-            {
-                // export ExportClause FromClause ;
-                // export ExportClause ;
-                expect(parser, context, 41943052 /* LeftBrace */);
-                let hasReservedWord = false;
-                while (parser.token !== 17301519 /* RightBrace */) {
-                    if (parser.token & 12288 /* Reserved */) {
-                        hasReservedWord = true;
-                        setPendingError(parser);
-                    }
-                    specifiers.push(parseNamedExportDeclaration(parser, context));
-                    if (parser.token !== 17301519 /* RightBrace */)
-                        expect(parser, context, 16777234 /* Comma */);
-                }
-                expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 17301519 /* RightBrace */);
-                if (parser.token === 36977 /* FromKeyword */) {
-                    source = parseModuleSpecifier(parser, context);
-                    //  The left hand side can't be a keyword where there is no
-                    // 'from' keyword since it references a local binding.
-                }
-                else if (hasReservedWord) {
-                    cherow.tolerant(parser, context, 44 /* UnexpectedReserved */);
-                }
-                consumeSemicolon(parser, context);
-                break;
-            }
-        case 65664 /* NameSpaceKeyword */:
-            declaration = parseModuleOrNamespaceDeclaration(parser, context);
-            break;
-        case 65662 /* DeclareKeyword */:
-            declaration = parseExportNamedDeclaration(parser, context);
-            break;
-        case 33566810 /* ImportKeyword */:
-        // `export = x;`
-        case 83886109 /* Assign */:
-            return parseExportAssignment(parser, context);
-        // `export as namespace A;`
-        case 36971 /* AsKeyword */:
-            return parseNamespaceExportDeclaration(parser, context);
-        // export ClassDeclaration
-        case 33566797 /* ClassKeyword */:
-            declaration = parseClassDeclaration(parser, context);
-            break;
-        // export LexicalDeclaration
-        case 33574984 /* LetKeyword */:
-        case 33566793 /* ConstKeyword */:
-            declaration = parseVariableStatement$1(parser, context | 4194304 /* BlockScope */);
-            break;
-        // export VariableDeclaration
-        case 33566791 /* VarKeyword */:
-            declaration = parseVariableStatement$1(parser, context);
-            break;
-        // export HoistableDeclaration
-        case 33566808 /* FunctionKeyword */:
-            declaration = parseFunctionDeclaration(parser, context);
-            break;
-        // export HoistableDeclaration
-        case 299116 /* AsyncKeyword */:
-            if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
-                declaration = parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context);
-                break;
-            }
-        // Falls through
-        default:
-            cherow.report(parser, 1 /* UnexpectedToken */, cherow.tokenDesc(parser.token));
-    }
-    return finishNode(context, parser, pos, {
-        type: 'ExportNamedDeclaration',
-        source,
-        specifiers,
-        declaration,
-        declare: true
-    });
-}
-/**
- * Parses export assignment
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseModuleDeclaration(parser, context) {
-    const pos = getLocation(parser);
-    expect(parser, context, 65666 /* ModuleKeyword */);
-    const id = parseIdentifier(parser, context);
-    let body;
-    if (consume(parser, context, 16777229 /* Period */)) {
-        body = parseModuleOrNamespaceDeclaration(parser, context);
-    }
-    else {
-        body = parseModuleBlock(parser, context);
-    }
-    consumeSemicolon(parser, context);
-    return finishNode(context, parser, pos, {
-        type: 'TSModuleDeclaration ',
-        id,
-        body
-    });
 }
 
 /**

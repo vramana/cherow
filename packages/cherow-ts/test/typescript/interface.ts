@@ -6,7 +6,6 @@ import { parse } from '../../src/parser/parser';
 describe('Interface', () => {
 
   const validSyntax = [
-  //    'export interface I {}',
       'interface Comma { x: number, y: number }',
       'interface I { new (x: number): void; }',
       'interface I<T extends object = { x: number }> {}',

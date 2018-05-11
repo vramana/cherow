@@ -112,7 +112,7 @@ const descKeywordTable = Object.create(null, {
     type: { value: 65663 /* TypeKeyword */ },
     namespace: { value: 65664 /* NameSpaceKeyword */ },
     abstract: { value: 65665 /* AbstractKeyword */ },
-    as: { value: 36971 /* AsKeyword */ },
+    as: { value: 167811947 /* AsKeyword */ },
     module: { value: 65666 /* ModuleKeyword */ },
     global: { value: 65667 /* GlobalKeyword */ },
     require: { value: 65668 /* RequireKeyword */ },

@@ -28,6 +28,10 @@ export const enum TypeScriptContext {
   Ambient  = 1 << 2,
 }
 
+export const enum TypeScriptFlags {
+  Empty      = 0,
+  HasTypeAnnotation  = 1 << 0,
+}
 /**
  * Validate break and continue statement
  *

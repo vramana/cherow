@@ -19,7 +19,7 @@ import {
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseJSXRootElement } from './jsx';
-import { parseTypeAnnotation, parseTypeOrTypePredicateAnnotation, parseTypeParameters } from './annotations';
+import { parseType, parseTypeAnnotation, parseTypeOrTypePredicateAnnotation, parseTypeParameters } from './annotations';
 import {
   expect,
   hasBit,
@@ -256,6 +256,27 @@ function parseConditionalExpression(parser: Parser, context: Context, pos: any):
 }
 
 /**
+ * Parse as expression
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseAsExpression(
+  parser: Parser,
+  context: Context,
+  left: ESTree.Expression,
+  pos: Location
+): any {
+    consume(parser, context, Token.AsKeyword);
+    return finishNode(context, parser, pos, {
+      type: 'AsExpression',
+      typeAnnotation: parseType(parser, context),
+      expression: left
+    } as any)
+}
+
+/**
  * Parse binary expression.
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-exp-operator)
@@ -293,14 +314,19 @@ function parseBinaryExpression(
         // When the next token is no longer a binary operator, it's potentially the
         // start of an expression, so we break the loop
         if (prec + delta <= minPrec) break;
-        nextToken(parser, context);
 
-        left = finishNode(context, parser, pos, {
+        if (parser.token === Token.AsKeyword) {
+          if (parser.flags & Flags.NewLine) break;
+          left = parseAsExpression(parser, context, left, getLocation(parser))
+        } else {
+          nextToken(parser, context);
+          left = finishNode(context, parser, pos, {
             type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
             left,
             right: parseBinaryExpression(parser, context & ~Context.AllowIn, prec, getLocation(parser)),
             operator: tokenDesc(t),
         } as any);
+        }
     }
 
     return left;
