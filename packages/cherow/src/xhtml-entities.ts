@@ -2,7 +2,7 @@
       // XHTML entities
       // tslint:disable
       export const XHTMLEntities = {
-              quot: '\u0022',
+    quot: '\u0022',
     amp: '\u0026',
     apos: '\u0027',
     gt: '\u003E',

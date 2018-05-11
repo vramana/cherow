@@ -7,7 +7,7 @@ import { Context, Flags } from '../utilities';
 import {
     consumeOpt,
     isIdentifierPart,
-    escapeForPrinting,
+    escapeInvalidCharacters,
     toHex,
     readNext,
     fromCodePoint,
@@ -92,7 +92,7 @@ export function scanIdentifier(parser: Parser, context: Context, first ?: number
 export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
-        report(parser, Errors.UnexpectedChar, escapeForPrinting(first));
+        report(parser, Errors.UnexpectedChar, escapeInvalidCharacters(first));
     }
     return scanIdentifier(parser, context, first);
 }

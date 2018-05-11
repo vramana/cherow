@@ -31,10 +31,10 @@ export function skipSingleHTMLComment(
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLOpenComment)
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state  Scanner state
- * @param type   Comment type
+ * @param type  Comment type
  */
 
 export function skipSingleLineComment(
@@ -73,7 +73,7 @@ export function skipSingleLineComment(
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state Scanner state
  */
@@ -124,27 +124,34 @@ export function skipMultiLineComment(
     tolerant(parser, context, Errors.UnterminatedComment);
 }
 
-export function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number): void {
+/**
+ * Add comments
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param type  Comment type
+ * @param commentStart Start position of comment
+ */
 
-    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
+export function addComment(
+    parser: Parser,
+    context: Context,
+    type: ESTree.CommentType,
+    commentStart: number
+  ): void {
 
+    const { index: end, startIndex: start, startLine, startColumn, lastLine, column } = parser;
     const comment: ESTree.Comment = {
         type,
-        value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
-        start: startIndex,
-        end: index,
+        value: parser.source.slice(commentStart, type === 'MultiLine' ? end - 2 : end),
+        start,
+        end,
     };
 
     if (context & Context.OptionsLoc) {
         comment.loc = {
-            start: {
-                line: startLine,
-                column: startColumn,
-            },
-            end: {
-                line: lastLine,
-                column,
-            },
+            start: { line: startLine, column: startColumn },
+            end: { line: lastLine, column },
         };
     }
 

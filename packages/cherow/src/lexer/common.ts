@@ -27,7 +27,7 @@ export function nextUnicodeChar(parser: Parser): number {
 
 export const isIdentifierPart = (code: number) => (characterType[code] & CharacterFlags.IdentifierStart) !== 0 || isValidIdentifierPart(code);
 
-export function escapeForPrinting(code: number): string {
+export function escapeInvalidCharacters(code: number): string {
     switch (code) {
         case Chars.Null:
             return '\\0';
