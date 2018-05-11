@@ -256,10 +256,7 @@ function parseNonNullExpression(parser: Parser, context: Context, expression: ES
 function parseConditionalExpression(parser: Parser, context: Context, pos: any): ESTree.Expression {
     const test = parseBinaryExpression(parser, context, 0, pos);
     if (!consume(parser, context, Token.QuestionMark)) return test;
-    console.log(parser.tokenValue);
-    //parser.flags |= TypeScriptFlags.InConditionalExpression;
     const consequent = parseExpressionCoverGrammar(parser, context & ~Context.AllowDecorator | TypeScriptContext.InConditionalExpression | Context.AllowIn, parseAssignmentExpression);
-    // parser.flags &= ~TypeScriptFlags.InConditionalExpression;
     expect(parser, context, Token.Colon);
     const alternate = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
     return finishNode(context, parser, pos, {
