@@ -18,6 +18,214 @@ for (const arg of validSyntax) {
     });
 }
 */
+
+
+pass('(x as T).y;', Context.Strict | Context.Module, {
+  source: '(x as T).y;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+            "computed": false,
+            "object": {
+              "expression": {
+                "name": "x",
+                "type": "Identifier"
+              },
+              "type": "AsExpression",
+              "typeAnnotation": {
+                "type": "TSTypeReference",
+                "typeName": {
+                  "name": "T",
+                  "type": "Identifier",
+                },
+                "typeParameters": [],
+              }
+            },
+            "property": {
+              "name": "y",
+              "type": "Identifier"
+            },
+            "type": "MemberExpression"
+          },
+          "type": "ExpressionStatement"
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program"
+    }
+});
+
+pass('(<T> x).y;', Context.Strict | Context.Module, {
+  source: '(<T> x).y;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+            "computed": false,
+            "object": {
+              "expression": {
+                "name": "x",
+                "type": "Identifier"
+              },
+              "type": "TypeAssertion",
+              "typeAnnotation": {
+                "type": "TSTypeReference",
+                "typeName": {
+                  "name": "T",
+                  "type": "Identifier",
+                },
+               "typeParameters": [],
+              }
+            },
+            "property": {
+              "name": "y",
+              "type": "Identifier"
+            },
+            "type": "MemberExpression",
+          },
+          "type": "ExpressionStatement",
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program",
+    }
+});
+
+pass('<number> 1;', Context.Strict | Context.Module, {
+  source: '<number> 1;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+            "expression": {
+              "type": "Literal",
+              "value": 1,
+            },
+            "type": "TypeAssertion",
+           "typeAnnotation": {
+              "type": "TSNumberKeyword",
+            },
+          },
+          "type": "ExpressionStatement",
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program"
+    }
+});
+
+pass('<number> 1 + 1;', Context.Strict | Context.Module, {
+  source: '<number> 1 + 1;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+           "left": {
+              "expression": {
+                "type": "Literal",
+                "value": 1,
+              },
+              "type": "TypeAssertion",
+              "typeAnnotation": {
+                "type": "TSNumberKeyword",
+              },
+           },
+            "operator": "+",
+           "right": {
+              "type": "Literal",
+              "value": 1,
+            },
+            "type": "BinaryExpression"
+          },
+          "type": "ExpressionStatement"
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program"
+    }
+});
+
+pass('1 + <number> 1;', Context.Strict | Context.Module, {
+  source: '1 + <number> 1;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+            "left": {
+              "type": "Literal",
+              "value": 1,
+            },
+            "operator": "+",
+            "right": {
+              "expression": {
+                "type": "Literal",
+                "value": 1
+              },
+              "type": "TypeAssertion",
+              "typeAnnotation": {
+                 "type": "TSNumberKeyword"
+               }
+            },
+            "type": "BinaryExpression"
+          },
+         "type": "ExpressionStatement"
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program"
+    }
+});
+
+pass('x!.y;', Context.Strict | Context.Module, {
+  source: 'x!.y;',
+  expected: {
+      "body": [
+        {
+          "expression": {
+            "computed": false,
+            "object": {
+             "expression": {
+                "name": "x",
+                "type": "Identifier",
+              },
+              "type": "NonNullExpression",
+            },
+            "property": {
+              "name": "y",
+              "type": "Identifier",
+            },
+            "type": "MemberExpression",
+          },
+          "type": "ExpressionStatement",
+        },
+      ],
+      "sourceType": "module",
+      "type": "Program"
+    }
+});
+
+
+pass('x!;', Context.Strict | Context.Module, {
+source: 'x!;',
+expected: {
+    "body": [
+      {
+        "expression": {
+          "type": "NonNullExpression",
+          "expression": {
+          "name": "x",
+          "type": "Identifier",
+          }
+        },
+        "type": "ExpressionStatement",
+      },
+    ],
+    "sourceType": "module",
+    "type": "Program"
+  }
+});
+
 pass('x as any as T;', Context.Strict | Context.Module, {
   source: 'x as any as T;',
   expected: {

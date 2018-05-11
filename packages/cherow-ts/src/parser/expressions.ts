@@ -167,7 +167,6 @@ export function parseAssignmentExpression(parser: Parser, context: Context): EST
     let expr: any = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen)
             ? parserCoverCallExpressionAndAsyncArrowHead(parser, context)
             : parseConditionalExpression(parser, context, pos);
-
     if (parser.token === Token.Arrow) {
         if (token & (Token.IsIdentifier | Token.Keyword)) {
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
@@ -231,6 +230,15 @@ export function parseAssignmentExpression(parser: Parser, context: Context): EST
 
     }
     return expr;
+}
+
+function parseNonNullExpression(parser: Parser, context: Context, expression: ESTree.Expression): any {
+    const pos = getLocation(parser);
+    expect(parser, context, Token.Negate);
+    return finishNode(context, parser, pos, {
+      type: 'NonNullExpression',
+      expression
+    } as any);
 }
 
 /**
@@ -408,8 +416,12 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
             operator: tokenDesc(token as Token),
             prefix: true,
         } as any);
-    } else if (context & Context.OptionsJSX && token === Token.LessThan) {
+    } else if ( token === Token.LessThan) {
+      if (context & Context.OptionsJSX) {
         return parseJSXRootElement(parser, context | Context.InJSXChild);
+      } else if (consume(parser, context, Token.LessThan)) {
+          return parseTypeAssertion(parser, context);
+      }
     }
     const expression = parseLeftHandSideExpression(parser, context, pos);
     if (hasBit(parser.token, Token.IsUpdateOp) && !(parser.flags & Flags.NewLine)) {
@@ -425,6 +437,24 @@ function parseUpdateExpression(parser: Parser, context: Context, pos: Location):
     }
 
     return expression;
+}
+
+/**
+ * Parse type assertion
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseTypeAssertion(parser: Parser, context: Context): any {
+  const pos = getLocation(parser);
+  const typeAnnotation = parseType(parser, context);
+  expect(parser, context, Token.GreaterThan);
+  return finishNode(context, parser, pos, {
+    type: 'TypeAssertion',
+    typeAnnotation,
+    expression: parseUnaryExpression(parser, context)
+  } as any);
 }
 
 /**
@@ -476,7 +506,8 @@ function parseSpreadElement(parser: Parser, context: Context): any {
  */
 
 export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    const expr = context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
+
+  const expr = context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
         parseCallImportOrMetaProperty(parser, context | Context.AllowIn) :
         parseMemberExpression(parser, context | Context.AllowIn, pos);
     return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
@@ -503,6 +534,10 @@ function parseMemberExpression(
     while (true) {
 
         switch (parser.token) {
+          case Token.Negate:
+            expr = parseNonNullExpression(parser, context, expr);
+            continue;
+
             case Token.Period: {
                 consume(parser, context, Token.Period);
                 parser.flags = parser.flags & ~Flags.AllowBinding | Flags.AllowDestructuring;
@@ -765,6 +800,8 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplateLiteral(parser, context);
         case Token.TemplateCont:
             return parseTemplate(parser, context);
+        case Token.Negate:
+            return parseLetAsIdentifier(parser, context);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
         default:
