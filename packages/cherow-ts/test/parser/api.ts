@@ -15,6 +15,7 @@ describe('Api', () => {
             },
             'expression': false,
             'generator': false,
+            "declared": false,
             'id': {
               'name': 'foo',
               "optional": false,

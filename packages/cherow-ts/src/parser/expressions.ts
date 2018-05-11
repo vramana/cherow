@@ -801,8 +801,6 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplateLiteral(parser, context);
         case Token.TemplateCont:
             return parseTemplate(parser, context);
-        case Token.Negate:
-            return parseLetAsIdentifier(parser, context);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
         default:
@@ -1083,7 +1081,6 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
     }
 
     expect(parser, context, Token.RightBracket);
-
     return finishNode(context, parser, pos, {
         type: 'ArrayExpression',
         elements,
@@ -1590,16 +1587,26 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
     const paramList = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
-
     const predicate: any = null;
-    let returnType: any = null;
-    let predicateInitialiser: any;
-
-    if (parser.token === Token.Colon) {
-      returnType = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
-    }
-    const body = context & TypeScriptContext.Declared ? null : parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
+    const returnType: any = parser.token === Token.Colon
+        ? parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon)
+        : null;
+    const body = parseFunctionBlockOrSemicolon(parser, context, args);
     return { params, body, returnType };
+}
+
+/**
+ * Parses function block or return null if body less function
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseFunctionBlockOrSemicolon(parser: Parser, context: Context, args: any): any {
+  if (parser.token !== Token.LeftBrace) {
+    consumeSemicolon(parser, context);
+    return null;
+  }
+  return parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
 }
 
 /**

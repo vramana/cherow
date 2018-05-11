@@ -121,6 +121,7 @@ function parseFunctionDeclarationBody(parser: Parser, context: Context, state: M
       generator: !!(state & ModifierState.Generator),
       expression: false,
       id,
+      declared: !!(context & TypeScriptContext.Declared),
       typeParameters,
       returnType
   } as any);

@@ -801,6 +801,7 @@ describe('Types', () => {
                           'typeAnnotation': null,
                       }],
                       'type': 'ArrayPattern',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -847,6 +848,7 @@ describe('Types', () => {
               },
               'expression': false,
               'generator': false,
+              "declared": false,
               'id': {
                   'name': 'extend',
                   'type': 'Identifier',
@@ -895,6 +897,7 @@ describe('Types', () => {
               },
               'expression': false,
               'generator': false,
+              "declared": false,
               'id': {
                   'name': 'extend',
                   'type': 'Identifier',
@@ -975,6 +978,7 @@ describe('Types', () => {
               },
               'expression': false,
               'generator': false,
+              "declared": false,
               'id': {
                   'name': 'foo',
                   'type': 'Identifier',
@@ -1053,6 +1057,7 @@ describe('Types', () => {
               'body': [],
               'type': 'BlockStatement',
             },
+            "declared": false,
             'expression': false,
             'generator': false,
            'id': {

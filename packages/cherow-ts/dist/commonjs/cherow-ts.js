@@ -3645,6 +3645,14 @@ function parseAssignmentExpression(parser, context) {
     }
     return expr;
 }
+function parseNonNullExpression(parser, context, expression) {
+    const pos = getLocation(parser);
+    expect(parser, context, 301989933 /* Negate */);
+    return finishNode(context, parser, pos, {
+        type: 'NonNullExpression',
+        expression
+    });
+}
 /**
  * Parse conditional expression
  *
@@ -3805,8 +3813,13 @@ function parseUpdateExpression(parser, context, pos) {
             prefix: true,
         });
     }
-    else if (context & 4 /* OptionsJSX */ && token === 167774015 /* LessThan */) {
-        return parseJSXRootElement(parser, context | 268435456 /* InJSXChild */);
+    else if (token === 167774015 /* LessThan */) {
+        if (context & 4 /* OptionsJSX */) {
+            return parseJSXRootElement(parser, context | 268435456 /* InJSXChild */);
+        }
+        else if (consume(parser, context, 167774015 /* LessThan */)) {
+            return parseTypeAssertion(parser, context);
+        }
     }
     const expression = parseLeftHandSideExpression(parser, context, pos);
     if (hasBit(parser.token, 570425344 /* IsUpdateOp */) && !(parser.flags & 1 /* NewLine */)) {
@@ -3821,6 +3834,22 @@ function parseUpdateExpression(parser, context, pos) {
         });
     }
     return expression;
+}
+/**
+ * Parse type assertion
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseTypeAssertion(parser, context) {
+    const pos = getLocation(parser);
+    const typeAnnotation = parseType(parser, context);
+    expect(parser, context, 167774016 /* GreaterThan */);
+    return finishNode(context, parser, pos, {
+        type: 'TypeAssertion',
+        typeAnnotation,
+        expression: parseUnaryExpression(parser, context)
+    });
 }
 /**
  * Parse assignment rest element
@@ -3886,6 +3915,9 @@ function parseLeftHandSideExpression(parser, context, pos) {
 function parseMemberExpression(parser, context, pos, expr = parsePrimaryExpression(parser, context)) {
     while (true) {
         switch (parser.token) {
+            case 301989933 /* Negate */:
+                expr = parseNonNullExpression(parser, context, expr);
+                continue;
             case 16777229 /* Period */: {
                 consume(parser, context, 16777229 /* Period */);
                 parser.flags = parser.flags & ~2 /* AllowBinding */ | 4 /* AllowDestructuring */;
@@ -4871,12 +4903,24 @@ function parseFormalListAndBody(parser, context, state) {
     const paramList = parseFormalParameters(parser, context | 524288 /* InParameter */, state);
     const args = paramList.args;
     const params = paramList.params;
-    let returnType = null;
-    if (parser.token === 16777237 /* Colon */) {
-        returnType = parseTypeOrTypePredicateAnnotation(parser, context, 16777237 /* Colon */);
-    }
-    const body = parseFunctionBody(parser, context & ~1073741824 /* AllowDecorator */ | 1048576 /* InFunctionBody */, args);
+    const returnType = parser.token === 16777237 /* Colon */
+        ? parseTypeOrTypePredicateAnnotation(parser, context, 16777237 /* Colon */)
+        : null;
+    const body = parseFunctionBlockOrSemicolon(parser, context, args);
     return { params, body, returnType };
+}
+/**
+ * Parses function block or return null if body less function
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseFunctionBlockOrSemicolon(parser, context, args) {
+    if (parser.token !== 41943052 /* LeftBrace */) {
+        cherow.consumeSemicolon(parser, context);
+        return null;
+    }
+    return parseFunctionBody(parser, context & ~1073741824 /* AllowDecorator */ | 1048576 /* InFunctionBody */, args);
 }
 /**
  * Parse funciton body
@@ -5011,7 +5055,7 @@ function parseFormalParameterList(parser, context, args) {
     else {
         parser.flags |= 8 /* SimpleParameterList */;
     }
-    const left = parseBindingIdentifierOrPattern(parser, context, args);
+    const left = parseBindingIdentifierOrPattern(parser, context | 8 /* AllowTypeAnnotations */, args);
     if (!consume(parser, context, 83886109 /* Assign */))
         return left;
     if (parser.token & (1073741824 /* IsYield */ | 131072 /* IsAwait */) && context & (262144 /* Yield */ | 131072 /* Async */)) {
@@ -5600,9 +5644,11 @@ function parseBindingIdentifier(parser, context) {
     const pos = getLocation(parser);
     const name = parser.tokenValue;
     nextToken(parser, context);
+    const optional = consume(parser, context, 22 /* QuestionMark */);
     return finishNode(context, parser, pos, {
         type: 'Identifier',
         name,
+        optional,
         typeAnnotation: parser.token === 16777237 /* Colon */ ? parseTypeAnnotation(parser, context) : null
     });
 }
@@ -5677,6 +5723,7 @@ function assignmentRestProperty(parser, context) {
 function parseArrayAssignmentPattern(parser, context, args) {
     const pos = getLocation(parser);
     expect(parser, context, 41943059 /* LeftBracket */);
+    let optional = false;
     const elements = [];
     while (parser.token !== 20 /* RightBracket */) {
         if (consume(parser, context, 16777234 /* Comma */)) {
@@ -5695,10 +5742,16 @@ function parseArrayAssignmentPattern(parser, context, args) {
         }
     }
     expect(parser, context, 20 /* RightBracket */);
+    if (consume(parser, context, 22 /* QuestionMark */)) {
+        if (!(parser.token & 65536 /* IsIdentifier */))
+            cherow.report(parser, 0 /* Unexpected */);
+        optional = true;
+    }
     // tslint:disable-next-line:no-object-literal-type-assertion
     return finishNode(context, parser, pos, {
         type: 'ArrayPattern',
         elements,
+        optional,
         typeAnnotation: parser.token === 16777237 /* Colon */ ? parseTypeAnnotation(parser, context) : null,
     });
 }
@@ -5901,13 +5954,14 @@ function parseFunctionDeclarationBody(parser, context, state, pos) {
         cherow.tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
     const { params, body, returnType } = swapContext(parser, context & ~(33554432 /* Method */ | 67108864 /* AllowSuperProperty */ | 16777216 /* RequireIdentifier */), state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
-        type: 'FunctionDeclaration',
+        type: context & 1 /* Declared */ ? 'DeclareFunction' : 'FunctionDeclaration',
         params,
         body,
         async: !!(state & 2 /* Await */),
         generator: !!(state & 1 /* Generator */),
         expression: false,
         id,
+        declared: !!(context & 1 /* Declared */),
         typeParameters,
         returnType
     });

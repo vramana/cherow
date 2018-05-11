@@ -32,7 +32,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
       lastValue,
       tokenRegExp
   } = parser;
-console.log('dddd')
+
   switch (parser.token) {
 
       // 'declare'

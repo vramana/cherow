@@ -1,4 +1,4 @@
-import { ESTree, Parser, Context, Token, Errors, tolerant, tokenDesc, Flags, Location } from 'cherow';
+import { report,  ESTree, Parser, Context, Token, Errors, tolerant, tokenDesc, Flags, Location } from 'cherow';
 import { parseIdentifier, parseAssignmentExpression, parsePropertyName } from './expressions';
 import { parseTypeAnnotation } from './annotations';
 import {
@@ -147,7 +147,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
     const pos = getLocation(parser);
 
     expect(parser, context, Token.LeftBracket);
-
+    let optional = false;
     const elements: (ESTree.Node | null)[] = [];
 
     while (parser.token !== Token.RightBracket) {
@@ -165,11 +165,15 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
     }
 
     expect(parser, context, Token.RightBracket);
-
+    if (consume(parser, context, Token.QuestionMark)) {
+      if (!(parser.token & Token.IsIdentifier)) report(parser, Errors.Unexpected);
+      optional = true;
+    }
     // tslint:disable-next-line:no-object-literal-type-assertion
     return finishNode(context, parser, pos, {
         type: 'ArrayPattern',
         elements,
+        optional,
         typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null,
     } as ESTree.ArrayPattern);
 }
