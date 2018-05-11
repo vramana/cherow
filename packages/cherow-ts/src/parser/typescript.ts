@@ -5,6 +5,7 @@ import { parseIdentifier, parseLiteral, parseAssignmentExpression } from './expr
 import { parseTypeParameters, parseType, parseObjectTypeMembers, parseTypeArguments } from './annotations';
 import { parseVariableDeclarationList, parseAsyncFunctionOrAsyncGeneratorDeclaration, parseFunctionDeclaration,  parseClassDeclaration } from './declarations';
 import { parseModuleItem } from './module';
+
 /**
  * Parse either expression statement or declare (TypeScript)
  *
@@ -31,7 +32,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
       lastValue,
       tokenRegExp
   } = parser;
-
+console.log('dddd')
   switch (parser.token) {
 
       // 'declare'
@@ -39,7 +40,7 @@ export function parseExpressionOrDeclareStatement(parser: Parser, context: Conte
           {
               switch (nextToken(parser, context)) {
 
-                   // 'global'
+                 // 'global'
                   case Token.GlobalKeyword:
                       return parseAmbientExternalModuleDeclaration(parser, context);
 

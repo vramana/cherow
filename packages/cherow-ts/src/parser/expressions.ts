@@ -46,7 +46,8 @@ import {
   validateParams,
   setPendingExpressionError,
   validateCoverParenthesizedExpression,
-  validateAsyncArgumentList
+  validateAsyncArgumentList,
+  TypeScriptContext
 } from '../utilities';
 
 /**
@@ -1597,7 +1598,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context, state: 
     if (parser.token === Token.Colon) {
       returnType = parseTypeOrTypePredicateAnnotation(parser, context, Token.Colon);
     }
-    const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
+    const body = context & TypeScriptContext.Declared ? null : parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
     return { params, body, returnType };
 }
 
@@ -1757,7 +1758,7 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
         parser.flags |= Flags.SimpleParameterList;
     }
 
-    const left: any = parseBindingIdentifierOrPattern(parser, context, args);
+    const left: any = parseBindingIdentifierOrPattern(parser, context | TypeScriptContext.AllowTypeAnnotations, args);
     if (!consume(parser, context, Token.Assign)) return left;
 
     if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {

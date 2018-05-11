@@ -2,7 +2,7 @@ import { Context } from 'cherow';
 import * as t from 'assert';
 import { parseTS } from '../../src/cherow-ts';
 
-describe('Types', () => {
+describe('Api', () => {
 
   it('should parse script code', () => {
     t.deepEqual(parseTS('function foo(a: string, b: number): void {}'), {
@@ -17,12 +17,14 @@ describe('Types', () => {
             'generator': false,
             'id': {
               'name': 'foo',
+              "optional": false,
               'type': 'Identifier',
               'typeAnnotation': null,
             },
             'params': [
               {
                 'name': 'a',
+                "optional": false,
                 'type': 'Identifier',
                 'typeAnnotation': {
                   'type': 'TypeAnnotation',
@@ -33,6 +35,7 @@ describe('Types', () => {
               },
               {
                 'name': 'b',
+                "optional": false,
                 'type': 'Identifier',
                 'typeAnnotation': {
                  'type': 'TypeAnnotation',
@@ -65,6 +68,7 @@ describe('Types', () => {
               {
                 'id': {
                   'name': 'foo',
+                  "optional": false,
                  'type': 'Identifier',
                   'typeAnnotation': {
                     'type': 'TypeAnnotation',

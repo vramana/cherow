@@ -99,6 +99,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'a',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
@@ -130,6 +131,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'a',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
@@ -157,6 +159,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'intersection',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
@@ -191,6 +194,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'x',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
@@ -223,6 +227,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'arr',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
@@ -256,6 +261,7 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'arr',
+                      "optional": false,
                       'type': 'Identifier',
                       typeAnnotation: null,
                   },
@@ -280,6 +286,7 @@ describe('Types', () => {
                 {
                   "id": {
                     "name": "a",
+                    "optional": false,
                     "type": "Identifier",
                     "typeAnnotation": {
                       "type": "TypeAnnotation",
@@ -339,12 +346,14 @@ describe('Types', () => {
               'declarations': [{
                   'id': {
                       'name': 'f',
+                      "optional": false,
                       'type': 'Identifier',
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
                               'parameters': [{
                                   'name': 'a',
+                                  "optional": false,
                                   'type': 'Identifier',
                                   'typeAnnotation': {
                                       'type': 'TypeAnnotation',
@@ -402,11 +411,13 @@ describe('Types', () => {
                   'id': {
                       'name': 'f',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
                               'parameters': [{
                                       'name': 'a',
+                                      "optional": false,
                                       'type': 'Identifier',
                                       'typeAnnotation': {
                                           'type': 'TypeAnnotation',
@@ -422,6 +433,7 @@ describe('Types', () => {
                                   },
                                   {
                                       'name': 'b',
+                                      "optional": false,
                                       'type': 'Identifier',
                                       'typeAnnotation': {
                                           'type': 'TypeAnnotation',
@@ -437,6 +449,7 @@ describe('Types', () => {
                                   },
                                   {
                                       'name': 'c',
+                                      "optional": false,
                                       'type': 'Identifier',
                                       'typeAnnotation': {
                                           'type': 'TypeAnnotation',
@@ -495,6 +508,7 @@ describe('Types', () => {
                   'id': {
                       'name': 'x',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -540,12 +554,14 @@ describe('Types', () => {
                   'id': {
                       'name': 'f',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
                               'parameters': [{
                                       'name': 'a',
                                       'type': 'Identifier',
+                                      "optional": false,
                                       'typeAnnotation': {
                                           'type': 'TypeAnnotation',
                                           'typeAnnotation': {
@@ -557,6 +573,7 @@ describe('Types', () => {
                                       'argument': {
                                           'name': 'c',
                                           'type': 'Identifier',
+                                          "optional": false,
                                           'typeAnnotation': {
                                               'type': 'TypeAnnotation',
                                               'typeAnnotation': {
@@ -601,6 +618,7 @@ describe('Types', () => {
                   'id': {
                       'name': 'nameNumber',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -635,6 +653,7 @@ describe('Types', () => {
                   'id': {
                       'name': 'x',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -675,6 +694,7 @@ describe('Types', () => {
                   "id": {
                     "name": "a",
                     "type": "Identifier",
+                    "optional": false,
                     "typeAnnotation": {
                       "type": "TypeAnnotation",
                       "typeAnnotation": {
@@ -689,6 +709,7 @@ describe('Types', () => {
                               {
                                 "name": "x",
                                 "type": "Identifier",
+                                "optional": false,
                                 "typeAnnotation": {
                                   "type": "TypeAnnotation",
                                   "typeAnnotation": {
@@ -743,6 +764,7 @@ describe('Types', () => {
                   'id': {
                       'name': 'y',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -775,6 +797,7 @@ describe('Types', () => {
                       'elements': [{
                           'name': 'x',
                           'type': 'Identifier',
+                          "optional": false,
                           'typeAnnotation': null,
                       }],
                       'type': 'ArrayPattern',
@@ -827,6 +850,7 @@ describe('Types', () => {
               'id': {
                   'name': 'extend',
                   'type': 'Identifier',
+                  "optional": false,
                   'typeAnnotation': null,
               },
               'params': [],
@@ -874,11 +898,13 @@ describe('Types', () => {
               'id': {
                   'name': 'extend',
                   'type': 'Identifier',
+                  "optional": false,
                   'typeAnnotation': null,
               },
               'params': [{
                       'name': 'first',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -894,6 +920,7 @@ describe('Types', () => {
                   {
                       'name': 'second',
                       'type': 'Identifier',
+                      "optional": false,
                       'typeAnnotation': {
                           'type': 'TypeAnnotation',
                           'typeAnnotation': {
@@ -951,6 +978,7 @@ describe('Types', () => {
               'id': {
                   'name': 'foo',
                   'type': 'Identifier',
+                  "optional": false,
                   'typeAnnotation': null,
               },
               'params': [],
@@ -1030,12 +1058,14 @@ describe('Types', () => {
            'id': {
               'name': 'extend',
               'type': 'Identifier',
+              "optional": false,
               'typeAnnotation': null,
             },
             'params': [
               {
                 'name': 'first',
                 'type': 'Identifier',
+                "optional": false,
                 'typeAnnotation': {
                   'type': 'TypeAnnotation',
                  'typeAnnotation': {
@@ -1051,6 +1081,7 @@ describe('Types', () => {
               {
                 'name': 'second',
                 'type': 'Identifier',
+                "optional": false,
                 'typeAnnotation': {
                   'type': 'TypeAnnotation',
                  'typeAnnotation': {

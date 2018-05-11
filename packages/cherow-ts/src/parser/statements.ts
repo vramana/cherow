@@ -53,6 +53,7 @@ import { parseBindingIdentifierOrPattern } from './pattern';
  * @param context Context masks
  */
 export function parseStatementListItem(parser: Parser, context: Context): ESTree.Statement {
+
   switch (parser.token) {
     case Token.FunctionKeyword:
       return parseFunctionDeclaration(parser, context);

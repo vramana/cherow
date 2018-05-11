@@ -51,6 +51,7 @@ describe('Import', () => {
                     {
                       "local": {
                         "name": "a",
+                        "optional": false,
                        "type": "Identifier",
                         "typeAnnotation": null,
                      },

@@ -256,6 +256,7 @@ export interface I {
                           "id": {
                               "name": "C",
                               "type": "Identifier",
+                              "optional": false,
                               "typeAnnotation": null,
                           },
                           "superClass": null,
@@ -284,6 +285,7 @@ export interface I {
                           "declarations": [{
                               "id": {
                                   "name": "x",
+                                  "optional": false,
                                   "type": "Identifier",
                                   "typeAnnotation": {
                                       "type": "TypeAnnotation",

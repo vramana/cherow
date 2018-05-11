@@ -23,7 +23,7 @@ import {
   parseDecorators,
 } from './expressions';
 import { parseTypeParameters } from './annotations';
-import { expect, finishNode, consume, getLocation, swapContext, parseExpressionCoverGrammar } from '../utilities';
+import { TypeScriptContext, expect, finishNode, consume, getLocation, swapContext, parseExpressionCoverGrammar } from '../utilities';
 
 // Declarations
 
@@ -112,10 +112,9 @@ function parseFunctionDeclarationBody(parser: Parser, context: Context, state: M
       }
   // Unnamed functions are forbidden in statement context.
   } else if (!(context & Context.RequireIdentifier)) tolerant(parser, context, Errors.UnNamedFunctionDecl);
-
   const { params, body, returnType } = swapContext(parser, context & ~(Context.Method | Context.AllowSuperProperty | Context.RequireIdentifier), state, parseFormalListAndBody);
   return finishNode(context, parser, pos, {
-      type: 'FunctionDeclaration',
+      type: context & TypeScriptContext.Declared ? 'DeclareFunction' : 'FunctionDeclaration',
       params,
       body,
       async: !!(state & ModifierState.Await),

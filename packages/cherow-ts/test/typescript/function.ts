@@ -33,12 +33,14 @@ describe('Functions', () => {
           'generator': false,
           'id': {
             'name': 'f',
+            "optional": false,
             'type': 'Identifier',
             'typeAnnotation': null,
           },
           'params': [
            {
               'name': 'x',
+              "optional": false,
               'type': 'Identifier',
               'typeAnnotation': {
                 'type': 'TypeAnnotation',
@@ -70,4 +72,188 @@ describe('Functions', () => {
     }
 });
 
+
+pass('const f = function<T>(x?: T): T {};', Context.Empty, {
+  source: 'const f = function<T>(x?: T): T {};',
+  expected: {
+      "body": [
+        {
+          "declarations": [
+            {
+              "id": {
+                "name": "f",
+                "optional": false,
+               "type": "Identifier",
+                "typeAnnotation": null,
+              },
+              "init": {
+                "async": false,
+                "body": {
+                  "body": [],
+                  "type": "BlockStatement"
+               },
+                "expression": false,
+                "generator": false,
+               "id": null,
+                "params": [
+                  {
+                    "name": "x",
+                    "optional": true,
+                    "type": "Identifier",
+                    "typeAnnotation": {
+                     "type": "TypeAnnotation",
+                      "typeAnnotation": {
+                        "type": "TSTypeReference",
+                        "typeName": {
+                          "name": "T",
+                          "type": "Identifier",
+                        },
+                        "typeParameters": [],
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                 "type": "TypeAnnotation",
+                  "typeAnnotation": {
+                    "type": "TSTypeReference",
+                    "typeName": {
+                      "name": "T",
+                      "type": "Identifier",
+                    },
+                    "typeParameters": [],
+                  }
+                },
+                "type": "FunctionExpression",
+                "typeParameters": {
+                  "params": [
+                   {
+                      "constraint": null,
+                      "default": null,
+                      "name": "T",
+                      "type": "TSTypeParameter",
+                    },
+                  ],
+                  "type": "TSTypeParameterDeclaration",
+                },
+              },
+              "type": "VariableDeclarator",
+            },
+          ],
+          "declared": false,
+         "kind": "const",
+          "type": "VariableDeclaration",
+        },
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
+pass('function f(x?: string) {}', Context.Empty, {
+  source: 'function f(x?: string) {}',
+  expected: {
+      "body": [
+        {
+         "async": false,
+          "body": {
+           "body": [],
+            "type": "BlockStatement"
+          },
+          "expression": false,
+          "generator": false,
+          "id": {
+            "name": "f",
+            "optional": false,
+            "type": "Identifier",
+            "typeAnnotation": null,
+         },
+          "params": [
+            {
+              "name": "x",
+              "optional": true,
+              "type": "Identifier",
+              "typeAnnotation": {
+                "type": "TypeAnnotation",
+                "typeAnnotation": {
+                  "type": "TSStringKeyword"
+                }
+              }
+            }
+          ],
+          "returnType": null,
+          "type": "FunctionDeclaration",
+          "typeParameters": null,
+       }
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
+pass('function f<T>(x?: T): T {}', Context.Empty, {
+source: 'function f<T>(x?: T): T {}',
+expected: {
+    "body": [
+      {
+        "async": false,
+        "body": {
+          "body": [],
+         "type": "BlockStatement"
+        },
+        "expression": false,
+        "generator": false,
+        "id": {
+          "name": "f",
+          "optional": false,
+          "type": "Identifier",
+          "typeAnnotation": null,
+       },
+        "params": [
+          {
+            "name": "x",
+            "optional": true,
+            "type": "Identifier",
+            "typeAnnotation": {
+              "type": "TypeAnnotation",
+              "typeAnnotation": {
+                "type": "TSTypeReference",
+                "typeName": {
+                  "name": "T",
+                  "type": "Identifier",
+                },
+                "typeParameters": [],
+              }
+            }
+         }
+        ],
+        "returnType": {
+          "type": "TypeAnnotation",
+          "typeAnnotation": {
+            "type": "TSTypeReference",
+            "typeName": {
+              "name": "T",
+              "type": "Identifier"
+           },
+            "typeParameters": []
+          }
+        },
+        "type": "FunctionDeclaration",
+        "typeParameters": {
+          "params": [
+            {
+              "constraint": null,
+              "default": null,
+              "name": "T",
+              "type": "TSTypeParameter",
+            },
+          ],
+          "type": "TSTypeParameterDeclaration",
+        }
+      }
+    ],
+    "sourceType": "script",
+    "type": "Program"
+  }
+});
 });

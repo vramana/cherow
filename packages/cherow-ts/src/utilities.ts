@@ -26,6 +26,7 @@ export const enum TypeScriptContext {
   Declared   = 1 << 0,
   Namespace  = 1 << 1,
   Ambient  = 1 << 2,
+  AllowTypeAnnotations  = 1 << 3,
 }
 
 export const enum TypeScriptFlags {

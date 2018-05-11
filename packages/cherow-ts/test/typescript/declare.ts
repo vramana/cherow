@@ -52,6 +52,7 @@ describe('Declare', () => {
               'id': {
                 'name': 'x',
                 'type': 'Identifier',
+                "optional": false,
                 'typeAnnotation': null,
               },
               'init': null,
@@ -77,6 +78,7 @@ describe('Declare', () => {
             {
               'id': {
                 'name': 'x',
+                "optional": false,
                 'type': 'Identifier',
                 'typeAnnotation': {
                   'type': 'TypeAnnotation',
@@ -91,6 +93,7 @@ describe('Declare', () => {
             {
               'id': {
                 'name': 'y',
+                "optional": false,
                 'type': 'Identifier',
                 'typeAnnotation': {
                   'type': 'TypeAnnotation',

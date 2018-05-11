@@ -167,6 +167,7 @@ describe('Interface', () => {
                 "parameters": [
                   {
                     "name": "x",
+                    "optional": false,
                     "type": "Identifier",
                     "typeAnnotation": {
                       "type": "TypeAnnotation",
@@ -212,6 +213,7 @@ pass('interface I { (x: number): void; }', Context.Empty, {
                 "parameters": [
                   {
                     "name": "x",
+                    "optional": false,
                     "type": "Identifier",
                     "typeAnnotation": {
                       "type": "TypeAnnotation",

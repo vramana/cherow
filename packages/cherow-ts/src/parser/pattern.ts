@@ -66,9 +66,11 @@ export function parseBindingIdentifier(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     const name = parser.tokenValue;
     nextToken(parser, context);
+    const optional = consume(parser, context, Token.QuestionMark);
     return finishNode(context, parser, pos, {
         type: 'Identifier',
         name,
+        optional,
         typeAnnotation: parser.token === Token.Colon ? parseTypeAnnotation(parser, context) : null
     });
 }

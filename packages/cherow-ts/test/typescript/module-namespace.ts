@@ -248,6 +248,7 @@ pass('namespace N { const x = 0; }', Context.Strict | Context.Module, {
                     "id": {
                       "name": "x",
                       "type": "Identifier",
+                      "optional": false,
                       "typeAnnotation": null,
                     },
                     "init": {
@@ -291,6 +292,7 @@ pass('declare namespace A { namespace B { var x: number; } }', Context.Strict | 
                         {
                           "id": {
                            "name": "x",
+                           "optional": false,
                             "type": "Identifier",
                             "typeAnnotation": {
                               "type": "TypeAnnotation",
@@ -343,6 +345,7 @@ pass('declare namespace N { var x: number; }', Context.Strict | Context.Module, 
                   {
                    "id": {
                       "name": "x",
+                      "optional": false,
                       "type": "Identifier",
                       "typeAnnotation": {
                         "type": "TypeAnnotation",
