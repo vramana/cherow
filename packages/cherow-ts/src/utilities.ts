@@ -26,16 +26,18 @@ export const enum TypeScriptContext {
   Declared   = 1 << 0,
   Namespace  = 1 << 1,
   Ambient  = 1 << 2,
-  AllowTypeAnnotations  = 1 << 3,
-  NoAnonFunctionType  = 1 << 4,
-  InTypeAnnotation = 1 << 5,
-  InConditionalExpression = 1 << 6,
-  AllowTypeAnnotation = 1 << 7,
+  NoAnonFunctionType  = 1 << 3,
+  InTypeAnnotation = 1 << 4,
+  InConditionalExpression = 1 << 5,
+  AllowTypeAnnotation = 1 << 6,
+  Idioten = 1 << 7,
 }
 
 export const enum TypeScriptFlags {
   Empty      = 0,
   HasTypeAnnotation  = 1 << 0,
+  NestedParent = 1 << 1,
+  InConditionalExpression = 1 << 2,
 }
 /**
  * Validate break and continue statement
