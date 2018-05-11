@@ -78,6 +78,7 @@ describe('Api', () => {
                       'typeName': {
                         'name': 'bar',
                         'type': 'Identifier',
+                        "typeAnnotation": null
                       },
                       'typeParameters': [],
                     },

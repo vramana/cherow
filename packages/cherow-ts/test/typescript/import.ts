@@ -14,6 +14,7 @@ describe('Import', () => {
               "id": {
                 "name": "a",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
              "isExport": true,
               "moduleReference": {
@@ -84,17 +85,20 @@ pass('export import A = B.C;', Context.Strict | Context.Module, {
           "declaration": {
            "id": {
               "name": "A",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null,
             },
             "isExport": true,
             "moduleReference": {
               "left": {
                 "name": "B",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null,
               },
               "right": {
                 "name": "C",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "TSQualifiedName",
             },
@@ -118,16 +122,19 @@ pass('import A = B.C;', Context.Strict | Context.Module, {
             "id": {
               "name": "A",
              "type": "Identifier",
+             "typeAnnotation": null
             },
             "isExport": false,
             "moduleReference": {
               "left": {
                 "name": "B",
                 "type": "Identifier",
+                "typeAnnotation": null,
               },
               "right": {
                 "name": "C",
                 "type": "Identifier",
+                "typeAnnotation": null,
               },
               "type": "TSQualifiedName",
             },
@@ -147,6 +154,7 @@ pass('import a = require("a");', Context.Strict | Context.Module, {
           "id": {
             "name": "a",
             "type": "Identifier",
+            "typeAnnotation": null,
           },
           "isExport": false,
           "moduleReference": {

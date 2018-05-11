@@ -70,7 +70,7 @@ export interface I {
                                               "computed": false,
                                               "key": {
                                                   "name": "a",
-                                                  "type": "Identifier",
+                                                  "type": "Identifier"
                                               },
                                               "type": "TSPropertySignature",
                                               "typeAnnotation": {
@@ -84,7 +84,7 @@ export interface I {
                                               "computed": false,
                                               "key": {
                                                   "name": "b",
-                                                  "type": "Identifier",
+                                                  "type": "Identifier"
                                               },
                                               "type": "TSPropertySignature",
                                               "typeAnnotation": {
@@ -100,7 +100,8 @@ export interface I {
                                   "extends": null,
                                   "id": {
                                       "name": "I",
-                                      "type": "Identifier"
+                                      "type": "Identifier",
+                                      "typeAnnotation": null
                                   },
                                   "type": "TSInterfaceDeclaration",
                                   "typeParameters": null,
@@ -119,6 +120,7 @@ export interface I {
                   "id": {
                       "name": "Bar",
                       "type": "Identifier",
+                      "typeAnnotation": null
                   },
                   "type": "TSModuleDeclaration ",
               }, ],
@@ -135,6 +137,7 @@ export interface I {
                       "id": {
                           "name": "T",
                           "type": "Identifier",
+                          "typeAnnotation": null
                       },
                       "type": "TSTypeAliasDeclaration",
                       "typeAnnotation": {
@@ -164,6 +167,7 @@ export interface I {
                           "id": {
                               "name": "M",
                               "type": "Identifier",
+                              "typeAnnotation": null
                           },
                           "type": "TSModuleDeclaration ",
                       },
@@ -194,6 +198,7 @@ export interface I {
                           "id": {
                               "name": "N",
                               "type": "Identifier",
+                              "typeAnnotation": null
                           },
                           "type": "TSModuleDeclaration ",
                       },
@@ -225,6 +230,7 @@ export interface I {
                           "id": {
                               "name": "I",
                               "type": "Identifier",
+                              "typeAnnotation": null
                           },
                           "type": "TSInterfaceDeclaration",
                           "typeParameters": null,
@@ -326,7 +332,8 @@ export interface I {
                       },
                       "id": {
                           "name": "N",
-                          "type": "Identifier"
+                          "type": "Identifier",
+                          "typeAnnotation": null
                       },
                       "type": "TSModuleDeclaration "
                   },
@@ -346,6 +353,7 @@ export interface I {
                   "expression": {
                       "name": "f",
                       "type": "Identifier",
+                      "typeAnnotation": null
                   },
                   "type": "TsExportAssignment "
               }],
@@ -360,7 +368,8 @@ export interface I {
               "body": [{
                   "id": {
                       "name": "A",
-                      "type": "Identifier"
+                      "type": "Identifier",
+                      "typeAnnotation": null
                   },
                   "type": "TSNamespaceExportDeclaration"
               }, ],

@@ -96,7 +96,7 @@ describe('Interface', () => {
             "id": {
               "name": "I",
               "type": "Identifier",
-              "typeAnnotation": null
+              "typeAnnotation": null,
             },
             "type": "TSInterfaceDeclaration",
             "typeParameters": null,
@@ -122,12 +122,12 @@ describe('Interface', () => {
                   "left": {
                    "name": "X",
                     "type": "Identifier",
-                    "typeAnnotation": null
+                    "typeAnnotation": null,
                   },
                   "right": {
                     "name": "Y",
                     "type": "Identifier",
-                    "typeAnnotation": null
+                    "typeAnnotation": null,
                   },
                   "type": "TSQualifiedName",
                 },
@@ -139,7 +139,7 @@ describe('Interface', () => {
                       "typeName": {
                         "name": "Z",
                         "type": "Identifier",
-                        "typeAnnotation": null
+                        "typeAnnotation": null,
                       },
                       "typeParameters": [],
                     },
@@ -151,7 +151,7 @@ describe('Interface', () => {
             "id": {
               "name": "I",
               "type": "Identifier",
-              "typeAnnotation": null
+              "typeAnnotation": null,
             },
             "type": "TSInterfaceDeclaration",
             "typeParameters": null,
@@ -198,7 +198,7 @@ describe('Interface', () => {
           "id": {
             "name": "I",
             "type": "Identifier",
-            "typeAnnotation": null
+            "typeAnnotation": null,
           },
           "type": "TSInterfaceDeclaration",
           "typeParameters": null,
@@ -245,7 +245,7 @@ pass('interface I { (x: number): void; }', Context.Empty, {
           "id": {
             "name": "I",
             "type": "Identifier",
-            "typeAnnotation": null
+            "typeAnnotation": null,
           },
           "type": "TSInterfaceDeclaration",
           "typeParameters": null,
@@ -278,6 +278,7 @@ pass(`interface Comma { x: number, y: number }
                   "key": {
                     "name": "x",
                     "type": "Identifier",
+                    "typeAnnotation": null,
                   },
                   "type": "TSPropertySignature",
                   "typeAnnotation": {
@@ -292,6 +293,7 @@ pass(`interface Comma { x: number, y: number }
                   "key": {
                     "name": "number",
                     "type": "Identifier",
+                    "typeAnnotation": null,
                   },
                   "type": "TSPropertySignature",
                   "typeAnnotation": null,
@@ -300,7 +302,7 @@ pass(`interface Comma { x: number, y: number }
                   "computed": false,
                   "key": {
                     "name": "y",
-                    "type": "Identifier",
+                    "type": "Identifier"
                   },
                   "type": "TSPropertySignature",
                   "typeAnnotation": {
@@ -317,7 +319,7 @@ pass(`interface Comma { x: number, y: number }
             "id": {
               "name": "Comma",
               "type": "Identifier",
-              "typeAnnotation": null
+              "typeAnnotation": null,
             },
             "type": "TSInterfaceDeclaration",
             "typeParameters": null,
@@ -329,7 +331,7 @@ pass(`interface Comma { x: number, y: number }
                   "computed": false,
                   "key": {
                     "name": "x",
-                    "type": "Identifier",
+                    "type": "Identifier"
                   },
                   "type": "TSPropertySignature",
                   "typeAnnotation": {
@@ -360,6 +362,7 @@ pass(`interface Comma { x: number, y: number }
             "id": {
               "name": "Semi",
               "type": "Identifier",
+              "typeAnnotation": null,
             },
             "type": "TSInterfaceDeclaration",
             "typeParameters": null,
@@ -402,6 +405,7 @@ pass(`interface Comma { x: number, y: number }
             "id": {
              "name": "Newline",
               "type": "Identifier",
+              "typeAnnotation": null,
             },
             "type": "TSInterfaceDeclaration",
             "typeParameters": null,
@@ -410,8 +414,8 @@ pass(`interface Comma { x: number, y: number }
         "sourceType": "script",
         "type": "Program"
       }
-});
- */
+});*/
+
 pass('interface I<T extends object = { x: number }> {}', Context.Empty, {
   source: 'interface I<T extends object = { x: number }> {}',
   expected: {
@@ -425,7 +429,7 @@ pass('interface I<T extends object = { x: number }> {}', Context.Empty, {
           "id": {
             "name": "I",
             "type": "Identifier",
-            "typeAnnotation": null
+            "typeAnnotation": null,
           },
           "type": "TSInterfaceDeclaration",
           "typeParameters": {

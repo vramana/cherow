@@ -32,7 +32,8 @@ pass('namespace A { namespace B { } }', Context.Strict | Context.Module, {
                 },
                 "id": {
                   "name": "B",
-                  "type": "Identifier"
+                  "type": "Identifier",
+                  "typeAnnotation": null
                 },
                 "type": "TSModuleDeclaration "
               }
@@ -41,7 +42,8 @@ pass('namespace A { namespace B { } }', Context.Strict | Context.Module, {
           },
           "id": {
             "name": "A",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         }
@@ -80,18 +82,21 @@ pass('namespace M.N.O {}', Context.Strict | Context.Module, {
               "id": {
                 "name": "O",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "TSModuleDeclaration "
             },
             "id": {
               "name": "N",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "TSModuleDeclaration "
           },
           "id": {
             "name": "M",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         },
@@ -112,7 +117,8 @@ pass('namespace N {}', Context.Strict | Context.Module, {
           },
           "id": {
             "name": "N",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         },
@@ -134,7 +140,8 @@ pass('declare global {}', Context.Strict | Context.Module, {
           "global": true,
           "id": {
             "name": "global",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         }
@@ -177,7 +184,8 @@ pass('declare module M {}', Context.Strict | Context.Module, {
           },
           "id": {
             "name": "M",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration ",
         },
@@ -199,13 +207,15 @@ pass('declare namespace N.M {}', Context.Strict | Context.Module, {
             },
             "id": {
               "name": "M",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "TSModuleDeclaration ",
           },
           "id": {
             "name": "N",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
          },
           "type": "TSModuleDeclaration "
         },
@@ -268,6 +278,7 @@ pass('namespace N { const x = 0; }', Context.Strict | Context.Module, {
           "id": {
             "name": "N",
             "type": "Identifier",
+            "typeAnnotation": null,
           },
          "type": "TSModuleDeclaration ",
         },
@@ -315,6 +326,7 @@ pass('declare namespace A { namespace B { var x: number; } }', Context.Strict | 
                 "id": {
                   "name": "B",
                   "type": "Identifier",
+                  "typeAnnotation": null
                 },
                 "type": "TSModuleDeclaration ",
               },
@@ -324,6 +336,7 @@ pass('declare namespace A { namespace B { var x: number; } }', Context.Strict | 
           "id": {
            "name": "A",
             "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         }
@@ -367,7 +380,8 @@ pass('declare namespace N { var x: number; }', Context.Strict | Context.Module, 
           },
           "id": {
             "name": "N",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSModuleDeclaration "
         }

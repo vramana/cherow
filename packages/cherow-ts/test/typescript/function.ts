@@ -196,6 +196,7 @@ describe('Functions', () => {
                       'parameterName': {
                           'name': 'x',
                           'type': 'Identifier',
+                          "typeAnnotation": null
                       },
                       'type': 'TSTypePredicate',
                       'typeAnnotation': {
@@ -245,6 +246,7 @@ describe('Functions', () => {
                                       "typeName": {
                                           "name": "T",
                                           "type": "Identifier",
+                                          "typeAnnotation": null
                                       },
                                       "typeParameters": [],
                                   }
@@ -257,6 +259,7 @@ describe('Functions', () => {
                                   "typeName": {
                                       "name": "T",
                                       "type": "Identifier",
+                                      "typeAnnotation": null
                                   },
                                   "typeParameters": [],
                               }
@@ -350,6 +353,7 @@ describe('Functions', () => {
                               "typeName": {
                                   "name": "T",
                                   "type": "Identifier",
+                                  "typeAnnotation": null
                               },
                               "typeParameters": [],
                           }
@@ -361,7 +365,8 @@ describe('Functions', () => {
                           "type": "TSTypeReference",
                           "typeName": {
                               "name": "T",
-                              "type": "Identifier"
+                              "type": "Identifier",
+                              "typeAnnotation": null
                           },
                           "typeParameters": []
                       }
@@ -443,6 +448,7 @@ describe('Functions', () => {
                           "typeName": {
                               "name": "T",
                               "type": "Identifier",
+                              "typeAnnotation": null
                           },
                           "typeParameters": [],
                       }

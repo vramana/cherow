@@ -32,6 +32,7 @@ describe('Declare', () => {
             'id': {
               'name': 'I',
               'type': 'Identifier',
+              "typeAnnotation": null
             },
             'type': 'TSInterfaceDeclaration',
             'typeParameters': null,

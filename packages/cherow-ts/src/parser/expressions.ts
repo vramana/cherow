@@ -168,6 +168,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): EST
     let expr: any = token & Token.IsAsync && lookahead(parser, context, nextTokenisIdentifierOrParen)
             ? parserCoverCallExpressionAndAsyncArrowHead(parser, context)
             : parseConditionalExpression(parser, context, pos);
+
     if (parser.token === Token.Arrow) {
         if (token & (Token.IsIdentifier | Token.Keyword)) {
             if (token & (Token.FutureReserved | Token.IsEvalOrArguments)) {
@@ -180,7 +181,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): EST
                     parser.flags |= Flags.StrictEvalArguments;
                 }
             }
-            expr = [expr];
+            expr = { params: [expr] };
         }
         return parseArrowFunction(parser, context &= ~Context.Async, pos, expr);
     }
@@ -857,10 +858,15 @@ function parseAsyncFunctionOrIdentifier(parser: Parser, context: Context): any {
 export function parseIdentifier(parser: Parser, context: Context): ESTree.Identifier {
     const pos = getLocation(parser);
     const name = parser.tokenValue;
+    let typeAnnotation: any = null;
     nextToken(parser, context | Context.TaggedTemplate);
+    if (context & TypeScriptContext.AllowTypeAnnotations && parser.token === Token.Colon) {
+      typeAnnotation = parseTypeAnnotation(parser, context);
+    }
     const node: any = finishNode(context, parser, pos, {
         type: 'Identifier',
         name,
+        typeAnnotation
     });
 
     if (context & Context.OptionsRawidentifiers) node.raw = parser.tokenRaw;
@@ -1097,118 +1103,152 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
  */
 
 function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, context: Context): any {
-    expect(parser, context, Token.LeftParen);
+  expect(parser, context, Token.LeftParen);
+  let returnType: any;
+  let typeParameters: any = null;
+  switch (parser.token) {
 
-    switch (parser.token) {
+      // ')'
+      case Token.RightParen:
+      {
+        expect(parser, context, Token.RightParen);
+        if (parser.token === Token.Colon) {
+            context |= TypeScriptContext.NoAnonFunctionType;
+            returnType = parseTypeAnnotation(parser, context | TypeScriptContext.InTypeAnnotation);
+        }
+        parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
+        if (parser.token === Token.Arrow) return { returnType, typeParameters, params: [] };
+      }
+          // '...'
+          case Token.Ellipsis:
+          {
+              const expr = parseRestElement(parser, context);
+              expect(parser, context, Token.RightParen);
+              if (parser.token === Token.Colon) {
+                returnType = parseTypeAnnotation(parser, context | TypeScriptContext.NoAnonFunctionType | TypeScriptContext.InTypeAnnotation);
+              }
+              parser.flags = parser.flags & ~(Flags.AllowDestructuring | Flags.AllowBinding) | Flags.SimpleParameterList;
+              if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+              return { returnType, typeParameters, params: [expr] };
+          }
 
-        // ')'
-        case Token.RightParen:
-            {
-                expect(parser, context, Token.RightParen);
-                parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
-                if (parser.token === Token.Arrow) return [];
-            }
-            // '...'
-        case Token.Ellipsis:
-            {
-                const expr = parseRestElement(parser, context);
-                expect(parser, context, Token.RightParen);
-                parser.flags = parser.flags & ~(Flags.AllowDestructuring | Flags.AllowBinding) | Flags.SimpleParameterList;
-                if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
-                return [expr];
-            }
+      default:
+          {
+              let state = CoverParenthesizedState.None;
 
-        default:
-            {
-                let state = CoverParenthesizedState.None;
+              // Record the sequence position
+              const sequencepos = getLocation(parser);
 
-                // Record the sequence position
-                const sequencepos = getLocation(parser);
+              state = validateCoverParenthesizedExpression(parser, state);
 
-                state = validateCoverParenthesizedExpression(parser, state);
+              if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
 
-                if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding;
+              let expr: any;
+          //  | TypeScriptContext.AllowTypeAnnotations
+              if (!(context & TypeScriptContext.InConditionalExpression) && parser.token & Token.IsIdentifier) {
+                expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
+              } else {
+                expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
+              }
 
-                let expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
+              // Sequence expression
+              if (parser.token === Token.Comma) {
 
-                // Sequence expression
-                if (parser.token === Token.Comma) {
+                  state |= CoverParenthesizedState.SequenceExpression;
 
-                    state |= CoverParenthesizedState.SequenceExpression;
+                  const expressions: ESTree.Expression[] = [expr];
 
-                    const expressions: ESTree.Expression[] = [expr];
+                  while (consume(parser, context | Context.DisallowEscapedKeyword, Token.Comma)) {
+                      parser.flags &= ~Flags.AllowDestructuring;
+                      switch (parser.token) {
 
-                    while (consume(parser, context | Context.DisallowEscapedKeyword, Token.Comma)) {
-                        parser.flags &= ~Flags.AllowDestructuring;
-                        switch (parser.token) {
-
-                            // '...'
-                            case Token.Ellipsis:
-                                {
-                                    if (!(parser.flags & Flags.AllowBinding)) tolerant(parser, context, Errors.NotBindable);
-                                    parser.flags |= Flags.SimpleParameterList;
-                                    const restElement = parseRestElement(parser, context);
-                                    expect(parser, context, Token.RightParen);
-                                    if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.ParamAfterRest);
-                                    parser.flags &= ~Flags.AllowBinding;
-                                    expressions.push(restElement);
-                                    return expressions;
+                          // '...'
+                          case Token.Ellipsis:
+                              {
+                                if (!(parser.flags & Flags.AllowBinding)) tolerant(parser, context, Errors.NotBindable);
+                                parser.flags |= Flags.SimpleParameterList;
+                                const restElement = parseRestElement(parser, context);
+                                expect(parser, context, Token.RightParen);
+                                if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.ParamAfterRest);
+                                parser.flags &= ~Flags.AllowBinding;
+                                expressions.push(restElement);
+                                if (parser.token === Token.Colon) {
+                                  returnType = parseTypeAnnotation(parser, context | TypeScriptContext.NoAnonFunctionType | TypeScriptContext.InTypeAnnotation);
                                 }
+                                return { returnType, typeParameters, params: expressions };
+                              }
 
-                                // ')'
-                            case Token.RightParen:
-                                {
-                                    expect(parser, context, Token.RightParen);
-                                    if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
-                                    return expressions;
+                              // ')'
+                              case Token.RightParen:
+                              {
+                                  expect(parser, context, Token.RightParen);
+                                  if (parser.token !== Token.Arrow) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+                                  return { returnType, typeParameters, params: expressions };
+                              }
+
+
+                          default:
+                              {
+                                state = validateCoverParenthesizedExpression(parser, state);
+                                if (parser.token & Token.IsIdentifier) {
+                                  context |= TypeScriptContext.NoAnonFunctionType | TypeScriptContext.AllowTypeAnnotation;
                                 }
+                                expressions.push(restoreExpressionCoverGrammar(parser, context /*| TypeScriptContext.AllowTypeAnnotations*/, parseAssignmentExpression));
+                            }
+                      }
+                  }
 
-                            default:
-                                {
-                                    state = validateCoverParenthesizedExpression(parser, state);
-                                    expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
-                                }
-                        }
-                    }
+                  expr = finishNode(context, parser, sequencepos, {
+                      type: 'SequenceExpression',
+                      expressions,
+                  });
+              }
+              const typeAnnotation = parser.token === Token.Colon ?
+              parseTypeAnnotation(parser, context | TypeScriptContext.InTypeAnnotation) :
+              null;
+              expect(parser, context, Token.RightParen);
 
-                    expr = finishNode(context, parser, sequencepos, {
-                        type: 'SequenceExpression',
-                        expressions,
-                    });
-                }
+              // TODO: Need to validate if we are inside nsted paren - e.g. '((HELLO))'
+              if (/*!(context & TypeScriptContext.InConditionalExpression) && */parser.token === Token.Colon) {
+                //context |= TypeScriptContext.NoAnonFunctionType;
+                // returnType = parseTypeAnnotation(parser, context/* | TypeScriptContext.InTypeAnnotation*/);
+              }
 
-                expect(parser, context, Token.RightParen);
+              if (parser.token === Token.Arrow) {
 
-                if (parser.token === Token.Arrow) {
+                  if (state & CoverParenthesizedState.HasEvalOrArguments) {
+                      if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
+                      parser.flags |= Flags.StrictEvalArguments;
+                  } else if (state & CoverParenthesizedState.HasReservedWords) {
+                      if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedStrictReserved);
+                      parser.flags |= Flags.HasStrictReserved;
+                  } else if (!(parser.flags & Flags.AllowBinding)) {
+                      tolerant(parser, context, Errors.NotBindable);
+                  } else if (parser.flags & Flags.HasYield) {
+                      tolerant(parser, context, Errors.YieldInParameter);
+                  } else if (context & Context.Async && parser.flags & Flags.HasAwait) {
+                      tolerant(parser, context, Errors.AwaitInParameter);
+                  }
 
-                    if (state & CoverParenthesizedState.HasEvalOrArguments) {
-                        if (context & Context.Strict) tolerant(parser, context, Errors.StrictEvalArguments);
-                        parser.flags |= Flags.StrictEvalArguments;
-                    } else if (state & CoverParenthesizedState.HasReservedWords) {
-                        if (context & Context.Strict) tolerant(parser, context, Errors.UnexpectedStrictReserved);
-                        parser.flags |= Flags.HasStrictReserved;
-                    } else if (!(parser.flags & Flags.AllowBinding)) {
-                        tolerant(parser, context, Errors.NotBindable);
-                    } else if (parser.flags & Flags.HasYield) {
-                        tolerant(parser, context, Errors.YieldInParameter);
-                    } else if (context & Context.Async && parser.flags & Flags.HasAwait) {
-                        tolerant(parser, context, Errors.AwaitInParameter);
-                    }
+                  parser.flags &= ~(Flags.AllowBinding | Flags.HasAwait | Flags.HasYield);
 
-                    parser.flags &= ~(Flags.AllowBinding | Flags.HasAwait | Flags.HasYield);
+                  // return (state & CoverParenthesizedState.SequenceExpression ? (expr as any).expressions : [expr]);
+                  const exprrr = (state & CoverParenthesizedState.SequenceExpression ? (expr as any).expressions : [expr]);
+                  return { returnType, typeParameters, params: exprrr };
+              }
 
-                    return (state & CoverParenthesizedState.SequenceExpression ? (expr as any).expressions : [expr]);
-                }
+              parser.flags &= ~(Flags.HasAwait | Flags.HasYield | Flags.AllowBinding);
 
-                parser.flags &= ~(Flags.HasAwait | Flags.HasYield | Flags.AllowBinding);
+              if (!isValidSimpleAssignmentTarget(expr)) parser.flags &= ~Flags.AllowDestructuring;
 
-                if (!isValidSimpleAssignmentTarget(expr)) parser.flags &= ~Flags.AllowDestructuring;
-
-                return expr;
-            }
-    }
+              // TODO
+                // return typeAnnotation ?
+                // parseTypeCastExpression(parser, context, expr, typeAnnotation) :
+                // expr;
+                return expr;;
+          }
+  }
 }
-
 /**
  * Parses function expression
  *
@@ -1521,10 +1561,11 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
  * @param context Context masks
  */
 
-function parseArrowFunction(parser: Parser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
-    parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
+function parseArrowFunction(parser: Parser, context: Context, pos: Location, args: any): ESTree.ArrowFunctionExpression {
+  parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, '=>');
     expect(parser, context, Token.Arrow);
+    const { returnType, typeParameters, params} = args;
     return parseArrowBody(parser, context & ~Context.Async, params, pos, ModifierState.None);
 }
 

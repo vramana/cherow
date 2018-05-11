@@ -32,6 +32,7 @@ describe('Type alias', () => {
             'id': {
               'name': 'T',
               'type': 'Identifier',
+              "typeAnnotation": null
             },
             'type': 'TSTypeAliasDeclaration',
             'typeAnnotation': {
@@ -53,6 +54,7 @@ describe('Type alias', () => {
           'id': {
             'name': 'T',
             'type': 'Identifier',
+            "typeAnnotation": null
           },
           'type': 'TSTypeAliasDeclaration',
           'typeAnnotation': {
@@ -60,6 +62,7 @@ describe('Type alias', () => {
             'typeName': {
               'name': 'U',
               'type': 'Identifier',
+              "typeAnnotation": null
             },
             'typeParameters': [],
           },
@@ -89,6 +92,7 @@ describe('Type alias', () => {
          "id": {
             "name": "T",
             "type": "Identifier",
+            "typeAnnotation": null
           },
           "type": "TSTypeAliasDeclaration",
           "typeAnnotation": {
@@ -96,6 +100,7 @@ describe('Type alias', () => {
             "typeName": {
               "name": "Array",
               "type": "Identifier",
+              "typeAnnotation": null
             },
             "typeParameters": {
              "params": [
@@ -104,6 +109,7 @@ describe('Type alias', () => {
                   "typeName": {
                     "name": "U",
                     "type": "Identifier",
+                    "typeAnnotation": null
                   },
                   "typeParameters": [],
                 }

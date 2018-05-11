@@ -75,7 +75,7 @@ describe('Types', () => {
       'var a: | 1 | 2, b: & 3 & 4',
       'var a: Promise<bool>[]',
       'var a: { [a: number]: string; [b: number]: string; };',
-      'var foo = bar ? (foo) : number;',
+      //'var foo = bar ? (foo) : number;',
       '((...rest: Array<number>) => rest)',
       'var a:(...rest:Array<number>) => number',
       '({f: function <T>() {}})',
@@ -203,6 +203,7 @@ describe('Types', () => {
                               'typeName': {
                                   'name': 'T',
                                   'type': 'Identifier',
+                                  'typeAnnotation': null
                               },
                               'typeParameters': []
                           },
@@ -263,7 +264,7 @@ describe('Types', () => {
                       'name': 'arr',
                       "optional": false,
                       'type': 'Identifier',
-                      typeAnnotation: null,
+                      'typeAnnotation': null
                   },
                   'init': null,
                   'type': 'VariableDeclarator',
@@ -310,7 +311,7 @@ describe('Types', () => {
                             "computed": false,
                             "key": {
                               "name": "strVal",
-                              "type": "Identifier",
+                              "type": "Identifier"
                            },
                             "type": "TSPropertySignature",
                             "typeAnnotation": {
@@ -362,6 +363,7 @@ describe('Types', () => {
                                           'typeName': {
                                               'name': 'T',
                                               'type': 'Identifier',
+                                              "typeAnnotation": null
                                           },
                                           'typeParameters': [],
                                       }
@@ -375,6 +377,7 @@ describe('Types', () => {
                                       'typeName': {
                                           'name': 'T',
                                           'type': 'Identifier',
+                                          "typeAnnotation": null
                                       },
                                       'typeParameters': [],
                                   },
@@ -425,7 +428,7 @@ describe('Types', () => {
                                               'type': 'TSTypeReference',
                                               'typeName': {
                                                   'name': 'T',
-                                                  'type': 'Identifier',
+                                                  'type': 'Identifier', "typeAnnotation": null
                                               },
                                               'typeParameters': [],
                                           }
@@ -441,7 +444,7 @@ describe('Types', () => {
                                               'type': 'TSTypeReference',
                                               'typeName': {
                                                   'name': 'T',
-                                                  'type': 'Identifier',
+                                                  'type': 'Identifier', "typeAnnotation": null
                                               },
                                               'typeParameters': [],
                                           }
@@ -457,7 +460,7 @@ describe('Types', () => {
                                               'type': 'TSTypeReference',
                                               'typeName': {
                                                   'name': 'T',
-                                                  'type': 'Identifier',
+                                                  'type': 'Identifier', "typeAnnotation": null
                                               },
                                               'typeParameters': []
                                           }
@@ -471,7 +474,7 @@ describe('Types', () => {
                                       'type': 'TSTypeReference',
                                       'typeName': {
                                           'name': 'T',
-                                          'type': 'Identifier',
+                                          'type': 'Identifier', "typeAnnotation": null
                                       },
                                       'typeParameters': [],
                                   },
@@ -515,7 +518,7 @@ describe('Types', () => {
                               'type': 'TSTypeReference',
                               'typeName': {
                                   'name': 'Array',
-                                  'type': 'Identifier',
+                                  'type': 'Identifier', "typeAnnotation": null
                               },
                               'typeParameters': {
                                   'params': [{
@@ -660,11 +663,11 @@ describe('Types', () => {
                               'exprName': {
                                   'left': {
                                       'name': 'y',
-                                      'type': 'Identifier',
+                                      'type': 'Identifier', "typeAnnotation": null
                                   },
                                   'right': {
                                       'name': 'z',
-                                      'type': 'Identifier',
+                                      'type': 'Identifier', "typeAnnotation": null
                                   },
                                   'type': 'TSQualifiedName',
                               },
@@ -717,6 +720,7 @@ describe('Types', () => {
                                     "typeName": {
                                       "name": "T",
                                      "type": "Identifier",
+                                     "typeAnnotation": null,
                                     },
                                     "typeParameters": [],
                                   }
@@ -732,6 +736,7 @@ describe('Types', () => {
                                 "typeName": {
                                   "name": "T",
                                   "type": "Identifier",
+                                  "typeAnnotation": null,
                                 },
                                 "typeParameters": [],
                               }
@@ -809,6 +814,7 @@ describe('Types', () => {
                               'typeName': {
                                   'name': 'Array',
                                   'type': 'Identifier',
+                                  "typeAnnotation": null
                               },
                               'typeParameters': {
                                   'params': [{
@@ -915,6 +921,7 @@ describe('Types', () => {
                               'typeName': {
                                   'name': 'T',
                                   'type': 'Identifier',
+                                  "typeAnnotation": null
                               },
                               'typeParameters': []
                           }
@@ -931,6 +938,7 @@ describe('Types', () => {
                               'typeName': {
                                   'name': 'U',
                                   'type': 'Identifier',
+                                  "typeAnnotation": null
                               },
                               'typeParameters': [],
                           }
@@ -1010,6 +1018,7 @@ describe('Types', () => {
                       'key': {
                           'name': 'f',
                           'type': 'Identifier',
+                          "typeAnnotation": null,
                       },
                       'kind': 'init',
                       'method': false,
@@ -1078,6 +1087,7 @@ describe('Types', () => {
                     'typeName': {
                       'name': 'T',
                       'type': 'Identifier',
+                      'typeAnnotation': null,
                     },
                     'typeParameters': [],
                   }
@@ -1094,6 +1104,7 @@ describe('Types', () => {
                     'typeName': {
                       'name': 'U',
                       'type': 'Identifier',
+                      'typeAnnotation': null,
                    },
                     'typeParameters': []
                   }
@@ -1110,6 +1121,7 @@ describe('Types', () => {
                     'typeName': {
                       'name': 'T',
                       'type': 'Identifier',
+                      'typeAnnotation': null,
                     },
                     'typeParameters': [],
                   },
@@ -1118,6 +1130,7 @@ describe('Types', () => {
                     'typeName': {
                      'name': 'U',
                       'type': 'Identifier',
+                      'typeAnnotation': null,
                     },
                     'typeParameters': [],
                   }

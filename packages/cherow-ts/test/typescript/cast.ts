@@ -20,6 +20,41 @@ for (const arg of validSyntax) {
 */
 
 
+pass(`
+foo
+!
+Bar`, Context.Strict | Context.Module, {
+  source: `
+  foo
+  !
+  Bar`,
+  expected: {
+      "body": [
+       {
+          "expression": {
+            "expression": {
+              "name": "foo",
+              "type": "Identifier",
+              "typeAnnotation": null
+            },
+            "type": "NonNullExpression",
+          },
+          "type": "ExpressionStatement",
+        },
+        {
+          "expression": {
+            "name": "Bar",
+            "type": "Identifier",
+            "typeAnnotation": null
+          },
+          "type": "ExpressionStatement"
+        }
+      ],
+     "sourceType": "module",
+      "type": "Program"
+    }
+});
+
 pass('(x as T).y;', Context.Strict | Context.Module, {
   source: '(x as T).y;',
   expected: {
@@ -30,7 +65,8 @@ pass('(x as T).y;', Context.Strict | Context.Module, {
             "object": {
               "expression": {
                 "name": "x",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "AsExpression",
               "typeAnnotation": {
@@ -38,13 +74,15 @@ pass('(x as T).y;', Context.Strict | Context.Module, {
                 "typeName": {
                   "name": "T",
                   "type": "Identifier",
+                  "typeAnnotation": null
                 },
                 "typeParameters": [],
               }
             },
             "property": {
               "name": "y",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "MemberExpression"
           },
@@ -66,7 +104,8 @@ pass('(<T> x).y;', Context.Strict | Context.Module, {
             "object": {
               "expression": {
                 "name": "x",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "TypeAssertion",
               "typeAnnotation": {
@@ -74,13 +113,15 @@ pass('(<T> x).y;', Context.Strict | Context.Module, {
                 "typeName": {
                   "name": "T",
                   "type": "Identifier",
+                  "typeAnnotation": null
                 },
                "typeParameters": [],
               }
             },
             "property": {
               "name": "y",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "MemberExpression",
           },
@@ -188,12 +229,14 @@ pass('x!.y;', Context.Strict | Context.Module, {
              "expression": {
                 "name": "x",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "NonNullExpression",
             },
             "property": {
               "name": "y",
               "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "MemberExpression",
           },
@@ -216,6 +259,7 @@ expected: {
           "expression": {
           "name": "x",
           "type": "Identifier",
+          "typeAnnotation": null
           }
         },
         "type": "ExpressionStatement",
@@ -236,6 +280,7 @@ pass('x as any as T;', Context.Strict | Context.Module, {
               "expression": {
                 "name": "x",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "AsExpression",
               "typeAnnotation": {
@@ -248,6 +293,7 @@ pass('x as any as T;', Context.Strict | Context.Module, {
              "typeName": {
                 "name": "T",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "typeParameters": [],
             }
@@ -268,7 +314,8 @@ pass('x === 1 as number;', Context.Strict | Context.Module, {
         "expression": {
           "left": {
             "name": "x",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "operator": "===",
           "right": {
@@ -300,6 +347,7 @@ pass('x as boolean < y ', Context.Strict | Context.Module, {
             "expression": {
               "name": "x",
               "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "AsExpression",
             "typeAnnotation": {
@@ -307,6 +355,7 @@ pass('x as boolean < y ', Context.Strict | Context.Module, {
               "typeName": {
                 "name": "T",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "typeParameters": []
             }
@@ -328,7 +377,8 @@ pass('x as boolean < y ', Context.Strict | Context.Module, {
             "left": {
               "expression": {
                "name": "x",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null
               },
               "type": "AsExpression",
               "typeAnnotation": {
@@ -338,7 +388,8 @@ pass('x as boolean < y ', Context.Strict | Context.Module, {
             "operator": "<",
             "right": {
               "name": "y",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
             },
             "type": "BinaryExpression"
           },
@@ -358,13 +409,15 @@ pass('x < y as boolean', Context.Strict | Context.Module, {
           "expression": {
             "left": {
               "name": "x",
-              "type": "Identifier"
+              "type": "Identifier",
+              "typeAnnotation": null
            },
             "operator": "<",
             "right": {
               "expression": {
                 "name": "y",
-                "type": "Identifier"
+                "type": "Identifier",
+                "typeAnnotation": null
              },
               "type": "AsExpression",
               "typeAnnotation": {

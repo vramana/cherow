@@ -27,6 +27,10 @@ export const enum TypeScriptContext {
   Namespace  = 1 << 1,
   Ambient  = 1 << 2,
   AllowTypeAnnotations  = 1 << 3,
+  NoAnonFunctionType  = 1 << 4,
+  InTypeAnnotation = 1 << 5,
+  InConditionalExpression = 1 << 6,
+  AllowTypeAnnotation = 1 << 7,
 }
 
 export const enum TypeScriptFlags {

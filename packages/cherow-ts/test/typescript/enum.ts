@@ -26,13 +26,15 @@ pass('enum E { A, B = 0 }', Context.Strict | Context.Module, {
           "const": false,
           "id": {
             "name": "E",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
          "members": [
             {
               "id": {
                 "name": "A",
                 "type": "Identifier",
+                "typeAnnotation": null
              },
               "initializer": null,
               "type": "TSEnumMember"
@@ -41,6 +43,7 @@ pass('enum E { A, B = 0 }', Context.Strict | Context.Module, {
               "id": {
                 "name": "A",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": null,
               "type": "TSEnumMember"
@@ -49,6 +52,7 @@ pass('enum E { A, B = 0 }', Context.Strict | Context.Module, {
               "id": {
                 "name": "B",
                "type": "Identifier",
+               "typeAnnotation": null
               },
               "initializer": {
                 "type": "Literal",
@@ -75,6 +79,7 @@ pass('export const enum E {}', Context.Strict | Context.Module, {
             "id": {
               "name": "E",
               "type": "Identifier",
+              "typeAnnotation": null
             },
             "members": [],
             "type": "TSEnumDeclaration",
@@ -98,6 +103,7 @@ pass('const enum E {}', Context.Strict | Context.Module, {
           "id": {
             "name": "E",
             "type": "Identifier",
+            "typeAnnotation": null
          },
           "members": [],
           "type": "TSEnumDeclaration",
@@ -118,6 +124,7 @@ pass('export enum E {}', Context.Strict | Context.Module, {
             "id": {
               "name": "E",
               "type": "Identifier",
+              "typeAnnotation": null
             },
             "members": [],
             "type": "TSEnumDeclaration",
@@ -140,13 +147,15 @@ pass('enum E { A, }', Context.Strict | Context.Module, {
           "const": false,
           "id": {
             "name": "E",
-            "type": "Identifier"
+            "type": "Identifier",
+            "typeAnnotation": null
           },
           "members": [
             {
               "id": {
                 "name": "A",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": null,
               "type": "TSEnumMember"
@@ -155,6 +164,7 @@ pass('enum E { A, }', Context.Strict | Context.Module, {
               "id": {
                 "name": "A",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": null,
               "type": "TSEnumMember"
@@ -177,12 +187,14 @@ pass('enum E { A = 0, }', Context.Strict | Context.Module, {
          "id": {
             "name": "E",
            "type": "Identifier",
+           "typeAnnotation": null
           },
           "members": [
             {
               "id": {
                 "name": "A",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": {
                "type": "Literal",
@@ -194,6 +206,7 @@ pass('enum E { A = 0, }', Context.Strict | Context.Module, {
               "id": {
                "name": 0,
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": null,
               "type": "TSEnumMember"
@@ -216,6 +229,7 @@ pass('enum E {"foo","bar" = 1 }', Context.Strict | Context.Module, {
           "id": {
            "name": "E",
             "type": "Identifier",
+            "typeAnnotation": null
           },
           "members": [
             {
@@ -230,6 +244,7 @@ pass('enum E {"foo","bar" = 1 }', Context.Strict | Context.Module, {
               "id": {
                 "name": "foo",
                 "type": "Identifier",
+                "typeAnnotation": null
               },
               "initializer": null,
               "type": "TSEnumMember"
@@ -263,6 +278,7 @@ pass('declare enum E {}', Context.Strict | Context.Module, {
           "id": {
             "name": "E",
             "type": "Identifier",
+            "typeAnnotation": null
           },
           "members": [],
          "type": "TSEnumDeclaration",
@@ -282,6 +298,7 @@ pass('declare const enum E {}', Context.Strict | Context.Module, {
           "id": {
             "name": "E",
             "type": "Identifier",
+            "typeAnnotation": null
           },
           "members": [],
           "type": "TSEnumDeclaration",
