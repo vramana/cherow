@@ -1,47 +1,46 @@
-import chalk from 'chalk';
-import minimist from 'minimist';
-import help from 'help.md';
-import { version } from 'package.json';
-import { parseScript, parseModule } from 'cherow';
+import { parse } from 'cherow';
+import {readFileSync as readFile } from 'fs';
+let infile, forceFile;
 
-const command = minimist(process.argv.slice(2));
+const options: any = {};
 
-if (command.help || (process.argv.length <= 2 && process.stdin.isTTY)) {
-	console.log(`\n${help.replace('__VERSION__', version)}\n`);
-} else if (command.version) {
-	console.log(`cherow version ${version}`);
-} else {
-  if (command._.length >= 1) {
-		if (command.input) {
-			reportError({code: 'Test123 345', message: 'Something went wrong' });
-		}
+function help(status) {
+  const print = (status === 0) ? console.log : console.error;
+  print('usage: ' + basename(process.argv[1]) + ' [--strict] [--loc] [---module] [--next] [--ranges] [--module] [infile]');
+  process.exit(status);
+}
+
+for (let i = 2; i < process.argv.length; ++i) {
+  const arg = process.argv[i];
+  if ((arg === '-' || arg[0] != '-') && !infile) infile = arg;
+  else if (arg === '--' && !infile && i + 2 === process.argv.length) forceFile = infile = process.argv[++i];
+  else if (arg === '--loc') options.loc = true;
+  else if (arg === '--ranges') options.ranges = true;
+  else if (arg === '--next') options.next = true;
+  else if (arg === '--strict') options.implicit = true;
+  else if (arg === '--help') help(0);
+    else if (arg === '--module') options.module = 'module';
+  else {
+      help(1);
   }
 }
 
-function reportError(err: any) {
-	let description = err.message || err;
-	if (err.name) description = `${err.name}: ${description}`;
-	const message = description) || err;
+function run(code: any): any {
+  let result;
+  try {
+      result = parse(code, options);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+  console.log(JSON.stringify(result, null, 2));
+}
 
-	stderr(chalk.bold.red(`[!] ${chalk.bold(message.toString())}`));
-
-		if (err.url) {
-		stderr(chalk.cyan(err.url));
-	}
-
-	if (err.loc) {
-		stderr(`${relativeId(err.loc.file || err.id)} (${err.loc.line}:${err.loc.column})`);
-	} else if (err.id) {
-		stderr(relativeId(err.id));
-	}
-
-	if (err.frame) {
-		stderr(chalk.dim(err.frame));
-	} else if (err.stack) {
-		stderr(chalk.dim(err.stack));
-	}
-
-	stderr('');
-
-	process.exit(1);
+if (forceFile || infile && infile !== '-') {
+  run(readFile(infile, 'utf8'));
+} else {
+  let code = '';
+  process.stdin.resume();
+  process.stdin.on('data', chunk => code += chunk);
+  process.stdin.on('end', () => run(code));
 }
