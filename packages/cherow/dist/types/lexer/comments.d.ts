@@ -17,10 +17,10 @@ export declare function skipSingleHTMLComment(parser: Parser, context: Context, 
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLOpenComment)
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state  Scanner state
- * @param type   Comment type
+ * @param type  Comment type
  */
 export declare function skipSingleLineComment(parser: Parser, context: Context, state: ScannerState, type: CommentType): ScannerState;
 /**
@@ -28,9 +28,17 @@ export declare function skipSingleLineComment(parser: Parser, context: Context, 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state Scanner state
  */
 export declare function skipMultiLineComment(parser: Parser, context: Context, state: ScannerState): any;
-export declare function addComment(parser: Parser, context: Context, type: ESTree.CommentType, start: number): void;
+/**
+ * Add comments
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param type  Comment type
+ * @param commentStart Start position of comment
+ */
+export declare function addComment(parser: Parser, context: Context, type: ESTree.CommentType, commentStart: number): void;

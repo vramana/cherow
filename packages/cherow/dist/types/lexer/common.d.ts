@@ -14,7 +14,7 @@ export declare function nextUnicodeChar(parser: Parser): number;
  * @param code Codepoint
  */
 export declare const isIdentifierPart: (code: number) => boolean;
-export declare function escapeForPrinting(code: number): string;
+export declare function escapeInvalidCharacters(code: number): string;
 /**
  * Consume an token in the scanner on match. This is an equalent to
  * 'consume' used in the parser code itself.

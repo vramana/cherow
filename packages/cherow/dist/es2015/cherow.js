@@ -108,7 +108,7 @@ const descKeywordTable = Object.create(null, {
     type: { value: 65663 /* TypeKeyword */ },
     namespace: { value: 65664 /* NameSpaceKeyword */ },
     abstract: { value: 65665 /* AbstractKeyword */ },
-    as: { value: 167811947 /* AsKeyword */ },
+    as: { value: 36971 /* AsKeyword */ },
     module: { value: 65666 /* ModuleKeyword */ },
     global: { value: 65667 /* GlobalKeyword */ },
     require: { value: 65668 /* RequireKeyword */ },
@@ -469,7 +469,7 @@ function nextUnicodeChar(parser) {
  * @param code Codepoint
  */
 const isIdentifierPart = (code) => (characterType[code] & 1 /* IdentifierStart */) !== 0 || isValidIdentifierPart(code);
-function escapeForPrinting(code) {
+function escapeInvalidCharacters(code) {
     switch (code) {
         case 0 /* Null */:
             return '\\0';
@@ -1396,7 +1396,7 @@ function scanIdentifier(parser, context, first) {
 function scanMaybeIdentifier(parser, context, first) {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
-        report(parser, 9 /* UnexpectedChar */, escapeForPrinting(first));
+        report(parser, 9 /* UnexpectedChar */, escapeInvalidCharacters(first));
     }
     return scanIdentifier(parser, context, first);
 }
@@ -1490,10 +1490,10 @@ function skipSingleHTMLComment(parser, context, state, type) {
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLOpenComment)
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state  Scanner state
- * @param type   Comment type
+ * @param type  Comment type
  */
 function skipSingleLineComment(parser, context, state, type) {
     const start = parser.index;
@@ -1526,7 +1526,7 @@ function skipSingleLineComment(parser, context, state, type) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state Scanner state
  */
@@ -1569,24 +1569,26 @@ function skipMultiLineComment(parser, context, state) {
     // Unterminated multi-line comment.
     tolerant(parser, context, 7 /* UnterminatedComment */);
 }
-function addComment(parser, context, type, start) {
-    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
+/**
+ * Add comments
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param type  Comment type
+ * @param commentStart Start position of comment
+ */
+function addComment(parser, context, type, commentStart) {
+    const { index: end, startIndex: start, startLine, startColumn, lastLine, column } = parser;
     const comment = {
         type,
-        value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
-        start: startIndex,
-        end: index,
+        value: parser.source.slice(commentStart, type === 'MultiLine' ? end - 2 : end),
+        start,
+        end,
     };
     if (context & 16 /* OptionsLoc */) {
         comment.loc = {
-            start: {
-                line: startLine,
-                column: startColumn,
-            },
-            end: {
-                line: lastLine,
-                column,
-            },
+            start: { line: startLine, column: startColumn },
+            end: { line: lastLine, column },
         };
     }
     parser.comments.push(comment);
@@ -3490,11 +3492,13 @@ function parseUnaryExpression(parser, context) {
     const { token } = parser;
     if (hasBit(token, 301989888 /* IsUnaryOp */)) {
         nextToken(parser, context);
-        if (parser.flags & 32768 /* EscapedKeyword */)
+        if (parser.flags & 32768 /* EscapedKeyword */) {
             tolerant(parser, context, 2 /* InvalidEscapedReservedWord */);
+        }
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
-        if (parser.token === 167775030 /* Exponentiate */)
+        if (parser.token === 167775030 /* Exponentiate */) {
             tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
+        }
         if (context & 4096 /* Strict */ && token === 302002219 /* DeleteKeyword */) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, 41 /* StrictDelete */);
@@ -3598,9 +3602,13 @@ function parseSpreadElement(parser, context) {
  * @param pos Location info
  */
 function parseLeftHandSideExpression(parser, context, pos) {
-    const expr = context & 1 /* OptionsNext */ && parser.token === 33566810 /* ImportKeyword */ ?
-        parseCallImportOrMetaProperty(parser, context | 65536 /* AllowIn */) :
-        parseMemberExpression(parser, context | 65536 /* AllowIn */, pos);
+    let expr;
+    if (context & 1 /* OptionsNext */ && parser.token === 33566810 /* ImportKeyword */) {
+        expr = parseCallImportOrMetaProperty(parser, context | 65536 /* AllowIn */);
+    }
+    else {
+        expr = parseMemberExpression(parser, context | 65536 /* AllowIn */, pos);
+    }
     return parseCallExpression(parser, context | 65536 /* AllowIn */, pos, expr);
 }
 /**
@@ -5584,7 +5592,18 @@ function parseFunctionDeclaration(parser, context) {
  * @param pos Current location
  */
 function parseFunctionDeclarationBody(parser, context, state, pos) {
-    const id = parseFunctionDeclarationName(parser, context);
+    const { token } = parser;
+    let id = null;
+    if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
+        tolerant(parser, context, 47 /* YieldBindingIdentifier */);
+    if (context & 131072 /* Async */ && token & 131072 /* IsAwait */)
+        tolerant(parser, context, 46 /* AwaitBindingIdentifier */);
+    if (token !== 50331659 /* LeftParen */) {
+        id = parseBindingIdentifier(parser, context);
+        // Unnamed functions are forbidden in statement context.
+    }
+    else if (!(context & 16777216 /* RequireIdentifier */))
+        tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
     const { params, body } = swapContext(parser, context & ~(33554432 /* Method */ | 67108864 /* AllowSuperProperty */ | 16777216 /* RequireIdentifier */), state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
@@ -5612,29 +5631,6 @@ function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
     const isAwait = 2 /* Await */;
     const isGenerator = consume(parser, context, 167774771 /* Multiply */) ? 1 /* Generator */ : 0 /* None */;
     return parseFunctionDeclarationBody(parser, context, isGenerator | isAwait, pos);
-}
-/**
- * Shared helper function for "parseFunctionDeclaration" and "parseAsyncFunctionOrAsyncGeneratorDeclaration"
- * so we can re-use the same logic when parsing out the function name, or throw an
- * error if the 'RequireIdentifier' mask is not set
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseFunctionDeclarationName(parser, context) {
-    const { token } = parser;
-    let id = null;
-    if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
-        tolerant(parser, context, 47 /* YieldBindingIdentifier */);
-    if (context & 131072 /* Async */ && token & 131072 /* IsAwait */)
-        tolerant(parser, context, 46 /* AwaitBindingIdentifier */);
-    if (token !== 50331659 /* LeftParen */) {
-        id = parseBindingIdentifier(parser, context);
-        // Unnamed functions are forbidden in statement context.
-    }
-    else if (!(context & 16777216 /* RequireIdentifier */))
-        tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
-    return id;
 }
 /**
  * VariableDeclaration :
@@ -7017,7 +7013,7 @@ var index = /*#__PURE__*/Object.freeze({
   addComment: addComment,
   nextUnicodeChar: nextUnicodeChar,
   isIdentifierPart: isIdentifierPart,
-  escapeForPrinting: escapeForPrinting,
+  escapeInvalidCharacters: escapeInvalidCharacters,
   consumeOpt: consumeOpt,
   consumeLineFeed: consumeLineFeed,
   scanPrivateName: scanPrivateName,
