@@ -1,3 +1,4 @@
+import { Expression } from './../estree';
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
 import { scanRegularExpression } from '../lexer/regexp';
@@ -332,9 +333,13 @@ function parseUnaryExpression(parser: Parser, context: Context): ESTree.UnaryExp
 
     if (hasBit(token, Token.IsUnaryOp)) {
         nextToken(parser, context);
-        if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context,  Errors.InvalidEscapedReservedWord);
+        if (parser.flags & Flags.EscapedKeyword) {
+          tolerant(parser, context,  Errors.InvalidEscapedReservedWord);
+        }
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
-        if (parser.token === Token.Exponentiate) tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+        if (parser.token === Token.Exponentiate) {
+          tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+        }
         if (context & Context.Strict && token === Token.DeleteKeyword) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, Errors.StrictDelete);
@@ -443,10 +448,14 @@ function parseSpreadElement(parser: Parser, context: Context): any {
  */
 
 export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
-    const expr = context & Context.OptionsNext && parser.token === Token.ImportKeyword ?
-        parseCallImportOrMetaProperty(parser, context | Context.AllowIn) :
-        parseMemberExpression(parser, context | Context.AllowIn, pos);
-    return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
+  let expr: ESTree.Expression;
+  if (context & Context.OptionsNext && parser.token === Token.ImportKeyword) {
+      expr = parseCallImportOrMetaProperty(parser, context | Context.AllowIn)
+  } else {
+      expr = parseMemberExpression(parser, context | Context.AllowIn, pos)
+  }
+
+  return parseCallExpression(parser, context | Context.AllowIn, pos, expr);
 }
 
 /**
