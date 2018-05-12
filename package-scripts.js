@@ -16,7 +16,7 @@ function package(script) {
   return crossEnv(`./node_modules/.bin/${script}`);
 }
 
-module.exports = (pkgName) => {
+module.exports = (pkgName, outDir = 'dist') => {
   return {
     scripts: {
       lint: package(`tslint --project ${config('build')}`),
@@ -36,7 +36,7 @@ module.exports = (pkgName) => {
         default: series.nps('build.before', 'build.all.default'),
         minify: series.nps('build.all.minify'),
         before: series.nps('lint', 'build.clean'),
-        clean: rimraf('dist'),
+        clean: rimraf(outDir),
         all: {
           default: concurrent.nps(
             'build.amd.default',

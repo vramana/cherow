@@ -1,12 +1,8 @@
 const { crossEnv, rimraf, series } = require('nps-utils');
-const pkgName = 'cherow-ts';
-const config = require('../../package-scripts')(pkgName);
+const pkgName = 'cherow-cli';
+const config = require('../../package-scripts')(pkgName, 'bin');
 
-config.scripts.build.moveTypes = series(
-  crossEnv(`./node_modules/.bin/move-cli "${pkgName}/src" "dist/types" --md`),
-  rimraf(pkgName)
-);
-config.scripts.build.default = series.nps('build.before', 'build.all.default', 'build.moveTypes');
+config.scripts.build.all = config.scripts.build.commonjs;
 
 config.scripts.coverage.run = crossEnv(`./node_modules/.bin/nyc mocha ./build/${pkgName}/test/**/*.js`);
 

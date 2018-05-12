@@ -1,6 +1,9 @@
+// tslint:disable
 import { parse } from 'cherow';
 import {readFileSync as readFile } from 'fs';
 let infile, forceFile;
+
+declare var basename;
 
 const options: any = {};
 
