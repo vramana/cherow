@@ -160,7 +160,7 @@ export declare function parseObjectLiteral(parser: Parser, context: Context): ES
  * @param context Context masks
  */
 export declare function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): {
-    params: ESTree.Identifier[];
+    params: (ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement)[];
     body: ESTree.BlockStatement;
 };
 /**
