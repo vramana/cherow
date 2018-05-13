@@ -3,6 +3,8 @@ import { Context } from '../../../src/utilities';
 import * as t from 'assert';
 import { parseSource } from '../../../src/parser/parser';
 
+// This is also known as 'dynamic import'
+
 describe('Next - Import', () => {
 
     describe('Failure', () => {
@@ -83,6 +85,7 @@ describe('Next - Import', () => {
             '() => { import(x) }',
             '(import(y=x))',
             '{import(y=x)}',
+            `import('./module.js')`,
             'import(import(x))',
             'x = import(x)',
             'var x = import(x)',

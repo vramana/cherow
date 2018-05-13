@@ -409,7 +409,8 @@ async *method() {
 
     const methodDefinitionNames = [
       'm', '\'m\'', '"m"', '"m n"', 'true', 'false', 'null', '0', '1.2',
-      '1e1', '1E1', '1e+1', '1e-1',
+      '1e1', '1E1', '1e+1', '1e-1', '0b101', '"a string"', '0xFFFF',
+      '.12e3', '0b101', '0', '80', '12e34',
 
       // Keywords
       'async', 'await', 'break', 'case', 'catch', 'class', 'const', 'continue',
@@ -766,6 +767,8 @@ async *method() {
           'async() { }',
           'async foo() { }',
           'foo() { }',
+          'x, y, z () {}',
+          '[x]: "x"',
       ];
 
     for (const arg of validSyntax) {

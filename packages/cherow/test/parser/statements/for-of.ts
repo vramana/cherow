@@ -454,7 +454,33 @@ describe('Statements - For of', () => {
               'for (let j of x) { const [foo] = [j] }',
               'for (let j of x) { [foo] = [j] }',
               'for (let {j} of x) { [foo] = [j] }',
+              'for ( let x of y ) {}',
+              `var x, y;
+              for ({x, y} of [{x: 1, y: 2}]) {}`,
+              `var x, y;
+              for ([x, y] of [[1, 2]]) {
+                console.log(x, y);
+              }`,
+              `function foo () {
+				          for ( let x of y ) {
+					      bar( function () {
+						      call( x ); // call expression
+					    });
+					      if ( x > 10 ) return;
+				        }
+			        }`,
               'for (let {j} of x) { foo = j }',
+              `for ( var i = 0, list = items; i < list.length; i += 1 ) {
+				        var item = list[i];
+				          if ( item.foo ) { continue; }
+			        }`,
+              `for ( x of y ) {}`,
+              `for ( let member of [ 'a', 'b', 'c' ] ) {
+				        setTimeout( function () {
+					      doSomething( member );
+				        });
+			         }`,
+              `for ( let member of array ) { doSomething( member ); }`,
               'for (const {j} of x) { const [foo] = [j] }',
               'for (const {j} of x) { var [foo] = [j] }',
           ];

@@ -520,6 +520,27 @@ describe('Declarations - Class', () => {
         });
     }
 
+    const liveCases = [
+      'class FOO { constructor() {} }',
+      'class foo extends bar {}',
+      'class foo extends bar { method() {} get property() { return this._property; }  set property(value) {  this._property = value; }}',
+      'class foo extends class bar {} {}',
+      'class foo extends class { constructor() {}} {}',
+      'class foo extends class { constructor() {} } { constructor() {} }',
+      'class foo { [Symbol.iterator]() {} ["method"]() {} }',
+      'class foo { static classMethod() {} method() {} }',
+      'class foo { static get property() {} static set property(value) {} }',
+      'class foo extends bar { constructor() { super(); } }',
+    ]
+
+    for (const arg of liveCases) {
+      it(`{ ${arg} }`, () => {
+          t.doesNotThrow(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+    }
+
         const validSyntax = [
             ';',
             ';;',

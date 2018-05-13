@@ -77,6 +77,29 @@ describe('Statements - Const', () => {
 
   describe('Pass', () => {
 
+    const validSyntax = [
+      'const a = Infinity;',
+      'const b = -Infinity;',
+      'const c = +Infinity;',
+      'const d = /abc/;',
+      'const e = /abc/g;',
+      'const f = /abc/gi;'
+  ];
+
+    for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
+
     // Babylon issue: https://github.com/babel/babel/issues/6687
     pass(`const await = foo;`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
       source: `const await = foo;`,

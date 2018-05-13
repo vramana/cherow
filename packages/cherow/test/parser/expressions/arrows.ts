@@ -843,9 +843,19 @@ describe('Expressions - Arrows', () => {
             '([a]) => 0',
             '(() => null)();',
             '(() => {})()',
+            '(...args) => console.log( args );',
+            'var double = (x) => x * 2',
             'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
             'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
             'a => (a + 1)',
+            `var foo = ({ name }) => \`\${name}! Hello \${name}!\`.toUpperCase();`,
+            'const sum = ( ...nums ) => nums.reduce( ( t, n ) => t + n, 0 );',
+            `'use strict';
+			       setTimeout( () => console.log( this ) );
+			        function foo () {
+				      'use strict';
+				      setTimeout( () => console.log( this ) );
+			      }`,
 
         ];
         for (const arg of fuckingsIcefapper) {

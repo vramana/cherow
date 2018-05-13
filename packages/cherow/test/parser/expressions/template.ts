@@ -359,7 +359,14 @@ describe('Expressions - Template', () => {
         'foo`\\r${0}`',
         'foo`\\\r\\\n${0}`',
         'foo`\r\\n${0}`',
-        'foo`\\\u2029${0}`'
+        'foo`\\\u2029${0}`',
+        'let a;',
+        'var foo = `simple template`;',
+        'let foo = f`template with function`;',
+        'const foo = f`template with ${some} ${variables}`;',
+        'var foo = f`template with ${some}${variables}${attached}`;',
+        'let foo = f()`template with function call before`;',
+        'const foo = f().g`template with more complex function call`;',
     ];
         for (const arg of validCombos) {
 

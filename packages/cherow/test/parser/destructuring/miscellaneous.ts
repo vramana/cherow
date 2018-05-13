@@ -5,9 +5,9 @@ import { parseSource } from '../../../src/parser/parser';
 
 describe('Destructuring - Miscellaneous', () => {
 
-    describe('Failure', () => {
+  describe('Failure', () => {
 
-      const invalidSyntax = [
+    const invalidSyntax = [
         // Syntax errors
         'function f1() { var a = 10; [a+2] = []; }; f1();',
         'function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();',
@@ -34,88 +34,151 @@ describe('Destructuring - Miscellaneous', () => {
         'function test5(){ var ggnzrk=function(){ }; ({ggnzrk, namespace: {}, w: [(inmgdv)]}) => { };};'
     ];
 
-      for (const arg of invalidSyntax) {
+    for (const arg of invalidSyntax) {
 
         it(`${arg}`, () => {
             t.throws(() => {
                 parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
-      }
+    }
 
-      fail(' [([a])] = 12;', Context.Empty, {
-            source: ' [([a])] = 12;',
-        });
-
-      fail('[...a, b] = [...e,] = 12', Context.Empty, {
-            source: '[...a, b] = [...e,] = 12',
-        });
-
-      fail('[ a -= 12 ] = 12;', Context.Empty, {
-            source: '[ a -= 12 ] = 12;',
-        });
-
-      fail('();', Context.Empty, {
-            source: '();',
-        });
-
-      fail('for (var [ a ]; a; ) {}', Context.Empty, {
-            source: 'for (var [ a ]; a; ) {}',
-        });
-
-      fail('var { a, b, c };', Context.Empty, {
-            source: 'var { a, b, c };',
-        });
-
-      fail('for (var { a, b, c }; a && b && c; ) {}', Context.Empty, {
-            source: 'for (var { a, b, c }; a && b && c; ) {}',
-        });
-
-      fail('function f1() { var a = 10; [a+2] = []; }; f1();', Context.Empty, {
-            source: 'function f1() { var a = 10; [a+2] = []; }; f1();',
-        });
-
-      fail('function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();', Context.Empty, {
-            source: 'function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();',
-        });
-
-        // This tests isn't implemented with the Jazzle parser
-      fail('[...(a),] = 12', Context.Empty, {
-            source: '[...(a),] = 12',
-        });
-
-      fail('([a]) = 12', Context.Empty, {
-            source: '([a]) = 12',
-        });
-
-      fail('function* l() { ({[yield]: (a)})=>12 }', Context.Empty, {
-            source: 'function* l() { ({[yield]: (a)})=>12 }',
-        });
+    fail(' [([a])] = 12;', Context.Empty, {
+        source: ' [([a])] = 12;',
     });
 
-    describe('Pass', () => {
+    fail('[...a, b] = [...e,] = 12', Context.Empty, {
+        source: '[...a, b] = [...e,] = 12',
+    });
 
-      const validCombos = [
-        'var e = 1; ( {foo = (((  {}   = (1))))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1; ( {tuvwxy  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
-        'var a; [a = class aClass {}] = [];',
-        'var a; ({ bar = ((cspagh = 4) => a) } = 1) => { /*jjj*/ }; (function(a) { })()',
-        'var e = 1; ( {bar  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1;       ( {ghijkl  = (((((foo)) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1;       ( {abcdef  = (((((foo)) = (1))))} = (e)) => {  try{ } catch(e) {}}',
-        'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
-        // Babylon PR: 'https://github.com/babel/babylon/pull/317'
-        '({set = {}}) => set;',
-        // Babylon issue: https://github.com/babel/babylon/issues/397
-        'for (var a = 0 in {});',
-        `function test() {
-          var [x, ...[y, ...z]] = [1,2,3,4];
-          return x === 1 && y === 2 && z + '' === '3,4';
-        }`
-    ];
+    fail('[ a -= 12 ] = 12;', Context.Empty, {
+        source: '[ a -= 12 ] = 12;',
+    });
 
+    fail('();', Context.Empty, {
+        source: '();',
+    });
+
+    fail('for (var [ a ]; a; ) {}', Context.Empty, {
+        source: 'for (var [ a ]; a; ) {}',
+    });
+
+    fail('var { a, b, c };', Context.Empty, {
+        source: 'var { a, b, c };',
+    });
+
+    fail('for (var { a, b, c }; a && b && c; ) {}', Context.Empty, {
+        source: 'for (var { a, b, c }; a && b && c; ) {}',
+    });
+
+    fail('function f1() { var a = 10; [a+2] = []; }; f1();', Context.Empty, {
+        source: 'function f1() { var a = 10; [a+2] = []; }; f1();',
+    });
+
+    fail('function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();', Context.Empty, {
+        source: 'function f2() { var a = 10; ({x:a+2} = {x:2}); }; f2();',
+    });
+
+    // This tests isn't implemented with the Jazzle parser
+    fail('[...(a),] = 12', Context.Empty, {
+        source: '[...(a),] = 12',
+    });
+
+    fail('([a]) = 12', Context.Empty, {
+        source: '([a]) = 12',
+    });
+
+    fail('function* l() { ({[yield]: (a)})=>12 }', Context.Empty, {
+        source: 'function* l() { ({[yield]: (a)})=>12 }',
+    });
+});
+
+describe('Pass', () => {
+
+            const validCombos = [
+                'var e = 1; ( {foo = (((  {}   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1; ( {tuvwxy  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+                'var a; [a = class aClass {}] = [];',
+                'var a; ({ bar = ((cspagh = 4) => a) } = 1) => { /*jjj*/ }; (function(a) { })()',
+                'var e = 1; ( {bar  = (((  foo   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1; ( {foo = (((  foo   = (1))))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1;       ( {ghijkl  = (((((foo)) =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1;       ( {abcdef  = (((((foo)) = (1))))} = (e)) => {  try{ } catch(e) {}}',
+                'var e = 1; ( {bar  = (((  {}   =  1 )))} = (e)) => {  try{ } catch(e) {}}',
+                // Babylon PR: 'https://github.com/babel/babylon/pull/317'
+                '({set = {}}) => set;',
+                // Babylon issue: https://github.com/babel/babylon/issues/397
+                'for (var a = 0 in {});',
+                `function pythag ( [ x, z = 1 ] ) {
+      return Math.sqrt( x * x + z * z );
+    }`,
+                `function drawRect ( { ctx, x1, y1, x2, y2 } ) {
+    ctx.fillRect( x1, y1, x2 - x1, y2 - y1 );
+  }
+  function scale ([ d0, d1 ], [ r0, r1 ]) {
+    const m = ( r1 - r0 ) / ( d1 - d0 );
+    return function ( num ) {
+      return r0 + ( num - d0 ) * m;
+    }
+  }`,
+                `
+  var { name: value, description = null } = obj;
+  console.log( value, description );`,
+                'var { a: { b: c }, d: { e: f, g: h } } = x();',
+                `function foo ({ a: { b: c }, d: { e: f, g: h } }) {
+    console.log( c, f, h );
+  }`,
+                `function foo({ [FirstProp]: one, [SecondProp]: two = 'Too', 3: three, Fore: four } = x) {
+    console.log(one, two, three, four);
+  }`,
+                `
+  function foo ({ [a]: { [b]: c }, d: { 'e': f, [g]: h }, [i + j]: { [k + l]: m, n: o } }) {
+    console.log( c, f, h, m, o );
+  }`,
+                `const x = [1, 2, {r: 9}, 3], [a, ...[, {r: b, s: c = 4} ]] = x;
+  console.log(a, b, c);
+`,
+                `
+let x = [1, 2, {r: 9}, {s: ["table"]} ];
+let a, b, c, d;
+([a, ...[ , {r: b}, {r: c = "nothing", s: [d] = "nope"} ]] = x);
+console.log(a, b, c, d);
+`,
+                '({x, y: {z, q}} = {x: 1});',
+                `foo();
+  if ( bar([x, y] = [1, 2]) ) {
+    baz();
+  }`,
+                `
+  let [
+    a = \`A\${baz() - 4}\`,
+    , /* hole */
+    c = (x => -x),
+    d = ({ r: 5, [h()]: i }),
+  ] = [ "ok" ];
+`,
+                ` class Point {
+  set ( array ) {
+    [ this.x, this.y ] = array;
+  }
+}
+let a, b, c = [ 1, 2, 3 ];
+[ a, b ] = c;
+`, `
+let x;
+if (maybe) {
+let x;
+({ x } = { x: 3 });
+[ x ] = [ 3 ];
+}`,
+                `
+const a = {
+options (options) {
+  const { input } = options;
+}
+}`,
+            ];
       for (const arg of validCombos) {
 
         it(`${arg}`, () => {

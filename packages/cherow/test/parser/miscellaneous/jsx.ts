@@ -121,6 +121,47 @@ describe('Pass', () => {
           <p>The mouse position is {mouse.x}, {mouse.y}</p>
         )}
       </Mouse>`,
+      `var div = (
+				<div>
+					{ images.map( src => <img src={src}/> ) }
+				</div>
+      );`,
+      `var element = <Hello name={name}/>;`,
+      `var element = <Foo.Bar name={name}/>;`,
+      `var img = <img src='foo.gif'/>;`,
+      `var element = <div data-name={name}/>;`,
+      `var div = <div contentEditable />;`,
+      `var element = <div a={1} {...props} {...stuff} />;`,
+      `var element = <div a={1} {...props} b={2} c={3} {...stuff} more={things} />;`,
+      `<div {...this.props}/>`,
+      `<Foo> <h1>Hello {name}!</h1>   </Foo>`,
+      `
+			<div>
+				<a>1&lt;</a>&nbsp;
+			</div>
+		`,
+      `
+			<Thing two={"This no longer fails"} {...props}></Thing>
+    `,
+    `
+			/* @jsx customPragma */
+			var div = <div>Hello</div>
+    `,
+    `
+			/* @jsx customPragma */
+			/* @jsx customPragmaWannabe */
+			var div = <div>Hello</div>
+		`,
+      `<h1>
+				Hello {name}
+				!
+			</h1>`,
+      `var div = (
+				<div className='foo'>
+					<img src='foo.gif'/>
+					<img src='bar.gif'/>
+				</div>
+			);`,
       '<Foo> {true} </Foo>',
       'const El = (props) => ( <div>props.x</div>);',
       '<Component {...props} y={1} />',
