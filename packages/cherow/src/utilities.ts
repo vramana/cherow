@@ -210,7 +210,7 @@ export function hasLabel(parser: Parser, label: string): Labels {
  * @param meta Line / column
  * @param node AST node
  */
-export function finishNode < T extends ESTree.Node > (context: Context, parser: Parser, meta: Location, node: T): T {
+export function finishNode < T extends ESTree.Node > (context: Context, parser: Parser, meta: Location, node: any): T {
 
   const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
 
