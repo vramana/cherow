@@ -284,7 +284,7 @@ export function parseTryStatement(parser: Parser, context: Context): ESTree.TryS
 export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchClause {
   const pos = getLocation(parser);
   expect(parser, context, Token.CatchKeyword);
-  let param: ESTree.PatternTop = null as any;
+  let param: ESTree.PatternTop | null = null;
   if (context & Context.OptionsNext
     ? consume(parser, context, Token.LeftParen)
     : expect(parser, context, Token.LeftParen)

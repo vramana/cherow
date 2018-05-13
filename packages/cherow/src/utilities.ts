@@ -41,6 +41,8 @@ export const enum Context {
   InJSXChild             = 1 << 28,
   DisallowEscapedKeyword = 1 << 29,
   AllowDecorator         = 1 << 30,
+
+  LocationTracker = OptionsLoc | OptionsRanges
 }
 
 // Mutual parser flags
@@ -208,31 +210,30 @@ export function hasLabel(parser: Parser, label: string): Labels {
  * @param meta Line / column
  * @param node AST node
  */
-export function finishNode<T extends ESTree.Node>(context: Context, parser: Parser, meta: Location, node: any): T {
+export function finishNode < T extends ESTree.Node > (context: Context, parser: Parser, meta: Location, node: T): T {
+
   const { lastIndex, lastLine, lastColumn, sourceFile, index } = parser;
 
-  if (context & Context.OptionsRanges) {
-    node.start = meta.index;
-    node.end = lastIndex;
-  }
+  if (context & Context.LocationTracker) {
 
-  if (context & Context.OptionsLoc) {
-    node.loc = {
-      start: {
-        line: meta.line,
-        column: meta.column
-      },
-      end: {
-        line: lastLine,
-        column: lastColumn
+      if (context & Context.OptionsRanges) {
+          node.start = meta.index;
+          node.end = lastIndex;
       }
-    };
 
-    if (sourceFile) node.loc.source = sourceFile;
+      if (context & Context.OptionsLoc) {
+          node.loc = {
+              start: { line: meta.line, column: meta.column },
+              end: { line: lastLine, column: lastColumn }
+          };
+
+          if (sourceFile) node.loc.source = sourceFile;
+      }
   }
 
   return node as T;
 }
+
 /**
  * Consumes the next token. If the consumed token is not of the expected type
  * then report an error and return null. Otherwise return true.

@@ -235,9 +235,12 @@ export function parseAssignmentPattern(
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseBindingInitializer(parser: Parser, context: Context): ESTree.AssignmentPattern {
+export function parseBindingInitializer(
+  parser: Parser,
+  context: Context
+): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
     const pos = getLocation(parser);
-    const left: any = parseBindingIdentifierOrPattern(parser, context);
+    const left: ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern = parseBindingIdentifierOrPattern(parser, context);
     return !consume(parser, context, Token.Assign) ?
         left :
         finishNode(context, parser, pos, {

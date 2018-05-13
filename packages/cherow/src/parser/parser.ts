@@ -66,74 +66,78 @@ export function createParser(
  */
 export function parseSource(source: string, options: Options | void, /*@internal*/ context: Context): ESTree.Program {
 
-    let sourceFile: string = '';
+  let sourceFile: string = '';
 
-    if (!!options) {
-        // The flag to enable module syntax support
-        if (options.module) context |= Context.Module;
-        // The flag to enable stage 3 support (ESNext)
-        if (options.next) context |= Context.OptionsNext;
-        // The flag to enable React JSX parsing
-        if (options.jsx) context |= Context.OptionsJSX;
-        // The flag to enable start and end offsets to each node
-        if (options.ranges) context |= Context.OptionsRanges;
-        // The flag to enable line/column location information to each node
-        if (options.loc) context |= Context.OptionsLoc;
-        // The flag to attach raw property to each literal node
-        if (options.raw) context |= Context.OptionsRaw;
-        // Attach raw property to each identifier node
-        if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
-        // The flag to allow return in the global scope
-        if (options.globalReturn) context |= Context.OptionsGlobalReturn;
-        // The flag to allow to skip shebang - '#'
-        if (options.skipShebang) context |= Context.OptionsShebang;
-        // Enable tolerant mode
-        if (options.tolerant) context |= Context.OptionsTolerant;
-        // Set to true to record the source file in every node's loc object when the loc option is set.
-        if (!!options.source) sourceFile = options.source;
-        // Create a top-level comments array containing all comments
-        if (!!options.comments) context |= Context.OptionsComments;
-        // The flag to enable implied strict mode
-        if (options.impliedStrict) context |= Context.Strict;
-        // The flag to enable experimental features
-        if (options.experimental) context |= Context.OptionsExperimental;
-        // The flag to set to bypass methods in Node
-        if (options.node) context |= Context.OptionsNode;
-        // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
-    }
+  if (!!options) {
+      // The flag to enable module syntax support
+      if (options.module) context |= Context.Module;
+      // The flag to enable stage 3 support (ESNext)
+      if (options.next) context |= Context.OptionsNext;
+      // The flag to enable React JSX parsing
+      if (options.jsx) context |= Context.OptionsJSX;
+      // The flag to enable start and end offsets to each node
+      if (options.ranges) context |= Context.OptionsRanges;
+      // The flag to enable line/column location information to each node
+      if (options.loc) context |= Context.OptionsLoc;
+      // The flag to attach raw property to each literal node
+      if (options.raw) context |= Context.OptionsRaw;
+      // Attach raw property to each identifier node
+      if (options.rawIdentifier) context |= Context.OptionsRawidentifiers;
+      // The flag to allow return in the global scope
+      if (options.globalReturn) context |= Context.OptionsGlobalReturn;
+      // The flag to allow to skip shebang - '#'
+      if (options.skipShebang) context |= Context.OptionsShebang;
+      // Enable tolerant mode
+      if (options.tolerant) context |= Context.OptionsTolerant;
+      // Set to true to record the source file in every node's loc object when the loc option is set.
+      if (!!options.source) sourceFile = options.source;
+      // Create a top-level comments array containing all comments
+      if (!!options.comments) context |= Context.OptionsComments;
+      // The flag to enable implied strict mode
+      if (options.impliedStrict) context |= Context.Strict;
+      // The flag to enable experimental features
+      if (options.experimental) context |= Context.OptionsExperimental;
+      // The flag to set to bypass methods in Node
+      if (options.node) context |= Context.OptionsNode;
+      // Accepts a callback function to be invoked for each syntax node (as the node is constructed)
+  }
 
-    const parser = createParser(source, sourceFile);
+  const parser = createParser(source, sourceFile);
 
-    const body = context & Context.Module
-          ? parseModuleItemList(parser, context)
-          : parseStatementList(parser, context);
+  const body = context & Context.Module ?
+      parseModuleItemList(parser, context) :
+      parseStatementList(parser, context);
 
-    const node: ESTree.Program = {
-        type: 'Program',
-        sourceType: context & Context.Module ? 'module' : 'script',
-        body: body as any,
-    };
+  const node: ESTree.Program = {
+      type: 'Program',
+      sourceType: context & Context.Module ? 'module' : 'script',
+      body: body as any,
+  };
 
-    if (context & Context.OptionsRanges) {
-        node.start = 0;
-        node.end = source.length;
-    }
+  if (context & Context.LocationTracker) {
 
-    if (context & Context.OptionsLoc) {
+      if (context & Context.OptionsRanges) {
+          node.start = 0;
+          node.end = source.length;
+      }
 
-        node.loc = {
-            start: { line: 1, column: 0 },
-            end: { line: parser.line, column: parser.column }
-        };
+      if (context & Context.OptionsLoc) {
 
-        if (sourceFile) node.loc.source = sourceFile;
-    }
+          node.loc = {
+              start: { line: 1, column: 0 },
+              end: { line: parser.line, column: parser.column
+              }
+          };
 
-    if (context & Context.OptionsComments) node.comments = parser.comments;
+          if (sourceFile) node.loc.source = sourceFile;
+      }
+  }
 
-    if (context & Context.OptionsTolerant) node.errors = parser.errors;
+  if (context & Context.OptionsComments) node.comments = parser.comments;
 
-    return node;
+  if (context & Context.OptionsTolerant) node.errors = parser.errors;
+
+  return node;
 }
 
 /**
