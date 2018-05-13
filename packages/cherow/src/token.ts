@@ -158,7 +158,7 @@ export const enum Token {
     YieldKeyword      = 106 | FutureReserved  | IsExpressionStart | IsYield,
 
     /* Contextual keywords */
-    AsKeyword          = 107 | Contextual | IsBinaryOp | 11 << PrecStart,
+    AsKeyword          = 107 | Contextual,
     AsyncKeyword       = 108 | Contextual | IsAsync,
     AwaitKeyword       = 109 | Contextual | IsExpressionStart | IsAwait | IsIdentifier,
     ConstructorKeyword = 110 | Contextual,
