@@ -9,13 +9,6 @@ import { Context } from '../utilities';
  */
 export declare function createParser(source: string, sourceFile: string | void): Parser;
 /**
- * Parse either script code or module code
- *
- * @param source source code to parse
- * @param options parser options
- */
-export declare function parse(source: string, options?: Options): ESTree.Program;
-/**
  * Creating the parser
  *
  * @param source The source coode to parser
@@ -32,6 +25,16 @@ export declare function parseSource(source: string, options: Options | void, con
  * @param Context masks
  */
 export declare function parseStatementList(parser: Parser, context: Context): ESTree.Statement[];
+/**
+ * Parse either script code or module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export declare function parse(source: string, options?: Options): ESTree.Program;
 /**
  * Parse script code
  *

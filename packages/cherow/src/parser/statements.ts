@@ -713,9 +713,9 @@ function parseForStatement(
   let right;
 
   if (token === Token.ConstKeyword || (token === Token.LetKeyword && lookahead(parser, context, isLexical))) {
-    variableStatement = parseVariableStatement(parser, (context & ~Context.AllowIn) | Context.BlockScope, /* shouldConsume */ false);
+    variableStatement = parseVariableStatement(parser, (context & ~Context.AllowIn) | Context.BlockScope, false);
   } else if (token === Token.VarKeyword) {
-    variableStatement = parseVariableStatement(parser, context & ~Context.AllowIn, /* shouldConsume */ false);
+    variableStatement = parseVariableStatement(parser, context & ~Context.AllowIn, false);
   } else if (token !== Token.Semicolon) {
     sequencePos = getLocation(parser);
     init = restoreExpressionCoverGrammar(
@@ -788,6 +788,6 @@ function parseForStatement(
             init,
             test,
             update
-          } as any
+          }
   );
 }

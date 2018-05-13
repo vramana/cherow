@@ -3257,7 +3257,6 @@
    */
   function parseExpression(parser, context) {
       const pos = getLocation(parser);
-      const saveDecoratorContext = parser.flags;
       const expr = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
       return parser.token === 16777234 /* Comma */ ?
           parseSequenceExpression(parser, context, expr, pos) :
@@ -5130,9 +5129,9 @@
       });
   }
   /**
-   * Parse statement list
+   * Parse template literal
    *
-   * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+   * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateLiteral)
    *
    * @param parser Parser object
    * @param context Context masks
@@ -5146,12 +5145,13 @@
       });
   }
   /**
-   * Parse statement list
-   *
-   * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+   * Parse template head
    *
    * @param parser Parser object
    * @param context Context masks
+   * @param cooked Cooked template value
+   * @param raw Raw template value
+   * @param pos Current location
    */
   function parseTemplateHead(parser, context, cooked = null, raw, pos) {
       parser.token = consumeTemplateBrace(parser, context);
@@ -5165,12 +5165,12 @@
       });
   }
   /**
-   * Parse statement list
-   *
-   * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+   * Parse template
    *
    * @param parser Parser object
    * @param context Context masks
+   * @param expression Expression AST node
+   * @param quasis Array of Template elements
    */
   function parseTemplate(parser, context, expressions = [], quasis = []) {
       const pos = getLocation(parser);
@@ -5192,12 +5192,13 @@
       });
   }
   /**
-   * Parse statement list
+   * Parse template spans
    *
-   * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+   * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
    *
    * @param parser Parser object
    * @param context Context masks
+   * @param loc Current AST node location
    */
   function parseTemplateSpans(parser, context, pos = getLocation(parser)) {
       const { tokenValue, tokenRaw } = parser;
@@ -6306,10 +6307,10 @@
       let update = null;
       let right;
       if (token === 33566793 /* ConstKeyword */ || (token === 33574984 /* LetKeyword */ && lookahead(parser, context, isLexical))) {
-          variableStatement = parseVariableStatement(parser, (context & ~65536 /* AllowIn */) | 4194304 /* BlockScope */, /* shouldConsume */ false);
+          variableStatement = parseVariableStatement(parser, (context & ~65536 /* AllowIn */) | 4194304 /* BlockScope */, false);
       }
       else if (token === 33566791 /* VarKeyword */) {
-          variableStatement = parseVariableStatement(parser, context & ~65536 /* AllowIn */, /* shouldConsume */ false);
+          variableStatement = parseVariableStatement(parser, context & ~65536 /* AllowIn */, false);
       }
       else if (token !== 17301521 /* Semicolon */) {
           sequencePos = getLocation(parser);
@@ -6813,17 +6814,6 @@
       };
   }
   /**
-   * Parse either script code or module code
-   *
-   * @param source source code to parse
-   * @param options parser options
-   */
-  function parse(source, options) {
-      return options && options.module
-          ? parseSource(source, options, 4096 /* Strict */ | 8192 /* Module */)
-          : parseSource(source, options, 0 /* Empty */);
-  }
-  /**
    * Creating the parser
    *
    * @param source The source coode to parser
@@ -6895,14 +6885,8 @@
       }
       if (context & 16 /* OptionsLoc */) {
           node.loc = {
-              start: {
-                  line: 1,
-                  column: 0,
-              },
-              end: {
-                  line: parser.line,
-                  column: parser.column,
-              },
+              start: { line: 1, column: 0 },
+              end: { line: parser.line, column: parser.column }
           };
           if (sourceFile)
               node.loc.source = sourceFile;
@@ -6923,11 +6907,10 @@
    */
   function parseStatementList(parser, context) {
       const statements = [];
+      // prime the scanner
       nextToken(parser, context | 536870912 /* DisallowEscapedKeyword */);
       while (parser.token === 33554435 /* StringLiteral */) {
-          // We do a strict check here too speed up things in case someone is crazy eenough to
-          // write "use strict"; "use strict"; at Top-level. // J.K
-          if (!(context & 4096 /* Strict */) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict') {
+          if (!(context & 4096 /* Strict */) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
               context |= 4096 /* Strict */;
           }
           statements.push(parseDirective(parser, context));
@@ -6936,6 +6919,20 @@
           statements.push(parseStatementListItem(parser, context));
       }
       return statements;
+  }
+  /**
+   * Parse either script code or module code
+   *
+   * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+   * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+   *
+   * @param source source code to parse
+   * @param options parser options
+   */
+  function parse(source, options) {
+      return options && options.module
+          ? parseModule(source, options)
+          : parseScript(source, options);
   }
   /**
    * Parse script code
@@ -7036,9 +7033,9 @@
     parseExportDeclaration: parseExportDeclaration,
     parseImportDeclaration: parseImportDeclaration,
     createParser: createParser,
-    parse: parse,
     parseSource: parseSource,
     parseStatementList: parseStatementList,
+    parse: parse,
     parseScript: parseScript,
     parseModule: parseModule,
     parseBindingIdentifierOrPattern: parseBindingIdentifierOrPattern,

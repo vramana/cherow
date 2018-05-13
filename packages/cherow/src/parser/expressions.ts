@@ -60,7 +60,6 @@ import {
 
 export function parseExpression(parser: Parser, context: Context): ESTree.Expression {
     const pos = getLocation(parser);
-    const saveDecoratorContext = parser.flags;
     const expr = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
     return parser.token === Token.Comma ?
         parseSequenceExpression(parser, context, expr, pos) :
@@ -74,7 +73,12 @@ export function parseExpression(parser: Parser, context: Context): ESTree.Expres
  * @param context Context masks
  */
 
-export function parseSequenceExpression(parser: Parser, context: Context, left: ESTree.Expression, pos: Location): ESTree.SequenceExpression {
+export function parseSequenceExpression(
+  parser: Parser,
+  context: Context,
+  left: ESTree.Expression,
+  pos: Location
+): ESTree.SequenceExpression {
     const expressions: ESTree.Expression[] = [left];
     while (consume(parser, context, Token.Comma)) {
         expressions.push(parseExpressionCoverGrammar(parser, context, parseAssignmentExpression));
@@ -1405,7 +1409,12 @@ function parseMethodDeclaration(parser: Parser, context: Context, state: ObjectS
  * @param context Context masks
  */
 
-function parseArrowFunction(parser: Parser, context: Context, pos: Location, params: string[]): ESTree.ArrowFunctionExpression {
+function parseArrowFunction(
+  parser: Parser,
+  context: Context,
+  pos: Location,
+  params: any[]
+): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, '=>');
     expect(parser, context, Token.Arrow);
@@ -1421,7 +1430,13 @@ function parseArrowFunction(parser: Parser, context: Context, pos: Location, par
  * @param context Context masks
  */
 
-function parseAsyncArrowFunction(parser: Parser, context: Context, state: ModifierState, pos: Location, params: any): ESTree.ArrowFunctionExpression {
+function parseAsyncArrowFunction(
+  parser: Parser,
+  context: Context,
+  state: ModifierState,
+  pos: Location,
+  params: any[]
+): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, 'async');
     expect(parser, context, Token.Arrow);
@@ -1440,7 +1455,12 @@ function parseAsyncArrowFunction(parser: Parser, context: Context, state: Modifi
 
 // https://tc39.github.io/ecma262/#prod-AsyncArrowFunction
 
-function parseArrowBody(parser: Parser, context: Context, params: any, pos: Location, state: ModifierState): ESTree.ArrowFunctionExpression {
+function parseArrowBody(
+  parser: Parser,
+  context: Context,
+  params: any[],
+  pos: Location,
+  state: ModifierState): ESTree.ArrowFunctionExpression {
     parser.pendingExpressionError = null;
     for (const i in params) reinterpret(parser, context | Context.InParameter, params[i]);
     const expression = parser.token !== Token.LeftBrace;
@@ -1636,7 +1656,6 @@ export function parseFormalParameterList(parser: Parser, context: Context, args:
 
     const left: any = parseBindingIdentifierOrPattern(parser, context, args);
     if (!consume(parser, context, Token.Assign)) return left;
-
     if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {
         tolerant(parser, context, parser.token & Token.IsAwait ? Errors.AwaitInParameter : Errors.YieldInParameter);
     }
@@ -1905,14 +1924,17 @@ function parsePrivateName(parser: Parser, context: Context, pos: Location): ESTr
  * @param context Context masks
  */
 
-function parsePrivateFields(parser: Parser, context: Context, decorators: ESTree.Decorator[] | null): ESTree.FieldDefinition | ESTree.MethodDefinition {
+function parsePrivateFields(
+  parser: Parser,
+  context: Context,
+  decorators: ESTree.Decorator[] | null
+): ESTree.FieldDefinition | ESTree.MethodDefinition {
     const pos = getLocation(parser);
     expect(parser, context | Context.InClass, Token.Hash);
     if (parser.tokenValue === 'constructor') tolerant(parser, context, Errors.PrivateFieldConstructor);
-
     const key = parsePrivateName(parser, context, pos);
     if (parser.token === Token.LeftParen) return parsePrivateMethod(parser, context, key, pos, decorators);
-    let value: any = null;
+    let value: ESTree.Expression | null = null;
     if (consume(parser, context, Token.Assign)) {
         if (parser.token & Token.IsEvalOrArguments) tolerant(parser, context, Errors.StrictEvalArguments);
         value = parseAssignmentExpression(parser, context);
@@ -1936,7 +1958,13 @@ function parsePrivateFields(parser: Parser, context: Context, decorators: ESTree
     });
 }
 
-function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Location, decorators: ESTree.Decorator[] | null): ESTree.MethodDefinition {
+function parsePrivateMethod(
+  parser: Parser,
+  context: Context,
+  key: ESTree.Expression | ESTree.Literal | ESTree.Identifier,
+  pos: Location,
+  decorators: ESTree.Decorator[] | null
+): ESTree.MethodDefinition {
     const value = parseMethodDeclaration(parser, context | Context.Strict, ObjectState.None);
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     return finishNode(context, parser, pos, context & Context.OptionsExperimental ? {
@@ -1955,7 +1983,6 @@ function parsePrivateMethod(parser: Parser, context: Context, key: any, pos: Loc
         key,
         value,
     });
-
 }
 
 /**
@@ -2101,9 +2128,9 @@ function parseSuperProperty(parser: Parser, context: Context): ESTree.Super {
 }
 
 /**
- * Parse statement list
+ * Parse template literal
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateLiteral)
  *
  * @param parser Parser object
  * @param context Context masks
@@ -2119,15 +2146,22 @@ function parseTemplateLiteral(parser: Parser, context: Context): ESTree.Template
 }
 
 /**
- * Parse statement list
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * Parse template head
  *
  * @param parser Parser object
  * @param context Context masks
+ * @param cooked Cooked template value
+ * @param raw Raw template value
+ * @param pos Current location
  */
 
-function parseTemplateHead(parser: Parser, context: Context, cooked: string | null = null, raw: string, pos: Location): ESTree.TemplateElement {
+function parseTemplateHead(
+  parser: Parser,
+  context: Context,
+  cooked: string | null = null,
+  raw: string,
+  pos: Location
+): ESTree.TemplateElement {
     parser.token = consumeTemplateBrace(parser, context);
 
     return finishNode(context, parser, pos, {
@@ -2141,12 +2175,12 @@ function parseTemplateHead(parser: Parser, context: Context, cooked: string | nu
 }
 
 /**
- * Parse statement list
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * Parse template
  *
  * @param parser Parser object
  * @param context Context masks
+ * @param expression Expression AST node
+ * @param quasis Array of Template elements
  */
 
 function parseTemplate(
@@ -2178,12 +2212,13 @@ function parseTemplate(
 }
 
 /**
- * Parse statement list
+ * Parse template spans
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
  *
  * @param parser Parser object
  * @param context Context masks
+ * @param loc Current AST node location
  */
 
 function parseTemplateSpans(parser: Parser, context: Context, pos: Location = getLocation(parser)): ESTree.TemplateElement {

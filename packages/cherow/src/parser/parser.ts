@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token } from '../token';
-import {  Options, Location, Parser } from '../types';
+import { Options, Location, Parser } from '../types';
 import { parseStatementListItem, parseDirective } from './statements';
 import { parseModuleItemList } from './module';
 import { Context, Flags, nextToken } from '../utilities';
@@ -55,18 +55,6 @@ export function createParser(
         errorLocation: undefined,
         errors: [],
     };
-}
-
-/**
- * Parse either script code or module code
- *
- * @param source source code to parse
- * @param options parser options
- */
-export function parse(source: string, options?: Options): ESTree.Program {
-  return options && options.module
-    ? parseSource(source, options, Context.Strict | Context.Module)
-    : parseSource(source, options, Context.Empty);
 }
 
 /**
@@ -134,14 +122,8 @@ export function parseSource(source: string, options: Options | void, /*@internal
     if (context & Context.OptionsLoc) {
 
         node.loc = {
-            start: {
-                line: 1,
-                column: 0,
-            },
-            end: {
-                line: parser.line,
-                column: parser.column,
-            },
+            start: { line: 1, column: 0 },
+            end: { line: parser.line, column: parser.column }
         };
 
         if (sourceFile) node.loc.source = sourceFile;
@@ -165,11 +147,10 @@ export function parseSource(source: string, options: Options | void, /*@internal
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
     const statements: ESTree.Statement[] = [];
+    // prime the scanner
     nextToken(parser, context | Context.DisallowEscapedKeyword);
     while (parser.token === Token.StringLiteral) {
-        // We do a strict check here too speed up things in case someone is crazy eenough to
-        // write "use strict"; "use strict"; at Top-level. // J.K
-        if (!(context & Context.Strict) && parser.tokenRaw.length === /* length of prologue*/ 12 && parser.tokenValue === 'use strict')  {
+        if (!(context & Context.Strict) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict')  {
             context |= Context.Strict;
         }
         statements.push(parseDirective(parser, context));
@@ -179,6 +160,21 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
     }
 
     return statements;
+}
+
+/**
+ * Parse either script code or module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parse(source: string, options?: Options): ESTree.Program {
+  return options && options.module
+    ? parseModule(source, options)
+    : parseScript(source, options);
 }
 
 /**
