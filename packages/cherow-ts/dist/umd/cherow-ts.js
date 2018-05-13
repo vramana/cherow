@@ -1357,7 +1357,7 @@
           case 83886109 /* Assign */:
               return parseExportAssignment(parser, context);
           // `export as namespace A;`
-          case 167811947 /* AsKeyword */:
+          case 36971 /* AsKeyword */:
               return parseNamespaceExportDeclaration(parser, context);
           // export ClassDeclaration
           case 33566797 /* ClassKeyword */:
@@ -1422,7 +1422,7 @@
       // IdentifierName
       // IdentifierName as IdentifierName
       const local = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, parser.token);
-      const exported = consume(parser, context, 167811947 /* AsKeyword */) ?
+      const exported = consume(parser, context, 36971 /* AsKeyword */) ?
           parseIdentifierName(parser, context, parser.token) :
           local;
       return finishNode(context, parser, pos, {
@@ -1578,8 +1578,8 @@
       const { token } = parser;
       const imported = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, token);
       let local;
-      if (parser.token === 167811947 /* AsKeyword */) {
-          expect(parser, context, 167811947 /* AsKeyword */);
+      if (parser.token === 36971 /* AsKeyword */) {
+          expect(parser, context, 36971 /* AsKeyword */);
           local = parseBindingIdentifier(parser, context);
       }
       else {
@@ -1608,7 +1608,7 @@
   function parseImportNamespaceSpecifier(parser, context, specifiers) {
       const pos = getLocation(parser);
       expect(parser, context, 167774771 /* Multiply */);
-      expect(parser, context, 167811947 /* AsKeyword */, 80 /* AsAfterImportStart */);
+      expect(parser, context, 36971 /* AsKeyword */, 80 /* AsAfterImportStart */);
       const local = parseBindingIdentifier(parser, context);
       specifiers.push(finishNode(context, parser, pos, {
           type: 'ImportNamespaceSpecifier',
@@ -1668,7 +1668,7 @@
   */
   function parseNamespaceExportDeclaration(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 167811947 /* AsKeyword */);
+      expect(parser, context, 36971 /* AsKeyword */);
       expect(parser, context, 65664 /* NameSpaceKeyword */);
       const id = parseIdentifier(parser, context);
       consumeSemicolon(parser, context);
@@ -1802,7 +1802,7 @@
           case 83886109 /* Assign */:
               return parseExportAssignment(parser, context);
           // `export as namespace A;`
-          case 167811947 /* AsKeyword */:
+          case 36971 /* AsKeyword */:
               return parseNamespaceExportDeclaration(parser, context);
           // export ClassDeclaration
           case 33566797 /* ClassKeyword */:
@@ -3665,10 +3665,7 @@
       const test = parseBinaryExpression(parser, context, 0, pos);
       if (!consume(parser, context, 22 /* QuestionMark */))
           return test;
-      console.log(parser.tokenValue);
-      //parser.flags |= TypeScriptFlags.InConditionalExpression;
       const consequent = parseExpressionCoverGrammar(parser, context & ~1073741824 /* AllowDecorator */ | 32 /* InConditionalExpression */ | 65536 /* AllowIn */, parseAssignmentExpression);
-      // parser.flags &= ~TypeScriptFlags.InConditionalExpression;
       expect(parser, context, 16777237 /* Colon */);
       const alternate = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
       return finishNode(context, parser, pos, {
@@ -3685,7 +3682,7 @@
    * @param context Context masks
    */
   function parseAsExpression(parser, context, left, pos) {
-      consume(parser, context, 167811947 /* AsKeyword */);
+      consume(parser, context, 36971 /* AsKeyword */);
       return finishNode(context, parser, pos, {
           type: 'AsExpression',
           typeAnnotation: parseType(parser, context),
@@ -3724,7 +3721,7 @@
           // start of an expression, so we break the loop
           if (prec + delta <= minPrec)
               break;
-          if (parser.token === 167811947 /* AsKeyword */) {
+          if (parser.token === 36971 /* AsKeyword */) {
               if (parser.flags & 1 /* NewLine */)
                   break;
               left = parseAsExpression(parser, context, left, getLocation(parser));

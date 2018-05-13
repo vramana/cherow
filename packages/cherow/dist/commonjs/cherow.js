@@ -6418,6 +6418,7 @@ function parseModuleItem(parser, context) {
             if (!(context & 1 /* OptionsNext */ && lookahead(parser, context, nextTokenIsLeftParenOrPeriod))) {
                 return parseImportDeclaration(parser, context);
             }
+        // falls through
         default:
             return parseStatementListItem(parser, context);
     }
@@ -6463,9 +6464,8 @@ function parseExportDeclaration(parser, context) {
                     //  The left hand side can't be a keyword where there is no
                     // 'from' keyword since it references a local binding.
                 }
-                else if (hasReservedWord) {
+                else if (hasReservedWord)
                     tolerant(parser, context, 44 /* UnexpectedReserved */);
-                }
                 consumeSemicolon(parser, context);
                 break;
             }
@@ -6569,11 +6569,9 @@ function parseExportDefault(parser, context, pos) {
             declaration = parseAsyncFunctionOrAssignmentExpression(parser, context | 16777216 /* RequireIdentifier */);
             break;
         default:
-            {
-                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
-                declaration = parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
-                consumeSemicolon(parser, context);
-            }
+            // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+            declaration = parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
+            consumeSemicolon(parser, context);
     }
     return finishNode(context, parser, pos, {
         type: 'ExportDefaultDeclaration',
@@ -6627,7 +6625,7 @@ function parseImportClause(parser, context) {
                     switch (parser.token) {
                         // import a, * as foo
                         case 167774771 /* Multiply */:
-                            parseImportNamespaceSpecifier(parser, context, specifiers);
+                            parseNameSpaceImport(parser, context, specifiers);
                             break;
                         // import a, {bar}
                         case 41943052 /* LeftBrace */:
@@ -6645,7 +6643,7 @@ function parseImportClause(parser, context) {
             break;
         // import * as foo
         case 167774771 /* Multiply */:
-            parseImportNamespaceSpecifier(parser, context, specifiers);
+            parseNameSpaceImport(parser, context, specifiers);
             break;
         default:
             report(parser, 1 /* UnexpectedToken */, tokenDesc(parser.token));
@@ -6664,9 +6662,8 @@ function parseNamedImports(parser, context, specifiers) {
     expect(parser, context, 41943052 /* LeftBrace */);
     while (parser.token !== 17301519 /* RightBrace */) {
         specifiers.push(parseImportSpecifier(parser, context));
-        if (parser.token !== 17301519 /* RightBrace */) {
+        if (parser.token !== 17301519 /* RightBrace */)
             expect(parser, context, 16777234 /* Comma */);
-        }
     }
     expect(parser, context, 17301519 /* RightBrace */);
 }
@@ -6683,8 +6680,7 @@ function parseImportSpecifier(parser, context) {
     const { token } = parser;
     const imported = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, token);
     let local;
-    if (parser.token === 36971 /* AsKeyword */) {
-        expect(parser, context, 36971 /* AsKeyword */);
+    if (consume(parser, context, 36971 /* AsKeyword */)) {
         local = parseBindingIdentifier(parser, context);
     }
     else {
@@ -6710,7 +6706,9 @@ function parseImportSpecifier(parser, context) {
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseImportNamespaceSpecifier(parser, context, specifiers) {
+function parseNameSpaceImport(parser, context, specifiers) {
+    // NameSpaceImport:
+    //  * as ImportedBinding
     const pos = getLocation(parser);
     expect(parser, context, 167774771 /* Multiply */);
     expect(parser, context, 36971 /* AsKeyword */, 80 /* AsAfterImportStart */);
@@ -6721,9 +6719,9 @@ function parseImportNamespaceSpecifier(parser, context, specifiers) {
     }));
 }
 /**
- * Parse binding identifier
+ * Parse module specifier
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleSpecifier)
  *
  * @param parser  Parser object
  * @param context Context masks
@@ -6738,8 +6736,6 @@ function parseModuleSpecifier(parser, context) {
 }
 /**
  * Parse import default specifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
  * @param parser  Parser object
  * @param context Context masks

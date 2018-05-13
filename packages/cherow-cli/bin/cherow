@@ -39,7 +39,8 @@ const keywordDescTable = [
     '#',
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
     /** TS */
-    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module'
+    'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
+    'global', 'require'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -114,6 +115,8 @@ const descKeywordTable = Object.create(null, {
     abstract: { value: 65665 /* AbstractKeyword */ },
     as: { value: 36971 /* AsKeyword */ },
     module: { value: 65666 /* ModuleKeyword */ },
+    global: { value: 65667 /* GlobalKeyword */ },
+    require: { value: 65668 /* RequireKeyword */ },
 });
 function descKeyword(value) {
     return (descKeywordTable[value] | 0);
@@ -471,7 +474,7 @@ function nextUnicodeChar(parser) {
  * @param code Codepoint
  */
 const isIdentifierPart = (code) => (characterType[code] & 1 /* IdentifierStart */) !== 0 || isValidIdentifierPart(code);
-function escapeForPrinting(code) {
+function escapeInvalidCharacters(code) {
     switch (code) {
         case 0 /* Null */:
             return '\\0';
@@ -1398,7 +1401,7 @@ function scanIdentifier(parser, context, first) {
 function scanMaybeIdentifier(parser, context, first) {
     first = nextUnicodeChar(parser);
     if (!isValidIdentifierStart(first)) {
-        report(parser, 9 /* UnexpectedChar */, escapeForPrinting(first));
+        report(parser, 9 /* UnexpectedChar */, escapeInvalidCharacters(first));
     }
     return scanIdentifier(parser, context, first);
 }
@@ -1492,10 +1495,10 @@ function skipSingleHTMLComment(parser, context, state, type) {
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLOpenComment)
  *  @see [Link](https://tc39.github.io/ecma262/#prod-annexB-SingleLineHTMLCloseComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state  Scanner state
- * @param type   Comment type
+ * @param type  Comment type
  */
 function skipSingleLineComment(parser, context, state, type) {
     const start = parser.index;
@@ -1528,7 +1531,7 @@ function skipSingleLineComment(parser, context, state, type) {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
  *
- * @param parser Parser instance
+ * @param parser Parser object
  * @param context Context masks
  * @param state Scanner state
  */
@@ -1571,24 +1574,26 @@ function skipMultiLineComment(parser, context, state) {
     // Unterminated multi-line comment.
     tolerant(parser, context, 7 /* UnterminatedComment */);
 }
-function addComment(parser, context, type, start) {
-    const { index, startIndex, startLine, startColumn, lastLine, column } = parser;
+/**
+ * Add comments
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param type  Comment type
+ * @param commentStart Start position of comment
+ */
+function addComment(parser, context, type, commentStart) {
+    const { index: end, startIndex: start, startLine, startColumn, lastLine, column } = parser;
     const comment = {
         type,
-        value: parser.source.slice(start, type === 'MultiLine' ? index - 2 : index),
-        start: startIndex,
-        end: index,
+        value: parser.source.slice(commentStart, type === 'MultiLine' ? end - 2 : end),
+        start,
+        end,
     };
     if (context & 16 /* OptionsLoc */) {
         comment.loc = {
-            start: {
-                line: startLine,
-                column: startColumn,
-            },
-            end: {
-                line: lastLine,
-                column,
-            },
+            start: { line: startLine, column: startColumn },
+            end: { line: lastLine, column },
         };
     }
     parser.comments.push(comment);
@@ -3492,11 +3497,13 @@ function parseUnaryExpression(parser, context) {
     const { token } = parser;
     if (hasBit(token, 301989888 /* IsUnaryOp */)) {
         nextToken(parser, context);
-        if (parser.flags & 32768 /* EscapedKeyword */)
+        if (parser.flags & 32768 /* EscapedKeyword */) {
             tolerant(parser, context, 2 /* InvalidEscapedReservedWord */);
+        }
         const argument = parseExpressionCoverGrammar(parser, context, parseUnaryExpression);
-        if (parser.token === 167775030 /* Exponentiate */)
+        if (parser.token === 167775030 /* Exponentiate */) {
             tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
+        }
         if (context & 4096 /* Strict */ && token === 302002219 /* DeleteKeyword */) {
             if (argument.type === 'Identifier') {
                 tolerant(parser, context, 41 /* StrictDelete */);
@@ -3600,9 +3607,13 @@ function parseSpreadElement(parser, context) {
  * @param pos Location info
  */
 function parseLeftHandSideExpression(parser, context, pos) {
-    const expr = context & 1 /* OptionsNext */ && parser.token === 33566810 /* ImportKeyword */ ?
-        parseCallImportOrMetaProperty(parser, context | 65536 /* AllowIn */) :
-        parseMemberExpression(parser, context | 65536 /* AllowIn */, pos);
+    let expr;
+    if (context & 1 /* OptionsNext */ && parser.token === 33566810 /* ImportKeyword */) {
+        expr = parseCallImportOrMetaProperty(parser, context | 65536 /* AllowIn */);
+    }
+    else {
+        expr = parseMemberExpression(parser, context | 65536 /* AllowIn */, pos);
+    }
     return parseCallExpression(parser, context | 65536 /* AllowIn */, pos, expr);
 }
 /**
@@ -3847,7 +3858,7 @@ function parsePrimaryExpression(parser, context) {
         case 299116 /* AsyncKeyword */:
             return parseAsyncFunctionOrIdentifier(parser, context);
         case 50331659 /* LeftParen */:
-            return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 134217728 /* InParen */);
+            return parseParenthesizedExpression(parser, context | 134217728 /* InParen */);
         case 41943059 /* LeftBracket */:
             return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
         case 41943052 /* LeftBrace */:
@@ -4132,107 +4143,84 @@ function parseArrayLiteral(parser, context) {
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context) {
+function parseParenthesizedExpression(parser, context) {
     expect(parser, context, 50331659 /* LeftParen */);
-    switch (parser.token) {
-        // ')'
-        case 16 /* RightParen */:
-            {
+    if (consume(parser, context, 16 /* RightParen */)) {
+        parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
+        if (parser.token === 10 /* Arrow */)
+            return [];
+    }
+    else if (parser.token === 14 /* Ellipsis */) {
+        const restExpr = [parseRestElement(parser, context)];
+        expect(parser, context, 16 /* RightParen */);
+        parser.flags = parser.flags & ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */) | 8 /* SimpleParameterList */;
+        if (parser.token !== 10 /* Arrow */)
+            tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
+        return restExpr;
+    }
+    // Record the sequence position
+    const sequencepos = getLocation(parser);
+    let state = validateCoverParenthesizedExpression(parser, 0 /* None */);
+    let expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
+    // Sequence expression
+    if (parser.token === 16777234 /* Comma */) {
+        state |= 1 /* SequenceExpression */;
+        const expressions = [expr];
+        while (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777234 /* Comma */)) {
+            if (parser.token === 14 /* Ellipsis */) {
+                if (!(parser.flags & 2 /* AllowBinding */))
+                    tolerant(parser, context, 75 /* NotBindable */);
+                parser.flags |= 8 /* SimpleParameterList */;
+                const restElement = parseRestElement(parser, context);
                 expect(parser, context, 16 /* RightParen */);
-                parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
-                if (parser.token === 10 /* Arrow */)
-                    return [];
+                if (parser.token !== 10 /* Arrow */)
+                    tolerant(parser, context, 76 /* ParamAfterRest */);
+                expressions.push(restElement);
+                return expressions;
             }
-        // '...'
-        case 14 /* Ellipsis */:
-            {
-                const expr = parseRestElement(parser, context);
-                expect(parser, context, 16 /* RightParen */);
-                parser.flags = parser.flags & ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */) | 8 /* SimpleParameterList */;
+            else if (consume(parser, context, 16 /* RightParen */)) {
                 if (parser.token !== 10 /* Arrow */)
                     tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                return [expr];
+                return expressions;
             }
-        default:
-            {
-                let state = 0 /* None */;
-                // Record the sequence position
-                const sequencepos = getLocation(parser);
+            else {
                 state = validateCoverParenthesizedExpression(parser, state);
-                if (parser.token & 8388608 /* IsBindingPattern */)
-                    state |= 16 /* HasBinding */;
-                let expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
-                // Sequence expression
-                if (parser.token === 16777234 /* Comma */) {
-                    state |= 1 /* SequenceExpression */;
-                    const expressions = [expr];
-                    while (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777234 /* Comma */)) {
-                        parser.flags &= ~4 /* AllowDestructuring */;
-                        switch (parser.token) {
-                            // '...'
-                            case 14 /* Ellipsis */:
-                                {
-                                    if (!(parser.flags & 2 /* AllowBinding */))
-                                        tolerant(parser, context, 75 /* NotBindable */);
-                                    parser.flags |= 8 /* SimpleParameterList */;
-                                    const restElement = parseRestElement(parser, context);
-                                    expect(parser, context, 16 /* RightParen */);
-                                    if (parser.token !== 10 /* Arrow */)
-                                        tolerant(parser, context, 76 /* ParamAfterRest */);
-                                    parser.flags &= ~2 /* AllowBinding */;
-                                    expressions.push(restElement);
-                                    return expressions;
-                                }
-                            // ')'
-                            case 16 /* RightParen */:
-                                {
-                                    expect(parser, context, 16 /* RightParen */);
-                                    if (parser.token !== 10 /* Arrow */)
-                                        tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                                    return expressions;
-                                }
-                            default:
-                                {
-                                    state = validateCoverParenthesizedExpression(parser, state);
-                                    expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
-                                }
-                        }
-                    }
-                    expr = finishNode(context, parser, sequencepos, {
-                        type: 'SequenceExpression',
-                        expressions,
-                    });
-                }
-                expect(parser, context, 16 /* RightParen */);
-                if (parser.token === 10 /* Arrow */) {
-                    if (state & 2 /* HasEvalOrArguments */) {
-                        if (context & 4096 /* Strict */)
-                            tolerant(parser, context, 45 /* StrictEvalArguments */);
-                        parser.flags |= 2048 /* StrictEvalArguments */;
-                    }
-                    else if (state & 4 /* HasReservedWords */) {
-                        if (context & 4096 /* Strict */)
-                            tolerant(parser, context, 48 /* UnexpectedStrictReserved */);
-                        parser.flags |= 64 /* HasStrictReserved */;
-                    }
-                    else if (!(parser.flags & 2 /* AllowBinding */)) {
-                        tolerant(parser, context, 75 /* NotBindable */);
-                    }
-                    else if (parser.flags & 16384 /* HasYield */) {
-                        tolerant(parser, context, 49 /* YieldInParameter */);
-                    }
-                    else if (context & 131072 /* Async */ && parser.flags & 8192 /* HasAwait */) {
-                        tolerant(parser, context, 50 /* AwaitInParameter */);
-                    }
-                    parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
-                    return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
-                }
-                parser.flags &= ~(8192 /* HasAwait */ | 16384 /* HasYield */ | 2 /* AllowBinding */);
-                if (!isValidSimpleAssignmentTarget(expr))
-                    parser.flags &= ~4 /* AllowDestructuring */;
-                return expr;
+                expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
             }
+        }
+        expr = finishNode(context, parser, sequencepos, {
+            type: 'SequenceExpression',
+            expressions,
+        });
     }
+    expect(parser, context, 16 /* RightParen */);
+    if (parser.token === 10 /* Arrow */) {
+        if (state & 2 /* HasEvalOrArguments */) {
+            if (context & 4096 /* Strict */)
+                tolerant(parser, context, 45 /* StrictEvalArguments */);
+            parser.flags |= 2048 /* StrictEvalArguments */;
+        }
+        else if (state & 4 /* HasReservedWords */) {
+            if (context & 4096 /* Strict */)
+                tolerant(parser, context, 48 /* UnexpectedStrictReserved */);
+            parser.flags |= 64 /* HasStrictReserved */;
+        }
+        else if (!(parser.flags & 2 /* AllowBinding */)) {
+            tolerant(parser, context, 75 /* NotBindable */);
+        }
+        else if (parser.flags & 16384 /* HasYield */) {
+            tolerant(parser, context, 49 /* YieldInParameter */);
+        }
+        else if (context & 131072 /* Async */ && parser.flags & 8192 /* HasAwait */) {
+            tolerant(parser, context, 50 /* AwaitInParameter */);
+        }
+        parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
+        return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
+    }
+    parser.flags &= ~(8192 /* HasAwait */ | 16384 /* HasYield */ | 2 /* AllowBinding */);
+    if (!isValidSimpleAssignmentTarget(expr))
+        parser.flags &= ~4 /* AllowDestructuring */;
+    return expr;
 }
 /**
  * Parses function expression
@@ -5586,7 +5574,18 @@ function parseFunctionDeclaration(parser, context) {
  * @param pos Current location
  */
 function parseFunctionDeclarationBody(parser, context, state, pos) {
-    const id = parseFunctionDeclarationName(parser, context);
+    const { token } = parser;
+    let id = null;
+    if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
+        tolerant(parser, context, 47 /* YieldBindingIdentifier */);
+    if (context & 131072 /* Async */ && token & 131072 /* IsAwait */)
+        tolerant(parser, context, 46 /* AwaitBindingIdentifier */);
+    if (token !== 50331659 /* LeftParen */) {
+        id = parseBindingIdentifier(parser, context);
+        // Unnamed functions are forbidden in statement context.
+    }
+    else if (!(context & 16777216 /* RequireIdentifier */))
+        tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
     const { params, body } = swapContext(parser, context & ~(33554432 /* Method */ | 67108864 /* AllowSuperProperty */ | 16777216 /* RequireIdentifier */), state, parseFormalListAndBody);
     return finishNode(context, parser, pos, {
         type: 'FunctionDeclaration',
@@ -5614,29 +5613,6 @@ function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
     const isAwait = 2 /* Await */;
     const isGenerator = consume(parser, context, 167774771 /* Multiply */) ? 1 /* Generator */ : 0 /* None */;
     return parseFunctionDeclarationBody(parser, context, isGenerator | isAwait, pos);
-}
-/**
- * Shared helper function for "parseFunctionDeclaration" and "parseAsyncFunctionOrAsyncGeneratorDeclaration"
- * so we can re-use the same logic when parsing out the function name, or throw an
- * error if the 'RequireIdentifier' mask is not set
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseFunctionDeclarationName(parser, context) {
-    const { token } = parser;
-    let id = null;
-    if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
-        tolerant(parser, context, 47 /* YieldBindingIdentifier */);
-    if (context & 131072 /* Async */ && token & 131072 /* IsAwait */)
-        tolerant(parser, context, 46 /* AwaitBindingIdentifier */);
-    if (token !== 50331659 /* LeftParen */) {
-        id = parseBindingIdentifier(parser, context);
-        // Unnamed functions are forbidden in statement context.
-    }
-    else if (!(context & 16777216 /* RequireIdentifier */))
-        tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
-    return id;
 }
 /**
  * VariableDeclaration :
@@ -7019,7 +6995,7 @@ var index = /*#__PURE__*/Object.freeze({
   addComment: addComment,
   nextUnicodeChar: nextUnicodeChar,
   isIdentifierPart: isIdentifierPart,
-  escapeForPrinting: escapeForPrinting,
+  escapeInvalidCharacters: escapeInvalidCharacters,
   consumeOpt: consumeOpt,
   consumeLineFeed: consumeLineFeed,
   scanPrivateName: scanPrivateName,

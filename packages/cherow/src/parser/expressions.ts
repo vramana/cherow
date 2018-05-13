@@ -450,9 +450,9 @@ function parseSpreadElement(parser: Parser, context: Context): any {
 export function parseLeftHandSideExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
   let expr: ESTree.Expression;
   if (context & Context.OptionsNext && parser.token === Token.ImportKeyword) {
-      expr = parseCallImportOrMetaProperty(parser, context | Context.AllowIn)
+      expr = parseCallImportOrMetaProperty(parser, context | Context.AllowIn);
   } else {
-      expr = parseMemberExpression(parser, context | Context.AllowIn, pos)
+      expr = parseMemberExpression(parser, context | Context.AllowIn, pos);
   }
 
   return parseCallExpression(parser, context | Context.AllowIn, pos, expr);

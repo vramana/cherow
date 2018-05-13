@@ -77,7 +77,7 @@ export function parseModuleItem(parser: Parser, context: Context): ReturnType<
             if (!(context & Context.OptionsNext && lookahead(parser, context, nextTokenIsLeftParenOrPeriod))) {
                 return parseImportDeclaration(parser, context);
             }
-
+            // falls through
         default:
             return parseStatementListItem(parser, context);
     }
@@ -96,12 +96,13 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
     const pos = getLocation(parser);
     const specifiers: ESTree.ExportSpecifier[] = [];
 
-    let source = null;
+    let source: ESTree.Literal | null = null;
     let declaration: ESTree.Statement | null = null;
 
     expect(parser, context | Context.DisallowEscapedKeyword, Token.ExportKeyword);
 
     switch (parser.token) {
+
         // export * FromClause ;
         case Token.Multiply:
             return parseExportAllDeclaration(parser, context, pos);
@@ -132,9 +133,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                     source = parseModuleSpecifier(parser, context);
                 //  The left hand side can't be a keyword where there is no
                 // 'from' keyword since it references a local binding.
-                } else if (hasReservedWord) {
-                    tolerant(parser, context, Errors.UnexpectedReserved);
-                }
+                } else if (hasReservedWord) tolerant(parser, context, Errors.UnexpectedReserved);
 
                 consumeSemicolon(parser, context);
 
@@ -256,11 +255,9 @@ function parseExportDefault(parser: Parser, context: Context, pos: Location): ES
             break;
 
         default:
-            {
-                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
-                declaration = parseAssignmentExpression(parser, context | Context.AllowIn);
-                consumeSemicolon(parser, context);
-            }
+           // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+            declaration = parseAssignmentExpression(parser, context | Context.AllowIn);
+            consumeSemicolon(parser, context);
     }
 
     return finishNode(context, parser, pos, {
@@ -324,10 +321,11 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
                 specifiers.push(parseImportDefaultSpecifier(parser, context));
 
                 if (consume(parser, context, Token.Comma)) {
+
                     switch (parser.token) {
                         // import a, * as foo
                         case Token.Multiply:
-                            parseImportNamespaceSpecifier(parser, context, specifiers);
+                            parseNameSpaceImport(parser, context, specifiers);
                             break;
                             // import a, {bar}
                         case Token.LeftBrace:
@@ -348,7 +346,7 @@ function parseImportClause(parser: Parser, context: Context): ESTree.Specifiers[
 
             // import * as foo
         case Token.Multiply:
-            parseImportNamespaceSpecifier(parser, context, specifiers);
+            parseNameSpaceImport(parser, context, specifiers);
             break;
 
         default:
@@ -372,9 +370,7 @@ function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.
 
     while (parser.token !== Token.RightBrace) {
         specifiers.push(parseImportSpecifier(parser, context));
-        if (parser.token !== Token.RightBrace) {
-            expect(parser, context, Token.Comma);
-        }
+        if (parser.token !== Token.RightBrace) expect(parser, context, Token.Comma);
     }
 
     expect(parser, context, Token.RightBrace);
@@ -397,8 +393,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 
     let local: ESTree.Identifier;
 
-    if (parser.token === Token.AsKeyword) {
-        expect(parser, context, Token.AsKeyword);
+    if (consume(parser, context, Token.AsKeyword)) {
         local = parseBindingIdentifier(parser, context);
     } else {
          // An import name that is a keyword is a syntax error if it is not followed
@@ -424,7 +419,9 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
  * @param context Context masks
  */
 
-function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]): void {
+function parseNameSpaceImport(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]): void {
+    // NameSpaceImport:
+    //  * as ImportedBinding
     const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.AsAfterImportStart);
@@ -436,9 +433,9 @@ function parseImportNamespaceSpecifier(parser: Parser, context: Context, specifi
 }
 
 /**
- * Parse binding identifier
+ * Parse module specifier
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleSpecifier)
  *
  * @param parser  Parser object
  * @param context Context masks
@@ -453,8 +450,6 @@ function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal 
 
 /**
  * Parse import default specifier
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
  *
  * @param parser  Parser object
  * @param context Context masks
@@ -476,7 +471,10 @@ function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.I
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseAsyncFunctionOrAssignmentExpression(parser: Parser, context: Context): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
+function parseAsyncFunctionOrAssignmentExpression(
+  parser: Parser,
+  context: Context
+): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine) ?
         parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context | Context.RequireIdentifier) :
         parseAssignmentExpression(parser, context | Context.AllowIn) as any;

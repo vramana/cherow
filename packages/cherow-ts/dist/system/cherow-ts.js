@@ -1374,7 +1374,7 @@ System.register(['cherow'], function (exports, module) {
               case 83886109 /* Assign */:
                   return parseExportAssignment(parser, context);
               // `export as namespace A;`
-              case 167811947 /* AsKeyword */:
+              case 36971 /* AsKeyword */:
                   return parseNamespaceExportDeclaration(parser, context);
               // export ClassDeclaration
               case 33566797 /* ClassKeyword */:
@@ -1439,7 +1439,7 @@ System.register(['cherow'], function (exports, module) {
           // IdentifierName
           // IdentifierName as IdentifierName
           const local = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, parser.token);
-          const exported = consume$1(parser, context, 167811947 /* AsKeyword */) ?
+          const exported = consume$1(parser, context, 36971 /* AsKeyword */) ?
               parseIdentifierName(parser, context, parser.token) :
               local;
           return finishNode$1(context, parser, pos, {
@@ -1595,8 +1595,8 @@ System.register(['cherow'], function (exports, module) {
           const { token } = parser;
           const imported = parseIdentifierName(parser, context | 536870912 /* DisallowEscapedKeyword */, token);
           let local;
-          if (parser.token === 167811947 /* AsKeyword */) {
-              expect$1(parser, context, 167811947 /* AsKeyword */);
+          if (parser.token === 36971 /* AsKeyword */) {
+              expect$1(parser, context, 36971 /* AsKeyword */);
               local = parseBindingIdentifier(parser, context);
           }
           else {
@@ -1625,7 +1625,7 @@ System.register(['cherow'], function (exports, module) {
       function parseImportNamespaceSpecifier(parser, context, specifiers) {
           const pos = getLocation$1(parser);
           expect$1(parser, context, 167774771 /* Multiply */);
-          expect$1(parser, context, 167811947 /* AsKeyword */, 80 /* AsAfterImportStart */);
+          expect$1(parser, context, 36971 /* AsKeyword */, 80 /* AsAfterImportStart */);
           const local = parseBindingIdentifier(parser, context);
           specifiers.push(finishNode$1(context, parser, pos, {
               type: 'ImportNamespaceSpecifier',
@@ -1685,7 +1685,7 @@ System.register(['cherow'], function (exports, module) {
       */
       function parseNamespaceExportDeclaration(parser, context) {
           const pos = getLocation$1(parser);
-          expect$1(parser, context, 167811947 /* AsKeyword */);
+          expect$1(parser, context, 36971 /* AsKeyword */);
           expect$1(parser, context, 65664 /* NameSpaceKeyword */);
           const id = parseIdentifier(parser, context);
           consumeSemicolon$1(parser, context);
@@ -1819,7 +1819,7 @@ System.register(['cherow'], function (exports, module) {
               case 83886109 /* Assign */:
                   return parseExportAssignment(parser, context);
               // `export as namespace A;`
-              case 167811947 /* AsKeyword */:
+              case 36971 /* AsKeyword */:
                   return parseNamespaceExportDeclaration(parser, context);
               // export ClassDeclaration
               case 33566797 /* ClassKeyword */:
@@ -3682,10 +3682,7 @@ System.register(['cherow'], function (exports, module) {
           const test = parseBinaryExpression(parser, context, 0, pos);
           if (!consume$1(parser, context, 22 /* QuestionMark */))
               return test;
-          console.log(parser.tokenValue);
-          //parser.flags |= TypeScriptFlags.InConditionalExpression;
           const consequent = parseExpressionCoverGrammar(parser, context & ~1073741824 /* AllowDecorator */ | 32 /* InConditionalExpression */ | 65536 /* AllowIn */, parseAssignmentExpression);
-          // parser.flags &= ~TypeScriptFlags.InConditionalExpression;
           expect$1(parser, context, 16777237 /* Colon */);
           const alternate = parseExpressionCoverGrammar(parser, context, parseAssignmentExpression);
           return finishNode$1(context, parser, pos, {
@@ -3702,7 +3699,7 @@ System.register(['cherow'], function (exports, module) {
        * @param context Context masks
        */
       function parseAsExpression(parser, context, left, pos) {
-          consume$1(parser, context, 167811947 /* AsKeyword */);
+          consume$1(parser, context, 36971 /* AsKeyword */);
           return finishNode$1(context, parser, pos, {
               type: 'AsExpression',
               typeAnnotation: parseType(parser, context),
@@ -3741,7 +3738,7 @@ System.register(['cherow'], function (exports, module) {
               // start of an expression, so we break the loop
               if (prec + delta <= minPrec)
                   break;
-              if (parser.token === 167811947 /* AsKeyword */) {
+              if (parser.token === 36971 /* AsKeyword */) {
                   if (parser.flags & 1 /* NewLine */)
                       break;
                   left = parseAsExpression(parser, context, left, getLocation$1(parser));
