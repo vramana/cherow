@@ -15,6 +15,7 @@ This repo is managed as a monorepo that is composed of many independent [npm](ht
 * [Cherow JS parser](https://github.com/cherow/cherow/tree/master/packages/cherow)
 * [Cherow TypeScript parser](https://github.com/cherow/cherow/tree/master/packages/cherow-ts)
 * [Cherow Flow parser](https://github.com/cherow/cherow/tree/master/packages/cherow-flow)
+* [Cherow CLI](https://github.com/cherow/cherow/tree/master/packages/cherow-cli)
 
 All packages conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 
