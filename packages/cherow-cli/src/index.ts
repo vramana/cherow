@@ -2,9 +2,8 @@
 import { parse } from 'cherow';
 import {readFileSync as readFile} from "fs"
  var program = require('commander');
-
+ var colors = require('colors');
  program
-   .version('__VERSION__')
   .arguments('<code / file>')
   .usage('[options] <entry file>')
   .option('-l, --loc', 'Attach line/column location information to each node')
@@ -14,11 +13,13 @@ import {readFileSync as readFile} from "fs"
   .option('-g, --globalReturn', 'Allow return in the global scope')
   .option('-j, --jsx', 'Enable React JSX parsing')
   .option('-r, --raw', 'Attach raw property to each literal node')
-  .option('-f, --sourcefile', 'Parse sourcefile instead of source code')
+  .option('-s, --source', 'Parse sourcecode instead of inputing a file to parse')
   .action(function(file) {
 
     try {
-  //    if (program.sourcefile) file = readFile(program.file, "utf8")
+
+      if (!program.source) file = readFile(file, "utf8")
+
       console.log(parse(file, {
         loc: program.loc,
         ranges: program.ranges,
@@ -32,11 +33,10 @@ import {readFileSync as readFile} from "fs"
     console.error(e.message)
     process.exit(1)
   }
-  }).on('--help', function(){
-    console.log('  Examples:');
-    console.log('');
-    console.log('    # parse module code');
-    console.log('    cherow -m');
-    console.log('');
   })
   .parse(process.argv);
+
+  if (!process.argv.slice(2).length) {
+    program.outputHelp(function (txt) {return colors.yellow(txt); });
+  }
+
