@@ -2,14 +2,15 @@
 
 Command line interface for Cherow ECMAScript parser.
 
-This package can be used to parse a file from the command line. By default it accepts as arguments it's input file,
-but this can be changed with the `s` flag which allows you to pass in code as in the V8 CLI.
+This package can be used to parse a file from the command line. By default it accepts as arguments as
+it's input file, but this can be changed with the `s` flag which allows you to pass in code as in
+the V8 REPL.
 
 The CLI conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 
 ## Usage
 
-Install it either global or locale, and type `cherow` from the command line. The result will be print the syntax tree as JSON data.
+Install it either global or locale, and type `cherow` from the command line. The syntax tree will be printed as JSON data.
 
 ```js
 

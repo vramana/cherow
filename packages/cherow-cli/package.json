@@ -1,6 +1,6 @@
 {
   "name": "cherow-cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "dist/umd/cherow-cli.js",
   "module": "dist/es2015/cherow-cli.js",
