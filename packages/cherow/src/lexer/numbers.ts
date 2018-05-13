@@ -182,7 +182,7 @@ export function scanSignedInteger(parser: Parser, end: number): string {
 
 export function scanNumericLiteral(parser: Parser, context: Context, state: NumericState = NumericState.None): Token {
 
-    let value: any = state & NumericState.Float ?
+    let value: number | string = state & NumericState.Float ?
         0 :
         scanDecimalAsSmi(parser, context);
 
@@ -217,7 +217,7 @@ export function scanNumericLiteral(parser: Parser, context: Context, state: Nume
         report(parser, Errors.Unexpected);
     }
 
-    return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value) : parseInt(value, 10), !!(state & NumericState.BigInt));
+    return assembleNumericLiteral(parser, context, state & NumericState.Float ? parseFloat(value as string) : parseInt(value as string, 10), !!(state & NumericState.BigInt));
 }
 
 /**

@@ -297,7 +297,7 @@ function parseBinaryExpression(
             left,
             right: parseBinaryExpression(parser, context & ~Context.AllowIn, prec, getLocation(parser)),
             operator: tokenDesc(t),
-        } as any);
+        });
     }
 
     return left;
@@ -1287,7 +1287,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
     let state = consume(parser, context, Token.Multiply) ? ObjectState.Generator | ObjectState.Method : ObjectState.Method;
     const t = parser.token;
 
-    let key: ESTree.PatternTop | ESTree.Expression= parsePropertyName(parser, context);
+    let key: ESTree.PatternTop | ESTree.Expression = parsePropertyName(parser, context);
 
     if (!(parser.token & Token.IsShorthandProperty)) {
         if (flags & Flags.EscapedKeyword) {
@@ -1367,7 +1367,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
         computed: t === Token.LeftBracket,
         method: !!(state & ObjectState.Method),
         shorthand: !!(state & ObjectState.Shorthand),
-    } as any);
+    });
 }
 
 /**
@@ -1409,12 +1409,12 @@ function parseArrowFunction(
   parser: Parser,
   context: Context,
   pos: Location,
-  params: any
+  params: ESTree.Expression | ESTree.Expression[]
 ): ESTree.ArrowFunctionExpression {
     parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, '=>');
     expect(parser, context, Token.Arrow);
-    return parseArrowBody(parser, context & ~Context.Async, params, pos, ModifierState.None);
+    return parseArrowBody(parser, context & ~Context.Async, params as ESTree.Expression[], pos, ModifierState.None);
 }
 
 /**
@@ -1484,10 +1484,10 @@ function parseArrowBody(
  */
 
 export function parseFormalListAndBody(parser: Parser, context: Context, state: ObjectState): {
-  params: ESTree.Identifier[];
+  params: (ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement)[];
   body: ESTree.BlockStatement;
 } {
-    const paramList: any = parseFormalParameters(parser, context | Context.InParameter, state);
+    const paramList: { params: (ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement)[]; args: string[]; } = parseFormalParameters(parser, context | Context.InParameter, state);
     const args = paramList.args;
     const params = paramList.params;
     const body = parseFunctionBody(parser, context & ~Context.AllowDecorator | Context.InFunctionBody, args);
@@ -1596,7 +1596,7 @@ export function parseFormalParameters(
     parser.flags &= ~(Flags.SimpleParameterList | Flags.HasStrictReserved);
 
     const args: string[] = [];
-    const params:  (ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier)[] = []
+    const params:  (ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier)[] = [];
     while (parser.token !== Token.RightParen) {
         if (parser.token === Token.Ellipsis) {
             if (state & ObjectState.Setter) tolerant(parser, context, Errors.BadSetterRestParameter);
