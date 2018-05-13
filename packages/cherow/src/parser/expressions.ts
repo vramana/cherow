@@ -1,4 +1,3 @@
-import { RestElement } from './../../dist/types/estree.d';
 import { Expression } from './../estree';
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
