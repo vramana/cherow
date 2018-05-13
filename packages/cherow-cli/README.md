@@ -2,8 +2,8 @@
 
 Command line interface for Cherow ECMAScript parser.
 
-This package can be used to parse a file from the command line. By default it accepts as arguments as
-it's input file, but this can be changed with the `s` flag which allows you to pass in code as in
+This package can be used to parse a file from the command line. By default it accepts as arguments a
+input file, but this can be changed with the `s` flag which allows you to pass in code as in
 the V8 REPL.
 
 The CLI conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
@@ -23,7 +23,9 @@ cherow -l foo.js
 
 ## Arguments
 
-| Arguments      | Description |
+Shorthand is the first letter. E.g. `h` for `help` or `l` for `loc`.
+
+| Arguments  | Description |
 | ----------- | ------------------------------------------------------------ |
 | `help`            | Print all available arguments |
 | `module`          | Enable module syntax |
