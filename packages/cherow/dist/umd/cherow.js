@@ -3859,7 +3859,7 @@
           case 299116 /* AsyncKeyword */:
               return parseAsyncFunctionOrIdentifier(parser, context);
           case 50331659 /* LeftParen */:
-              return parseCoverParenthesizedExpressionAndArrowParameterList(parser, context | 134217728 /* InParen */);
+              return parseParenthesizedExpression(parser, context | 134217728 /* InParen */);
           case 41943059 /* LeftBracket */:
               return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
           case 41943052 /* LeftBrace */:
@@ -4144,107 +4144,84 @@
    * @param parser  Parser object
    * @param context Context masks
    */
-  function parseCoverParenthesizedExpressionAndArrowParameterList(parser, context) {
+  function parseParenthesizedExpression(parser, context) {
       expect(parser, context, 50331659 /* LeftParen */);
-      switch (parser.token) {
-          // ')'
-          case 16 /* RightParen */:
-              {
+      if (consume(parser, context, 16 /* RightParen */)) {
+          parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
+          if (parser.token === 10 /* Arrow */)
+              return [];
+      }
+      else if (parser.token === 14 /* Ellipsis */) {
+          const restExpr = [parseRestElement(parser, context)];
+          expect(parser, context, 16 /* RightParen */);
+          parser.flags = parser.flags & ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */) | 8 /* SimpleParameterList */;
+          if (parser.token !== 10 /* Arrow */)
+              tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
+          return restExpr;
+      }
+      // Record the sequence position
+      const sequencepos = getLocation(parser);
+      let state = validateCoverParenthesizedExpression(parser, 0 /* None */);
+      let expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
+      // Sequence expression
+      if (parser.token === 16777234 /* Comma */) {
+          state |= 1 /* SequenceExpression */;
+          const expressions = [expr];
+          while (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777234 /* Comma */)) {
+              if (parser.token === 14 /* Ellipsis */) {
+                  if (!(parser.flags & 2 /* AllowBinding */))
+                      tolerant(parser, context, 75 /* NotBindable */);
+                  parser.flags |= 8 /* SimpleParameterList */;
+                  const restElement = parseRestElement(parser, context);
                   expect(parser, context, 16 /* RightParen */);
-                  parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
-                  if (parser.token === 10 /* Arrow */)
-                      return [];
+                  if (parser.token !== 10 /* Arrow */)
+                      tolerant(parser, context, 76 /* ParamAfterRest */);
+                  expressions.push(restElement);
+                  return expressions;
               }
-          // '...'
-          case 14 /* Ellipsis */:
-              {
-                  const expr = parseRestElement(parser, context);
-                  expect(parser, context, 16 /* RightParen */);
-                  parser.flags = parser.flags & ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */) | 8 /* SimpleParameterList */;
+              else if (consume(parser, context, 16 /* RightParen */)) {
                   if (parser.token !== 10 /* Arrow */)
                       tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                  return [expr];
+                  return expressions;
               }
-          default:
-              {
-                  let state = 0 /* None */;
-                  // Record the sequence position
-                  const sequencepos = getLocation(parser);
+              else {
                   state = validateCoverParenthesizedExpression(parser, state);
-                  if (parser.token & 8388608 /* IsBindingPattern */)
-                      state |= 16 /* HasBinding */;
-                  let expr = restoreExpressionCoverGrammar(parser, context | 65536 /* AllowIn */, parseAssignmentExpression);
-                  // Sequence expression
-                  if (parser.token === 16777234 /* Comma */) {
-                      state |= 1 /* SequenceExpression */;
-                      const expressions = [expr];
-                      while (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777234 /* Comma */)) {
-                          parser.flags &= ~4 /* AllowDestructuring */;
-                          switch (parser.token) {
-                              // '...'
-                              case 14 /* Ellipsis */:
-                                  {
-                                      if (!(parser.flags & 2 /* AllowBinding */))
-                                          tolerant(parser, context, 75 /* NotBindable */);
-                                      parser.flags |= 8 /* SimpleParameterList */;
-                                      const restElement = parseRestElement(parser, context);
-                                      expect(parser, context, 16 /* RightParen */);
-                                      if (parser.token !== 10 /* Arrow */)
-                                          tolerant(parser, context, 76 /* ParamAfterRest */);
-                                      parser.flags &= ~2 /* AllowBinding */;
-                                      expressions.push(restElement);
-                                      return expressions;
-                                  }
-                              // ')'
-                              case 16 /* RightParen */:
-                                  {
-                                      expect(parser, context, 16 /* RightParen */);
-                                      if (parser.token !== 10 /* Arrow */)
-                                          tolerant(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
-                                      return expressions;
-                                  }
-                              default:
-                                  {
-                                      state = validateCoverParenthesizedExpression(parser, state);
-                                      expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
-                                  }
-                          }
-                      }
-                      expr = finishNode(context, parser, sequencepos, {
-                          type: 'SequenceExpression',
-                          expressions,
-                      });
-                  }
-                  expect(parser, context, 16 /* RightParen */);
-                  if (parser.token === 10 /* Arrow */) {
-                      if (state & 2 /* HasEvalOrArguments */) {
-                          if (context & 4096 /* Strict */)
-                              tolerant(parser, context, 45 /* StrictEvalArguments */);
-                          parser.flags |= 2048 /* StrictEvalArguments */;
-                      }
-                      else if (state & 4 /* HasReservedWords */) {
-                          if (context & 4096 /* Strict */)
-                              tolerant(parser, context, 48 /* UnexpectedStrictReserved */);
-                          parser.flags |= 64 /* HasStrictReserved */;
-                      }
-                      else if (!(parser.flags & 2 /* AllowBinding */)) {
-                          tolerant(parser, context, 75 /* NotBindable */);
-                      }
-                      else if (parser.flags & 16384 /* HasYield */) {
-                          tolerant(parser, context, 49 /* YieldInParameter */);
-                      }
-                      else if (context & 131072 /* Async */ && parser.flags & 8192 /* HasAwait */) {
-                          tolerant(parser, context, 50 /* AwaitInParameter */);
-                      }
-                      parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
-                      return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
-                  }
-                  parser.flags &= ~(8192 /* HasAwait */ | 16384 /* HasYield */ | 2 /* AllowBinding */);
-                  if (!isValidSimpleAssignmentTarget(expr))
-                      parser.flags &= ~4 /* AllowDestructuring */;
-                  return expr;
+                  expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
               }
+          }
+          expr = finishNode(context, parser, sequencepos, {
+              type: 'SequenceExpression',
+              expressions,
+          });
       }
+      expect(parser, context, 16 /* RightParen */);
+      if (parser.token === 10 /* Arrow */) {
+          if (state & 2 /* HasEvalOrArguments */) {
+              if (context & 4096 /* Strict */)
+                  tolerant(parser, context, 45 /* StrictEvalArguments */);
+              parser.flags |= 2048 /* StrictEvalArguments */;
+          }
+          else if (state & 4 /* HasReservedWords */) {
+              if (context & 4096 /* Strict */)
+                  tolerant(parser, context, 48 /* UnexpectedStrictReserved */);
+              parser.flags |= 64 /* HasStrictReserved */;
+          }
+          else if (!(parser.flags & 2 /* AllowBinding */)) {
+              tolerant(parser, context, 75 /* NotBindable */);
+          }
+          else if (parser.flags & 16384 /* HasYield */) {
+              tolerant(parser, context, 49 /* YieldInParameter */);
+          }
+          else if (context & 131072 /* Async */ && parser.flags & 8192 /* HasAwait */) {
+              tolerant(parser, context, 50 /* AwaitInParameter */);
+          }
+          parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
+          return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
+      }
+      parser.flags &= ~(8192 /* HasAwait */ | 16384 /* HasYield */ | 2 /* AllowBinding */);
+      if (!isValidSimpleAssignmentTarget(expr))
+          parser.flags &= ~4 /* AllowDestructuring */;
+      return expr;
   }
   /**
    * Parses function expression
