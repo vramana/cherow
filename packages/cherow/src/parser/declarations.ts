@@ -13,7 +13,8 @@ import {
   ModifierState,
   swapContext,
   ObjectState,
-  parseExpressionCoverGrammar
+  parseExpressionCoverGrammar,
+  isInOrOf
 } from '../utilities';
 
 // Declarations
@@ -163,7 +164,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
 
     if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Assign)) {
         init = parseExpressionCoverGrammar(parser, context & ~(Context.BlockScope | Context.ForStatement), parseAssignmentExpression);
-        if (parser.token & Token.IsInOrOf && (context & Context.ForStatement || isBindingPattern)) {
+        if (isInOrOf(parser.token) && (context & Context.ForStatement || isBindingPattern)) {
             if (parser.token === Token.InKeyword) {
                 // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
                 if (context & (Context.BlockScope | Context.Strict | Context.Async) || isBindingPattern) {
@@ -172,7 +173,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
             } else tolerant(parser, context, Errors.ForInOfLoopInitializer, tokenDesc(parser.token));
         }
         // Note: Initializers are required for 'const' and binding patterns
-    } else if (!(parser.token & Token.IsInOrOf) && (isConst || isBindingPattern)) {
+    } else if (!isInOrOf(parser.token) && (isConst || isBindingPattern)) {
         tolerant(parser, context, Errors.DeclarationMissingInitializer, isConst ? 'const' : 'destructuring');
     }
     return finishNode(context, parser, pos, {
@@ -194,7 +195,7 @@ function parseVariableDeclaration(parser: Parser, context: Context, isConst: boo
 export function parseVariableDeclarationList(parser: Parser, context: Context, isConst: boolean): ESTree.VariableDeclarator[] {
     const list: ESTree.VariableDeclarator[] = [parseVariableDeclaration(parser, context, isConst)];
     while (consume(parser, context, Token.Comma)) list.push(parseVariableDeclaration(parser, context, isConst));
-    if (context & Context.ForStatement && parser.token & Token.IsInOrOf && list.length !== 1) {
+    if (context & Context.ForStatement && isInOrOf(parser.token) && list.length !== 1) {
         tolerant(parser, context, Errors.ForInOfLoopMultiBindings, tokenDesc(parser.token));
     }
     return list;

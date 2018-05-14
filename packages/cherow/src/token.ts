@@ -10,16 +10,15 @@ export const enum Token {
     Precedence = 15 << PrecStart, // 8-11
 
     /* Attribute names */
-    IsIterationStatement = 1 << 4,
+
     Keyword              = 1 << 12,
     Reserved             = 1 << 13 | Keyword,
     FutureReserved       = 1 << 14 | Keyword,
-    Contextual           = 1 << 15 | Keyword,
-    IsIdentifier         = 1 << 16,
-    IsAwait              = 1 << 17,
-    IsAsync              = 1 << 18,
-    ASI                  = 1 << 19,
-    IsInOrOf             = 1 << 20,
+    Contextual           = 1 << 16 | Keyword,
+    IsIdentifier         = 1 << 17,
+    IsAwait              = 1 << 18,
+    IsAsync              = 1 << 19,
+    ASI                  = 1 << 20,
     IsLogical            = 1 << 21,
     IsEvalOrArguments    = 1 << 22,
     IsBindingPattern     = 1 << 23,
@@ -92,7 +91,7 @@ export const enum Token {
       Complement         = 46 | IsUnaryOp, // ~
       Add                = 47 | IsUnaryOp   | IsBinaryOp | 9 << PrecStart, // +
       Subtract           = 48 | IsUnaryOp   | IsBinaryOp | 9 << PrecStart, // -
-      InKeyword          = 49 | IsBinaryOp  | 7 << PrecStart   | Reserved | IsInOrOf,
+      InKeyword          = 49 | IsBinaryOp  | 7 << PrecStart   | Reserved,
       InstanceofKeyword  = 50 | IsBinaryOp  | 7 << PrecStart   | Reserved,
       Multiply           = 51 | IsBinaryOp  |  10 << PrecStart, // *
       Modulo             = 52 | IsBinaryOp  | 10 << PrecStart, // %
@@ -128,12 +127,12 @@ export const enum Token {
     ContinueKeyword = 78 | Reserved,
     DebuggerKeyword = 79 | Reserved,
     DefaultKeyword  = 80 | Reserved,
-    DoKeyword       = 81 | Reserved | IsIterationStatement,
+    DoKeyword       = 81 | Reserved,
     ElseKeyword     = 82 | Reserved,
     ExportKeyword   = 83 | Reserved,
     ExtendsKeyword  = 84 | Reserved,
     FinallyKeyword  = 85 | Reserved,
-    ForKeyword      = 86 | Reserved | IsIterationStatement,
+    ForKeyword      = 86 | Reserved,
     FunctionKeyword = 88 | Reserved | IsExpressionStart,
     IfKeyword       = 89 | Reserved,
     ImportKeyword   = 90 | Reserved | IsExpressionStart,
@@ -144,7 +143,7 @@ export const enum Token {
     ThisKeyword     = 95 | Reserved | IsExpressionStart,
     ThrowKeyword    = 96 | Reserved | IsUnaryOp | IsExpressionStart,
     TryKeyword      = 97 | Reserved,
-    WhileKeyword    = 98 | Reserved | IsIterationStatement,
+    WhileKeyword    = 98 | Reserved,
     WithKeyword     = 99 | Reserved,
 
     /* Strict mode reserved words */
@@ -157,15 +156,15 @@ export const enum Token {
     StaticKeyword     = 105 | FutureReserved,
     YieldKeyword      = 106 | FutureReserved  | IsExpressionStart | IsYield,
 
+    AsKeyword          = 107  | IsBinaryOp  | 8 << PrecStart | Contextual,
     /* Contextual keywords */
-    AsKeyword          = 107 | Contextual,
     AsyncKeyword       = 108 | Contextual | IsAsync,
     AwaitKeyword       = 109 | Contextual | IsExpressionStart | IsAwait | IsIdentifier,
     ConstructorKeyword = 110 | Contextual,
     GetKeyword         = 111 | Contextual,
     SetKeyword         = 112 | Contextual,
     FromKeyword        = 113 | Contextual,
-    OfKeyword          = 114 | Contextual | IsInOrOf,
+    OfKeyword          = 114 | Contextual,
     Hash               = 115,
     Eval               = 116 | IsIdentifier | IsEvalOrArguments | IsExpressionStart,
     Arguments          = 117 | IsIdentifier | IsEvalOrArguments | IsExpressionStart,

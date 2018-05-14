@@ -383,17 +383,11 @@ export function parseExpressionOrLabelledStatement(
     expect(parser, context, Token.Colon, Errors.LabelNoColon);
     if (hasLabel(parser, tokenValue)) tolerant(parser, context, Errors.LabelRedeclaration, tokenValue);
     addLabel(parser, tokenValue);
-    let body: ESTree.FunctionDeclaration | ESTree.Statement;
-    if (
-      !(context & Context.Strict) &&
-      context & Context.AllowSingleStatement &&
-      parser.token === Token.FunctionKeyword
-    ) {
-      body = parseFunctionDeclaration(parser, context);
-    } else {
-      body = parseStatement(parser, context);
-    }
-
+    const body = !(context & Context.Strict) &&
+    context & Context.AllowSingleStatement &&
+    parser.token === Token.FunctionKeyword
+    ? parseFunctionDeclaration(parser, context)
+    : parseStatement(parser, context);
     popLabel(parser, tokenValue);
 
     return finishNode(context, parser, pos, {
@@ -412,9 +406,7 @@ export function parseExpressionOrLabelledStatement(
 }
 
 /**
- * Parses either a binding identifier or bindign pattern
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
+ * Parses do while statement
  *
  * @param parser  Parser object
  * @param context Context masks
