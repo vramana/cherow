@@ -65,7 +65,7 @@ export function validateBreakOrContinueLabel(
  */
 export function addLabel(parser: Parser, label: string): void {
   if (parser.labelSet === undefined) parser.labelSet = {};
-  parser.labelSet[`$${label}`] = parser.token & Token.IsIterationStatement ? Labels.Nested : Labels.NotNested;
+  parser.labelSet[`$${label}`] = isIterationStatement(parser.token) ? Labels.Nested : Labels.NotNested;
 }
 
 /**
@@ -884,4 +884,23 @@ export function isTypePredicatePrefix(parser: Parser, context: Context): any {
 export function nextTokenIsStartOfConstructSignature(parser: Parser, context: Context): any {
   nextToken(parser, context);
   return parser.token === Token.LeftParen || parser.token === Token.LessThan;
+}
+
+
+/**
+ * Returns true if iteration statement. Otherwise return false,
+ *
+ * @param t Token
+ */
+function isIterationStatement(t: Token): boolean {
+  return t === Token.DoKeyword || t === Token.WhileKeyword || t === Token.ForKeyword;
+}
+
+/**
+ * Returns true if in or of token. Otherwise return false,
+ *
+ * @param t Token
+ */
+export function isInOrOf(t: Token): boolean {
+  return t === Token.OfKeyword || t === Token.InKeyword;
 }
