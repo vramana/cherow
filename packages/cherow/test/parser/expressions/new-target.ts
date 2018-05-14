@@ -7,7 +7,7 @@ describe('Expressions - New target', () => {
 
     describe('Failure', () => {
 
-        const validSyntax = [
+        const inValidSyntax = [
             'new.target',
             '{ new.target }',
             '() => new.target',
@@ -16,7 +16,7 @@ describe('Expressions - New target', () => {
             'while (0) { new.target }',
             'do { new.target } while (0)',
         ];
-        for (const arg of validSyntax) {
+        for (const arg of inValidSyntax) {
 
             it(`${arg}`, () => {
                 t.throws(() => {
@@ -41,9 +41,9 @@ describe('Expressions - New target', () => {
             source: 'new Type[]',
         });
 
-        //fail(`function f() { new.t\\u0061rget; }`, Context.Empty, {
-        //  source: 'function f() { new.t\\u0061rget; }',
-        //});
+        fail(`function f() { new.t\\u0061rget; }`, Context.Empty, {
+          source: 'function f() { new.t\\u0061rget; }',
+        });
 
         fail(`new.prop`, Context.Empty, {
             source: 'new.prop',

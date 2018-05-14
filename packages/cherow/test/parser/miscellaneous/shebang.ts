@@ -5,16 +5,6 @@ describe('Miscellaneous - Shebang', () => {
 
   describe('Failure', () => {
 
-      // Note! This test should fail because of
-      //
-      // 1) A valid Shebang comment starts with '#' + '!', and that's not the
-      //    case after last linebreak even if it's followed by an identifier
-      //
-      // 2) After last linebreak, we got either 1) Invalid token or 2) Class Private name,
-      //    and none of them are valid start of a shebang comment. And also note
-      //    that the specs forbid whitespace after '#' for private names, so this will always
-      //    return in an error
-      //
       fail('\uFFEF#!/foo/bar/baz -abc\n# foo', Context.OptionsShebang, {
           source: '\uFFEF#!/foo/bar/baz -abc\n# foo',
       });

@@ -74,6 +74,16 @@ describe('Expressions - New', () => {
             'new Button',
             'new Button(a)',
             '(new new Function("this.x = 1")).x;',
+            'new function() {}(...[3, 4, 5]);',
+            'new function() {}(...[]);',
+            'new function() {}(...target = [2, 3, 4]);',
+            'new function() {}({...{c: 3, d: 4}});',
+            'new function() {}({...null});',
+            'new function() {}({...{a: 2, b: 3}, get c() { icefapper = false; }});',
+            'new function() {}({...{get a() {}}, c: 4, d: 5, a: 42, ...{get a() {}}});',
+            'new function() {}({a: 1, b: 2, ...undefined});',
+            'new function() {}({a: 1, b: 2, ...null});',
+            'new function() {}(1, 2, 3, ...[]);',
             `new f(...a)`,
             `new f(...a, ...b)`,
             'new(a in b)',
@@ -84,6 +94,8 @@ describe('Expressions - New', () => {
             'function f() { new.target(); }',
             'function f() { new["target"]; }',
         ];
+
+
         for (const arg of validSyntax) {
 
             it(`${arg}`, () => {
@@ -94,7 +106,7 @@ describe('Expressions - New', () => {
 
             it(` var f = ${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parseSource(` var f = ${arg}`, undefined, Context.Strict);
+                    parseSource(` var f = ${arg}`, undefined, Context.Strict | Context.Module);
                 });
             });
         }

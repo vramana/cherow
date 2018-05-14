@@ -185,6 +185,7 @@ export const enum Token {
     ModuleKeyword       = 130 | IsIdentifier,
     GlobalKeyword       = 131 | IsIdentifier,
     RequireKeyword      = 132 | IsIdentifier,
+    TargetKeyword       = 133 | IsIdentifier,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -238,7 +239,7 @@ const keywordDescTable = [
     /** TS */
     'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
 
-    'global', 'require'
+    'global', 'require', 'target'
 ];
 
 /**
@@ -317,6 +318,7 @@ const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     module: {value: Token.ModuleKeyword},
     global: {value: Token.GlobalKeyword},
     require: {value: Token.RequireKeyword},
+    target: {value: Token.TargetKeyword},
 
  });
 

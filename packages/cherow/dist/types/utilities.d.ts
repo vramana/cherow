@@ -340,12 +340,12 @@ export declare function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context
  */
 export declare function isPropertyWithPrivateFieldKey(expr: any): boolean;
 /**
- * Validates an identifier and either parse it or throw
+ * Parse and classify itendifier - similar method as in V8
  *
  * @param parser Parser object
  * @param context Context masks
  */
-export declare function parseAndValidateIdentifier(parser: Parser, context: Context): void | ESTree.Identifier;
+export declare function parseAndClassifyIdentifier(parser: Parser, context: Context): any;
 export declare function nameIsArgumentsOrEval(value: string): boolean;
 /**
  * Records an error from current position. If we report an error later, we'll do it from

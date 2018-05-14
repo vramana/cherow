@@ -2567,31 +2567,27 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       return !expr.property ? false : expr.property.type === 'PrivateName';
   }
   /**
-   * Validates an identifier and either parse it or throw
+   * Parse and classify itendifier - similar method as in V8
    *
    * @param parser Parser object
    * @param context Context masks
    */
-  function parseAndValidateIdentifier(parser, context) {
-      const { token } = parser;
+  function parseAndClassifyIdentifier(parser, context) {
+      const { token, tokenValue: name } = parser;
       if (context & 4096 /* Strict */) {
-          // Module code is also "strict mode code"
-          if (context & 8192 /* Module */ && token & 262144 /* IsAwait */) {
-              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
-          }
+          if (context & 8192 /* Module */ && token & 262144 /* IsAwait */)
+              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
           if (token & 1073741824 /* IsYield */)
-              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
+              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
           if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ || (token & 69632 /* Contextual */) === 69632 /* Contextual */) {
               return parseIdentifier(parser, context);
           }
-          report(parser, 1 /* UnexpectedToken */, tokenDesc(token));
+          report(parser, 1 /* UnexpectedToken */, tokenDesc(parser.token));
       }
-      if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */) {
-          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
-      }
-      else if (context & 131072 /* Async */ && token & 262144 /* IsAwait */) {
-          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
-      }
+      if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
+          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
+      if (context & 131072 /* Async */ && token & 262144 /* IsAwait */)
+          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
       if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ ||
           (token & 69632 /* Contextual */) === 69632 /* Contextual */ ||
           (token & 20480 /* FutureReserved */) === 20480 /* FutureReserved */) {
@@ -3006,8 +3002,8 @@ define('cherow', ['exports'], function (exports) { 'use strict';
               return parseJSXRootElement(parser, context | 268435456 /* InJSXChild */);
           default:
               tolerant(parser, context, 86 /* InvalidJSXAttributeValue */);
+              return undefined; // note: get rid of this
       }
-      return undefined; // note: get rid of this
   }
   /**
    * Parses JSX Attribute
@@ -3720,7 +3716,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       if (parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
           if (parser.token & 262144 /* IsAwait */)
               tolerant(parser, context, 39 /* DisallowedInContext */);
-          return parseAsyncArrowFunction(parser, context, 2 /* Await */, pos, [parseAndValidateIdentifier(parser, context)]);
+          return parseAsyncArrowFunction(parser, context, 2 /* Await */, pos, [parseAndClassifyIdentifier(parser, context)]);
       }
       if (parser.flags & 1 /* NewLine */)
           tolerant(parser, context, 35 /* InvalidLineBreak */, 'async');
@@ -3845,21 +3841,11 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parsePrimaryExpression(parser, context) {
       switch (parser.token) {
+          case 33685505 /* Identifier */:
+              return parseIdentifier(parser, context);
           case 33554434 /* NumericLiteral */:
           case 33554435 /* StringLiteral */:
               return parseLiteral(parser, context);
-          case 33554551 /* BigIntLiteral */:
-              return parseBigIntLiteral(parser, context);
-          case 33685505 /* Identifier */:
-              return parseIdentifier(parser, context);
-          case 33566727 /* NullKeyword */:
-          case 33566726 /* TrueKeyword */:
-          case 33566725 /* FalseKeyword */:
-              return parseNullOrTrueOrFalseLiteral(parser, context);
-          case 33566808 /* FunctionKeyword */:
-              return parseFunctionExpression(parser, context);
-          case 33566815 /* ThisKeyword */:
-              return parseThisExpression(parser, context);
           case 594028 /* AsyncKeyword */:
               return parseAsyncFunctionOrIdentifier(parser, context);
           case 50331659 /* LeftParen */:
@@ -3868,8 +3854,12 @@ define('cherow', ['exports'], function (exports) { 'use strict';
               return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
           case 41943052 /* LeftBrace */:
               return restoreExpressionCoverGrammar(parser, context, parseObjectLiteral);
-          case 115 /* Hash */:
-              return parseIdentifierNameOrPrivateName(parser, context);
+          case 33566808 /* FunctionKeyword */:
+              return parseFunctionExpression(parser, context);
+          case 33566727 /* NullKeyword */:
+          case 33566726 /* TrueKeyword */:
+          case 33566725 /* FalseKeyword */:
+              return parseNullOrTrueOrFalseLiteral(parser, context);
           case 120 /* At */:
           case 33566797 /* ClassKeyword */:
               return parseClassExpression(parser, context);
@@ -3877,6 +3867,12 @@ define('cherow', ['exports'], function (exports) { 'use strict';
               return parseNewExpressionOrMetaProperty(parser, context);
           case 33566813 /* SuperKeyword */:
               return parseSuperProperty(parser, context);
+          case 33554551 /* BigIntLiteral */:
+              return parseBigIntLiteral(parser, context);
+          case 33566815 /* ThisKeyword */:
+              return parseThisExpression(parser, context);
+          case 115 /* Hash */:
+              return parseIdentifierNameOrPrivateName(parser, context);
           case 167774773 /* Divide */:
           case 100663333 /* DivideAssign */:
               scanRegularExpression(parser, context);
@@ -3887,9 +3883,28 @@ define('cherow', ['exports'], function (exports) { 'use strict';
               return parseTemplate(parser, context);
           case 33574984 /* LetKeyword */:
               return parseLetAsIdentifier(parser, context);
+          case 12369 /* DoKeyword */:
+              if (context & 2048 /* OptionsExperimental */)
+                  return parseDoExpression(parser, context);
           default:
-              return parseAndValidateIdentifier(parser, context);
+              return parseAndClassifyIdentifier(parser, context);
       }
+  }
+  /**
+   * Parse do expression (*experimental*)
+   *
+   * @param parser Parser object
+   * @param context  Context masks
+   */
+  function parseDoExpression(parser, context) {
+      // AssignmentExpression ::
+      //     do '{' StatementList '}'
+      const pos = getLocation(parser);
+      expect(parser, context, 12369 /* DoKeyword */);
+      return finishNode(context, parser, pos, {
+          type: 'DoExpression',
+          body: parseBlockStatement(parser, context)
+      });
   }
   /**
    * Parse 'let' as identifier in 'sloppy mode', and throws
@@ -7138,7 +7153,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
   exports.nextTokenIsLeftParen = nextTokenIsLeftParen;
   exports.nextTokenIsFuncKeywordOnSameLine = nextTokenIsFuncKeywordOnSameLine;
   exports.isPropertyWithPrivateFieldKey = isPropertyWithPrivateFieldKey;
-  exports.parseAndValidateIdentifier = parseAndValidateIdentifier;
+  exports.parseAndClassifyIdentifier = parseAndClassifyIdentifier;
   exports.nameIsArgumentsOrEval = nameIsArgumentsOrEval;
   exports.setPendingError = setPendingError;
   exports.isEqualTagNames = isEqualTagNames;

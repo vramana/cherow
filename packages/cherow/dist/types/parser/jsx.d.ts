@@ -19,7 +19,7 @@ export declare function parseJSXRootElement(parser: Parser, context: Context): E
  * @param selfClosing True if this is a selfclosing JSX Element
  * @param pos Line / Column tracking
  */
-export declare function parseJSXOpeningElement(parser: Parser, context: Context, name: ESTree.JSXIdentifier | ESTree.JSXMemberExpression | ESTree.JSXNamespacedName, attributes: any, selfClosing: boolean, pos: Location): ESTree.JSXOpeningElement;
+export declare function parseJSXOpeningElement(parser: Parser, context: Context, name: ESTree.JSXIdentifier | ESTree.JSXMemberExpression | ESTree.JSXNamespacedName, attributes: (ESTree.JSXAttribute | ESTree.JSXSpreadAttribute)[], selfClosing: boolean, pos: Location): ESTree.JSXOpeningElement;
 /**
  * Prime the scanner and advance to the next JSX token in the stream
  *
@@ -136,7 +136,7 @@ export declare function parseJSXIdentifier(parser: Parser, context: Context): ES
  * @param context Context masks
  * @param pos Line / Column location
  */
-export declare function parseJSXMemberExpression(parser: Parser, context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression;
+export declare function parseJSXMemberExpression(parser: Parser, context: Context, expr: ESTree.JSXIdentifier | ESTree.JSXMemberExpression, pos: Location): ESTree.JSXMemberExpression;
 /**
  * Parses JSX Element name
  *

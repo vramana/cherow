@@ -1,4 +1,3 @@
-import { JSXText } from './../../dist/types/estree.d';
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
 import { Parser, Location } from '../types';

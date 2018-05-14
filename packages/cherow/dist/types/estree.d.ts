@@ -105,7 +105,7 @@ export interface T_Expression {
     'JSXElement': JSXElement;
     'JSXFragment': JSXFragment;
 }
-export declare type Expression = Identifier | Literal | BigIntLiteral | RegExpLiteral | ThisExpression | ArrayExpression | ObjectExpression | FunctionExpression | UnaryExpression | UpdateExpression | BinaryExpression | AssignmentExpression | LogicalExpression | MemberExpression | PrivateName | ConditionalExpression | CallExpression | NewExpression | SequenceExpression | Import | ArrowFunctionExpression | YieldExpression | TemplateLiteral | TaggedTemplateExpression | ClassExpression | MetaProperty | AwaitExpression | JSXElement | JSXFragment;
+export declare type Expression = Identifier | Literal | BigIntLiteral | RegExpLiteral | ThisExpression | ArrayExpression | ObjectExpression | FunctionExpression | DoExpression | UnaryExpression | UpdateExpression | BinaryExpression | AssignmentExpression | LogicalExpression | MemberExpression | PrivateName | ConditionalExpression | CallExpression | NewExpression | SequenceExpression | Import | ArrowFunctionExpression | YieldExpression | TemplateLiteral | TaggedTemplateExpression | ClassExpression | MetaProperty | AwaitExpression | JSXElement | JSXFragment;
 export interface _Pattern<T extends string> extends _Node<T> {
 }
 export interface T_Pattern {
@@ -316,6 +316,9 @@ export interface FunctionExpression extends _Expression<'FunctionExpression'> {
     expression: false;
     typeAnnotation?: TypeAnnotation | null;
 }
+export interface DoExpression extends _Expression<'DoExpression'>, _Pattern<'DoExpression'> {
+    body: BlockStatement;
+}
 export interface Identifier extends _Expression<'Identifier'>, _Pattern<'Identifier'> {
     name: string;
     typeAnnotation?: TypeAnnotation | null;
@@ -499,6 +502,7 @@ export interface YieldExpression extends _Expression<'YieldExpression'> {
 */
 export interface JSXIdentifier extends _Node<'JSXIdentifier'> {
     name: string;
+    raw?: string;
 }
 export interface JSXMemberExpression extends _Node<'JSXMemberExpression'> {
     object: JSXMemberExpression | JSXIdentifier;

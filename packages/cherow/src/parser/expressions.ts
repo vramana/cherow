@@ -1840,7 +1840,7 @@ export function parseClassElement(
                 state |= token === Token.GetKeyword ? ObjectState.Getter : ObjectState.Setter;
                 tokenValue = parser.tokenValue;
                 if (parser.token === Token.LeftBracket) state |= ObjectState.Computed;
-                key = parsePropertyName(parser, context);
+                key = parsePropertyName(parser, context & ~Context.Strict);
             }
 
             if (tokenValue === 'prototype') {
@@ -2074,7 +2074,7 @@ function parseNewExpressionOrMetaProperty(parser: Parser, context: Context): EST
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
 
-    if (consume(parser, context, Token.Period)) {
+    if (consume(parser, context | Context.DisallowEscapedKeyword, Token.Period)) {
         if (parser.tokenValue !== 'target' ||
             !(context & (Context.InParameter | Context.InFunctionBody))) tolerant(parser, context, Errors.MetaNotInFunctionBody);
         return parseMetaProperty(parser, context, id as ESTree.Identifier, pos);

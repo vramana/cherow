@@ -55,7 +55,7 @@ describe('Miscellaneous - Simple parameter list', () => {
             '{o = 0}, x',
 
             // Object setter
-            //'{ set f(a = 1) }, x',
+            '{ set f(a = 1) }, x',
 
             // Default parameter.
             'd = 0',
