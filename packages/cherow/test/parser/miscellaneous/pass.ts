@@ -68,11 +68,6 @@ describe('Miscellaneous - Pass', () => {
         });
     }
 
-        // TODO(marja): activate once parsing 'return' is merged into ParserBase.
-        // "return",
-        // "return  12",
-        // "return\n12",
-
     const validBodySyntax = [
     '',
     'return this',
@@ -822,6 +817,104 @@ describe('Miscellaneous - Pass', () => {
               }
           }`,
           `let [a,] = [1]`,
+          `true + ""`,
+          `new Boolean(true) ^ undefined`,
+          `var x = { valueOf: function () { throw "x"; } };`,
+          `"1" ^ "1"`,
+          `(x ^ 1) !== 0`,
+          `var objectx = new Object();`,
+          `x & 1`,
+          `var x = function () { throw "x"; };
+          var y = function () { throw "y"; };
+          try {
+             x() & y();
+             $ERROR('#1.1: var x = function () { throw "x"; }; var y = function () { throw "y"; }; x() & y() throw "x". Actual: ' + (x() & y()));
+          } catch (e) {
+             if (e === "y") {
+               $ERROR('#1.2: First expression is evaluated first, and then second expression');
+             } else {
+               if (e !== "x") {
+                 $ERROR('#1.3: var x = function () { throw "x"; }; var y = function () { throw "y"; }; x() & y() throw "x". Actual: ' + (e));
+               }
+             }
+          }`,
+          `new Number(1) & undefined`,
+          `x = y;`,
+          ` 0, [ x = y ] = [];`,
+          `result = [ a = x += 1, b = x *= 2 ] = {}`,
+          `result = [[{}[yield]]] =  [[22]];`,
+          `null > undefined `,
+          `1 > null`,
+          `1.1 > Number.NaN`,
+          `(1.1 > NaN)`,
+          `x / 1;`,
+          `"1" / 1 !== 1`,
+          `Number.MIN_VALUE / -2.1 !== -0`,
+          'f = function*([[,] = g()]) {}',
+          'var f = function*([[x]]) {};',
+          'f = function*([x = 23]) {};',
+          'var f = function*([{ x }]) {};',
+          'delete (x) ',
+          'typeof (x)',
+          '1 << y ',
+          'true << 1 ',
+          '(x = false) || x ',
+          'if (("" || "1") !== "1") {};',
+          'x-- !== 1',
+          'if (x !== 1.1 - 1) {};',
+          '"-1" < object',
+          'void x;',
+          'void x !== undefined',
+          'if (isNaN(void x) !== true) {};',
+          'function* g() { yield* "abc"; }',
+          'function* g() { for (var idx = 0; idx < 3; idx++) { yield idx; } }',
+          'null, [...target = [2, 3, 4]]',
+          'function f() { return this; }',
+          `function f1() {
+            "use strict";
+            function f() {
+                return typeof this;
+            }
+            return (f()==="undefined") && ((typeof this)==="undefined");
+          }`,
+          `var f1 = function () {
+            "use strict";
+            var f = function () {
+                return typeof this;
+            }
+            return (f()==="undefined") && ((typeof this)==="undefined");
+          }`,
+          `var f1 = function () {
+            var f = function () {
+                "use strict";
+                return typeof this;
+            }
+            return (f()==="undefined") && (this===global);
+        }`,
+          `var global = this;
+
+          if (! ((function () {
+              return ((function () {
+                  "use strict";
+                  return typeof this;
+              })()==="undefined") && (this===global);
+          })())) {}`,
+          'if (o.foo!==o) {};',
+          'function f() { "use strict"; return this===undefined;};',
+          'this.f = function()  { "use strict"; return this===undefined;};',
+          'function f() { "use strict"; return this===undefined;};',
+          'if (! ((function () {"use strict"; return f.call(null); })())){};',
+          `function foo()
+          {
+             "bogus directive";
+             "use strict";
+             return (this === undefined);
+          }`,
+          `function foo()
+          {
+            "use strict";
+             return (this === undefined);
+          }`,
     ];
 
     for (const arg of programs) {

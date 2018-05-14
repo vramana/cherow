@@ -1,5 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import { parseSource } from '../../../src/parser/parser';
+import * as t from 'assert';
 
 describe('Expressions - Conditional expression', () => {
 
@@ -11,6 +13,35 @@ describe('Expressions - Conditional expression', () => {
   });
 
   describe('Pass', () => {
+
+    const validSyntax = [
+      '(y ? y : true)',
+      'true ? y : false',
+      '"1" ? "" : "1"',
+      '"1" ? y : ""',
+      'y ? y : "1"',
+      'true ? y : z',
+      '(false ? true : undefined)',
+      '("1" ? "" : "1")',
+      '("1" ? y : "")',
+      'Symbol() ? 1 : 2, 1',
+      '(false ? false : true)',
+  ];
+
+  for (const arg of validSyntax) {
+
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.doesNotThrow(() => {
+            parseSource(`${arg}`, undefined, Context.OptionsNext | Context.Module);
+        });
+    });
+  }
 
       pass('x = (0) ? 1 : 2', Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'x = (0) ? 1 : 2',

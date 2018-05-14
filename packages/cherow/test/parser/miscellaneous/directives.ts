@@ -65,13 +65,13 @@ describe('Miscellaneous - Directives', () => {
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parseSource(`${arg}`, undefined, Context.Empty);
+                    parseSource(`/* comment in front */ ${arg}`, undefined, Context.Empty);
                 });
             });
 
             it(`${arg}`, () => {
                 t.throws(() => {
-                    parseSource(`function icefapper() { ${arg} }`, undefined, Context.Empty);
+                    parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
                 });
             });
         }

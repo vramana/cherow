@@ -1,5 +1,7 @@
+import { ThrowStatement } from './../dist/types/estree.d';
 import { Parser } from './types';
 import { Context } from './utilities';
+
 
 /*@internal*/
 export const enum Errors {
