@@ -18,7 +18,7 @@ import {
     consume,
     isInstanceField,
     restoreExpressionCoverGrammar,
-    parseAndValidateIdentifier,
+    parseAndClassifyIdentifier,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     validateUpdateExpression,
@@ -573,7 +573,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(parser: Parser, context: Con
 
     if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
         if (parser.token & Token.IsAwait) tolerant(parser, context, Errors.DisallowedInContext);
-        return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndValidateIdentifier(parser, context)]);
+        return parseAsyncArrowFunction(parser, context, ModifierState.Await, pos, [parseAndClassifyIdentifier(parser, context)]);
     }
     if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.InvalidLineBreak, 'async');
 
@@ -700,22 +700,12 @@ function parseAsyncArgumentList(parser: Parser, context: Context): ESTree.Expres
  * @param Context Context masks
  */
 export function parsePrimaryExpression(parser: Parser, context: Context): any {
-    switch (parser.token) {
+      switch (parser.token) {
+        case Token.Identifier:
+          return parseIdentifier(parser, context);
         case Token.NumericLiteral:
         case Token.StringLiteral:
             return parseLiteral(parser, context);
-        case Token.BigIntLiteral:
-            return parseBigIntLiteral(parser, context);
-        case Token.Identifier:
-            return parseIdentifier(parser, context);
-        case Token.NullKeyword:
-        case Token.TrueKeyword:
-        case Token.FalseKeyword:
-            return parseNullOrTrueOrFalseLiteral(parser, context);
-        case Token.FunctionKeyword:
-            return parseFunctionExpression(parser, context);
-        case Token.ThisKeyword:
-            return parseThisExpression(parser, context);
         case Token.AsyncKeyword:
             return parseAsyncFunctionOrIdentifier(parser, context);
         case Token.LeftParen:
@@ -724,15 +714,25 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return restoreExpressionCoverGrammar(parser, context, parseArrayLiteral);
         case Token.LeftBrace:
             return restoreExpressionCoverGrammar(parser, context, parseObjectLiteral);
-        case Token.Hash:
-            return parseIdentifierNameOrPrivateName(parser, context);
+        case Token.FunctionKeyword:
+            return parseFunctionExpression(parser, context);
+        case Token.NullKeyword:
+        case Token.TrueKeyword:
+        case Token.FalseKeyword:
+            return parseNullOrTrueOrFalseLiteral(parser, context);
         case Token.At:
         case Token.ClassKeyword:
-            return parseClassExpression(parser, context);
+                return parseClassExpression(parser, context);
         case Token.NewKeyword:
-            return parseNewExpressionOrMetaProperty(parser, context);
+                return parseNewExpressionOrMetaProperty(parser, context);
         case Token.SuperKeyword:
-            return parseSuperProperty(parser, context);
+                return parseSuperProperty(parser, context);
+        case Token.BigIntLiteral:
+            return parseBigIntLiteral(parser, context);
+        case Token.ThisKeyword:
+            return parseThisExpression(parser, context);
+        case Token.Hash:
+            return parseIdentifierNameOrPrivateName(parser, context);
         case Token.Divide:
         case Token.DivideAssign:
             scanRegularExpression(parser, context);
@@ -746,7 +746,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
         case Token.DoKeyword:
             if (context & Context.OptionsExperimental) return parseDoExpression(parser, context);
         default:
-            return parseAndValidateIdentifier(parser, context);
+            return parseAndClassifyIdentifier(parser, context);
     }
 }
 

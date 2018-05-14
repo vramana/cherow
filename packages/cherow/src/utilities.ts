@@ -666,42 +666,35 @@ export function isPropertyWithPrivateFieldKey(expr: any): boolean {
 }
 
 /**
- * Validates an identifier and either parse it or throw
+ * Parse and classify itendifier - similar method as in V8
  *
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseAndValidateIdentifier(parser: Parser, context: Context): void | ESTree.Identifier {
-  const { token } = parser;
+export function parseAndClassifyIdentifier(parser: Parser, context: Context): any {
+  const { token, tokenValue: name } = parser;
 
   if (context & Context.Strict) {
-    // Module code is also "strict mode code"
-    if (context & Context.Module && token & Token.IsAwait) {
-      tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
-    }
+      if (context & Context.Module && token & Token.IsAwait) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(parser.token));
+      if (token & Token.IsYield) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(parser.token));
 
-    if (token & Token.IsYield) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
-
-    if ((token & Token.IsIdentifier) === Token.IsIdentifier || (token & Token.Contextual) === Token.Contextual) {
-      return parseIdentifier(parser, context);
-    }
-
-    report(parser, Errors.UnexpectedToken, tokenDesc(token));
+      if ((token & Token.IsIdentifier) === Token.IsIdentifier || (token & Token.Contextual) === Token.Contextual) {
+          return parseIdentifier(parser, context);
+      }
+      report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
   }
 
-  if (context & Context.Yield && token & Token.IsYield) {
-    tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
-  } else if (context & Context.Async && token & Token.IsAwait) {
-    tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(token));
-  }
+  if (context & Context.Yield && token & Token.IsYield) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(parser.token));
+  if (context & Context.Async && token & Token.IsAwait) tolerant(parser, context, Errors.DisallowedInContext, tokenDesc(parser.token));
 
   if (
-    (token & Token.IsIdentifier) === Token.IsIdentifier ||
-    (token & Token.Contextual) === Token.Contextual ||
-    (token & Token.FutureReserved) === Token.FutureReserved
+      (token & Token.IsIdentifier) === Token.IsIdentifier ||
+      (token & Token.Contextual) === Token.Contextual ||
+      (token & Token.FutureReserved) === Token.FutureReserved
   ) {
-    return parseIdentifier(parser, context);
+      return parseIdentifier(parser, context);
   }
+
   report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
 }
 
