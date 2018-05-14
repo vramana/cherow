@@ -120,9 +120,7 @@ export declare function parseDirective(parser: Parser, context: Context): ESTree
  */
 export declare function parseExpressionOrLabelledStatement(parser: Parser, context: Context): ESTree.ExpressionStatement | ESTree.LabeledStatement;
 /**
- * Parses either a binding identifier or bindign pattern
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
+ * Parses do while statement
  *
  * @param parser  Parser object
  * @param context Context masks

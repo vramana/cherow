@@ -395,3 +395,9 @@ export declare function validateCoverParenthesizedExpression(parser: Parser, sta
  * @param state CoverParenthesizedState
  */
 export declare function validateAsyncArgumentList(parser: Parser, context: Context, state: CoverCallState): CoverCallState;
+/**
+ * Returns true if in or of token. Otherwise return false,
+ *
+ * @param t Token
+ */
+export declare function isInOrOf(t: Token): boolean;

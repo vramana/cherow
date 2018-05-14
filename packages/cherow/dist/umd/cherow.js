@@ -60,9 +60,9 @@
       else: { value: 12370 /* ElseKeyword */ },
       for: { value: 12374 /* ForKeyword */ },
       new: { value: 33566811 /* NewKeyword */ },
-      in: { value: 168834865 /* InKeyword */ },
+      in: { value: 167786289 /* InKeyword */ },
       typeof: { value: 302002218 /* TypeofKeyword */ },
-      while: { value: 12402 /* WhileKeyword */ },
+      while: { value: 12386 /* WhileKeyword */ },
       case: { value: 12363 /* CaseKeyword */ },
       break: { value: 12362 /* BreakKeyword */ },
       try: { value: 12385 /* TryKeyword */ },
@@ -76,48 +76,48 @@
       do: { value: 12369 /* DoKeyword */ },
       void: { value: 302002220 /* VoidKeyword */ },
       finally: { value: 12373 /* FinallyKeyword */ },
-      arguments: { value: 37814389 /* Arguments */ },
-      keyof: { value: 65658 /* KeyOfKeyword */ },
-      readonly: { value: 65659 /* ReadOnlyKeyword */ },
-      unique: { value: 65661 /* UniqueKeyword */ },
-      declare: { value: 65662 /* DeclareKeyword */ },
-      async: { value: 299116 /* AsyncKeyword */ },
-      await: { value: 33788013 /* AwaitKeyword */ },
+      arguments: { value: 37879925 /* Arguments */ },
+      keyof: { value: 131194 /* KeyOfKeyword */ },
+      readonly: { value: 131195 /* ReadOnlyKeyword */ },
+      unique: { value: 131197 /* UniqueKeyword */ },
+      declare: { value: 131198 /* DeclareKeyword */ },
+      async: { value: 594028 /* AsyncKeyword */ },
+      await: { value: 34017389 /* AwaitKeyword */ },
       class: { value: 33566797 /* ClassKeyword */ },
       const: { value: 33566793 /* ConstKeyword */ },
-      constructor: { value: 36974 /* ConstructorKeyword */ },
+      constructor: { value: 69742 /* ConstructorKeyword */ },
       debugger: { value: 12367 /* DebuggerKeyword */ },
       enum: { value: 12406 /* EnumKeyword */ },
-      eval: { value: 37814388 /* Eval */ },
+      eval: { value: 37879924 /* Eval */ },
       export: { value: 12371 /* ExportKeyword */ },
       extends: { value: 12372 /* ExtendsKeyword */ },
       false: { value: 33566725 /* FalseKeyword */ },
-      from: { value: 36977 /* FromKeyword */ },
-      get: { value: 36975 /* GetKeyword */ },
+      from: { value: 69745 /* FromKeyword */ },
+      get: { value: 69743 /* GetKeyword */ },
       implements: { value: 20579 /* ImplementsKeyword */ },
       import: { value: 33566810 /* ImportKeyword */ },
       interface: { value: 20580 /* InterfaceKeyword */ },
       let: { value: 33574984 /* LetKeyword */ },
       null: { value: 33566727 /* NullKeyword */ },
-      of: { value: 1085554 /* OfKeyword */ },
+      of: { value: 69746 /* OfKeyword */ },
       package: { value: 20581 /* PackageKeyword */ },
       private: { value: 20582 /* PrivateKeyword */ },
       protected: { value: 20583 /* ProtectedKeyword */ },
       public: { value: 20584 /* PublicKeyword */ },
-      set: { value: 36976 /* SetKeyword */ },
+      set: { value: 69744 /* SetKeyword */ },
       static: { value: 20585 /* StaticKeyword */ },
       super: { value: 33566813 /* SuperKeyword */ },
       true: { value: 33566726 /* TrueKeyword */ },
       with: { value: 12387 /* WithKeyword */ },
       yield: { value: 1107316842 /* YieldKeyword */ },
-      is: { value: 65660 /* IsKeyword */ },
-      type: { value: 65663 /* TypeKeyword */ },
-      namespace: { value: 65664 /* NameSpaceKeyword */ },
-      abstract: { value: 65665 /* AbstractKeyword */ },
-      as: { value: 36971 /* AsKeyword */ },
-      module: { value: 65666 /* ModuleKeyword */ },
-      global: { value: 65667 /* GlobalKeyword */ },
-      require: { value: 65668 /* RequireKeyword */ },
+      is: { value: 131196 /* IsKeyword */ },
+      type: { value: 131199 /* TypeKeyword */ },
+      namespace: { value: 131200 /* NameSpaceKeyword */ },
+      abstract: { value: 131201 /* AbstractKeyword */ },
+      as: { value: 167843947 /* AsKeyword */ },
+      module: { value: 131202 /* ModuleKeyword */ },
+      global: { value: 131203 /* GlobalKeyword */ },
+      require: { value: 131204 /* RequireKeyword */ },
   });
   function descKeyword(value) {
       return (descKeywordTable[value] | 0);
@@ -127,97 +127,98 @@
   const errorMessages = {
       [0 /* Unexpected */]: 'Unexpected token',
       [1 /* UnexpectedToken */]: 'Unexpected token \'%0\'',
-      [2 /* InvalidEscapedReservedWord */]: 'Keyword must not contain escaped characters',
-      [3 /* UnexpectedKeyword */]: 'Keyword \'%0\' is reserved',
-      [4 /* InvalidLHSInAssignment */]: 'Invalid left-hand side in assignment',
-      [5 /* UnterminatedString */]: 'Unterminated string literal',
-      [6 /* UnterminatedRegExp */]: 'Unterminated regular expression literal',
-      [7 /* UnterminatedComment */]: 'Unterminated MultiLineComment',
-      [8 /* UnterminatedTemplate */]: 'Unterminated template literal',
-      [9 /* UnexpectedChar */]: 'Invalid character \'%0\'',
-      [10 /* StrictOctalEscape */]: 'Octal escapes are not allowed in strict mode',
-      [11 /* InvalidEightAndNine */]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
-      [12 /* UnicodeOutOfRange */]: 'Unicode escape code point out of range',
-      [13 /* DuplicateRegExpFlag */]: 'Duplicate regular expression flag \'%0\'',
-      [14 /* UnexpectedTokenRegExpFlag */]: 'Unexpected regular expression flag \'%0\'',
-      [15 /* StrictLHSAssignment */]: 'Eval or arguments can\'t be assigned to in strict mode code',
-      [16 /* IllegalReturn */]: 'Illegal return statement',
-      [17 /* StrictFunction */]: 'In strict mode code, functions can only be declared at top level or inside a block',
-      [18 /* SloppyFunction */]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
-      [19 /* ForbiddenAsStatement */]: '%0 can\'t appear in single-statement context',
-      [20 /* GeneratorInSingleStatementContext */]: 'Generators can only be declared at the top level or inside a block',
-      [21 /* ForAwaitNotOf */]: '\'for await\' loop should be used with \'of\'',
-      [22 /* DeclarationMissingInitializer */]: 'Missing initializer in %0 declaration',
-      [23 /* ForInOfLoopInitializer */]: '\'for-%0\' loop variable declaration may not have an initializer',
-      [24 /* ForInOfLoopMultiBindings */]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
-      [25 /* LetInLexicalBinding */]: 'let is disallowed as a lexically bound name',
-      [26 /* UnexpectedLexicalDeclaration */]: 'Lexical declaration cannot appear in a single-statement context',
-      [27 /* LabelRedeclaration */]: 'Label \'%0\' has already been declared',
-      [28 /* InvalidNestedStatement */]: '%0  statement must be nested within an iteration statement',
-      [29 /* IllegalContinue */]: 'Illegal continue statement: \'%0\' does not denote an iteration statement',
-      [30 /* UnknownLabel */]: 'Undefined label \'%0\'',
-      [31 /* MultipleDefaultsInSwitch */]: 'More than one default clause in switch statement',
-      [32 /* ImportExportDeclAtTopLevel */]: '%0 declarations may only appear at top level of a module',
-      [33 /* AsyncFunctionInSingleStatementContext */]: 'Async functions can only be declared at the top level or inside a block',
-      [34 /* InvalidLineBreak */]: 'No line break is allowed after \'%0\'',
-      [35 /* StrictModeWith */]: 'Strict mode code may not include a with statement',
-      [36 /* AwaitOutsideAsync */]: 'Await is only valid in async functions',
-      [37 /* UnNamedFunctionDecl */]: 'Function declaration must have a name in this context',
-      [38 /* DisallowedInContext */]: '\'%0\' may not be used as an identifier in this context',
-      [41 /* StrictDelete */]: 'Delete of an unqualified identifier in strict mode',
-      [42 /* DeletePrivateField */]: 'Private fields can not be deleted',
-      [39 /* PrivateFieldConstructor */]: 'Classes may not have a private field named \'#constructor\'',
-      [40 /* PublicFieldConstructor */]: 'Classes may not have a field named \'constructor\'',
-      [43 /* InvalidConstructor */]: 'Class constructor may not be a \'%0\'',
-      [44 /* UnexpectedReserved */]: 'Unexpected reserved word',
-      [45 /* StrictEvalArguments */]: 'Unexpected eval or arguments in strict mode',
-      [46 /* AwaitBindingIdentifier */]: '\'await\' is not a valid identifier inside an async function',
-      [47 /* YieldBindingIdentifier */]: '\'yield\' is not a valid identifier inside an generator function',
-      [48 /* UnexpectedStrictReserved */]: 'Unexpected strict mode reserved word',
-      [50 /* AwaitInParameter */]: 'Await expression not allowed in formal parameter',
-      [49 /* YieldInParameter */]: 'Yield expression not allowed in formal parameter',
-      [51 /* MetaNotInFunctionBody */]: 'new.target only allowed within functions',
-      [52 /* BadSuperCall */]: 'super() is not allowed in this context',
-      [53 /* UnexpectedSuper */]: 'Member access from super not allowed in this context',
-      [54 /* LoneSuper */]: 'Only "(" or "." or "[" are allowed after \'super\'',
-      [55 /* YieldReservedKeyword */]: '\'yield\' is a reserved keyword within generator function bodies',
-      [56 /* ContinuousNumericSeparator */]: 'Only one underscore is allowed as numeric separator',
-      [57 /* TrailingNumericSeparator */]: 'Numeric separators are not allowed at the end of numeric literals',
-      [58 /* ZeroDigitNumericSeparator */]: 'Numeric separator can not be used after leading 0.',
-      [59 /* StrictOctalLiteral */]: 'Legacy octal literals are not allowed in strict mode',
-      [60 /* InvalidLhsInAssignment */]: 'Invalid left-hand side in assignment',
-      [61 /* DuplicateProto */]: 'Property name __proto__ appears more than once in object literal',
-      [62 /* IllegalUseStrict */]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
-      [63 /* StaticPrototype */]: 'Classes may not have a static property named \'prototype\'',
-      [64 /* AccessorWrongArgs */]: '%0 functions must have %1 argument%2',
-      [65 /* BadSetterRestParameter */]: 'Setter function argument must not be a rest parameter',
-      [66 /* StrictLHSPrefixPostFix */]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
-      [67 /* InvalidElisonInObjPropList */]: 'Elision not allowed in object property list',
-      [68 /* ElementAfterRest */]: 'Rest element must be last element',
-      [70 /* ElementAfterSpread */]: 'Spread element must be last element',
-      [69 /* RestDefaultInitializer */]: 'Rest parameter may not have a default initializer',
-      [71 /* InvalidDestructuringTarget */]: 'Invalid destructuring assignment target',
-      [72 /* UnexpectedSurrogate */]: 'Unexpected surrogate pair',
-      [73 /* MalformedEscape */]: 'Malformed %0 character escape sequence',
-      [74 /* TemplateOctalLiteral */]: 'Template literals may not contain octal escape sequences',
-      [75 /* NotBindable */]: 'Invalid binding pattern',
-      [76 /* ParamAfterRest */]: 'Rest parameter must be last formal parameter',
-      [77 /* NoCatchOrFinally */]: 'Missing catch or finally after try',
-      [78 /* NewlineAfterThrow */]: 'Illegal newline after throw',
-      [79 /* ParamDupe */]: 'Duplicate parameter name not allowed in this context',
-      [80 /* AsAfterImportStart */]: 'Missing keyword \'as\' after import *',
-      [81 /* LabelNoColon */]: 'Labels must be followed by a \':\'',
-      [82 /* NonEmptyJSXExpression */]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
-      [83 /* ExpectedJSXClosingTag */]: 'Expected corresponding JSX closing tag for %0',
-      [84 /* AdjacentJSXElements */]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
-      [85 /* InvalidJSXAttributeValue */]: 'Invalid JSX attribute value',
-      [86 /* RestWithComma */]: 'Rest element may not have a trailing comma',
-      [87 /* UndefinedUnicodeCodePoint */]: 'Undefined Unicode code-point',
-      [88 /* HtmlCommentInModule */]: 'HTML comments are not allowed in modules',
-      [89 /* InvalidCoverInitializedName */]: 'Invalid shorthand property initializer',
-      [90 /* TrailingDecorators */]: 'Trailing decorator may be followed by method',
-      [91 /* GeneratorConstructor */]: 'Decorators can\'t be used with a constructor',
-      [92 /* InvalidRestBindingPattern */]: '`...` must be followed by an identifier in declaration contexts',
+      [2 /* ExpectedToken */]: 'Expected token \'%0\'',
+      [3 /* InvalidEscapedReservedWord */]: 'Keyword must not contain escaped characters',
+      [4 /* UnexpectedKeyword */]: 'Keyword \'%0\' is reserved',
+      [5 /* InvalidLHSInAssignment */]: 'Invalid left-hand side in assignment',
+      [6 /* UnterminatedString */]: 'Unterminated string literal',
+      [7 /* UnterminatedRegExp */]: 'Unterminated regular expression literal',
+      [8 /* UnterminatedComment */]: 'Unterminated MultiLineComment',
+      [9 /* UnterminatedTemplate */]: 'Unterminated template literal',
+      [10 /* UnexpectedChar */]: 'Invalid character \'%0\'',
+      [11 /* StrictOctalEscape */]: 'Octal escapes are not allowed in strict mode',
+      [12 /* InvalidEightAndNine */]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+      [13 /* UnicodeOutOfRange */]: 'Unicode escape code point out of range',
+      [14 /* DuplicateRegExpFlag */]: 'Duplicate regular expression flag \'%0\'',
+      [15 /* UnexpectedTokenRegExpFlag */]: 'Unexpected regular expression flag \'%0\'',
+      [16 /* StrictLHSAssignment */]: 'Eval or arguments can\'t be assigned to in strict mode code',
+      [17 /* IllegalReturn */]: 'Illegal return statement',
+      [18 /* StrictFunction */]: 'In strict mode code, functions can only be declared at top level or inside a block',
+      [19 /* SloppyFunction */]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+      [20 /* ForbiddenAsStatement */]: '%0 can\'t appear in single-statement context',
+      [21 /* GeneratorInSingleStatementContext */]: 'Generators can only be declared at the top level or inside a block',
+      [22 /* ForAwaitNotOf */]: '\'for await\' loop should be used with \'of\'',
+      [23 /* DeclarationMissingInitializer */]: 'Missing initializer in %0 declaration',
+      [24 /* ForInOfLoopInitializer */]: '\'for-%0\' loop variable declaration may not have an initializer',
+      [25 /* ForInOfLoopMultiBindings */]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+      [26 /* LetInLexicalBinding */]: 'let is disallowed as a lexically bound name',
+      [27 /* UnexpectedLexicalDeclaration */]: 'Lexical declaration cannot appear in a single-statement context',
+      [28 /* LabelRedeclaration */]: 'Label \'%0\' has already been declared',
+      [29 /* InvalidNestedStatement */]: '%0  statement must be nested within an iteration statement',
+      [30 /* IllegalContinue */]: 'Illegal continue statement: \'%0\' does not denote an iteration statement',
+      [31 /* UnknownLabel */]: 'Undefined label \'%0\'',
+      [32 /* MultipleDefaultsInSwitch */]: 'More than one default clause in switch statement',
+      [33 /* ImportExportDeclAtTopLevel */]: '%0 declarations may only appear at top level of a module',
+      [34 /* AsyncFunctionInSingleStatementContext */]: 'Async functions can only be declared at the top level or inside a block',
+      [35 /* InvalidLineBreak */]: 'No line break is allowed after \'%0\'',
+      [36 /* StrictModeWith */]: 'Strict mode code may not include a with statement',
+      [37 /* AwaitOutsideAsync */]: 'Await is only valid in async functions',
+      [38 /* UnNamedFunctionDecl */]: 'Function declaration must have a name in this context',
+      [39 /* DisallowedInContext */]: '\'%0\' may not be used as an identifier in this context',
+      [42 /* StrictDelete */]: 'Delete of an unqualified identifier in strict mode',
+      [43 /* DeletePrivateField */]: 'Private fields can not be deleted',
+      [40 /* PrivateFieldConstructor */]: 'Classes may not have a private field named \'#constructor\'',
+      [41 /* PublicFieldConstructor */]: 'Classes may not have a field named \'constructor\'',
+      [44 /* InvalidConstructor */]: 'Class constructor may not be a \'%0\'',
+      [45 /* UnexpectedReserved */]: 'Unexpected reserved word',
+      [46 /* StrictEvalArguments */]: 'Unexpected eval or arguments in strict mode',
+      [47 /* AwaitBindingIdentifier */]: '\'await\' is not a valid identifier inside an async function',
+      [48 /* YieldBindingIdentifier */]: '\'yield\' is not a valid identifier inside an generator function',
+      [49 /* UnexpectedStrictReserved */]: 'Unexpected strict mode reserved word',
+      [51 /* AwaitInParameter */]: 'Await expression not allowed in formal parameter',
+      [50 /* YieldInParameter */]: 'Yield expression not allowed in formal parameter',
+      [52 /* MetaNotInFunctionBody */]: 'new.target only allowed within functions',
+      [53 /* BadSuperCall */]: 'super() is not allowed in this context',
+      [54 /* UnexpectedSuper */]: 'Member access from super not allowed in this context',
+      [55 /* LoneSuper */]: 'Only "(" or "." or "[" are allowed after \'super\'',
+      [56 /* YieldReservedKeyword */]: '\'yield\' is a reserved keyword within generator function bodies',
+      [57 /* ContinuousNumericSeparator */]: 'Only one underscore is allowed as numeric separator',
+      [58 /* TrailingNumericSeparator */]: 'Numeric separators are not allowed at the end of numeric literals',
+      [59 /* ZeroDigitNumericSeparator */]: 'Numeric separator can not be used after leading 0.',
+      [60 /* StrictOctalLiteral */]: 'Legacy octal literals are not allowed in strict mode',
+      [61 /* InvalidLhsInAssignment */]: 'Invalid left-hand side in assignment',
+      [62 /* DuplicateProto */]: 'Property name __proto__ appears more than once in object literal',
+      [63 /* IllegalUseStrict */]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
+      [64 /* StaticPrototype */]: 'Classes may not have a static property named \'prototype\'',
+      [65 /* AccessorWrongArgs */]: '%0 functions must have %1 argument%2',
+      [66 /* BadSetterRestParameter */]: 'Setter function argument must not be a rest parameter',
+      [67 /* StrictLHSPrefixPostFix */]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
+      [68 /* InvalidElisonInObjPropList */]: 'Elision not allowed in object property list',
+      [69 /* ElementAfterRest */]: 'Rest element must be last element',
+      [71 /* ElementAfterSpread */]: 'Spread element must be last element',
+      [70 /* RestDefaultInitializer */]: 'Rest parameter may not have a default initializer',
+      [72 /* InvalidDestructuringTarget */]: 'Invalid destructuring assignment target',
+      [73 /* UnexpectedSurrogate */]: 'Unexpected surrogate pair',
+      [74 /* MalformedEscape */]: 'Malformed %0 character escape sequence',
+      [75 /* TemplateOctalLiteral */]: 'Template literals may not contain octal escape sequences',
+      [76 /* NotBindable */]: 'Invalid binding pattern',
+      [77 /* ParamAfterRest */]: 'Rest parameter must be last formal parameter',
+      [78 /* NoCatchOrFinally */]: 'Missing catch or finally after try',
+      [79 /* NewlineAfterThrow */]: 'Illegal newline after throw',
+      [80 /* ParamDupe */]: 'Duplicate parameter name not allowed in this context',
+      [81 /* AsAfterImportStart */]: 'Missing keyword \'as\' after import *',
+      [82 /* LabelNoColon */]: 'Labels must be followed by a \':\'',
+      [83 /* NonEmptyJSXExpression */]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
+      [84 /* ExpectedJSXClosingTag */]: 'Expected corresponding JSX closing tag for %0',
+      [85 /* AdjacentJSXElements */]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
+      [86 /* InvalidJSXAttributeValue */]: 'Invalid JSX attribute value',
+      [87 /* RestWithComma */]: 'Rest element may not have a trailing comma',
+      [88 /* UndefinedUnicodeCodePoint */]: 'Undefined Unicode code-point',
+      [89 /* HtmlCommentInModule */]: 'HTML comments are not allowed in modules',
+      [90 /* InvalidCoverInitializedName */]: 'Invalid shorthand property initializer',
+      [91 /* TrailingDecorators */]: 'Trailing decorator may be followed by method',
+      [92 /* GeneratorConstructor */]: 'Decorators can\'t be used with a constructor',
+      [93 /* InvalidRestBindingPattern */]: '`...` must be followed by an identifier in declaration contexts',
   };
   /**
    * Collect line, index, and colum from either the recorded error
@@ -2147,9 +2148,9 @@
   function validateBreakOrContinueLabel(parser, context, label, isContinue) {
       const state = hasLabel(parser, label);
       if (!state)
-          tolerant(parser, context, 30 /* UnknownLabel */, label);
+          tolerant(parser, context, 31 /* UnknownLabel */, label);
       if (isContinue && !(state & 2 /* Nested */))
-          tolerant(parser, context, 29 /* IllegalContinue */, label);
+          tolerant(parser, context, 30 /* IllegalContinue */, label);
   }
   /**
    * Add label to the stack
@@ -2160,7 +2161,7 @@
   function addLabel(parser, label) {
       if (parser.labelSet === undefined)
           parser.labelSet = {};
-      parser.labelSet[`$${label}`] = parser.token & 16 /* IsIterationStatement */ ? 2 /* Nested */ : 1 /* NotNested */;
+      parser.labelSet[`$${label}`] = isIterationStatement(parser.token) ? 2 /* Nested */ : 1 /* NotNested */;
   }
   /**
    * Remove label from the stack
@@ -2258,9 +2259,9 @@
    * @param context Context masks
    */
   function consumeSemicolon(parser, context) {
-      return parser.token & 524288 /* ASI */ || parser.flags & 1 /* NewLine */
-          ? consume(parser, context, 17301521 /* Semicolon */)
-          : report(parser, !(context & 131072 /* Async */) && parser.token & 131072 /* IsAwait */ ? 36 /* AwaitOutsideAsync */ : 1 /* UnexpectedToken */, tokenDesc(parser.token));
+      return parser.token & 1048576 /* ASI */ || parser.flags & 1 /* NewLine */
+          ? consume(parser, context, 17825809 /* Semicolon */)
+          : report(parser, !(context & 131072 /* Async */) && parser.token & 262144 /* IsAwait */ ? 37 /* AwaitOutsideAsync */ : 1 /* UnexpectedToken */, tokenDesc(parser.token));
   }
   /**
    * Bit fiddle current grammar state and keep track of the state during the parse and restore
@@ -2367,7 +2368,7 @@
       for (let i = 0; i < params.length; i++) {
           const key = `@${params[i]}`;
           if (paramSet.get(key)) {
-              tolerant(parser, context, 79 /* ParamDupe */);
+              tolerant(parser, context, 80 /* ParamDupe */);
           }
           else
               paramSet.set(key, true);
@@ -2413,7 +2414,7 @@
               if (node.argument.type !== 'ArrayExpression' &&
                   node.argument.type !== 'ObjectExpression' &&
                   !isValidSimpleAssignmentTarget(node.argument)) {
-                  tolerant(parser, context, 69 /* RestDefaultInitializer */);
+                  tolerant(parser, context, 70 /* RestDefaultInitializer */);
               }
               reinterpret(parser, context, node.argument);
               break;
@@ -2427,7 +2428,7 @@
                   return;
           // Fall through
           default:
-              tolerant(parser, context, context & 524288 /* InParameter */ ? 75 /* NotBindable */ : 71 /* InvalidDestructuringTarget */, node.type);
+              tolerant(parser, context, context & 524288 /* InParameter */ ? 76 /* NotBindable */ : 72 /* InvalidDestructuringTarget */, node.type);
       }
   };
   /**
@@ -2488,14 +2489,14 @@
    */
   function isValidIdentifier(context, t) {
       if (context & 4096 /* Strict */) {
-          if (context & 8192 /* Module */ && t & 131072 /* IsAwait */)
+          if (context & 8192 /* Module */ && t & 262144 /* IsAwait */)
               return false;
           if (t & 1073741824 /* IsYield */)
               return false;
-          return (t & 65536 /* IsIdentifier */) === 65536 /* IsIdentifier */ || (t & 36864 /* Contextual */) === 36864 /* Contextual */;
+          return (t & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
       }
-      return ((t & 65536 /* IsIdentifier */) === 65536 /* IsIdentifier */ ||
-          (t & 36864 /* Contextual */) === 36864 /* Contextual */ ||
+      return ((t & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ ||
+          (t & 69632 /* Contextual */) === 69632 /* Contextual */ ||
           (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */);
   }
   /**
@@ -2507,9 +2508,9 @@
   function isLexical(parser, context) {
       nextToken(parser, context);
       const { token } = parser;
-      return !!(token & (65536 /* IsIdentifier */ | 8388608 /* IsBindingPattern */ | 1073741824 /* IsYield */ | 131072 /* IsAwait */) ||
+      return !!(token & (131072 /* IsIdentifier */ | 8388608 /* IsBindingPattern */ | 1073741824 /* IsYield */ | 262144 /* IsAwait */) ||
           token === 33574984 /* LetKeyword */ ||
-          (token & 36864 /* Contextual */) === 36864 /* Contextual */);
+          (token & 69632 /* Contextual */) === 69632 /* Contextual */);
   }
   /**
    * Returns true if this is end of case or default clauses
@@ -2517,7 +2518,7 @@
    * @param parser Parser object
    */
   function isEndOfCaseOrDefaultClauses(parser) {
-      return (parser.token === 12368 /* DefaultKeyword */ || parser.token === 17301519 /* RightBrace */ || parser.token === 12363 /* CaseKeyword */);
+      return (parser.token === 12368 /* DefaultKeyword */ || parser.token === 17825807 /* RightBrace */ || parser.token === 12363 /* CaseKeyword */);
   }
   /**
    * Validates if the next token in the stream is a left paren or a period
@@ -2538,7 +2539,7 @@
   function nextTokenisIdentifierOrParen(parser, context) {
       nextToken(parser, context);
       const { token } = parser;
-      return token & (65536 /* IsIdentifier */ | 1073741824 /* IsYield */) || token === 50331659 /* LeftParen */;
+      return token & (131072 /* IsIdentifier */ | 1073741824 /* IsYield */) || token === 50331659 /* LeftParen */;
   }
   /**
    * Validates if the next token in the stream is left parenthesis.
@@ -2579,24 +2580,24 @@
       const { token } = parser;
       if (context & 4096 /* Strict */) {
           // Module code is also "strict mode code"
-          if (context & 8192 /* Module */ && token & 131072 /* IsAwait */) {
-              tolerant(parser, context, 38 /* DisallowedInContext */, tokenDesc(token));
+          if (context & 8192 /* Module */ && token & 262144 /* IsAwait */) {
+              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
           }
           if (token & 1073741824 /* IsYield */)
-              tolerant(parser, context, 38 /* DisallowedInContext */, tokenDesc(token));
-          if ((token & 65536 /* IsIdentifier */) === 65536 /* IsIdentifier */ || (token & 36864 /* Contextual */) === 36864 /* Contextual */) {
+              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
+          if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ || (token & 69632 /* Contextual */) === 69632 /* Contextual */) {
               return parseIdentifier(parser, context);
           }
           report(parser, 1 /* UnexpectedToken */, tokenDesc(token));
       }
       if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */) {
-          tolerant(parser, context, 38 /* DisallowedInContext */, tokenDesc(token));
+          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
       }
-      else if (context & 131072 /* Async */ && token & 131072 /* IsAwait */) {
-          tolerant(parser, context, 38 /* DisallowedInContext */, tokenDesc(token));
+      else if (context & 131072 /* Async */ && token & 262144 /* IsAwait */) {
+          tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(token));
       }
-      if ((token & 65536 /* IsIdentifier */) === 65536 /* IsIdentifier */ ||
-          (token & 36864 /* Contextual */) === 36864 /* Contextual */ ||
+      if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ ||
+          (token & 69632 /* Contextual */) === 69632 /* Contextual */ ||
           (token & 20480 /* FutureReserved */) === 20480 /* FutureReserved */) {
           return parseIdentifier(parser, context);
       }
@@ -2641,7 +2642,7 @@
    */
   function isInstanceField(parser) {
       const { token } = parser;
-      return token === 17301519 /* RightBrace */ || token === 17301521 /* Semicolon */ || token === 83886109 /* Assign */;
+      return token === 17825807 /* RightBrace */ || token === 17825809 /* Semicolon */ || token === 83886109 /* Assign */;
   }
   /**
    *
@@ -2652,10 +2653,10 @@
    */
   function validateUpdateExpression(parser, context, expr, prefix) {
       if (context & 4096 /* Strict */ && nameIsArgumentsOrEval(expr.name)) {
-          tolerant(parser, context, 66 /* StrictLHSPrefixPostFix */, prefix);
+          tolerant(parser, context, 67 /* StrictLHSPrefixPostFix */, prefix);
       }
       if (!isValidSimpleAssignmentTarget(expr)) {
-          tolerant(parser, context, 4 /* InvalidLHSInAssignment */);
+          tolerant(parser, context, 5 /* InvalidLHSInAssignment */);
       }
   }
   /**
@@ -2692,7 +2693,7 @@
               setPendingError(parser);
               state |= 4 /* HasReservedWords */;
           }
-          else if ((token & 131072 /* IsAwait */) === 131072 /* IsAwait */) {
+          else if ((token & 262144 /* IsAwait */) === 262144 /* IsAwait */) {
               setPendingError(parser);
               parser.flags |= 8192 /* HasAwait */;
           }
@@ -2708,7 +2709,7 @@
   function validateAsyncArgumentList(parser, context, state) {
       const { token } = parser;
       if (!(parser.flags & 2 /* AllowBinding */)) {
-          tolerant(parser, context, 75 /* NotBindable */);
+          tolerant(parser, context, 76 /* NotBindable */);
       }
       else if (token & 8388608 /* IsBindingPattern */) {
           parser.flags |= 8 /* SimpleParameterList */;
@@ -2718,7 +2719,7 @@
               setPendingError(parser);
               state |= 8 /* EvalOrArguments */;
           }
-          else if ((token & 131072 /* IsAwait */) === 131072 /* IsAwait */) {
+          else if ((token & 262144 /* IsAwait */) === 262144 /* IsAwait */) {
               setPendingError(parser);
               state |= 32 /* Await */;
           }
@@ -2728,6 +2729,22 @@
           }
       }
       return state;
+  }
+  /**
+   * Returns true if iteration statement. Otherwise return false,
+   *
+   * @param t Token
+   */
+  function isIterationStatement(t) {
+      return t === 12369 /* DoKeyword */ || t === 12386 /* WhileKeyword */ || t === 12374 /* ForKeyword */;
+  }
+  /**
+   * Returns true if in or of token. Otherwise return false,
+   *
+   * @param t Token
+   */
+  function isInOrOf(t) {
+      return t === 69746 /* OfKeyword */ || t === 167786289 /* InKeyword */;
   }
 
   // JSX Specification
@@ -5513,7 +5530,7 @@
       if (context & 2048 /* OptionsExperimental */)
           decorators = parseDecorators(parser, context);
       expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 33566797 /* ClassKeyword */);
-      const id = (context & 16777216 /* RequireIdentifier */ && (parser.token !== 33619969 /* Identifier */))
+      const id = (context & 16777216 /* RequireIdentifier */ && (parser.token !== 33685505 /* Identifier */))
           ? null :
           parseBindingIdentifier(parser, context | 4096 /* Strict */ | 536870912 /* DisallowEscapedKeyword */);
       let state = 0 /* None */;
@@ -5550,7 +5567,7 @@
       let isGenerator = 0 /* None */;
       if (consume(parser, context, 167774771 /* Multiply */)) {
           if (context & 2097152 /* AllowSingleStatement */ && !(context & 1048576 /* InFunctionBody */)) {
-              tolerant(parser, context, 20 /* GeneratorInSingleStatementContext */);
+              tolerant(parser, context, 21 /* GeneratorInSingleStatementContext */);
           }
           isGenerator = 1 /* Generator */;
       }
@@ -5571,15 +5588,15 @@
       const { token } = parser;
       let id = null;
       if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
-          tolerant(parser, context, 47 /* YieldBindingIdentifier */);
-      if (context & 131072 /* Async */ && token & 131072 /* IsAwait */)
-          tolerant(parser, context, 46 /* AwaitBindingIdentifier */);
+          tolerant(parser, context, 48 /* YieldBindingIdentifier */);
+      if (context & 131072 /* Async */ && token & 262144 /* IsAwait */)
+          tolerant(parser, context, 47 /* AwaitBindingIdentifier */);
       if (token !== 50331659 /* LeftParen */) {
           id = parseBindingIdentifier(parser, context);
           // Unnamed functions are forbidden in statement context.
       }
       else if (!(context & 16777216 /* RequireIdentifier */))
-          tolerant(parser, context, 37 /* UnNamedFunctionDecl */);
+          tolerant(parser, context, 38 /* UnNamedFunctionDecl */);
       const { params, body } = swapContext(parser, context & ~(33554432 /* Method */ | 67108864 /* AllowSuperProperty */ | 16777216 /* RequireIdentifier */), state, parseFormalListAndBody);
       return finishNode(context, parser, pos, {
           type: 'FunctionDeclaration',
@@ -5602,7 +5619,7 @@
    */
   function parseAsyncFunctionOrAsyncGeneratorDeclaration(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 299116 /* AsyncKeyword */);
+      expect(parser, context, 594028 /* AsyncKeyword */);
       expect(parser, context, 33566808 /* FunctionKeyword */);
       const isAwait = 2 /* Await */;
       const isGenerator = consume(parser, context, 167774771 /* Multiply */) ? 1 /* Generator */ : 0 /* None */;
@@ -5630,20 +5647,20 @@
       let init = null;
       if (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 83886109 /* Assign */)) {
           init = parseExpressionCoverGrammar(parser, context & ~(4194304 /* BlockScope */ | 8388608 /* ForStatement */), parseAssignmentExpression);
-          if (parser.token & 1048576 /* IsInOrOf */ && (context & 8388608 /* ForStatement */ || isBindingPattern)) {
-              if (parser.token === 168834865 /* InKeyword */) {
+          if (isInOrOf(parser.token) && (context & 8388608 /* ForStatement */ || isBindingPattern)) {
+              if (parser.token === 167786289 /* InKeyword */) {
                   // https://github.com/tc39/test262/blob/master/test/annexB/language/statements/for-in/strict-initializer.js
                   if (context & (4194304 /* BlockScope */ | 4096 /* Strict */ | 131072 /* Async */) || isBindingPattern) {
-                      tolerant(parser, context, 23 /* ForInOfLoopInitializer */, tokenDesc(parser.token));
+                      tolerant(parser, context, 24 /* ForInOfLoopInitializer */, tokenDesc(parser.token));
                   }
               }
               else
-                  tolerant(parser, context, 23 /* ForInOfLoopInitializer */, tokenDesc(parser.token));
+                  tolerant(parser, context, 24 /* ForInOfLoopInitializer */, tokenDesc(parser.token));
           }
           // Note: Initializers are required for 'const' and binding patterns
       }
-      else if (!(parser.token & 1048576 /* IsInOrOf */) && (isConst || isBindingPattern)) {
-          tolerant(parser, context, 22 /* DeclarationMissingInitializer */, isConst ? 'const' : 'destructuring');
+      else if (!isInOrOf(parser.token) && (isConst || isBindingPattern)) {
+          tolerant(parser, context, 23 /* DeclarationMissingInitializer */, isConst ? 'const' : 'destructuring');
       }
       return finishNode(context, parser, pos, {
           type: 'VariableDeclarator',
@@ -5663,8 +5680,8 @@
       const list = [parseVariableDeclaration(parser, context, isConst)];
       while (consume(parser, context, 16777234 /* Comma */))
           list.push(parseVariableDeclaration(parser, context, isConst));
-      if (context & 8388608 /* ForStatement */ && parser.token & 1048576 /* IsInOrOf */ && list.length !== 1) {
-          tolerant(parser, context, 24 /* ForInOfLoopMultiBindings */, tokenDesc(parser.token));
+      if (context & 8388608 /* ForStatement */ && isInOrOf(parser.token) && list.length !== 1) {
+          tolerant(parser, context, 25 /* ForInOfLoopMultiBindings */, tokenDesc(parser.token));
       }
       return list;
   }
@@ -5689,7 +5706,7 @@
               return parseLetOrExpressionStatement(parser, context | 65536 /* AllowIn */);
           case 33566793 /* ConstKeyword */:
               return parseVariableStatement(parser, context | 4194304 /* BlockScope */ | 65536 /* AllowIn */);
-          case 299116 /* AsyncKeyword */:
+          case 594028 /* AsyncKeyword */:
               return parseAsyncFunctionDeclarationOrStatement(parser, context);
           case 33566810 /* ImportKeyword */: {
               if (context & 1 /* OptionsNext */ && lookahead(parser, context, nextTokenIsLeftParenOrPeriod)) {
@@ -5698,7 +5715,7 @@
           }
           case 12371 /* ExportKeyword */:
               if (context & 8192 /* Module */) {
-                  tolerant(parser, context, 32 /* ImportExportDeclAtTopLevel */, tokenDesc(parser.token));
+                  tolerant(parser, context, 33 /* ImportExportDeclAtTopLevel */, tokenDesc(parser.token));
               }
           default:
               return parseStatement(parser, context | 2097152 /* AllowSingleStatement */);
@@ -5716,7 +5733,7 @@
       switch (parser.token) {
           case 33566791 /* VarKeyword */:
               return parseVariableStatement(parser, context | 65536 /* AllowIn */);
-          case 17301521 /* Semicolon */:
+          case 17825809 /* Semicolon */:
               return parseEmptyStatement(parser, context);
           case 33566814 /* SwitchKeyword */:
               return parseSwitchStatement(parser, context);
@@ -5728,7 +5745,7 @@
               return parseIfStatement(parser, context);
           case 12369 /* DoKeyword */:
               return parseDoWhileStatement(parser, context);
-          case 12402 /* WhileKeyword */:
+          case 12386 /* WhileKeyword */:
               return parseWhileStatement(parser, context);
           case 12387 /* WithKeyword */:
               return parseWithStatement(parser, context);
@@ -5744,16 +5761,16 @@
               return parseTryStatement(parser, context | 536870912 /* DisallowEscapedKeyword */);
           case 12374 /* ForKeyword */:
               return parseForStatement(parser, context | 8388608 /* ForStatement */);
-          case 299116 /* AsyncKeyword */:
+          case 594028 /* AsyncKeyword */:
               if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine)) {
-                  tolerant(parser, context, 33 /* AsyncFunctionInSingleStatementContext */);
+                  tolerant(parser, context, 34 /* AsyncFunctionInSingleStatementContext */);
               }
               return parseExpressionOrLabelledStatement(parser, context | 2097152 /* AllowSingleStatement */);
           case 33566808 /* FunctionKeyword */:
               // V8
-              tolerant(parser, context, context & 4096 /* Strict */ ? 17 /* StrictFunction */ : 18 /* SloppyFunction */);
+              tolerant(parser, context, context & 4096 /* Strict */ ? 18 /* StrictFunction */ : 19 /* SloppyFunction */);
           case 33566797 /* ClassKeyword */:
-              tolerant(parser, context, 19 /* ForbiddenAsStatement */, tokenDesc(parser.token));
+              tolerant(parser, context, 20 /* ForbiddenAsStatement */, tokenDesc(parser.token));
           default:
               return parseExpressionOrLabelledStatement(parser, context);
       }
@@ -5786,11 +5803,11 @@
       expect(parser, context, 12366 /* ContinueKeyword */);
       // Appearing of continue without an IterationStatement leads to syntax error
       if (!(parser.flags & 48 /* AllowBreakOrContinue */)) {
-          tolerant(parser, context, 28 /* InvalidNestedStatement */, tokenDesc(parser.token));
+          tolerant(parser, context, 29 /* InvalidNestedStatement */, tokenDesc(parser.token));
       }
       let label = null;
       const { tokenValue } = parser;
-      if (!(parser.flags & 1 /* NewLine */) && parser.token & (65536 /* IsIdentifier */ | 4096 /* Keyword */)) {
+      if (!(parser.flags & 1 /* NewLine */) && parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
           label = parseIdentifier(parser, context);
           validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ true);
       }
@@ -5815,12 +5832,12 @@
       // Use 'tokenValue' to avoid accessing another object shape which in turn can lead to
       // a "'deopt" when getting the identifier value (*if any*)
       const { tokenValue } = parser;
-      if (!(parser.flags & 1 /* NewLine */) && parser.token & (65536 /* IsIdentifier */ | 4096 /* Keyword */)) {
+      if (!(parser.flags & 1 /* NewLine */) && parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
           label = parseIdentifier(parser, context);
           validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ false);
       }
       else if (!(parser.flags & 48 /* AllowBreakOrContinue */)) {
-          tolerant(parser, context, 28 /* InvalidNestedStatement */, 'break');
+          tolerant(parser, context, 29 /* InvalidNestedStatement */, 'break');
       }
       consumeSemicolon(parser, context);
       return finishNode(context, parser, pos, {
@@ -5892,7 +5909,7 @@
       const handler = parser.token === 12364 /* CatchKeyword */ ? parseCatchBlock(parser, context) : null;
       const finalizer = consume(parser, context, 12373 /* FinallyKeyword */) ? parseBlockStatement(parser, context) : null;
       if (!handler && !finalizer)
-          tolerant(parser, context, 77 /* NoCatchOrFinally */);
+          tolerant(parser, context, 78 /* NoCatchOrFinally */);
       return finishNode(context, parser, pos, {
           type: 'TryStatement',
           block,
@@ -5939,7 +5956,7 @@
       const pos = getLocation(parser);
       expect(parser, context, 302002272 /* ThrowKeyword */);
       if (parser.flags & 1 /* NewLine */)
-          tolerant(parser, context, 78 /* NewlineAfterThrow */);
+          tolerant(parser, context, 79 /* NewlineAfterThrow */);
       const argument = parseExpression(parser, (context & ~1073741824 /* AllowDecorator */) | 65536 /* AllowIn */);
       consumeSemicolon(parser, context);
       return finishNode(context, parser, pos, {
@@ -5996,23 +6013,19 @@
       const pos = getLocation(parser);
       const { tokenValue, token } = parser;
       const expr = parseExpression(parser, (context & ~(2097152 /* AllowSingleStatement */ | 1073741824 /* AllowDecorator */)) | 65536 /* AllowIn */);
-      if (token & (65536 /* IsIdentifier */ | 4096 /* Keyword */) && parser.token === 16777237 /* Colon */) {
+      if (token & (131072 /* IsIdentifier */ | 4096 /* Keyword */) && parser.token === 16777237 /* Colon */) {
           // If within generator function bodies, we do it like this so we can throw an nice error message
           if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
-              tolerant(parser, context, 55 /* YieldReservedKeyword */);
-          expect(parser, context, 16777237 /* Colon */, 81 /* LabelNoColon */);
+              tolerant(parser, context, 56 /* YieldReservedKeyword */);
+          expect(parser, context, 16777237 /* Colon */, 82 /* LabelNoColon */);
           if (hasLabel(parser, tokenValue))
-              tolerant(parser, context, 27 /* LabelRedeclaration */, tokenValue);
+              tolerant(parser, context, 28 /* LabelRedeclaration */, tokenValue);
           addLabel(parser, tokenValue);
-          let body;
-          if (!(context & 4096 /* Strict */) &&
+          const body = !(context & 4096 /* Strict */) &&
               context & 2097152 /* AllowSingleStatement */ &&
-              parser.token === 33566808 /* FunctionKeyword */) {
-              body = parseFunctionDeclaration(parser, context);
-          }
-          else {
-              body = parseStatement(parser, context);
-          }
+              parser.token === 33566808 /* FunctionKeyword */
+              ? parseFunctionDeclaration(parser, context)
+              : parseStatement(parser, context);
           popLabel(parser, tokenValue);
           return finishNode(context, parser, pos, {
               type: 'LabeledStatement',
@@ -6027,9 +6040,7 @@
       });
   }
   /**
-   * Parses either a binding identifier or bindign pattern
-   *
-   * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
+   * Parses do while statement
    *
    * @param parser  Parser object
    * @param context Context masks
@@ -6038,11 +6049,11 @@
       const pos = getLocation(parser);
       expect(parser, context, 12369 /* DoKeyword */);
       const body = parseIterationStatement(parser, context);
-      expect(parser, context, 12402 /* WhileKeyword */);
+      expect(parser, context, 12386 /* WhileKeyword */);
       expect(parser, context, 50331659 /* LeftParen */);
       const test = parseExpression(parser, (context & ~1073741824 /* AllowDecorator */) | 65536 /* AllowIn */);
       expect(parser, context, 16 /* RightParen */);
-      consume(parser, context, 17301521 /* Semicolon */);
+      consume(parser, context, 17825809 /* Semicolon */);
       return finishNode(context, parser, pos, {
           type: 'DoWhileStatement',
           body,
@@ -6059,7 +6070,7 @@
    */
   function parseWhileStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12402 /* WhileKeyword */);
+      expect(parser, context, 12386 /* WhileKeyword */);
       expect(parser, context, 50331659 /* LeftParen */);
       const test = parseExpression(parser, (context & ~1073741824 /* AllowDecorator */) | 65536 /* AllowIn */);
       expect(parser, context, 16 /* RightParen */);
@@ -6083,10 +6094,10 @@
       const pos = getLocation(parser);
       const body = [];
       expect(parser, context, 41943052 /* LeftBrace */);
-      while (parser.token !== 17301519 /* RightBrace */) {
+      while (parser.token !== 17825807 /* RightBrace */) {
           body.push(parseStatementListItem(parser, context));
       }
-      expect(parser, context, 17301519 /* RightBrace */);
+      expect(parser, context, 17825807 /* RightBrace */);
       return finishNode(context, parser, pos, {
           type: 'BlockStatement',
           body
@@ -6103,12 +6114,12 @@
   function parseReturnStatement(parser, context) {
       const pos = getLocation(parser);
       if (!(context & (32 /* OptionsGlobalReturn */ | 1048576 /* InFunctionBody */))) {
-          tolerant(parser, context, 16 /* IllegalReturn */);
+          tolerant(parser, context, 17 /* IllegalReturn */);
       }
       if (parser.flags & 32768 /* EscapedKeyword */)
-          tolerant(parser, context, 2 /* InvalidEscapedReservedWord */);
+          tolerant(parser, context, 3 /* InvalidEscapedReservedWord */);
       expect(parser, context, 12380 /* ReturnKeyword */);
-      const argument = !(parser.token & 524288 /* ASI */) && !(parser.flags & 1 /* NewLine */)
+      const argument = !(parser.token & 1048576 /* ASI */) && !(parser.flags & 1 /* NewLine */)
           ? parseExpression(parser, (context & ~(1048576 /* InFunctionBody */ | 1073741824 /* AllowDecorator */)) | 65536 /* AllowIn */)
           : null;
       consumeSemicolon(parser, context);
@@ -6147,7 +6158,7 @@
    */
   function parseWithStatement(parser, context) {
       if (context & 4096 /* Strict */)
-          tolerant(parser, context, 35 /* StrictModeWith */);
+          tolerant(parser, context, 36 /* StrictModeWith */);
       const pos = getLocation(parser);
       expect(parser, context, 12387 /* WithKeyword */);
       expect(parser, context, 50331659 /* LeftParen */);
@@ -6179,17 +6190,17 @@
       const savedFlags = parser.flags;
       parser.flags |= 16 /* InSwitchStatement */;
       let seenDefault = false;
-      while (parser.token !== 17301519 /* RightBrace */) {
+      while (parser.token !== 17825807 /* RightBrace */) {
           const clause = parseCaseOrDefaultClauses(parser, context);
           cases.push(clause);
           if (clause.test === null) {
               if (seenDefault)
-                  tolerant(parser, context, 31 /* MultipleDefaultsInSwitch */);
+                  tolerant(parser, context, 32 /* MultipleDefaultsInSwitch */);
               seenDefault = true;
           }
       }
       parser.flags = savedFlags;
-      expect(parser, context, 17301519 /* RightBrace */);
+      expect(parser, context, 17825807 /* RightBrace */);
       return finishNode(context, parser, pos, {
           type: 'SwitchStatement',
           discriminant,
@@ -6288,7 +6299,7 @@
   function parseForStatement(parser, context) {
       const pos = getLocation(parser);
       expect(parser, context, 12374 /* ForKeyword */);
-      const awaitToken = !!(context & 131072 /* Async */ && consume(parser, context, 33788013 /* AwaitKeyword */));
+      const awaitToken = !!(context & 131072 /* Async */ && consume(parser, context, 34017389 /* AwaitKeyword */));
       expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 50331659 /* LeftParen */);
       const { token } = parser;
       let init = null;
@@ -6304,15 +6315,15 @@
       else if (token === 33566791 /* VarKeyword */) {
           variableStatement = parseVariableStatement(parser, context & ~65536 /* AllowIn */, false);
       }
-      else if (token !== 17301521 /* Semicolon */) {
+      else if (token !== 17825809 /* Semicolon */) {
           sequencePos = getLocation(parser);
           init = restoreExpressionCoverGrammar(parser, (context & ~65536 /* AllowIn */) | 536870912 /* DisallowEscapedKeyword */, parseAssignmentExpression);
       }
-      if (consume(parser, context, 1085554 /* OfKeyword */)) {
+      if (consume(parser, context, 69746 /* OfKeyword */)) {
           type = 'ForOfStatement';
           if (init) {
               if (!(parser.flags & 4 /* AllowDestructuring */) || init.type === 'AssignmentExpression') {
-                  tolerant(parser, context, 71 /* InvalidDestructuringTarget */);
+                  tolerant(parser, context, 72 /* InvalidDestructuringTarget */);
               }
               reinterpret(parser, context, init);
           }
@@ -6320,10 +6331,10 @@
               init = variableStatement;
           right = parseAssignmentExpression(parser, context | 65536 /* AllowIn */);
       }
-      else if (consume(parser, context, 168834865 /* InKeyword */)) {
+      else if (consume(parser, context, 167786289 /* InKeyword */)) {
           if (init) {
               if (!(parser.flags & 4 /* AllowDestructuring */))
-                  tolerant(parser, context, 71 /* InvalidDestructuringTarget */);
+                  tolerant(parser, context, 72 /* InvalidDestructuringTarget */);
               reinterpret(parser, context, init);
           }
           else
@@ -6336,11 +6347,11 @@
               init = parseSequenceExpression(parser, context, init, sequencePos);
           if (variableStatement)
               init = variableStatement;
-          expect(parser, context, 17301521 /* Semicolon */);
-          test = parser.token !== 17301521 /* Semicolon */
+          expect(parser, context, 17825809 /* Semicolon */);
+          test = parser.token !== 17825809 /* Semicolon */
               ? parseExpression(parser, (context & ~1073741824 /* AllowDecorator */) | 65536 /* AllowIn */)
               : null;
-          expect(parser, context, 17301521 /* Semicolon */);
+          expect(parser, context, 17825809 /* Semicolon */);
           update = parser.token !== 16 /* RightParen */
               ? parseExpression(parser, (context & ~1073741824 /* AllowDecorator */) | 65536 /* AllowIn */)
               : null;
@@ -7085,7 +7096,7 @@
   // tslint:disable-next-line:variable-name
   const Parser = parser;
 
-  const version = '1.6.1';
+  const version = '1.6.2';
 
   exports.version = version;
   exports.ESTree = estree;
@@ -7140,6 +7151,7 @@
   exports.setPendingExpressionError = setPendingExpressionError;
   exports.validateCoverParenthesizedExpression = validateCoverParenthesizedExpression;
   exports.validateAsyncArgumentList = validateAsyncArgumentList;
+  exports.isInOrOf = isInOrOf;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
