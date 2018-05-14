@@ -41,6 +41,7 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 Experimental features support as in `NodeJS`. These need to be enabled with the `experimental` option.
 
 * [Decorators](https://github.com/tc39/proposal-decorators)
+* [Do-expressions](https://github.com/tc39/proposal-do-expressions)
 
 ## API
 

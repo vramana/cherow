@@ -178,6 +178,7 @@ export type Expression =
   | ArrayExpression
   | ObjectExpression
   | FunctionExpression
+  | DoExpression
   | UnaryExpression
   | UpdateExpression
   | BinaryExpression
@@ -464,6 +465,10 @@ export interface FunctionExpression extends _Expression<'FunctionExpression'> {
   async: boolean;
   expression: false;
   typeAnnotation?: TypeAnnotation | null;
+}
+
+export interface DoExpression extends _Expression<'DoExpression'>, _Pattern<'DoExpression'> {
+  body: BlockStatement;
 }
 
 export interface Identifier extends _Expression<'Identifier'>, _Pattern<'Identifier'> {

@@ -6,7 +6,7 @@ import { consumeTemplateBrace } from '../lexer/template';
 import { Errors, report, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern, parseBindingIdentifier, parseAssignmentPattern } from './pattern';
 import { Location, Parser } from '../types';
-import { parseStatementListItem, parseDirective } from './statements';
+import { parseStatementListItem, parseDirective, parseBlockStatement } from './statements';
 import { parseJSXRootElement } from './jsx';
 import {
     expect,
@@ -743,9 +743,28 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseTemplate(parser, context);
         case Token.LetKeyword:
             return parseLetAsIdentifier(parser, context);
+        case Token.DoKeyword:
+            if (context & Context.OptionsExperimental) return parseDoExpression(parser, context);
         default:
             return parseAndValidateIdentifier(parser, context);
     }
+}
+
+/**
+ * Parse do expression (*experimental*)
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+function parseDoExpression(parser: Parser, context: Context): ESTree.DoExpression {
+  // AssignmentExpression ::
+  //     do '{' StatementList '}'
+  const pos = getLocation(parser);
+  expect(parser, context, Token.DoKeyword);
+  return finishNode(context, parser, pos, {
+    type: 'DoExpression',
+    body: parseBlockStatement(parser, context)
+  });
 }
 
 /**
