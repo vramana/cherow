@@ -680,6 +680,7 @@ export interface YieldExpression extends _Expression<'YieldExpression'> {
 
 export interface JSXIdentifier extends _Node<'JSXIdentifier'> {
   name: string;
+  raw?: string;
 }
 
 export interface JSXMemberExpression extends _Node<'JSXMemberExpression'> {

@@ -1,3 +1,4 @@
+import { JSXText } from './../../dist/types/estree.d';
 import * as ESTree from '../estree';
 import { Chars } from '../chars';
 import { Parser, Location } from '../types';
@@ -31,10 +32,10 @@ export function parseJSXRootElement(
     context: Context,
 ): ESTree.JSXElement | ESTree.JSXFragment {
     const pos = getLocation(parser);
-    let children: ESTree.JSXElement[] = [];
+    let children: (ESTree.JSXElement | ESTree.JSXFragment | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXText)[] = [];
     let closingElement = null;
     let selfClosing = false;
-    let openingElement: any;
+    let openingElement: ESTree.JSXOpeningElement | ESTree.JSXOpeningFragment;
     expect(parser, context, Token.LessThan);
 
     const isFragment = parser.token === Token.GreaterThan;
@@ -48,7 +49,7 @@ export function parseJSXRootElement(
         openingElement = parseJSXOpeningElement(parser, context, name, attributes, selfClosing, pos);
     }
 
-    if (isFragment)  return parseJSXFragment(parser, context, openingElement, pos);
+    if (isFragment)  return parseJSXFragment(parser, context, openingElement as ESTree.JSXOpeningFragment, pos);
 
     if (!selfClosing) {
         children = parseJSXChildren(parser, context);
@@ -80,7 +81,7 @@ export function parseJSXOpeningElement(
     parser: Parser,
     context: Context,
     name: ESTree.JSXIdentifier | ESTree.JSXMemberExpression | ESTree.JSXNamespacedName,
-    attributes: any,
+    attributes: (ESTree.JSXAttribute | ESTree.JSXSpreadAttribute)[],
     selfClosing: boolean,
     pos: Location,
 ): ESTree.JSXOpeningElement {
@@ -102,7 +103,13 @@ export function parseJSXOpeningElement(
  * @param openingElement Opening fragment
  * @param pos Line / Column location
  */
-function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTree.JSXOpeningFragment, pos: Location): ESTree.JSXFragment {
+function parseJSXFragment(
+  parser: Parser,
+  context: Context,
+  openingElement:
+  ESTree.JSXOpeningFragment,
+  pos: Location
+): ESTree.JSXFragment {
     const children = parseJSXChildren(parser, context);
     const closingFragment = parseJSXClosingFragment(parser, context);
     return finishNode(context, parser, pos, {
@@ -110,7 +117,7 @@ function parseJSXFragment(parser: Parser, context: Context, openingElement: ESTr
         children,
         openingElement,
         closingFragment,
-    } as any);
+    });
 }
 
 /**
@@ -124,7 +131,7 @@ function parseJSXOpeningFragment(parser: Parser, context: Context, pos: Location
     nextJSXToken(parser);
     return finishNode(context, parser, pos, {
         type: 'JSXOpeningFragment',
-    } as any);
+    });
 }
 
 /**
@@ -171,8 +178,11 @@ export function scanJSXToken(parser: Parser): Token {
  * @param context Context masks
  */
 
-function parseJSXChildren(parser: Parser, context: Context): ESTree.JSXElement[] {
-    const children: any[] = [];
+function parseJSXChildren(
+  parser: Parser,
+  context: Context
+): (ESTree.JSXElement | ESTree.JSXFragment | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXText)[] {
+    const children: (ESTree.JSXElement | ESTree.JSXFragment | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXText)[] = [];
     while (parser.token !== Token.JSXClose) {
         children.push(parseJSXChild(parser, context));
     }
@@ -191,10 +201,10 @@ export function parseJSXText(parser: Parser, context: Context): ESTree.JSXText {
     const pos = getLocation(parser);
     const value = parser.source.slice(parser.startIndex, parser.index);
     parser.token = scanJSXToken(parser);
-    const node: any = finishNode(context, parser, pos, {
+    const node: ESTree.JSXText = finishNode(context, parser, pos, {
         type: 'JSXText',
         value,
-    } as any);
+    });
 
     if (context & Context.OptionsRaw) node.raw = value;
 
@@ -324,9 +334,10 @@ function parseJSXAttributeValue(parser: Parser, context: Context): ReturnType<
             return parseJSXRootElement(parser, context | Context.InJSXChild);
         default:
             tolerant(parser, context, Errors.InvalidJSXAttributeValue);
+            return undefined as any; // note: get rid of this
+          }
     }
-    return undefined as any; // note: get rid of this
-}
+
 /**
  * Parses JSX Attribute
  *
@@ -483,7 +494,7 @@ export function parseJSXClosingFragment(parser: Parser, context: Context): ESTre
     expect(parser, context, Token.GreaterThan);
     return finishNode(context, parser, pos, {
         type: 'JSXClosingFragment',
-    } as any);
+    });
 }
 
 /**
@@ -521,7 +532,7 @@ export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSX
 
     const pos = getLocation(parser);
     nextToken(parser, context);
-    const node: any = finishNode(context, parser, pos, {
+    const node: ESTree.JSXIdentifier = finishNode(context, parser, pos, {
         type: 'JSXIdentifier',
         name,
     });
@@ -537,7 +548,12 @@ export function parseJSXIdentifier(parser: Parser, context: Context): ESTree.JSX
  * @param pos Line / Column location
  */
 
-export function parseJSXMemberExpression(parser: Parser, context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
+export function parseJSXMemberExpression(
+  parser: Parser,
+  context: Context,
+  expr: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
+  pos: Location
+): ESTree.JSXMemberExpression {
     // Note: In order to be able to parse cases like ''<A.B.C.D.E.foo-bar />', where the dash is located at the
     // end, we must rescan for the JSX Identifier now. This because JSX identifiers differ from normal identifiers
     scanJSXIdentifier(parser);

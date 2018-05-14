@@ -650,9 +650,9 @@ function parseLetOrExpressionStatement(
   context: Context,
   shouldConsume: boolean = true
 ): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
-  return lookahead(parser, context, isLexical)
-    ? parseVariableStatement(parser, context | Context.BlockScope, shouldConsume)
-    : parseExpressionOrLabelledStatement(parser, context);
+    return lookahead(parser, context, isLexical)
+      ? parseVariableStatement(parser, context | Context.BlockScope, shouldConsume)
+      : parseExpressionOrLabelledStatement(parser, context);
 }
 
 /**
