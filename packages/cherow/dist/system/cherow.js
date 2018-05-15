@@ -183,88 +183,89 @@ System.register([], function (exports, module) {
           [9 /* UnterminatedTemplate */]: 'Unterminated template literal',
           [10 /* UnexpectedChar */]: 'Invalid character \'%0\'',
           [11 /* StrictOctalEscape */]: 'Octal escapes are not allowed in strict mode',
-          [12 /* InvalidEightAndNine */]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
-          [13 /* UnicodeOutOfRange */]: 'Unicode escape code point out of range',
-          [14 /* DuplicateRegExpFlag */]: 'Duplicate regular expression flag \'%0\'',
-          [15 /* UnexpectedTokenRegExpFlag */]: 'Unexpected regular expression flag \'%0\'',
-          [16 /* StrictLHSAssignment */]: 'Eval or arguments can\'t be assigned to in strict mode code',
-          [17 /* IllegalReturn */]: 'Illegal return statement',
-          [18 /* StrictFunction */]: 'In strict mode code, functions can only be declared at top level or inside a block',
-          [19 /* SloppyFunction */]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
-          [20 /* ForbiddenAsStatement */]: '%0 can\'t appear in single-statement context',
-          [21 /* GeneratorInSingleStatementContext */]: 'Generators can only be declared at the top level or inside a block',
-          [22 /* ForAwaitNotOf */]: '\'for await\' loop should be used with \'of\'',
-          [23 /* DeclarationMissingInitializer */]: 'Missing initializer in %0 declaration',
-          [24 /* ForInOfLoopInitializer */]: '\'for-%0\' loop variable declaration may not have an initializer',
-          [25 /* ForInOfLoopMultiBindings */]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
-          [26 /* LetInLexicalBinding */]: 'let is disallowed as a lexically bound name',
-          [27 /* UnexpectedLexicalDeclaration */]: 'Lexical declaration cannot appear in a single-statement context',
-          [28 /* LabelRedeclaration */]: 'Label \'%0\' has already been declared',
-          [29 /* InvalidNestedStatement */]: '%0  statement must be nested within an iteration statement',
-          [30 /* IllegalContinue */]: 'Illegal continue statement: \'%0\' does not denote an iteration statement',
-          [31 /* UnknownLabel */]: 'Undefined label \'%0\'',
-          [32 /* MultipleDefaultsInSwitch */]: 'More than one default clause in switch statement',
-          [33 /* ImportExportDeclAtTopLevel */]: '%0 declarations may only appear at top level of a module',
-          [34 /* AsyncFunctionInSingleStatementContext */]: 'Async functions can only be declared at the top level or inside a block',
-          [35 /* InvalidLineBreak */]: 'No line break is allowed after \'%0\'',
-          [36 /* StrictModeWith */]: 'Strict mode code may not include a with statement',
-          [37 /* AwaitOutsideAsync */]: 'Await is only valid in async functions',
-          [38 /* UnNamedFunctionDecl */]: 'Function declaration must have a name in this context',
-          [39 /* DisallowedInContext */]: '\'%0\' may not be used as an identifier in this context',
-          [42 /* StrictDelete */]: 'Delete of an unqualified identifier in strict mode',
-          [43 /* DeletePrivateField */]: 'Private fields can not be deleted',
-          [40 /* PrivateFieldConstructor */]: 'Classes may not have a private field named \'#constructor\'',
-          [41 /* PublicFieldConstructor */]: 'Classes may not have a field named \'constructor\'',
-          [44 /* InvalidConstructor */]: 'Class constructor may not be a \'%0\'',
-          [45 /* UnexpectedReserved */]: 'Unexpected reserved word',
-          [46 /* StrictEvalArguments */]: 'Unexpected eval or arguments in strict mode',
-          [47 /* AwaitBindingIdentifier */]: '\'await\' is not a valid identifier inside an async function',
-          [48 /* YieldBindingIdentifier */]: '\'yield\' is not a valid identifier inside an generator function',
-          [49 /* UnexpectedStrictReserved */]: 'Unexpected strict mode reserved word',
-          [51 /* AwaitInParameter */]: 'Await expression not allowed in formal parameter',
-          [50 /* YieldInParameter */]: 'Yield expression not allowed in formal parameter',
-          [52 /* MetaNotInFunctionBody */]: 'new.target only allowed within functions',
-          [53 /* BadSuperCall */]: 'super() is not allowed in this context',
-          [54 /* UnexpectedSuper */]: 'Member access from super not allowed in this context',
-          [55 /* LoneSuper */]: 'Only "(" or "." or "[" are allowed after \'super\'',
-          [56 /* YieldReservedKeyword */]: '\'yield\' is a reserved keyword within generator function bodies',
-          [57 /* ContinuousNumericSeparator */]: 'Only one underscore is allowed as numeric separator',
-          [58 /* TrailingNumericSeparator */]: 'Numeric separators are not allowed at the end of numeric literals',
-          [59 /* ZeroDigitNumericSeparator */]: 'Numeric separator can not be used after leading 0.',
-          [60 /* StrictOctalLiteral */]: 'Legacy octal literals are not allowed in strict mode',
-          [61 /* InvalidLhsInAssignment */]: 'Invalid left-hand side in assignment',
-          [62 /* DuplicateProto */]: 'Property name __proto__ appears more than once in object literal',
-          [63 /* IllegalUseStrict */]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
-          [64 /* StaticPrototype */]: 'Classes may not have a static property named \'prototype\'',
-          [65 /* AccessorWrongArgs */]: '%0 functions must have %1 argument%2',
-          [66 /* BadSetterRestParameter */]: 'Setter function argument must not be a rest parameter',
-          [67 /* StrictLHSPrefixPostFix */]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
-          [68 /* InvalidElisonInObjPropList */]: 'Elision not allowed in object property list',
-          [69 /* ElementAfterRest */]: 'Rest element must be last element',
-          [71 /* ElementAfterSpread */]: 'Spread element must be last element',
-          [70 /* RestDefaultInitializer */]: 'Rest parameter may not have a default initializer',
-          [72 /* InvalidDestructuringTarget */]: 'Invalid destructuring assignment target',
-          [73 /* UnexpectedSurrogate */]: 'Unexpected surrogate pair',
-          [74 /* MalformedEscape */]: 'Malformed %0 character escape sequence',
-          [75 /* TemplateOctalLiteral */]: 'Template literals may not contain octal escape sequences',
-          [76 /* NotBindable */]: 'Invalid binding pattern',
-          [77 /* ParamAfterRest */]: 'Rest parameter must be last formal parameter',
-          [78 /* NoCatchOrFinally */]: 'Missing catch or finally after try',
-          [79 /* NewlineAfterThrow */]: 'Illegal newline after throw',
-          [80 /* ParamDupe */]: 'Duplicate parameter name not allowed in this context',
-          [81 /* AsAfterImportStart */]: 'Missing keyword \'as\' after import *',
-          [82 /* LabelNoColon */]: 'Labels must be followed by a \':\'',
-          [83 /* NonEmptyJSXExpression */]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
-          [84 /* ExpectedJSXClosingTag */]: 'Expected corresponding JSX closing tag for %0',
-          [85 /* AdjacentJSXElements */]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
-          [86 /* InvalidJSXAttributeValue */]: 'Invalid JSX attribute value',
-          [87 /* RestWithComma */]: 'Rest element may not have a trailing comma',
-          [88 /* UndefinedUnicodeCodePoint */]: 'Undefined Unicode code-point',
-          [89 /* HtmlCommentInModule */]: 'HTML comments are not allowed in modules',
-          [90 /* InvalidCoverInitializedName */]: 'Invalid shorthand property initializer',
-          [91 /* TrailingDecorators */]: 'Trailing decorator may be followed by method',
-          [92 /* GeneratorConstructor */]: 'Decorators can\'t be used with a constructor',
-          [93 /* InvalidRestBindingPattern */]: '`...` must be followed by an identifier in declaration contexts',
+          [13 /* InvalidEightAndNine */]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+          [14 /* UnicodeOutOfRange */]: 'Unicode escape code point out of range',
+          [15 /* DuplicateRegExpFlag */]: 'Duplicate regular expression flag \'%0\'',
+          [16 /* UnexpectedTokenRegExpFlag */]: 'Unexpected regular expression flag \'%0\'',
+          [17 /* StrictLHSAssignment */]: 'Eval or arguments can\'t be assigned to in strict mode code',
+          [18 /* IllegalReturn */]: 'Illegal return statement',
+          [19 /* StrictFunction */]: 'In strict mode code, functions can only be declared at top level or inside a block',
+          [20 /* SloppyFunction */]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+          [21 /* ForbiddenAsStatement */]: '%0 can\'t appear in single-statement context',
+          [22 /* GeneratorInSingleStatementContext */]: 'Generators can only be declared at the top level or inside a block',
+          [23 /* ForAwaitNotOf */]: '\'for await\' loop should be used with \'of\'',
+          [24 /* DeclarationMissingInitializer */]: 'Missing initializer in %0 declaration',
+          [25 /* ForInOfLoopInitializer */]: '\'for-%0\' loop variable declaration may not have an initializer',
+          [26 /* ForInOfLoopMultiBindings */]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+          [27 /* LetInLexicalBinding */]: 'let is disallowed as a lexically bound name',
+          [28 /* UnexpectedLexicalDeclaration */]: 'Lexical declaration cannot appear in a single-statement context',
+          [29 /* LabelRedeclaration */]: 'Label \'%0\' has already been declared',
+          [30 /* InvalidNestedStatement */]: '%0  statement must be nested within an iteration statement',
+          [31 /* IllegalContinue */]: 'Illegal continue statement: \'%0\' does not denote an iteration statement',
+          [32 /* UnknownLabel */]: 'Undefined label \'%0\'',
+          [33 /* MultipleDefaultsInSwitch */]: 'More than one default clause in switch statement',
+          [34 /* ImportExportDeclAtTopLevel */]: '%0 declarations may only appear at top level of a module',
+          [35 /* AsyncFunctionInSingleStatementContext */]: 'Async functions can only be declared at the top level or inside a block',
+          [36 /* InvalidLineBreak */]: 'No line break is allowed after \'%0\'',
+          [37 /* StrictModeWith */]: 'Strict mode code may not include a with statement',
+          [38 /* AwaitOutsideAsync */]: 'Await is only valid in async functions',
+          [39 /* UnNamedFunctionDecl */]: 'Function declaration must have a name in this context',
+          [12 /* DuplicateConstructor */]: 'Duplicate constructor method in class',
+          [40 /* DisallowedInContext */]: '\'%0\' may not be used as an identifier in this context',
+          [43 /* StrictDelete */]: 'Delete of an unqualified identifier in strict mode',
+          [44 /* DeletePrivateField */]: 'Private fields can not be deleted',
+          [41 /* PrivateFieldConstructor */]: 'Classes may not have a private field named \'#constructor\'',
+          [42 /* PublicFieldConstructor */]: 'Classes may not have a field named \'constructor\'',
+          [45 /* InvalidConstructor */]: 'Class constructor may not be a \'%0\'',
+          [46 /* UnexpectedReserved */]: 'Unexpected reserved word',
+          [47 /* StrictEvalArguments */]: 'Unexpected eval or arguments in strict mode',
+          [48 /* AwaitBindingIdentifier */]: '\'await\' is not a valid identifier inside an async function',
+          [49 /* YieldBindingIdentifier */]: '\'yield\' is not a valid identifier inside an generator function',
+          [50 /* UnexpectedStrictReserved */]: 'Unexpected strict mode reserved word',
+          [52 /* AwaitInParameter */]: 'Await expression not allowed in formal parameter',
+          [51 /* YieldInParameter */]: 'Yield expression not allowed in formal parameter',
+          [53 /* MetaNotInFunctionBody */]: 'new.target only allowed within functions',
+          [54 /* BadSuperCall */]: 'super() is not allowed in this context',
+          [55 /* UnexpectedSuper */]: 'Member access from super not allowed in this context',
+          [56 /* LoneSuper */]: 'Only "(" or "." or "[" are allowed after \'super\'',
+          [57 /* YieldReservedKeyword */]: '\'yield\' is a reserved keyword within generator function bodies',
+          [58 /* ContinuousNumericSeparator */]: 'Only one underscore is allowed as numeric separator',
+          [59 /* TrailingNumericSeparator */]: 'Numeric separators are not allowed at the end of numeric literals',
+          [60 /* ZeroDigitNumericSeparator */]: 'Numeric separator can not be used after leading 0.',
+          [61 /* StrictOctalLiteral */]: 'Legacy octal literals are not allowed in strict mode',
+          [62 /* InvalidLhsInAssignment */]: 'Invalid left-hand side in assignment',
+          [63 /* DuplicateProto */]: 'Property name __proto__ appears more than once in object literal',
+          [64 /* IllegalUseStrict */]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
+          [65 /* StaticPrototype */]: 'Classes may not have a static property named \'prototype\'',
+          [66 /* AccessorWrongArgs */]: '%0 functions must have %1 argument%2',
+          [67 /* BadSetterRestParameter */]: 'Setter function argument must not be a rest parameter',
+          [68 /* StrictLHSPrefixPostFix */]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
+          [69 /* InvalidElisonInObjPropList */]: 'Elision not allowed in object property list',
+          [70 /* ElementAfterRest */]: 'Rest element must be last element',
+          [72 /* ElementAfterSpread */]: 'Spread element must be last element',
+          [71 /* RestDefaultInitializer */]: 'Rest parameter may not have a default initializer',
+          [73 /* InvalidDestructuringTarget */]: 'Invalid destructuring assignment target',
+          [74 /* UnexpectedSurrogate */]: 'Unexpected surrogate pair',
+          [75 /* MalformedEscape */]: 'Malformed %0 character escape sequence',
+          [76 /* TemplateOctalLiteral */]: 'Template literals may not contain octal escape sequences',
+          [77 /* NotBindable */]: 'Invalid binding pattern',
+          [78 /* ParamAfterRest */]: 'Rest parameter must be last formal parameter',
+          [79 /* NoCatchOrFinally */]: 'Missing catch or finally after try',
+          [80 /* NewlineAfterThrow */]: 'Illegal newline after throw',
+          [81 /* ParamDupe */]: 'Duplicate parameter name not allowed in this context',
+          [82 /* AsAfterImportStart */]: 'Missing keyword \'as\' after import *',
+          [83 /* LabelNoColon */]: 'Labels must be followed by a \':\'',
+          [84 /* NonEmptyJSXExpression */]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
+          [85 /* ExpectedJSXClosingTag */]: 'Expected corresponding JSX closing tag for %0',
+          [86 /* AdjacentJSXElements */]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
+          [87 /* InvalidJSXAttributeValue */]: 'Invalid JSX attribute value',
+          [88 /* RestWithComma */]: 'Rest element may not have a trailing comma',
+          [89 /* UndefinedUnicodeCodePoint */]: 'Undefined Unicode code-point',
+          [90 /* HtmlCommentInModule */]: 'HTML comments are not allowed in modules',
+          [91 /* InvalidCoverInitializedName */]: 'Invalid shorthand property initializer',
+          [92 /* TrailingDecorators */]: 'Trailing decorator may be followed by method',
+          [93 /* GeneratorConstructor */]: 'Decorators can\'t be used with a constructor',
+          [94 /* InvalidRestBindingPattern */]: '`...` must be followed by an identifier in declaration contexts',
       });
       /**
        * Collect line, index, and colum from either the recorded error
@@ -914,14 +915,14 @@ System.register([], function (exports, module) {
                   return;
               case -2 /* StrictOctal */:
                   report(parser, context & 16384 /* TaggedTemplate */ ?
-                      75 /* TemplateOctalLiteral */ :
+                      76 /* TemplateOctalLiteral */ :
                       11 /* StrictOctalEscape */);
               case -3 /* EightOrNine */:
-                  report(parser, 12 /* InvalidEightAndNine */);
+                  report(parser, 13 /* InvalidEightAndNine */);
               case -4 /* InvalidHex */:
-                  report(parser, 74 /* MalformedEscape */, 'hexadecimal');
+                  report(parser, 75 /* MalformedEscape */, 'hexadecimal');
               case -5 /* OutOfRange */:
-                  report(parser, 13 /* UnicodeOutOfRange */);
+                  report(parser, 14 /* UnicodeOutOfRange */);
               /* istanbul ignore next */
               default:
               // ignore
@@ -1126,7 +1127,7 @@ System.register([], function (exports, module) {
               parser.column++;
           }
           if (state & 1 /* SeenSeparator */)
-              report(parser, 58 /* TrailingNumericSeparator */);
+              report(parser, 59 /* TrailingNumericSeparator */);
           return assembleNumericLiteral(parser, context, value, consumeOpt(parser, 110 /* LowerN */));
       }
       /**
@@ -1163,7 +1164,7 @@ System.register([], function (exports, module) {
           if (digits === 0)
               report(parser, 0 /* Unexpected */);
           if (state & 1 /* SeenSeparator */)
-              report(parser, 58 /* TrailingNumericSeparator */);
+              report(parser, 59 /* TrailingNumericSeparator */);
           return assembleNumericLiteral(parser, context, value, consumeOpt(parser, 110 /* LowerN */));
       }
       /**
@@ -1196,7 +1197,7 @@ System.register([], function (exports, module) {
                       while (index < parser.length) {
                           const next = parser.source.charCodeAt(index);
                           if (next === 95 /* Underscore */) {
-                              report(parser, 59 /* ZeroDigitNumericSeparator */);
+                              report(parser, 60 /* ZeroDigitNumericSeparator */);
                           }
                           else if (next < 48 /* Zero */ || next > 55 /* Seven */) {
                               return scanNumericLiteral(parser, context);
@@ -1216,7 +1217,7 @@ System.register([], function (exports, module) {
                   parser.flags |= 128 /* HasOctal */;
               default:
                   if (context & 1 /* OptionsNext */ && parser.source.charCodeAt(parser.index) === 95 /* Underscore */) {
-                      report(parser, 59 /* ZeroDigitNumericSeparator */);
+                      report(parser, 60 /* ZeroDigitNumericSeparator */);
                   }
                   return scanNumericLiteral(parser, context);
           }
@@ -1262,7 +1263,7 @@ System.register([], function (exports, module) {
           }
           if (consumeOpt(parser, 46 /* Period */)) {
               if (context & 1 /* OptionsNext */ && parser.source.charCodeAt(parser.index) === 95 /* Underscore */) {
-                  report(parser, 59 /* ZeroDigitNumericSeparator */);
+                  report(parser, 60 /* ZeroDigitNumericSeparator */);
               }
               state |= 4 /* Float */;
               value = `${value}.${scanDecimalDigitsOrSeparator(parser)}`;
@@ -1293,7 +1294,7 @@ System.register([], function (exports, module) {
           parser.index++;
           parser.column++;
           if (state & 1 /* SeenSeparator */)
-              report(parser, 58 /* TrailingNumericSeparator */);
+              report(parser, 59 /* TrailingNumericSeparator */);
           state |= 1 /* SeenSeparator */;
           return state;
       }
@@ -1334,7 +1335,7 @@ System.register([], function (exports, module) {
               }
           }
           if (state & 1 /* SeenSeparator */)
-              report(parser, 58 /* TrailingNumericSeparator */);
+              report(parser, 59 /* TrailingNumericSeparator */);
           return ret + parser.source.substring(start, parser.index);
       }
       /**
@@ -1360,7 +1361,7 @@ System.register([], function (exports, module) {
               next = parser.source.charCodeAt(parser.index);
           }
           if (state & 1 /* SeenSeparator */)
-              report(parser, 58 /* TrailingNumericSeparator */);
+              report(parser, 59 /* TrailingNumericSeparator */);
           return value;
       }
       /**
@@ -1469,10 +1470,10 @@ System.register([], function (exports, module) {
               parser.column += 2;
               const code = scanIdentifierUnicodeEscape(parser);
               if (code >= 55296 /* LeadSurrogateMin */ && code <= 56319 /* LeadSurrogateMax */) {
-                  report(parser, 73 /* UnexpectedSurrogate */);
+                  report(parser, 74 /* UnexpectedSurrogate */);
               }
               if (!isIdentifierPart(code)) {
-                  report(parser, 74 /* MalformedEscape */, 'unicode');
+                  report(parser, 75 /* MalformedEscape */, 'unicode');
               }
               return fromCodePoint(code);
           }
@@ -1496,14 +1497,14 @@ System.register([], function (exports, module) {
               while (digit >= 0) {
                   codePoint = (codePoint << 4) | digit;
                   if (codePoint > 1114111 /* NonBMPMax */) {
-                      report(parser, 88 /* UndefinedUnicodeCodePoint */);
+                      report(parser, 89 /* UndefinedUnicodeCodePoint */);
                   }
                   parser.index++;
                   parser.column++;
                   digit = toHex(parser.source.charCodeAt(parser.index));
               }
               if (parser.source.charCodeAt(parser.index) !== 125 /* RightBrace */) {
-                  report(parser, 74 /* MalformedEscape */, 'unicode');
+                  report(parser, 75 /* MalformedEscape */, 'unicode');
               }
               consumeOpt(parser, 125 /* RightBrace */);
               // '\uDDDD'
@@ -1513,7 +1514,7 @@ System.register([], function (exports, module) {
                   ch = parser.source.charCodeAt(parser.index);
                   const digit = toHex(ch);
                   if (digit < 0)
-                      report(parser, 74 /* MalformedEscape */, 'unicode');
+                      report(parser, 75 /* MalformedEscape */, 'unicode');
                   codePoint = (codePoint << 4) | digit;
                   parser.index++;
                   parser.column++;
@@ -1533,7 +1534,7 @@ System.register([], function (exports, module) {
        */
       function skipSingleHTMLComment(parser, context, state, type) {
           if (context & 8192 /* Module */)
-              report(parser, 89 /* HtmlCommentInModule */);
+              report(parser, 90 /* HtmlCommentInModule */);
           return skipSingleLineComment(parser, context, state, type);
       }
       /**
@@ -2194,9 +2195,9 @@ System.register([], function (exports, module) {
       function validateBreakOrContinueLabel(parser, context, label, isContinue) {
           const state = hasLabel(parser, label);
           if (!state)
-              tolerant(parser, context, 31 /* UnknownLabel */, label);
+              tolerant(parser, context, 32 /* UnknownLabel */, label);
           if (isContinue && !(state & 2 /* Nested */))
-              tolerant(parser, context, 30 /* IllegalContinue */, label);
+              tolerant(parser, context, 31 /* IllegalContinue */, label);
       }
       /**
        * Add label to the stack
@@ -2307,7 +2308,7 @@ System.register([], function (exports, module) {
       function consumeSemicolon(parser, context) {
           return parser.token & 1048576 /* ASI */ || parser.flags & 1 /* NewLine */
               ? consume(parser, context, 17825809 /* Semicolon */)
-              : report(parser, !(context & 131072 /* Async */) && parser.token & 262144 /* IsAwait */ ? 37 /* AwaitOutsideAsync */ : 1 /* UnexpectedToken */, tokenDesc(parser.token));
+              : report(parser, !(context & 131072 /* Async */) && parser.token & 262144 /* IsAwait */ ? 38 /* AwaitOutsideAsync */ : 1 /* UnexpectedToken */, tokenDesc(parser.token));
       }
       /**
        * Bit fiddle current grammar state and keep track of the state during the parse and restore
@@ -2414,7 +2415,7 @@ System.register([], function (exports, module) {
           for (let i = 0; i < params.length; i++) {
               const key = `@${params[i]}`;
               if (paramSet.get(key)) {
-                  tolerant(parser, context, 80 /* ParamDupe */);
+                  tolerant(parser, context, 81 /* ParamDupe */);
               }
               else
                   paramSet.set(key, true);
@@ -2431,6 +2432,8 @@ System.register([], function (exports, module) {
       const reinterpret = exports('reinterpret', (parser, context, node) => {
           switch (node.type) {
               case 'Identifier':
+                  if (context & 4096 /* Strict */ && nameIsArgumentsOrEval(node.name))
+                      report(parser, 3 /* InvalidEscapedReservedWord */);
               case 'ArrayPattern':
               case 'AssignmentPattern':
               case 'ObjectPattern':
@@ -2460,7 +2463,7 @@ System.register([], function (exports, module) {
                   if (node.argument.type !== 'ArrayExpression' &&
                       node.argument.type !== 'ObjectExpression' &&
                       !isValidSimpleAssignmentTarget(node.argument)) {
-                      tolerant(parser, context, 70 /* RestDefaultInitializer */);
+                      tolerant(parser, context, 71 /* RestDefaultInitializer */);
                   }
                   reinterpret(parser, context, node.argument);
                   break;
@@ -2474,7 +2477,7 @@ System.register([], function (exports, module) {
                       return;
               // Fall through
               default:
-                  tolerant(parser, context, context & 524288 /* InParameter */ ? 76 /* NotBindable */ : 72 /* InvalidDestructuringTarget */, node.type);
+                  tolerant(parser, context, context & 524288 /* InParameter */ ? 77 /* NotBindable */ : 73 /* InvalidDestructuringTarget */, node.type);
           }
       });
       /**
@@ -2485,7 +2488,7 @@ System.register([], function (exports, module) {
        * @param callback Callback function to be invoked
        */
       function lookahead(parser, context, callback) {
-          const { tokenValue, flags, line, column, startColumn, index, lastColumn, startLine, lastLine, lastIndex, startIndex, tokenRaw, token, lastValue, tokenRegExp } = parser;
+          const { tokenValue, flags, line, column, startColumn, index, lastColumn, startLine, lastLine, lastIndex, startIndex, tokenRaw, token, lastValue, tokenRegExp, labelSet, errors, errorLocation, pendingExpressionError } = parser;
           const res = callback(parser, context);
           parser.index = index;
           parser.token = token;
@@ -2503,6 +2506,11 @@ System.register([], function (exports, module) {
           parser.lastIndex = lastIndex;
           parser.startIndex = startIndex;
           parser.tokenRegExp = tokenRegExp;
+          parser.labelSet = labelSet;
+          parser.errors = errors;
+          parser.errorLocation = errorLocation;
+          parser.tokenRegExp = tokenRegExp;
+          parser.pendingExpressionError = pendingExpressionError;
           return res;
       }
       /**
@@ -2626,18 +2634,18 @@ System.register([], function (exports, module) {
           const { token, tokenValue: name } = parser;
           if (context & 4096 /* Strict */) {
               if (context & 8192 /* Module */ && token & 262144 /* IsAwait */)
-                  tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
+                  tolerant(parser, context, 40 /* DisallowedInContext */, tokenDesc(parser.token));
               if (token & 1073741824 /* IsYield */)
-                  tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
+                  tolerant(parser, context, 40 /* DisallowedInContext */, tokenDesc(parser.token));
               if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ || (token & 69632 /* Contextual */) === 69632 /* Contextual */) {
                   return parseIdentifier(parser, context);
               }
               report(parser, 1 /* UnexpectedToken */, tokenDesc(parser.token));
           }
           if (context & 262144 /* Yield */ && token & 1073741824 /* IsYield */)
-              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
+              tolerant(parser, context, 40 /* DisallowedInContext */, tokenDesc(parser.token));
           if (context & 131072 /* Async */ && token & 262144 /* IsAwait */)
-              tolerant(parser, context, 39 /* DisallowedInContext */, tokenDesc(parser.token));
+              tolerant(parser, context, 40 /* DisallowedInContext */, tokenDesc(parser.token));
           if ((token & 131072 /* IsIdentifier */) === 131072 /* IsIdentifier */ ||
               (token & 69632 /* Contextual */) === 69632 /* Contextual */ ||
               (token & 20480 /* FutureReserved */) === 20480 /* FutureReserved */) {
@@ -2695,7 +2703,7 @@ System.register([], function (exports, module) {
        */
       function validateUpdateExpression(parser, context, expr, prefix) {
           if (context & 4096 /* Strict */ && nameIsArgumentsOrEval(expr.name)) {
-              tolerant(parser, context, 67 /* StrictLHSPrefixPostFix */, prefix);
+              tolerant(parser, context, 68 /* StrictLHSPrefixPostFix */, prefix);
           }
           if (!isValidSimpleAssignmentTarget(expr)) {
               tolerant(parser, context, 5 /* InvalidLHSInAssignment */);
@@ -2751,7 +2759,7 @@ System.register([], function (exports, module) {
       function validateAsyncArgumentList(parser, context, state) {
           const { token } = parser;
           if (!(parser.flags & 2 /* AllowBinding */)) {
-              tolerant(parser, context, 76 /* NotBindable */);
+              tolerant(parser, context, 77 /* NotBindable */);
           }
           else if (token & 8388608 /* IsBindingPattern */) {
               parser.flags |= 8 /* SimpleParameterList */;
@@ -3348,7 +3356,7 @@ System.register([], function (exports, module) {
           //    yield [no LineTerminator here] * AssignmentExpression[?In, Yield]
           // https://tc39.github.io/ecma262/#sec-generator-function-definitions-static-semantics-early-errors
           if (context & 524288 /* InParameter */)
-              tolerant(parser, context, 50 /* YieldInParameter */);
+              tolerant(parser, context, 51 /* YieldInParameter */);
           expect(parser, context, 1107316842 /* YieldKeyword */);
           let argument = null;
           let delegate = false;
@@ -3407,7 +3415,7 @@ System.register([], function (exports, module) {
                       }
                       if (token & 4194304 /* IsEvalOrArguments */) {
                           if (context & 4096 /* Strict */)
-                              tolerant(parser, context, 46 /* StrictEvalArguments */);
+                              tolerant(parser, context, 47 /* StrictEvalArguments */);
                           parser.flags |= 2048 /* StrictEvalArguments */;
                       }
                   }
@@ -3418,11 +3426,11 @@ System.register([], function (exports, module) {
           if (hasBit(parser.token, 67108864 /* IsAssignOp */)) {
               token = parser.token;
               if (context & 4096 /* Strict */ && nameIsArgumentsOrEval(expr.name)) {
-                  tolerant(parser, context, 16 /* StrictLHSAssignment */);
+                  tolerant(parser, context, 17 /* StrictLHSAssignment */);
               }
               else if (consume(parser, context, 83886109 /* Assign */)) {
                   if (!(parser.flags & 4 /* AllowDestructuring */)) {
-                      tolerant(parser, context, 72 /* InvalidDestructuringTarget */);
+                      tolerant(parser, context, 73 /* InvalidDestructuringTarget */);
                   }
                   // Only re-interpret if not inside a formal parameter list
                   if (!(context & 524288 /* InParameter */))
@@ -3532,7 +3540,7 @@ System.register([], function (exports, module) {
        */
       function parseAwaitExpression(parser, context, pos) {
           if (context & 524288 /* InParameter */)
-              tolerant(parser, context, 51 /* AwaitInParameter */);
+              tolerant(parser, context, 52 /* AwaitInParameter */);
           expect(parser, context, 34017389 /* AwaitKeyword */);
           return finishNode(context, parser, pos, {
               type: 'AwaitExpression',
@@ -3561,10 +3569,10 @@ System.register([], function (exports, module) {
               }
               if (context & 4096 /* Strict */ && token === 302002219 /* DeleteKeyword */) {
                   if (argument.type === 'Identifier') {
-                      tolerant(parser, context, 42 /* StrictDelete */);
+                      tolerant(parser, context, 43 /* StrictDelete */);
                   }
                   else if (isPropertyWithPrivateFieldKey(argument)) {
-                      tolerant(parser, context, 43 /* DeletePrivateField */);
+                      tolerant(parser, context, 44 /* DeletePrivateField */);
                   }
               }
               return finishNode(context, parser, pos, {
@@ -3765,11 +3773,11 @@ System.register([], function (exports, module) {
           // - J.K. Thomas
           if (parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
               if (parser.token & 262144 /* IsAwait */)
-                  tolerant(parser, context, 39 /* DisallowedInContext */);
+                  tolerant(parser, context, 40 /* DisallowedInContext */);
               return parseAsyncArrowFunction(parser, context, 2 /* Await */, pos, [parseAndClassifyIdentifier(parser, context)]);
           }
           if (parser.flags & 1 /* NewLine */)
-              tolerant(parser, context, 35 /* InvalidLineBreak */, 'async');
+              tolerant(parser, context, 36 /* InvalidLineBreak */, 'async');
           while (parser.token === 50331659 /* LeftParen */) {
               expr = parseMemberExpression(parser, context, pos, expr);
               const args = parseAsyncArgumentList(parser, context);
@@ -3860,23 +3868,23 @@ System.register([], function (exports, module) {
           expect(parser, context, 16 /* RightParen */);
           if (parser.token === 10 /* Arrow */) {
               if (state & 1 /* SeenSpread */) {
-                  tolerant(parser, context, 77 /* ParamAfterRest */);
+                  tolerant(parser, context, 78 /* ParamAfterRest */);
               }
               else if (state & 8 /* EvalOrArguments */) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   parser.flags |= 2048 /* StrictEvalArguments */;
               }
               else if (state & 16 /* Yield */) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 50 /* YieldInParameter */);
+                      tolerant(parser, context, 51 /* YieldInParameter */);
                   parser.flags |= 64 /* HasStrictReserved */;
               }
               else if (parser.flags & 16384 /* HasYield */) {
-                  tolerant(parser, context, 50 /* YieldInParameter */);
+                  tolerant(parser, context, 51 /* YieldInParameter */);
               }
               else if (state & 32 /* Await */ || parser.flags & 8192 /* HasAwait */) {
-                  tolerant(parser, context, 51 /* AwaitInParameter */);
+                  tolerant(parser, context, 52 /* AwaitInParameter */);
               }
           }
           return args;
@@ -3966,7 +3974,7 @@ System.register([], function (exports, module) {
        */
       function parseLetAsIdentifier(parser, context) {
           if (context & 4096 /* Strict */)
-              tolerant(parser, context, 49 /* UnexpectedStrictReserved */);
+              tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
           const pos = getLocation(parser);
           const name = parser.tokenValue;
           nextToken(parser, context);
@@ -4047,7 +4055,7 @@ System.register([], function (exports, module) {
           const pos = getLocation(parser);
           const value = parser.tokenValue;
           if (context & 4096 /* Strict */ && parser.flags & 128 /* HasOctal */) {
-              tolerant(parser, context, 60 /* StrictOctalLiteral */);
+              tolerant(parser, context, 61 /* StrictOctalLiteral */);
           }
           nextToken(parser, context);
           const node = finishNode(context, parser, pos, {
@@ -4239,12 +4247,12 @@ System.register([], function (exports, module) {
               while (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777234 /* Comma */)) {
                   if (parser.token === 14 /* Ellipsis */) {
                       if (!(parser.flags & 2 /* AllowBinding */))
-                          tolerant(parser, context, 76 /* NotBindable */);
+                          tolerant(parser, context, 77 /* NotBindable */);
                       parser.flags |= 8 /* SimpleParameterList */;
                       const restElement = parseRestElement(parser, context);
                       expect(parser, context, 16 /* RightParen */);
                       if (parser.token !== 10 /* Arrow */)
-                          tolerant(parser, context, 77 /* ParamAfterRest */);
+                          tolerant(parser, context, 78 /* ParamAfterRest */);
                       expressions.push(restElement);
                       return expressions;
                   }
@@ -4267,22 +4275,22 @@ System.register([], function (exports, module) {
           if (parser.token === 10 /* Arrow */) {
               if (state & 2 /* HasEvalOrArguments */) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   parser.flags |= 2048 /* StrictEvalArguments */;
               }
               else if (state & 4 /* HasReservedWords */) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 49 /* UnexpectedStrictReserved */);
+                      tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
                   parser.flags |= 64 /* HasStrictReserved */;
               }
               else if (!(parser.flags & 2 /* AllowBinding */)) {
-                  tolerant(parser, context, 76 /* NotBindable */);
+                  tolerant(parser, context, 77 /* NotBindable */);
               }
               else if (parser.flags & 16384 /* HasYield */) {
-                  tolerant(parser, context, 50 /* YieldInParameter */);
+                  tolerant(parser, context, 51 /* YieldInParameter */);
               }
               else if (context & 131072 /* Async */ && parser.flags & 8192 /* HasAwait */) {
-                  tolerant(parser, context, 51 /* AwaitInParameter */);
+                  tolerant(parser, context, 52 /* AwaitInParameter */);
               }
               parser.flags &= ~(2 /* AllowBinding */ | 8192 /* HasAwait */ | 16384 /* HasYield */);
               return (state & 1 /* SequenceExpression */ ? expr.expressions : [expr]);
@@ -4309,11 +4317,11 @@ System.register([], function (exports, module) {
           if (token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
               if (token & 4194304 /* IsEvalOrArguments */) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   parser.flags |= 2048 /* StrictEvalArguments */;
               }
               if (parser.token & 1073741824 /* IsYield */ && isGenerator & 1 /* Generator */) {
-                  tolerant(parser, context, 48 /* YieldBindingIdentifier */);
+                  tolerant(parser, context, 49 /* YieldBindingIdentifier */);
               }
               id = parseBindingIdentifier(parser, context);
           }
@@ -4347,13 +4355,13 @@ System.register([], function (exports, module) {
           if (token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
               if (token & 4194304 /* IsEvalOrArguments */) {
                   if (context & 4096 /* Strict */ || isAwait & 2 /* Await */)
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   parser.flags |= 1024 /* StrictFunctionName */;
               }
               if (token & 262144 /* IsAwait */)
-                  tolerant(parser, context, 47 /* AwaitBindingIdentifier */);
+                  tolerant(parser, context, 48 /* AwaitBindingIdentifier */);
               if (parser.token & 1073741824 /* IsYield */ && isGenerator & 1 /* Generator */)
-                  tolerant(parser, context, 48 /* YieldBindingIdentifier */);
+                  tolerant(parser, context, 49 /* YieldBindingIdentifier */);
               id = parseBindingIdentifier(parser, context);
           }
           const { params, body } = swapContext(parser, context & ~(33554432 /* Method */ | 67108864 /* AllowSuperProperty */), isGenerator | isAwait, parseFormalListAndBody);
@@ -4494,7 +4502,7 @@ System.register([], function (exports, module) {
                       if (parser.flags & 512 /* HasProtoField */) {
                           // Record the error and put it on hold until we've determined
                           // whether or not we're destructuring
-                          setPendingExpressionError(parser, 62 /* DuplicateProto */);
+                          setPendingExpressionError(parser, 63 /* DuplicateProto */);
                       }
                       else
                           parser.flags |= 512 /* HasProtoField */;
@@ -4515,7 +4523,11 @@ System.register([], function (exports, module) {
                   }
                   state |= 64 /* Shorthand */;
                   if (parser.token === 83886109 /* Assign */) {
-                      setPendingExpressionError(parser, 90 /* InvalidCoverInitializedName */);
+                      if (context & 4096 /* Strict */ && t & 4194304 /* IsEvalOrArguments */) {
+                          report(parser, 47 /* StrictEvalArguments */);
+                      }
+                      else
+                          setPendingExpressionError(parser, 91 /* InvalidCoverInitializedName */);
                       expect(parser, context, 83886109 /* Assign */);
                       if (context & (4096 /* Strict */ | 262144 /* Yield */ | 131072 /* Async */) && parser.token & (1073741824 /* IsYield */ | 262144 /* IsAwait */)) {
                           setPendingError(parser);
@@ -4526,7 +4538,7 @@ System.register([], function (exports, module) {
                   else {
                       if (t & 262144 /* IsAwait */) {
                           if (context & 131072 /* Async */)
-                              tolerant(parser, context, 45 /* UnexpectedReserved */);
+                              tolerant(parser, context, 46 /* UnexpectedReserved */);
                           setPendingError(parser);
                           parser.flags |= 8192 /* HasAwait */;
                       }
@@ -4578,7 +4590,7 @@ System.register([], function (exports, module) {
       function parseArrowFunction(parser, context, pos, params) {
           parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
           if (parser.flags & 1 /* NewLine */)
-              tolerant(parser, context, 35 /* InvalidLineBreak */, '=>');
+              tolerant(parser, context, 36 /* InvalidLineBreak */, '=>');
           expect(parser, context, 10 /* Arrow */);
           return parseArrowBody(parser, context & ~131072 /* Async */, params, pos, 0 /* None */);
       }
@@ -4593,7 +4605,7 @@ System.register([], function (exports, module) {
       function parseAsyncArrowFunction(parser, context, state, pos, params) {
           parser.flags &= ~(4 /* AllowDestructuring */ | 2 /* AllowBinding */);
           if (parser.flags & 1 /* NewLine */)
-              tolerant(parser, context, 35 /* InvalidLineBreak */, 'async');
+              tolerant(parser, context, 36 /* InvalidLineBreak */, 'async');
           expect(parser, context, 10 /* Arrow */);
           return parseArrowBody(parser, context | 131072 /* Async */, params, pos, state);
       }
@@ -4655,31 +4667,31 @@ System.register([], function (exports, module) {
           const pos = getLocation(parser);
           expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 41943052 /* LeftBrace */);
           const body = [];
-          const { labelSet } = parser;
-          parser.labelSet = {};
-          const savedFlags = parser.flags;
-          parser.flags = parser.flags & ~(1024 /* StrictFunctionName */ | 2048 /* StrictEvalArguments */ | 16 /* InSwitchStatement */ | 32 /* InIterationStatement */) | 4 /* AllowDestructuring */;
           while (parser.token === 33554435 /* StringLiteral */) {
               const { tokenRaw, tokenValue } = parser;
               body.push(parseDirective(parser, context));
               if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
                   if (parser.flags & 8 /* SimpleParameterList */) {
-                      tolerant(parser, context, 63 /* IllegalUseStrict */);
+                      tolerant(parser, context, 64 /* IllegalUseStrict */);
                   }
                   else if (parser.flags & (64 /* HasStrictReserved */ | 1024 /* StrictFunctionName */)) {
-                      tolerant(parser, context, 49 /* UnexpectedStrictReserved */);
+                      tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
                   }
                   else if (parser.flags & 2048 /* StrictEvalArguments */) {
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   }
                   context |= 4096 /* Strict */;
               }
           }
-          while (parser.token !== 17825807 /* RightBrace */) {
-              body.push(parseStatementListItem(parser, context));
-          }
           if (context & 4096 /* Strict */) {
               validateParams(parser, context, params);
+          }
+          const { labelSet } = parser;
+          parser.labelSet = {};
+          const savedFlags = parser.flags;
+          parser.flags = parser.flags & ~(1024 /* StrictFunctionName */ | 2048 /* StrictEvalArguments */ | 16 /* InSwitchStatement */ | 32 /* InIterationStatement */) | 4 /* AllowDestructuring */;
+          while (parser.token !== 17825807 /* RightBrace */) {
+              body.push(parseStatementListItem(parser, context));
           }
           if (savedFlags & 32 /* InIterationStatement */)
               parser.flags |= 32 /* InIterationStatement */;
@@ -4728,7 +4740,7 @@ System.register([], function (exports, module) {
           while (parser.token !== 16 /* RightParen */) {
               if (parser.token === 14 /* Ellipsis */) {
                   if (state & 8 /* Setter */)
-                      tolerant(parser, context, 66 /* BadSetterRestParameter */);
+                      tolerant(parser, context, 67 /* BadSetterRestParameter */);
                   parser.flags |= 8 /* SimpleParameterList */;
                   params.push(parseRestElement(parser, context, args));
                   break;
@@ -4740,10 +4752,10 @@ System.register([], function (exports, module) {
                   break;
           }
           if (state & 8 /* Setter */ && params.length !== 1) {
-              tolerant(parser, context, 65 /* AccessorWrongArgs */, 'Setter', 'one', '');
+              tolerant(parser, context, 66 /* AccessorWrongArgs */, 'Setter', 'one', '');
           }
           if (state & 4 /* Getter */ && params.length > 0) {
-              tolerant(parser, context, 65 /* AccessorWrongArgs */, 'Getter', 'no', 's');
+              tolerant(parser, context, 66 /* AccessorWrongArgs */, 'Getter', 'no', 's');
           }
           expect(parser, context, 16 /* RightParen */);
           return { params, args };
@@ -4761,12 +4773,12 @@ System.register([], function (exports, module) {
           if (parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
               if (hasBit(parser.token, 20480 /* FutureReserved */)) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 49 /* UnexpectedStrictReserved */);
+                      tolerant(parser, context, 50 /* UnexpectedStrictReserved */);
                   parser.flags |= 1024 /* StrictFunctionName */;
               }
               if (hasBit(parser.token, 4194304 /* IsEvalOrArguments */)) {
                   if (context & 4096 /* Strict */)
-                      tolerant(parser, context, 46 /* StrictEvalArguments */);
+                      tolerant(parser, context, 47 /* StrictEvalArguments */);
                   parser.flags |= 2048 /* StrictEvalArguments */;
               }
           }
@@ -4777,7 +4789,7 @@ System.register([], function (exports, module) {
           if (!consume(parser, context, 83886109 /* Assign */))
               return left;
           if (parser.token & (1073741824 /* IsYield */ | 262144 /* IsAwait */) && context & (262144 /* Yield */ | 131072 /* Async */)) {
-              tolerant(parser, context, parser.token & 262144 /* IsAwait */ ? 51 /* AwaitInParameter */ : 50 /* YieldInParameter */);
+              tolerant(parser, context, parser.token & 262144 /* IsAwait */ ? 52 /* AwaitInParameter */ : 51 /* YieldInParameter */);
           }
           parser.flags |= 8 /* SimpleParameterList */;
           return finishNode(context, parser, pos, {
@@ -4806,7 +4818,7 @@ System.register([], function (exports, module) {
           let superClass = null;
           if ((token !== 41943052 /* LeftBrace */ && token !== 12372 /* ExtendsKeyword */)) {
               if (context & 131072 /* Async */ && token & 262144 /* IsAwait */) {
-                  tolerant(parser, context, 47 /* AwaitBindingIdentifier */);
+                  tolerant(parser, context, 48 /* AwaitBindingIdentifier */);
               }
               id = parseBindingIdentifier(parser, context | 4096 /* Strict */);
           }
@@ -4848,9 +4860,9 @@ System.register([], function (exports, module) {
                   if (context & 2048 /* OptionsExperimental */) {
                       decorators = parseDecorators(parser, context);
                       if (parser.token === 17825807 /* RightBrace */)
-                          report(parser, 91 /* TrailingDecorators */);
+                          report(parser, 92 /* TrailingDecorators */);
                       if (decorators.length !== 0 && parser.tokenValue === 'constructor') {
-                          report(parser, 92 /* GeneratorConstructor */);
+                          report(parser, 93 /* GeneratorConstructor */);
                       }
                   }
                   body.push(context & 1 /* OptionsNext */ && parser.token === 115 /* Hash */
@@ -4858,6 +4870,7 @@ System.register([], function (exports, module) {
                       : parseClassElement(parser, context, state, decorators));
               }
           }
+          parser.flags &= ~65536 /* HasConstructor */;
           expect(parser, context, 17825807 /* RightBrace */);
           return finishNode(context, parser, pos, {
               type: 'ClassBody',
@@ -4884,7 +4897,7 @@ System.register([], function (exports, module) {
               state |= 16 /* Computed */;
           if (parser.tokenValue === 'constructor') {
               if (state & 2 /* Generator */)
-                  tolerant(parser, context, 44 /* InvalidConstructor */, 'generator');
+                  tolerant(parser, context, 45 /* InvalidConstructor */, 'generator');
               else if (state & 512 /* Heritage */)
                   context |= 67108864 /* AllowSuperProperty */;
               state |= 256 /* Constructor */;
@@ -4902,7 +4915,7 @@ System.register([], function (exports, module) {
                   if (parser.token === 41943059 /* LeftBracket */)
                       state |= 16 /* Computed */;
                   if (parser.tokenValue === 'prototype')
-                      tolerant(parser, context, 64 /* StaticPrototype */);
+                      tolerant(parser, context, 65 /* StaticPrototype */);
                   state |= 128 /* Static */;
                   key = parsePropertyName(parser, context);
                   if (context & 1 /* OptionsNext */ && isInstanceField(parser)) {
@@ -4930,14 +4943,20 @@ System.register([], function (exports, module) {
                       key = parsePropertyName(parser, context & ~4096 /* Strict */);
                   }
                   if (tokenValue === 'prototype') {
-                      tolerant(parser, context, 64 /* StaticPrototype */);
+                      tolerant(parser, context, 65 /* StaticPrototype */);
                   }
                   else if (!(state & 128 /* Static */) && tokenValue === 'constructor') {
-                      tolerant(parser, context, 44 /* InvalidConstructor */, 'accessor');
+                      tolerant(parser, context, 45 /* InvalidConstructor */, 'accessor');
                   }
               }
           }
           if (parser.token === 50331659 /* LeftParen */) {
+              if (!(state & 16 /* Computed */) && state & 256 /* Constructor */) {
+                  if (parser.flags & 65536 /* HasConstructor */)
+                      report(parser, 12 /* DuplicateConstructor */);
+                  else
+                      parser.flags |= 65536 /* HasConstructor */;
+              }
               value = parseMethodDeclaration(parser, context, state);
           }
           else {
@@ -4978,7 +4997,7 @@ System.register([], function (exports, module) {
               tolerant(parser, context, 0 /* Unexpected */);
           if (consume(parser, context, 83886109 /* Assign */)) {
               if (parser.token & 4194304 /* IsEvalOrArguments */)
-                  tolerant(parser, context, 46 /* StrictEvalArguments */);
+                  tolerant(parser, context, 47 /* StrictEvalArguments */);
               value = parseAssignmentExpression(parser, context);
           }
           consume(parser, context, 16777234 /* Comma */);
@@ -5023,14 +5042,14 @@ System.register([], function (exports, module) {
           const pos = getLocation(parser);
           expect(parser, context | 32768 /* InClass */, 115 /* Hash */);
           if (parser.tokenValue === 'constructor')
-              tolerant(parser, context, 40 /* PrivateFieldConstructor */);
+              tolerant(parser, context, 41 /* PrivateFieldConstructor */);
           const key = parsePrivateName(parser, context, pos);
           if (parser.token === 50331659 /* LeftParen */)
               return parsePrivateMethod(parser, context, key, pos, decorators);
           let value = null;
           if (consume(parser, context, 83886109 /* Assign */)) {
               if (parser.token & 4194304 /* IsEvalOrArguments */)
-                  tolerant(parser, context, 46 /* StrictEvalArguments */);
+                  tolerant(parser, context, 47 /* StrictEvalArguments */);
               value = parseAssignmentExpression(parser, context);
           }
           consume(parser, context, 16777234 /* Comma */);
@@ -5138,7 +5157,7 @@ System.register([], function (exports, module) {
           if (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777229 /* Period */)) {
               if (parser.tokenValue !== 'target' ||
                   !(context & (524288 /* InParameter */ | 1048576 /* InFunctionBody */)))
-                  tolerant(parser, context, 52 /* MetaNotInFunctionBody */);
+                  tolerant(parser, context, 53 /* MetaNotInFunctionBody */);
               return parseMetaProperty(parser, context, id, pos);
           }
           return finishNode(context, parser, pos, {
@@ -5184,15 +5203,15 @@ System.register([], function (exports, module) {
               case 50331659 /* LeftParen */:
                   // The super property has to be within a class constructor
                   if (!(context & 67108864 /* AllowSuperProperty */))
-                      tolerant(parser, context, 53 /* BadSuperCall */);
+                      tolerant(parser, context, 54 /* BadSuperCall */);
                   break;
               case 41943059 /* LeftBracket */:
               case 16777229 /* Period */:
                   if (!(context & 33554432 /* Method */))
-                      tolerant(parser, context, 54 /* UnexpectedSuper */);
+                      tolerant(parser, context, 55 /* UnexpectedSuper */);
                   break;
               default:
-                  tolerant(parser, context, 55 /* LoneSuper */);
+                  tolerant(parser, context, 56 /* LoneSuper */);
           }
           return finishNode(context, parser, pos, {
               type: 'Super',
@@ -6973,8 +6992,9 @@ System.register([], function (exports, module) {
        * @param Context masks
        */
       function parseStatementList(parser, context) {
-          let hasProlog = true; // Parsing directive prologue.
           const statements = [];
+          let hasProlog = true; // Parsing directive prologue.
+          // prime the scanner
           nextToken(parser, context | 536870912 /* DisallowEscapedKeyword */);
           while (parser.token !== 1048576 /* EndOfSource */) {
               if (hasProlog && parser.token !== 33554435 /* StringLiteral */)
@@ -7163,7 +7183,7 @@ System.register([], function (exports, module) {
       // tslint:disable-next-line:variable-name
       const Parser = exports('Parser', parser);
 
-      const version = exports('version', '1.6.4');
+      const version = exports('version', '1.6.5');
 
     }
   };

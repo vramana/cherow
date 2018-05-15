@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "dist/umd/cherow.js",
   "module": "dist/es2015/cherow.js",
@@ -66,6 +66,7 @@
     "nps": "^5.9.0",
     "nps-utils": "^1.5.0",
     "nyc": "^11.7.1",
+    "test262-parser-tests": "0.0.3",
     "rollup": "^0.58.2",
     "rollup-plugin-commonjs": "^9.1.3",
     "rollup-plugin-node-resolve": "^3.3.0",

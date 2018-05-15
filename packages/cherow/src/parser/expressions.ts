@@ -208,6 +208,7 @@ export function parseAssignmentExpression(parser: Parser, context: Context): EST
                 setPendingError(parser);
                 parser.flags |= Flags.HasYield;
             }
+
         } else {
             if (!isValidSimpleAssignmentTarget(expr)) {
                 tolerant(parser, context, Errors.InvalidLHSInAssignment);
@@ -1021,8 +1022,8 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
                 expect(parser, context, Token.Comma);
             }
         } else {
-            elements.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
-            if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
+           elements.push(restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression));
+           if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
         }
     }
 
@@ -1359,7 +1360,9 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             state |= ObjectState.Shorthand;
 
             if (parser.token === Token.Assign) {
-                setPendingExpressionError(parser, Errors.InvalidCoverInitializedName);
+              if (context & Context.Strict && t & Token.IsEvalOrArguments) {
+                report(parser, Errors.StrictEvalArguments)
+               } else setPendingExpressionError(parser,  Errors.InvalidCoverInitializedName);
                 expect(parser, context, Token.Assign);
                 if (context & (Context.Strict | Context.Yield | Context.Async) && parser.token & (Token.IsYield | Token.IsAwait)) {
                     setPendingError(parser);
@@ -1760,6 +1763,8 @@ export function parseClassBodyAndElementList(parser: Parser, context: Context, s
         }
     }
 
+    parser.flags &= ~Flags.HasConstructor;
+
     expect(parser, context, Token.RightBrace);
 
     return finishNode(context, parser, pos, {
@@ -1852,7 +1857,11 @@ export function parseClassElement(
     }
 
     if (parser.token === Token.LeftParen) {
-        value = parseMethodDeclaration(parser, context, state);
+      if (!(state & ObjectState.Computed) && state & ObjectState.Constructor) {
+        if (parser.flags & Flags.HasConstructor) report(parser, Errors.DuplicateConstructor);
+        else parser.flags |= Flags.HasConstructor;
+      }
+      value = parseMethodDeclaration(parser, context, state);
     } else {
         if (context & Context.OptionsNext) return parseFieldDefinition(parser, context, key, state, pos, decorators);
         tolerant(parser, context, Errors.UnexpectedToken, tokenDesc(token));

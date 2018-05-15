@@ -55,6 +55,7 @@ export declare const enum Flags {
     HasAwait = 8192,
     HasYield = 16384,
     EscapedKeyword = 32768,
+    HasConstructor = 65536,
     AllowBreakOrContinue = 48,
 }
 export declare const enum Labels {

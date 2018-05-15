@@ -64,7 +64,7 @@ export const enum Flags {
   HasAwait               = 1 << 13,
   HasYield               = 1 << 14,
   EscapedKeyword         = 1 << 15,
-  AllowBreakOrContinue   = InSwitchStatement | InIterationStatement,
+  HasConstructor         = 1 << 16
 }
 
 // Label tracking state
@@ -433,6 +433,7 @@ export function validateParams(parser: Parser, context: Context, params: string[
 export const reinterpret = (parser: Parser, context: Context, node: any) => {
   switch (node.type) {
     case 'Identifier':
+      if (context & Context.Strict &&  nameIsArgumentsOrEval((node as ESTree.Identifier).name)) report(parser, Errors.InvalidEscapedReservedWord)
     case 'ArrayPattern':
     case 'AssignmentPattern':
     case 'ObjectPattern':
@@ -516,7 +517,11 @@ export function lookahead<T>(parser: Parser, context: Context, callback: (parser
     tokenRaw,
     token,
     lastValue,
-    tokenRegExp
+    tokenRegExp,
+    labelSet,
+    errors,
+    errorLocation,
+    pendingExpressionError
   } = parser;
   const res = callback(parser, context);
   parser.index = index;
@@ -535,6 +540,12 @@ export function lookahead<T>(parser: Parser, context: Context, callback: (parser
   parser.lastIndex = lastIndex;
   parser.startIndex = startIndex;
   parser.tokenRegExp = tokenRegExp;
+  parser.labelSet = labelSet;
+  parser.errors = errors;
+  parser.errorLocation = errorLocation;
+  parser.tokenRegExp = tokenRegExp;
+  parser.pendingExpressionError = pendingExpressionError;
+
   return res;
 }
 

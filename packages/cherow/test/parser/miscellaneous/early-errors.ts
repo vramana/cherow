@@ -9,6 +9,10 @@ describe('Miscellaneous - Early errors', () => {
 
         const invalidSyntax = [
             `'use strict'; delete ((a));`,
+            'class a { constructor(){} "constructor"(){} }',
+            `'use strict'; ({arguments = 1} = 2);`,
+            '"use strict"; [,,,arguments,] = 1',
+            '"use strict"; [...eval] = a',
             `'use strict'; if (1) function a(){} else;`,
             `function* a(){ function* b(c = yield d){} }`,
             `!{ set a(eval){ 'use strict'; } };`,

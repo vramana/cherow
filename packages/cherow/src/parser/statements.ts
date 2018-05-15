@@ -153,14 +153,14 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
   const pos = getLocation(parser);
   expect(parser, context, Token.ContinueKeyword);
   // Appearing of continue without an IterationStatement leads to syntax error
-  if (!(parser.flags & Flags.AllowBreakOrContinue)) {
+  if (!(parser.flags & (Flags.InSwitchStatement | Flags.InIterationStatement))) {
     tolerant(parser, context, Errors.InvalidNestedStatement, tokenDesc(parser.token));
   }
   let label: ESTree.Identifier | undefined | null = null;
-  const { tokenValue } = parser;
   if (!(parser.flags & Flags.NewLine) && parser.token & (Token.IsIdentifier | Token.Keyword)) {
+    const { tokenValue } = parser;
     label = parseIdentifier(parser, context);
-    validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ true);
+    validateBreakOrContinueLabel(parser, context, tokenValue, true);
   }
   consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
@@ -181,20 +181,18 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
   const pos = getLocation(parser);
   expect(parser, context, Token.BreakKeyword);
   let label: ESTree.Identifier | undefined | null = null;
-  // Use 'tokenValue' to avoid accessing another object shape which in turn can lead to
-  // a "'deopt" when getting the identifier value (*if any*)
-  const { tokenValue } = parser;
   if (!(parser.flags & Flags.NewLine) && parser.token & (Token.IsIdentifier | Token.Keyword)) {
-    label = parseIdentifier(parser, context);
-    validateBreakOrContinueLabel(parser, context, tokenValue, /* isContinue */ false);
-  } else if (!(parser.flags & Flags.AllowBreakOrContinue)) {
-    tolerant(parser, context, Errors.InvalidNestedStatement, 'break');
+      const { tokenValue } = parser;
+      label = parseIdentifier(parser, context);
+      validateBreakOrContinueLabel(parser, context, tokenValue, false);
+  } else if (!(parser.flags & (Flags.InSwitchStatement | Flags.InIterationStatement))) {
+      tolerant(parser, context, Errors.InvalidNestedStatement, 'break');
   }
 
   consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
-    type: 'BreakStatement',
-    label
+      type: 'BreakStatement',
+      label
   });
 }
 
