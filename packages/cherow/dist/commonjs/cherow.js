@@ -39,7 +39,7 @@ const keywordDescTable = [
     'eval', 'arguments', 'enum', 'BigInt', '@', 'JSXText',
     /** TS */
     'KeyOf', 'ReadOnly', 'is', 'unique', 'declare', 'type', 'namespace', 'abstract', 'module',
-    'global', 'require'
+    'global', 'require', 'target'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -116,6 +116,7 @@ const descKeywordTable = Object.create(null, {
     module: { value: 131202 /* ModuleKeyword */ },
     global: { value: 131203 /* GlobalKeyword */ },
     require: { value: 131204 /* RequireKeyword */ },
+    target: { value: 131205 /* TargetKeyword */ },
 });
 function descKeyword(value) {
     return (descKeywordTable[value] | 0);
@@ -4607,6 +4608,10 @@ function parseFunctionBody(parser, context, params) {
     const pos = getLocation(parser);
     expect(parser, context | 536870912 /* DisallowEscapedKeyword */, 41943052 /* LeftBrace */);
     const body = [];
+    const { labelSet } = parser;
+    parser.labelSet = {};
+    const savedFlags = parser.flags;
+    parser.flags = parser.flags & ~(1024 /* StrictFunctionName */ | 2048 /* StrictEvalArguments */ | 16 /* InSwitchStatement */ | 32 /* InIterationStatement */) | 4 /* AllowDestructuring */;
     while (parser.token === 33554435 /* StringLiteral */) {
         const { tokenRaw, tokenValue } = parser;
         body.push(parseDirective(parser, context));
@@ -4623,15 +4628,11 @@ function parseFunctionBody(parser, context, params) {
             context |= 4096 /* Strict */;
         }
     }
-    if (context & 4096 /* Strict */) {
-        validateParams(parser, context, params);
-    }
-    const { labelSet } = parser;
-    parser.labelSet = {};
-    const savedFlags = parser.flags;
-    parser.flags = parser.flags & ~(1024 /* StrictFunctionName */ | 2048 /* StrictEvalArguments */ | 16 /* InSwitchStatement */ | 32 /* InIterationStatement */) | 4 /* AllowDestructuring */;
     while (parser.token !== 17825807 /* RightBrace */) {
         body.push(parseStatementListItem(parser, context));
+    }
+    if (context & 4096 /* Strict */) {
+        validateParams(parser, context, params);
     }
     if (savedFlags & 32 /* InIterationStatement */)
         parser.flags |= 32 /* InIterationStatement */;
@@ -4879,7 +4880,7 @@ function parseClassElement(parser, context, state, decorators) {
                 tokenValue = parser.tokenValue;
                 if (parser.token === 41943059 /* LeftBracket */)
                     state |= 16 /* Computed */;
-                key = parsePropertyName(parser, context);
+                key = parsePropertyName(parser, context & ~4096 /* Strict */);
             }
             if (tokenValue === 'prototype') {
                 tolerant(parser, context, 64 /* StaticPrototype */);
@@ -5087,7 +5088,7 @@ function parseMetaProperty(parser, context, meta, pos) {
 function parseNewExpressionOrMetaProperty(parser, context) {
     const pos = getLocation(parser);
     const id = parseIdentifier(parser, context);
-    if (consume(parser, context, 16777229 /* Period */)) {
+    if (consume(parser, context | 536870912 /* DisallowEscapedKeyword */, 16777229 /* Period */)) {
         if (parser.tokenValue !== 'target' ||
             !(context & (524288 /* InParameter */ | 1048576 /* InFunctionBody */)))
             tolerant(parser, context, 52 /* MetaNotInFunctionBody */);
@@ -6925,17 +6926,21 @@ function parseSource(source, options, /*@internal*/ context) {
  * @param Context masks
  */
 function parseStatementList(parser, context) {
+    let hasProlog = true; // Parsing directive prologue.
     const statements = [];
-    // prime the scanner
     nextToken(parser, context | 536870912 /* DisallowEscapedKeyword */);
-    while (parser.token === 33554435 /* StringLiteral */) {
-        if (!(context & 4096 /* Strict */) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
-            context |= 4096 /* Strict */;
-        }
-        statements.push(parseDirective(parser, context));
-    }
     while (parser.token !== 1048576 /* EndOfSource */) {
-        statements.push(parseStatementListItem(parser, context));
+        if (hasProlog && parser.token !== 33554435 /* StringLiteral */)
+            hasProlog = false;
+        if (hasProlog) {
+            if (!(context & 4096 /* Strict */) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
+                context |= 4096 /* Strict */;
+            }
+            statements.push(parseDirective(parser, context));
+        }
+        else {
+            statements.push(parseStatementListItem(parser, context));
+        }
     }
     return statements;
 }
@@ -7109,7 +7114,7 @@ var parser = /*#__PURE__*/Object.freeze({
 // tslint:disable-next-line:variable-name
 const Parser = parser;
 
-const version = '1.6.2';
+const version = '1.6.4';
 
 exports.version = version;
 exports.ESTree = estree;

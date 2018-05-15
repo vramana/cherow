@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.6.2",
+  "version": "1.6.4",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
   "main": "dist/umd/cherow.js",
   "module": "dist/es2015/cherow.js",
@@ -87,10 +87,5 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  },
-  "dependencies": {
-    "acorn": "^5.5.3",
-    "npm": "^6.0.1",
-    "yarn": "^1.6.0"
   }
 }

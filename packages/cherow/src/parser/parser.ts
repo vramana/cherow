@@ -150,20 +150,24 @@ export function parseSource(source: string, options: Options | void, /*@internal
  */
 
 export function parseStatementList(parser: Parser, context: Context): ESTree.Statement[] {
-    const statements: ESTree.Statement[] = [];
-    // prime the scanner
-    nextToken(parser, context | Context.DisallowEscapedKeyword);
-    while (parser.token === Token.StringLiteral) {
-        if (!(context & Context.Strict) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict')  {
-            context |= Context.Strict;
-        }
-        statements.push(parseDirective(parser, context));
-    }
-    while (parser.token !== Token.EndOfSource) {
-        statements.push(parseStatementListItem(parser, context));
-    }
+  const statements: ESTree.Statement[] = [];
+  let hasProlog = true; // Parsing directive prologue.
+  // prime the scanner
+  nextToken(parser, context | Context.DisallowEscapedKeyword);
 
-    return statements;
+  while (parser.token !== Token.EndOfSource) {
+      if (hasProlog && parser.token !== Token.StringLiteral) hasProlog = false;
+      if (hasProlog) {
+          if (!(context & Context.Strict) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
+              context |= Context.Strict;
+          }
+          statements.push(parseDirective(parser, context));
+      } else {
+          statements.push(parseStatementListItem(parser, context));
+      }
+  }
+
+  return statements;
 }
 
 /**

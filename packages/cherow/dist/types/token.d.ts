@@ -157,6 +157,7 @@ export declare const enum Token {
     ModuleKeyword = 131202,
     GlobalKeyword = 131203,
     RequireKeyword = 131204,
+    TargetKeyword = 131205,
 }
 /**
  * The conversion function between token and its string description/representation.

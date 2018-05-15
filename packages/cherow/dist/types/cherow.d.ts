@@ -1,7 +1,7 @@
 import { parse, parseSource, parseModule, parseScript } from './parser/parser';
 import * as ESTree from './estree';
 import * as Scanner from './lexer/index';
-export declare const version = "1.6.2";
+export declare const version = "1.6.4";
 export { ESTree, Scanner, parse, parseSource, parseModule, parseScript };
 export * from './chars';
 export * from './errors';
