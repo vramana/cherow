@@ -213,6 +213,7 @@ export const errorMessages: {
  * @param parser The 0-based end index of the current node.
  * @param description Error description
  */
+/*@internal*/
 export function constructError(parser: Parser, context: Context, index: number, line: number, column: number, description: string): void {
     const error: any = new SyntaxError(
         `Line ${line}, column ${column}: ${description}`,
@@ -253,6 +254,7 @@ function getErrorLocation(parser: Parser): { index: number; line: number; column
  * @param type Error type
  * @param params Error params
  */
+/*@internal*/
 export function report(parser: Parser, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
@@ -268,6 +270,7 @@ export function report(parser: Parser, type: Errors, ...params: string[]): void 
  * @param type Error type
  * @param params Error params
  */
+/*@internal*/
 export function tolerant(parser: Parser, context: Context, type: Errors, ...params: string[]): void {
     const { index, line, column } = getErrorLocation(parser);
     const errorMessage = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);

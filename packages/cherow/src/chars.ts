@@ -1,4 +1,5 @@
 
+/*@internal*/
 export const enum CharacterFlags {
     Unknown             = 0x0,
     IdentifierStart     = 0x01,
@@ -148,6 +149,7 @@ export const characterType = [
 /**
  * A list of character constants with much more human-readable names.
  */
+/*@internal*/
 export const enum Chars {
 
     // Optimized for the  0...127 range

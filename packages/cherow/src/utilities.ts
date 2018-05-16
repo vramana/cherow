@@ -8,7 +8,7 @@ import { parseIdentifier } from './parser/expressions';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 
 // Context masks
-export const enum Context {
+export enum Context {
   Empty                  = 0,
   OptionsNext            = 1 << 0,
   OptionsRanges          = 1 << 1,
@@ -46,7 +46,7 @@ export const enum Context {
 }
 
 // Mutual parser flags
-export const enum Flags {
+export enum Flags {
   None                   = 0,
   NewLine                = 1 << 0,
   AllowBinding           = 1 << 1,
@@ -68,13 +68,13 @@ export const enum Flags {
 }
 
 // Label tracking state
-export const enum Labels {
+export enum Labels {
   None        = 0,
   NotNested   = 1 << 0,
   Nested      = 1 << 1,
 }
 
-export const enum NumericState {
+export enum NumericState {
   None            = 0,
   SeenSeparator   = 1 << 0,
   EigthOrNine     = 1 << 1,
@@ -82,19 +82,19 @@ export const enum NumericState {
   BigInt          = 1 << 3,
 }
 
-export const enum ScannerState {
+export enum ScannerState {
   None        = 0,
   NewLine     = 1 << 0,
   LastIsCR    = 1 << 1,
 }
 
-export const enum ModifierState {
+export enum ModifierState {
   None        = 0,
   Generator   = 1 << 0,
   Await       = 1 << 1,
 }
 
-export const enum CoverParenthesizedState {
+export enum CoverParenthesizedState {
   None,
   SequenceExpression  = 1 << 0,
   HasEvalOrArguments  = 1 << 1,
@@ -103,7 +103,7 @@ export const enum CoverParenthesizedState {
   HasBinding          = 1 << 4,
 }
 
-export const enum Escape {
+export enum Escape {
   Empty        = -1,
   StrictOctal  = -2,
   EightOrNine  = -3,
@@ -111,7 +111,7 @@ export const enum Escape {
   OutOfRange   = -5,
 }
 
-export const enum RegexFlags {
+export enum RegexFlags {
   Empty       = 0,
   IgnoreCase = 1 << 0,
   Global     = 1 << 1,
@@ -121,7 +121,7 @@ export const enum RegexFlags {
   DotAll     = 1 << 5,
 }
 
-export const enum CoverCallState {
+export enum CoverCallState {
   Empty           = 0,
   SeenSpread      = 1 << 0,
   HasSpread       = 1 << 1,
@@ -131,14 +131,14 @@ export const enum CoverCallState {
   Await           = 1 << 5,
 }
 
-export const enum RegexState {
+export enum RegexState {
   Empty  = 0,
   Escape = 0x1,
   Class  = 0x2,
 }
 
 // Shared between class expr / decl & object literal
-export const enum ObjectState {
+export enum ObjectState {
   None        = 0,
   Async       = 1 << 0,
   Generator   = 1 << 1,
