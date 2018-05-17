@@ -122,12 +122,10 @@ export function readNext(parser: Parser): number {
 }
 
 export function toHex(code: number): number {
-    if (code < Chars.Zero) return -1;
-    if (code <= Chars.Nine) return code - Chars.Zero;
-    if (code < Chars.UpperA) return -1;
-    if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
-    if (code < Chars.LowerA) return -1;
-    if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
+    code -= Chars.Zero;
+    if (code <= 9) return code;
+    code = (code | 0x20) - (Chars.LowerA - Chars.Zero);
+    if (code <= 5) return code + 10;
     return -1;
 }
 
