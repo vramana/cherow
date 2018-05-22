@@ -204,8 +204,6 @@ export function scanString(parser: Parser, context: Context, quote: number): Tok
     while (ch !== quote) {
         switch (ch) {
 
-            case Chars.LineSeparator:
-            case Chars.ParagraphSeparator:
             case Chars.CarriageReturn:
             case Chars.LineFeed:
                 report(parser, Errors.UnterminatedString);
