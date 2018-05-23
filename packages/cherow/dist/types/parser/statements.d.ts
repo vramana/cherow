@@ -74,7 +74,7 @@ export declare function parseDebuggerStatement(parser: Parser, context: Context)
  */
 export declare function parseTryStatement(parser: Parser, context: Context): ESTree.TryStatement;
 /**
- * Parsescatch block
+ * Parses catch block
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
  *

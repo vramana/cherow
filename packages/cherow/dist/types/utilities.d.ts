@@ -2,7 +2,7 @@ import * as ESTree from './estree';
 import { Errors } from './errors';
 import { Parser, Location } from './types';
 import { Token } from './token';
-export declare const enum Context {
+export declare enum Context {
     Empty = 0,
     OptionsNext = 1,
     OptionsRanges = 2,
@@ -37,7 +37,7 @@ export declare const enum Context {
     AllowDecorator = 1073741824,
     LocationTracker = 18,
 }
-export declare const enum Flags {
+export declare enum Flags {
     None = 0,
     NewLine = 1,
     AllowBinding = 2,
@@ -56,31 +56,30 @@ export declare const enum Flags {
     HasYield = 16384,
     EscapedKeyword = 32768,
     HasConstructor = 65536,
-    AllowBreakOrContinue = 48,
 }
-export declare const enum Labels {
+export declare enum Labels {
     None = 0,
     NotNested = 1,
     Nested = 2,
 }
-export declare const enum NumericState {
+export declare enum NumericState {
     None = 0,
     SeenSeparator = 1,
     EigthOrNine = 2,
     Float = 4,
     BigInt = 8,
 }
-export declare const enum ScannerState {
+export declare enum ScannerState {
     None = 0,
     NewLine = 1,
     LastIsCR = 2,
 }
-export declare const enum ModifierState {
+export declare enum ModifierState {
     None = 0,
     Generator = 1,
     Await = 2,
 }
-export declare const enum CoverParenthesizedState {
+export declare enum CoverParenthesizedState {
     None = 0,
     SequenceExpression = 1,
     HasEvalOrArguments = 2,
@@ -88,14 +87,14 @@ export declare const enum CoverParenthesizedState {
     HasYield = 8,
     HasBinding = 16,
 }
-export declare const enum Escape {
+export declare enum Escape {
     Empty = -1,
     StrictOctal = -2,
     EightOrNine = -3,
     InvalidHex = -4,
     OutOfRange = -5,
 }
-export declare const enum RegexFlags {
+export declare enum RegexFlags {
     Empty = 0,
     IgnoreCase = 1,
     Global = 2,
@@ -104,7 +103,7 @@ export declare const enum RegexFlags {
     Sticky = 16,
     DotAll = 32,
 }
-export declare const enum CoverCallState {
+export declare enum CoverCallState {
     Empty = 0,
     SeenSpread = 1,
     HasSpread = 2,
@@ -113,12 +112,12 @@ export declare const enum CoverCallState {
     Yield = 16,
     Await = 32,
 }
-export declare const enum RegexState {
+export declare enum RegexState {
     Empty = 0,
     Escape = 1,
     Class = 2,
 }
-export declare const enum ObjectState {
+export declare enum ObjectState {
     None = 0,
     Async = 1,
     Generator = 2,

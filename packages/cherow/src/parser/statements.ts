@@ -272,7 +272,7 @@ export function parseTryStatement(parser: Parser, context: Context): ESTree.TryS
 }
 
 /**
- * Parsescatch block
+ * Parses catch block
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
  *
@@ -283,10 +283,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
   const pos = getLocation(parser);
   expect(parser, context, Token.CatchKeyword);
   let param: ESTree.PatternTop | null = null;
-  if (context & Context.OptionsNext
-    ? consume(parser, context, Token.LeftParen)
-    : expect(parser, context, Token.LeftParen)
-  ) {
+  if (consume(parser, context, Token.LeftParen)) {
     const params: string[] = [];
     param = parseBindingIdentifierOrPattern(parser, context, params);
     validateParams(parser, context, params);

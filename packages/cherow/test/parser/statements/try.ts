@@ -11,7 +11,6 @@ describe('Statements - Try', () => {
         'try { }',
         'try { } foo();',
         'try { } catch (e) foo();',
-        'try { } catch { }',
         'try { } finally foo();',
         `try{}
         catch(){`,
@@ -82,10 +81,6 @@ describe('Statements - Try', () => {
 
     fail('try { } foo();', Context.Empty, {
           source: 'try { } foo();',
-      });
-
-    fail('try { } catch { }', Context.Empty, {
-          source: 'try { } catch { }',
       });
   });
 
