@@ -31,8 +31,6 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * [Class field declarations for JavaScript](https://github.com/tc39/proposal-class-fields)
 * [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
 * [Private methods and getter/setters for JavaScript classes](https://github.com/tc39/proposal-private-methods)
-* [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
-* [JSON Superset](https://github.com/tc39/proposal-json-superset)
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
