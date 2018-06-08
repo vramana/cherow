@@ -140,18 +140,18 @@ export function addComment(
     commentStart: number
   ): void {
 
-    const { index: end, startIndex: start, startLine, startColumn, lastLine, column } = parser;
+    const { index, startIndex: start, startLine, startColumn, lastLine, lastColumn } = parser;
     const comment: ESTree.Comment = {
         type,
-        value: parser.source.slice(commentStart, type === 'MultiLine' ? end - 2 : end),
+        value: parser.source.slice(commentStart, type === 'MultiLine' ? index - 2 : index),
         start,
-        end,
+        end: index,
     };
 
     if (context & Context.OptionsLoc) {
         comment.loc = {
             start: { line: startLine, column: startColumn },
-            end: { line: lastLine, column },
+            end: { line: lastLine, column: lastColumn },
         };
     }
 

@@ -338,43 +338,6 @@ describe('Miscellaneous - Comments', () => {
             });
         }
 
-        pass('--> is eol-comment', Context.OptionsLoc | Context.OptionsRanges | Context.OptionsComments, {
-            source: '--> is eol-comment',
-            expected: {
-                body: [],
-                comments: [{
-                    end: 18,
-                    loc: {
-                        end: {
-                            column: 18,
-                            line: 1,
-                        },
-                        start: {
-                            column: 0,
-                            line: 1,
-                        }
-                    },
-                    start: 0,
-                    type: 'HTMLClose',
-                    value: ' is eol-comment'
-                }],
-                end: 18,
-                loc: {
-                    end: {
-                        column: 18,
-                        line: 1,
-                    },
-                    start: {
-                        column: 0,
-                        line: 1,
-                    }
-                },
-                sourceType: 'script',
-                start: 0,
-                type: 'Program'
-            }
-        });
-
         pass('0/*\n*/--> a comment', Context.OptionsLoc | Context.OptionsRanges, {
             source: '0/*\n*/--> a comment',
             expected: {

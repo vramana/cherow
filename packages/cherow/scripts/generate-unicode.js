@@ -131,7 +131,7 @@ const makeDecompress = compressed => `((compressed, lookup) => {
 exports.generate = generate
 
 async function generate(opts) {
-    await opts.write(`// Unicode v. 10 support
+    await opts.write(`// Unicode v. 11 support
 // tslint:disable
 `)
 
@@ -169,7 +169,7 @@ ${opts.eval ? "return" : "export"} {${Object.keys(opts.exports)}};
 if (require.main === module) {
     const path = require("path")
     const load = name => {
-        const mod = require.resolve(`unicode-10.0.0/${name}/code-points`)
+        const mod = require.resolve(`unicode-11.0.0/${name}/code-points`)
         const list = require(mod)
         delete require.cache[mod]
         return list
