@@ -19,8 +19,7 @@ program
     // tslint:disable
     try {
       if (!program.source) file = fs.readFileSync(file, 'utf8');
-      console.log(
-        JSON.stringify(parse(file, {
+      console.log(JSON.stringify(parse(file, {
         loc: program.loc,
         ranges: program.ranges,
         next: program.next,
@@ -28,7 +27,7 @@ program
         raw: program.raw,
         globalReturn: program.globalReturn,
         module: program.module
-        }), null, 2));
+      }), null, 2));
     } catch (e) {
       process.stderr.write(e.message);
       process.exit(1);
