@@ -24,7 +24,7 @@ const enum Recovery {
  */
 export function scanStringLiteral(parser: Parser, context: Context, quote: number): Token {
     parser.index++; parser.column++;
-    let { index, column } = parser;
+    let { index } = parser;
     let ret: string | void = '';
     let ch = parser.source.charCodeAt(parser.index);
     loop:
@@ -53,7 +53,7 @@ export function scanStringLiteral(parser: Parser, context: Context, quote: numbe
                             break loop;
                         } else return recordStringErrors(parser, context, code as Recovery);
                         index = parser.index + 1;
-                        column = parser.column + 1;
+                        parser.column++;
                     }
                     break;
                 case quote:
@@ -92,15 +92,15 @@ function scanBadString(parser: Parser, quote: number, ch: number): any {
  * @param parser Parser object
  * @param context Context masks
  */
-export function recordStringErrors(parser: Parser, context: Context, code: any): any {
+export function recordStringErrors(parser: Parser, context: Context, code: Recovery): Token {
     let message: Errors = Errors.Unexpected;
-    if (code === Recovery.Empty) return;
+   // if (code === Recovery.Empty) return;
     if (code === Recovery.StrictOctal) message = Errors.StrictOctalEscape;
     if (code === Recovery.EightOrNine) message = Errors.InvalidEightAndNine;
     if (code === Recovery.InvalidHex) message = Errors.StrictOctalEscape;
     if (code === Recovery.OutOfRange) message = Errors.InvalidEightAndNine;
 
-    recordErrors(parser, context, Errors.UnterminatedString);
+    recordErrors(parser, context, message);
     return Token.Invalid;
 }
 

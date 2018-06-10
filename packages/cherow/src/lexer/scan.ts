@@ -194,7 +194,6 @@ table[Chars.Hyphen] = (parser: Parser) => {
 // `.`, `...`, `.123` (numeric literal)
 table[Chars.Period] = (parser: Parser) => {
     let index = parser.index + 1;
-    if (index < parser.source.length) {
         const next = parser.source.charCodeAt(index);
 
         if (next === Chars.Period) {
@@ -208,7 +207,6 @@ table[Chars.Period] = (parser: Parser) => {
         } else if (next >= Chars.Zero && next <= Chars.Nine) {
             return parseFractionalNumber(parser);
         }
-    }
     parser.index++; parser.column++;
     return Token.Period;
 };
