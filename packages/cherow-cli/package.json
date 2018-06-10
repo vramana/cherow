@@ -92,8 +92,8 @@
     ]
   },
   "dependencies": {
+    "chalk": "^2.4.1",
     "cherow": "^1.5.8",
-    "colors": "^1.2.5",
     "commander": "^2.15.1"
   }
 }
