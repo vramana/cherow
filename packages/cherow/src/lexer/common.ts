@@ -418,7 +418,7 @@ export function mapToToken(token: Token) {
   };
 }
 
-export function escapeForPrinting(code: number): string {
+export function escapeInvalidCharacters(code: number): string {
   switch (code) {
       case Chars.Null: return '\\0';
       case Chars.Backspace: return '\\b';

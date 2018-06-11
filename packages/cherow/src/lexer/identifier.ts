@@ -31,3 +31,9 @@ export function scanIdentifier(parser: Parser): Token {
 
   return Token.Identifier;
 }
+
+export function scanMaybeIdentifier(parser: Parser, context: Context): Token {
+  let p = parser;
+  let c = context;
+  return Token.Identifier;
+}

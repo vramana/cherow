@@ -1,9 +1,9 @@
 import { Parser, OnToken } from '../types';
 import { Token } from '../token';
 import { Context, Flags } from '../common';
-import { convertToken, advanceNewline, consumeOpt, escapeForPrinting, nextUnicodeChar, mapToToken } from './common';
+import { advanceNewline, consumeOpt, escapeInvalidCharacters, nextUnicodeChar, mapToToken } from './common';
 import { Chars } from '../chars';
-import { scanIdentifier } from './identifier';
+import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 import { skipSingleHTMLComment, skipSingleLineComment, skipMultilineComment } from './comments';
 import { scanStringLiteral } from './string';
 import { scanNumeric, parseFractionalNumber, parseLeadingZero } from './numeric';
@@ -11,7 +11,7 @@ import { Errors, recordErrors } from '../errors';
 import { scanTemplate } from './template';
 
 function impossible(parser: Parser, context: Context): void {
-    recordErrors(parser, context, Errors.UnexpectedToken, escapeForPrinting(nextUnicodeChar(parser)));
+    recordErrors(parser, context, Errors.UnexpectedToken, escapeInvalidCharacters(nextUnicodeChar(parser)));
 }
 
 const table = new Array(128).fill(impossible, 0, 0xFFFF) as ((parser: Parser, context: Context, first: number) => Token)[];
@@ -355,11 +355,13 @@ export function nextToken(parser: Parser, context: Context): Token {
     // remember last token position before scanning
     parser.lastIndex = parser.index; parser.lastLine = parser.line;
     parser.lastColumn = parser.column;
+    let token: Token;
     while (parser.index < parser.length) {
         const first = parser.source.charCodeAt(parser.index);
         parser.startIndex = parser.index; parser.startColumn = parser.column;
         parser.startLine = parser.line;
-        const token = table[first](parser, context, first);
+        if (first < 128) token = table[first](parser, context, first);
+        else token = scanMaybeIdentifier(parser, context);
         if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
         return parser.token = token;
     }
