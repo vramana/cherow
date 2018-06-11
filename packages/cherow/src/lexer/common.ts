@@ -5,6 +5,14 @@ import { Chars } from '../chars';
 import { Errors, recordErrors } from '../errors';
 import { isValidIdentifierPart, mustEscape } from '../unicode';
 
+export const enum Escape {
+  Empty = -1,
+  StrictOctal = -2,
+  EightOrNine = -3,
+  InvalidHex = -4,
+  OutOfRange = -5,
+}
+
 export const enum ClassRangesState {
     Empty = 0,
     IsTrailSurrogate = 1 << 0,

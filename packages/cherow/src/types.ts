@@ -109,8 +109,8 @@ export interface Parser {
     switchStatement: LabelState;
     iterationStatement: LabelState;
     labelDepth: number;
-    lastValue: any,
     priorNode: any;
+    lastValue: any;
     tokenRegExp: void | {
         pattern: string;
         flags: string;

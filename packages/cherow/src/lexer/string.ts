@@ -1,17 +1,9 @@
 import { Parser } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { Context } from '../common';
-import { toHex, nextUnicodeChar, readNext, fromCodePoint } from './common';
+import { Context, Flags } from '../common';
+import { toHex, nextUnicodeChar, readNext, fromCodePoint, Escape } from './common';
 import { Errors, report } from '../errors';
-
-const enum Escape {
-  Empty = -1,
-  StrictOctal = -2,
-  EightOrNine = -3,
-  InvalidHex = -4,
-  OutOfRange = -5,
-}
 
 /**
  * Scan a string literal
@@ -23,7 +15,8 @@ const enum Escape {
  * @param quote codepoint
  */
 export function scanStringLiteral(parser: Parser, context: Context, quote: number): Token {
-  const {index: start, lastValue} = parser;
+
+  const { index: start, lastValue } = parser;
   let ret = '';
 
   let ch = readNext(parser, quote);
@@ -38,7 +31,7 @@ export function scanStringLiteral(parser: Parser, context: Context, quote: numbe
                   parser.lastValue = ch;
                   const code = table[ch](parser, context, ch);
                   if (code >= 0) ret += fromCodePoint(code);
-                  else handleStringError(parser, code as Escape);
+                  else recordStringErrors(parser, code as Escape);
                   ch = parser.lastValue;
               }
               break;
@@ -60,21 +53,7 @@ export function scanStringLiteral(parser: Parser, context: Context, quote: numbe
   return Token.StringLiteral;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-type Callback = (parser: Parser, context: Context, first: number) => number;
-const table = new Array<Callback>(128).fill(nextUnicodeChar);
+const table = new Array<(parser: Parser, context: Context, first: number) => number>(128).fill(nextUnicodeChar);
 
 // Magic escapes
 table[Chars.LowerB] = () => Chars.Backspace;
@@ -116,6 +95,7 @@ table[Chars.Zero] =
 table[Chars.One] =
 table[Chars.Two] =
 table[Chars.Three] = (parser, context, first) => {
+    // 1 to 3 octal digits
     let code = first - Chars.Zero;
     let index = parser.index + 1;
     let column = parser.column + 1;
@@ -124,14 +104,16 @@ table[Chars.Three] = (parser, context, first) => {
         const next = parser.source.charCodeAt(index);
 
         if (next < Chars.Zero || next > Chars.Seven) {
-            // Verify that it's `\0` if we're in strict mode.
-            if (code !== 0 && context & Context.Strict) return Escape.StrictOctal;
+           // Strict mode code allows only \0, then a non-digit.
+        if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
+          if (context & Context.Strict) return Escape.StrictOctal;
+            parser.flags = parser.flags | Flags.HasOctal;
+          }
         } else if (context & Context.Strict) {
-            // This happens in cases like `\00` in strict mode.
             return Escape.StrictOctal;
         } else {
             parser.lastValue = next;
-            code = (code << 3) | (next - Chars.Zero);
+            code = code * 8 + (next - Chars.Zero);
             index++; column++;
 
             if (index < parser.source.length) {
@@ -139,7 +121,7 @@ table[Chars.Three] = (parser, context, first) => {
 
                 if (next >= Chars.Zero && next <= Chars.Seven) {
                     parser.lastValue = next;
-                    code = (code << 3) | (next - Chars.Zero);
+                    code = code * 8 + (next - Chars.Zero);
                     index++; column++;
                 }
             }
@@ -163,9 +145,8 @@ table[Chars.Seven] = (parser, context, first) => {
 
     if (index < parser.source.length) {
         const next = parser.source.charCodeAt(index);
-
         if (next >= Chars.Zero && next <= Chars.Seven) {
-            code = (code << 3) | (next - Chars.Zero);
+            code = code * 8 + (next - Chars.Zero);
             parser.lastValue = next;
             parser.index = index;
             parser.column = column;
@@ -175,7 +156,6 @@ table[Chars.Seven] = (parser, context, first) => {
     return code;
 };
 
-// `8`, `9` (invalid escapes)
 table[Chars.Eight] = table[Chars.Nine] = () => Escape.EightOrNine;
 
 // ASCII escapes
@@ -190,12 +170,10 @@ table[Chars.LowerX] = (parser, _, first) => {
     return hi << 4 | lo;
 };
 
-// UCS-2/Unicode escapes
 table[Chars.LowerU] = (parser, _, prev) => {
     let ch = parser.lastValue = readNext(parser, prev);
     if (ch === Chars.LeftBrace) {
         // \u{N}
-        // The first digit is required, so handle it *out* of the loop.
         ch = parser.lastValue = readNext(parser, ch);
         let code = toHex(ch);
         if (code < 0) return Escape.InvalidHex;
@@ -204,11 +182,9 @@ table[Chars.LowerU] = (parser, _, prev) => {
         while (ch !== Chars.RightBrace) {
             const digit = toHex(ch);
             if (digit < 0) return Escape.InvalidHex;
-            code = code << 4 | digit;
-
-            // Check this early to avoid `code` wrapping to a negative on overflow (which is
-            // reserved for abnormal conditions).
-            if (code > 0x10fff) return Escape.OutOfRange;
+            code = code * 16 + digit;
+             // Code point out of bounds
+            if (code > Chars.NonBMPMax) return Escape.OutOfRange;
             ch = parser.lastValue = readNext(parser, ch);
         }
 
@@ -222,34 +198,35 @@ table[Chars.LowerU] = (parser, _, prev) => {
             ch = parser.lastValue = readNext(parser, ch);
             const digit = toHex(ch);
             if (digit < 0) return Escape.InvalidHex;
-            code = code << 4 | digit;
+        if (code < 0) return Escape.InvalidHex;
+        code = code * 16 + digit;
         }
 
         return code;
     }
 };
 
-
-function handleStringError(
+/**
+ * Throws a string error for either string or template literal
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function recordStringErrors(
   parser: Parser,
   code: Escape,
 ): void {
   switch (code) {
       case Escape.Empty:
           return;
-
       case Escape.StrictOctal:
           report(parser, Errors.StrictOctalEscape);
-
       case Escape.EightOrNine:
           report(parser, Errors.InvalidEightAndNine);
-
       case Escape.InvalidHex:
           report(parser, Errors.InvalidEscape);
-
       case Escape.OutOfRange:
           report(parser, Errors.InvalidEscape);
-
       default:
           // ignore
   }

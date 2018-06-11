@@ -45,7 +45,6 @@ export function createParserObject(
         // End line position after current token
         lastLine: 0,
         // Mutable parser flags. Allows destructuring by default
-        lastValue: 0,
         flags: Flags.Assignable,
         // Tokenizing
         tokens: [],
@@ -60,6 +59,7 @@ export function createParserObject(
         // Regular expression
         capturingParens: 0,
         largestBackReference: 0,
+        lastValue: 0,
         // Misc
         token: Token.EndOfSource,
         tokenValue: undefined,
