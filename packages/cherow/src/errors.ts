@@ -136,3 +136,10 @@ export function recordErrors(parser: Parser, context: Context, type: Errors, ...
         if (parser.onError) parser.onError(message, line, column);
     } else throw error;
 }
+
+export function report(parser: Parser, type: Errors, ...params: string[]) {
+  const { index, line, column } = parser;
+  const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
+  const error = constructError(index, line, column, message);
+  throw error;
+}

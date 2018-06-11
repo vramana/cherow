@@ -110,6 +110,7 @@ export interface Parser {
     switchStatement: LabelState;
     iterationStatement: LabelState;
     labelDepth: number;
+    lastValue: any,
     priorNode: ESTree.Node;
     tokenRegExp: void | {
         pattern: string;

@@ -13,21 +13,21 @@ function impossible(parser: Parser, context: Context): void {
     recordErrors(parser, context, Errors.UnexpectedToken, escapeForPrinting(nextUnicodeChar(parser)));
 }
 
-const table = new Array(128).fill(impossible, 0, 0xFFFF) as ((parser: Parser, context: Context, first: number) => Token)[];
+const lexerTable = new Array(128).fill(impossible, 0, 0xFFFF) as ((parser: Parser, context: Context, first: number) => Token)[];
 
-table[Chars.Space] =
-    table[Chars.Tab] =
-    table[Chars.FormFeed] =
-    table[Chars.VerticalTab] =
-    table[Chars.FormFeed] = (parser: Parser) => {
+lexerTable[Chars.Space] =
+    lexerTable[Chars.Tab] =
+    lexerTable[Chars.FormFeed] =
+    lexerTable[Chars.VerticalTab] =
+    lexerTable[Chars.FormFeed] = (parser: Parser) => {
         parser.index++; parser.column++;
         return Token.WhiteSpace;
     };
 
-table[Chars.LineSeparator] =
-    table[Chars.ParagraphSeparator] =
-    table[Chars.LineFeed] =
-    table[Chars.CarriageReturn] = (parser: Parser, context: Context, first: number) => {
+lexerTable[Chars.LineSeparator] =
+    lexerTable[Chars.ParagraphSeparator] =
+    lexerTable[Chars.LineFeed] =
+    lexerTable[Chars.CarriageReturn] = (parser: Parser, context: Context, first: number) => {
         const c = context;
         advanceNewline(parser, first);
         parser.flags |= Flags.NewLine;
@@ -35,45 +35,45 @@ table[Chars.LineSeparator] =
     };
 
 // `,`
-table[Chars.Comma] = mapToToken(Token.Comma);
+lexerTable[Chars.Comma] = mapToToken(Token.Comma);
 
 // `~`
-table[Chars.Tilde] = mapToToken(Token.Complement);
+lexerTable[Chars.Tilde] = mapToToken(Token.Complement);
 // `?`
-table[Chars.QuestionMark] = mapToToken(Token.QuestionMark);
+lexerTable[Chars.QuestionMark] = mapToToken(Token.QuestionMark);
 
 // `[`
-table[Chars.LeftBracket] = mapToToken(Token.LeftBracket);
+lexerTable[Chars.LeftBracket] = mapToToken(Token.LeftBracket);
 
 // `]`
-table[Chars.RightBracket] = mapToToken(Token.RightBracket);
+lexerTable[Chars.RightBracket] = mapToToken(Token.RightBracket);
 
 // `{`
-table[Chars.LeftBrace] = mapToToken(Token.LeftBrace);
+lexerTable[Chars.LeftBrace] = mapToToken(Token.LeftBrace);
 
 // `}`
-table[Chars.RightBrace] = mapToToken(Token.RightBrace);
+lexerTable[Chars.RightBrace] = mapToToken(Token.RightBrace);
 
 // `:`
-table[Chars.Colon] = mapToToken(Token.Colon);
+lexerTable[Chars.Colon] = mapToToken(Token.Colon);
 
 // `;`
-table[Chars.Semicolon] = mapToToken(Token.Semicolon);
+lexerTable[Chars.Semicolon] = mapToToken(Token.Semicolon);
 
 // `(`
-table[Chars.LeftParen] = mapToToken(Token.LeftParen);
+lexerTable[Chars.LeftParen] = mapToToken(Token.LeftParen);
 
 // `)`
-table[Chars.RightParen] = mapToToken(Token.RightParen);
+lexerTable[Chars.RightParen] = mapToToken(Token.RightParen);
 
 // `"`, `'`
-table[Chars.SingleQuote] = table[Chars.DoubleQuote] = scanStringLiteral;
+lexerTable[Chars.SingleQuote] = lexerTable[Chars.DoubleQuote] = scanStringLiteral;
 
 // `0`
-table[Chars.Zero] = parseLeadingZero;
+lexerTable[Chars.Zero] = parseLeadingZero;
 
 // `/`, `/=`, `/>`
-table[Chars.Slash] = (parser: Parser) => {
+lexerTable[Chars.Slash] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index >= parser.length) return Token.Divide;
     const next = parser.source.charCodeAt(parser.index);
@@ -93,7 +93,7 @@ table[Chars.Slash] = (parser: Parser) => {
 };
 
 // `!`, `!=`, `!==`
-table[Chars.Exclamation] = (parser: Parser) => {
+lexerTable[Chars.Exclamation] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (consumeOpt(parser, Chars.EqualSign)) {
         if (consumeOpt(parser, Chars.EqualSign)) {
@@ -107,7 +107,7 @@ table[Chars.Exclamation] = (parser: Parser) => {
 };
 
 // `%`, `%=`
-table[Chars.Percent] = (parser: Parser) => {
+lexerTable[Chars.Percent] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (consumeOpt(parser, Chars.EqualSign)) {
         return Token.ModuloAssign;
@@ -117,7 +117,7 @@ table[Chars.Percent] = (parser: Parser) => {
 };
 
 // `&`, `&&`, `&=`
-table[Chars.Ampersand] = (parser: Parser) => {
+lexerTable[Chars.Ampersand] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index < parser.length) {
         const next = parser.source.charCodeAt(parser.index);
@@ -133,7 +133,7 @@ table[Chars.Ampersand] = (parser: Parser) => {
 };
 
 // `*`, `**`, `*=`, `**=`
-table[Chars.Asterisk] = (parser: Parser) => {
+lexerTable[Chars.Asterisk] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index < parser.length) {
         const next = parser.source.charCodeAt(parser.index);
@@ -155,7 +155,7 @@ table[Chars.Asterisk] = (parser: Parser) => {
 };
 
 // `+`, `++`, `+=`
-table[Chars.Plus] = (parser: Parser) => {
+lexerTable[Chars.Plus] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index < parser.length) {
         const next = parser.source.charCodeAt(parser.index);
@@ -172,7 +172,7 @@ table[Chars.Plus] = (parser: Parser) => {
 };
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = (parser: Parser, context) => {
+lexerTable[Chars.Hyphen] = (parser: Parser, context) => {
     parser.index++; parser.column++;
     const next = parser.source.charCodeAt(parser.index);
     if (next === Chars.Hyphen &&
@@ -193,7 +193,7 @@ table[Chars.Hyphen] = (parser: Parser, context) => {
 };
 
 // `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = (parser: Parser) => {
+lexerTable[Chars.Period] = (parser: Parser) => {
     let index = parser.index + 1;
         const next = parser.source.charCodeAt(index);
 
@@ -214,11 +214,11 @@ table[Chars.Period] = (parser: Parser) => {
 
 // `1`...`9`
 for (let i = Chars.One; i <= Chars.Nine; i++) {
-    table[i] = scanNumeric;
+    lexerTable[i] = scanNumeric;
 }
 
 // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
-table[Chars.LessThan] = (parser: Parser, context: Context) => {
+lexerTable[Chars.LessThan] = (parser: Parser, context: Context) => {
     parser.index++; parser.column++;
     if (parser.index < parser.source.length) {
 
@@ -267,7 +267,7 @@ table[Chars.LessThan] = (parser: Parser, context: Context) => {
 };
 
 // `=`, `==`, `===`, `=>`
-table[Chars.EqualSign] = (parser: Parser) => {
+lexerTable[Chars.EqualSign] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index < parser.source.length) {
         const next = parser.source.charCodeAt(parser.index);
@@ -288,7 +288,7 @@ table[Chars.EqualSign] = (parser: Parser) => {
 };
 
 // `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
-table[Chars.GreaterThan] = (parser: Parser) => {
+lexerTable[Chars.GreaterThan] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index < parser.source.length) {
         const next = parser.source.charCodeAt(parser.index);
@@ -324,19 +324,19 @@ table[Chars.GreaterThan] = (parser: Parser) => {
 
 // `A`...`Z`
 for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
-    table[i] = scanIdentifier;
+    lexerTable[i] = scanIdentifier;
 }
 // `a`...z`
 for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
-    table[i] = scanIdentifier;
+    lexerTable[i] = scanIdentifier;
 }
 
 
 // `\\u{N}var`
-table[Chars.Backslash] = scanIdentifier;
+lexerTable[Chars.Backslash] = scanIdentifier;
 
 // `^`, `^=`
-table[Chars.Caret] = (parser: Parser) => {
+lexerTable[Chars.Caret] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (consumeOpt(parser, Chars.EqualSign)) {
         return Token.BitwiseXorAssign;
@@ -346,15 +346,15 @@ table[Chars.Caret] = (parser: Parser) => {
 };
 
 // `$foo`, `_var`
-table[Chars.Dollar] =
-table[Chars.Underscore] = scanIdentifier;
+lexerTable[Chars.Dollar] =
+lexerTable[Chars.Underscore] = scanIdentifier;
 
 
 // ``string``
-// table[Chars.Backtick] = scanTemplate;
+// lexerTable[Chars.Backtick] = scanTemplate;
 
 // `|`, `||`, `|=`
-table[Chars.VerticalBar] = (parser: Parser) => {
+lexerTable[Chars.VerticalBar] = (parser: Parser) => {
     parser.index++; parser.column++;
     if (parser.index >= parser.length) return Token.BitwiseOr;
     const next = parser.source.charCodeAt(parser.index);
@@ -389,7 +389,7 @@ export function nextToken(
         parser.startIndex = parser.index;
         parser.startColumn = parser.column;
         parser.startLine = parser.line;
-        const token = table[first](parser, context, first);
+        const token = lexerTable[first](parser, context, first);
         if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
         if (onToken) onToken(token);
         return parser.token = token;
