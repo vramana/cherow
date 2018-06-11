@@ -31,15 +31,12 @@ function getIdentifierToken(parser: Parser): Token {
 export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
 
     switch (first) {
-      case Chars.ByteOrderMark:
-        parser.index++;
-        return Token.WhiteSpace;
       case Chars.LineSeparator:
       case Chars.ParagraphSeparator:
             advanceNewline(parser, first);
             parser.flags |= Flags.NewLine;
             return Token.WhiteSpace;
-
+        // Special cases
         case Chars.ByteOrderMark:
         case Chars.NonBreakingSpace:
         case Chars.Ogham:

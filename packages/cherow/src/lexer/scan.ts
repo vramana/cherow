@@ -1,7 +1,7 @@
 import { Parser, OnToken } from '../types';
 import { Token } from '../token';
 import { Context, Flags } from '../common';
-import { advanceNewline, consumeOpt, escapeInvalidCharacters, nextUnicodeChar, mapToToken } from './common';
+import { advanceNewline, consumeOpt, escapeInvalidCharacters, nextUnicodeChar, mapToToken, scanPrivateName } from './common';
 import { Chars } from '../chars';
 import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 import { skipSingleHTMLComment, skipSingleLineComment, skipMultilineComment } from './comments';
@@ -40,13 +40,14 @@ table[Chars.Space] =
         return Token.WhiteSpace;
     };
 
-  table[Chars.LineFeed] =
+table[Chars.LineFeed] =
     table[Chars.CarriageReturn] = (parser: Parser, context: Context, first: number) => {
         const c = context;
         advanceNewline(parser, first);
         parser.flags |= Flags.NewLine;
         return Token.WhiteSpace;
     };
+
 
 // `/`, `/=`, `/>`
 table[Chars.Slash] = (parser: Parser) => {
@@ -340,6 +341,9 @@ table[Chars.VerticalBar] = (parser: Parser) => {
     }
     return Token.BitwiseOr;
 };
+
+// '#'
+table[Chars.Hash] = scanPrivateName;
 
 /**
  *

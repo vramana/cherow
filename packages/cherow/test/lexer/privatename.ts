@@ -1,13 +1,13 @@
 import * as t from 'assert';
 import { scanPrivateName } from '../../src/lexer/common';
 import { createParserObject } from '../../src/parser/parser';
-
+import { Context } from '../../src/common';
 describe('Lexer - Private name', () => {
 
   function pass(name: string, opts: any) {
       it(name, () => {
           const parser = createParserObject(opts.source, undefined);
-          const token = scanPrivateName(parser);
+          const token = scanPrivateName(parser, Context.InClass);
           t.deepEqual({
               line: parser.line,
               column: parser.column,
@@ -20,28 +20,28 @@ describe('Lexer - Private name', () => {
       });
   }
 
-  function fail(name: string, opts: any) {
+  function fail(name: string, context: Context, opts: any) {
       it(name, () => {
           const parser = createParserObject(opts.source, undefined);
           t.throws(() => {
-              scanPrivateName(parser)
+              scanPrivateName(parser, context)
           });
       });
   }
 
-  fail('should fail on private name followed by space', {
+  fail('should fail on private name followed by space', Context.InClass, {
       source: '# a'
   })
 
-  fail('should fail on private name with multiple space', {
+  fail('should fail on private name with multiple space', Context.InClass, {
       source: '#    a'
   })
 
-  fail('should fail on private name with digits', {
+  fail('should fail on private name with digits', Context.InClass, {
       source: '#123'
   })
 
-  fail('should fail on private name with underscore', {
+  fail('should fail on private name with underscore', Context.InClass, {
       source: '#_a'
   })
 

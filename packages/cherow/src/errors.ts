@@ -56,7 +56,8 @@ export const enum Errors {
     DuplicateRegExpFlag,
     InvalidRegularExp,
     HtmlCommentInModule,
-    UnterminatedTemplate
+    UnterminatedTemplate,
+    InvalidPrivateFieldAccess
 }
 /*@internal*/
 export const errorMessages: {
@@ -116,6 +117,8 @@ export const errorMessages: {
     [Errors.InvalidRegularExp]: 'Invalid regular expression',
     [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
+    [Errors.InvalidPrivateFieldAccess]: 'Invalid private field \'%0\'',
+
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

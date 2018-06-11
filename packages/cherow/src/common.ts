@@ -38,6 +38,7 @@ export const enum Context {
     Statement            = 1 << 26,
     Asi                  = 1 << 27,
     AllowSuperProperty   = 1 << 28,
+    InClass              = 1 << 29,
 }
 
 /* Mutual parser flags */

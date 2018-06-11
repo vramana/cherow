@@ -158,9 +158,13 @@ export function skipBomAndShebang(parser: Parser, context: Context): void {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanPrivateName(parser: Parser): Token {
-  if (!isValidIdentifierStart(parser.source.charCodeAt(parser.index + 1))) {
-      report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
+
+export function scanPrivateName(parser: Parser, context: Context): Token {
+  let index = parser.index;
+  const next = parser.source.charCodeAt(index + 1);
+  if (!(context & Context.InClass) || index < parser.source.length && !isValidIdentifierStart(next)) {
+      index++;
+      report(parser, Errors.InvalidPrivateFieldAccess, escapeInvalidCharacters(next));
   }
   return Token.Hash;
 }
