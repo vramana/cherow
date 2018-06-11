@@ -76,6 +76,16 @@ describe('Lexer - Whitespace', () => {
         line: 4, column: 5,
     });
 
+    pass('should skip paragraph separators', {
+      source: '    \t \u2029 ',
+      line: 2, column: 1,
+  });
+
+    pass('should skip line separators', {
+      source: '    \t \u2028 ',
+      line: 2, column: 1,
+   });
+
     pass('should skip multiline comments with nothing', {
         source: '  \t /* foo * /* bar */  ',
         line: 1, column: 24,

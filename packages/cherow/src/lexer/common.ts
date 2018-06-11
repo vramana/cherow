@@ -3,7 +3,7 @@ import { Token, tokenDesc } from '../token';
 import { Context, Flags } from '../common';
 import { Chars } from '../chars';
 import { Errors, recordErrors, report } from '../errors';
-import { isValidIdentifierPart, mustEscape } from '../unicode';
+import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from '../unicode';
 
 export const enum Escape {
   Empty = -1,
@@ -127,6 +127,44 @@ export function skipToNewline(parser: Parser): boolean {
 
   return false;
 }
+
+/**
+ * Skips BOM and shebang
+ *
+ * parser Parser object
+ */
+export function skipBomAndShebang(parser: Parser, context: Context): void {
+  let index = parser.index;
+  if (index === parser.source.length) return;
+  if (parser.source.charCodeAt(index) === Chars.ByteOrderMark) {
+      index++;
+      parser.index = index;
+  }
+
+  if (context & Context.OptionsShebang && index < parser.source.length && parser.source.charCodeAt(index) === Chars.Hash) {
+      index++;
+      if (index < parser.source.length && parser.source.charCodeAt(index) === Chars.Exclamation) {
+          parser.index = index + 1;
+          skipToNewline(parser)
+      }
+  }
+  // Note: The lexer will take it over from here and either find a private name (#) or simply
+  // throw an error
+}
+
+/**
+ * Scans private name. Stage 3 proposal related
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function scanPrivateName(parser: Parser): Token {
+  if (!isValidIdentifierStart(parser.source.charCodeAt(parser.index + 1))) {
+      report(parser, Errors.UnexpectedToken, tokenDesc(parser.token));
+  }
+  return Token.Hash;
+}
+
 
 export function readNext(parser: Parser, ch: any): number {
     parser.index++; parser.column++;

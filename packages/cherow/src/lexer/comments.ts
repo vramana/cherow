@@ -1,6 +1,6 @@
-import { Token, tokenDesc } from '../token';
-import { Context, Flags } from '../common';
-import { consumeOpt, advanceNewline, skipToNewline, consumeLineFeed } from './common';
+import { Token } from '../token';
+import { Context } from '../common';
+import { consumeOpt, advanceNewline } from './common';
 import { Chars } from '../chars';
 import { Parser } from '../types';
 import { Errors, report } from '../errors';

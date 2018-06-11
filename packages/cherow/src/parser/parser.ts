@@ -1,11 +1,11 @@
 import { Token } from '../token';
-import { Context, Flags, LabelState, isLexical } from '../common';
+import { Context, Flags, LabelState } from '../common';
 import { Parser, OnError, Options, OnComment, EcmaVersion } from '../types';
 import * as ESTree from '../estree';
 import { parseStatementList } from './statements';
 import { parseModuleItemList } from './module';
 import { Chars } from '../chars';
-import { consumeOpt, RegexpState } from '../lexer/common';
+import { consumeOpt, RegexpState, skipBomAndShebang } from '../lexer/common';
 import { verifyRegExpPattern } from '../lexer/regexp';
 import { Errors, recordErrors, } from '../errors';
 import { doLexicalAnalysis } from './tokenize';
@@ -129,6 +129,7 @@ export function parseSource(
 
     // Create the parser object
     const parser = createParserObject(source, onComment, onError);
+    skipBomAndShebang(parser, context);
     const body = (context & Context.Module) === Context.Module ?
     parseModuleItemList(parser, context) : parseStatementList(parser, context);
 

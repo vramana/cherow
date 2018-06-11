@@ -11,7 +11,7 @@ import { Errors, recordErrors } from '../errors';
 import { scanTemplate } from './template';
 
 function impossible(parser: Parser, context: Context): void {
-    recordErrors(parser, context, Errors.UnexpectedToken, escapeInvalidCharacters(nextUnicodeChar(parser)));
+  recordErrors(parser, context, Errors.UnexpectedToken, escapeInvalidCharacters(nextUnicodeChar(parser)));
 }
 
 const table = new Array(128).fill(impossible, 0, 0xFFFF) as ((parser: Parser, context: Context, first: number) => Token)[];
@@ -40,9 +40,7 @@ table[Chars.Space] =
         return Token.WhiteSpace;
     };
 
-table[Chars.LineSeparator] =
-    table[Chars.ParagraphSeparator] =
-    table[Chars.LineFeed] =
+  table[Chars.LineFeed] =
     table[Chars.CarriageReturn] = (parser: Parser, context: Context, first: number) => {
         const c = context;
         advanceNewline(parser, first);
