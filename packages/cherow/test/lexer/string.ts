@@ -4,6 +4,8 @@ import { createParserObject } from '../../src/parser/parser';
 import { Context } from '../../src/common';
 import { Token } from '../../src/token';
 
+// See test/parser/literals/string.ts
+
 describe('Lexer - String literals', () => {
 
     const inputData: any = [
@@ -111,7 +113,7 @@ pass("scans \"123\"", {
       Zero = 0x30,
       Nine = 0x39,
   }
-
+    describe('English capitals', () => {
       for (let code = Chars.EnglishUpperA; code <= Chars.EnglishUpperZ; code++) {
         const letter = String.fromCharCode(code);
 
@@ -121,10 +123,10 @@ pass("scans \"123\"", {
           raw: `'${letter}'`,
           line: 1, column: `'${letter}'`.length,
         });
-
-
-      //    testChar(code);
       }
+    });
+
+    describe('English smal letter', () => {
 
       for (let code = Chars.EnglishLowerA; code <= Chars.EnglishLowerZ; code++) {
         const letter = String.fromCharCode(code);
@@ -136,10 +138,10 @@ pass("scans \"123\"", {
           line: 1, column: `'${letter}'`.length,
         });
 
-
-      //    testChar(code);
       }
+    });
 
+    describe('Russian capitals', () => {
       for (let code = Chars.RussianUpperА; code <= Chars.RussianUpperЯ; code++) {
         const letter = String.fromCharCode(code);
         pass("scans " + letter, {
@@ -149,10 +151,11 @@ pass("scans \"123\"", {
           line: 1, column: `'${letter}'`.length,
         });
       }
+    });
 
+      describe('Russian small letters', () => {
       for (let code = Chars.RussianLowerА; code <= Chars.RussianLowerЯ; code++) {
         const letter = String.fromCharCode(code);
-
         pass("scans " + letter, {
           source: `'${letter}'`,
           value: letter,
@@ -160,4 +163,6 @@ pass("scans \"123\"", {
           line: 1, column: `'${letter}'`.length,
         });
       }
+
+    });
 });
