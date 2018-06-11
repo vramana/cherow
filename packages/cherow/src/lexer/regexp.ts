@@ -27,7 +27,6 @@ import {
 // - Add in error support
 // - Optimize
 // - Maybe convert 'validateRegexBody' to a lookup table
-// - Add missing code
 //
 
 /**
@@ -329,11 +328,9 @@ function validateAtomEscape(parser: Parser): RegexpState {
         case Chars.LowerC:
             {
                 if (parser.index < parser.length) {
-                    const ch1 = parser.source.charCodeAt(parser.index);
-                    const letter = ch1 & ~(Chars.UpperA ^ Chars.LowerA);
-                    if (letter >= Chars.UpperA && letter <= Chars.UpperZ) {
-                        parser.index++;
-                        parser.column++;
+                    const letter = parser.source.charCodeAt(parser.index) | 32;
+                    if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
+                        parser.index++; parser.column++;
                         return RegexpState.SloppyMode;
                     }
                 }
@@ -565,11 +562,9 @@ export function validateClassAndClassCharacterEscape(parser: Parser): RegexpStat
 
             if (parser.index < parser.length) {
                 const ch = parser.source.charCodeAt(parser.index);
-                const letter = ch & ~(Chars.UpperA ^ Chars.LowerA);
-                // Control letters mapped to ASCII control characters in the range 0x00-0x1F.
-                if (letter >= Chars.UpperA && letter <= Chars.UpperZ) {
-                    parser.index++;
-                    parser.column++;
+                const letter = ch | 32;
+                if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
+                    parser.index++; parser.column++;
                     return ch & 0x1F;
                 }
             }

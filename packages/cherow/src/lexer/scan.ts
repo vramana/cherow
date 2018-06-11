@@ -56,8 +56,7 @@ table[Chars.Slash] = (parser: Parser) => {
     if (parser.index >= parser.length) return Token.Divide;
     const next = parser.source.charCodeAt(parser.index);
     if (next === Chars.Slash) {
-        skipSingleLineComment(parser);
-        return Token.SingleComment;
+        return skipSingleLineComment(parser);
     } else if (next === Chars.Asterisk) {
         return skipMultilineComment(parser);
     } else if (next === Chars.EqualSign) {
@@ -155,8 +154,7 @@ table[Chars.Hyphen] = (parser: Parser, context) => {
     const next = parser.source.charCodeAt(parser.index);
     if (next === Chars.Hyphen &&
         parser.source.charCodeAt(parser.index + 1) === Chars.GreaterThan) {
-        skipSingleHTMLComment(parser, context);
-        return Token.HTMLComment;
+        return skipSingleHTMLComment(parser, context);
     } else if (parser.index < parser.source.length) {
         if (next === Chars.Hyphen) {
             parser.index++; parser.column++;

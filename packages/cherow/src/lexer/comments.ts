@@ -3,15 +3,16 @@ import { Context, Flags } from '../common';
 import { consumeOpt, advanceNewline, skipToNewline, consumeLineFeed } from './common';
 import { Chars } from '../chars';
 import { Parser } from '../types';
-import { Errors, recordErrors, } from '../errors';
+import { Errors, report } from '../errors';
 
 export function skipSingleHTMLComment(parser: Parser, context: Context): Token {
-   if (context & Context.Module) recordErrors(parser, context, Errors.HtmlCommentInModule);
-   skipSingleLineComment(parser);
+   if (context & Context.Module) report(parser, Errors.HtmlCommentInModule);
+   skipSingleLineComment(parser, Token.HTMLComment);
    return Token.HTMLComment;
 }
 
-export function skipSingleLineComment(parser: Parser): boolean {
+export function skipSingleLineComment(parser: Parser, returnToken: Token = Token.SingleComment): Token {
+
   while (parser.index < parser.length) {
       const ch = parser.source.charCodeAt(parser.index);
       switch (ch) {
@@ -20,14 +21,14 @@ export function skipSingleLineComment(parser: Parser): boolean {
           case Chars.LineSeparator:
           case Chars.ParagraphSeparator:
               advanceNewline(parser, ch);
-              return true;
+              return returnToken;
           default:
               parser.index++;
               parser.column++;
       }
   }
 
-  return false;
+  return returnToken;
 }
 
 export function skipMultilineComment(parser: Parser): any {
@@ -38,7 +39,9 @@ export function skipMultilineComment(parser: Parser): any {
                 parser.index++; parser.column++;
                 if (consumeOpt(parser, Chars.Slash)) return Token.MultiComment;
                 break;
-            case Chars.CarriageReturn: case Chars.LineFeed: case Chars.LineSeparator:
+            case Chars.CarriageReturn:
+            case Chars.LineFeed:
+            case Chars.LineSeparator:
             case Chars.ParagraphSeparator:
                 advanceNewline(parser, ch);
                 break;
@@ -47,4 +50,6 @@ export function skipMultilineComment(parser: Parser): any {
                  parser.index++; parser.column++;
         }
     }
+
+    report(parser, Errors.Unexpected);
 }
