@@ -2,7 +2,7 @@ import { Parser } from '../types';
 import { Token, tokenDesc } from '../token';
 import { Context, Flags } from '../common';
 import { Chars } from '../chars';
-import { Errors, recordErrors } from '../errors';
+import { Errors, recordErrors, report } from '../errors';
 import { isValidIdentifierPart, mustEscape } from '../unicode';
 
 export const enum Escape {
@@ -436,5 +436,31 @@ export function escapeForPrinting(code: number): string {
           if (code < 0x1000) return `\\u0${code.toString(16)}`;
           if (code < 0x10000) return `\\u${code.toString(16)}`;
           return `\\u{${code.toString(16)}}`;
+  }
+}
+
+/**
+* Throws a string error for either string or template literal
+*
+* @param parser Parser object
+* @param context Context masks
+*/
+export function recordStringErrors(
+  parser: Parser,
+  code: Escape,
+): void {
+  switch (code) {
+      case Escape.Empty:
+          return;
+      case Escape.StrictOctal:
+          report(parser, Errors.StrictOctalEscape);
+      case Escape.EightOrNine:
+          report(parser, Errors.InvalidEightAndNine);
+      case Escape.InvalidHex:
+          report(parser, Errors.InvalidEscape);
+      case Escape.OutOfRange:
+          report(parser, Errors.InvalidEscape);
+      default:
+          // ignore
   }
 }

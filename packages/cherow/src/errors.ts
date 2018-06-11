@@ -55,7 +55,8 @@ export const enum Errors {
     OutOfOrderCharacterClass,
     DuplicateRegExpFlag,
     InvalidRegularExp,
-    HtmlCommentInModule
+    HtmlCommentInModule,
+    UnterminatedTemplate
 }
 /*@internal*/
 export const errorMessages: {
@@ -114,6 +115,7 @@ export const errorMessages: {
     [Errors.OutOfOrderCharacterClass]: 'Range out of order in character class',
     [Errors.InvalidRegularExp]: 'Invalid regular expression',
     [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
+    [Errors.UnterminatedTemplate]: 'Unterminated template literal',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
@@ -128,7 +130,7 @@ export function constructError(index: number, line: number, column: number, desc
     return error;
 }
 
-export function recordErrors(parser: Parser, context: Context, type: Errors, ...params: string[]) {
+export function recordErrors(parser: Parser, context: Context, type: Errors, ...params: string[]): any {
     const { index, line, column } = parser;
     const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     const error = constructError(index, line, column, message);
@@ -137,7 +139,7 @@ export function recordErrors(parser: Parser, context: Context, type: Errors, ...
     } else throw error;
 }
 
-export function report(parser: Parser, type: Errors, ...params: string[]) {
+export function report(parser: Parser, type: Errors, ...params: string[]): any {
   const { index, line, column } = parser;
   const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
   const error = constructError(index, line, column, message);

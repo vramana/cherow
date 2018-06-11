@@ -125,7 +125,7 @@ export function parseSource(
     }
 
     // Todo: Fix ECMA versioning.
-    let todo = ecma;
+    const todo = ecma;
 
     // Create the parser object
     const parser = createParserObject(source, onComment, onError);
