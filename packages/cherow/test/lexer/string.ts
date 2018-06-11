@@ -6,55 +6,51 @@ import { Token } from '../../src/token';
 
 describe('Lexer - String literals', () => {
 
+    const inputData: any = [
+        [Context.Empty, `"我是一个胖胖的愚蠢的狼"`, Token.StringLiteral, `我是一个胖胖的愚蠢的狼`],
+        [Context.Empty, `"中文！！"`, Token.StringLiteral, `中文！！`],
+        [Context.Empty, `"English string"`, Token.StringLiteral, `English string`],
+
+    ];
+
+    for (const [ctx, source, token, parsed] of inputData) {
+        it(`scans '${source}'`, () => {
+            const parser = createParserObject(source, undefined);
+            const found = nextToken(parser, ctx);
+            t.deepEqual({
+                value: parser.tokenValue,
+                token: found,
+                line: parser.line,
+            }, {
+                value: parsed,
+                token,
+                line: 1,
+            });
+        });
+    }
+
+
   function pass(name: string, opts: any) {
-    function test(name: string, context: Context, isEnd: boolean) {
+    function test(name: string, context: Context) {
         it(name, () => {
             if (opts.strict !== true) {
-                const parser = createParserObject(isEnd ? opts.source : `${opts.source} `, undefined);
+                const parser = createParserObject(opts.source, undefined);
 
                 t.deepEqual({
                     token: nextToken(parser, context),
-                  //  hasNext: hasNext(parser),
                     value: parser.tokenValue,
-                    raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
                     line: parser.line,
                     column: parser.column,
                 }, {
                     token: Token.StringLiteral,
-               //     hasNext: !isEnd,
                     value: opts.value,
-                    raw: context & Context.OptionsRaw ? opts.raw : undefined,
-                    line: opts.line,
-                    column: opts.column,
-                });
-            }
-
-            if (opts.strict !== false) {
-                const parser = createParserObject(isEnd ? opts.source : `${opts.source} `, undefined);
-
-                t.deepEqual({
-                    token: nextToken(parser, context | Context.Strict),
-               //     hasNext: hasNext(parser),
-                    value: parser.tokenValue,
-                    raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
-                    line: parser.line,
-                    column: parser.column,
-                }, {
-                    token: Token.StringLiteral,
-//                    hasNext: !isEnd,
-                    value: opts.value,
-                    raw: context & Context.OptionsRaw ? opts.raw : undefined,
                     line: opts.line,
                     column: opts.column,
                 });
             }
         });
     }
-
-    test(`${name} (normal, has next)`, Context.Empty, false);
-    test(`${name} (with raw, has next)`, Context.OptionsRaw, false);
-    test(`${name} (normal, end)`, Context.Empty, true);
-    test(`${name} (with raw, end)`, Context.OptionsRaw, true);
+    test(`${name}`, Context.OptionsRaw);
 }
 
 
@@ -101,32 +97,6 @@ pass("scans \"123\"", {
 });
 
 
-    describe("Pass", () => {
-
-        const inputData: any = [
-            [Context.Empty, `"我是一个胖胖的愚蠢的狼"`, Token.StringLiteral, `我是一个胖胖的愚蠢的狼`],
-            [Context.Empty, `"中文！！"`, Token.StringLiteral, `中文！！`],
-            [Context.Empty, `"English string"`, Token.StringLiteral, `English string`],
-
-        ];
-
-        for (const [ctx, source, token, parsed] of inputData) {
-            it(`scans '${source}'`, () => {
-                const parser = createParserObject(source, undefined);
-                const found = nextToken(parser, ctx);
-                t.deepEqual({
-                    value: parser.tokenValue,
-                    token: found,
-                    line: parser.line,
-                }, {
-                    value: parsed,
-                    token,
-                    line: 1,
-                });
-            });
-        }
-    });
-
     const enum Chars {
       EnglishUpperA = 0x41,
       EnglishUpperZ = 0x5A,
@@ -142,11 +112,8 @@ pass("scans \"123\"", {
       Nine = 0x39,
   }
 
-
-
       for (let code = Chars.EnglishUpperA; code <= Chars.EnglishUpperZ; code++) {
         const letter = String.fromCharCode(code);
-        console.log(letter)
 
         pass("scans " + letter, {
           source: `'${letter}'`,
@@ -161,7 +128,6 @@ pass("scans \"123\"", {
 
       for (let code = Chars.EnglishLowerA; code <= Chars.EnglishLowerZ; code++) {
         const letter = String.fromCharCode(code);
-        console.log(letter)
 
         pass("scans " + letter, {
           source: `'${letter}'`,
@@ -176,8 +142,6 @@ pass("scans \"123\"", {
 
       for (let code = Chars.RussianUpperА; code <= Chars.RussianUpperЯ; code++) {
         const letter = String.fromCharCode(code);
-        console.log(letter)
-
         pass("scans " + letter, {
           source: `'${letter}'`,
           value: letter,
@@ -188,7 +152,6 @@ pass("scans \"123\"", {
 
       for (let code = Chars.RussianLowerА; code <= Chars.RussianLowerЯ; code++) {
         const letter = String.fromCharCode(code);
-        console.log(letter)
 
         pass("scans " + letter, {
           source: `'${letter}'`,
