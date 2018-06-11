@@ -8,7 +8,7 @@ import { Errors, report } from '../errors';
 
 export function scanIdentifier(parser: Parser, context: Context, code: number): Token {
     const { index: start } = parser;
-    let c = context;
+    const c = context;
     while (parser.index < parser.length && isIdentifierPart(code)) {
         parser.index++; parser.column++;
         code = parser.source.charCodeAt(parser.index);

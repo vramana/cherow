@@ -463,7 +463,6 @@ export function isStartOfExpression(parser: Parser): boolean {
         case Token.Eval:
         case Token.Arguments:
         case Token.BigInt:
-        case Token.SuperKeyword:
             return true;
         default:
             return false;

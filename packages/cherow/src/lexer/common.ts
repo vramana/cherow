@@ -465,12 +465,10 @@ export function recordStringErrors(
   }
 }
 
-
-export function isIdentifierPart (code: Chars) {
-return  isValidIdentifierPart(code) ||
-  code === Chars.Backslash ||
-  code === Chars.Dollar ||
-  code === Chars.Underscore ||
-  (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
-
+export function isIdentifierPart (code: Chars): boolean {
+  return  isValidIdentifierPart(code) ||
+    code === Chars.Backslash ||
+    code === Chars.Dollar ||
+    code === Chars.Underscore ||
+    (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
 }

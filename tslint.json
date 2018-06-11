@@ -93,7 +93,7 @@
       "allow-number",
       "allow-mix"
     ],
-    "switch-default": true,
+    "switch-default": false,
     "switch-final-break": true,
     "triple-equals": [true, "allow-null-check"],
     "use-isnan": true,
@@ -211,7 +211,7 @@
     "encoding": true,
     "eofline": false,
     "import-spacing": true,
-    "indent": [true, "spaces"],
+    "indent": [true, "spaces", 2],
     "linebreak-style": true,
     "newline-before-return": false,
     "no-consecutive-blank-lines": true,
@@ -278,8 +278,7 @@
     "no-switch-case-fall-through": false, // now supported by TypeScript compiler
     //"no-var-self": true,
     "react-tsx-curly-spacing": true,
-    "typeof-compare": false, // the valid-typeof rule is currently superior to this version
-    "valid-typeof": true
+    "typeof-compare": true
   },
   "rulesDirectory": "node_modules/tslint-microsoft-contrib",
   "defaultSeverity": "warning",
