@@ -362,7 +362,7 @@ export function parseLeftHandSideExpression(parser: Parser, context: Context): a
                     };
                     break;
                 }
-            case Token.TemplateSpan:
+            case Token.TemplateCont:
                 break;
             case Token.TemplateTail:
                 break;
@@ -516,7 +516,7 @@ function parseMemberExpressionContinuation(parser: Parser, context: Context, exp
                     };
                     break;
                 }
-            case Token.TemplateSpan:
+            case Token.TemplateCont:
                 break;
             case Token.TemplateTail:
                 break;
