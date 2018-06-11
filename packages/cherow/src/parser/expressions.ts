@@ -24,7 +24,8 @@ import {
     addCrossingBoundary,
     LabelState,
     nextTokenIsFuncKeywordOnSameLine,
-    isStartOfExpression
+    isStartOfExpression,
+    finishNode
 } from '../common';
 
 /**
@@ -670,10 +671,10 @@ function parseNullOrTrueOrFalseLiteral(parser: Parser, context: Context): ESTree
 export function parseIdentifier(parser: Parser, context: Context): ESTree.Identifier {
     const { tokenValue } = parser;
     nextToken(parser, context);
-    return {
-        type: 'Identifier',
-        name: tokenValue
-    };
+    return finishNode({
+      type: 'Identifier',
+      name: tokenValue
+  });
 }
 
 /**

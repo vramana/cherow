@@ -64,6 +64,7 @@ export function createParserObject(
         tokenValue: undefined,
         tokenRaw: '',
         tokenRegExp: undefined,
+        priorNode: undefined,
         onError,
         onComment
     };

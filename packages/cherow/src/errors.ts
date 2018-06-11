@@ -54,7 +54,8 @@ export const enum Errors {
     UnterminatedCharacterClass,
     OutOfOrderCharacterClass,
     DuplicateRegExpFlag,
-    InvalidRegularExp
+    InvalidRegularExp,
+    HtmlCommentInModule
 }
 /*@internal*/
 export const errorMessages: {
@@ -112,6 +113,7 @@ export const errorMessages: {
     [Errors.UnterminatedCharacterClass]: 'Unterminated character class',
     [Errors.OutOfOrderCharacterClass]: 'Range out of order in character class',
     [Errors.InvalidRegularExp]: 'Invalid regular expression',
+    [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

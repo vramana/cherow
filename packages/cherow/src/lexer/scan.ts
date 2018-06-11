@@ -78,7 +78,8 @@ table[Chars.Slash] = (parser: Parser) => {
     if (parser.index >= parser.length) return Token.Divide;
     const next = parser.source.charCodeAt(parser.index);
     if (next === Chars.Slash) {
-        return skipSingleLineComment(parser);
+        skipSingleLineComment(parser);
+        return Token.SingleComment;
     } else if (next === Chars.Asterisk) {
         return skipMultilineComment(parser);
     } else if (next === Chars.EqualSign) {
@@ -171,12 +172,12 @@ table[Chars.Plus] = (parser: Parser) => {
 };
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = (parser: Parser) => {
+table[Chars.Hyphen] = (parser: Parser, context) => {
     parser.index++; parser.column++;
     const next = parser.source.charCodeAt(parser.index);
     if (next === Chars.Hyphen &&
         parser.source.charCodeAt(parser.index + 1) === Chars.GreaterThan) {
-        skipSingleHTMLComment(parser);
+        skipSingleHTMLComment(parser, context);
         return Token.HTMLComment;
     } else if (parser.index < parser.source.length) {
         if (next === Chars.Hyphen) {
@@ -238,7 +239,7 @@ table[Chars.LessThan] = (parser: Parser, context: Context) => {
                 {
                     if (parser.source.charCodeAt(parser.index + 1) === Chars.Hyphen &&
                         parser.source.charCodeAt(parser.index + 2) === Chars.Hyphen) {
-                        return skipSingleHTMLComment(parser);
+                        return skipSingleHTMLComment(parser, context);
                     }
                     break;
                 }

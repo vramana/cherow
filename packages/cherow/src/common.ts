@@ -486,3 +486,8 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
     }
     return parseIdentifier(parser, context);
 }
+
+
+export function finishNode < T extends ESTree.Node > (node: any): T {
+  return node as T;
+}

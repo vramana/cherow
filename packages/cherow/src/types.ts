@@ -1,3 +1,4 @@
+import { ESTree } from 'cherow';
 import { Token } from './token';
 import { Flags, LabelState } from './common';
 import { Comment } from './estree';
@@ -109,6 +110,7 @@ export interface Parser {
     switchStatement: LabelState;
     iterationStatement: LabelState;
     labelDepth: number;
+    priorNode: ESTree.Node;
     tokenRegExp: void | {
         pattern: string;
         flags: string;
