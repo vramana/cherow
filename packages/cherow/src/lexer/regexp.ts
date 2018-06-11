@@ -331,7 +331,6 @@ function validateAtomEscape(parser: Parser): RegexpState {
                 if (parser.index < parser.length) {
                     const ch1 = parser.source.charCodeAt(parser.index);
                     const letter = ch1 & ~(Chars.UpperA ^ Chars.LowerA);
-                    // controlLetter is not in range 'A'-'Z' or 'a'-'z'.
                     if (letter >= Chars.UpperA && letter <= Chars.UpperZ) {
                         parser.index++;
                         parser.column++;

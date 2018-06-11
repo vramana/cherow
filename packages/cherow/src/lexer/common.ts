@@ -464,3 +464,13 @@ export function recordStringErrors(
           // ignore
   }
 }
+
+
+export function isIdentifierPart (code: Chars) {
+return  isValidIdentifierPart(code) ||
+  code === Chars.Backslash ||
+  code === Chars.Dollar ||
+  code === Chars.Underscore ||
+  (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
+
+}

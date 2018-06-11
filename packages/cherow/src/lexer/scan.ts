@@ -361,7 +361,7 @@ export function nextToken(parser: Parser, context: Context): Token {
         parser.startIndex = parser.index; parser.startColumn = parser.column;
         parser.startLine = parser.line;
         if (first < 128) token = table[first](parser, context, first);
-        else token = scanMaybeIdentifier(parser, context);
+        else token = scanMaybeIdentifier(parser, context, first);
         if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
         return parser.token = token;
     }

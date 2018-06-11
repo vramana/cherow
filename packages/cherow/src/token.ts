@@ -278,7 +278,7 @@ export function tokenDesc(token: Token): string {
 
 // Used `Object.create(null)` to avoid potential `Object.prototype`
 // interference.
-const descKeywordTable: {[key: string]: Token} = Object.create(null, {
+export const descKeywordTable: {[key: string]: Token} = Object.create(null, {
     this: {value: Token.ThisKeyword},
     function: {value: Token.FunctionKeyword},
     if: {value: Token.IfKeyword},
