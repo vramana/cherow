@@ -4,6 +4,7 @@
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
 [![Build status](https://ci.appveyor.com/api/projects/status/pkydnkv0deckns5l/branch/master?svg=true)](https://ci.appveyor.com/project/Kflash/cherow/branch/master)
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
+[![build status](https://api.travis-ci.org/cherow/cherow.svg?branch=master)](https://api.travis-ci.org/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
 Cherow is a very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
@@ -13,6 +14,7 @@ Cherow is a very fast and lightweight, standards-compliant, self-hosted javascri
 This repo is managed as a monorepo that is composed of many independent [npm](https://www.npmjs.com/) packages.
 
 * [Cherow JS parser](https://github.com/cherow/cherow/tree/master/packages/cherow)
+* [Cherow ESLint](https://github.com/cherow/cherow/tree/master/packages/cherow-eslint)
 * [Cherow TypeScript parser](https://github.com/cherow/cherow/tree/master/packages/cherow-ts)
 * [Cherow Flow parser](https://github.com/cherow/cherow/tree/master/packages/cherow-flow)
 * [Cherow CLI](https://github.com/cherow/cherow/tree/master/packages/cherow-cli)
