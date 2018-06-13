@@ -1,5 +1,5 @@
 import { Parser } from '../types';
-import { Chars } from '../chars';
 import { Token } from '../token';
-export declare const isIdentifierPart: (code: Chars) => boolean;
-export declare function scanIdentifier(parser: Parser): Token;
+import { Context } from '../common';
+export declare function scanIdentifier(parser: Parser, context: Context, code: number): Token;
+export declare function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token;

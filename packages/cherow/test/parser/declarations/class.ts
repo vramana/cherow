@@ -2,11 +2,11 @@ import * as t from 'assert';
 import { pass } from '../../test-utils';
 import { Context } from '../../../src/common';
 
-describe('Miscellaneous - Class', () => {
+describe('Declarations - Class', () => {
 
     describe('Pass', () => {
 
-        
+
         pass('a = { a: b }', Context.OptionsNext, {
             source: `a = { a: b }`,
             expected: {
@@ -779,7 +779,7 @@ describe('Miscellaneous - Class', () => {
                 ]
             }
         });
-      
+
         pass('class A {static get [foo](){}}', Context.OptionsNext, {
             source: `class A {static get [foo](){}}`,
             expected: {
@@ -1054,7 +1054,7 @@ describe('Miscellaneous - Class', () => {
                 ]
             }
         });
-   
+
         pass('class A {async(){}}', Context.OptionsNext, {
             source: `class A {async get foo(){}}`,
             expected: {

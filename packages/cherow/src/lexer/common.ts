@@ -145,7 +145,7 @@ export function skipBomAndShebang(parser: Parser, context: Context): void {
       index++;
       if (index < parser.source.length && parser.source.charCodeAt(index) === Chars.Exclamation) {
           parser.index = index + 1;
-          skipToNewline(parser)
+          skipToNewline(parser);
       }
   }
   // Note: The lexer will take it over from here and either find a private name (#) or simply
@@ -168,7 +168,6 @@ export function scanPrivateName(parser: Parser, context: Context): Token {
   }
   return Token.Hash;
 }
-
 
 export function readNext(parser: Parser, ch: any): number {
     parser.index++; parser.column++;

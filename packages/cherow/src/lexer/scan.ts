@@ -1,4 +1,4 @@
-import { Parser, OnToken } from '../types';
+import { Parser } from '../types';
 import { Token } from '../token';
 import { Context, Flags } from '../common';
 import { advanceNewline, consumeOpt, escapeInvalidCharacters, nextUnicodeChar, mapToToken, scanPrivateName } from './common';
@@ -6,7 +6,7 @@ import { Chars } from '../chars';
 import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 import { skipSingleHTMLComment, skipSingleLineComment, skipMultilineComment } from './comments';
 import { scanStringLiteral } from './string';
-import { scanNumeric, parseFractionalNumber, parseLeadingZero } from './numeric';
+import { scanNumeric, parseLeadingZero } from './numeric';
 import { Errors, recordErrors } from '../errors';
 import { scanTemplate } from './template';
 
@@ -48,7 +48,6 @@ table[Chars.LineFeed] =
         return Token.WhiteSpace;
     };
 
-
 // `/`, `/=`, `/>`
 table[Chars.Slash] = (parser: Parser) => {
     parser.index++; parser.column++;
@@ -61,9 +60,6 @@ table[Chars.Slash] = (parser: Parser) => {
     } else if (next === Chars.EqualSign) {
         parser.index++; parser.column++;
         return Token.DivideAssign;
-    } else if (next === Chars.GreaterThan) {
-        parser.index++; parser.column++;
-        return Token.JSXAutoClose;
     }
     return Token.Divide;
 };
@@ -181,7 +177,7 @@ table[Chars.Period] = (parser: Parser) => {
                 return Token.Ellipsis;
             }
         } else if (next >= Chars.Zero && next <= Chars.Nine) {
-            return parseFractionalNumber(parser);
+            return scanNumeric(parser);
         }
     parser.index++; parser.column++;
     return Token.Period;

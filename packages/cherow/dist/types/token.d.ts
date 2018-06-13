@@ -31,7 +31,7 @@ export declare const enum Token {
     TrueKeyword = 8194,
     NullKeyword = 8195,
     TemplateHead = 67108868,
-    TemplateSpan = 67108869,
+    TemplateCont = 67108869,
     TemplateTail = 67108870,
     Arrow = 33554439,
     LeftParen = 33554440,
@@ -156,4 +156,7 @@ export declare const enum Token {
  * The conversion function between token and its string description/representation.
  */
 export declare function tokenDesc(token: Token): string;
+export declare const descKeywordTable: {
+    [key: string]: Token;
+};
 export declare function descKeyword(value: string): Token;

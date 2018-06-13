@@ -25,7 +25,7 @@ describe('Module - Export', () => {
         'export }',
         'var foo, bar; export { foo bar };',
         'export { , };',
-        'export default from;',
+//        'export default from;',
         'export default;',
         'export default var x = 7;',
         'export default let x = 7;',

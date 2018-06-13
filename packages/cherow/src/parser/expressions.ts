@@ -5,6 +5,8 @@ import { parseAssignmentPattern, parseDelimitedBindingList, parseBindingIdentifi
 import { parseStatementListItem, parseDirective } from './statements';
 import { Errors, recordErrors, } from '../errors';
 import { nextToken } from '../lexer/scan';
+import { consumeTemplateBrace } from '../lexer/template';
+import { scanRegularExpression } from '../lexer/regexp';
 import {
     Context,
     Flags,
@@ -610,6 +612,7 @@ function parseArgumentList(parser: Parser, context: Context): (ESTree.Expression
 }
 
 export function parsePrimaryExpression(parser: Parser, context: Context): any {
+
     switch (parser.token) {
         case Token.LetKeyword:
         case Token.YieldKeyword:
@@ -642,11 +645,149 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             return parseParenthesizedExpression(parser, context);
         case Token.LeftBracket:
             return parseArrayLiteral(parser, context);
+            case Token.Divide:
+            case Token.DivideAssign:
+
+                return parseRegularExpressionLiteral(parser, context);
+            case Token.TemplateTail:
+                return parseTemplateLiteral(parser, context);
+            case Token.TemplateCont:
+                return parseTemplate(parser, context);
         default:
+            if (parser.token & (Token.Contextual | Token.FutureReserved | Token.Reserved)) {
+              return parseIdentifier(parser, context);
+            }
             recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(nextToken(parser, context)));
     }
 }
 
+/**
+ * Parse regular expression literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseRegularExpressionLiteral(parser: Parser, context: Context): ESTree.RegExpLiteral {
+  scanRegularExpression(parser, context);
+  const { tokenRegExp, tokenValue, tokenRaw } = parser;
+  nextToken(parser, context);
+  const node: any = finishNode({
+      type: 'Literal',
+      value: tokenValue,
+      regex: tokenRegExp,
+  });
+
+  if (context & Context.OptionsRaw) node.raw = tokenRaw;
+
+  return node;
+}
+
+/**
+ * Parse template literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateLiteral)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseTemplateLiteral(parser: Parser, context: Context): ESTree.TemplateLiteral {
+  return finishNode({
+      type: 'TemplateLiteral',
+      expressions: [],
+      quasis: [parseTemplateSpans(parser, context)],
+  });
+}
+
+/**
+* Parse template head
+*
+* @param parser Parser object
+* @param context Context masks
+* @param cooked Cooked template value
+* @param raw Raw template value
+* @param pos Current location
+*/
+
+function parseTemplateHead(
+parser: Parser,
+context: Context,
+cooked: string | null = null,
+raw: string,
+): ESTree.TemplateElement {
+  parser.token = consumeTemplateBrace(parser, context);
+
+  return finishNode({
+      type: 'TemplateElement',
+      value: {
+          cooked,
+          raw,
+      },
+      tail: false,
+  });
+}
+
+/**
+* Parse template
+*
+* @param parser Parser object
+* @param context Context masks
+* @param expression Expression AST node
+* @param quasis Array of Template elements
+*/
+
+function parseTemplate(
+  parser: Parser,
+  context: Context,
+  expressions: ESTree.Expression[] = [],
+  quasis: ESTree.TemplateElement[] = [],
+): ESTree.TemplateLiteral {
+  const { tokenValue, tokenRaw } = parser;
+
+  expect(parser, context, Token.TemplateCont);
+
+  expressions.push(parseExpression(parser, context));
+  quasis.push(parseTemplateHead(parser, context, tokenValue, tokenRaw));
+
+  if (parser.token === Token.TemplateTail) {
+      quasis.push(parseTemplateSpans(parser, context));
+  } else {
+      parseTemplate(parser, context, expressions, quasis);
+  }
+
+  return finishNode({
+      type: 'TemplateLiteral',
+      expressions,
+      quasis,
+  });
+}
+/**
+ * Parse template spans
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param loc Current AST node location
+ */
+
+function parseTemplateSpans(parser: Parser, context: Context): ESTree.TemplateElement {
+  const { tokenValue, tokenRaw } = parser;
+
+  expect(parser, context, Token.TemplateTail);
+
+  return finishNode({
+      type: 'TemplateElement',
+      value: {
+          cooked: tokenValue,
+          raw: tokenRaw,
+      },
+      tail: true,
+  });
+}
 /**
  * Parses either null or boolean literal
  *
@@ -1007,7 +1148,7 @@ export function parsePropertyName(parser: Parser, context: Context): any {
     switch (parser.token) {
         case Token.NumericLiteral:
         case Token.StringLiteral:
-            //  return parseLiteral(parser, context);
+            return parseLiteral(parser, context);
         case Token.LeftBracket:
             return parseComputedPropertyName(parser, context);
         default:

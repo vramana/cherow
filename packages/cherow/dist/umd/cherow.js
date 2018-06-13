@@ -179,6 +179,9 @@
         [48 /* UnterminatedCharacterClass */]: 'Unterminated character class',
         [49 /* OutOfOrderCharacterClass */]: 'Range out of order in character class',
         [51 /* InvalidRegularExp */]: 'Invalid regular expression',
+        [52 /* HtmlCommentInModule */]: 'HTML comments are not allowed in modules',
+        [53 /* UnterminatedTemplate */]: 'Unterminated template literal',
+        [54 /* InvalidPrivateFieldAccess */]: 'Invalid private field \'%0\'',
     };
     function constructError(index, line, column, description) {
         const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -199,11 +202,20 @@
         else
             throw error;
     }
+    function report(parser, type, ...params) {
+        const { index, line, column } = parser;
+        const message = errorMessages[type].replace(/%(\d+)/g, (_, i) => params[i]);
+        const error = constructError(index, line, column, message);
+        throw error;
+    }
 
     // Unicode v. 10 support
     // tslint:disable
     function isValidIdentifierPart(code) {
         return (convert[(code >>> 5) + 0] >>> code & 31 & 1) !== 0;
+    }
+    function isValidIdentifierStart(code) {
+        return (convert[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
     }
     function mustEscape(code) {
         return (convert[(code >>> 5) + 69632] >>> code & 31 & 1) !== 0;
@@ -269,6 +281,44 @@
             }
         }
         return false;
+    }
+    /**
+     * Skips BOM and shebang
+     *
+     * parser Parser object
+     */
+    function skipBomAndShebang(parser, context) {
+        let index = parser.index;
+        if (index === parser.source.length)
+            return;
+        if (parser.source.charCodeAt(index) === 65519 /* ByteOrderMark */) {
+            index++;
+            parser.index = index;
+        }
+        if (context & 1024 /* OptionsShebang */ && index < parser.source.length && parser.source.charCodeAt(index) === 35 /* Hash */) {
+            index++;
+            if (index < parser.source.length && parser.source.charCodeAt(index) === 33 /* Exclamation */) {
+                parser.index = index + 1;
+                skipToNewline(parser);
+            }
+        }
+        // Note: The lexer will take it over from here and either find a private name (#) or simply
+        // throw an error
+    }
+    /**
+     * Scans private name. Stage 3 proposal related
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function scanPrivateName(parser, context) {
+        let index = parser.index;
+        const next = parser.source.charCodeAt(index + 1);
+        if (!(context & 536870912 /* InClass */) || index < parser.source.length && !isValidIdentifierStart(next)) {
+            index++;
+            report(parser, 54 /* InvalidPrivateFieldAccess */, escapeInvalidCharacters(next));
+        }
+        return 8388707 /* Hash */;
     }
     function readNext(parser, ch) {
         parser.index++;
@@ -494,7 +544,7 @@
             return token;
         };
     }
-    function escapeForPrinting(code) {
+    function escapeInvalidCharacters(code) {
         switch (code) {
             case 0 /* Null */: return '\\0';
             case 8 /* Backspace */: return '\\b';
@@ -519,41 +569,117 @@
                 return `\\u{${code.toString(16)}}`;
         }
     }
+    /**
+    * Throws a string error for either string or template literal
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    */
+    function recordStringErrors(parser, code) {
+        switch (code) {
+            case -1 /* Empty */:
+                return;
+            case -2 /* StrictOctal */:
+                report(parser, 4 /* StrictOctalEscape */);
+            case -3 /* EightOrNine */:
+                report(parser, 5 /* InvalidEightAndNine */);
+            case -4 /* InvalidHex */:
+                report(parser, 46 /* InvalidEscape */);
+            case -5 /* OutOfRange */:
+                report(parser, 46 /* InvalidEscape */);
+            default:
+            // ignore
+        }
+    }
+    function isIdentifierPart(code) {
+        return isValidIdentifierPart(code) ||
+            code === 92 /* Backslash */ ||
+            code === 36 /* Dollar */ ||
+            code === 95 /* Underscore */ ||
+            (code >= 48 /* Zero */ && code <= 57 /* Nine */); // 0..9;
+    }
 
-    const isIdentifierPart = (code) => isValidIdentifierPart(code) ||
-        code === 92 /* Backslash */ ||
-        code === 36 /* Dollar */ ||
-        code === 95 /* Underscore */ ||
-        (code >= 48 /* Zero */ && code <= 57 /* Nine */); // 0..9;
-    function scanIdentifier(parser) {
-        let code = parser.source.charCodeAt(parser.index);
+    function scanIdentifier(parser, context, code) {
+        const { index: start } = parser;
         while (parser.index < parser.length && isIdentifierPart(code)) {
             parser.index++;
             parser.column++;
             code = parser.source.charCodeAt(parser.index);
         }
-        const ret = parser.source.slice(parser.startIndex, parser.index);
-        const len = ret.length;
-        parser.tokenValue = ret;
-        // Keywords are between 2 and 11 characters long and start with a lowercase letter
-        // https://tc39.github.io/ecma262/#sec-keywords
+        parser.tokenValue = parser.source.slice(start, parser.index);
+        return getIdentifierToken(parser);
+    }
+    function getIdentifierToken(parser) {
+        const len = parser.tokenValue.length;
         if (len >= 2 && len <= 11) {
-            const token = descKeyword(ret);
+            const token = descKeyword(parser.tokenValue);
             if (token > 0) {
                 return token;
             }
         }
         return 8388608 /* Identifier */;
     }
+    function scanMaybeIdentifier(parser, context, first) {
+        switch (first) {
+            case 8232 /* LineSeparator */:
+            case 8233 /* ParagraphSeparator */:
+                advanceNewline(parser, first);
+                parser.flags |= 1 /* NewLine */;
+                return 524288 /* WhiteSpace */;
+            // Special cases
+            case 65519 /* ByteOrderMark */:
+            case 160 /* NonBreakingSpace */:
+            case 5760 /* Ogham */:
+            case 8192 /* EnQuad */:
+            case 8193 /* EmQuad */:
+            case 8194 /* EnSpace */:
+            case 8195 /* EmSpace */:
+            case 8196 /* ThreePerEmSpace */:
+            case 8197 /* FourPerEmSpace */:
+            case 8198 /* SixPerEmSpace */:
+            case 8199 /* FigureSpace */:
+            case 8200 /* PunctuationSpace */:
+            case 8201 /* ThinSpace */:
+            case 8202 /* HairSpace */:
+            case 8239 /* NarrowNoBreakSpace */:
+            case 8287 /* MathematicalSpace */:
+            case 12288 /* IdeographicSpace */:
+            case 65279 /* Zwnbs */:
+            case 8205 /* Zwj */:
+                parser.index++;
+                parser.column++;
+                return 524288 /* WhiteSpace */;
+            default:
+                first = nextUnicodeChar(parser);
+                if (!isValidIdentifierStart(first)) {
+                    report(parser, 0 /* Unexpected */, escapeInvalidCharacters(first));
+                }
+                return scanIdentifier(parser, context, first);
+        }
+    }
 
-    function skipSingleHTMLComment(parser) {
-        // if (context & Context.Module) report(parser, Errors.HtmlCommentInModule);
-        skipToNewline(parser);
+    function skipSingleHTMLComment(parser, context) {
+        if (context & 32768 /* Module */)
+            report(parser, 52 /* HtmlCommentInModule */);
+        skipSingleLineComment(parser, 1572982 /* HTMLComment */);
         return 1572982 /* HTMLComment */;
     }
-    function skipSingleLineComment(parser) {
-        skipToNewline(parser);
-        return 1572980 /* SingleComment */;
+    function skipSingleLineComment(parser, returnToken = 1572980 /* SingleComment */) {
+        while (parser.index < parser.length) {
+            const ch = parser.source.charCodeAt(parser.index);
+            switch (ch) {
+                case 13 /* CarriageReturn */:
+                case 10 /* LineFeed */:
+                case 8232 /* LineSeparator */:
+                case 8233 /* ParagraphSeparator */:
+                    advanceNewline(parser, ch);
+                    return returnToken;
+                default:
+                    parser.index++;
+                    parser.column++;
+            }
+        }
+        return returnToken;
     }
     function skipMultilineComment(parser) {
         while (parser.index < parser.length) {
@@ -576,6 +702,7 @@
                     parser.column++;
             }
         }
+        report(parser, 0 /* Unexpected */);
     }
 
     /**
@@ -588,97 +715,58 @@
      * @param quote codepoint
      */
     function scanStringLiteral(parser, context, quote) {
-        parser.index++;
-        parser.column++;
-        let { index, column } = parser;
+        const { index: start, lastValue } = parser;
         let ret = '';
-        let ch = parser.source.charCodeAt(parser.index);
-        loop: while (parser.index < parser.source.length) {
-            ch = parser.source.charCodeAt(parser.index);
+        let ch = readNext(parser, quote);
+        while (ch !== quote) {
             switch (ch) {
-                case 8232 /* LineSeparator */:
-                case 8233 /* ParagraphSeparator */:
-                case 13 /* CarriageReturn */:
-                case 10 /* LineFeed */:
-                    break loop;
                 case 92 /* Backslash */:
-                    ret += parser.source.slice(index, parser.index);
                     ch = readNext(parser, ch);
-                    if (ch > 128 /* MaxAsciiCharacter */) {
+                    if (ch >= 128) {
                         ret += fromCodePoint(ch);
                     }
                     else {
+                        parser.lastValue = ch;
                         const code = table[ch](parser, context, ch);
                         if (code >= 0)
                             ret += fromCodePoint(code);
-                        // recovers from invalid escapes
-                        else if (code !== -1 /* Empty */) {
-                            ret = undefined;
-                            recordStringErrors(parser, context, code);
-                            ch = scanBadString(parser, quote, ch);
-                            break loop;
-                        }
                         else
-                            return recordStringErrors(parser, context, code);
-                        index = parser.index + 1;
-                        column = parser.column + 1;
+                            recordStringErrors(parser, code);
+                        ch = parser.lastValue;
                     }
                     break;
-                case quote:
-                    ret += parser.source.slice(index, parser.index);
-                    parser.index++;
-                    parser.column++; // consume the quote
-                    parser.tokenRaw = parser.source.slice(index - 1, parser.index);
-                    parser.tokenValue = ret;
-                    return 4194304 /* StringLiteral */;
+                case 13 /* CarriageReturn */:
+                case 10 /* LineFeed */:
+                    report(parser, 3 /* UnterminatedString */);
                 default:
-                    parser.index++;
-                    parser.column++;
+                    ret += fromCodePoint(ch);
             }
-        }
-        // Unterminated string literal
-        recordErrors(parser, context, 3 /* UnterminatedString */);
-        return 65536 /* Invalid */;
-    }
-    /**
-     * Scans invalid escaped string values
-     *
-     * @param parser Parser object
-     * @param quite Number
-     * @param ch codepoint
-     */
-    function scanBadString(parser, quote, ch) {
-        while (ch !== quote) {
             ch = readNext(parser, ch);
-            return ch;
         }
-    }
-    /**
-     * Throws a string error for either string or template literal
-     *
-     * @param parser Parser object
-     * @param context Context masks
-     */
-    function recordStringErrors(parser, context, code) {
-        if (code === -1 /* Empty */)
-            return;
-        recordErrors(parser, context, 3 /* UnterminatedString */);
-        return 65536 /* Invalid */;
+        parser.index++;
+        parser.column++; // Consume the quote
+        parser.tokenRaw = parser.source.slice(start, parser.index);
+        parser.tokenValue = ret;
+        parser.lastValue = lastValue;
+        return 4194304 /* StringLiteral */;
     }
     const table = new Array(128).fill(nextUnicodeChar);
+    // Magic escapes
     table[98 /* LowerB */] = () => 8 /* Backspace */;
     table[102 /* LowerF */] = () => 12 /* FormFeed */;
     table[114 /* LowerR */] = () => 13 /* CarriageReturn */;
     table[110 /* LowerN */] = () => 10 /* LineFeed */;
     table[116 /* LowerT */] = () => 9 /* Tab */;
     table[118 /* LowerV */] = () => 11 /* VerticalTab */;
-    table[13 /* CarriageReturn */] = (parser) => {
+    // Line continuations
+    table[13 /* CarriageReturn */] = parser => {
         parser.column = -1;
         parser.line++;
         const { index } = parser;
         if (index < parser.source.length) {
             const ch = parser.source.charCodeAt(index);
             if (ch === 10 /* LineFeed */) {
+                parser.lastValue = ch;
                 parser.index = index + 1;
             }
         }
@@ -686,7 +774,7 @@
     };
     table[10 /* LineFeed */] =
         table[8232 /* LineSeparator */] =
-            table[8233 /* ParagraphSeparator */] = (parser) => {
+            table[8233 /* ParagraphSeparator */] = parser => {
                 parser.column = -1;
                 parser.line++;
                 return -1 /* Empty */;
@@ -700,31 +788,36 @@
                     let code = first - 48 /* Zero */;
                     let index = parser.index + 1;
                     let column = parser.column + 1;
-                    let next = parser.source.charCodeAt(index);
-                    if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                        // Strict mode code allows only \0, then a non-digit.
-                        if (code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) {
-                            if (context & 16384 /* Strict */)
-                                return -2 /* StrictOctal */;
-                            parser.flags |= 2 /* HasOctal */;
+                    if (index < parser.source.length) {
+                        const next = parser.source.charCodeAt(index);
+                        if (next < 48 /* Zero */ || next > 55 /* Seven */) {
+                            // Strict mode code allows only \0, then a non-digit.
+                            if (code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) {
+                                if (context & 16384 /* Strict */)
+                                    return -2 /* StrictOctal */;
+                                parser.flags = parser.flags | 2 /* HasOctal */;
+                            }
                         }
-                    }
-                    else if (context & 16384 /* Strict */) {
-                        return -2 /* StrictOctal */;
-                    }
-                    else {
-                        parser.flags |= 2 /* HasOctal */;
-                        code = code * 8 + (next - 48 /* Zero */);
-                        index++;
-                        column++;
-                        next = parser.source.charCodeAt(index);
-                        if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
+                        else if (context & 16384 /* Strict */) {
+                            return -2 /* StrictOctal */;
+                        }
+                        else {
+                            parser.lastValue = next;
                             code = code * 8 + (next - 48 /* Zero */);
                             index++;
                             column++;
+                            if (index < parser.source.length) {
+                                const next = parser.source.charCodeAt(index);
+                                if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
+                                    parser.lastValue = next;
+                                    code = code * 8 + (next - 48 /* Zero */);
+                                    index++;
+                                    column++;
+                                }
+                            }
+                            parser.index = index - 1;
+                            parser.column = column - 1;
                         }
-                        parser.index = index - 1;
-                        parser.column = column - 1;
                     }
                     return code;
                 };
@@ -740,36 +833,36 @@
                     if (index < parser.source.length) {
                         const next = parser.source.charCodeAt(index);
                         if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
-                            code = (code << 3) | (next - 48 /* Zero */);
+                            code = code * 8 + (next - 48 /* Zero */);
+                            parser.lastValue = next;
                             parser.index = index;
                             parser.column = column;
                         }
                     }
                     return code;
                 };
-    // `8`, `9` (invalid escapes)
     table[56 /* Eight */] = table[57 /* Nine */] = () => -3 /* EightOrNine */;
     // ASCII escapes
     table[120 /* LowerX */] = (parser, _, first) => {
-        const ch1 = readNext(parser, first);
+        const ch1 = parser.lastValue = readNext(parser, first);
         const hi = toHex(ch1);
-        if (hi < 0)
+        if (hi < 0 || parser.index >= parser.length)
             return -4 /* InvalidHex */;
-        const ch2 = readNext(parser, ch1);
+        const ch2 = parser.lastValue = readNext(parser, ch1);
         const lo = toHex(ch2);
         if (lo < 0)
             return -4 /* InvalidHex */;
-        return hi << 4 | lo;
+        return hi * 16 + lo;
     };
-    // UCS-2/Unicode escapes
     table[117 /* LowerU */] = (parser, _, prev) => {
-        let ch = readNext(parser, prev);
+        let ch = parser.lastValue = readNext(parser, prev);
         if (ch === 123 /* LeftBrace */) {
-            ch = readNext(parser, ch);
+            // \u{N}
+            ch = parser.lastValue = readNext(parser, ch);
             let code = toHex(ch);
             if (code < 0)
                 return -4 /* InvalidHex */;
-            ch = readNext(parser, ch);
+            ch = parser.lastValue = readNext(parser, ch);
             while (ch !== 125 /* RightBrace */) {
                 const digit = toHex(ch);
                 if (digit < 0)
@@ -778,23 +871,25 @@
                 // Code point out of bounds
                 if (code > 1114111 /* NonBMPMax */)
                     return -5 /* OutOfRange */;
-                ch = readNext(parser, ch);
+                ch = parser.lastValue = readNext(parser, ch);
             }
             return code;
         }
         else {
             // \uNNNN
-            let codePoint = toHex(ch);
-            if (codePoint < 0)
+            let code = toHex(ch);
+            if (code < 0)
                 return -4 /* InvalidHex */;
             for (let i = 0; i < 3; i++) {
-                ch = readNext(parser, ch);
+                ch = parser.lastValue = readNext(parser, ch);
                 const digit = toHex(ch);
                 if (digit < 0)
                     return -4 /* InvalidHex */;
-                codePoint = codePoint * 16 + digit;
+                if (code < 0)
+                    return -4 /* InvalidHex */;
+                code = code * 16 + digit;
             }
-            return codePoint;
+            return code;
         }
     };
 
@@ -805,67 +900,72 @@
      * @param context Context masks
      */
     function scanNumeric(parser) {
-        const { index } = parser;
-        let ch = skipDigits(parser);
-        if (ch === 46 /* Period */) {
-            parser.index++;
-            parser.column++;
-            ch = skipDigits(parser);
+        const { index, column } = parser;
+        let next = parser.source.charCodeAt(parser.index);
+        let isFloat = next === 46 /* Period */;
+        if (isFloat) {
+            if (next === 95 /* Underscore */)
+                report(parser, 0 /* Unexpected */);
+            parser.tokenValue = scanDecimalDigitsOrSeparator(parser);
         }
-        if (ch === 101 /* LowerE */ || ch === 69 /* UpperE */) {
-            parser.index++;
-            parser.column++;
-            scanSignedInteger(parser);
+        else {
+            let seenSeparator = false;
+            // Most number values fit into 4 bytes, but for long numbers
+            // we would need a workaround...
+            const maximumDigits = 10;
+            let digit = maximumDigits - 1;
+            parser.tokenValue = 0;
+            while (digit >= 0 && (next >= 48 /* Zero */ && next <= 57 /* Nine */ || next === 95 /* Underscore */)) {
+                if (next === 95 /* Underscore */) {
+                    parser.index++;
+                    parser.column++;
+                    next = parser.source.charCodeAt(parser.index);
+                    if (next === 95 /* Underscore */)
+                        report(parser, 0 /* Unexpected */);
+                    seenSeparator = true;
+                    next = next;
+                    continue;
+                }
+                seenSeparator = false;
+                parser.tokenValue = parser.tokenValue * 10 + next - 48 /* Zero */;
+                parser.index++;
+                parser.column++;
+                --digit;
+                next = parser.source.charCodeAt(parser.index);
+            }
+            if (seenSeparator)
+                report(parser, 0 /* Unexpected */);
+            if (digit >= 0 && next !== 46 /* Period */ && (parser.index >= parser.length || !isValidIdentifierStart(next))) {
+                return 2097152 /* NumericLiteral */;
+            }
+            else {
+                parser.index = index;
+                parser.column = column;
+                parser.tokenValue = scanDecimalDigitsOrSeparator(parser);
+            }
         }
-        parser.tokenValue = parseFloat(parser.source.slice(index, parser.index));
-        return 2097152 /* NumericLiteral */;
-    }
-    /**
-     * Scans floating number
-     *
-     * @param parser Parser object
-     * @param context Context masks
-     */
-    function parseFractionalNumber(parser) {
-        const { index } = parser;
-        parser.index++;
-        const ch = skipDigits(parser);
-        // scan exponent
-        if (ch === 101 /* LowerE */ || ch === 69 /* UpperE */) {
-            parser.index++;
-            parser.column++;
-            scanSignedInteger(parser);
+        if (consumeOpt(parser, 46 /* Period */)) {
+            isFloat = true;
+            if (parser.source.charCodeAt(parser.index) === 95 /* Underscore */)
+                report(parser, 0 /* Unexpected */);
+            parser.tokenValue = `${parser.tokenValue}.${scanDecimalDigitsOrSeparator(parser)}`;
         }
-        parser.tokenValue = parseFloat(parser.source.slice(index, parser.index));
-        return 2097152 /* NumericLiteral */;
-    }
-    /**
-     * Skips digits
-     *
-     * @param parser Parser object
-     */
-    function skipDigits(parser) {
-        let ch = parser.source.charCodeAt(parser.index);
-        while (ch >= 48 /* Zero */ && ch <= 57 /* Nine */) {
-            parser.index++;
-            parser.column++;
-            ch = parser.source.charCodeAt(parser.index);
+        const end = parser.index;
+        const bigInt = consumeOpt(parser, 110 /* LowerN */);
+        if (consumeOpt(parser, 101 /* LowerE */) || consumeOpt(parser, 69 /* UpperE */)) {
+            let next = parser.source.charCodeAt(parser.index);
+            if (consumeOpt(parser, 43 /* Plus */) || consumeOpt(parser, 45 /* Hyphen */)) {
+                next = parser.source.charCodeAt(parser.index);
+            }
+            if (!(next >= 48 /* Zero */ && next <= 57 /* Nine */))
+                report(parser, 0 /* Unexpected */);
+            const preNumericPart = parser.index;
+            const finalFragment = scanDecimalDigitsOrSeparator(parser);
+            parser.tokenValue = parser.tokenValue += parser.source.substring(end, preNumericPart) + finalFragment;
         }
-        return ch;
-    }
-    /**
-     * Scans signed integer
-     *
-     * @param parser Parser object
-     */
-    function scanSignedInteger(parser) {
-        let ch = parser.source.charCodeAt(parser.index);
-        if (ch === 43 /* Plus */ || ch === 45 /* Hyphen */) {
-            parser.index++;
-            parser.column++;
-            ch = parser.source.charCodeAt(parser.index);
-        }
-        skipDigits(parser);
+        if (isFloat)
+            parser.tokenValue = parseFloat(parser.tokenValue);
+        return bigInt ? 2097275 /* BigInt */ : 2097152 /* NumericLiteral */;
     }
     function parseLeadingZero(parser, context) {
         const index = parser.index + 1;
@@ -897,11 +997,20 @@
         parser.column++;
         let value = 0;
         let digits = 0;
-        let code = parser.source.charCodeAt(parser.index);
+        let SeenSeparator = false;
         while (parser.index < parser.length) {
-            if (!(code >= 48 /* Zero */ && code <= 55 /* Seven */)) {
-                break;
+            let code = parser.source.charCodeAt(parser.index);
+            if (code === 95 /* Underscore */) {
+                parser.index++;
+                parser.column++;
+                if (SeenSeparator)
+                    report(parser, 7 /* TrailingNumericSeparator */);
+                SeenSeparator = true;
+                continue;
             }
+            if (!(code >= 48 /* Zero */ && code <= 55 /* Seven */))
+                break;
+            SeenSeparator = false;
             value = value * 8 + (code - 48 /* Zero */);
             parser.index++;
             parser.column++;
@@ -912,6 +1021,8 @@
             recordErrors(parser, context, 2 /* InvalidOrUnexpectedToken */);
         }
         parser.tokenValue = value;
+        if (SeenSeparator)
+            report(parser, 7 /* TrailingNumericSeparator */);
         if (consumeOpt(parser, 110 /* LowerN */))
             return 2097275 /* BigInt */;
         return 2097152 /* NumericLiteral */;
@@ -924,39 +1035,66 @@
             recordErrors(parser, context, 0 /* Unexpected */);
         parser.index++;
         parser.column++;
+        let SeenSeparator = false;
         while (parser.index < parser.length) {
             const next = parser.source.charCodeAt(parser.index);
+            if (next === 95 /* Underscore */) {
+                parser.index++;
+                parser.column++;
+                if (SeenSeparator)
+                    report(parser, 7 /* TrailingNumericSeparator */);
+                SeenSeparator = true;
+                continue;
+            }
             const digit = toHex(next);
             if (digit < 0) {
                 break;
             }
+            SeenSeparator = false;
             value = value * 16 + digit;
             parser.index++;
             parser.column++;
         }
+        if (SeenSeparator)
+            report(parser, 7 /* TrailingNumericSeparator */);
         parser.tokenValue = value;
         if (consumeOpt(parser, 110 /* LowerN */))
             return 2097275 /* BigInt */;
         return 2097152 /* NumericLiteral */;
     }
     /**
-     * Scans binary digits
-     *
-     * @param parser Parser object
-     * @param context Context masks
-     */
+    * Scans binary digits
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    */
     function scanBinaryDigits(parser, context) {
         parser.index++;
         parser.column++;
         let value = 0;
         let digits = 0;
+        let SeenSeparator = false;
         while (parser.index < parser.length) {
-            const code = parser.source.charCodeAt(parser.index);
-            value = value * 2 + code - 48 /* Zero */;
+            let code = parser.source.charCodeAt(parser.index);
+            if (code === 95 /* Underscore */) {
+                parser.index++;
+                parser.column++;
+                if (SeenSeparator)
+                    report(parser, 7 /* TrailingNumericSeparator */);
+                SeenSeparator = true;
+                continue;
+            }
+            if (!(code >= 48 /* Zero */ && code <= 55 /* Seven */))
+                break;
+            SeenSeparator = false;
+            value = value * 2 + (code - 48 /* Zero */);
             parser.index++;
             parser.column++;
+            code = parser.source.charCodeAt(parser.index);
             digits++;
         }
+        if (SeenSeparator)
+            report(parser, 7 /* TrailingNumericSeparator */);
         if (digits === 0)
             recordErrors(parser, context, 2 /* InvalidOrUnexpectedToken */);
         parser.tokenValue = value;
@@ -965,11 +1103,11 @@
         return 2097152 /* NumericLiteral */;
     }
     /**
-     * Scans implicit octals
-     *
-     * @param parser Parser object
-     * @param context Context masks
-     */
+    * Scans implicit octals
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    */
     function scanImplicitOctalDigits(parser, context) {
         if (context & 16384 /* Strict */)
             recordErrors(parser, context, 0 /* Unexpected */);
@@ -983,6 +1121,8 @@
         // (Annex B.1.1 on Numeric Literals)
         while (index < parser.length) {
             next = parser.source.charCodeAt(index);
+            if (next === 95 /* Underscore */)
+                report(parser, 7 /* TrailingNumericSeparator */);
             if (next === 56 /* Eight */ || next === 57 /* Nine */)
                 return scanNumeric(parser);
             if (!(next >= 48 /* Zero */ && next <= 55 /* Seven */))
@@ -1001,11 +1141,188 @@
             return 2097275 /* BigInt */;
         return 2097152 /* NumericLiteral */;
     }
+    /**
+    * Scans decimal digit or separator
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    */
+    function scanDecimalDigitsOrSeparator(parser) {
+        let start = parser.index;
+        let allowSeparator = false;
+        let isPreviousTokenSeparator = false;
+        let result = '';
+        while (parser.index < parser.length) {
+            const ch = parser.source.charCodeAt(parser.index);
+            if (ch === 95 /* Underscore */) {
+                if (allowSeparator) {
+                    allowSeparator = false;
+                    isPreviousTokenSeparator = true;
+                    result += parser.source.substring(start, parser.index);
+                }
+                else if (isPreviousTokenSeparator) {
+                    report(parser, 6 /* ContinuousNumericSeparator */);
+                }
+                else {
+                    report(parser, 7 /* TrailingNumericSeparator */);
+                }
+                parser.index++;
+                parser.column++;
+                start = parser.index;
+                continue;
+            }
+            if (!(ch >= 48 /* Zero */ && ch <= 57 /* Nine */))
+                break;
+            allowSeparator = true;
+            isPreviousTokenSeparator = false;
+            parser.index++;
+            parser.column++;
+        }
+        if (parser.source.charCodeAt(parser.index + 1) === 95 /* Underscore */) {
+            report(parser, 7 /* TrailingNumericSeparator */);
+        }
+        return result + parser.source.substring(start, parser.index);
+    }
+
+    /**
+     * Scan template
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     * @param first Codepoint
+     */
+    function scanTemplate(parser, context, first) {
+        const { index: start, lastValue } = parser;
+        let tail = true;
+        let ret = '';
+        let ch = readNext(parser, first);
+        loop: while (ch !== 96 /* Backtick */) {
+            switch (ch) {
+                // Break after a literal `${` (thus the dedicated code path).
+                case 36 /* Dollar */:
+                    {
+                        const index = parser.index + 1;
+                        if (index < parser.source.length &&
+                            parser.source.charCodeAt(index) === 123 /* LeftBrace */) {
+                            parser.index = index;
+                            parser.column++;
+                            tail = false;
+                            break loop;
+                        }
+                        ret += '$';
+                        break;
+                    }
+                case 92 /* Backslash */:
+                    ch = readNext(parser, ch);
+                    if (ch >= 128) {
+                        ret += fromCodePoint(ch);
+                    }
+                    else {
+                        parser.lastValue = ch;
+                        const code = table[ch](parser, context, ch);
+                        if (code >= 0) {
+                            ret += fromCodePoint(code);
+                        }
+                        else if (code !== -1 /* Empty */ && context & 33554432 /* TaggedTemplate */) {
+                            ret = undefined;
+                            ch = scanLooserTemplateSegment(parser, parser.lastValue);
+                            if (ch < 0) {
+                                ch = -ch;
+                                tail = false;
+                            }
+                            break loop;
+                        }
+                        else {
+                            recordStringErrors(parser, code);
+                        }
+                        ch = parser.lastValue;
+                    }
+                    break;
+                case 13 /* CarriageReturn */:
+                    if (parser.index < parser.length && parser.source.charCodeAt(parser.index) === 10 /* LineFeed */) {
+                        if (ret != null)
+                            ret += fromCodePoint(ch);
+                        ch = parser.source.charCodeAt(parser.index);
+                        parser.index++;
+                    }
+                // falls through
+                case 10 /* LineFeed */:
+                case 8232 /* LineSeparator */:
+                case 8233 /* ParagraphSeparator */:
+                    parser.column = -1;
+                    parser.line++;
+                // falls through
+                default:
+                    if (ret != null)
+                        ret += fromCodePoint(ch);
+            }
+            ch = readNext(parser, ch);
+        }
+        parser.index++;
+        parser.column++;
+        parser.tokenValue = ret;
+        parser.lastValue = lastValue;
+        if (tail) {
+            parser.tokenRaw = parser.source.slice(start + 1, parser.index - 1);
+            return 67108870 /* TemplateTail */;
+        }
+        else {
+            parser.tokenRaw = parser.source.slice(start + 1, parser.index - 2);
+            return 67108869 /* TemplateCont */;
+        }
+    }
+    /**
+    * Consumes template brace
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    */
+    function consumeTemplateBrace(parser, context) {
+        if (parser.index >= parser.length)
+            report(parser, 53 /* UnterminatedTemplate */);
+        // Upon reaching a '}', consume it and rewind the scanner state
+        parser.index--;
+        parser.column--;
+        return scanTemplate(parser, context, 125 /* RightBrace */);
+    }
+    /**
+    * Scan looser template segment
+    *
+    * @param parser Parser object
+    * @param ch codepoint
+    */
+    function scanLooserTemplateSegment(parser, ch) {
+        while (ch !== 96 /* Backtick */) {
+            if (ch === 36 /* Dollar */ && parser.source.charCodeAt(parser.index + 1) === 123 /* LeftBrace */) {
+                parser.index++;
+                parser.column++;
+                return -ch;
+            }
+            // Skip '\' and continue to scan the template token to search
+            // for the end, without validating any escape sequences
+            ch = readNext(parser, ch);
+        }
+        return ch;
+    }
 
     function impossible(parser, context) {
-        recordErrors(parser, context, 1 /* UnexpectedToken */, escapeForPrinting(nextUnicodeChar(parser)));
+        recordErrors(parser, context, 1 /* UnexpectedToken */, escapeInvalidCharacters(nextUnicodeChar(parser)));
     }
     const table$1 = new Array(128).fill(impossible, 0, 0xFFFF);
+    // `,`, `~`, `?`, `[`, `]`, `{`, `}`, `:`, `;`, `(` ,`)`, `"`, `'`
+    table$1[44 /* Comma */] = mapToToken(33554447 /* Comma */);
+    table$1[126 /* Tilde */] = mapToToken(570425387 /* Complement */);
+    table$1[63 /* QuestionMark */] = mapToToken(33554451 /* QuestionMark */);
+    table$1[91 /* LeftBracket */] = mapToToken(33554448 /* LeftBracket */);
+    table$1[93 /* RightBracket */] = mapToToken(33554449 /* RightBracket */);
+    table$1[123 /* LeftBrace */] = mapToToken(33554441 /* LeftBrace */);
+    table$1[125 /* RightBrace */] = mapToToken(33685516 /* RightBrace */);
+    table$1[58 /* Colon */] = mapToToken(33554450 /* Colon */);
+    table$1[59 /* Semicolon */] = mapToToken(33685518 /* Semicolon */);
+    table$1[40 /* LeftParen */] = mapToToken(33554440 /* LeftParen */);
+    table$1[41 /* RightParen */] = mapToToken(33554445 /* RightParen */);
+    table$1[39 /* SingleQuote */] = table$1[34 /* DoubleQuote */] = scanStringLiteral;
+    table$1[48 /* Zero */] = parseLeadingZero;
     table$1[32 /* Space */] =
         table$1[9 /* Tab */] =
             table$1[12 /* FormFeed */] =
@@ -1015,40 +1332,12 @@
                         parser.column++;
                         return 524288 /* WhiteSpace */;
                     };
-    table$1[8232 /* LineSeparator */] =
-        table$1[8233 /* ParagraphSeparator */] =
-            table$1[10 /* LineFeed */] =
-                table$1[13 /* CarriageReturn */] = (parser, context, first) => {
-                    advanceNewline(parser, first);
-                    parser.flags |= 1 /* NewLine */;
-                    return 524288 /* WhiteSpace */;
-                };
-    // `,`
-    table$1[44 /* Comma */] = mapToToken(33554447 /* Comma */);
-    // `~`
-    table$1[126 /* Tilde */] = mapToToken(570425387 /* Complement */);
-    // `?`
-    table$1[63 /* QuestionMark */] = mapToToken(33554451 /* QuestionMark */);
-    // `[`
-    table$1[91 /* LeftBracket */] = mapToToken(33554448 /* LeftBracket */);
-    // `]`
-    table$1[93 /* RightBracket */] = mapToToken(33554449 /* RightBracket */);
-    // `{`
-    table$1[123 /* LeftBrace */] = mapToToken(33554441 /* LeftBrace */);
-    // `}`
-    table$1[125 /* RightBrace */] = mapToToken(33685516 /* RightBrace */);
-    // `:`
-    table$1[58 /* Colon */] = mapToToken(33554450 /* Colon */);
-    // `;`
-    table$1[59 /* Semicolon */] = mapToToken(33685518 /* Semicolon */);
-    // `(`
-    table$1[40 /* LeftParen */] = mapToToken(33554440 /* LeftParen */);
-    // `)`
-    table$1[41 /* RightParen */] = mapToToken(33554445 /* RightParen */);
-    // `"`, `'`
-    table$1[39 /* SingleQuote */] = table$1[34 /* DoubleQuote */] = scanStringLiteral;
-    // `0`
-    table$1[48 /* Zero */] = parseLeadingZero;
+    table$1[10 /* LineFeed */] =
+        table$1[13 /* CarriageReturn */] = (parser, context, first) => {
+            advanceNewline(parser, first);
+            parser.flags |= 1 /* NewLine */;
+            return 524288 /* WhiteSpace */;
+        };
     // `/`, `/=`, `/>`
     table$1[47 /* Slash */] = (parser) => {
         parser.index++;
@@ -1066,11 +1355,6 @@
             parser.index++;
             parser.column++;
             return 167772194 /* DivideAssign */;
-        }
-        else if (next === 62 /* GreaterThan */) {
-            parser.index++;
-            parser.column++;
-            return 33554455 /* JSXAutoClose */;
         }
         return 301992498 /* Divide */;
     };
@@ -1164,14 +1448,13 @@
         return 838863148 /* Add */;
     };
     // `-`, `--`, `-=`
-    table$1[45 /* Hyphen */] = (parser) => {
+    table$1[45 /* Hyphen */] = (parser, context) => {
         parser.index++;
         parser.column++;
         const next = parser.source.charCodeAt(parser.index);
         if (next === 45 /* Hyphen */ &&
             parser.source.charCodeAt(parser.index + 1) === 62 /* GreaterThan */) {
-            skipSingleHTMLComment(parser);
-            return 1572982 /* HTMLComment */;
+            return skipSingleHTMLComment(parser, context);
         }
         else if (parser.index < parser.source.length) {
             if (next === 45 /* Hyphen */) {
@@ -1190,20 +1473,18 @@
     // `.`, `...`, `.123` (numeric literal)
     table$1[46 /* Period */] = (parser) => {
         let index = parser.index + 1;
-        if (index < parser.source.length) {
-            const next = parser.source.charCodeAt(index);
-            if (next === 46 /* Period */) {
-                index++;
-                if (index < parser.source.length &&
-                    parser.source.charCodeAt(index) === 46 /* Period */) {
-                    parser.index = index + 1;
-                    parser.column += 3;
-                    return 33554443 /* Ellipsis */;
-                }
+        const next = parser.source.charCodeAt(index);
+        if (next === 46 /* Period */) {
+            index++;
+            if (index < parser.source.length &&
+                parser.source.charCodeAt(index) === 46 /* Period */) {
+                parser.index = index + 1;
+                parser.column += 3;
+                return 33554443 /* Ellipsis */;
             }
-            else if (next >= 48 /* Zero */ && next <= 57 /* Nine */) {
-                return parseFractionalNumber(parser);
-            }
+        }
+        else if (next >= 48 /* Zero */ && next <= 57 /* Nine */) {
+            return scanNumeric(parser);
         }
         parser.index++;
         parser.column++;
@@ -1236,7 +1517,7 @@
                     {
                         if (parser.source.charCodeAt(parser.index + 1) === 45 /* Hyphen */ &&
                             parser.source.charCodeAt(parser.index + 2) === 45 /* Hyphen */) {
-                            return skipSingleHTMLComment(parser);
+                            return skipSingleHTMLComment(parser, context);
                         }
                         break;
                     }
@@ -1346,7 +1627,7 @@
     table$1[36 /* Dollar */] =
         table$1[95 /* Underscore */] = scanIdentifier;
     // ``string``
-    // table[Chars.Backtick] = scanTemplate;
+    table$1[96 /* Backtick */] = scanTemplate;
     // `|`, `||`, `|=`
     table$1[124 /* VerticalBar */] = (parser) => {
         parser.index++;
@@ -1366,27 +1647,31 @@
         }
         return 301990722 /* BitwiseOr */;
     };
+    // '#'
+    table$1[35 /* Hash */] = scanPrivateName;
     /**
      *
      * parser Parser object
      * context Context masks
      */
-    function nextToken(parser, context, onToken) {
+    function nextToken(parser, context) {
         parser.flags &= ~1 /* NewLine */;
         // remember last token position before scanning
         parser.lastIndex = parser.index;
         parser.lastLine = parser.line;
         parser.lastColumn = parser.column;
+        let token;
         while (parser.index < parser.length) {
             const first = parser.source.charCodeAt(parser.index);
             parser.startIndex = parser.index;
             parser.startColumn = parser.column;
             parser.startLine = parser.line;
-            const token = table$1[first](parser, context, first);
+            if (first < 128)
+                token = table$1[first](parser, context, first);
+            else
+                token = scanMaybeIdentifier(parser, context, first);
             if ((token & 524288 /* WhiteSpace */) === 524288 /* WhiteSpace */)
                 continue;
-            if (onToken)
-                onToken(token);
             return parser.token = token;
         }
         return parser.token = 131072 /* EndOfSource */;
@@ -1687,7 +1972,6 @@
             case 8388705 /* Eval */:
             case 8388704 /* Arguments */:
             case 2097275 /* BigInt */:
-            case 8281 /* SuperKeyword */:
                 return true;
             default:
                 return false;
@@ -1707,6 +1991,9 @@
             recordErrors(parser, context, 34 /* UnexpectedKeyword */, tokenDesc(t));
         }
         return parseIdentifier(parser, context);
+    }
+    function finishNode(node) {
+        return node;
     }
 
     // Declarations
@@ -2075,7 +2362,7 @@
      */
     function parseBindingList(parser, context, type, origin) {
         let left;
-        if ((parser.token & 8388608 /* Identifier */) === 8388608 /* Identifier */) {
+        if (parser.token & 8417280 /* Keyword */) {
             left = parseBindingIdentifier(parser, context);
         }
         else if (parser.token === 33554441 /* LeftBrace */ || parser.token === 33554448 /* LeftBracket */) {
@@ -2095,6 +2382,7 @@
             return parseAssignmentRestElement(parser, context, type, 33554445 /* RightParen */);
         }
         else if (parser.token !== 33554445 /* RightParen */) {
+            expect(parser, context, 33554447 /* Comma */);
             recordErrors(parser, context, 1 /* UnexpectedToken */, tokenDesc(parser.token));
         }
         if (parser.token !== 167772186 /* Assign */)
@@ -2105,6 +2393,641 @@
         return type & 14 /* Variable */ ?
             parseVariableDeclaration(left, parseAssignmentExpression(parser, context)) :
             parseAssignmentPattern(parser, context, left);
+    }
+
+    // WIP
+    // TODO:
+    //
+    // - Adjusts masks and fix non-failing tests
+    // - Add in error support
+    // - Optimize
+    // - Maybe convert 'validateRegexBody' to a lookup table
+    //
+    /**
+     * Scans regular expression pattern
+     *
+     * @export
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function scanRegularExpression(parser, context) {
+        const { flags, pattern } = verifyRegExpPattern(parser, context);
+        parser.tokenRegExp = { pattern, flags };
+        if (context & 2 /* OptionsRaw */)
+            parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
+        try {
+            parser.tokenValue = new RegExp(pattern, flags);
+        }
+        catch (e) {
+            parser.tokenValue = null;
+        }
+        return 16777216 /* RegularExpression */;
+    }
+    /**
+     * Validates regular expression pattern
+     *
+     * @export
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function verifyRegExpPattern(parser, context) {
+        const bodyStart = parser.index;
+        const bodyState = validateRegexBody(parser, context, 0, 65536 /* Valid */);
+        const bodyEnd = parser.index - 1;
+        const { index: flagStart } = parser;
+        const flagState = scanRegexFlags(parser, context);
+        const flags = parser.source.slice(flagStart, parser.index);
+        const pattern = parser.source.slice(bodyStart, bodyEnd);
+        const state = setRegExpState(parser, flagState, bodyState);
+        return { flags, pattern, state };
+    }
+    /**
+     * Validate the regular expression body
+     *
+     * @export
+     * @param parser Parser object
+     * @param context Context masks
+     * @param depth
+     * @param state Validation state
+     */
+    function validateRegexBody(parser, context, depth, state) {
+        let maybeQuantifier = false;
+        while (parser.index !== parser.length) {
+            switch (parser.source.charCodeAt(parser.index++)) {
+                // `/`
+                case 47 /* Slash */:
+                    if (depth !== 0)
+                        return 262144 /* Invalid */;
+                    return state;
+                // `|`
+                case 124 /* VerticalBar */:
+                    maybeQuantifier = false;
+                    break;
+                // `^`, `$`, `.`
+                case 94 /* Caret */:
+                case 46 /* Period */:
+                case 36 /* Dollar */:
+                    maybeQuantifier = true;
+                    break;
+                // `\`
+                case 92 /* Backslash */:
+                    maybeQuantifier = true;
+                    if (parser.index >= parser.length) {
+                        state = 262144 /* Invalid */;
+                    }
+                    else {
+                        // Atom ::
+                        //   \ AtomEscape
+                        if (consumeOpt(parser, 98 /* LowerB */) || consumeOpt(parser, 66 /* UpperB */)) {
+                            maybeQuantifier = false;
+                        }
+                        else {
+                            state = setValidationState(state, validateAtomEscape(parser));
+                        }
+                    }
+                    break;
+                // `(`
+                case 40 /* LeftParen */:
+                    let ch = parser.source.charCodeAt(parser.index);
+                    if (ch === 63 /* QuestionMark */) {
+                        parser.index++;
+                        parser.column++;
+                        ch = parser.source.charCodeAt(parser.index);
+                        if (ch === 58 /* Colon */ || ch === 61 /* EqualSign */ || ch === 33 /* Exclamation */) {
+                            parser.index++;
+                            parser.column++;
+                        }
+                        else
+                            state = 262144 /* Invalid */;
+                    }
+                    else {
+                        ++parser.capturingParens;
+                    }
+                    maybeQuantifier = true;
+                    state = setValidationState(state, validateRegexBody(parser, context, depth + 1, 65536 /* Valid */));
+                    break;
+                // `)`
+                case 41 /* RightParen */:
+                    if (depth > 0)
+                        return state;
+                    state = 262144 /* Invalid */;
+                    maybeQuantifier = true;
+                    break;
+                // `[`
+                case 91 /* LeftBracket */:
+                    state = setValidationState(state, validateCharacterClass(parser));
+                    maybeQuantifier = true;
+                    break;
+                // `]`
+                case 93 /* RightBracket */:
+                    state = 262144 /* Invalid */;
+                    maybeQuantifier = true;
+                    break;
+                // `?`, `*`, `+`
+                case 42 /* Asterisk */:
+                case 43 /* Plus */:
+                case 63 /* QuestionMark */:
+                    if (maybeQuantifier) {
+                        maybeQuantifier = false;
+                        if (parser.index < parser.length) {
+                            consumeOpt(parser, 63 /* QuestionMark */);
+                        }
+                    }
+                    else {
+                        state = 262144 /* Invalid */;
+                    }
+                    break;
+                // `{`
+                case 123 /* LeftBrace */:
+                    if (maybeQuantifier) {
+                        // Missing the first digits - '/a{,15}/u' - results in,
+                        // 'Incomplete quantifier' without the 'u-flag'
+                        let res = validateQuantifierPrefix(parser);
+                        if (res & 67108864 /* MissingDigits */) {
+                            res = res ^ 67108864 /* MissingDigits */;
+                            if (res)
+                                state = 4096 /* SloppyMode */;
+                            else
+                                state = 262144 /* Invalid */;
+                        }
+                        else if (!res) {
+                            // Nothing to repeat
+                            state = 262144 /* Invalid */;
+                        }
+                        if (parser.index < parser.length) {
+                            consumeOpt(parser, 63 /* QuestionMark */);
+                        }
+                        maybeQuantifier = false;
+                    }
+                    else {
+                        state = 262144 /* Invalid */;
+                    }
+                    break;
+                // `}`
+                case 125 /* RightBrace */:
+                    state = 262144 /* Invalid */;
+                    maybeQuantifier = false;
+                    break;
+                case 13 /* CarriageReturn */:
+                case 10 /* LineFeed */:
+                case 8232 /* LineSeparator */:
+                case 8233 /* ParagraphSeparator */:
+                    return 262144 /* Invalid */;
+                default:
+                    maybeQuantifier = true;
+            }
+        }
+        return 262144 /* Invalid */;
+    }
+    /**
+     * Validates atom escape
+     *
+     * @see [Link](https://tc39.github.io/ecma262/#prod-AtomEscape)
+     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-DecimalEscape)
+     *
+     * @param parser Parser object
+     */
+    function validateAtomEscape(parser) {
+        // Atom ::
+        //   \ AtomEscape
+        const next = parser.source.charCodeAt(parser.index++);
+        switch (next) {
+            // AtomEscape ::
+            //   CharacterClassEscape
+            //
+            // CharacterClassEscape :: one of
+            //   d D s S w W
+            case 100 /* LowerD */:
+            case 68 /* UpperD */:
+            case 115 /* LowerS */:
+            case 83 /* UpperS */:
+            case 119 /* LowerW */:
+            case 87 /* UpperW */:
+            // ControlEscape :: one of
+            //   f n r t v
+            case 102 /* LowerF */:
+            case 110 /* LowerN */:
+            case 114 /* LowerR */:
+            case 116 /* LowerT */:
+            case 118 /* LowerV */:
+            case 94 /* Caret */:
+            case 36 /* Dollar */:
+            case 92 /* Backslash */:
+            case 46 /* Period */:
+            case 42 /* Asterisk */:
+            case 43 /* Plus */:
+            case 63 /* QuestionMark */:
+            case 40 /* LeftParen */:
+            case 41 /* RightParen */:
+            case 91 /* LeftBracket */:
+            case 93 /* RightBracket */:
+            case 123 /* LeftBrace */:
+            case 125 /* RightBrace */:
+            case 47 /* Slash */:
+            case 124 /* VerticalBar */:
+                return 65536 /* Valid */;
+            // RegExpUnicodeEscapeSequence[?U]
+            case 117 /* LowerU */:
+                if (consumeOpt(parser, 123 /* LeftBrace */)) {
+                    // \u{N}
+                    let ch2 = parser.source.charCodeAt(parser.index);
+                    let code = toHex(ch2);
+                    if (code < 0)
+                        return 262144 /* Invalid */;
+                    parser.index++;
+                    ch2 = parser.source.charCodeAt(parser.index);
+                    while (ch2 !== 125 /* RightBrace */) {
+                        const digit = toHex(ch2);
+                        if (digit < 0)
+                            return 262144 /* Invalid */;
+                        code = code * 16 + digit;
+                        // Code point out of bounds
+                        if (code > 1114111 /* NonBMPMax */)
+                            return 262144 /* Invalid */;
+                        parser.index++;
+                        ch2 = parser.source.charCodeAt(parser.index);
+                    }
+                    parser.index++;
+                    return 1024 /* UnicodeMode */;
+                }
+                // \uNNNN
+                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index)) < 0) {
+                    return 262144 /* Invalid */;
+                }
+                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
+                    return 262144 /* Invalid */;
+                }
+            // falls through
+            case 88 /* UpperX */:
+            case 120 /* LowerX */:
+                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
+                    return 262144 /* Invalid */;
+                }
+                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
+                    return 262144 /* Invalid */;
+                }
+                return 65536 /* Valid */;
+            case 99 /* LowerC */:
+                {
+                    if (parser.index < parser.length) {
+                        const letter = parser.source.charCodeAt(parser.index) | 32;
+                        if (letter >= 97 /* LowerA */ && letter <= 122 /* LowerZ */) {
+                            parser.index++;
+                            parser.column++;
+                            return 4096 /* SloppyMode */;
+                        }
+                    }
+                    return 262144 /* Invalid */;
+                }
+            case 48 /* Zero */:
+                const ch = parser.source.charCodeAt(parser.index);
+                if (parser.index >= parser.length || ch >= 48 /* Zero */ && ch <= 57 /* Nine */) {
+                    return 262144 /* Invalid */;
+                }
+                return 65536 /* Valid */;
+            case 49 /* One */:
+            case 50 /* Two */:
+            case 51 /* Three */:
+            case 52 /* Four */:
+            case 53 /* Five */:
+            case 54 /* Six */:
+            case 55 /* Seven */:
+            case 56 /* Eight */:
+            case 57 /* Nine */:
+                return parseBackReferenceIndex(parser, next);
+            case 13 /* CarriageReturn */:
+            case 10 /* LineFeed */:
+            case 8233 /* ParagraphSeparator */:
+            case 8232 /* LineSeparator */:
+                return 262144 /* Invalid */;
+            default:
+                if (isFlagStart(next))
+                    return 262144 /* Invalid */;
+                return 4096 /* SloppyMode */;
+        }
+    }
+    /**
+     * Validates character class
+     *
+     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-ClassAtom)
+     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-ClassAtomNoDash)
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function validateCharacterClass(parser) {
+        if (parser.index >= parser.length)
+            return 262144 /* Invalid */;
+        consumeOpt(parser, 94 /* Caret */);
+        const next = parser.source.charCodeAt(parser.index);
+        return validateClassRanges(parser, next);
+    }
+    /**
+     * Scan regular expression flags
+     *
+     * @param parser Perser object
+     * @param context Context masks
+     * @returns
+     */
+    function scanRegexFlags(parser, context) {
+        let mask = 0 /* Empty */;
+        loop: while (parser.index < parser.length) {
+            const c = parser.source.charCodeAt(parser.index);
+            switch (c) {
+                case 103 /* LowerG */:
+                    if (mask & 1 /* Global */)
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'g');
+                    mask |= 1 /* Global */;
+                    break;
+                case 105 /* LowerI */:
+                    if (mask & 2 /* IgnoreCase */)
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'i');
+                    mask |= 2 /* IgnoreCase */;
+                    break;
+                case 109 /* LowerM */:
+                    if (mask & 4 /* Multiline */)
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'm');
+                    mask |= 4 /* Multiline */;
+                    break;
+                case 117 /* LowerU */:
+                    if (mask & 8 /* Unicode */) {
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'u');
+                        return 262144 /* Invalid */;
+                    }
+                    mask |= 8 /* Unicode */;
+                    break;
+                case 121 /* LowerY */:
+                    if (mask & 16 /* Sticky */)
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'y');
+                    mask |= 16 /* Sticky */;
+                    break;
+                case 115 /* LowerS */:
+                    if (mask & 32 /* DotAll */)
+                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 's');
+                    mask |= 32 /* DotAll */;
+                    break;
+                default:
+                    if (!isFlagStart(c))
+                        break loop;
+                    return 262144 /* Invalid */;
+            }
+            parser.index++;
+            parser.column++;
+        }
+        return mask & 8 /* Unicode */ ? 1024 /* UnicodeMode */ : 4096 /* SloppyMode */;
+    }
+    /**
+     * Validates class and character class escape
+     *
+     * @see [Link](https://tc39.github.io/ecma262/#prod-CharacterClassEscape)
+     * @see [Link](https://tc39.github.io/ecma262/#prod-ClassEscape)
+     * @see [Link](https://tc39.github.io/ecma262/#prod-CharacterEscape)
+     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-IdentityEscape)
+     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-CharacterEscape)
+     * @see [Link](https://tc39.github.io/ecma262/##prod-ControlEscape)
+     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-CharacterEscape)
+     *
+     * @param parser Parser object
+     */
+    function validateClassAndClassCharacterEscape(parser) {
+        switch (parser.source.charCodeAt(parser.index++)) {
+            // 'b'
+            case 98 /* LowerB */:
+                return 1114113 /* InvalidCharClassRange */;
+            // 'B'
+            case 66 /* UpperB */:
+                return 8 /* Backspace */;
+            // CharacterClassEscape :: one of
+            //   d D s S w W
+            case 68 /* UpperD */:
+            case 100 /* LowerD */:
+            case 83 /* UpperS */:
+            case 115 /* LowerS */:
+            case 87 /* UpperW */:
+            case 119 /* LowerW */:
+                return 1114113 /* InvalidCharClassRange */;
+            // ControlEscape :: one of
+            //   f n r t v
+            case 102 /* LowerF */:
+                return 12 /* FormFeed */;
+            case 110 /* LowerN */:
+                return 10 /* LineFeed */;
+            case 114 /* LowerR */:
+                return 13 /* CarriageReturn */;
+            case 116 /* LowerT */:
+                return 9 /* Tab */;
+            case 118 /* LowerV */:
+                return 11 /* VerticalTab */;
+            // '/'
+            case 47 /* Slash */:
+            case 94 /* Caret */:
+            case 36 /* Dollar */:
+            case 92 /* Backslash */:
+            case 46 /* Period */:
+            case 42 /* Asterisk */:
+            case 43 /* Plus */:
+            case 63 /* QuestionMark */:
+            case 40 /* LeftParen */:
+            case 41 /* RightParen */:
+            case 91 /* LeftBracket */:
+            case 93 /* RightBracket */:
+            case 123 /* LeftBrace */:
+            case 125 /* RightBrace */:
+            case 124 /* VerticalBar */:
+                return parser.source.charCodeAt(parser.index);
+            // '-'
+            case 45 /* Hyphen */:
+                return 45 /* Hyphen */ | 16777216 /* InvalidCharClassInSloppy */;
+            case 117 /* LowerU */:
+                {
+                    if (consumeOpt(parser, 123 /* LeftBrace */)) {
+                        // \u{N}
+                        let ch = parser.source.charCodeAt(parser.index);
+                        let code = toHex(ch);
+                        if (code < 0)
+                            return 1114112 /* InvalidCharClass */;
+                        parser.index++;
+                        ch = parser.source.charCodeAt(parser.index);
+                        while (ch !== 125 /* RightBrace */) {
+                            const digit = toHex(ch);
+                            if (digit < 0)
+                                return 1114112 /* InvalidCharClass */;
+                            code = code * 16 + digit;
+                            // Code point out of bounds
+                            if (code > 1114111 /* NonBMPMax */)
+                                return 1114112 /* InvalidCharClass */;
+                            parser.index++;
+                            ch = parser.source.charCodeAt(parser.index);
+                        }
+                        parser.index++;
+                        return code | 16777216 /* InvalidCharClassInSloppy */;
+                    }
+                    else {
+                        // \uNNNN
+                        let codePoint = toHex(parser.source.charCodeAt(parser.index));
+                        if (codePoint < 0)
+                            return 1114112 /* InvalidCharClass */;
+                        for (let i = 0; i < 3; i++) {
+                            parser.index++;
+                            parser.column++;
+                            const digit = toHex(parser.source.charCodeAt(parser.index));
+                            if (digit < 0)
+                                return 1114112 /* InvalidCharClass */;
+                            codePoint = codePoint * 16 + digit;
+                        }
+                        parser.index++;
+                        parser.column++;
+                        return codePoint;
+                    }
+                }
+            case 120 /* LowerX */:
+                {
+                    if (parser.index >= parser.length - 1)
+                        return 1114112 /* InvalidCharClass */;
+                    const ch1 = parser.source.charCodeAt(parser.index);
+                    const hi = toHex(ch1);
+                    if (hi < 0)
+                        return 1114112 /* InvalidCharClass */;
+                    parser.index++;
+                    const ch2 = parser.source.charCodeAt(parser.index);
+                    const lo = toHex(ch2);
+                    if (lo < 0)
+                        return 1114112 /* InvalidCharClass */;
+                    parser.index++;
+                    return (hi << 4) | lo;
+                }
+            case 99 /* LowerC */:
+                if (parser.index < parser.length) {
+                    const ch = parser.source.charCodeAt(parser.index);
+                    const letter = ch | 32;
+                    if (letter >= 97 /* LowerA */ && letter <= 122 /* LowerZ */) {
+                        parser.index++;
+                        parser.column++;
+                        return ch & 0x1F;
+                    }
+                }
+                return 1114112 /* InvalidCharClass */;
+            // '0'
+            case 48 /* Zero */:
+                {
+                    // With /u, \0 is interpreted as NUL if not followed by another digit.
+                    if (parser.index < parser.length) {
+                        const next = parser.source.charCodeAt(parser.index);
+                        if (!(next >= 48 /* Zero */ && next <= 57 /* Nine */))
+                            return 0;
+                    }
+                    // falls through
+                }
+            case 49 /* One */:
+            case 50 /* Two */:
+            case 51 /* Three */:
+            case 52 /* Four */:
+            case 53 /* Five */:
+            case 54 /* Six */:
+            case 55 /* Seven */:
+            case 56 /* Eight */:
+            case 57 /* Nine */:
+                // Invalid class escape
+                return 1114112 /* InvalidCharClass */;
+            default:
+        }
+        return 1114112 /* InvalidCharClass */;
+    }
+    /**
+     * Validates character class ranges
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function validateClassRanges(parser, ch) {
+        let prevChar = 0;
+        let surrogate = 0;
+        let leftUnicodeRange = 0;
+        let CharacterRange = 0;
+        let prevState = 0 /* Empty */;
+        let subState = 65536 /* Valid */;
+        let state = 0 /* Empty */;
+        let count = 0;
+        while (parser.index < parser.length) {
+            parser.index++;
+            parser.column++;
+            switch (ch) {
+                // `]`
+                case 93 /* RightBracket */:
+                    {
+                        if (state & 256 /* SeenUnicoderange */ &&
+                            hasBit(prevState, 4 /* IsSurrogateLead */) &&
+                            (leftUnicodeRange === 1114113 /* InvalidCharClassRange */ ||
+                                prevChar & 1114113 /* InvalidCharClassRange */ || leftUnicodeRange > prevChar)) {
+                            if (subState & 1024 /* UnicodeMode */ ||
+                                subState & 262144 /* Invalid */)
+                                return 262144 /* Invalid */;
+                            return 4096 /* SloppyMode */;
+                        }
+                        return subState;
+                    }
+                // `\`
+                case 92 /* Backslash */:
+                    {
+                        ch = validateClassAndClassCharacterEscape(parser);
+                        if (ch === 1114112 /* InvalidCharClass */) {
+                            subState = 262144 /* Invalid */;
+                        }
+                        else if (ch & 16777216 /* InvalidCharClassInSloppy */) {
+                            ch = ch ^ 16777216 /* InvalidCharClassInSloppy */;
+                            if (ch === 1114112 /* InvalidCharClass */)
+                                subState = 262144 /* Invalid */;
+                            else if (subState & 65536 /* Valid */)
+                                subState = 1024 /* UnicodeMode */;
+                            else if (subState & 4096 /* SloppyMode */)
+                                subState = 262144 /* Invalid */;
+                        }
+                        break;
+                    }
+            }
+            if (hasBit(prevState, 4 /* IsSurrogateLead */) && ch >= 0xDC00 && ch <= 0xDFFF) {
+                state = state & ~4 /* IsSurrogateLead */ | 1 /* IsTrailSurrogate */;
+                surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
+            }
+            else if (!hasBit(prevState, 1 /* IsTrailSurrogate */) &&
+                hasBit(prevState, 4 /* IsSurrogateLead */) &&
+                (ch & 0x1fffff) > 0xffff) {
+                state = state & ~4 /* IsSurrogateLead */ | 1 /* IsTrailSurrogate */;
+                surrogate = ch;
+            }
+            else {
+                state = state & ~(1 /* IsTrailSurrogate */ | 4 /* IsSurrogateLead */);
+                if (ch >= 0xD800 && ch <= 0xDBFF)
+                    state = state | 4 /* IsSurrogateLead */;
+            }
+            if (state & 256 /* SeenUnicoderange */) {
+                const rightUnicodeRange = state & 1 /* IsTrailSurrogate */ ? surrogate : hasBit(prevState, 4 /* IsSurrogateLead */) ? prevChar : ch;
+                if (!(state & 4 /* IsSurrogateLead */) || hasBit(prevState, 4 /* IsSurrogateLead */)) {
+                    state = state & ~256 /* SeenUnicoderange */;
+                    subState = getUnicodeRange(leftUnicodeRange, subState, rightUnicodeRange);
+                }
+            }
+            else if (ch === 45 /* Hyphen */ && count > 0) {
+                state = state | 256 /* SeenUnicoderange */;
+            }
+            else {
+                leftUnicodeRange = state & 1 /* IsTrailSurrogate */ ? surrogate : ch;
+            }
+            if (state & 1024 /* InCharacterRange */) {
+                state = state & ~1024 /* InCharacterRange */;
+                subState = getRange(ch, CharacterRange, subState);
+            }
+            else if (ch === 45 /* Hyphen */ && count > 0) {
+                state = state | 1024 /* InCharacterRange */;
+            }
+            else {
+                CharacterRange = ch;
+            }
+            prevState = state;
+            prevChar = ch;
+            count++;
+            ch = parser.source.charCodeAt(parser.index);
+        }
+        return 262144 /* Invalid */;
     }
 
     /**
@@ -2412,7 +3335,7 @@
                         };
                         break;
                     }
-                case 67108869 /* TemplateSpan */:
+                case 67108869 /* TemplateCont */:
                     break;
                 case 67108870 /* TemplateTail */:
                     break;
@@ -2557,7 +3480,7 @@
                         };
                         break;
                     }
-                case 67108869 /* TemplateSpan */:
+                case 67108869 /* TemplateCont */:
                     break;
                 case 67108870 /* TemplateTail */:
                     break;
@@ -2679,9 +3602,121 @@
                 return parseParenthesizedExpression(parser, context);
             case 33554448 /* LeftBracket */:
                 return parseArrayLiteral(parser, context);
+            case 301992498 /* Divide */:
+            case 167772194 /* DivideAssign */:
+                return parseRegularExpressionLiteral(parser, context);
+            case 67108870 /* TemplateTail */:
+                return parseTemplateLiteral(parser, context);
+            case 67108869 /* TemplateCont */:
+                return parseTemplate(parser, context);
             default:
+                if (parser.token & (4096 /* Contextual */ | 16384 /* FutureReserved */ | 8192 /* Reserved */)) {
+                    return parseIdentifier(parser, context);
+                }
                 recordErrors(parser, context, 1 /* UnexpectedToken */, tokenDesc(nextToken(parser, context)));
         }
+    }
+    /**
+     * Parse regular expression literal
+     *
+     * @see [Link](https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals)
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function parseRegularExpressionLiteral(parser, context) {
+        scanRegularExpression(parser, context);
+        const { tokenRegExp, tokenValue, tokenRaw } = parser;
+        nextToken(parser, context);
+        const node = finishNode({
+            type: 'Literal',
+            value: tokenValue,
+            regex: tokenRegExp,
+        });
+        if (context & 2 /* OptionsRaw */)
+            node.raw = tokenRaw;
+        return node;
+    }
+    /**
+     * Parse template literal
+     *
+     * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateLiteral)
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     */
+    function parseTemplateLiteral(parser, context) {
+        return finishNode({
+            type: 'TemplateLiteral',
+            expressions: [],
+            quasis: [parseTemplateSpans(parser, context)],
+        });
+    }
+    /**
+    * Parse template head
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    * @param cooked Cooked template value
+    * @param raw Raw template value
+    * @param pos Current location
+    */
+    function parseTemplateHead(parser, context, cooked = null, raw) {
+        parser.token = consumeTemplateBrace(parser, context);
+        return finishNode({
+            type: 'TemplateElement',
+            value: {
+                cooked,
+                raw,
+            },
+            tail: false,
+        });
+    }
+    /**
+    * Parse template
+    *
+    * @param parser Parser object
+    * @param context Context masks
+    * @param expression Expression AST node
+    * @param quasis Array of Template elements
+    */
+    function parseTemplate(parser, context, expressions = [], quasis = []) {
+        const { tokenValue, tokenRaw } = parser;
+        expect(parser, context, 67108869 /* TemplateCont */);
+        expressions.push(parseExpression(parser, context));
+        quasis.push(parseTemplateHead(parser, context, tokenValue, tokenRaw));
+        if (parser.token === 67108870 /* TemplateTail */) {
+            quasis.push(parseTemplateSpans(parser, context));
+        }
+        else {
+            parseTemplate(parser, context, expressions, quasis);
+        }
+        return finishNode({
+            type: 'TemplateLiteral',
+            expressions,
+            quasis,
+        });
+    }
+    /**
+     * Parse template spans
+     *
+     * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     * @param loc Current AST node location
+     */
+    function parseTemplateSpans(parser, context) {
+        const { tokenValue, tokenRaw } = parser;
+        expect(parser, context, 67108870 /* TemplateTail */);
+        return finishNode({
+            type: 'TemplateElement',
+            value: {
+                cooked: tokenValue,
+                raw: tokenRaw,
+            },
+            tail: true,
+        });
     }
     /**
      * Parses either null or boolean literal
@@ -2705,10 +3740,10 @@
     function parseIdentifier(parser, context) {
         const { tokenValue } = parser;
         nextToken(parser, context);
-        return {
+        return finishNode({
             type: 'Identifier',
             name: tokenValue
-        };
+        });
     }
     /**
      * Parses string and number literal
@@ -3009,7 +4044,7 @@
         switch (parser.token) {
             case 2097152 /* NumericLiteral */:
             case 4194304 /* StringLiteral */:
-            //  return parseLiteral(parser, context);
+                return parseLiteral(parser, context);
             case 33554448 /* LeftBracket */:
                 return parseComputedPropertyName(parser, context);
             default:
@@ -3748,7 +4783,7 @@
         while (parser.token !== 33685516 /* RightBrace */) {
             let test = null;
             if (consume(parser, context, 8264 /* CaseKeyword */)) {
-                test = parseExpression(parser, context);
+                test = parseExpression(parser, context | 131072 /* InFunctionBody */);
             }
             else {
                 expect(parser, context, 8269 /* DefaultKeyword */);
@@ -4345,616 +5380,6 @@
     }
 
     /**
-     * Validates regular expression pattern
-     *
-     * @export
-     * @param parser Parser object
-     * @param context Context masks
-     */
-    function verifyRegExpPattern(parser, context) {
-        const bodyStart = parser.index;
-        const bodyState = validateRegexBody(parser, context, 0, 65536 /* Valid */);
-        const bodyEnd = parser.index - 1;
-        const { index: flagStart } = parser;
-        const flagState = scanRegexFlags(parser, context);
-        const flags = parser.source.slice(flagStart, parser.index);
-        const pattern = parser.source.slice(bodyStart, bodyEnd);
-        const state = setRegExpState(parser, flagState, bodyState);
-        return { flags, pattern, state };
-    }
-    /**
-     * Validate the regular expression body
-     *
-     * @export
-     * @param parser Parser object
-     * @param context Context masks
-     * @param depth
-     * @param state Validation state
-     */
-    function validateRegexBody(parser, context, depth, state) {
-        let maybeQuantifier = false;
-        while (parser.index !== parser.length) {
-            switch (parser.source.charCodeAt(parser.index++)) {
-                // `/`
-                case 47 /* Slash */:
-                    if (depth !== 0)
-                        return 262144 /* Invalid */;
-                    return state;
-                // `|`
-                case 124 /* VerticalBar */:
-                    maybeQuantifier = false;
-                    break;
-                // `^`, `$`, `.`
-                case 94 /* Caret */:
-                case 46 /* Period */:
-                case 36 /* Dollar */:
-                    maybeQuantifier = true;
-                    break;
-                // `\`
-                case 92 /* Backslash */:
-                    maybeQuantifier = true;
-                    if (parser.index >= parser.length) {
-                        state = 262144 /* Invalid */;
-                    }
-                    else {
-                        // Atom ::
-                        //   \ AtomEscape
-                        if (consumeOpt(parser, 98 /* LowerB */) || consumeOpt(parser, 66 /* UpperB */)) {
-                            maybeQuantifier = false;
-                        }
-                        else {
-                            state = setValidationState(state, validateAtomEscape(parser));
-                        }
-                    }
-                    break;
-                // `(`
-                case 40 /* LeftParen */:
-                    let ch = parser.source.charCodeAt(parser.index);
-                    if (ch === 63 /* QuestionMark */) {
-                        parser.index++;
-                        parser.column++;
-                        ch = parser.source.charCodeAt(parser.index);
-                        if (ch === 58 /* Colon */ || ch === 61 /* EqualSign */ || ch === 33 /* Exclamation */) {
-                            parser.index++;
-                            parser.column++;
-                        }
-                        else
-                            state = 262144 /* Invalid */;
-                    }
-                    else {
-                        ++parser.capturingParens;
-                    }
-                    maybeQuantifier = true;
-                    state = setValidationState(state, validateRegexBody(parser, context, depth + 1, 65536 /* Valid */));
-                    break;
-                // `)`
-                case 41 /* RightParen */:
-                    if (depth > 0)
-                        return state;
-                    state = 262144 /* Invalid */;
-                    maybeQuantifier = true;
-                    break;
-                // `[`
-                case 91 /* LeftBracket */:
-                    state = setValidationState(state, validateCharacterClass(parser));
-                    maybeQuantifier = true;
-                    break;
-                // `]`
-                case 93 /* RightBracket */:
-                    state = 262144 /* Invalid */;
-                    maybeQuantifier = true;
-                    break;
-                // `?`, `*`, `+`
-                case 42 /* Asterisk */:
-                case 43 /* Plus */:
-                case 63 /* QuestionMark */:
-                    if (maybeQuantifier) {
-                        maybeQuantifier = false;
-                        if (parser.index < parser.length) {
-                            consumeOpt(parser, 63 /* QuestionMark */);
-                        }
-                    }
-                    else {
-                        state = 262144 /* Invalid */;
-                    }
-                    break;
-                // `{`
-                case 123 /* LeftBrace */:
-                    if (maybeQuantifier) {
-                        // Missing the first digits - '/a{,15}/u' - results in,
-                        // 'Incomplete quantifier' without the 'u-flag'
-                        let res = validateQuantifierPrefix(parser);
-                        if (res & 67108864 /* MissingDigits */) {
-                            res = res ^ 67108864 /* MissingDigits */;
-                            if (res)
-                                state = 4096 /* SloppyMode */;
-                            else
-                                state = 262144 /* Invalid */;
-                        }
-                        else if (!res) {
-                            // Nothing to repeat
-                            state = 262144 /* Invalid */;
-                        }
-                        if (parser.index < parser.length) {
-                            consumeOpt(parser, 63 /* QuestionMark */);
-                        }
-                        maybeQuantifier = false;
-                    }
-                    else {
-                        state = 262144 /* Invalid */;
-                    }
-                    break;
-                // `}`
-                case 125 /* RightBrace */:
-                    state = 262144 /* Invalid */;
-                    maybeQuantifier = false;
-                    break;
-                case 13 /* CarriageReturn */:
-                case 10 /* LineFeed */:
-                case 8232 /* LineSeparator */:
-                case 8233 /* ParagraphSeparator */:
-                    return 262144 /* Invalid */;
-                default:
-                    maybeQuantifier = true;
-            }
-        }
-        return 262144 /* Invalid */;
-    }
-    /**
-     * Validates atom escape
-     *
-     * @see [Link](https://tc39.github.io/ecma262/#prod-AtomEscape)
-     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-DecimalEscape)
-     *
-     * @param parser Parser object
-     */
-    function validateAtomEscape(parser) {
-        // Atom ::
-        //   \ AtomEscape
-        const next = parser.source.charCodeAt(parser.index++);
-        switch (next) {
-            // AtomEscape ::
-            //   CharacterClassEscape
-            //
-            // CharacterClassEscape :: one of
-            //   d D s S w W
-            case 100 /* LowerD */:
-            case 68 /* UpperD */:
-            case 115 /* LowerS */:
-            case 83 /* UpperS */:
-            case 119 /* LowerW */:
-            case 87 /* UpperW */:
-            // ControlEscape :: one of
-            //   f n r t v
-            case 102 /* LowerF */:
-            case 110 /* LowerN */:
-            case 114 /* LowerR */:
-            case 116 /* LowerT */:
-            case 118 /* LowerV */:
-            case 94 /* Caret */:
-            case 36 /* Dollar */:
-            case 92 /* Backslash */:
-            case 46 /* Period */:
-            case 42 /* Asterisk */:
-            case 43 /* Plus */:
-            case 63 /* QuestionMark */:
-            case 40 /* LeftParen */:
-            case 41 /* RightParen */:
-            case 91 /* LeftBracket */:
-            case 93 /* RightBracket */:
-            case 123 /* LeftBrace */:
-            case 125 /* RightBrace */:
-            case 47 /* Slash */:
-            case 124 /* VerticalBar */:
-                return 65536 /* Valid */;
-            // RegExpUnicodeEscapeSequence[?U]
-            case 117 /* LowerU */:
-                if (consumeOpt(parser, 123 /* LeftBrace */)) {
-                    // \u{N}
-                    let ch2 = parser.source.charCodeAt(parser.index);
-                    let code = toHex(ch2);
-                    if (code < 0)
-                        return 262144 /* Invalid */;
-                    parser.index++;
-                    ch2 = parser.source.charCodeAt(parser.index);
-                    while (ch2 !== 125 /* RightBrace */) {
-                        const digit = toHex(ch2);
-                        if (digit < 0)
-                            return 262144 /* Invalid */;
-                        code = code * 16 + digit;
-                        // Code point out of bounds
-                        if (code > 1114111 /* NonBMPMax */)
-                            return 262144 /* Invalid */;
-                        parser.index++;
-                        ch2 = parser.source.charCodeAt(parser.index);
-                    }
-                    parser.index++;
-                    return 1024 /* UnicodeMode */;
-                }
-                // \uNNNN
-                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index)) < 0) {
-                    return 262144 /* Invalid */;
-                }
-                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
-                    return 262144 /* Invalid */;
-                }
-            // falls through
-            case 88 /* UpperX */:
-            case 120 /* LowerX */:
-                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
-                    return 262144 /* Invalid */;
-                }
-                if (parser.index >= parser.length || toHex(parser.source.charCodeAt(parser.index++)) < 0) {
-                    return 262144 /* Invalid */;
-                }
-                return 65536 /* Valid */;
-            case 99 /* LowerC */:
-                {
-                    if (parser.index < parser.length) {
-                        const ch1 = parser.source.charCodeAt(parser.index);
-                        const letter = ch1 & ~(65 /* UpperA */ ^ 97 /* LowerA */);
-                        // controlLetter is not in range 'A'-'Z' or 'a'-'z'.
-                        if (letter >= 65 /* UpperA */ && letter <= 90 /* UpperZ */) {
-                            parser.index++;
-                            parser.column++;
-                            return 4096 /* SloppyMode */;
-                        }
-                    }
-                    return 262144 /* Invalid */;
-                }
-            case 48 /* Zero */:
-                const ch = parser.source.charCodeAt(parser.index);
-                if (parser.index >= parser.length || ch >= 48 /* Zero */ && ch <= 57 /* Nine */) {
-                    return 262144 /* Invalid */;
-                }
-                return 65536 /* Valid */;
-            case 49 /* One */:
-            case 50 /* Two */:
-            case 51 /* Three */:
-            case 52 /* Four */:
-            case 53 /* Five */:
-            case 54 /* Six */:
-            case 55 /* Seven */:
-            case 56 /* Eight */:
-            case 57 /* Nine */:
-                return parseBackReferenceIndex(parser, next);
-            case 13 /* CarriageReturn */:
-            case 10 /* LineFeed */:
-            case 8233 /* ParagraphSeparator */:
-            case 8232 /* LineSeparator */:
-                return 262144 /* Invalid */;
-            default:
-                if (isFlagStart(next))
-                    return 262144 /* Invalid */;
-                return 4096 /* SloppyMode */;
-        }
-    }
-    /**
-     * Validates character class
-     *
-     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-ClassAtom)
-     * @see [Link](https://www.ecma-international.org/ecma-262/8.0/#prod-ClassAtomNoDash)
-     * @param parser Parser object
-     * @param context Context masks
-     */
-    function validateCharacterClass(parser) {
-        if (parser.index >= parser.length)
-            return 262144 /* Invalid */;
-        consumeOpt(parser, 94 /* Caret */);
-        const next = parser.source.charCodeAt(parser.index);
-        return validateClassRanges(parser, next);
-    }
-    /**
-     * Scan regular expression flags
-     *
-     * @param parser Perser object
-     * @param context Context masks
-     * @returns
-     */
-    function scanRegexFlags(parser, context) {
-        let mask = 0 /* Empty */;
-        loop: while (parser.index < parser.length) {
-            const c = parser.source.charCodeAt(parser.index);
-            switch (c) {
-                case 103 /* LowerG */:
-                    if (mask & 1 /* Global */)
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'g');
-                    mask |= 1 /* Global */;
-                    break;
-                case 105 /* LowerI */:
-                    if (mask & 2 /* IgnoreCase */)
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'i');
-                    mask |= 2 /* IgnoreCase */;
-                    break;
-                case 109 /* LowerM */:
-                    if (mask & 4 /* Multiline */)
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'm');
-                    mask |= 4 /* Multiline */;
-                    break;
-                case 117 /* LowerU */:
-                    if (mask & 8 /* Unicode */) {
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'u');
-                        return 262144 /* Invalid */;
-                    }
-                    mask |= 8 /* Unicode */;
-                    break;
-                case 121 /* LowerY */:
-                    if (mask & 16 /* Sticky */)
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 'y');
-                    mask |= 16 /* Sticky */;
-                    break;
-                case 115 /* LowerS */:
-                    if (mask & 32 /* DotAll */)
-                        recordErrors(parser, context, 50 /* DuplicateRegExpFlag */, 's');
-                    mask |= 32 /* DotAll */;
-                    break;
-                default:
-                    if (!isFlagStart(c))
-                        break loop;
-                    return 262144 /* Invalid */;
-            }
-            parser.index++;
-            parser.column++;
-        }
-        return mask & 8 /* Unicode */ ? 1024 /* UnicodeMode */ : 4096 /* SloppyMode */;
-    }
-    /**
-     * Validates class and character class escape
-     *
-     * @see [Link](https://tc39.github.io/ecma262/#prod-CharacterClassEscape)
-     * @see [Link](https://tc39.github.io/ecma262/#prod-ClassEscape)
-     * @see [Link](https://tc39.github.io/ecma262/#prod-CharacterEscape)
-     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-IdentityEscape)
-     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-CharacterEscape)
-     * @see [Link](https://tc39.github.io/ecma262/##prod-ControlEscape)
-     * @see [Link](https://tc39.github.io/ecma262/#prod-strict-CharacterEscape)
-     *
-     * @param parser Parser object
-     */
-    function validateClassAndClassCharacterEscape(parser) {
-        switch (parser.source.charCodeAt(parser.index++)) {
-            // 'b'
-            case 98 /* LowerB */:
-                return 1114113 /* InvalidCharClassRange */;
-            // 'B'
-            case 66 /* UpperB */:
-                return 8 /* Backspace */;
-            // CharacterClassEscape :: one of
-            //   d D s S w W
-            case 68 /* UpperD */:
-            case 100 /* LowerD */:
-            case 83 /* UpperS */:
-            case 115 /* LowerS */:
-            case 87 /* UpperW */:
-            case 119 /* LowerW */:
-                return 1114113 /* InvalidCharClassRange */;
-            // ControlEscape :: one of
-            //   f n r t v
-            case 102 /* LowerF */:
-                return 12 /* FormFeed */;
-            case 110 /* LowerN */:
-                return 10 /* LineFeed */;
-            case 114 /* LowerR */:
-                return 13 /* CarriageReturn */;
-            case 116 /* LowerT */:
-                return 9 /* Tab */;
-            case 118 /* LowerV */:
-                return 11 /* VerticalTab */;
-            // '/'
-            case 47 /* Slash */:
-            case 94 /* Caret */:
-            case 36 /* Dollar */:
-            case 92 /* Backslash */:
-            case 46 /* Period */:
-            case 42 /* Asterisk */:
-            case 43 /* Plus */:
-            case 63 /* QuestionMark */:
-            case 40 /* LeftParen */:
-            case 41 /* RightParen */:
-            case 91 /* LeftBracket */:
-            case 93 /* RightBracket */:
-            case 123 /* LeftBrace */:
-            case 125 /* RightBrace */:
-            case 124 /* VerticalBar */:
-                return parser.source.charCodeAt(parser.index);
-            // '-'
-            case 45 /* Hyphen */:
-                return 45 /* Hyphen */ | 16777216 /* InvalidCharClassInSloppy */;
-            case 117 /* LowerU */:
-                {
-                    if (consumeOpt(parser, 123 /* LeftBrace */)) {
-                        // \u{N}
-                        let ch = parser.source.charCodeAt(parser.index);
-                        let code = toHex(ch);
-                        if (code < 0)
-                            return 1114112 /* InvalidCharClass */;
-                        parser.index++;
-                        ch = parser.source.charCodeAt(parser.index);
-                        while (ch !== 125 /* RightBrace */) {
-                            const digit = toHex(ch);
-                            if (digit < 0)
-                                return 1114112 /* InvalidCharClass */;
-                            code = code * 16 + digit;
-                            // Code point out of bounds
-                            if (code > 1114111 /* NonBMPMax */)
-                                return 1114112 /* InvalidCharClass */;
-                            parser.index++;
-                            ch = parser.source.charCodeAt(parser.index);
-                        }
-                        parser.index++;
-                        return code | 16777216 /* InvalidCharClassInSloppy */;
-                    }
-                    else {
-                        // \uNNNN
-                        let codePoint = toHex(parser.source.charCodeAt(parser.index));
-                        if (codePoint < 0)
-                            return 1114112 /* InvalidCharClass */;
-                        for (let i = 0; i < 3; i++) {
-                            parser.index++;
-                            parser.column++;
-                            const digit = toHex(parser.source.charCodeAt(parser.index));
-                            if (digit < 0)
-                                return 1114112 /* InvalidCharClass */;
-                            codePoint = codePoint * 16 + digit;
-                        }
-                        parser.index++;
-                        parser.column++;
-                        return codePoint;
-                    }
-                }
-            case 120 /* LowerX */:
-                {
-                    if (parser.index >= parser.length - 1)
-                        return 1114112 /* InvalidCharClass */;
-                    const ch1 = parser.source.charCodeAt(parser.index);
-                    const hi = toHex(ch1);
-                    if (hi < 0)
-                        return 1114112 /* InvalidCharClass */;
-                    parser.index++;
-                    const ch2 = parser.source.charCodeAt(parser.index);
-                    const lo = toHex(ch2);
-                    if (lo < 0)
-                        return 1114112 /* InvalidCharClass */;
-                    parser.index++;
-                    return (hi << 4) | lo;
-                }
-            case 99 /* LowerC */:
-                if (parser.index < parser.length) {
-                    const ch = parser.source.charCodeAt(parser.index);
-                    const letter = ch & ~(65 /* UpperA */ ^ 97 /* LowerA */);
-                    // Control letters mapped to ASCII control characters in the range 0x00-0x1F.
-                    if (letter >= 65 /* UpperA */ && letter <= 90 /* UpperZ */) {
-                        parser.index++;
-                        parser.column++;
-                        return ch & 0x1F;
-                    }
-                }
-                return 1114112 /* InvalidCharClass */;
-            // '0'
-            case 48 /* Zero */:
-                {
-                    // With /u, \0 is interpreted as NUL if not followed by another digit.
-                    if (parser.index < parser.length) {
-                        const next = parser.source.charCodeAt(parser.index);
-                        if (!(next >= 48 /* Zero */ && next <= 57 /* Nine */))
-                            return 0;
-                    }
-                    // falls through
-                }
-            case 49 /* One */:
-            case 50 /* Two */:
-            case 51 /* Three */:
-            case 52 /* Four */:
-            case 53 /* Five */:
-            case 54 /* Six */:
-            case 55 /* Seven */:
-            case 56 /* Eight */:
-            case 57 /* Nine */:
-                // Invalid class escape
-                return 1114112 /* InvalidCharClass */;
-            default:
-        }
-        return 1114112 /* InvalidCharClass */;
-    }
-    /**
-     * Validates character class ranges
-     *
-     * @param parser Parser object
-     * @param context Context masks
-     */
-    function validateClassRanges(parser, ch) {
-        let prevChar = 0;
-        let surrogate = 0;
-        let leftUnicodeRange = 0;
-        let CharacterRange = 0;
-        let prevState = 0 /* Empty */;
-        let subState = 65536 /* Valid */;
-        let state = 0 /* Empty */;
-        let count = 0;
-        while (parser.index < parser.length) {
-            parser.index++;
-            parser.column++;
-            switch (ch) {
-                // `]`
-                case 93 /* RightBracket */:
-                    {
-                        if (state & 256 /* SeenUnicoderange */ &&
-                            hasBit(prevState, 4 /* IsSurrogateLead */) &&
-                            (leftUnicodeRange === 1114113 /* InvalidCharClassRange */ ||
-                                prevChar & 1114113 /* InvalidCharClassRange */ || leftUnicodeRange > prevChar)) {
-                            if (subState & 1024 /* UnicodeMode */ ||
-                                subState & 262144 /* Invalid */)
-                                return 262144 /* Invalid */;
-                            return 4096 /* SloppyMode */;
-                        }
-                        return subState;
-                    }
-                // `\`
-                case 92 /* Backslash */:
-                    {
-                        ch = validateClassAndClassCharacterEscape(parser);
-                        if (ch === 1114112 /* InvalidCharClass */) {
-                            subState = 262144 /* Invalid */;
-                        }
-                        else if (ch & 16777216 /* InvalidCharClassInSloppy */) {
-                            ch = ch ^ 16777216 /* InvalidCharClassInSloppy */;
-                            if (ch === 1114112 /* InvalidCharClass */)
-                                subState = 262144 /* Invalid */;
-                            else if (subState & 65536 /* Valid */)
-                                subState = 1024 /* UnicodeMode */;
-                            else if (subState & 4096 /* SloppyMode */)
-                                subState = 262144 /* Invalid */;
-                        }
-                        break;
-                    }
-            }
-            if (hasBit(prevState, 4 /* IsSurrogateLead */) && ch >= 0xDC00 && ch <= 0xDFFF) {
-                state = state & ~4 /* IsSurrogateLead */ | 1 /* IsTrailSurrogate */;
-                surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
-            }
-            else if (!hasBit(prevState, 1 /* IsTrailSurrogate */) &&
-                hasBit(prevState, 4 /* IsSurrogateLead */) &&
-                (ch & 0x1fffff) > 0xffff) {
-                state = state & ~4 /* IsSurrogateLead */ | 1 /* IsTrailSurrogate */;
-                surrogate = ch;
-            }
-            else {
-                state = state & ~(1 /* IsTrailSurrogate */ | 4 /* IsSurrogateLead */);
-                if (ch >= 0xD800 && ch <= 0xDBFF)
-                    state = state | 4 /* IsSurrogateLead */;
-            }
-            if (state & 256 /* SeenUnicoderange */) {
-                const rightUnicodeRange = state & 1 /* IsTrailSurrogate */ ? surrogate : hasBit(prevState, 4 /* IsSurrogateLead */) ? prevChar : ch;
-                if (!(state & 4 /* IsSurrogateLead */) || hasBit(prevState, 4 /* IsSurrogateLead */)) {
-                    state = state & ~256 /* SeenUnicoderange */;
-                    subState = getUnicodeRange(leftUnicodeRange, subState, rightUnicodeRange);
-                }
-            }
-            else if (ch === 45 /* Hyphen */ && count > 0) {
-                state = state | 256 /* SeenUnicoderange */;
-            }
-            else {
-                leftUnicodeRange = state & 1 /* IsTrailSurrogate */ ? surrogate : ch;
-            }
-            if (state & 1024 /* InCharacterRange */) {
-                state = state & ~1024 /* InCharacterRange */;
-                subState = getRange(ch, CharacterRange, subState);
-            }
-            else if (ch === 45 /* Hyphen */ && count > 0) {
-                state = state | 1024 /* InCharacterRange */;
-            }
-            else {
-                CharacterRange = ch;
-            }
-            prevState = state;
-            prevChar = ch;
-            count++;
-            ch = parser.source.charCodeAt(parser.index);
-        }
-        return 262144 /* Invalid */;
-    }
-
-    /**
      * Creates the parser object
      *
      * @param source The source coode to parser
@@ -4999,11 +5424,13 @@
             // Regular expression
             capturingParens: 0,
             largestBackReference: 0,
+            lastValue: 0,
             // Misc
             token: 131072 /* EndOfSource */,
             tokenValue: undefined,
             tokenRaw: '',
             tokenRegExp: undefined,
+            priorNode: undefined,
             onError,
             onComment
         };
@@ -5076,6 +5503,7 @@
         }
         // Create the parser object
         const parser = createParserObject(source, onComment, onError);
+        skipBomAndShebang(parser, context);
         const body = (context & 32768 /* Module */) === 32768 /* Module */ ?
             parseModuleItemList(parser, context) : parseStatementList(parser, context);
         return {
@@ -5145,7 +5573,7 @@
         return (state === 65536 /* Valid */) ? true : false;
     }
 
-    const version = '1.6.8';
+    const version = '2.0.0';
 
     exports.version = version;
     exports.parse = parse;

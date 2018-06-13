@@ -1,6 +1,14 @@
 import { Parser } from '../types';
 import { Token } from '../token';
+import { Context } from '../common';
 import { Chars } from '../chars';
+export declare const enum Escape {
+    Empty = -1,
+    StrictOctal = -2,
+    EightOrNine = -3,
+    InvalidHex = -4,
+    OutOfRange = -5
+}
 export declare const enum ClassRangesState {
     Empty = 0,
     IsTrailSurrogate = 1,
@@ -66,6 +74,19 @@ export declare function consumeLineFeed(parser: Parser, lastIsCR: boolean): void
 */
 export declare function advanceNewline(parser: Parser, ch: number): void;
 export declare function skipToNewline(parser: Parser): boolean;
+/**
+ * Skips BOM and shebang
+ *
+ * parser Parser object
+ */
+export declare function skipBomAndShebang(parser: Parser, context: Context): void;
+/**
+ * Scans private name. Stage 3 proposal related
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export declare function scanPrivateName(parser: Parser, context: Context): Token;
 export declare function readNext(parser: Parser, ch: any): number;
 export declare function nextUnicodeChar(parser: Parser): number;
 export declare function isDecimalDigit(code: number): boolean;
@@ -131,4 +152,12 @@ export declare function getUnicodeRange(range: any, state: RegexpState, right: n
  */
 export declare function getRange(ch: number, range: number, state: RegexpState): RegexpState;
 export declare function mapToToken(token: Token): (parser: Parser) => Token;
-export declare function escapeForPrinting(code: number): string;
+export declare function escapeInvalidCharacters(code: number): string;
+/**
+* Throws a string error for either string or template literal
+*
+* @param parser Parser object
+* @param context Context masks
+*/
+export declare function recordStringErrors(parser: Parser, code: Escape): void;
+export declare function isIdentifierPart(code: Chars): boolean;

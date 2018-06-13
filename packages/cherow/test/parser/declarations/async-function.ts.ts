@@ -3,7 +3,7 @@ import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
 import { parseSource } from '../../../src/parser/parser';
 
-describe('Miscellaneous - Async Function', () => {
+describe('Declarations - Async Function', () => {
 
     describe('Failure', () => {
 

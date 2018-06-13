@@ -32,7 +32,8 @@ export declare const enum Context {
     TaggedTemplate = 33554432,
     Statement = 67108864,
     Asi = 134217728,
-    AllowSuperProperty = 268435456
+    AllowSuperProperty = 268435456,
+    InClass = 536870912
 }
 export declare const enum Flags {
     Empty = 0,
@@ -210,3 +211,4 @@ export declare function isStartOfExpression(parser: Parser): boolean;
  * @param t token
  */
 export declare function parseIdentifierName(parser: Parser, context: Context, t: Token): ESTree.Identifier;
+export declare function finishNode<T extends ESTree.Node>(node: any): T;

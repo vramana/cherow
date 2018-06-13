@@ -6,101 +6,466 @@ import { Token, tokenDesc } from '../../src/token';
 
 describe('Lexer - Numbers', () => {
 
-    describe("Pass", () => {
+  describe("Pass", () => {
 
-        const inputData: any = [
-            [Context.Empty, '0', 0, Token.NumericLiteral],
-            [Context.Empty, '1', 1, Token.NumericLiteral],
-            [Context.Empty, '123', 123, Token.NumericLiteral],
-            [Context.Empty, '1.34', 1.34, Token.NumericLiteral],
-            [Context.Empty, '1.', 1, Token.NumericLiteral],
-            [Context.Empty, '12345678912345678912345678123456789258721349812657123641237846', 1.2345678912345679e+61, Token.NumericLiteral],
-            [Context.Empty, '0.E1', 0, Token.NumericLiteral],
-            [Context.Empty, '134e44', 1.34e+46, Token.NumericLiteral],
-            [Context.Empty, '7.E1', 70, Token.NumericLiteral],
-            [Context.Empty, '0.8', 0.8, Token.NumericLiteral],
-            [Context.Empty, '7.E1', 70, Token.NumericLiteral],
-            [Context.Empty, '6.', 6, Token.NumericLiteral],
-            [Context.Empty, '3.14159', 3.14159, Token.NumericLiteral],
-            [Context.Empty, '6.02214179e+23', 6.02214179e+23, Token.NumericLiteral],
-            [Context.Empty, '1.492417830e-10', 1.49241783e-10, Token.NumericLiteral],
-            [Context.Empty, '0e+100', 0, Token.NumericLiteral],
-            [Context.Empty, '1.34', 1.34, Token.NumericLiteral],
-            [Context.Empty, '.44', 0.44, Token.NumericLiteral],
+      function pass(name: string, opts: any) {
+          function test(name: string, context: Context) {
+              it(name, () => {
+                  if (opts.strict !== true) {
+                      const parser = createParserObject(opts.source, undefined);
 
-            // Binary
+                      t.deepEqual({
+                          token: nextToken(parser, context),
+                          value: parser.tokenValue,
+                          line: parser.line,
+                          column: parser.column,
+                      }, {
+                          token: opts.token,
+                          value: opts.value,
+                          line: opts.line,
+                          column: opts.column,
+                      });
+                  }
+              });
+          }
+          test(`${name}`, Context.OptionsRaw);
+      }
 
-            [Context.Empty, '0b10', 2, Token.NumericLiteral],
-            [Context.Empty, '0B011', 3, Token.NumericLiteral],
-            [Context.Empty, '0B010', 2, Token.NumericLiteral],
-            [Context.Empty, '0B0', 0, Token.NumericLiteral],
-            [Context.Empty, '0b10', 2, Token.NumericLiteral],
-            [Context.Empty, '0B010', 2, Token.NumericLiteral],
-            [Context.Empty, '0b0101011', 43, Token.NumericLiteral],
-            [Context.Empty, '0b010101101011', 1387, Token.NumericLiteral],
-            [Context.Empty, '0b01010110101111010111101011', 22738411, Token.NumericLiteral],
-            [Context.Empty, '0b01010110101101101011110101111010111010111101011', 47671431493099, Token.NumericLiteral],
+      function fail(name: string, context: Context, opts: any) {
+          it(name, () => {
+              const parser = createParserObject(opts.source, undefined);
+              t.throws(() => {
+                  nextToken(parser, context)
+              });
+          });
+      }
 
-            // Hex
-            [Context.Empty, '0x10', 16, Token.NumericLiteral],
-            [Context.Empty, '0x100', 256, Token.NumericLiteral],
-            [Context.Empty, '0xabc', 2748, Token.NumericLiteral],
-            [Context.Empty, '0xdef', 3567, Token.NumericLiteral],
-            [Context.Empty, '0X04', 4, Token.NumericLiteral],
-            [Context.Empty, '0X1A', 26, Token.NumericLiteral],
-            [Context.Empty, '0x1000', 4096, Token.NumericLiteral],
-            [Context.Empty, '0x10000000', 268435456, Token.NumericLiteral],
-            [Context.Empty, '0x100000000000', 17592186044416, Token.NumericLiteral],
-            [Context.Empty, '0x100000000000', 17592186044416, Token.NumericLiteral],
-            [Context.Empty, '0x10EF399d', 284113309, Token.NumericLiteral],
-            [Context.Empty, '0x10E00FFFEEEAAAF399d', 4.98069295632166e+21, Token.NumericLiteral],
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '123_'
+      })
 
-            // Implicit octals
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '12___3'
+      })
 
-            [Context.Empty, '001234', 668, Token.NumericLiteral],
-            [Context.Empty, '0564', 372, Token.NumericLiteral],
-            [Context.Empty, '012', 10, Token.NumericLiteral],
-            [Context.Empty, '0012', 10, Token.NumericLiteral],
-            [Context.Empty, '0.', 0, Token.NumericLiteral],
-            [Context.Empty, '0789', 789, Token.NumericLiteral],
-            [Context.Empty, '00009', 9, Token.NumericLiteral],
-            [Context.Empty, '00008', 8, Token.NumericLiteral],
-            [Context.Empty, '00008.1', 8.1, Token.NumericLiteral],
-            [Context.Empty, '00009.1', 9.1, Token.NumericLiteral],
-            [Context.Empty, '00009.1E2-1', 910, Token.NumericLiteral],
-            [Context.Empty, '018', 18, Token.NumericLiteral],
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '12______3'
+      })
 
-            // Octals
-            [Context.Empty, '0o0', 0, Token.NumericLiteral],
-            [Context.Empty, '0o1', 1, Token.NumericLiteral],
-            [Context.Empty, '0O077', 63, Token.NumericLiteral],
-            [Context.Empty, '0o7', 7, Token.NumericLiteral],
-            [Context.Empty, '0o011', 9, Token.NumericLiteral],
-            [Context.Empty, '0O077', 63, Token.NumericLiteral],
-            // BigInt
-            [Context.OptionsNext, '123n', 123, Token.BigInt],
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '12_3______'
+      })
 
-            // Numeric separators - hex
-            //[Context.OptionsNext, '0x10n', 16, Token.BigInt],
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '123._1234'
+      })
 
-            // Numeric separators - octal
-            [Context.OptionsNext, '0o7n', 7, Token.BigInt],
-            [Context.OptionsNext, '0O077n', 63, Token.BigInt],
-        ];
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '123a'
+      })
 
-        for (const [ctx, source, parsed, token] of inputData) {
-            it(`scans '${source}'`, () => {
-                const parser = createParserObject(source, undefined);
-                const found = nextToken(parser, ctx);
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '123_'
+      })
 
-                t.deepEqual({
-                    value: parser.tokenValue,
-                    line: parser.line,
-                }, {
-                    value: parsed,
-                    line: 1,
-                });
-            });
-        }
-    });
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '123_'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0.333n'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '.333n'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0xA______3'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0xA______'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0xA__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0x__A'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0__xA'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0O123__45670'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0_O12345670'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0O12_345670_'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0O12345__670'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0_O12345_670'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '.00_00____'
+      })
+
+      //  fail('should fail on private name followed by space', Context.Empty, {
+      //    source: '.__0000'
+      //    })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '.00____00'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '.00__00'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '.0000__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0b0____1__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0_000__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0_b01'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0b0__1'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0b01__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '0.1E+__100__'
+      })
+
+      fail('should fail on private name followed by space', Context.Empty, {
+          source: '32e__32'
+      })
+
+
+      pass("scans '.0000", {
+          source: ".0000",
+          "value": 0,
+          raw: "",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 5,
+      });
+
+      pass("scans '7890", {
+          source: "7890",
+          value: 7890,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 4,
+      });
+
+      pass("scans '.5", {
+          source: ".5",
+          value: 0.5,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 2,
+      });
+
+      pass("scans '.5_1", {
+          source: ".5_12",
+          value: 0.512,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 5,
+      });
+
+      pass("scans '5_12n", {
+          source: "5_12n",
+          value: 512,
+          raw: "''",
+          token: Token.BigInt,
+          line: 1,
+          column: 5,
+      });
+
+      pass("scans '2.3", {
+          source: "2.3",
+          value: 2.3,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '1234567890.0987654321", {
+          source: "1234567890.0987654321",
+          value: 1234567890.0987654321,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 21,
+      });
+
+      pass("scans '12_345_67890.0987_654321", {
+          source: "12_345_67890.0987_654321",
+          value: 1234567890.0987654,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 24,
+      });
+
+      pass("scans '32e32", {
+          source: "32e32",
+          raw: "3.2e+33",
+          "value": 3.2e+33,
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 5,
+      });
+      pass("scans '1E-100", {
+          source: "1E-100",
+          value: 1e-100,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 6,
+      });
+
+      pass("scans '.1e+100", {
+          source: ".1e+100",
+          value: 1e+99,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 7,
+      });
+
+      pass("scans '0.1E+100", {
+          source: "0.1E+100",
+          value: 1e+99,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans '0o12345670", {
+          source: "0o12345670",
+          value: 2739128,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 9
+      });
+
+      pass("scans '0x34", {
+          source: "0x34",
+          value: 52,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '0b01", {
+          source: "0b01",
+          value: 1,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+
+
+      pass("scans '0009", {
+          source: "0009",
+          value: 9,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 4,
+      });
+
+      pass("scans '0009.444", {
+          source: "0009.444",
+          value: 9.444,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans '043", {
+          source: "043",
+          "value": 35,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+
+      pass("scans '087", {
+          source: "087",
+          value: 87,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '000", {
+          source: "000",
+          value: 0,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '000", {
+          source: "000",
+          value: 0,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '00", {
+          source: "00",
+          value: 0,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 2,
+      });
+
+      pass("scans '0123", {
+          source: "0123",
+          value: 83,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 4,
+      });
+
+      pass("scans '0123789", {
+          source: "0123789",
+          value: 123789,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 7,
+      });
+
+      pass("scans '0xD", {
+          source: "0xD",
+          value: 13,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 2,
+      });
+
+      pass("scans '0o4", {
+          source: "0o4",
+          value: 4,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 2,
+      });
+
+      pass("scans '0o12", {
+          source: "0o12",
+          value: 10,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '0o1_2", {
+          source: "0o1_2",
+          value: 10,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 4,
+      });
+
+      pass("scans '0x67", {
+          source: "0x67",
+          value: 103,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 3,
+      });
+
+      pass("scans '0x67", {
+          source: "0x6_7",
+          value: 103,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 4,
+      });
+
+      pass("scans '0O12345670", {
+          source: "0O12345670",
+          value: 2739128,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '0xA", {
+          source: "1",
+          value: 1,
+          raw: "''",
+          token: Token.NumericLiteral,
+          line: 1,
+          column: 1,
+      });
+
+      pass("scans '0xAn", {
+          source: "0xAn",
+          value: 10,
+          raw: "''",
+          token: Token.BigInt,
+          line: 1,
+          column: 3,
+      });
+  });
 });

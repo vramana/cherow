@@ -24,7 +24,6 @@ describe('Lexer - Punctuators', () => {
         [Context.Empty, Token.Colon, ':'],
         [Context.Empty, Token.QuestionMark, '?'],
         [Context.OptionsJSX, Token.JSXClose, '</'],
-        [Context.OptionsJSX, Token.JSXAutoClose, '/>'],
         [Context.Empty, Token.Increment, '++'],
         [Context.Empty, Token.Decrement, '--'],
         [Context.Empty, Token.Assign, '='],

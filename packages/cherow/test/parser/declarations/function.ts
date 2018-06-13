@@ -3,7 +3,7 @@ import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
 import { parseSource } from '../../../src/parser/parser';
 
-describe('Miscellaneous - Function', () => {
+describe('Declarations - Function', () => {
 
     describe('Failure', () => {
 
@@ -312,6 +312,40 @@ describe('Miscellaneous - Function', () => {
                 });
             });
         }
+
+        pass('function relative(from, to) {}', Context.OptionsNext, {
+          source: `function relative(from, to) {}`,
+          expected: {
+            "type": "Program",
+            "sourceType": "script",
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [
+                        {
+                            "type": "Identifier",
+                            "name": "from"
+                        },
+                        {
+                            "type": "Identifier",
+                            "name": "to"
+                        }
+                    ],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": []
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "relative"
+                    }
+                }
+            ]
+        }
+      });
 
         pass('function f(){}', Context.OptionsNext, {
             source: `function f(){}`,

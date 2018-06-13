@@ -14,7 +14,6 @@ import {
     expect,
     isInOrOf,
     BindingKind,
-    swapFlags
 } from '../common';
 
 /**
@@ -315,7 +314,6 @@ export function parseDelimitedBindingList(
         args.push(parseBindingList(parser, context, type, origin));
         if (!consume(parser, context, Token.Comma)) break;
     }
-
     if (origin & BindingOrigin.ForStatement) {
         if (isBinding) {
             if (elementCount > 1) {
@@ -343,7 +341,7 @@ function parseBindingList(
     origin: BindingOrigin
 ): any {
     let left: any;
-    if ((parser.token & Token.Identifier) === Token.Identifier) {
+    if (parser.token & Token.Keyword) {
         left = parseBindingIdentifier(parser, context);
     } else if (parser.token === Token.LeftBrace || parser.token === Token.LeftBracket) {
         parser.flags |= Flags.SimpleParameterList;
@@ -358,7 +356,8 @@ function parseBindingList(
     } else if (parser.token === Token.Ellipsis) {
         return parseAssignmentRestElement(parser, context, type, Token.RightParen);
     } else if (parser.token !== Token.RightParen) {
-        recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
+      expect(parser, context, Token.Comma);
+      recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
 
     if (parser.token !== Token.Assign) return type & BindingType.Variable ?

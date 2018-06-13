@@ -11,10 +11,4 @@ import { Context } from '../common';
  * @param quote codepoint
  */
 export declare function scanStringLiteral(parser: Parser, context: Context, quote: number): Token;
-/**
- * Throws a string error for either string or template literal
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export declare function recordStringErrors(parser: Parser, context: Context, code: any): any;
+export declare const table: ((parser: Parser, context: Context, first: number) => number)[];
