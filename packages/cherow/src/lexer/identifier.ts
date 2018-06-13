@@ -33,7 +33,10 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
     switch (first) {
       case Chars.LineSeparator:
       case Chars.ParagraphSeparator:
-            advanceNewline(parser, first);
+            parser.index++;
+            parser.column = 0;
+            parser.line++;
+            parser.flags |= Flags.NewLine;
             parser.flags |= Flags.NewLine;
             return Token.WhiteSpace;
         // Special cases

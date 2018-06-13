@@ -1,10 +1,13 @@
 import { Parser } from '../types';
-import { Token, tokenDesc } from '../token';
-import { Context, Flags } from '../common';
+import { Token } from '../token';
+import { Context } from '../common';
 import { Chars } from '../chars';
 import { Errors, recordErrors, report } from '../errors';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from '../unicode';
 
+export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
+
+/* Sting / template literal escapes */
 export const enum Escape {
   Empty       = -1,
   StrictOctal = -2,
@@ -13,6 +16,7 @@ export const enum Escape {
   OutOfRange  = -5,
 }
 
+/* Regular expression class range state */
 export const enum ClassRangesState {
   Empty            = 0,
   IsTrailSurrogate = 1 << 0,
@@ -21,6 +25,27 @@ export const enum ClassRangesState {
   InCharacterRange = 1 << 10,
 }
 
+/* Regular expression flags */
+export const enum RegExpFlags {
+  Empty       = 0,
+  Global      = 1 << 0,
+  IgnoreCase  = 1 << 1,
+  Multiline   = 1 << 2,
+  Unicode     = 1 << 3,
+  Sticky      = 1 << 4,
+  DotAll      = 1 << 5
+}
+
+/* Regular expression quantifier prefix */
+const enum QuantifierPrefixState {
+  Empty        = 0,
+  Start        = 1 << 0,
+  IsLow        = 1 << 1,
+  IsHigh       = 1 << 2,
+  HasBadNumber = 1 << 3
+}
+
+/* Regular expression state */
 export const enum RegexpState {
   InvalidClassEscape        = 1 << 0,
   ValidClassEscape          = 1 << 6,
@@ -38,31 +63,6 @@ export const enum RegexpState {
   InvalidCharClassRange     = 0x110001,
 }
 
-export const enum RegExpFlags {
-  Empty       = 0,
-  Global      = 1 << 0,
-  IgnoreCase  = 1 << 1,
-  Multiline   = 1 << 2,
-  Unicode     = 1 << 3,
-  Sticky      = 1 << 4,
-  DotAll      = 1 << 5
-}
-export const enum RangeState {
-  Empty,
-  Strict = 1 << 0,
-  Sloppy = 1 << 1,
-}
-
-const enum IntervalQuantifierState {
-  Empty        = 0,
-  Start        = 1 << 0,
-  IsLow        = 1 << 1,
-  IsHigh       = 1 << 2,
-  HasBadNumber = 1 << 3
-}
-
-export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
-
 /**
  * Consume an token in the scanner on match. This is an equalent to
  * 'consume' used in the parser code itself.
@@ -77,14 +77,12 @@ export function consumeOpt(parser: Parser, ch: number): boolean {
 }
 
 /**
-* Advance to new line
-*
-* @param parser Parser object
-*/
-export function advanceNewline(parser: Parser, ch: number) {
-  parser.index++;
-  parser.column = 0;
-  parser.line++;
+ * Advance to new line
+ *
+ * @param parser Parser object
+ */
+export function advanceNewline(parser: Parser, ch: number): void {
+  parser.index++; parser.column = 0; parser.line++;
   if (parser.index < parser.length && ch === Chars.CarriageReturn &&
       parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
       parser.index++;
@@ -92,10 +90,10 @@ export function advanceNewline(parser: Parser, ch: number) {
 }
 
 /**
-* Skips BOM and shebang
-*
-* parser Parser object
-*/
+ * Skips BOM and shebang
+ *
+ * parser Parser object
+ */
 export function skipBomAndShebang(parser: Parser, context: Context): void {
   let index = parser.index;
   if (index === parser.source.length) return;
@@ -199,23 +197,23 @@ export const fromCodePoint = (code: Chars) => {
 // values. Values are truncated to RegExpTree::kInfinity if they overflow.
 export function validateQuantifierPrefix(parser: Parser): boolean | number {
 
-  let state = IntervalQuantifierState.Start;
+  let state = QuantifierPrefixState.Start;
   let min = 0;
   let max = 0;
   let ch = parser.source.charCodeAt(parser.index);
   const missingDigits = !(ch >= Chars.Zero && ch <= Chars.Nine);
 
   while (ch >= Chars.Zero && ch <= Chars.Nine) {
-      state = state | IntervalQuantifierState.IsLow;
+      state = state | QuantifierPrefixState.IsLow;
       parser.index++;
       parser.column++;
-      if (hasBit(state, IntervalQuantifierState.Start)) {
-          state = state & ~IntervalQuantifierState.Start;
+      if (hasBit(state, QuantifierPrefixState.Start)) {
+          state = state & ~QuantifierPrefixState.Start;
           if (ch === Chars.Zero) {
               if (parser.index >= parser.length) return false;
               ch = parser.source.charCodeAt(parser.index);
               if (!(ch >= Chars.Zero && ch <= Chars.Nine)) break;
-              state = state | IntervalQuantifierState.HasBadNumber;
+              state = state | QuantifierPrefixState.HasBadNumber;
               parser.index++;
               parser.column++;
           }
@@ -225,21 +223,21 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
   }
 
   if (consumeOpt(parser, Chars.Comma)) {
-      state = state | IntervalQuantifierState.Start;
+      state = state | QuantifierPrefixState.Start;
       if (parser.index >= parser.length) return false;
       while (parser.index < parser.length) {
           ch = parser.source.charCodeAt(parser.index);
           if (!(ch >= Chars.Zero && ch <= Chars.Nine)) break;
           parser.index++;
           parser.column++;
-          state = state | IntervalQuantifierState.IsHigh;
-          if (hasBit(state, IntervalQuantifierState.Start)) {
-              state = state & ~IntervalQuantifierState.Start;
+          state = state | QuantifierPrefixState.IsHigh;
+          if (hasBit(state, QuantifierPrefixState.Start)) {
+              state = state & ~QuantifierPrefixState.Start;
               if (ch === Chars.Zero) {
                   if (parser.index >= parser.length) return false;
                   ch = parser.source.charCodeAt(parser.index);
                   if (!(ch >= Chars.Zero && ch <= Chars.Nine)) break;
-                  state = state | IntervalQuantifierState.HasBadNumber;
+                  state = state | QuantifierPrefixState.HasBadNumber;
                   parser.index++;
                   parser.column++;
               }
@@ -248,9 +246,9 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
       }
   }
 
-  if (hasBit(state, IntervalQuantifierState.HasBadNumber) || !consumeOpt(parser, Chars.RightBrace)) return false;
-  const hasLow = hasBit(state, IntervalQuantifierState.IsLow);
-  const hasHi = hasBit(state, IntervalQuantifierState.IsHigh);
+  if (hasBit(state, QuantifierPrefixState.HasBadNumber) || !consumeOpt(parser, Chars.RightBrace)) return false;
+  const hasLow = hasBit(state, QuantifierPrefixState.IsLow);
+  const hasHi = hasBit(state, QuantifierPrefixState.IsHigh);
   const res: any = (hasLow !== hasHi || (hasLow && hasHi && min <= max));
   return missingDigits ? res | RegexpState.MissingDigits : res;
 }
