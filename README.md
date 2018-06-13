@@ -14,7 +14,7 @@ Cherow is a very fast and lightweight, standards-compliant, self-hosted javascri
 This repo is managed as a monorepo that is composed of many independent [npm](https://www.npmjs.com/) packages.
 
 * [Cherow JS parser](https://github.com/cherow/cherow/tree/master/packages/cherow)
-* [Cherow ESLint](https://github.com/cherow/cherow/tree/master/packages/cherow-eslint)
+* [Cherow ESLint](https://github.com/cherow/cherow/tree/master/packages/cherow-linter)
 * [Cherow TypeScript parser](https://github.com/cherow/cherow/tree/master/packages/cherow-ts)
 * [Cherow Flow parser](https://github.com/cherow/cherow/tree/master/packages/cherow-flow)
 * [Cherow CLI](https://github.com/cherow/cherow/tree/master/packages/cherow-cli)
