@@ -12,7 +12,6 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
-![](./media/benchmark.png)
 
 ## Features
 
@@ -171,3 +170,8 @@ None of these parsers would fare any chance against the official Test262 suite, 
 
 We figured we could *try* do better. *We* are used in plural form because Cherow is developed by a main developer and two
 others "*behind the scene*" that contributes with their knowledge whenever it's necessary.
+
+## Benchmatk
+
+
+![](./media/benchmark.png)
