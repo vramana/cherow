@@ -6,8 +6,20 @@ import { consumeOpt, toHex } from './common';
 import { Errors, recordErrors, report } from '../errors';
 import { isValidIdentifierStart } from '../unicode';
 
+// Numeric literals
+//
+// - Stage 3 proposals included:
+// =============================
+//
+// - Numeric separators
+// . BigInt
+//
+
 /**
- *  Scans numeric literal
+ *  Scans numeric and decimal literal literal
+ *
+ * @see [https://tc39.github.io/ecma262/#prod-DecimalLiteral)
+ * @see [https://tc39.github.io/ecma262/#prod-NumericLiteral)
  *
  * @param parser Parser object
  * @param context Context masks
@@ -84,25 +96,27 @@ export function scanNumeric(parser: Parser): Token {
 
   if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
       report(parser, Errors.Unexpected);
-  } else if (isFloat) parser.tokenValue = parseFloat(parser.tokenValue);
+  }
+
+  if (isFloat) parser.tokenValue = parseFloat(parser.tokenValue);
+
   return bigInt ? Token.BigInt : Token.NumericLiteral;
 }
 
-
 /**
-*  Scans numeric literal
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ *  Scans binary, octal, hex literal, and numeric literals (Annex B.1.1)
+ *
+ * @see [https://tc39.github.io/ecma262/#prod-BinaryIntegerLiteral)
+ * @see [https://tc39.github.io/ecma262/#prod-OctalIntegerLiteral)
+ * @see [https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
+ * @see [https://tc39.github.io/ecma262/#sec-additional-syntax-numeric-literals)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function parseLeadingZero(parser: Parser, context: Context): Token {
-  const index = parser.index + 1;
-  const next = parser.source.charCodeAt(index);
-  if (next >= Chars.Zero && next <= Chars.Seven) {
-      return scanImplicitOctalDigits(parser, context);
-  }
 
-  switch (next) {
+  switch (parser.source.charCodeAt(parser.index + 1)) {
       case Chars.LowerX:
       case Chars.UpperX:
           parser.index++;
@@ -115,6 +129,15 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
           return scanOctalOrBinaryDigits(parser, 8);
       case Chars.Underscore:
           report(parser, Errors.TrailingNumericSeparator);
+      case Chars.Zero:
+      case Chars.One:
+      case Chars.Two:
+      case Chars.Three:
+      case Chars.Four:
+      case Chars.Five:
+      case Chars.Six:
+      case Chars.Seven:
+          return scanImplicitOctalDigits(parser, context);
       case Chars.Eight:
       case Chars.Nine:
           if (context & Context.Strict) recordErrors(parser, context, Errors.Unexpected);
@@ -124,22 +147,22 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
 }
 
 /**
-*  Scans octal or binary digits
-*
-* @param parser Parser object
-* @param base
-*/
+ * Scans octal or binary digits
+ *
+ * @see [https://tc39.github.io/ecma262/#prod-BinaryDigits)
+ * @see [https://tc39.github.io/ecma262/#prod-OctalDigit)
+ *
+ * @param parser Parser object
+ * @param base base number
+ */
 
 export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
-  parser.index++; parser.column++;
-  if (parser.index >= parser.length) report(parser, Errors.InvalidOrUnexpectedToken);
-  parser.index++; parser.column++;
+  parser.index += 2; parser.column += 2;
   let code = parser.source.charCodeAt(parser.index);
   if (!(code >= Chars.Zero && code <= Chars.Nine)) report(parser, Errors.InvalidOrUnexpectedToken);
   let seenSeparator = false;
-  parser.tokenValue = 0;
   let digits = 0;
-
+  parser.tokenValue = 0;
   while (parser.index < parser.length) {
       code = parser.source.charCodeAt(parser.index);
       if (code === Chars.Underscore) {
@@ -169,11 +192,13 @@ export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
 }
 
 /**
-* Scans hex
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Scans hex digits
+ *
+ * @see [https://tc39.github.io/ecma262/#prod-HexDigits)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanHexDigits(parser: Parser): Token {
   parser.index++; parser.column++;
   parser.tokenValue = toHex(parser.source.charCodeAt(parser.index));
@@ -202,6 +227,8 @@ export function scanHexDigits(parser: Parser): Token {
 
 /**
 * Scans implicit octals
+*
+* @see [https://tc39.github.io/ecma262/#sec-additional-syntax-numeric-literals)
 *
 * @param parser Parser object
 * @param context Context masks
