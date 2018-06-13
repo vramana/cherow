@@ -30,8 +30,7 @@ export function scanNumeric(parser: Parser): Token {
       parser.tokenValue = 0;
       while (digit >= 0 && (next >= Chars.Zero && next <= Chars.Nine || next === Chars.Underscore)) {
           if (next === Chars.Underscore) {
-              parser.index++;
-              parser.column++;
+              parser.index++; parser.column++;
               next = parser.source.charCodeAt(parser.index);
               if (next === Chars.Underscore) report(parser, Errors.Unexpected);
               seenSeparator = true;
@@ -40,8 +39,7 @@ export function scanNumeric(parser: Parser): Token {
           }
           seenSeparator = false;
           parser.tokenValue = parser.tokenValue * 10 + next - Chars.Zero;
-          parser.index++;
-          parser.column++;
+          parser.index++; parser.column++;
           --digit;
           next = parser.source.charCodeAt(parser.index);
       }
@@ -59,7 +57,7 @@ export function scanNumeric(parser: Parser): Token {
 
   if (consumeOpt(parser, Chars.Period)) {
       isFloat = true;
-      if (parser.source.charCodeAt(parser.index) === Chars.Underscore) report(parser, Errors.Unexpected);
+      if (parser.source.charCodeAt(parser.index) === Chars.Underscore) report(parser, Errors.ZeroDigitNumericSeparator);
       parser.tokenValue = `${parser.tokenValue}.${scanDecimalDigitsOrSeparator(parser)}`;
   }
 
@@ -68,9 +66,9 @@ export function scanNumeric(parser: Parser): Token {
   let bigInt = false;
 
   if (parser.source.charCodeAt(parser.index) === Chars.LowerN) {
-    if (isFloat)  report(parser, Errors.Unexpected);
-    bigInt = true;
-    parser.index++; parser.column++;
+      if (isFloat) report(parser, Errors.Unexpected);
+      bigInt = true;
+      parser.index++; parser.column++;
   }
 
   if (consumeOpt(parser, Chars.LowerE) || consumeOpt(parser, Chars.UpperE)) {
@@ -99,10 +97,7 @@ export function scanNumeric(parser: Parser): Token {
 */
 export function parseLeadingZero(parser: Parser, context: Context): Token {
   const index = parser.index + 1;
-
-
   const next = parser.source.charCodeAt(index);
-
   if (next >= Chars.Zero && next <= Chars.Seven) {
       return scanImplicitOctalDigits(parser, context);
   }
@@ -136,55 +131,42 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
 */
 
 export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
-  parser.index++;
-  parser.column++;
-  parser.index++;
-  parser.column++;
+  parser.index++; parser.column++;
+  if (parser.index >= parser.length) report(parser, Errors.InvalidOrUnexpectedToken);
+  parser.index++; parser.column++;
   let code = parser.source.charCodeAt(parser.index);
   if (!(code >= Chars.Zero && code <= Chars.Nine)) report(parser, Errors.InvalidOrUnexpectedToken);
-
-  //  parser.column++;
-
-  let value = 0;
+  let seenSeparator = false;
+  parser.tokenValue = 0;
   let digits = 0;
-  let allowSeparator = false;
-  let isPreviousTokenSeparator = false;
 
   while (parser.index < parser.length) {
       code = parser.source.charCodeAt(parser.index);
       if (code === Chars.Underscore) {
-        if (allowSeparator) {
-            allowSeparator = false;
-            isPreviousTokenSeparator = true;
-        } else if (isPreviousTokenSeparator) {
-            report(parser, Errors.ContinuousNumericSeparator);
-        } else {
-            report(parser, Errors.TrailingNumericSeparator);
-        }
-        parser.index++;
-        parser.column++;
-        continue;
-    }
-      allowSeparator = true;
+          parser.index++; parser.column++;
+          if (parser.source.charCodeAt(parser.index) === Chars.Underscore) report(parser, Errors.ContinuousNumericSeparator);
+          seenSeparator = true;
+          continue;
+      }
+      seenSeparator = false;
       const converted = code - Chars.Zero;
-      if (!(code >= Chars.Zero && code <= Chars.Nine)|| converted >= base) break;
-      isPreviousTokenSeparator = false;
-      value = value * base + converted;
-      parser.index++;
-      parser.column++;
+      if (!(code >= Chars.Zero && code <= Chars.Nine) || converted >= base) break;
+      parser.tokenValue = parser.tokenValue * base + converted;
+      parser.index++; parser.column++;
       digits++;
   }
 
   if (digits === 0) {
       report(parser, Errors.InvalidOrUnexpectedToken);
   }
-  if (parser.source.charCodeAt(parser.index - 1) === Chars.Underscore) report(parser, Errors.TrailingNumericSeparator);
-  parser.tokenValue = value;
 
+  if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
   if (consumeOpt(parser, Chars.LowerN)) return Token.BigInt;
+  if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
+      report(parser, Errors.Unexpected);
+  }
   return Token.NumericLiteral;
 }
-
 
 /**
 * Scans hex
@@ -193,34 +175,27 @@ export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
 * @param context Context masks
 */
 export function scanHexDigits(parser: Parser): Token {
-  parser.index++;
-  parser.column++;
-  let value = toHex(parser.source.charCodeAt(parser.index));
-  if (value < 0) report(parser, Errors.Unexpected);
-  parser.index++;
-  parser.column++;
+  parser.index++; parser.column++;
+  parser.tokenValue = toHex(parser.source.charCodeAt(parser.index));
+  if (parser.tokenValue < 0) report(parser, Errors.Unexpected);
+  parser.index++; parser.column++;
   let seenSeparator = false;
   while (parser.index < parser.length) {
       const next = parser.source.charCodeAt(parser.index);
       if (next === Chars.Underscore) {
-          parser.index++;
-          parser.column++;
+          parser.index++; parser.column++;
           if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
           seenSeparator = true;
           continue;
       }
 
       const digit = toHex(next);
-      if (digit < 0) {
-          break;
-      }
+      if (digit < 0) break;
       seenSeparator = false;
-      value = value * 16 + digit;
-      parser.index++;
-      parser.column++;
+      parser.tokenValue = parser.tokenValue * 16 + digit;
+      parser.index++; parser.column++;
   }
   if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-  parser.tokenValue = value;
   if (consumeOpt(parser, Chars.LowerN)) return Token.BigInt;
   return Token.NumericLiteral;
 }
@@ -234,11 +209,9 @@ export function scanHexDigits(parser: Parser): Token {
 export function scanImplicitOctalDigits(parser: Parser, context: Context): Token {
   if (context & Context.Strict) recordErrors(parser, context, Errors.Unexpected);
   let next = parser.source.charCodeAt(parser.index);
-
-  let value = 0;
+  parser.tokenValue = 0;
   let index = parser.index;
   let column = parser.column;
-  let digits = 0;
 
   parser.flags |= Flags.HasOctal;
 
@@ -249,16 +222,13 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
       if (next === Chars.Underscore) report(parser, Errors.TrailingNumericSeparator);
       if (next === Chars.Eight || next === Chars.Nine) return scanNumeric(parser);
       if (!(next >= Chars.Zero && next <= Chars.Seven)) break;
-      value = value * 8 + (next - Chars.Zero);
-      index++;
-      column++;
-      digits++;
+      parser.tokenValue = parser.tokenValue * 8 + (next - Chars.Zero);
+      index++; column++;
   }
-  if (digits === 0) recordErrors(parser, context, Errors.Unexpected);
-  parser.tokenValue = value;
+
   parser.index = index;
   parser.column = column;
-  if (consumeOpt(parser, Chars.LowerN)) return Token.BigInt;
+  if (isValidIdentifierStart(next)) report(parser, Errors.Unexpected);
   return Token.NumericLiteral;
 }
 
@@ -271,34 +241,24 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
 export function scanDecimalDigitsOrSeparator(parser: Parser): string {
   let start = parser.index;
   let allowSeparator = false;
-  let isPreviousTokenSeparator = false;
   let result = '';
   while (parser.index < parser.length) {
       const ch = parser.source.charCodeAt(parser.index);
       if (ch === Chars.Underscore) {
-          if (allowSeparator) {
-              allowSeparator = false;
-              isPreviousTokenSeparator = true;
-              result += parser.source.substring(start, parser.index);
-          } else if (isPreviousTokenSeparator) {
-              report(parser, Errors.ContinuousNumericSeparator);
-          } else {
-              report(parser, Errors.TrailingNumericSeparator);
-          }
-          parser.index++;
-          parser.column++;
+          result += parser.source.substring(start, parser.index);
+          if (parser.source.charCodeAt(parser.index + 1) === Chars.Underscore) report(parser, Errors.TrailingNumericSeparator);
+          allowSeparator = true;
+          parser.index++; parser.column++;
           start = parser.index;
           continue;
       }
 
       if (!(ch >= Chars.Zero && ch <= Chars.Nine)) break;
-      allowSeparator = true;
-      isPreviousTokenSeparator = false;
-      parser.index++;
-      parser.column++;
+      allowSeparator = false;
+      parser.index++; parser.column++;
 
   }
-  if (parser.source.charCodeAt(parser.index + 1) === Chars.Underscore) {
+  if (allowSeparator) {
       report(parser, Errors.TrailingNumericSeparator);
   }
   return result + parser.source.substring(start, parser.index);
