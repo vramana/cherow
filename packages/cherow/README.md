@@ -1,13 +1,6 @@
 # Cherow
 
-
-
 **WORK IN PROGRESS**
-
-
-
-
-
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
@@ -18,6 +11,8 @@
 A very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
+
+![](./media/benchmark.png)
 
 ## Features
 
