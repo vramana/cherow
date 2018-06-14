@@ -18,10 +18,8 @@ describe('Statements - Break', () => {
                   "sourceType": "script",
                   "type": "Program"
                 }
-        },  (msg: string) => {
-             t.equal(msg, 'Illegal break statement');
         });
- 
+
      pass('while ( false ) Label: continue Label;', Context.OptionsEditorMode, {
         source: `while ( foo ) Label: break Label;`,
         expected: {
@@ -51,8 +49,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  () => {
-        
     });
 
     pass('do {  test262: {  break test262; } } while (a)', Context.OptionsEditorMode, {
@@ -94,8 +90,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, "Undefined label 'test262'")
     });
 
     pass('do {  test262: {  break test262; } } while (a)', Context.OptionsEditorMode, {
@@ -137,8 +131,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, "Undefined label 'test262'")
     });
 
     pass('ice: while(true) { break fapper; }', Context.OptionsEditorMode, {
@@ -175,8 +167,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'fapper\'')
     });
 
     pass('loop1: while (a) { loop2: function a() { break loop2; } }', Context.OptionsEditorMode, {
@@ -236,8 +226,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program",
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'loop2\'')
     });
 
     pass('loop1: while (a) { loop1: function a() { break loop1; } }', Context.OptionsEditorMode, {
@@ -297,8 +285,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  () => {
-//        t.equal(msg, 'Label \'loop1\' has already been declared')
     });
 
     pass('try{ LABEL1 : do { throw foo;  } while(0); } catch(e){ break LABEL2; LABEL2 : do {} while(0); };', Context.OptionsEditorMode, {
@@ -384,8 +370,6 @@ describe('Statements - Break', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'LABEL2\'')
     });
 
 });
@@ -414,7 +398,7 @@ describe('Statements - Break', () => {
                     }
                 ]
             }
-        }); 
+        });
 
         pass('while (foo) { break; }', Context.Empty, {
             source: 'while (foo) { break; }',
@@ -440,7 +424,7 @@ describe('Statements - Break', () => {
                     }
                 ]
             }
-        }); 
+        });
 
         pass(`var count = 0;
         label: for (let x = 0; x < 10;) {
@@ -569,6 +553,6 @@ describe('Statements - Break', () => {
                     }
                 ]
             }
-        }); 
+        });
     });
 });

@@ -24,7 +24,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('try {} catch(e) {} finally {}', Context.Empty, {
         source: 'try {} catch(e) {} finally {}',
@@ -56,7 +56,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('try {} catch(){}', Context.OptionsEditorMode, {
         source: 'try {} catch(){}',
@@ -82,9 +82,7 @@ describe('Statements - Try', () => {
               "sourceType": "script",
               "type": "Program",
             }
-    }, function(errMsg: string) {
-        t.equal(errMsg, 'Missing catch clause');
-    });  
+    });
 
     pass('try {} catch(e){}', Context.Empty, {
         source: 'try {} catch(e){}',
@@ -113,7 +111,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 /*
     pass('try {} catch(e, f){}', Context.Empty, {
         source: 'try {} catch(e, f){}',
@@ -209,7 +207,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('try {} catch([e]){}', Context.Empty, {
         source: 'try {} catch([e]){}',
@@ -243,7 +241,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 /*
     pass('try {} catch({e}=x){}', Context.Empty, {
         source: 'try {} catch({e}=x){}',
@@ -309,10 +307,10 @@ describe('Statements - Try', () => {
               "type": "Program"
             }
     }, function() {
-        // Multiple error messages 
+        // Multiple error messages
         // 1 - Catch clause parameter does not support default values
         // 2 - Unexpected token =
-    });   
+    });
 */
     pass('try {} catch({e=x}){}', Context.Empty, {
         source: 'try {} catch({e=x}){}',
@@ -364,7 +362,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('try {} catch([e=x]){}', Context.Empty, {
         source: 'try {} catch([e=x]){}',
@@ -405,7 +403,7 @@ describe('Statements - Try', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('try {} catch(e) {}', Context.Empty, {
     source: 'try {} catch(e) {}',

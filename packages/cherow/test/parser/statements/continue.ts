@@ -18,8 +18,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-         t.equal(msg, 'Illegal continue statement: no surrounding iteration statement');
     });
 
       pass('while ( false ) Label: continue Label;', Context.OptionsEditorMode, {
@@ -51,10 +49,8 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  () => {
-        
     });
-  
+
       pass('while ( false ) Label: continue Label;', Context.OptionsEditorMode, {
         source: `while ( foo ) Label: continue Label;`,
         expected: {
@@ -84,8 +80,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  () => {
-        
     });
 
     pass('do {  test262: {  continue test262; } } while (a)', Context.OptionsEditorMode, {
@@ -127,8 +121,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, "Undefined label 'test262'")
     });
 
     pass('do {  test262: {  continue test262; } } while (a)', Context.OptionsEditorMode, {
@@ -170,8 +162,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, "Undefined label 'test262'")
     });
 
     pass('ice: while(true) { continue fapper; }', Context.OptionsEditorMode, {
@@ -208,8 +198,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'fapper\'')
     });
 
     pass('loop1: while (true) { loop2: function a() { continue loop2; } }', Context.OptionsEditorMode, {
@@ -269,8 +257,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program",
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'loop2\'')
     });
 
     pass('loop1: while (a) { loop1: function a() { continue loop1; } }', Context.OptionsEditorMode, {
@@ -330,8 +316,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  () => {
-//        t.equal(msg, 'Label \'loop1\' has already been declared')
     });
 
     pass('try{ LABEL1 : do { throw foo;  } while(0); } catch(e){ continue LABEL2; LABEL2 : do {} while(0); };', Context.OptionsEditorMode, {
@@ -417,8 +401,6 @@ describe('Statements - Continue', () => {
               "sourceType": "script",
               "type": "Program"
             }
-    },  (msg: string) => {
-        t.equal(msg, 'Undefined label \'LABEL2\'')
     });
 
 });
@@ -447,7 +429,7 @@ describe('Statements - Continue', () => {
                     }
                 ]
             }
-        }); 
+        });
 
         pass('while (foo) { continue; }', Context.OptionsEditorMode, {
             source: 'while (foo) { continue; }',
@@ -473,7 +455,7 @@ describe('Statements - Continue', () => {
                     }
                 ]
             }
-        }); 
+        });
 
         pass(`var count = 0;
         label: for (let x = 0; x < 10;) {
@@ -602,6 +584,6 @@ describe('Statements - Continue', () => {
                     }
                 ]
             }
-        }); 
+        });
     });
 });

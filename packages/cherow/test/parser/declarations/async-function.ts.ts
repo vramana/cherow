@@ -15,7 +15,7 @@ describe('Declarations - Async Function', () => {
         for (const arg of Failures) {
             it(`"use strict"; ${arg}`, () => {
                 t.throws(() => {
-                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty, undefined);
+                    parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
                 });
             });
         }
@@ -42,7 +42,7 @@ describe('Declarations - Async Function', () => {
         for (const arg of programs) {
             it(`${arg}`, () => {
                 t.doesNotThrow(() => {
-                    parseSource(`${arg}`, undefined, Context.Empty, undefined);
+                    parseSource(`${arg}`, undefined, Context.Empty);
                 });
             });
         }

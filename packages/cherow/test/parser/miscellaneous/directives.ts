@@ -22,9 +22,7 @@ describe('Miscellaneous - Directives', () => {
                     }
                 ]
             }
-           
-        },  () => {
-           // t.equal(msg, 'Illegal break statement');
+
         });
     });
 });

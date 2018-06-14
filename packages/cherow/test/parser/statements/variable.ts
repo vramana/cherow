@@ -45,7 +45,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var foo = bar', Context.Empty, {
             source: 'var foo = bar',
             expected: {
@@ -103,7 +103,7 @@ describe('Statements - Variable', () => {
                         ]
                     }
             });
-    
+
             pass('var [foo, ...bar] = obj;', Context.Empty, {
                 source: 'var [foo, ...bar] = obj;',
                 expected: {
@@ -178,7 +178,7 @@ describe('Statements - Variable', () => {
                 "type": "Program"
             }
         });
-    
+
         pass('var foo = bar, zoo = boo;', Context.Empty, {
             source: 'var foo = bar, zoo = boo;',
             expected: {
@@ -213,7 +213,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var\nfoo', Context.Empty, {
             source: 'var\nfoo',
             expected: {
@@ -233,7 +233,7 @@ describe('Statements - Variable', () => {
                 "type": "Program"
             }
         });
-    
+
         pass('var [] = x;', Context.Empty, {
             source: 'var [] = x;',
             expected: {
@@ -256,7 +256,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [,] = x;', Context.Empty, {
             source: 'var [,] = x;',
             expected: {
@@ -281,7 +281,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [,,] = x;', Context.Empty, {
             source: 'var [,,] = x;',
             expected: {
@@ -307,7 +307,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo] = arr;;', Context.OptionsEditorMode, {
             source: 'var [foo] = arr;',
             expected: {
@@ -333,7 +333,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo,] = arr;', Context.Empty, {
             source: 'var [foo,] = arr;',
             expected: {
@@ -359,7 +359,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo,,] = arr;', Context.Empty, {
             source: 'var [foo,,] = arr;',
             expected: {
@@ -387,7 +387,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [,foo] = arr;', Context.Empty, {
             source: 'var [,foo] = arr;',
             expected: {
@@ -416,7 +416,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [,,foo] = arr;', Context.Empty, {
             source: 'var [,,foo] = arr;',
             expected: {
@@ -446,7 +446,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo,bar] = arr;', Context.Empty, {
             source: 'var [foo,bar] = arr;',
             expected: {
@@ -477,7 +477,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo,,bar] = arr;', Context.Empty, {
             source: 'var [foo,,bar] = arr;',
             expected: {
@@ -509,7 +509,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo] = arr, [bar] = arr2;', Context.Empty, {
             source: 'var [foo] = arr, [bar] = arr2;',
             expected: {
@@ -550,7 +550,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo] = arr, bar;', Context.Empty, {
             source: 'var [foo] = arr, bar;',
             expected: {
@@ -585,7 +585,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo] = arr, bar = arr2', Context.Empty, {
             source: 'var [foo] = arr, bar = arr2',
             expected: {
@@ -623,7 +623,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var foo, [bar] = arr2;', Context.OptionsEditorMode, {
             source: 'var foo, [bar] = arr2;',
             expected: {
@@ -658,7 +658,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var foo = arr, [bar] = arr2;', Context.OptionsEditorMode, {
             source: 'var foo = arr, [bar] = arr2;',
             expected: {
@@ -696,7 +696,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo=a] = arr;', Context.OptionsEditorMode, {
             source: 'var [foo=a] = arr;',
             expected: {
@@ -729,7 +729,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo=a, bar] = arr;', Context.Empty, {
             source: 'var [foo=a, bar] = arr;',
             expected: {
@@ -767,7 +767,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo, bar=b] = arr;', Context.Empty, {
             source: 'var [foo, bar=b] = arr;',
             expected: {
@@ -805,7 +805,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-    
+
         pass('var [foo=a, bar=b] = arr;', Context.Empty, {
             source: 'var [foo=a, bar=b] = arr;',
             expected: {
@@ -850,7 +850,7 @@ describe('Statements - Variable', () => {
                 }]
             }
         });
-       
+
        pass('var [foo];', Context.OptionsEditorMode, {
         source: 'var [foo];',
         expected: {
@@ -878,8 +878,6 @@ describe('Statements - Variable', () => {
                   "sourceType": "script",
                   "type": "Program",
                 }
-    }, function(errMsg: string) {
-        t.equal(errMsg, 'Missing initializer in destructuring declaration');
     });
         pass('var [foo = x];', Context.OptionsEditorMode, {
             source: 'var [foo = x];',
@@ -909,8 +907,6 @@ describe('Statements - Variable', () => {
                 "sourceType": "script",
                 "type": "Program",
             }
-        }, function(errMsg: string) {
-            t.equal(errMsg, 'Missing initializer in destructuring declaration');
         });
 
         pass('var [foo], bar;', Context.OptionsEditorMode, {
@@ -948,8 +944,6 @@ describe('Statements - Variable', () => {
                           "sourceType": "script",
                           "type": "Program"
                         }
-            }, function(errMsg: string) {
-                t.equal(errMsg, 'Missing initializer in destructuring declaration');
             });
 
             pass('var foo, [bar];', Context.OptionsEditorMode, {
@@ -987,8 +981,6 @@ describe('Statements - Variable', () => {
                           "sourceType": "script",
                           "type": "Program"
                         }
-            }, function(errMsg: string) {
-                t.equal(errMsg, 'Missing initializer in destructuring declaration');
             });
 /*
             // Note: This AST is invalid - it only works in editor mode
@@ -1278,7 +1270,7 @@ describe('Statements - Variable', () => {
                         ]
                     }
             });
-            
+
             pass('var x, {y} = obj;', Context.Empty, {
                 source: 'var x, {y} = obj;',
                 expected: {

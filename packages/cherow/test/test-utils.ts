@@ -1,7 +1,6 @@
 import * as t from 'assert';
 import { parseSource } from '../src/parser/parser';
 import { Context } from '../src/common';
-import * as ESTree from '../src/estree';
 
 export interface Opts {
     source: string;
