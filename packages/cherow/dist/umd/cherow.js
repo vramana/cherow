@@ -49,7 +49,9 @@
         /* Numbers */
         'bigInt',
         /* Enum */
-        'enum'
+        'enum',
+        /* Escaped keywords */
+        'escaped strict reserved', 'escaped keyword'
     ];
     /**
      * The conversion function between token and its string description/representation.
@@ -604,23 +606,153 @@
         }
     }
     function isIdentifierPart(code) {
-        return isValidIdentifierPart(code) ||
-            code === 92 /* Backslash */ ||
-            code === 36 /* Dollar */ ||
+        const letter = code | 32;
+        return (letter >= 97 /* LowerA */ && letter <= 122 /* LowerZ */) ||
             code === 95 /* Underscore */ ||
-            (code >= 48 /* Zero */ && code <= 57 /* Nine */); // 0..9;
+            code === 36 /* Dollar */ ||
+            (code >= 48 /* Zero */ && code <= 57 /* Nine */ // 0..9;
+                || isValidIdentifierPart(code));
+    }
+    function isWhiteSpaceSingleLine(ch) {
+        return ch === 32 /* Space */ ||
+            ch === 9 /* Tab */ ||
+            ch === 11 /* VerticalTab */ ||
+            ch === 12 /* FormFeed */ ||
+            ch === 160 /* NonBreakingSpace */ ||
+            ch === 133 /* NextLine */ ||
+            ch === 5760 /* Ogham */ ||
+            ch >= 8192 /* EnQuad */ && ch <= 8203 /* ZeroWidthSpace */ ||
+            ch === 8239 /* NarrowNoBreakSpace */ ||
+            ch === 8287 /* MathematicalSpace */ ||
+            ch === 12288 /* IdeographicSpace */;
+    }
+    /**
+     * Consumes lead surrogate
+     *
+     * @param parser Parser object
+     */
+    function consumeLeadSurrogate(parser) {
+        const hi = parser.source.charCodeAt(parser.index++);
+        let code = hi;
+        if (hi >= 0xD800 && hi <= 0xDBFF && parser.index < parser.length) {
+            const lo = parser.source.charCodeAt(parser.index);
+            if (lo >= 0xDC00 && lo <= 0xDFFF) {
+                code = (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
+                parser.index++;
+                parser.column++;
+            }
+        }
+        parser.column++;
+        return code;
     }
 
-    function scanIdentifier(parser, context, code) {
-        const { index: start } = parser;
-        while (parser.index < parser.length && isIdentifierPart(code)) {
+    /**
+     * Scans identifier
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     * @param first codepoint
+     */
+    function scanIdentifier(parser, context, first) {
+        const { index } = parser;
+        while (isIdentifierPart(first)) {
             parser.index++;
             parser.column++;
-            code = parser.source.charCodeAt(parser.index);
+            first = parser.source.charCodeAt(parser.index);
         }
-        parser.tokenValue = parser.source.slice(start, parser.index);
-        return getIdentifierToken(parser);
+        parser.tokenValue = parser.source.slice(index, parser.index);
+        if (first <= 128 /* MaxAsciiCharacter */ && first !== 92 /* Backslash */)
+            return getIdentifierToken(parser);
+        if (first >= 0xD800 && first <= 0xDBFF)
+            parser.tokenValue += fromCodePoint(consumeLeadSurrogate(parser));
+        // slow path
+        return parseIdentifierSuffix(parser);
     }
+    /**
+     * Parse identifier suffix
+     *
+     * @param parser Parser object
+     * @param context Context masks
+     * @param first codepoint
+     */
+    function parseIdentifierSuffix(parser) {
+        let escaped = false;
+        let index = parser.index;
+        let first = parser.source.charCodeAt(parser.index);
+        while (parser.index < parser.length && isIdentifierPart(first) || first === 92 /* Backslash */) {
+            if (first === 92 /* Backslash */) {
+                escaped = true;
+                parser.tokenValue += parser.source.slice(index, parser.index);
+                parser.tokenValue += fromCodePoint(scanIdentifierUnicodeEscape(parser));
+                index = parser.index;
+            }
+            else {
+                parser.index++;
+                parser.column++;
+            }
+            first = parser.source.charCodeAt(parser.index);
+        }
+        if (index < parser.index)
+            parser.tokenValue += parser.source.slice(index, parser.index);
+        const token = getIdentifierToken(parser);
+        if (escaped) {
+            if (hasBit(token, 8388608 /* Identifier */) || hasBit(token, 4096 /* Contextual */)) {
+                return token;
+            }
+            else if (hasBit(token, 16384 /* FutureReserved */) || token === 16453 /* LetKeyword */ || token === 16490 /* StaticKeyword */) {
+                return 125 /* EscapedStrictReserved */;
+            }
+            else
+                return 126 /* EscapedKeyword */;
+        }
+        return token;
+    }
+    /**
+     * Scans identifier unicode escape
+     *
+     * @param parser Parser object
+     */
+    function scanIdentifierUnicodeEscape(parser) {
+        parser.index++;
+        parser.column++;
+        if (parser.source.charCodeAt(parser.index) !== 117 /* LowerU */)
+            report(parser, 0 /* Unexpected */);
+        parser.index++;
+        parser.column++;
+        let ch = parser.source.charCodeAt(parser.index);
+        let codePoint = 0;
+        if (consumeOpt(parser, 123 /* LeftBrace */)) {
+            ch = parser.source.charCodeAt(parser.index);
+            let digit = toHex(ch);
+            while (digit >= 0) {
+                codePoint = (codePoint << 4) | digit;
+                if (codePoint > 1114111 /* NonBMPMax */) {
+                    report(parser, 0 /* Unexpected */);
+                }
+                parser.index++;
+                parser.column++;
+                digit = toHex(parser.source.charCodeAt(parser.index));
+            }
+            consumeOpt(parser, 125 /* RightBrace */);
+        }
+        else {
+            for (let i = 0; i < 4; i++) {
+                ch = parser.source.charCodeAt(parser.index);
+                const digit = toHex(ch);
+                if (digit < 0)
+                    report(parser, 0 /* Unexpected */, 'unicode');
+                codePoint = (codePoint << 4) | digit;
+                parser.index++;
+                parser.column++;
+            }
+        }
+        return codePoint;
+    }
+    /**
+     * Get identifier token
+     *
+     * @param parser Parser object
+     */
     function getIdentifierToken(parser) {
         const len = parser.tokenValue.length;
         if (len >= 2 && len <= 11) {
@@ -631,46 +763,31 @@
         }
         return 8388608 /* Identifier */;
     }
+    /**
+     * Scans maybe identifier
+     *
+     * @param parser Parser object
+     */
     function scanMaybeIdentifier(parser, context, first) {
-        switch (first) {
-            case 8232 /* LineSeparator */:
-            case 8233 /* ParagraphSeparator */:
-                parser.index++;
-                parser.column = 0;
-                parser.line++;
-                parser.flags |= 1 /* NewLine */;
-                parser.flags |= 1 /* NewLine */;
-                return 524288 /* WhiteSpace */;
-            // Special cases
-            case 65519 /* ByteOrderMark */:
-            case 160 /* NonBreakingSpace */:
-            case 5760 /* Ogham */:
-            case 8192 /* EnQuad */:
-            case 8193 /* EmQuad */:
-            case 8194 /* EnSpace */:
-            case 8195 /* EmSpace */:
-            case 8196 /* ThreePerEmSpace */:
-            case 8197 /* FourPerEmSpace */:
-            case 8198 /* SixPerEmSpace */:
-            case 8199 /* FigureSpace */:
-            case 8200 /* PunctuationSpace */:
-            case 8201 /* ThinSpace */:
-            case 8202 /* HairSpace */:
-            case 8239 /* NarrowNoBreakSpace */:
-            case 8287 /* MathematicalSpace */:
-            case 12288 /* IdeographicSpace */:
-            case 65279 /* Zwnbs */:
-            case 8205 /* Zwj */:
-                parser.index++;
-                parser.column++;
-                return 524288 /* WhiteSpace */;
-            default:
-                first = nextUnicodeChar(parser);
-                if (!isValidIdentifierStart(first)) {
-                    report(parser, 0 /* Unexpected */, escapeInvalidCharacters(first));
-                }
-                return scanIdentifier(parser, context, first);
+        if (isWhiteSpaceSingleLine(first)) {
+            parser.index++;
+            parser.column++;
+            return 524288 /* WhiteSpace */;
         }
+        else if (first === 8232 /* LineSeparator */ || first === 8233 /* ParagraphSeparator */) {
+            parser.index++;
+            parser.column = 0;
+            parser.line++;
+            parser.flags |= 1 /* NewLine */;
+            return 524288 /* WhiteSpace */;
+        }
+        first = consumeLeadSurrogate(parser);
+        if (!isValidIdentifierStart(first))
+            report(parser, 0 /* Unexpected */, escapeInvalidCharacters(first));
+        parser.tokenValue = fromCodePoint(first);
+        if (parser.index < parser.length)
+            return parseIdentifierSuffix(parser);
+        return 8388608 /* Identifier */;
     }
 
     // 11.4 Comments
@@ -2861,7 +2978,7 @@
                 return parser.source.charCodeAt(parser.index);
             // '-'
             case 45 /* Hyphen */:
-                // Note: 'AnnexB' allows escaping dash in char clas
+                // Note: 'AnnexB' allows escaping hyphen ('-') in char clas
                 return 45 /* Hyphen */;
             case 117 /* LowerU */:
                 {

@@ -150,7 +150,10 @@ export declare const enum Token {
     LineFeed = 524409,
     CarriageReturn = 524410,
     BigInt = 2097275,
-    EnumKeyword = 8316
+    EnumKeyword = 8316,
+    /** Escaped keywords */
+    EscapedStrictReserved = 125,
+    EscapedKeyword = 126
 }
 /**
  * The conversion function between token and its string description/representation.

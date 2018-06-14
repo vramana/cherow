@@ -134,3 +134,10 @@ export declare function escapeInvalidCharacters(code: number): string;
 */
 export declare function recordStringErrors(parser: Parser, code: Escape): void;
 export declare function isIdentifierPart(code: Chars): boolean;
+export declare function isWhiteSpaceSingleLine(ch: number): boolean;
+/**
+ * Consumes lead surrogate
+ *
+ * @param parser Parser object
+ */
+export declare function consumeLeadSurrogate(parser: Parser): number;

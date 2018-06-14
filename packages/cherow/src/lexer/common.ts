@@ -462,6 +462,7 @@ export function isWhiteSpaceSingleLine(ch: number): boolean {
  */
 export function consumeLeadSurrogate(parser: Parser): number {
   const hi = parser.source.charCodeAt(parser.index++);
+
   let code = hi;
 
   if (hi >= 0xD800 && hi <= 0xDBFF && parser.index < parser.length) {
