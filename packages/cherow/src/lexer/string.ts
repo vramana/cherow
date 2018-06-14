@@ -93,24 +93,23 @@ table[Chars.LineFeed] =
   };
 
 // Null character, octals
-table[Chars.Zero] =
-  table[Chars.One] =
-  table[Chars.Two] =
-  table[Chars.Three] = (parser, context, first) => {
+table[Chars.Zero] = table[Chars.One] = table[Chars.Two] =  table[Chars.Three] = (
+  parser, context, first
+) => {
       // 1 to 3 octal digits
       let code = first - Chars.Zero;
       let index = parser.index + 1;
       let column = parser.column + 1;
 
       if (index < parser.source.length) {
-          const next = parser.source.charCodeAt(index);
-
+          let next = parser.source.charCodeAt(index);
           if (next < Chars.Zero || next > Chars.Seven) {
               // Strict mode code allows only \0, then a non-digit.
               if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
                   if (context & Context.Strict) return Escape.StrictOctal;
                   parser.flags = parser.flags | Flags.HasOctal;
-              }
+
+                }
           } else if (context & Context.Strict) {
               return Escape.StrictOctal;
           } else {
@@ -120,7 +119,7 @@ table[Chars.Zero] =
               column++;
 
               if (index < parser.source.length) {
-                  const next = parser.source.charCodeAt(index);
+                  next = parser.source.charCodeAt(index);
 
                   if (next >= Chars.Zero && next <= Chars.Seven) {
                       parser.lastValue = next;
@@ -138,10 +137,9 @@ table[Chars.Zero] =
       return code;
   };
 
-table[Chars.Four] =
-  table[Chars.Five] =
-  table[Chars.Six] =
-  table[Chars.Seven] = (parser, context, first) => {
+table[Chars.Four] = table[Chars.Five] = table[Chars.Six] = table[Chars.Seven] = (
+  parser, context, first
+) => {
       if (context & Context.Strict) return Escape.StrictOctal;
       let code = first - Chars.Zero;
       const index = parser.index + 1;

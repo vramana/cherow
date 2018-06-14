@@ -828,13 +828,14 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
  * @param context Context masks
  */
 export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
-    const { tokenValue } = parser;
+    const { tokenValue, tokenRaw } = parser;
     parser.flags &= ~Flags.Assignable;
     nextToken(parser, context);
-    return {
+    return finishNode({
         type: 'Literal',
-        value: tokenValue
-    };
+        value: tokenValue,
+        raw: tokenRaw
+    });
 }
 
 /**

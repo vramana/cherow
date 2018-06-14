@@ -24,7 +24,7 @@ import { isValidIdentifierStart } from '../unicode';
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanNumeric(parser: Parser): Token {
+export function scanNumeric(parser: Parser, context: Context): Token {
   const { index, column } = parser;
 
   let next = parser.source.charCodeAt(parser.index);
@@ -59,6 +59,7 @@ export function scanNumeric(parser: Parser): Token {
       if (seenSeparator) report(parser, Errors.Unexpected);
 
       if (digit >= 0 && next !== Chars.Period && (parser.index >= parser.length || !isValidIdentifierStart(next))) {
+        parser.tokenRaw = parser.source.slice(index, parser.index);
           return Token.NumericLiteral;
       } else {
           parser.index = index;
@@ -98,6 +99,7 @@ export function scanNumeric(parser: Parser): Token {
       report(parser, Errors.Unexpected);
   }
 
+  if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(index, parser.index);
   if (isFloat) parser.tokenValue = parseFloat(parser.tokenValue);
 
   return bigInt ? Token.BigInt : Token.NumericLiteral;
@@ -119,14 +121,13 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
   switch (parser.source.charCodeAt(parser.index + 1)) {
       case Chars.LowerX:
       case Chars.UpperX:
-          parser.index++;
-          return scanHexDigits(parser);
+          return scanHexDigits(parser, context);
       case Chars.LowerB:
       case Chars.UpperB:
-          return scanOctalOrBinaryDigits(parser, 2);
+          return scanOctalOrBinaryDigits(parser, context, 2);
       case Chars.LowerO:
       case Chars.UpperO:
-          return scanOctalOrBinaryDigits(parser, 8);
+          return scanOctalOrBinaryDigits(parser, context, 8);
       case Chars.Underscore:
           report(parser, Errors.TrailingNumericSeparator);
       case Chars.Zero:
@@ -142,7 +143,7 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
       case Chars.Nine:
           if (context & Context.Strict) recordErrors(parser, context, Errors.Unexpected);
       default:
-          return scanNumeric(parser);
+          return scanNumeric(parser, context);
   }
 }
 
@@ -156,7 +157,8 @@ export function parseLeadingZero(parser: Parser, context: Context): Token {
  * @param base base number
  */
 
-export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
+export function scanOctalOrBinaryDigits(parser: Parser, context: Context, base: number): Token {
+  const { index } = parser;
   parser.index += 2; parser.column += 2;
   let code = parser.source.charCodeAt(parser.index);
   if (!(code >= Chars.Zero && code <= Chars.Nine)) report(parser, Errors.InvalidOrUnexpectedToken);
@@ -184,11 +186,12 @@ export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
   }
 
   if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-  if (consumeOpt(parser, Chars.LowerN)) return Token.BigInt;
+  const bigInt = consumeOpt(parser, Chars.LowerN);
   if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
       report(parser, Errors.Unexpected);
   }
-  return Token.NumericLiteral;
+  if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(index, parser.index);
+  return bigInt ? Token.BigInt : Token.NumericLiteral;
 }
 
 /**
@@ -199,8 +202,9 @@ export function scanOctalOrBinaryDigits(parser: Parser, base: number): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanHexDigits(parser: Parser): Token {
-  parser.index++; parser.column++;
+export function scanHexDigits(parser: Parser, context: Context): Token {
+  const { index } = parser;
+  parser.index += 2; parser.column += 2;
   parser.tokenValue = toHex(parser.source.charCodeAt(parser.index));
   if (parser.tokenValue < 0) report(parser, Errors.Unexpected);
   parser.index++; parser.column++;
@@ -221,8 +225,9 @@ export function scanHexDigits(parser: Parser): Token {
       parser.index++; parser.column++;
   }
   if (seenSeparator) report(parser, Errors.TrailingNumericSeparator);
-  if (consumeOpt(parser, Chars.LowerN)) return Token.BigInt;
-  return Token.NumericLiteral;
+  const bigInt = consumeOpt(parser, Chars.LowerN);
+  if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(index, parser.index);
+  return bigInt ? Token.BigInt : Token.NumericLiteral;
 }
 
 /**
@@ -234,12 +239,11 @@ export function scanHexDigits(parser: Parser): Token {
 * @param context Context masks
 */
 export function scanImplicitOctalDigits(parser: Parser, context: Context): Token {
+  let { index, column } = parser;
+  let c = index;
   if (context & Context.Strict) recordErrors(parser, context, Errors.Unexpected);
   let next = parser.source.charCodeAt(parser.index);
   parser.tokenValue = 0;
-  let index = parser.index;
-  let column = parser.column;
-
   parser.flags |= Flags.HasOctal;
 
   // Implicit octal, unless there is a non-octal digit.
@@ -247,7 +251,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
   while (index < parser.length) {
       next = parser.source.charCodeAt(index);
       if (next === Chars.Underscore) report(parser, Errors.TrailingNumericSeparator);
-      if (next === Chars.Eight || next === Chars.Nine) return scanNumeric(parser);
+      if (next === Chars.Eight || next === Chars.Nine) return scanNumeric(parser, context);
       if (!(next >= Chars.Zero && next <= Chars.Seven)) break;
       parser.tokenValue = parser.tokenValue * 8 + (next - Chars.Zero);
       index++; column++;
@@ -256,6 +260,7 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
   parser.index = index;
   parser.column = column;
   if (isValidIdentifierStart(next)) report(parser, Errors.Unexpected);
+  if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(c, parser.index);
   return Token.NumericLiteral;
 }
 

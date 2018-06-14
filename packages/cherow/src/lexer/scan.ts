@@ -161,7 +161,7 @@ table[Chars.Hyphen] = (parser: Parser, context) => {
 };
 
 // `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = (parser: Parser) => {
+table[Chars.Period] = (parser: Parser, context: Context) => {
   let index = parser.index + 1;
   const next = parser.source.charCodeAt(index);
 
@@ -174,7 +174,7 @@ table[Chars.Period] = (parser: Parser) => {
           return Token.Ellipsis;
       }
   } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      return scanNumeric(parser);
+      return scanNumeric(parser, context);
   }
   parser.index++; parser.column++;
   return Token.Period;
