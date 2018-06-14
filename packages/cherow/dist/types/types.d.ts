@@ -37,7 +37,6 @@ export interface Options {
     edit?: OnError;
     node?: boolean;
     tokenize?: boolean;
-    webcompat?: boolean;
     onComment?: OnComment;
 }
 export interface Parser {

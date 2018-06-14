@@ -36,19 +36,18 @@ table[Chars.Space] =
   table[Chars.FormFeed] =
   table[Chars.VerticalTab] =
   table[Chars.FormFeed] = (parser: Parser) => {
-      parser.index++;
-      parser.column++;
+      parser.index++; parser.column++;
       return Token.WhiteSpace;
   };
 
 table[Chars.LineFeed] = (parser: Parser) => {
-  parser.index++; parser.column = 0; parser.line++;
+  parser.index++;  parser.column = 0; parser.line++;
   parser.flags |= Flags.NewLine;
   return Token.WhiteSpace;
 };
 
 table[Chars.CarriageReturn] = (parser: Parser) => {
-  parser.index++; parser.column = 0; parser.line++;
+  parser.index++;  parser.column = 0; parser.line++;
   parser.flags |= Flags.NewLine;
   if (parser.index < parser.length &&
       parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
@@ -60,15 +59,18 @@ table[Chars.CarriageReturn] = (parser: Parser) => {
 // `/`, `/=`, `/>`
 table[Chars.Slash] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.Divide;
-  const next = parser.source.charCodeAt(parser.index);
-  if (next === Chars.Slash) {
-      return skipSingleLineComment(parser);
-  } else if (next === Chars.Asterisk) {
-      return skipMultilineComment(parser);
-  } else if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
-      return Token.DivideAssign;
+  if (parser.index < parser.length) {
+      const next = parser.source.charCodeAt(parser.index);
+      if (next === Chars.Slash) {
+          return skipSingleLineComment(parser);
+      }
+      if (next === Chars.Asterisk) {
+          return skipMultilineComment(parser);
+      } else if (next === Chars.EqualSign) {
+          parser.index++;
+          parser.column++;
+          return Token.DivideAssign;
+      }
   }
   return Token.Divide;
 };
@@ -76,15 +78,9 @@ table[Chars.Slash] = (parser: Parser) => {
 // `!`, `!=`, `!==`
 table[Chars.Exclamation] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (consumeOpt(parser, Chars.EqualSign)) {
-      if (consumeOpt(parser, Chars.EqualSign)) {
-          return Token.StrictNotEqual;
-      } else {
-          return Token.LooseNotEqual;
-      }
-  } else {
-      return Token.Negate;
-  }
+  if (!consumeOpt(parser, Chars.EqualSign)) return Token.Negate;
+  if (!consumeOpt(parser, Chars.EqualSign)) return Token.LooseNotEqual;
+  return Token.StrictNotEqual;
 };
 
 // `%`, `%=`
@@ -97,15 +93,15 @@ table[Chars.Percent] = (parser: Parser) => {
 // `&`, `&&`, `&=`
 table[Chars.Ampersand] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index < parser.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.Ampersand) {
-          parser.index++; parser.column++;
-          return Token.LogicalAnd;
-      } else if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
-          return Token.BitwiseAndAssign;
-      }
+  if (parser.index >= parser.length) return Token.BitwiseAnd;
+  const next = parser.source.charCodeAt(parser.index);
+  if (next === Chars.Ampersand) {
+      parser.index++; parser.column++;
+      return Token.LogicalAnd;
+  }
+  if (next === Chars.EqualSign) {
+      parser.index++; parser.column++;
+      return Token.BitwiseAndAssign;
   }
   return Token.BitwiseAnd;
 };
@@ -113,36 +109,32 @@ table[Chars.Ampersand] = (parser: Parser) => {
 // `*`, `**`, `*=`, `**=`
 table[Chars.Asterisk] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index < parser.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.Asterisk) {
-          parser.index++; parser.column++;
-          if (consumeOpt(parser, Chars.EqualSign)) {
-              return Token.ExponentiateAssign;
-          } else {
-              return Token.Exponentiate;
-          }
-      } else if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
-          return Token.MultiplyAssign;
-      }
+  if (parser.index >= parser.length) return Token.Multiply;
+  const next = parser.source.charCodeAt(parser.index);
+  if (next === Chars.EqualSign) {
+      parser.index++; parser.column++;
+      return Token.MultiplyAssign;
   }
-
-  return Token.Multiply;
+  if (next !== Chars.Asterisk) return Token.Multiply;
+  parser.index++; parser.column++;
+  if (!consumeOpt(parser, Chars.EqualSign)) return Token.Exponentiate;
+  return Token.ExponentiateAssign;
 };
 
 // `+`, `++`, `+=`
 table[Chars.Plus] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index < parser.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.Plus) {
-          parser.index++; parser.column++;
-          return Token.Increment;
-      } else if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
-          return Token.AddAssign;
-      }
+  if (parser.index >= parser.length) return Token.Add;
+
+  const next = parser.source.charCodeAt(parser.index);
+  if (next === Chars.Plus) {
+      parser.index++; parser.column++;
+      return Token.Increment;
+  }
+
+  if (next === Chars.EqualSign) {
+      parser.index++; parser.column++;
+      return Token.AddAssign;
   }
 
   return Token.Add;
@@ -157,11 +149,11 @@ table[Chars.Hyphen] = (parser: Parser, context) => {
       return skipSingleHTMLComment(parser, context);
   } else if (parser.index < parser.source.length) {
       if (next === Chars.Hyphen) {
-        parser.index++; parser.column++;
-        return Token.Decrement;
+          parser.index++; parser.column++;
+          return Token.Decrement;
       } else if (next === Chars.EqualSign) {
-        parser.index++; parser.column++;
-        return Token.SubtractAssign;
+          parser.index++; parser.column++;
+          return Token.SubtractAssign;
       }
   }
 
@@ -208,7 +200,8 @@ table[Chars.LessThan] = (parser: Parser, context: Context) => {
               }
 
           case Chars.EqualSign:
-              parser.index++; parser.column++;
+              parser.index++;
+              parser.column++;
               return Token.LessThanOrEqual;
 
           case Chars.Exclamation:
@@ -230,59 +223,53 @@ table[Chars.LessThan] = (parser: Parser, context: Context) => {
 // `=`, `==`, `===`, `=>`
 table[Chars.EqualSign] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index < parser.source.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
-          if (consumeOpt(parser, Chars.EqualSign)) {
-              return Token.StrictEqual;
-          } else {
-              return Token.LooseEqual;
-          }
-      } else if (next === Chars.GreaterThan) {
-          parser.index++; parser.column++;
-          return Token.Arrow;
+  if (parser.index >= parser.length) return Token.Assign;
+  const next = parser.source.charCodeAt(parser.index);
+  if (next === Chars.EqualSign) {
+      parser.index++; parser.column++;
+      if (consumeOpt(parser, Chars.EqualSign)) {
+          return Token.StrictEqual;
+      } else {
+          return Token.LooseEqual;
       }
+  } else if (next === Chars.GreaterThan) {
+      parser.index++; parser.column++;
+      return Token.Arrow;
   }
-
   return Token.Assign;
 };
+
 
 // `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
 table[Chars.GreaterThan] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index < parser.source.length) {
-      let next = parser.source.charCodeAt(parser.index);
+  if (parser.index >= parser.length) return Token.GreaterThan;
+  let next = parser.source.charCodeAt(parser.index);
+
+  if (next === Chars.EqualSign) {
+      parser.index++; parser.column++;
+      return Token.GreaterThanOrEqual;
+  }
+
+  if (next !== Chars.GreaterThan) return Token.GreaterThan;
+  parser.index++; parser.column++;
+
+  if (parser.index < parser.length) {
+      next = parser.source.charCodeAt(parser.index);
 
       if (next === Chars.GreaterThan) {
           parser.index++; parser.column++;
-
-          if (parser.index < parser.source.length) {
-              next = parser.source.charCodeAt(parser.index);
-
-              if (next === Chars.GreaterThan) {
-                  parser.index++; parser.column++;
-                  if (consumeOpt(parser, Chars.EqualSign)) {
-                      return Token.LogicalShiftRightAssign;
-                  } else {
-                      return Token.LogicalShiftRight;
-                  }
-              }
-
-              if (next === Chars.EqualSign) {
-                parser.index++; parser.column++;
-                return Token.ShiftRightAssign;
-              }
+          if (consumeOpt(parser, Chars.EqualSign)) {
+              return Token.LogicalShiftRightAssign;
+          } else {
+              return Token.LogicalShiftRight;
           }
-
-          return Token.ShiftRight;
       } else if (next === Chars.EqualSign) {
           parser.index++; parser.column++;
-          return Token.GreaterThanOrEqual;
+          return Token.ShiftRightAssign;
       }
   }
-
-  return Token.GreaterThan;
+  return Token.ShiftRight;
 };
 
 // `A`...`Z`
@@ -316,14 +303,17 @@ table[Chars.Backtick] = scanTemplate;
 // `|`, `||`, `|=`
 table[Chars.VerticalBar] = (parser: Parser) => {
   parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.BitwiseOr;
-  const next = parser.source.charCodeAt(parser.index);
-  if (next === Chars.VerticalBar) {
-    parser.index++; parser.column++;
-    return Token.LogicalOr;
-  } else if (next === Chars.EqualSign) {
-    parser.index++; parser.column++;
-    return Token.BitwiseOrAssign;
+  if (parser.index < parser.length) {
+      const next = parser.source.charCodeAt(parser.index);
+      if (next === Chars.VerticalBar) {
+          parser.index++;
+          parser.column++;
+          return Token.LogicalOr;
+      }
+      if (next === Chars.EqualSign) {
+          parser.index++; parser.column++;
+          return Token.BitwiseOrAssign;
+      }
   }
   return Token.BitwiseOr;
 };

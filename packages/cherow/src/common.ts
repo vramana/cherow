@@ -12,7 +12,6 @@ export const enum Context {
     OptionsJSX           = 1 << 0,
     OptionsRaw           = 1 << 1,
     OptionsNext          = 1 << 2,
-    OptionsWebCompat     = 1 << 3,
     OptionsEditorMode    = 1 << 4,
     OptionsLoc           = 1 << 5,
     OptionsRanges        = 1 << 6,

@@ -74,9 +74,6 @@ export interface Options {
     // Enabled tokenizing
     tokenize?: boolean;
 
-    // Enable web compat
-    webcompat?: boolean;
-
     // Option to enable either array or callback for comments
     onComment?: OnComment;
   }

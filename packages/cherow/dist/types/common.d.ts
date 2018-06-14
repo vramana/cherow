@@ -7,7 +7,6 @@ export declare const enum Context {
     OptionsJSX = 1,
     OptionsRaw = 2,
     OptionsNext = 4,
-    OptionsWebCompat = 8,
     OptionsEditorMode = 16,
     OptionsLoc = 32,
     OptionsRanges = 64,

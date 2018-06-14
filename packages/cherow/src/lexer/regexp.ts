@@ -505,7 +505,8 @@ export function validateClassAndClassCharacterEscape(parser: Parser): RegexpStat
             return parser.source.charCodeAt(parser.index);
             // '-'
         case Chars.Hyphen:
-            return Chars.Hyphen | RegexpState.InvalidCharClassInSloppy;
+            // Note: 'AnnexB' allows escaping hyphen ('-') in char clas
+            return Chars.Hyphen;
 
         case Chars.LowerU:
             {

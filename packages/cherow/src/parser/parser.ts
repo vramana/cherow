@@ -116,8 +116,6 @@ export function parseSource(
         if (options.experimental) context |= Context.OptionsExperimental;
         // The flag to set to bypass methods in Node
         if (options.node) context |= Context.OptionsNode;
-        // The flag to enable web compat (annexB)
-        if (options.webcompat) context |= Context.OptionsWebCompat;
         // The flag to enable editor mode
         if (options.edit != null) onError = options.edit;
         // The callback for handling comments
