@@ -432,10 +432,47 @@ export function recordStringErrors(
 }
 
 export function isIdentifierPart(code: Chars): boolean {
-  return isValidIdentifierPart(code) ||
-            code === Chars.Underscore ||
-            code === Chars.Dollar ||
-      (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
+  const letter = code | 32;
+  return (letter >= Chars.LowerA && letter <= Chars.LowerZ) ||
+      code === Chars.Underscore ||
+      code === Chars.Dollar ||
+      (code >= Chars.Zero && code <= Chars.Nine // 0..9;
+          || isValidIdentifierPart(code));
 }
 
 
+export function isWhiteSpaceSingleLine(ch: number): boolean {
+  return ch === Chars.Space ||
+      ch === Chars.Tab ||
+      ch === Chars.VerticalTab ||
+      ch === Chars.FormFeed ||
+      ch === Chars.NonBreakingSpace ||
+      ch === Chars.NextLine ||
+      ch === Chars.Ogham ||
+      ch >= Chars.EnQuad && ch <= Chars.ZeroWidthSpace ||
+      ch === Chars.NarrowNoBreakSpace ||
+      ch === Chars.MathematicalSpace ||
+      ch === Chars.IdeographicSpace;
+}
+
+/**
+ * Consumes lead surrogate
+ *
+ * @param parser Parser object
+ */
+export function consumeLeadSurrogate(parser: Parser): number {
+  const hi = parser.source.charCodeAt(parser.index++);
+  let code = hi;
+
+  if (hi >= 0xD800 && hi <= 0xDBFF && parser.index < parser.length) {
+      const lo = parser.source.charCodeAt(parser.index);
+      if (lo >= 0xDC00 && lo <= 0xDFFF) {
+          code = (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
+          parser.index++;
+          parser.column++;
+      }
+  }
+
+  parser.column++;
+  return code;
+}

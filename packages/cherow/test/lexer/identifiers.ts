@@ -51,6 +51,33 @@ describe('Lexer - Identifier', () => {
     column: 3,
 });
 
+pass("scans 'a𐊧'", {
+  source: "a𐊧",
+  "value": "a𐊧",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 3,
+});
+
+pass("scans 'a𐊧\\u0052oo'", {
+  source: "a𐊧\\u0052oo",
+  "value": "a𐊧Roo",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 11,
+});
+
+pass("scans 'a𐊧\\u0052oo'", {
+  source: "𐊧\\u0052oo",
+  "value": "𐊧Roo",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 10,
+});
+
 
 pass("scans 'a℘'", {
       source: "a℘",
