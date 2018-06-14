@@ -10,56 +10,35 @@ import {
   toHex,
   consumeOpt,
   escapeInvalidCharacters,
-  isIdentifierPart
+  isIdentifierPart,
 } from './common';
 
+/**
+ * Scans identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param first codepoint
+ */
 export function scanIdentifier(parser: Parser, context: Context, first: number): Token {
-  let { index } = parser;
+  const { index } = parser;
   let c = context;
-
   while (isIdentifierPart(first)) {
       parser.index++; parser.column++;
       if (parser.index >= parser.length) break;
       first = parser.source.charCodeAt(parser.index);
   }
-
   parser.tokenValue = parser.source.slice(index, parser.index);
-
   if (first <= 127 && first !== Chars.Backslash) return getIdentifierToken(parser);
-
-  index = parser.index;
-
-  let escaped = false;
-
   if (first >= 0xD800 && first <= 0xDBFF) first = consumeLeadSurrogate(parser);
-
-  while (parser.index < parser.length && isIdentifierPart(first) || first === Chars.Backslash) {
-      if (first === Chars.Backslash) {
-          escaped = true;
-          parser.tokenValue += parser.source.slice(index, parser.index);
-          parser.tokenValue += fromCodePoint(scanIdentifierUnicodeEscape(parser));
-          index = parser.index;
-      } else {
-          parser.index++; parser.column++;
-      }
-
-      first = parser.source.charCodeAt(parser.index);
-  }
-
-  if (index < parser.index) parser.tokenValue += parser.source.slice(index, parser.index);
-
-  const token = getIdentifierToken(parser);
-
-  if (escaped) {
-      if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) {
-          return token;
-      } else if (hasBit(token, Token.FutureReserved) || token === Token.LetKeyword || token === Token.StaticKeyword) {
-          return Token.EscapedStrictReserved;
-      } else return Token.EscapedKeyword;
-  }
-  return token;
+  return parseIdentifierSuffix(parser, context, first)
 }
 
+/**
+ * Scans identifier unicode escape
+ *
+ * @param parser Parser object
+ */
 function scanIdentifierUnicodeEscape(parser: Parser): any {
   parser.index += 2;
   parser.column += 2;
@@ -95,6 +74,11 @@ function scanIdentifierUnicodeEscape(parser: Parser): any {
   return codePoint;
 }
 
+/**
+ * Get identifier token
+ *
+ * @param parser Parser object
+ */
 function getIdentifierToken(parser: Parser): Token {
   const len = parser.tokenValue.length;
   if (len >= 2 && len <= 11) {
@@ -106,6 +90,11 @@ function getIdentifierToken(parser: Parser): Token {
   return Token.Identifier;
 }
 
+/**
+ * Scans maybe identifier
+ *
+ * @param parser Parser object
+ */
 export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
 
   switch (first) {
@@ -141,21 +130,27 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
           parser.column++;
           return Token.WhiteSpace;
       default:
-          if (!isValidIdentifierStart(first)) {
-              report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
-          }
-          return scanIdentifier(parser, context, first);
+          first = consumeLeadSurrogate(parser)
+          if (!isValidIdentifierStart(first)) report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
+          parser.tokenValue = fromCodePoint(first);
+          if (parser.index < parser.length) return parseIdentifierSuffix(parser, context, first)
+          return Token.Identifier;
   }
 }
 
+/**
+ * Consumes lead surrogate
+ *
+ * @param parser Parser object
+ */
 export function consumeLeadSurrogate(parser: Parser): number {
   const hi = parser.source.charCodeAt(parser.index++);
   let code = hi;
 
-  if (hi >= 0xd800 && hi <= 0xdbff && parser.index < parser.length) {
+  if (hi >= 0xD800 && hi <= 0xDBFF && parser.index < parser.length) {
       const lo = parser.source.charCodeAt(parser.index);
-      if (lo >= 0xdc00 && lo <= 0xdfff) {
-          code = (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+      if (lo >= 0xDC00 && lo <= 0xDFFF) {
+          code = (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
           parser.index++;
           parser.column++;
       }
@@ -163,4 +158,43 @@ export function consumeLeadSurrogate(parser: Parser): number {
 
   parser.column++;
   return code;
+}
+
+/**
+ * Parse identifier suffic
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param first codepoint
+ */
+function parseIdentifierSuffix(parser: Parser, context: Context, first: number): any {
+  let c = context;
+  let escaped = false;
+  let index = parser.index;
+  while (parser.index < parser.length && isIdentifierPart(first) || first === Chars.Backslash) {
+      if (first === Chars.Backslash) {
+          escaped = true;
+          parser.tokenValue += parser.source.slice(index, parser.index);
+          parser.tokenValue += fromCodePoint(scanIdentifierUnicodeEscape(parser));
+          index = parser.index;
+      } else {
+          parser.index++;
+          parser.column++;
+      }
+
+      first = parser.source.charCodeAt(parser.index);
+  }
+
+  if (index < parser.index) parser.tokenValue += parser.source.slice(index, parser.index);
+
+  const token = getIdentifierToken(parser);
+
+  if (escaped) {
+      if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) {
+          return token;
+      } else if (hasBit(token, Token.FutureReserved) || token === Token.LetKeyword || token === Token.StaticKeyword) {
+          return Token.EscapedStrictReserved;
+      } else return Token.EscapedKeyword;
+  }
+  return token;
 }

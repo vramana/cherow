@@ -42,9 +42,9 @@ describe('Lexer - Identifier', () => {
       source: '\\\uD83B\\uDE00'
   })
 
-  pass("scans 'a𐊧'", {
-    source: "a𐊧",
-    "value": "a𐊧",
+  pass("scans '𐊧a'", {
+    source: "𐊧a",
+    "value": "𐊧a",
     raw: "'abc'",
     token: Token.Identifier,
     line: 1,
