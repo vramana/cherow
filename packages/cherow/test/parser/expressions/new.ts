@@ -109,9 +109,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo["bar"]', Context.Empty, {
@@ -140,9 +138,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo()', Context.Empty, {
@@ -163,9 +159,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo.Bar()', Context.Empty, {
@@ -194,9 +188,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new a.b.c.d()', Context.Empty, {
@@ -241,9 +233,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo["bar"]()', Context.Empty, {
@@ -272,9 +262,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo.Bar(X)', Context.Empty, {
@@ -308,9 +296,7 @@ describe('Expressions - New', () => {
                         }
                     }
                 ]
-            }  
-        },  (msg: string) => {
-            t.equal(msg, 'new.target expression is not allowed here');
+            }
         });
 
         pass('new Foo["bar"](X)', Context.Empty, {

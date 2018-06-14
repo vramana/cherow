@@ -5,7 +5,7 @@ import { parseSource } from '../../../src/parser/parser';
 
 describe('Expressions - Array', () => {
 
-    
+
 const validSyntax = [
     '[1 <= 0]',
     'let [a,,b] = c',
@@ -74,7 +74,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[x]', Context.Empty, {
         source: '[x]',
@@ -96,7 +96,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,]', Context.Empty, {
         source: '[,]',
@@ -115,7 +115,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,,]', Context.Empty, {
         source: '[,,]',
@@ -135,7 +135,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,,,,,,,,,,,,,,,,,,,,,]', Context.Empty, {
         source: '[,,,,,,,,,,,,,,,,,,,,,]',
@@ -174,7 +174,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,,a,,,,b,,,,,,,,c,,,,,,]', Context.Empty, {
         source: '[,,a,,,,b,,,,,,,,c,,,,,,]',
@@ -221,7 +221,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,,,,,,,,,,,,,,,,,,,,,,,,,fkleuver,,,,,,,,,,,,,,,,,,,,,,,,,,]', Context.Empty, {
         source: '[,,,,,,,,,,,,,,,,,,,,,,,,,fkleuver,,,,,,,,,,,,,,,,,,,,,,,,,,]',
@@ -293,7 +293,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,x]', Context.Empty, {
         source: '[,x]',
@@ -316,7 +316,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[,,x]', Context.Empty, {
         source: '[,,x]',
@@ -340,7 +340,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[x,,y]', Context.Empty, {
         source: '[x,,y]',
@@ -367,7 +367,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[foo, [[[[[[[[[[[[[x,y,z]]]]]]]]]]]]], bar = B] = arr;', Context.Empty, {
         source: '[foo, [[[[[[[[[[[[[x,y,z]]]]]]]]]]]]], bar = B] = arr;',
@@ -591,7 +591,7 @@ for (const arg of validSyntax) {
                 }
             ]
         }
-    });  
+    });
 
     pass('[foo, [x,y = 20,z], bar = B] = arr;', Context.Empty, {
         source: '[foo, [x,y = 20,z], bar = B] = arr;',
@@ -799,8 +799,6 @@ for (const arg of validSyntax) {
               "sourceType": "script",
               "type": "Program"
             }
-    }, function(errMsg: string) {
-        t.equal(errMsg, 'Only \'=\' operator can be used for specifying default value');
     });
 
     pass('[a,b+=[x,y]] = z', Context.Empty, {
@@ -851,10 +849,8 @@ for (const arg of validSyntax) {
              "sourceType": "script",
               "type": "Program"
             }
-    }, function(errMsg: string) {
-        t.equal(errMsg, 'Only \'=\' operator can be used for specifying default value');
     });
 
 
-    
+
 });

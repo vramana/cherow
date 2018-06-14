@@ -27,7 +27,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a /= b', Context.Empty, {
         source: 'a /= b',
@@ -52,7 +52,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a %= b', Context.Empty, {
         source: 'a %= b',
@@ -77,7 +77,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a += b', Context.Empty, {
         source: 'a += b',
@@ -102,7 +102,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a <<= b', Context.Empty, {
         source: 'a <<= b',
@@ -127,7 +127,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a >>= b', Context.Empty, {
         source: 'a >>= b',
@@ -152,7 +152,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a >>>= b', Context.Empty, {
         source: 'a >>>= b',
@@ -177,7 +177,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a &= b', Context.Empty, {
         source: 'a &= b',
@@ -202,7 +202,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a ^= b', Context.Empty, {
         source: 'a ^= b',
@@ -227,7 +227,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a = b = c', Context.Empty, {
         source: 'a = b = c',
@@ -260,7 +260,7 @@ describe('Expressions - Assign', () => {
                 }
             ]
         }
-    });  
+    });
 
     pass('a = b = c = d', Context.Empty, {
         source: 'a = b = c = d',
@@ -342,9 +342,7 @@ describe('Expressions - Assign', () => {
               "sourceType": "script",
               "type": "Program",
             }
-    }, function(errMsg: string) {
-        t.equal(errMsg, 'Only \'=\' operator can be used for specifying default value');
     });
 
-    
+
 });
