@@ -37,6 +37,7 @@ export function scanIdentifier(parser: Parser, context: Context, first: number):
 }
 
 
+
 /**
  * Parse identifier suffix
  *

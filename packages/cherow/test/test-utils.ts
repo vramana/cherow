@@ -10,17 +10,17 @@ export interface Opts {
     column ?: number;
 }
 
-export const pass = (name: string, context: Context, opts: Opts, errCallback?: any) => {
+export const pass = (name: string, context: Context, opts: Opts) => {
     it(name, () => {
-        const parser = parseSource(opts.source, undefined, context, errCallback);
+        const parser = parseSource(opts.source, undefined, context);
         t.deepEqual(parser, opts.expected);
     });
 };
 
-export const fail = (name: string, context: Context, opts: Opts, errCallback?: any) => {
+export const fail = (name: string, context: Context, opts: Opts) => {
     it(name, () => {
         t.throws(() => {
-            parseSource(opts.source, undefined, context, errCallback);
+            parseSource(opts.source, undefined, context);
         });
     });
 };
