@@ -197,6 +197,11 @@ export const enum Token {
 
     /* Enum */
     EnumKeyword        = 124 | Reserved,
+
+    /** Escaped keywords */
+
+    EscapedStrictReserved  = 125,
+    EscapedKeyword         = 126,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -262,7 +267,11 @@ const KeywordDescTable = [
 
     /* Enum */
 
-    'enum'
+    'enum',
+
+    /* Escaped keywords */
+
+    'escaped strict reserved', 'escaped keyword'
 ];
 
 /**
