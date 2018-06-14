@@ -831,11 +831,12 @@ export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const { tokenValue, tokenRaw } = parser;
     parser.flags &= ~Flags.Assignable;
     nextToken(parser, context);
-    return finishNode({
+    const node: any = finishNode({
         type: 'Literal',
         value: tokenValue,
-        raw: tokenRaw
     });
+    if (context & Context.OptionsRaw) node.raw = tokenRaw;
+    return node;
 }
 
 /**

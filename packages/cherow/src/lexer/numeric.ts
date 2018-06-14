@@ -59,7 +59,7 @@ export function scanNumeric(parser: Parser, context: Context): Token {
       if (seenSeparator) report(parser, Errors.Unexpected);
 
       if (digit >= 0 && next !== Chars.Period && (parser.index >= parser.length || !isValidIdentifierStart(next))) {
-        parser.tokenRaw = parser.source.slice(index, parser.index);
+          if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(index, parser.index);
           return Token.NumericLiteral;
       } else {
           parser.index = index;
