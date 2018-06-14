@@ -1,4 +1,4 @@
-import { Identifier } from './../../dist/types/estree.d';
+import { Identifier } from './../../src/estree';
 import * as t from 'assert';
 import { nextToken } from '../../src/lexer/scan';
 import { createParserObject } from '../../src/parser/parser';
@@ -29,7 +29,30 @@ describe('Lexer - Identifier', () => {
       test(`${name}`, Context.OptionsRaw);
   }
 
-  pass("scans 'a℘'", {
+  function fail(name: string, context: Context, opts: any): any {
+      it(name, () => {
+          const parser = createParserObject(opts.source, undefined);
+          t.throws(() => {
+              nextToken(parser, context)
+          });
+      });
+  }
+
+  fail('should fail "\\uD83B\\uDE00"', Context.Empty, {
+      source: '\\\uD83B\\uDE00'
+  })
+
+  pass("scans 'a𐊧'", {
+    source: "a𐊧",
+    "value": "a𐊧",
+    raw: "'abc'",
+    token: Token.Identifier,
+    line: 1,
+    column: 3,
+});
+
+
+pass("scans 'a℘'", {
       source: "a℘",
       "value": "a℘",
       raw: "'abc'",
@@ -209,7 +232,70 @@ describe('Lexer - Identifier', () => {
       column: 10,
   });
 
-  describe('Escpaed keywords', () => {
+  describe('Escaped identifiers', () => {
+
+      pass("scans '\\u{1EE0A}\\u{1EE0B}'", {
+          source: "\\u{1EE0A}\\u{1EE0B}",
+          value: "𞸊𞸋",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 18,
+      });
+
+      pass("scans '\\u{1EE06}_$'", {
+          source: "\\u{1EE06}_$",
+          value: "𞸆_$",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 11,
+      });
+
+      pass("scans '\\u{1EE00}'", {
+          source: "\\u{1EE00}",
+          value: "𞸀",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '_\\u{1EE03}'", {
+          source: "_\\u{1EE03}",
+          value: "_𞸃",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 10,
+      });
+
+  });
+
+  describe('Supplementary Multilingual Plane (SMP)', () => {
+
+      pass("scans '_\\u{1EE03}'", {
+          source: "_\\u{1EE03}",
+          "value": "_𞸃",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 10,
+      });
+
+      pass("scans '\\u{1EE0A}\\u{1EE0B}'", {
+          source: "\\u{1EE0A}\\u{1EE0B}",
+          "value": "𞸊𞸋",
+          raw: "'var'",
+          token: Token.Identifier,
+          line: 1,
+          column: 18,
+      });
+
+  });
+
+  describe('Escaped keywords', () => {
+
 
       pass("scans 'cl\\u0061ss'", {
           source: "cl\\u0061ss",

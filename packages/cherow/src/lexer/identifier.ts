@@ -9,7 +9,6 @@ import {
   fromCodePoint,
   toHex,
   consumeOpt,
-  nextUnicodeChar,
   escapeInvalidCharacters,
   isIdentifierPart
 } from './common';
@@ -32,6 +31,8 @@ export function scanIdentifier(parser: Parser, context: Context, first: number):
 
   let escaped = false;
 
+  if (first >= 0xD800 && first <= 0xDBFF) first = consumeLeadSurrogate(parser);
+
   while (parser.index < parser.length && isIdentifierPart(first) || first === Chars.Backslash) {
       if (first === Chars.Backslash) {
           escaped = true;
@@ -39,7 +40,7 @@ export function scanIdentifier(parser: Parser, context: Context, first: number):
           parser.tokenValue += fromCodePoint(scanIdentifierUnicodeEscape(parser));
           index = parser.index;
       } else {
-        parser.index++; parser.column++;
+          parser.index++; parser.column++;
       }
 
       first = parser.source.charCodeAt(parser.index);
@@ -51,7 +52,7 @@ export function scanIdentifier(parser: Parser, context: Context, first: number):
 
   if (escaped) {
       if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) {
-        return token;
+          return token;
       } else if (hasBit(token, Token.FutureReserved) || token === Token.LetKeyword || token === Token.StaticKeyword) {
           return Token.EscapedStrictReserved;
       } else return Token.EscapedKeyword;
@@ -60,10 +61,8 @@ export function scanIdentifier(parser: Parser, context: Context, first: number):
 }
 
 function scanIdentifierUnicodeEscape(parser: Parser): any {
-  parser.index++;
-  parser.column++;
-  parser.index++;
-  parser.column++;
+  parser.index += 2;
+  parser.column += 2;
 
   let ch = parser.source.charCodeAt(parser.index);
   let codePoint = 0;
@@ -142,10 +141,26 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
           parser.column++;
           return Token.WhiteSpace;
       default:
-          first = nextUnicodeChar(parser);
           if (!isValidIdentifierStart(first)) {
               report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
           }
           return scanIdentifier(parser, context, first);
   }
+}
+
+export function consumeLeadSurrogate(parser: Parser): number {
+  const hi = parser.source.charCodeAt(parser.index++);
+  let code = hi;
+
+  if (hi >= 0xd800 && hi <= 0xdbff && parser.index < parser.length) {
+      const lo = parser.source.charCodeAt(parser.index);
+      if (lo >= 0xdc00 && lo <= 0xdfff) {
+          code = (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+          parser.index++;
+          parser.column++;
+      }
+  }
+
+  parser.column++;
+  return code;
 }

@@ -437,3 +437,5 @@ export function isIdentifierPart(code: Chars): boolean {
             code === Chars.Dollar ||
       (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
 }
+
+
