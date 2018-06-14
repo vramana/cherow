@@ -3,50 +3,58 @@ import { Chars } from '../chars';
 import { Token, descKeyword } from '../token';
 import { Context, Flags } from '../common';
 import { isValidIdentifierStart } from '../unicode';
-import { hasBit, fromCodePoint, toHex, readNext, consumeOpt, nextUnicodeChar, escapeInvalidCharacters, isIdentifierPart } from './common';
 import { Errors, report } from '../errors';
+import {
+  hasBit,
+  fromCodePoint,
+  toHex,
+  consumeOpt,
+  nextUnicodeChar,
+  escapeInvalidCharacters,
+  isIdentifierPart
+} from './common';
 
 export function scanIdentifier(parser: Parser, context: Context, first: number): Token {
   let { index } = parser;
   let c = context;
-  let ret = '';
 
   while (isIdentifierPart(first)) {
-      parser.index++;
-      parser.column++;
+      parser.index++; parser.column++;
       if (parser.index >= parser.length) break;
       first = parser.source.charCodeAt(parser.index);
   }
 
-  parser.tokenValue = ret = parser.source.slice(index, parser.index);
+  parser.tokenValue = parser.source.slice(index, parser.index);
+
   if (first <= 127 && first !== Chars.Backslash) return getIdentifierToken(parser);
+
   index = parser.index;
+
   let escaped = false;
+
   while (parser.index < parser.length && isIdentifierPart(first) || first === Chars.Backslash) {
       if (first === Chars.Backslash) {
           escaped = true;
-          parser.tokenValue = ret += parser.source.slice(index, parser.index);
-          parser.tokenValue = ret += fromCodePoint(scanIdentifierUnicodeEscape(parser));
+          parser.tokenValue += parser.source.slice(index, parser.index);
+          parser.tokenValue += fromCodePoint(scanIdentifierUnicodeEscape(parser));
           index = parser.index;
-          parser.column--;
-      } else parser.index++;
-      parser.column++;
+      } else {
+        parser.index++; parser.column++;
+      }
 
       first = parser.source.charCodeAt(parser.index);
   }
 
-  if (index < parser.index) parser.tokenValue = ret += parser.source.slice(index, parser.index);
+  if (index < parser.index) parser.tokenValue += parser.source.slice(index, parser.index);
 
   const token = getIdentifierToken(parser);
 
   if (escaped) {
-      if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) return token;
-      else if (hasBit(token, Token.FutureReserved) ||
-          token === Token.LetKeyword || token === Token.StaticKeyword) {
+      if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) {
+        return token;
+      } else if (hasBit(token, Token.FutureReserved) || token === Token.LetKeyword || token === Token.StaticKeyword) {
           return Token.EscapedStrictReserved;
-      } else {
-          return Token.EscapedKeyword;
-      }
+      } else return Token.EscapedKeyword;
   }
   return token;
 }
