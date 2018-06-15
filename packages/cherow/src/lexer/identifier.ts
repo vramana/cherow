@@ -2,7 +2,7 @@ import { Parser } from '../types';
 import { Chars } from '../chars';
 import { Token, descKeyword } from '../token';
 import { Context, Flags } from '../common';
-import { isValidIdentifierStart, isValidIdentifierPart } from '../unicode';
+import { isValidIdentifierStart } from '../unicode';
 import { Errors, report } from '../errors';
 import {
   hasBit,
@@ -19,8 +19,6 @@ import {
  * Scans identifier
  *
  * @param parser Parser object
- * @param context Context masks
- * @param first codepoint
  */
 export function scanIdentifier(parser: Parser): Token {
   const { index } = parser;
@@ -31,23 +29,24 @@ export function scanIdentifier(parser: Parser): Token {
       parser.column++;
       first = parser.source.charCodeAt(parser.index);
   }
+
   parser.tokenValue = parser.source.slice(index, parser.index);
-  if (parser.index >= parser.length || first <= 127 && first !== Chars.Backslash) {
+
+  if (parser.index >= parser.length || first <= Chars.MaxAsciiCharacter && first !== Chars.Backslash) {
       return getIdentifierToken(parser);
   }
 
   // slow path
-  return parseIdentifierSuffix(parser);
+  return scanIdentifierSuffix(parser);
 }
 
 /**
-* Parse identifier suffix
-*
-* @param parser Parser object
-* @param context Context masks
-* @param first codepoint
-*/
-function parseIdentifierSuffix(parser: Parser): Token {
+ * Scans identifier suffix. The identifier scanning will fall back into
+ * this if the hot path fails or any surrogate pairs / unicode escapes
+ *
+ * @param parser Parser object
+ */
+export function scanIdentifierSuffix(parser: Parser): Token {
   let start = parser.index;
   let hasEscape = false;
 
@@ -55,13 +54,14 @@ function parseIdentifierSuffix(parser: Parser): Token {
       let ch = parser.source.charCodeAt(parser.index);
       if (ch === Chars.Backslash) {
           const pendingIndex = parser.index;
-          const cherow = scanIdentifierUnicodeEscape(parser);
-          if (cherow < 0 || cherow === Chars.Backslash || !isValidIdentifierStart(cherow)) return Token.Invalid;
+          const escaped = scanIdentifierUnicodeEscape(parser);
+          if (escaped < 0 || escaped === Chars.Backslash || !isValidIdentifierStart(escaped)) return Token.Invalid;
           parser.tokenValue += parser.source.slice(start, pendingIndex);
-          parser.tokenValue += fromCodePoint(cherow);
+          parser.tokenValue += fromCodePoint(escaped);
           hasEscape = true;
           start = parser.index;
       } else {
+          // Utf1
           if ((ch & 0xFC00) === Chars.LeadSurrogateMin) {
               const lo = parser.source.charCodeAt(parser.index + 1);
               parser.column++;
@@ -70,7 +70,7 @@ function parseIdentifierSuffix(parser: Parser): Token {
           if (!isIdentifierPart(ch)) break;
           parser.index++;
           parser.column++;
-          if (ch > 0xFFFF) parser.index++;
+          if (ch > Chars.MaxAsciiCharacter) parser.index++;
       }
   }
   if (start < parser.index) parser.tokenValue += parser.source.slice(start, parser.index);
@@ -97,7 +97,7 @@ function parseIdentifierSuffix(parser: Parser): Token {
 export function scanIdentifierUnicodeEscape(parser: Parser): number {
   parser.index++;
   parser.column++;
-  if (parser.source.charCodeAt(parser.index) !== Chars.LowerU) report(parser, Errors.Unexpected);
+  if (parser.source.charCodeAt(parser.index) !== Chars.LowerU) report(parser, Errors.InvalidUnicodeEscape);
   parser.index++;
   parser.column++;
   if (consumeOpt(parser, Chars.LeftBrace)) {
@@ -107,29 +107,29 @@ export function scanIdentifierUnicodeEscape(parser: Parser): number {
       if (digit < 0) return -1;
       while (digit >= 0) {
           value = (value << 4) | digit;
-          if (value > Chars.NonBMPMax) report(parser, Errors.Unexpected);
+          if (value > Chars.NonBMPMax) report(parser, Errors.UndefinedUnicodeCodePoint);
           parser.index++;
           parser.column++;
           digit = toHex(parser.source.charCodeAt(parser.index));
       }
       if (value < 0 || !consumeOpt(parser, Chars.RightBrace)) {
-          report(parser, Errors.Unexpected);
+          report(parser, Errors.InvalidUnicodeEscape);
       }
       return value;
   }
   //\uHex4Digits
   if (parser.index + 4 > parser.length) return -1;
-  const char1 = toHex(parser.source.charCodeAt(parser.index));
-  if (char1 < 0) return -1;
-  const char2 = toHex(parser.source.charCodeAt(parser.index + 1));
-  if (char2 < 0) return -1;
-  const char3 = toHex(parser.source.charCodeAt(parser.index + 2));
-  if (char3 < 0) return -1;
-  const char4 = toHex(parser.source.charCodeAt(parser.index + 3));
-  if (char4 < 0) return -1;
+  const cp1 = toHex(parser.source.charCodeAt(parser.index));
+  if (cp1 < 0) return -1;
+  const cp2 = toHex(parser.source.charCodeAt(parser.index + 1));
+  if (cp2 < 0) return -1;
+  const cp3 = toHex(parser.source.charCodeAt(parser.index + 2));
+  if (cp3 < 0) return -1;
+  const cp4 = toHex(parser.source.charCodeAt(parser.index + 3));
+  if (cp4 < 0) return -1;
   parser.index += 4;
   parser.column += 4;
-  return char1 << 12 | char2 << 8 | char3 << 4 | char4;
+  return cp1 << 12 | cp2 << 8 | cp3 << 4 | cp4;
 }
 
 /**
@@ -149,26 +149,37 @@ function getIdentifierToken(parser: Parser): Token {
 }
 
 /**
-* Scans maybe identifier
-*
-* @param parser Parser object
-*/
+ * Scans maybe identifier
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param first code point
+ */
 export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
-  let c = context;
+  const c = context;
   if (isWhiteSpaceSingleLine(first)) {
-      parser.index++; parser.column++;
+      parser.index++;
+      parser.column++;
       return Token.WhiteSpace;
   } else if (first === Chars.LineSeparator || first === Chars.ParagraphSeparator) {
-      parser.index++; parser.column = 0; parser.line++;
+      parser.index++;
+      parser.column = 0;
+      parser.line++;
       parser.flags |= Flags.NewLine;
       return Token.WhiteSpace;
   }
 
   first = parser.source.charCodeAt(parser.index++);
 
+  // Left to fix:
+  //
+  // - Remove this, and use the existing code in 'scanIdentifierSuffix'
+  // - Add support for scanning '𪘀' and 'abc𪘀'
+  // - Make sure the column values are correct
+
   if ((first & 0xFC00) === Chars.LeadSurrogateMin) {
       const lo = parser.source.charCodeAt(parser.index);
-      if (lo >= Chars.TrailSurrogateMin && lo <= Chars.TrailSurrogateMax) {
+      if ((lo & 0xFC00) === 0xDC00) {
           first = (first & 0x3FF) << 10 | lo & 0x3FF | Chars.NonBMPMin;
           parser.index++;
           parser.column++;
@@ -178,6 +189,6 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
   if (!isValidIdentifierStart(first)) report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
   parser.column++;
   parser.tokenValue = fromCodePoint(first);
-  if (parser.index < parser.length) return parseIdentifierSuffix(parser)
+  if (parser.index < parser.length) return scanIdentifierSuffix(parser);
   return Token.Identifier;
 }

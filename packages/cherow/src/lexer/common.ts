@@ -449,7 +449,6 @@ export function isIdentifierPart(code: Chars): boolean {
           || isValidIdentifierPart(code));
 }
 
-
 export function isWhiteSpaceSingleLine(ch: number): boolean {
   return ch === Chars.Space ||
       ch === Chars.Tab ||
