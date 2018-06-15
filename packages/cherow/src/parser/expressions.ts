@@ -1469,7 +1469,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             if (parser.token === Token.Assign) {
                 // TODO: 'CoverInitializedName'
                 nextToken(parser, context);
-                value = parseAssignmentPattern(parser, context, key as ESTree.PatternTop);
+                value = parseAssignmentPattern(parser, context, key as ESTree.PatternTop, pos);
             } else {
                 value = key;
             }
