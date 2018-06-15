@@ -38,7 +38,12 @@ describe('Lexer - Identifier', () => {
       });
   }
 
-   fail('should fail "\\123\\uD800"', Context.Empty, {
+  fail('should fail "🀒"', Context.Empty, {
+    source: '🀒'
+  })
+
+
+  fail('should fail "\\123\\uD800"', Context.Empty, {
      source: '\\123\\uD800'
    })
 
@@ -360,10 +365,18 @@ pass("scans 'a℘'", {
         line: 1,
         column: 12,
     });
-
   });
 
   describe('Invalid surrogate pair range - Invalid tokenSurrogate pairs encoded in string', () => {
+
+    pass("scans '\\uD83B\\uDE0'", {
+      source: "\\uD83B\\uDE0",
+      value: "",
+      raw: "",
+      token: Token.Invalid,
+      line: 1,
+      column: 6,
+    });
 
     pass("scans '\\uD800\\uDFFF'", {
       source: "\\uD800\\uDFFF",
@@ -415,6 +428,15 @@ pass("scans '\\uDBFF\\uDFFF'", {
       column: 9,
   });
 
+  pass("scans '\\u{10401}'", {
+    source: "\\u{}",
+    value: "",
+    raw: "'case'",
+    token: Token.Invalid,
+    line: 1,
+    column: 3,
+});
+
   // Invalid
   pass("scans '\\uD801\\uDC01'", {
     source: "\\uD801\\uDC01",
@@ -423,6 +445,89 @@ pass("scans '\\uDBFF\\uDFFF'", {
     token: Token.Invalid,
     line: 1,
     column: 6,
+});
+
+// Invalid
+pass("scans '\\uD801\\uDC01'", {
+  source: "\\uD8%1",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\uD801'", {
+  source: "\\uD801",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 6,
+});
+
+pass("scans '\\u.801'", {
+  source: "\\uD8.1",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+
+pass("scans '\\uD8.1'", {
+  source: "\\uD8.1",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\uD.01'", {
+  source: "\\uD8.1",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\u'", {
+  source: "\\u",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\u%'", {
+  source: "\\uD",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\uD&'", {
+  source: "\\uD8",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '\\uD8.'", {
+  source: "\\uD80",
+  value: "",
+  raw: "'case'",
+  token: Token.Invalid,
+  line: 1,
+  column: 2,
 });
 
 pass("scans '\\u{10401}'", {

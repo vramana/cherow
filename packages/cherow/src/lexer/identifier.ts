@@ -11,7 +11,7 @@ import {
   escapeInvalidCharacters,
   isIdentifierPart,
   isWhiteSpaceSingleLine,
-  isAsciiIdentifier,
+  isAsciiCodePoint,
   consumeOpt
 } from './common';
 
@@ -26,7 +26,7 @@ export function scanIdentifier(parser: Parser): Token {
   const { index } = parser;
   let first = parser.source.charCodeAt(parser.index);
   // Hot path - fast scanning for identifiers and non-escaped keywords
-  while (isAsciiIdentifier(first)) {
+  while (isAsciiCodePoint(first)) {
       parser.index++;
       parser.column++;
       first = parser.source.charCodeAt(parser.index);
@@ -90,23 +90,24 @@ function parseIdentifierSuffix(parser: Parser): Token {
 }
 
 /**
-* Scans identifier unicode escape
-*
-* @param parser Parser object
-*/
+ * Scans identifier unicode escape
+ *
+ * @param parser Parser object
+ */
 export function scanIdentifierUnicodeEscape(parser: Parser): number {
-  parser.index++; parser.column++;
+  parser.index++;
+  parser.column++;
   if (parser.source.charCodeAt(parser.index) !== Chars.LowerU) report(parser, Errors.Unexpected);
-  parser.index++; parser.column++;
+  parser.index++;
+  parser.column++;
   if (consumeOpt(parser, Chars.LeftBrace)) {
+      //\u{HexDigits}
       let value = 0;
       let digit = toHex(parser.source.charCodeAt(parser.index));
       if (digit < 0) return -1;
       while (digit >= 0) {
-          value = value * 16 + digit;
-          if (value > 0x10FFFF) {
-              report(parser, Errors.Unexpected);
-          }
+          value = (value << 4) | digit;
+          if (value > Chars.NonBMPMax) report(parser, Errors.Unexpected);
           parser.index++;
           parser.column++;
           digit = toHex(parser.source.charCodeAt(parser.index));
@@ -116,16 +117,19 @@ export function scanIdentifierUnicodeEscape(parser: Parser): number {
       }
       return value;
   }
-  let codePoint = 0;
-  for (let i = 0; i < 4; i++) {
-      const ch = parser.source.charCodeAt(parser.index);
-      const digit = toHex(ch);
-      if (digit < 0) report(parser, Errors.Unexpected, 'unicode');
-      codePoint = codePoint * 16 + digit;
-      parser.index++;
-      parser.column++;
-  }
-  return codePoint;
+  //\uHex4Digits
+  if (parser.index + 4 > parser.length) return -1;
+  const char1 = toHex(parser.source.charCodeAt(parser.index));
+  if (char1 < 0) return -1;
+  const char2 = toHex(parser.source.charCodeAt(parser.index + 1));
+  if (char2 < 0) return -1;
+  const char3 = toHex(parser.source.charCodeAt(parser.index + 2));
+  if (char3 < 0) return -1;
+  const char4 = toHex(parser.source.charCodeAt(parser.index + 3));
+  if (char4 < 0) return -1;
+  parser.index += 4;
+  parser.column += 4;
+  return char1 << 12 | char2 << 8 | char3 << 4 | char4;
 }
 
 /**

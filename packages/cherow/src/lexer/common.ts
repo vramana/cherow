@@ -457,22 +457,14 @@ export function isWhiteSpaceSingleLine(ch: number): boolean {
 }
 
 /**
- * Returns true if ascii letter
- *
- * @param code Code point
- */
-function isAsciiLetter(code: number): boolean {
-  const letter = code | 32;
-  return letter >= Chars.LowerA && letter <= Chars.LowerZ;
-}
-
-/**
  * Returns true if ascii identifier - no unicode
  *
  * @param code Code point
  */
-export function isAsciiIdentifier(code: number): boolean {
-  return isAsciiLetter(code) ||
+export function isAsciiCodePoint(code: number): boolean {
+  const letter = code | 32;
+  if (letter >= Chars.LowerA && letter <= Chars.LowerZ) return true;
+  return letter >= Chars.LowerA && letter <= Chars.LowerZ ||
           code === Chars.Dollar ||
           code === Chars.Underscore ||
           (code >= Chars.Zero && code <= Chars.Nine);

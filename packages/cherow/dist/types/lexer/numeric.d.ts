@@ -10,7 +10,7 @@ import { Context } from '../common';
  * @param parser Parser object
  * @param context Context masks
  */
-export declare function scanNumeric(parser: Parser): Token;
+export declare function scanNumeric(parser: Parser, context: Context): Token;
 /**
  *  Scans binary, octal, hex literal, and numeric literals (Annex B.1.1)
  *
@@ -32,7 +32,7 @@ export declare function parseLeadingZero(parser: Parser, context: Context): Toke
  * @param parser Parser object
  * @param base base number
  */
-export declare function scanOctalOrBinaryDigits(parser: Parser, base: number): Token;
+export declare function scanOctalOrBinaryDigits(parser: Parser, context: Context, base: number): Token;
 /**
  * Scans hex digits
  *
@@ -41,7 +41,7 @@ export declare function scanOctalOrBinaryDigits(parser: Parser, base: number): T
  * @param parser Parser object
  * @param context Context masks
  */
-export declare function scanHexDigits(parser: Parser): Token;
+export declare function scanHexDigits(parser: Parser, context: Context): Token;
 /**
 * Scans implicit octals
 *

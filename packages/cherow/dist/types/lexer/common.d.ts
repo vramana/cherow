@@ -136,8 +136,8 @@ export declare function recordStringErrors(parser: Parser, code: Escape): void;
 export declare function isIdentifierPart(code: Chars): boolean;
 export declare function isWhiteSpaceSingleLine(ch: number): boolean;
 /**
- * Consumes lead surrogate
+ * Returns true if ascii identifier - no unicode
  *
- * @param parser Parser object
+ * @param code Code point
  */
-export declare function consumeLeadSurrogate(parser: Parser): number;
+export declare function isAsciiIdentifier(code: number): boolean;

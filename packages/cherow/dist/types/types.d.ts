@@ -21,6 +21,7 @@ export declare type OnComment = void | Comment[] | ((type: string, value: string
  * The parser options.
  */
 export interface Options {
+    ecmaVersion?: EcmaVersion;
     module?: boolean;
     comments?: boolean;
     next?: boolean;
