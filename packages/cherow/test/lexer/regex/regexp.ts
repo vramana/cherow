@@ -1,8 +1,8 @@
 import * as t from 'assert';
-import { verifyRegExpPattern } from '../../src/lexer/regexp';
-import { createParserObject } from '../../src/parser/parser';
-import { Context } from '../../src/common';
-import { RegexpState } from '../../src/lexer/common';
+import { verifyRegExpPattern } from '../../../src/lexer/regexp';
+import { createParserObject } from '../../../src/parser/parser';
+import { Context } from '../../../src/common';
+import { RegexpState } from '../../../src/lexer/common';
 
 describe('Lexer - Regeular expressions', () => {
 

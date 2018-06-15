@@ -436,6 +436,7 @@ export function isIdentifierPart(code: Chars): boolean {
   return (letter >= Chars.LowerA && letter <= Chars.LowerZ) ||
       code === Chars.Underscore ||
       code === Chars.Dollar ||
+      code === Chars.Backslash ||
       (code >= Chars.Zero && code <= Chars.Nine // 0..9;
           || isValidIdentifierPart(code));
 }
@@ -476,4 +477,82 @@ export function consumeLeadSurrogate(parser: Parser): number {
 
   parser.column++;
   return code;
+}
+
+function scanUnlimitedLengthHexNumber(parser: Parser, maxValue: number): number {
+  let value = 0;
+  let digit = toHex(parser.source.charCodeAt(parser.index));
+  if (digit < 0) return -1;
+  while (digit >= 0) {
+    value = value * 16 + digit;
+    if (value > maxValue) { report(parser, Errors.Unexpected);
+    }
+    parser.index++; parser.column++;
+    digit = toHex(parser.source.charCodeAt(parser.index));
+  }
+  return value;
+}
+
+export function scanUnicodeEscape(parser: Parser): number {
+  if (consumeOpt(parser, Chars.LeftBrace)) {
+      const cp = scanUnlimitedLengthHexNumber(parser, 0x10FFFF);
+      if (cp < 0 || !consumeOpt(parser, Chars.RightBrace)) {
+        report(parser, Errors.Unexpected);
+      }
+      return cp;
+ }
+  return scanHexNumber(parser, 4);
+}
+
+function scanHexNumber(parser: Parser, expectedLength: number): number {
+  let codePoint = 0;
+  for (let i = 0; i < expectedLength; i++) {
+      const ch = parser.source.charCodeAt(parser.index);
+      const digit = toHex(ch);
+      if (digit < 0) report(parser, Errors.Unexpected, 'unicode');
+      codePoint = codePoint * 16 + digit;
+      parser.index++;
+      parser.column++;
+  }
+  return codePoint;
+}
+
+/**
+ * Returns true if ascii letter
+ *
+ * @param code Code point
+ */
+function isAsciiLetter(code: number) {
+  const letter = code | 32;
+  return letter >= Chars.LowerA && letter <= Chars.LowerZ;
+}
+
+export function isAsciiIdentifier(code: number) {
+  return isAsciiLetter(code) ||
+          code === Chars.Dollar ||
+          code === Chars.Underscore ||
+          (code >= Chars.Zero && code <= Chars.Nine);
+}
+
+
+/**
+ * Handle lead surrogate
+ *
+ * @param parser Parser object
+ * @param first Code point
+ */
+export function handleLeadSurrogate(parser: Parser, first: number): void {
+
+  if ((first & 0xFC00) === 0xD800 && parser.index < parser.length) {
+      const hi = parser.source.charCodeAt(parser.index++);
+      let code = hi;
+      const lo = parser.source.charCodeAt(parser.index);
+      if (lo >= 0xDC00 && lo <= 0xDFFF) {
+          code = (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
+          parser.index++;
+          parser.column++;
+      }
+      parser.column++;
+      parser.tokenValue += fromCodePoint(code);
+  }
 }
