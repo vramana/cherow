@@ -504,9 +504,10 @@ function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchSt
             test = parseExpression(parser, context);
         } else {
             expect(parser, context, Token.DefaultKeyword);
-            if (seenDefault) recordErrors(parser, context, Errors.Unexpected);
+            if (seenDefault) recordErrors(parser, context, Errors.MultipleDefaultsInSwitch);
             seenDefault = true;
         }
+
         cases.push(parseCaseOrDefaultClauses(parser, context, test, switchLoc));
     }
     parser.switchStatement = previousSwitchStatement;
@@ -536,9 +537,10 @@ export function parseCaseOrDefaultClauses(
 ): ESTree.SwitchCase {
     expect(parser, context, Token.Colon);
     const consequent: ESTree.Statement[] = [];
-    while (parser.token !== Token.CaseKeyword && parser.token !== Token.RightBrace && parser.tokenValue !== 'default') {
-        consequent.push(parseStatementListItem(parser, context));
+    while (parser.token !== Token.CaseKeyword && parser.token !== Token.RightBrace && parser.token !== Token.DefaultKeyword) {
+      consequent.push(parseStatementListItem(parser, context));
     }
+
     return finishNode(parser, context, pos, {
         type: 'SwitchCase',
         test,

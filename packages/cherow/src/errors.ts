@@ -58,7 +58,8 @@ export const enum Errors {
     HtmlCommentInModule,
     UnterminatedTemplate,
     InvalidPrivateFieldAccess,
-    UndefinedUnicodeCodePoint
+    UndefinedUnicodeCodePoint,
+    MultipleDefaultsInSwitch
 }
 /*@internal*/
 export const errorMessages: {
@@ -120,6 +121,8 @@ export const errorMessages: {
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
     [Errors.InvalidPrivateFieldAccess]: 'Invalid private field \'%0\'',
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
+    [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
+
 
 };
 
