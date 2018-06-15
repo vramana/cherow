@@ -169,9 +169,9 @@ Existing parsers have many issues with them:
 None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them.
 
 We figured we could *try* do better. *We* are used in plural form because Cherow is developed by a main developer and two
-others "*behind the scene*" that contributes with their knowledge whenever it's necessary.
+others "*behind the scenes*" that contributes with their knowledge whenever it's necessary.
 
-## Benchmatk
+## Benchmark
 
 
 ![](./media/benchmark.png)
