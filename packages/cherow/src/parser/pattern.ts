@@ -1,4 +1,4 @@
-import { Parser } from '../types';
+import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
 import { Errors, recordErrors, } from '../errors';
@@ -14,6 +14,8 @@ import {
     expect,
     isInOrOf,
     BindingKind,
+    getLocation,
+    finishNode,
 } from '../common';
 
 /**
@@ -30,7 +32,7 @@ export function parseBindingIdentifier(
     kind: BindingKind = BindingKind.Var
 ): ESTree.Identifier {
     const { token: t } = parser;
-
+    const pos = getLocation(parser);
     if ((t & Token.Contextual) === Token.Contextual) {
         if (parser.token === Token.AwaitKeyword) {
             if ((context & Context.Strict) === Context.Strict) recordErrors(parser, context, Errors.Unexpected);
@@ -50,10 +52,10 @@ export function parseBindingIdentifier(
 
     const name = parser.tokenValue;
     nextToken(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'Identifier',
         name
-    };
+    });
 }
 
 /**
@@ -89,14 +91,15 @@ export function parseAssignmentRestElement(
     type: BindingType,
     endToken: Token = Token.RightBracket): ESTree.RestElement {
     const t = type; // TODO
+    const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const argument = parseBindingIdentifierOrPattern(parser, context);
     if (parser.token === Token.Assign) recordErrors(parser, context, Errors.ElementAfterRest);
     if (parser.token !== endToken) recordErrors(parser, context, Errors.ElementAfterRest);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'RestElement',
         argument,
-    };
+    });;
 }
 
 /**
@@ -129,6 +132,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, type: Bin
     // DestructuringAssignmentTarget[Yield] :
     //   LeftHandSideExpression[?Yield]
     //
+    const pos = getLocation(parser);
     expect(parser, context, Token.LeftBracket);
     const elements: (ESTree.Node | null)[] = [];
     while (parser.token !== Token.RightBracket) {
@@ -139,7 +143,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, type: Bin
                 elements.push(parseAssignmentRestElement(parser, context, type));
                 break;
             } else {
-                elements.push(parseBindingInitializer(parser, context, type));
+                elements.push(parseBindingInitializer(parser, context, type, pos));
             }
             if (parser.token !== Token.RightBracket) expect(parser, context, Token.Comma);
         }
@@ -148,10 +152,10 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, type: Bin
     expect(parser, context, Token.RightBracket);
 
     // tslint:disable-next-line:no-object-literal-type-assertion
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ArrayPattern',
         elements,
-    };
+    });
 }
 
 /** Parse assignment pattern
@@ -168,12 +172,13 @@ export function parseAssignmentPattern(
     parser: Parser,
     context: Context,
     left: ESTree.PatternTop,
+    pos: Location,
 ): ESTree.AssignmentPattern {
-    return {
+    return finishNode(parser, context, pos, {
         type: 'AssignmentPattern',
         left,
         right: parseAssignmentExpression(parser, context),
-    };
+    });
 }
 
 /**
@@ -188,15 +193,16 @@ export function parseAssignmentPattern(
 export function parseBindingInitializer(
     parser: Parser,
     context: Context,
-    type: BindingType
+    type: BindingType,
+    pos: Location
 ): any {
     const left: any = parseBindingIdentifierOrPattern(parser, context, type);
     return !consume(parser, context, Token.Assign) ?
-        left : {
+        left : finishNode(parser, context, pos, {
             type: 'AssignmentPattern',
             left,
             right: parseAssignmentExpression(parser, context),
-        };
+        });
 }
 
 /**
@@ -209,13 +215,14 @@ export function parseBindingInitializer(
  */
 // tslint:disable-next-line:function-name
 function parseAssignmentRestProperty(parser: Parser, context: Context): any {
+    const pos = getLocation(parser);
     expect(parser, context, Token.Ellipsis);
     const { token } = parser;
     const argument = parseBindingIdentifierOrPattern(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'RestElement',
         argument,
-    };
+    });
 }
 
 /**
@@ -226,6 +233,7 @@ function parseAssignmentRestProperty(parser: Parser, context: Context): any {
  */
 function parserObjectAssignmentPattern(parser: Parser, context: Context, type: BindingType): ESTree.ObjectPattern {
     const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+    const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
 
     while (parser.token !== Token.RightBrace) {
@@ -239,10 +247,10 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context, type: B
 
     expect(parser, context, Token.RightBrace);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ObjectPattern',
         properties,
-    };
+    });
 }
 
 /**
@@ -255,6 +263,7 @@ function parserObjectAssignmentPattern(parser: Parser, context: Context, type: B
  */
 function parseAssignmentProperty(parser: Parser, context: Context, type: BindingType): any {
     const { token } = parser;
+    const pos = getLocation(parser);
     let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null = null;
     let value;
     const computed = parser.token === Token.LeftBracket;
@@ -265,15 +274,15 @@ function parseAssignmentProperty(parser: Parser, context: Context, type: Binding
         shorthand = !consume(parser, context, Token.Colon);
         if (shorthand) {
             const hasInitializer = consume(parser, context, Token.Assign);
-            value = hasInitializer ? parseAssignmentPattern(parser, context, key) : key;
-        } else value = parseBindingInitializer(parser, context, type);
+            value = hasInitializer ? parseAssignmentPattern(parser, context, key, pos) : key;
+        } else value = parseBindingInitializer(parser, context, type, pos);
     } else {
         key = parseComputedPropertyName(parser, context);
         expect(parser, context, Token.Colon);
-        value = parseBindingInitializer(parser, context, type);
+        value = parseBindingInitializer(parser, context, type, pos);
     }
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'Property',
         kind: 'init',
         key,
@@ -281,7 +290,7 @@ function parseAssignmentProperty(parser: Parser, context: Context, type: Binding
         value,
         method: false,
         shorthand,
-    };
+    });
 }
 
 /**
@@ -341,6 +350,7 @@ function parseBindingList(
     origin: BindingOrigin
 ): any {
     let left: any;
+    const pos = getLocation(parser);
     if (parser.token & Token.Keyword) {
         left = parseBindingIdentifier(parser, context);
     } else if (parser.token === Token.LeftBrace || parser.token === Token.LeftBracket) {
@@ -361,10 +371,10 @@ function parseBindingList(
     }
 
     if (parser.token !== Token.Assign) return type & BindingType.Variable ?
-        parseVariableDeclaration(left, null) : left;
+        parseVariableDeclaration(parser, context, left, null) : left;
     nextToken(parser, context);
     parser.flags |= Flags.SimpleParameterList;
     return type & BindingType.Variable ?
-        parseVariableDeclaration(left, parseAssignmentExpression(parser, context)) :
-        parseAssignmentPattern(parser, context, left);
+        parseVariableDeclaration(parser, context, left, parseAssignmentExpression(parser, context)) :
+        parseAssignmentPattern(parser, context, left, pos);
 }

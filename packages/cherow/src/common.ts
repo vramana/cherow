@@ -1,6 +1,6 @@
 import { nextToken } from './lexer/scan';
 import { Token, tokenDesc } from './token';
-import { Parser } from './types';
+import { Parser, Location } from './types';
 import * as ESTree from './estree';
 import { Errors, recordErrors, } from './errors';
 import { parseIdentifier } from './parser/expressions';
@@ -486,6 +486,45 @@ export function parseIdentifierName(parser: Parser, context: Context, t: Token):
     return parseIdentifier(parser, context);
 }
 
-export function finishNode < T extends ESTree.Node > (node: any): T {
+/**
+ * Get current node location
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function getLocation(parser: Parser): Location {
+  return {
+    line: parser.startLine,
+    column: parser.startColumn,
+    index: parser.startIndex
+  };
+}
+
+export function finishNode < T extends ESTree.Node > (
+  parser: Parser,
+  context: Context,
+  meta: Location,
+  node: any): T {
+
+  const { lastIndex, lastLine, lastColumn } = parser;
+
+  if (context & Context.OptionsRanges) {
+      node.start = meta.index;
+      node.end = lastIndex;
+  }
+
+  if (context & Context.OptionsLoc) {
+      node.loc = {
+          start: {
+              line: meta.line,
+              column: meta.column
+          },
+          end: {
+              line: lastLine,
+              column: lastColumn
+          }
+      };
+  }
+
   return node as T;
 }

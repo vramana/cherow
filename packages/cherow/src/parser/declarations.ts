@@ -1,8 +1,8 @@
-import { Parser } from '../types';
+import { Parser, Location } from '../types';
 import { Token } from '../token';
 import * as ESTree from '../estree';
 import { parseClassBodyAndElementList, parseLeftHandSideExpression, parseFormalListAndBody } from './expressions';
-import { Context, BindingType, BindingOrigin, ModifierState, expect, consume, swapContext } from '../common';
+import { Context, BindingType, BindingOrigin, ModifierState, expect, consume, swapContext, finishNode, getLocation } from '../common';
 import { parseDelimitedBindingList, parseBindingIdentifier } from './pattern';
 import { recordErrors, Errors } from '../errors';
 
@@ -16,7 +16,8 @@ import { recordErrors, Errors } from '../errors';
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseClassDeclaration(parser: Parser, context: Context): any {
+export function parseClassDeclaration(parser: Parser, context: Context): ESTree.ClassDeclaration {
+    const pos = getLocation(parser);
     context = context | Context.Strict;
     expect(parser, context, Token.ClassKeyword);
     let id: ESTree.Identifier | null = null;
@@ -25,17 +26,17 @@ export function parseClassDeclaration(parser: Parser, context: Context): any {
     } else if (!(context & Context.RequireIdentifier)) recordErrors(parser, context, Errors.UnNamedFunctionDecl);
     let superClass: ESTree.Expression | null = null;
     if (consume(parser, context, Token.ExtendsKeyword)) {
-        superClass = parseLeftHandSideExpression(parser, context | Context.Strict);
+        superClass = parseLeftHandSideExpression(parser, context | Context.Strict, pos);
     }
 
     const body = parseClassBodyAndElementList(parser, context);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ClassDeclaration',
         id,
         superClass,
         body
-    };
+    });
 }
 
 /**
@@ -51,6 +52,7 @@ export function parseFunctionDeclaration(
     context: Context,
     state: ModifierState = ModifierState.None
 ): ESTree.FunctionDeclaration {
+    const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
     if (consume(parser, context, Token.Multiply)) state |= ModifierState.Generator;
     let id: ESTree.Identifier | null = null;
@@ -59,7 +61,7 @@ export function parseFunctionDeclaration(
     } else if (!(context & Context.RequireIdentifier)) recordErrors(parser, context, Errors.UnNamedFunctionDecl);
     context = swapContext(context, state);
     const { params, body } = parseFormalListAndBody(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'FunctionDeclaration',
         body,
         params,
@@ -67,7 +69,7 @@ export function parseFunctionDeclaration(
         generator: !!(state & ModifierState.Generator),
         expression: false,
         id
-    };
+    });
 }
 
 /**
@@ -86,14 +88,17 @@ export function parseFunctionDeclaration(
  * @param context Context masks
  */
 export function parseVariableDeclaration(
+    parser: Parser,
+    context: Context,
     id: any,
     init: any
 ): ESTree.VariableDeclarator {
-    return {
+    const pos = getLocation(parser);
+    return finishNode(parser, context, pos, {
         type: 'VariableDeclarator',
         init,
         id,
-    };
+    });
 }
 
 export function parseVariableDeclarationList(

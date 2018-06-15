@@ -23,6 +23,16 @@ export type OnError = void | ((error: string, line: number, column: number) => v
 export type OnComment = void | Comment[] | ((type: string, value: string, start: number, end: number) => any);
 
 /**
+ *  Line / column location
+ *
+ */
+export interface Location {
+  index: number;
+  column: number;
+  line: number;
+}
+
+/**
  * The parser options.
  */
 export interface Options {

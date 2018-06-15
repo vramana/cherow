@@ -1,4 +1,4 @@
-import { Parser } from '../types';
+import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
 import { parseIdentifier, parseSequenceExpression, parseExpression, parseAssignmentExpression } from './expressions';
@@ -24,7 +24,9 @@ import {
     addLabel,
     LabelState,
     validateContinueLabel,
-    validateBreakStatement
+    validateBreakStatement,
+    getLocation,
+    finishNode
 } from '../common';
 
 export const enum LabelledFunctionState {
@@ -153,11 +155,12 @@ export function parseStatement(
  * @param context Context masks
  */
 export function parseDebuggerStatement(parser: Parser, context: Context): ESTree.DebuggerStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.DebuggerKeyword);
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'DebuggerStatement'
-    };
+    });
 }
 
 /**
@@ -170,6 +173,7 @@ export function parseDebuggerStatement(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 export function parseBlockStatement(parser: Parser, context: Context): ESTree.BlockStatement {
+    const pos = getLocation(parser);
     const body: ESTree.Statement[] = [];
     expect(parser, context, Token.LeftBrace);
     while (parser.token !== Token.RightBrace) {
@@ -177,10 +181,10 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
     }
     expect(parser, context, Token.RightBrace);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'BlockStatement',
         body
-    };
+    });
 }
 
 /**
@@ -195,15 +199,16 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) {
         recordErrors(parser, context, Errors.IllegalReturn);
       }
+    const pos = getLocation(parser);
     expect(parser, context, Token.ReturnKeyword);
     const argument = (parser.token & Token.ASI) !== Token.ASI && !(parser.flags & Flags.NewLine) ?
         parseExpression(parser, context  & ~Context.InFunctionBody) :
         null;
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ReturnStatement',
         argument
-    };
+    });
 }
 
 /**
@@ -215,10 +220,11 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
  * @param context Context masks
  */
 export function parseEmptyStatement(parser: Parser, context: Context): ESTree.EmptyStatement {
+    const pos = getLocation(parser);
     nextToken(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'EmptyStatement'
-    };
+    });
 }
 
 /**
@@ -230,17 +236,18 @@ export function parseEmptyStatement(parser: Parser, context: Context): ESTree.Em
  * @param context Context masks
  */
 export function parseTryStatement(parser: Parser, context: Context): ESTree.TryStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.TryKeyword);
     const block = parseBlockStatement(parser, context);
     const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
     if (!handler && !finalizer) recordErrors(parser, context, Errors.NoCatchOrFinally);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'TryStatement',
         block,
         handler,
         finalizer
-    };
+    });
 }
 
 /**
@@ -252,6 +259,7 @@ export function parseTryStatement(parser: Parser, context: Context): ESTree.TryS
  * @param context Context masks
  */
 export function parseCatchBlock(parser: Parser, context: Context): any {
+    const pos = getLocation(parser);
     expect(parser, context, Token.CatchKeyword);
     let param: ESTree.PatternTop | null = null;
     if (consume(parser, context, Token.LeftParen)) {
@@ -265,11 +273,11 @@ export function parseCatchBlock(parser: Parser, context: Context): any {
     }
     const body = parseBlockStatement(parser, context);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'CatchClause',
         param,
         body
-    };
+    });
 }
 
 /**
@@ -281,14 +289,15 @@ export function parseCatchBlock(parser: Parser, context: Context): any {
  * @param context Context masks
  */
 export function parseThrowStatement(parser: Parser, context: Context): ESTree.ThrowStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.ThrowKeyword);
     if (parser.flags & Flags.NewLine) recordErrors(parser, context, Errors.NewlineAfterThrow);
     const argument: ESTree.Expression = parseExpression(parser, context);
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ThrowStatement',
         argument
-    };
+    });
 }
 
 /**
@@ -306,6 +315,7 @@ export function parseExpressionOrLabelledStatement(
     label: LabelledFunctionState
 ): ESTree.ExpressionStatement | ESTree.LabeledStatement {
     const { tokenValue, token  } = parser;
+    const pos = getLocation(parser);
     const expr: ESTree.Expression = parseExpression(parser, context);
     if (token & (Token.Identifier | Token.Keyword) && parser.token === Token.Colon) {
         expect(parser, context, Token.Colon);
@@ -319,18 +329,18 @@ export function parseExpressionOrLabelledStatement(
             body = parseFunctionDeclaration(parser, context);
         } else body = parseStatement(parser, context, LabelledFunctionState.Allow);
         parser.labelDepth--;
-        return {
+        return finishNode(parser, context, pos, {
             type: 'LabeledStatement',
             label: expr as ESTree.Identifier,
             body
-        };
+        });
     }
 
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ExpressionStatement',
         expression: expr
-    };
+    });
 }
 
 /**
@@ -365,15 +375,16 @@ export function parseVariableStatement(
     type: BindingType,
     origin: BindingOrigin = BindingOrigin.Statement
 ): ESTree.VariableDeclaration {
+    const pos = getLocation(parser);
     const { token } = parser;
     nextToken(parser, context);
     const declarations = parseVariableDeclarationList(parser, context, type, origin);
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'VariableDeclaration',
         kind: tokenDesc(token) as 'var' | 'let' | 'const',
         declarations
-    };
+    });
 }
 
 /**
@@ -387,6 +398,7 @@ export function parseVariableStatement(
  */
 
 export function parseForStatement(parser: Parser, context: Context): any {
+    const pos = getLocation(parser);
     expect(parser, context, Token.ForKeyword);
     const forAwait = context & Context.Async && consume(parser, context, Token.AwaitKeyword);
     expect(parser, context, Token.LeftParen);
@@ -429,7 +441,7 @@ export function parseForStatement(parser: Parser, context: Context): any {
         else init = declarations;
         right = parseAssignmentExpression(parser, context);
     } else {
-        if (parser.token === Token.Comma) init = parseSequenceExpression(parser, context, init);
+        if (parser.token === Token.Comma) init = parseSequenceExpression(parser, context, init, pos);
         expect(parser, context, Token.Semicolon, Errors.InvalidLhsInFor);
         if (parser.token !== Token.Semicolon) {
             test = parseExpression(parser, context);
@@ -445,25 +457,25 @@ export function parseForStatement(parser: Parser, context: Context): any {
     const body = parseStatement(parser, context, LabelledFunctionState.Disallow);
     parser.iterationStatement = previousIterationStatement;
 
-    return type === 'ForOfStatement' ? {
+    return type === 'ForOfStatement' ? finishNode(parser, context, pos, {
             type,
             body,
             left: init,
             right,
             await: forAwait
-        } :
-        right ? {
+        }) :
+        right ? finishNode(parser, context, pos, {
             type: type as 'ForInStatement',
             body,
             left: init,
             right
-        } : {
+        }) : finishNode(parser, context, pos, {
             type: type as 'ForStatement',
             body,
             init,
             test,
             update
-        };
+        });
 }
 /**
  * Parses switch statement
@@ -474,6 +486,7 @@ export function parseForStatement(parser: Parser, context: Context): any {
  * @param context Context masks
  */
 function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.SwitchKeyword);
     expect(parser, context, Token.LeftParen);
     const discriminant = parseExpression(parser, context);
@@ -485,6 +498,7 @@ function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchSt
     const previousSwitchStatement = parser.switchStatement;
     parser.switchStatement = LabelState.Iteration;
     while (parser.token !== Token.RightBrace) {
+        const switchLoc = getLocation(parser);
         let test: ESTree.Expression | null = null;
         if (consume(parser, context, Token.CaseKeyword)) {
             test = parseExpression(parser, context);
@@ -493,16 +507,16 @@ function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchSt
             if (seenDefault) recordErrors(parser, context, Errors.Unexpected);
             seenDefault = true;
         }
-        cases.push(parseCaseOrDefaultClauses(parser, context, test));
+        cases.push(parseCaseOrDefaultClauses(parser, context, test, switchLoc));
     }
     parser.switchStatement = previousSwitchStatement;
     expect(parser, context, Token.RightBrace);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'SwitchStatement',
         discriminant,
         cases
-    };
+    });
 }
 
 /**
@@ -517,18 +531,19 @@ function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchSt
 export function parseCaseOrDefaultClauses(
     parser: Parser,
     context: Context,
-    test: ESTree.Expression | null
+    test: ESTree.Expression | null,
+    pos: Location
 ): ESTree.SwitchCase {
     expect(parser, context, Token.Colon);
     const consequent: ESTree.Statement[] = [];
     while (parser.token !== Token.CaseKeyword && parser.token !== Token.RightBrace && parser.tokenValue !== 'default') {
         consequent.push(parseStatementListItem(parser, context));
     }
-    return {
+    return finishNode(parser, context, pos, {
         type: 'SwitchCase',
         test,
         consequent
-    };
+    });
 }
 
 /**
@@ -540,18 +555,19 @@ export function parseCaseOrDefaultClauses(
  * @param context Context masks
  */
 export function parseIfStatement(parser: Parser, context: Context): ESTree.IfStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.IfKeyword);
     expect(parser, context, Token.LeftParen);
     const test = parseExpression(parser, context);
     expect(parser, context, Token.RightParen);
     const consequent = parseConsequentOrAlternate(parser, context);
     const alternate = consume(parser, context, Token.ElseKeyword) ? parseConsequentOrAlternate(parser, context) : null;
-    return {
+    return finishNode(parser, context, pos, {
         type: 'IfStatement',
         test,
         consequent,
         alternate
-    };
+    });
 }
 
 /**
@@ -572,6 +588,7 @@ function parseConsequentOrAlternate(parser: Parser, context: Context): ESTree.St
  * @param context Context masks
  */
 export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.DoWhileStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.DoKeyword);
     const previousIterationStatement = parser.iterationStatement;
     parser.iterationStatement = LabelState.Iteration;
@@ -582,11 +599,11 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
     const test = parseExpression(parser, context);
     expect(parser, context, Token.RightParen);
     consume(parser, context, Token.Semicolon);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'DoWhileStatement',
         body,
         test
-    };
+    });
 }
 
 /**
@@ -598,6 +615,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
  * @param context Context masks
  */
 export function parseWhileStatement(parser: Parser, context: Context): ESTree.WhileStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.WhileKeyword);
     expect(parser, context, Token.LeftParen);
     const test = parseExpression(parser, context);
@@ -607,11 +625,11 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
     const body = parseStatement(parser, context, LabelledFunctionState.Disallow);
     parser.iterationStatement = previousIterationStatement;
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'WhileStatement',
         test,
         body
-    };
+    });
 }
 
 /**
@@ -623,6 +641,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
  * @param context Context masks
  */
 export function parseContinueStatement(parser: Parser, context: Context): ESTree.ContinueStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.ContinueKeyword);
     let label: ESTree.Identifier | undefined | null = null;
     if (!(parser.flags & Flags.NewLine) && parser.token & (Token.Identifier | Token.Keyword)) {
@@ -634,10 +653,10 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     if (label === null && (parser.iterationStatement & LabelState.Empty) !== LabelState.Empty) {
         recordErrors(parser, context, Errors.IllegalContinue);
     }
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ContinueStatement',
         label
-    };
+    });
 }
 
 /**
@@ -649,6 +668,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
  * @param context Context masks
  */
 export function parseBreakStatement(parser: Parser, context: Context): ESTree.BreakStatement {
+    const pos = getLocation(parser);
     expect(parser, context, Token.BreakKeyword);
     let label: ESTree.Identifier | undefined | null = null;
     if (!(parser.flags & Flags.NewLine) && parser.token & (Token.Identifier | Token.Keyword)) {
@@ -660,10 +680,10 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
         recordErrors(parser, context, Errors.IllegalBreak);
     }
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'BreakStatement',
         label
-    };
+    });
 }
 
 /**
@@ -675,17 +695,18 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
  * @param context Context masks
  */
 export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
+    const pos = getLocation(parser);
     if (context & Context.Strict) recordErrors(parser, context, Errors.StrictModeWith);
     expect(parser, context, Token.WithKeyword);
     expect(parser, context, Token.LeftParen);
     const object = parseExpression(parser, context);
     expect(parser, context, Token.RightParen);
     const body = parseStatement(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'WithStatement',
         object,
         body
-    };
+    });
 }
 
 /**
@@ -715,12 +736,13 @@ function parseAsyncFunctionDeclarationOrStatement(
  * @param context Context masks
  */
 export function parseDirective(parser: Parser, context: Context): any {
+    const pos = getLocation(parser);
     const directive = parser.tokenRaw.slice(1, -1);
     const expr = parseExpression(parser, context);
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
       type: 'ExpressionStatement',
       expression: expr,
       directive
-    };
+    });
   }

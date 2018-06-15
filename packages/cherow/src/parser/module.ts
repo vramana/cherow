@@ -1,7 +1,7 @@
 import * as ESTree from '../estree';
-import { Parser } from '../types';
+import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
-import { parseAssignmentPattern, parseDelimitedBindingList, parseBindingIdentifier } from './pattern';
+import { parseBindingIdentifier } from './pattern';
 import { parseStatementListItem, parseDirective, parseVariableStatement } from './statements';
 import { parseClassDeclaration, parseFunctionDeclaration } from './declarations';
 import { parseAssignmentExpression, parseLiteral, parseIdentifier } from './expressions';
@@ -18,10 +18,12 @@ import {
     ModifierState,
     BindingOrigin,
     BindingType,
-    parseIdentifierName
+    parseIdentifierName,
+    getLocation,
+    finishNode
 } from '../common';
 
-export function parseModuleItemList(parser: Parser, context: Context) {
+export function parseModuleItemList(parser: Parser, context: Context): any {
     // Prime the scanner
     nextToken(parser, context);
 
@@ -86,7 +88,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): any {
     // export ClassDeclaration
     // export AssignmentExpression
     const specifiers: ESTree.ExportSpecifier[] = [];
-
+    const pos = getLocation(parser);
     let source: ESTree.Literal | null = null;
     let declaration: ESTree.Statement | null = null;
 
@@ -96,10 +98,10 @@ export function parseExportDeclaration(parser: Parser, context: Context): any {
 
         case Token.Multiply:
             // export * from 'foo';
-            return parseExportAllDeclaration(parser, context);
+            return parseExportAllDeclaration(parser, context, pos);
 
         case Token.DefaultKeyword:
-            return parseExportDefault(parser, context);
+            return parseExportDefault(parser, context, pos);
 
         case Token.LeftBrace:
             {
@@ -179,12 +181,12 @@ export function parseExportDeclaration(parser: Parser, context: Context): any {
             recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ExportNamedDeclaration',
         source,
         specifiers,
         declaration,
-    };
+    });
 }
 
 /**
@@ -193,14 +195,14 @@ export function parseExportDeclaration(parser: Parser, context: Context): any {
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseExportAllDeclaration(parser: Parser, context: Context): ESTree.ExportAllDeclaration {
+function parseExportAllDeclaration(parser: Parser, context: Context, pos: Location): ESTree.ExportAllDeclaration {
     expect(parser, context, Token.Multiply);
     const source = parseModuleSpecifier(parser, context);
     consumeSemicolon(parser, context);
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ExportAllDeclaration',
         source,
-    };
+    });
 }
 
 /**
@@ -213,15 +215,16 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
     // ExportSpecifier :
     // IdentifierName
     // IdentifierName as IdentifierName
+    const pos = getLocation(parser);
     const local = parseIdentifierName(parser, context, parser.token);
     const exported = consume(parser, context, Token.AsKeyword) ?
         parseIdentifierName(parser, context, parser.token) :
         local;
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ExportSpecifier',
         local,
         exported,
-    };
+    });
 }
 
 /**
@@ -235,7 +238,7 @@ function parseNamedExportDeclaration(parser: Parser, context: Context): ESTree.E
  * @param context Context masks
  * @param pos Location
  */
-function parseExportDefault(parser: Parser, context: Context): ESTree.ExportDefaultDeclaration {
+function parseExportDefault(parser: Parser, context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
 
     expect(parser, context, Token.DefaultKeyword);
 
@@ -267,10 +270,10 @@ function parseExportDefault(parser: Parser, context: Context): ESTree.ExportDefa
             consumeSemicolon(parser, context);
     }
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ExportDefaultDeclaration',
         declaration,
-    };
+    });
 }
 
 /**
@@ -282,6 +285,7 @@ function parseExportDefault(parser: Parser, context: Context): ESTree.ExportDefa
  * @param context Context masks
  */
 export function parseImportDeclaration(parser: Parser, context: Context): ESTree.ImportDeclaration {
+    const pos = getLocation(parser);
     expect(parser, context, Token.ImportKeyword);
 
     let source: ESTree.Literal;
@@ -317,11 +321,11 @@ export function parseImportDeclaration(parser: Parser, context: Context): ESTree
 
     consumeSemicolon(parser, context);
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ImportDeclaration',
         specifiers,
         source,
-    };
+    });
 }
 
 /**
@@ -356,9 +360,8 @@ function parseNamedImports(parser: Parser, context: Context, specifiers: ESTree.
 
 function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSpecifier {
 
-    const {
-        token
-    } = parser;
+   const pos = getLocation(parser);
+   const { token } = parser;
     const imported = parseIdentifierName(parser, context, parser.token);
 
     let local: ESTree.Identifier;
@@ -372,11 +375,11 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
         local = imported;
     }
 
-    return {
+    return finishNode(parser, context, pos, {
         type: 'ImportSpecifier',
         local,
         imported,
-    };
+    });
 }
 
 /**
@@ -391,13 +394,14 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 function parseNameSpaceImport(parser: Parser, context: Context, specifiers: ESTree.Specifiers[]): void {
     // NameSpaceImport:
     //  * as ImportedBinding
+    const pos = getLocation(parser);
     expect(parser, context, Token.Multiply);
     expect(parser, context, Token.AsKeyword, Errors.AsAfterImportStart);
     const local = parseBindingIdentifier(parser, context);
-    specifiers.push({
+    specifiers.push(finishNode(parser, context, pos, {
         type: 'ImportNamespaceSpecifier',
         local,
-    });
+    }));
 }
 
 /**
@@ -425,10 +429,10 @@ function parseModuleSpecifier(parser: Parser, context: Context): ESTree.Literal 
  * @param context Context masks
  */
 function parseImportDefaultSpecifier(parser: Parser, context: Context): ESTree.ImportDefaultSpecifier {
-    return {
-        type: 'ImportDefaultSpecifier',
-        local: parseIdentifier(parser, context),
-    };
+  return finishNode(parser, context, getLocation(parser), {
+    type: 'ImportDefaultSpecifier',
+    local: parseIdentifier(parser, context),
+});
 }
 
 /**
