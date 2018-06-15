@@ -47,6 +47,11 @@ describe('Lexer - Whitespace', () => {
         line: 1, column: 28,
     });
 
+    pass('should skip multiline comment with no mathematical space', {
+      source: '/*\u00A0 multi line \0x205F comment \0x205F*/',
+      line: 1, column: 38,
+    });
+
     pass('should skip multiline comment with form feed', {
         source: '/*multilinecomment*/',
         line: 1, column: 24,
@@ -59,6 +64,21 @@ describe('Lexer - Whitespace', () => {
     pass('should skip spaces', {
         source: '        ',
         line: 1, column: 8,
+    });
+
+    pass('should skip narrow no break space', {
+      source: ' \u202F       ',
+      line: 1, column: 9,
+    });
+
+    pass('should skip hair space', {
+      source: ' \u200A       ',
+      line: 1, column: 9,
+    });
+
+    pass('should skip ideographic space', {
+      source: ' \u205F       ',
+      line: 1, column: 9,
     });
 
     pass('should skip tabs', {
