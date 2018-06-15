@@ -5,11 +5,11 @@ function config(name) {
 }
 
 function rollup(mod, minify) {
-  return package(`rollup --c --environment mod:${mod},${minify ? 'minify' : ''}`);
+  return `rollup --c --environment mod:${mod},${minify ? 'minify' : ''}`;
 }
 
 function mocha(arg) {
-  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' ${package('mocha')} ${arg}`);
+  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' mocha ${arg}`);
 }
 
 function package(script) {
@@ -19,7 +19,7 @@ function package(script) {
 module.exports = (pkgName, outDir = 'dist') => {
   return {
     scripts: {
-      lint: package(`tslint --project ${config('build')}`),
+      lint: `tslint --project ${config('build')}`,
       test: {
         default: mocha('test/**/*.ts'),
         watch: mocha('test/**/*.ts --watch')
@@ -28,9 +28,9 @@ module.exports = (pkgName, outDir = 'dist') => {
         default: series.nps('coverage.before', 'coverage.run'),
         before: series.nps('coverage.clean', 'coverage.build'),
         clean: rimraf('build'),
-        build: package(`tsc --project ${config('test')}`),
-        run: package(`nyc mocha ./build/test/**/*.js`),
-        post: crossEnv(`cat ./coverage/lcov.info | ${package('coveralls')}`)
+        build: `tsc --project ${config('test')}`,
+        run: `nyc mocha ./build/test/**/*.js`,
+        post: crossEnv(`cat ./coverage/lcov.info | coveralls`)
       },
       build: {
         default: series.nps('build.before', 'build.all.default'),
