@@ -50,7 +50,7 @@ export const enum Flags {
     SimpleParameterList  = 1 << 4,
     HasConstructor       = 1 << 5,
     StrictEvalArguments  = 1 << 6,
-    StrictReserved       = 1 << 7
+    StrictReserved       = 1 << 7,
 }
 
 /* Binding origin */
@@ -370,7 +370,7 @@ export function addCrossingBoundary(parser: Parser): void {
  */
 export function validateContinueLabel(parser: Parser, context: Context, label: string): void {
     const state = getLabel(parser, '@' + label, true);
-    if ((state & LabelState.Iteration) !== LabelState.Iteration) {
+    if (!(state & LabelState.Iteration)) {
         if (state & LabelState.CrossingBoundary) {
             recordErrors(parser, context, Errors.InvalidNestedStatement);
         } else {

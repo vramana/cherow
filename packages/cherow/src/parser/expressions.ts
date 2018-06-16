@@ -1134,11 +1134,11 @@ function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatem
         const previousSwitchStatement = parser.switchStatement;
         const previousIterationStatement = parser.iterationStatement;
 
-        if ((parser.switchStatement & LabelState.Iteration) === LabelState.Iteration) {
+        if ((parser.switchStatement & LabelState.Iteration)) {
             parser.switchStatement = LabelState.CrossingBoundary;
         }
 
-        if ((parser.iterationStatement & LabelState.Iteration) === LabelState.Iteration) {
+        if ((parser.iterationStatement & LabelState.Iteration)) {
             parser.iterationStatement = LabelState.CrossingBoundary;
         }
 

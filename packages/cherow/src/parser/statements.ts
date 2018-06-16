@@ -361,7 +361,7 @@ export function parseExpressionOrLabelledStatement(
         if (parser.token === Token.FunctionKeyword && !(context & Context.Strict) &&
             label === LabelledFunctionState.Allow) {
             body = parseFunctionDeclaration(parser, context);
-        } else body = parseStatement(parser, context, LabelledFunctionState.Allow);
+        } else body = parseStatement(parser, context, label);
         parser.labelDepth--;
         return finishNode(parser, context, pos, {
             type: 'LabeledStatement',
@@ -659,7 +659,7 @@ export function parseWhileStatement(parser: Parser, context: Context): ESTree.Wh
     const previousIterationStatement = parser.iterationStatement;
     parser.iterationStatement = LabelState.Iteration;
     const body = parseStatement(parser, context, LabelledFunctionState.Disallow);
-    parser.iterationStatement = previousIterationStatement;
+//    parser.iterationStatement = previousIterationStatement;
 
     return finishNode(parser, context, pos, {
         type: 'WhileStatement',
@@ -712,8 +712,8 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
         const { tokenValue  } = parser;
         label = parseIdentifier(parser, context);
         validateBreakStatement(parser, context, tokenValue);
-    } else if (!(parser.iterationStatement & LabelState.Empty) &&
-        !(parser.switchStatement & LabelState.Empty)) {
+    } else if (parser.iterationStatement === LabelState.Empty &&
+        parser.switchStatement === LabelState.Empty) {
         report(parser, Errors.IllegalBreak);
     }
     consumeSemicolon(parser, context);
