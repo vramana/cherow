@@ -9,7 +9,7 @@ function rollup(mod, minify) {
 }
 
 function mocha(arg) {
-  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' mocha ${arg}`);
+  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' mocha "${arg}"`);
 }
 
 function package(script) {
@@ -29,7 +29,7 @@ module.exports = (pkgName, outDir = 'dist') => {
         before: series.nps('coverage.clean', 'coverage.build'),
         clean: rimraf('build'),
         build: `tsc --project ${config('test')}`,
-        run: `nyc mocha ./build/test/**/*.js`,
+        run: `nyc mocha "./build/test/**/*.js"`,
         post: crossEnv(`cat ./coverage/lcov.info | coveralls`)
       },
       build: {
