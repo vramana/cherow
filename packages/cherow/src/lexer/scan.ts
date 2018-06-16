@@ -141,15 +141,16 @@ table[Chars.Plus] = (parser: Parser) => {
 };
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = (parser: Parser, context) => {
+table[Chars.Hyphen] = (parser: Parser, context: Context) => {
   parser.index++; parser.column++;
   const next = parser.source.charCodeAt(parser.index);
-  if (next === Chars.Hyphen &&
-      parser.source.charCodeAt(parser.index + 1) === Chars.GreaterThan) {
-      return skipSingleHTMLComment(parser, context);
-  } else if (parser.index < parser.source.length) {
+  if (parser.index < parser.source.length) {
       if (next === Chars.Hyphen) {
           parser.index++; parser.column++;
+          if ((parser.flags & Flags.NewLine) === Flags.NewLine || parser.startIndex === 0 &&
+              parser.source.charCodeAt(parser.index + 1) === Chars.GreaterThan) {
+              return skipSingleHTMLComment(parser, context);
+          }
           return Token.Decrement;
       } else if (next === Chars.EqualSign) {
           parser.index++; parser.column++;
