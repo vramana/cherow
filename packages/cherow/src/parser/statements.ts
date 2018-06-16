@@ -687,7 +687,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     }
     consumeSemicolon(parser, context);
 
-    if (label === null && !(parser.iterationStatement & LabelState.Empty)) {
+    if (label === null && parser.iterationStatement === LabelState.Empty) {
         report(parser, Errors.IllegalContinue);
     }
     return finishNode(parser, context, pos, {

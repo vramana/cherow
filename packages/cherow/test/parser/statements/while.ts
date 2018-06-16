@@ -1,4 +1,3 @@
-import { Location } from './../../../build/src/types.d';
 import * as t from 'assert';
 import { pass } from '../../test-utils';
 import { Context } from '../../../src/common';

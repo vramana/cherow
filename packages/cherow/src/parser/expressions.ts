@@ -23,7 +23,6 @@ import {
     lookahead,
     nextTokenIsArrow,
     reinterpret,
-    addCrossingBoundary,
     LabelState,
     nextTokenIsFuncKeywordOnSameLine,
     isStartOfExpression,
@@ -1134,15 +1133,18 @@ function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatem
         const previousSwitchStatement = parser.switchStatement;
         const previousIterationStatement = parser.iterationStatement;
 
-        if ((parser.switchStatement & LabelState.Iteration)) {
+        if (parser.switchStatement === LabelState.Iteration) {
             parser.switchStatement = LabelState.CrossingBoundary;
         }
 
-        if ((parser.iterationStatement & LabelState.Iteration)) {
+        if (parser.iterationStatement === LabelState.Iteration) {
             parser.iterationStatement = LabelState.CrossingBoundary;
         }
 
-        addCrossingBoundary(parser);
+        parser.labelSetStack[parser.labelDepth] = parser.functionBoundaryStack;
+        parser.iterationStack[parser.labelDepth] = LabelState.Empty;
+        parser.labelDepth++;
+
 
         while (parser.token !== Token.RightBrace) {
             body.push(parseStatementListItem(parser, context));

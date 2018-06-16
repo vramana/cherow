@@ -33,10 +33,6 @@ describe('Statements - Continue', () => {
           source: `try{ LABEL1 : do { throw foo;  } while(0); } catch(e){ continue LABEL2; LABEL2 : do {} while(0); };`,
         });
 
-        fail(`while (foo) { continue; }`, Context.Empty, {
-          source: `while (foo) { continue; }`,
-        });
-
       });
 
       describe('pass', () => {

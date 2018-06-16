@@ -114,9 +114,9 @@ export const enum ModifierState {
 
 /*@internal*/
 export const enum LabelState {
-    Empty            = 0,      // Break statement
-    Iteration        = 1 << 0, // Parsing iteration statement
-    CrossingBoundary = 1 << 1, // Crossing function boundary
+    Empty,
+    Iteration,
+    CrossingBoundary,
 }
 
 export function setGrammar(flags: Flags, mask: Flags): Context {
@@ -351,18 +351,6 @@ export function addLabel(parser: Parser, label: string): void {
 }
 
 /**
- * Add function
- *
- * @param parser Parser object
- * @param label Label to be added
- */
-export function addCrossingBoundary(parser: Parser): void {
-    parser.labelSetStack[parser.labelDepth] = parser.functionBoundaryStack;
-    parser.iterationStack[parser.labelDepth] = LabelState.Empty;
-    parser.labelDepth++;
-}
-
-/**
  * Validates continue statement
  *
  * @param parser Parser object
@@ -370,8 +358,8 @@ export function addCrossingBoundary(parser: Parser): void {
  */
 export function validateContinueLabel(parser: Parser, context: Context, label: string): void {
     const state = getLabel(parser, '@' + label, true);
-    if (!(state & LabelState.Iteration)) {
-        if (state & LabelState.CrossingBoundary) {
+    if (state !== LabelState.Iteration) {
+        if (state === LabelState.CrossingBoundary) {
             recordErrors(parser, context, Errors.InvalidNestedStatement);
         } else {
             recordErrors(parser, context, Errors.UnknownLabel, label as string);
@@ -387,7 +375,7 @@ export function validateContinueLabel(parser: Parser, context: Context, label: s
  */
 export function validateBreakStatement(parser: Parser, context: Context, label: any): void {
     const state = getLabel(parser, '@' + label);
-    if (!(state & LabelState.Iteration)) recordErrors(parser, context, Errors.UnknownLabel, label);
+    if (state !== LabelState.Iteration) recordErrors(parser, context, Errors.UnknownLabel, label);
 }
 
 /**
