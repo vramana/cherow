@@ -184,7 +184,7 @@ export function scanOctalOrBinaryDigits(parser: Parser, context: Context, base: 
   }
 
   if (state & NumericState.HasSeparator) report(parser, Errors.TrailingNumericSeparator);
-  if(consumeOpt(parser, Chars.LowerN)) state = state | NumericState.IsBigInt
+  if (consumeOpt(parser, Chars.LowerN)) state = state | NumericState.IsBigInt;
   if (isValidIdentifierStart(parser.source.charCodeAt(parser.index))) {
       report(parser, Errors.Unexpected);
   }
@@ -223,7 +223,7 @@ export function scanHexDigits(parser: Parser, context: Context): Token {
       parser.index++; parser.column++;
   }
   if (state & NumericState.HasSeparator) report(parser, Errors.TrailingNumericSeparator);
-  if(consumeOpt(parser, Chars.LowerN)) state = state | NumericState.IsBigInt;
+  if (consumeOpt(parser, Chars.LowerN)) state = state | NumericState.IsBigInt;
   if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(index, parser.index);
   return state & NumericState.IsBigInt ? Token.BigInt : Token.NumericLiteral;
 }

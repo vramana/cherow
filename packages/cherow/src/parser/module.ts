@@ -362,11 +362,11 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
 
    const pos = getLocation(parser);
    const { token } = parser;
-    const imported = parseIdentifierName(parser, context, parser.token);
+   const imported = parseIdentifierName(parser, context, parser.token);
 
-    let local: ESTree.Identifier;
+   let local: ESTree.Identifier;
 
-    if (consume(parser, context, Token.AsKeyword)) {
+   if (consume(parser, context, Token.AsKeyword)) {
         local = parseBindingIdentifier(parser, context);
     } else {
         // An import name that is a keyword is a syntax error if it is not followed
@@ -375,7 +375,7 @@ function parseImportSpecifier(parser: Parser, context: Context): ESTree.ImportSp
         local = imported;
     }
 
-    return finishNode(parser, context, pos, {
+   return finishNode(parser, context, pos, {
         type: 'ImportSpecifier',
         local,
         imported,

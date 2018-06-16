@@ -2,7 +2,7 @@ import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
 import { parseIdentifier, parseSequenceExpression, parseExpression, parseAssignmentExpression } from './expressions';
-import { Errors, recordErrors, } from '../errors';
+import { Errors, report } from '../errors';
 import { parseFunctionDeclaration, parseVariableDeclarationList, parseClassDeclaration } from './declarations';
 import { parseBindingIdentifierOrPattern } from './pattern';
 import { nextToken } from '../lexer/scan';
@@ -48,7 +48,8 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
     const statements: ESTree.Statement[] = [];
     while (parser.token !== Token.EndOfSource) {
         if ((parser.token & Token.StringLiteral) === Token.StringLiteral) {
-            if (!(context & Context.Strict) && parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
+            if (!(context & Context.Strict) &&
+                  parser.tokenRaw.length === 12 && parser.tokenValue === 'use strict') {
                 context |= Context.Strict;
             }
             statements.push(parseDirective(parser, context));
@@ -69,6 +70,22 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
  * @param context Context masks
  */
 export function parseStatementListItem(parser: Parser, context: Context): ESTree.Statement {
+   // ECMA 262 6th Edition
+  // StatementListItem[Yield, Return] :
+  //   Statement[?Yield, ?Return]
+  //   Declaration[?Yield]
+  //
+  // Declaration[Yield] :
+  //   HoistableDeclaration[?Yield]
+  //   ClassDeclaration[?Yield]
+  //   LexicalDeclaration[In, ?Yield]
+  //
+  // HoistableDeclaration[Yield, Default] :
+  //   FunctionDeclaration[?Yield, ?Default]
+  //   GeneratorDeclaration[?Yield, ?Default]
+  //
+  // LexicalDeclaration[In, Yield] :
+  //   LetOrConst BindingList[?In, ?Yield] ;
     switch (parser.token) {
         case Token.FunctionKeyword:
             return parseFunctionDeclaration(parser, context);
@@ -100,6 +117,23 @@ export function parseStatement(
     context: Context,
     label: LabelledFunctionState = LabelledFunctionState.Disallow
 ): ESTree.Statement {
+  // Statement ::
+  //   Block
+  //   VariableStatement
+  //   EmptyStatement
+  //   ExpressionStatement
+  //   IfStatement
+  //   IterationStatement
+  //   ContinueStatement
+  //   BreakStatement
+  //   ReturnStatement
+  //   WithStatement
+  //   LabelledStatement
+  //   SwitchStatement
+  //   ThrowStatement
+  //   TryStatement
+  //   DebuggerStatement
+
     switch (parser.token) {
         case Token.VarKeyword:
             return parseVariableStatement(parser, context, BindingType.Var);
@@ -132,15 +166,15 @@ export function parseStatement(
         case Token.AsyncKeyword:
             if (lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine, /* isLookaHead */ false)) {
                 if (context & Context.OptionsEditorMode) return parseFunctionDeclaration(parser, context, ModifierState.Async);
-                recordErrors(parser, context, Errors.AsyncFunctionInSingleStatementContext);
+                report(parser, Errors.AsyncFunctionInSingleStatementContext);
             }
             return parseExpressionOrLabelledStatement(parser, context, label);
         case Token.FunctionKeyword:
             // A function declaration has to be parsed out for 'editor mode'
             if (context & Context.OptionsEditorMode) return parseFunctionDeclaration(parser, context | Context.RequireIdentifier);
-            recordErrors(parser, context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+            report(parser, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
         case Token.ClassKeyword:
-            recordErrors(parser, context, Errors.Unexpected);
+            report(parser, Errors.Unexpected);
         default:
             return parseExpressionOrLabelledStatement(parser, context, label);
     }
@@ -197,7 +231,7 @@ export function parseBlockStatement(parser: Parser, context: Context): ESTree.Bl
  */
 export function parseReturnStatement(parser: Parser, context: Context): ESTree.ReturnStatement {
     if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) {
-        recordErrors(parser, context, Errors.IllegalReturn);
+        report(parser, Errors.IllegalReturn);
       }
     const pos = getLocation(parser);
     expect(parser, context, Token.ReturnKeyword);
@@ -241,7 +275,7 @@ export function parseTryStatement(parser: Parser, context: Context): ESTree.TryS
     const block = parseBlockStatement(parser, context);
     const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
     const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
-    if (!handler && !finalizer) recordErrors(parser, context, Errors.NoCatchOrFinally);
+    if (!handler && !finalizer) report(parser, Errors.NoCatchOrFinally);
     return finishNode(parser, context, pos, {
         type: 'TryStatement',
         block,
@@ -264,10 +298,10 @@ export function parseCatchBlock(parser: Parser, context: Context): any {
     let param: ESTree.PatternTop | null = null;
     if (consume(parser, context, Token.LeftParen)) {
         if (parser.token === Token.RightParen) {
-            recordErrors(parser, context, Errors.NoCatchClause);
+            report(parser, Errors.NoCatchClause);
         } else {
             param = parseBindingIdentifierOrPattern(parser, context);
-            if (parser.token === Token.Assign) recordErrors(parser, context, Errors.NoCatchClause);
+            if (parser.token === Token.Assign) report(parser, Errors.NoCatchClause);
         }
         expect(parser, context, Token.RightParen);
     }
@@ -291,7 +325,7 @@ export function parseCatchBlock(parser: Parser, context: Context): any {
 export function parseThrowStatement(parser: Parser, context: Context): ESTree.ThrowStatement {
     const pos = getLocation(parser);
     expect(parser, context, Token.ThrowKeyword);
-    if (parser.flags & Flags.NewLine) recordErrors(parser, context, Errors.NewlineAfterThrow);
+    if (parser.flags & Flags.NewLine) report(parser, Errors.NewlineAfterThrow);
     const argument: ESTree.Expression = parseExpression(parser, context);
     consumeSemicolon(parser, context);
     return finishNode(parser, context, pos, {
@@ -320,7 +354,7 @@ export function parseExpressionOrLabelledStatement(
     if (token & (Token.Identifier | Token.Keyword) && parser.token === Token.Colon) {
         expect(parser, context, Token.Colon);
         if (getLabel(parser, tokenValue, false, true)) {
-            recordErrors(parser, context, Errors.LabelRedeclaration, tokenValue);
+            report(parser, Errors.LabelRedeclaration, tokenValue);
         }
         addLabel(parser, tokenValue);
         let body: ESTree.Statement | ESTree.FunctionDeclaration | null = null;
@@ -504,7 +538,7 @@ function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchSt
             test = parseExpression(parser, context);
         } else {
             expect(parser, context, Token.DefaultKeyword);
-            if (seenDefault) recordErrors(parser, context, Errors.MultipleDefaultsInSwitch);
+            if (seenDefault) report(parser, Errors.MultipleDefaultsInSwitch);
             seenDefault = true;
         }
 
@@ -652,8 +686,9 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
         validateContinueLabel(parser, context, tokenValue);
     }
     consumeSemicolon(parser, context);
-    if (label === null && (parser.iterationStatement & LabelState.Empty) !== LabelState.Empty) {
-        recordErrors(parser, context, Errors.IllegalContinue);
+
+    if (label === null && !(parser.iterationStatement & LabelState.Empty)) {
+        report(parser, Errors.IllegalContinue);
     }
     return finishNode(parser, context, pos, {
         type: 'ContinueStatement',
@@ -677,9 +712,9 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
         const { tokenValue  } = parser;
         label = parseIdentifier(parser, context);
         validateBreakStatement(parser, context, tokenValue);
-    } else if ((parser.iterationStatement & LabelState.Empty) !== LabelState.Empty &&
-        (parser.switchStatement & LabelState.Empty) !== LabelState.Empty) {
-        recordErrors(parser, context, Errors.IllegalBreak);
+    } else if (!(parser.iterationStatement & LabelState.Empty) &&
+        !(parser.switchStatement & LabelState.Empty)) {
+        report(parser, Errors.IllegalBreak);
     }
     consumeSemicolon(parser, context);
     return finishNode(parser, context, pos, {
@@ -698,7 +733,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
  */
 export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
     const pos = getLocation(parser);
-    if (context & Context.Strict) recordErrors(parser, context, Errors.StrictModeWith);
+    if (context & Context.Strict) report(parser, Errors.StrictModeWith);
     expect(parser, context, Token.WithKeyword);
     expect(parser, context, Token.LeftParen);
     const object = parseExpression(parser, context);
@@ -720,10 +755,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
  * @param parser  Parser object
  * @param context Context masks
  */
-function parseAsyncFunctionDeclarationOrStatement(
-    parser: Parser,
-    context: Context
-): any {
+function parseAsyncFunctionDeclarationOrStatement(parser: Parser, context: Context): any {
     return lookahead(parser, context, nextTokenIsFuncKeywordOnSameLine, /* isLookaHead */ false) ?
         parseFunctionDeclaration(parser, context, ModifierState.Async) :
         parseStatement(parser, context);
@@ -737,7 +769,7 @@ function parseAsyncFunctionDeclarationOrStatement(
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseDirective(parser: Parser, context: Context): any {
+export function parseDirective(parser: Parser, context: Context): ESTree.ExpressionStatement {
     const pos = getLocation(parser);
     const directive = parser.tokenRaw.slice(1, -1);
     const expr = parseExpression(parser, context);

@@ -99,7 +99,7 @@ export function parseAssignmentRestElement(
     return finishNode(parser, context, pos, {
         type: 'RestElement',
         argument,
-    });;
+    });
 }
 
 /**

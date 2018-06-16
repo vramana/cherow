@@ -1,9 +1,34 @@
 import * as t from 'assert';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
 import { parseSource } from '../../../src/parser/parser';
 
 describe('Statements - With', () => {
+
+  describe('Failure', () => {
+
+ // Esprima issue: https://github.com/jquery/esprima/issues/1877
+ fail('with(1) b: function a(){}', Context.Empty, {
+    source: 'with(1) b: function a(){}',
+  });
+
+  fail('with ({}) async function f() {}', Context.Empty, {
+    source: 'with ({}) async function f() {}',
+});
+
+fail('with ({}) class C {}', Context.Empty, {
+  source: 'with ({}) class C {}',
+});
+
+fail('with ({}) function f() {}', Context.Empty, {
+  source: 'with ({}) function f() {}',
+});
+
+fail('with ({}) let x;', Context.Empty, {
+  source: 'with ({}) let x;',
+});
+
+  });
 
     const validSyntax = [
         `with({}){ p1 = 'x1'; }`,
@@ -12,7 +37,7 @@ describe('Statements - With', () => {
     //    {}
       }`
     ];
-  
+
     for (const arg of validSyntax) {
         it(`${arg}`, () => {
             t.doesNotThrow(() => {

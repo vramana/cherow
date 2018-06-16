@@ -343,7 +343,7 @@ function isIterationStatement(parser: Parser): boolean {
  */
 export function addLabel(parser: Parser, label: string): void {
     if (parser.labelSet === undefined) parser.labelSet = {};
-    parser.labelSet[label] = true;
+    parser.labelSet['@' + label] = true;
     parser.labelSetStack[parser.labelDepth] = parser.labelSet;
     parser.iterationStack[parser.labelDepth] = isIterationStatement(parser);
     parser.labelSet = undefined;
@@ -369,7 +369,7 @@ export function addCrossingBoundary(parser: Parser): void {
  * @param label Label
  */
 export function validateContinueLabel(parser: Parser, context: Context, label: string): void {
-    const state = getLabel(parser, label, true);
+    const state = getLabel(parser, '@' + label, true);
     if ((state & LabelState.Iteration) !== LabelState.Iteration) {
         if (state & LabelState.CrossingBoundary) {
             recordErrors(parser, context, Errors.InvalidNestedStatement);
@@ -386,8 +386,8 @@ export function validateContinueLabel(parser: Parser, context: Context, label: s
  * @param label Label
  */
 export function validateBreakStatement(parser: Parser, context: Context, label: any): void {
-    const state = getLabel(parser, label);
-    if ((state & LabelState.Iteration) !== LabelState.Iteration) recordErrors(parser, context, Errors.UnknownLabel, label);
+    const state = getLabel(parser, '@' + label);
+    if (!(state & LabelState.Iteration)) recordErrors(parser, context, Errors.UnknownLabel, label);
 }
 
 /**
@@ -528,5 +528,3 @@ export function finishNode < T extends ESTree.Node > (
 
   return node as T;
 }
-
-

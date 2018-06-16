@@ -123,7 +123,6 @@ export const errorMessages: {
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
 
-
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

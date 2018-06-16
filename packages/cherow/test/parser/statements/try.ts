@@ -57,7 +57,7 @@ describe('Statements - Try', () => {
             ]
         }
     });
-
+/*
     pass('try {} catch(){}', Context.OptionsEditorMode, {
         source: 'try {} catch(){}',
         expected: {
@@ -82,7 +82,7 @@ describe('Statements - Try', () => {
               "sourceType": "script",
               "type": "Program",
             }
-    });
+    });*/
 
     pass('try {} catch(e){}', Context.Empty, {
         source: 'try {} catch(e){}',

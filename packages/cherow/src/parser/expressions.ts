@@ -390,7 +390,7 @@ export function parseLeftHandSideExpression(parser: Parser, context: Context, po
  * @param parser Parser object
  * @param context Context masks
  */
-export function parseNewOrMemberExpression(parser: Parser, context: Context, pos: Location): any {
+export function parseNewOrMemberExpression(parser: Parser, context: Context, pos: Location): ESTree.Expression {
     if (parser.token === Token.NewKeyword) {
         let result: any;
         const id = parseIdentifier(parser, context);
