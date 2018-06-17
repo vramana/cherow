@@ -8,8 +8,8 @@ function rollup(mod, minify) {
   return `rollup --c --environment mod:${mod},${minify ? 'minify' : ''}`;
 }
 
-function mocha(arg) {
-  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' mocha "${arg}"`);
+function mocha(files, args) {
+  return crossEnv(`TS_NODE_PROJECT=\'${config('test')}\' mocha "${files}" ${args}`);
 }
 
 function package(script) {
@@ -22,7 +22,7 @@ module.exports = (pkgName, outDir = 'dist') => {
       lint: `tslint --project ${config('build')}`,
       test: {
         default: mocha('test/**/*.ts'),
-        watch: mocha('test/**/*.ts --watch')
+        watch: mocha('test/**/*.ts', '--watch')
       },
       coverage: {
         default: series.nps('coverage.before', 'coverage.run'),
