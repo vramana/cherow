@@ -3,7 +3,7 @@ import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
 import { parseAssignmentPattern, parseDelimitedBindingList, parseBindingIdentifier } from './pattern';
 import { parseStatementListItem, parseDirective } from './statements';
-import { Errors, recordErrors, } from '../errors';
+import { Errors, recordErrors, report, } from '../errors';
 import { nextToken } from '../lexer/scan';
 import { consumeTemplateBrace } from '../lexer/template';
 import { scanRegularExpression } from '../lexer/regexp';
@@ -23,6 +23,7 @@ import {
     reinterpret,
     LabelState,
     nextTokenIsFuncKeywordOnSameLine,
+    getUnexpectedTokenMessage,
     isStartOfExpression,
     getLocation,
     finishNode
@@ -665,7 +666,7 @@ export function parsePrimaryExpression(parser: Parser, context: Context): any {
             if (parser.token & (Token.Contextual | Token.FutureReserved | Token.Reserved)) {
               return parseIdentifier(parser, context);
             }
-            recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(nextToken(parser, context)));
+            report(parser, getUnexpectedTokenMessage(parser, context));
     }
 }
 

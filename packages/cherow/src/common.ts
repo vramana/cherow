@@ -506,3 +506,34 @@ export function finishNode < T extends ESTree.Node > (
 
   return node as T;
 }
+
+export function getUnexpectedTokenMessage(parser: Parser, context: Context): Errors {
+  const { token } = parser;
+
+  if (token & Token.NumericLiteral) {
+      return Errors.UnexpectedTokenNumber;
+  } else if (token & Token.StringLiteral) {
+      return Errors.UnterminatedString;
+  } else {
+      switch (token) {
+          case Token.LetKeyword:
+          case Token.StaticKeyword:
+          case Token.YieldKeyword:
+          case Token.FutureReserved:
+              return context & Context.Strict ?
+                  Errors.UnexpectedStrictReserved :
+                  Errors.UnexpectedTokenIdentifier;
+          case Token.EscapedStrictReserved:
+          case Token.EscapedKeyword:
+              return Errors.InvalidEscapedReservedWord;
+          case Token.Invalid:
+              return Errors.Unexpected;
+          case Token.AwaitKeyword:
+          case Token.EnumKeyword:
+              return Errors.UnexpectedReserved;
+          default:
+              return Errors.Unexpected;
+      }
+  }
+
+}

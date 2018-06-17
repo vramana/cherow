@@ -60,7 +60,10 @@ export const enum Errors {
     InvalidPrivateFieldAccess,
     UndefinedUnicodeCodePoint,
     MultipleDefaultsInSwitch,
-    GeneratorInSingleStatementContext
+    GeneratorInSingleStatementContext,
+    UnexpectedTokenNumber,
+    UnexpectedTokenIdentifier,
+    InvalidEscapedReservedWord
 }
 /*@internal*/
 export const errorMessages: {
@@ -124,6 +127,10 @@ export const errorMessages: {
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
     [Errors.GeneratorInSingleStatementContext]: 'Generators can only be declared at the top level or inside a block.',
+    [Errors.UnexpectedTokenNumber]: 'Unexpected number' ,
+    [Errors.UnexpectedTokenIdentifier]: 'Unexpected identifier' ,
+    [Errors.InvalidEscapedReservedWord]: 'Keyword must not contain escaped characters' ,
+
 
 };
 
