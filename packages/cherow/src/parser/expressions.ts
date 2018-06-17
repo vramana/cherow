@@ -85,7 +85,6 @@ export function parseAssignmentExpression(parser: Parser, context: Context): any
 
     const isAsync = token === Token.AsyncKeyword /*&& !(parser.flags & Flags.NewLine)*/ &&
         lookahead(parser, context, nextTokenIsLeftParenOrKeyword);
-    const isParenthesized = parser.token === Token.LeftParen;
     let left: any = parseConditionalExpression(parser, context, pos);
 
     if (isAsync && (parser.token & Token.Identifier) === Token.Identifier && lookahead(parser, context, nextTokenIsArrow)) {

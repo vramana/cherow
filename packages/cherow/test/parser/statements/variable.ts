@@ -1,8 +1,167 @@
 import * as t from 'assert';
 import { pass } from '../../test-utils';
 import { Context } from '../../../src/common';
+import { parseSource } from '../../../src/parser/parser'
 
 describe('Statements - Variable', () => {
+
+  describe('Failure', () => {
+
+    const invalidSyntax = [
+      `"use strict"; function foo() { var eval; }`,
+      '"use strict"; function foo() { var arguments;}',
+      // '"use strict"; function foo() { arguments = 42; }; foo()',
+      '"use strict"; function foo() { var eval, eval;}',
+      'var x += 1;',
+      'var x | true;',
+      'var x && 1;',
+      'var x++;',
+      'var --x;',
+      'var x*1;',
+      'var x>>1;',
+      'var x in __arr;',
+      'var [...[ x ] = []] = [];',
+      'var [...x = []] = [];',
+      'var [...{ x } = []] = [];',
+      'var [...[x], y] = [1, 2, 3];',
+      'var [...x, y] = [1, 2, 3];',
+      'var [...{ x }, y] = [1, 2, 3];',
+      '"use strict"; var arguments;',
+      '"use strict"; var eval',
+  ];
+
+  for (const arg of invalidSyntax) {
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
+  });
+
+  describe('Pass', () => {
+
+        const validSyntax = [
+      `eval = 42;`,
+      `var arguments;`,
+      `var { x: y } = { x: 23 };`,
+      `var { w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined };`,
+      `var { x: y, } = { x: 23 };`,
+      `var { x: y = 33 } = { };`,
+      `var { x: [y], } = { x: [45] };`,
+      `var { w: [x, y, z] = [4, 5, 6] } = { w: null };`,
+      `var { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`,
+      `var { [function chinese() {}]: x } = {};`,
+      `var { fn = function () {}, xFn = function x() {} } = {};`,
+      `var { arrow = () => {} } = {};`,
+      `var {} = null;`,
+      `var [...{ length }] = [1, 2, 3];`,
+      `var [...x] = function foo() {}`,
+      `var [...[,]] = g();`,
+      `var [] = function*() {}`,
+      `var [{ x }] = [];`,
+      `var [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }];`,
+      `var [x, y, z] = [1, 2, 3];`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+      `eval = 42;`,
+
+  ];
+
+  for (const arg of validSyntax) {
+      it(`${arg}`, () => {
+          t.doesNotThrow(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+  }
 
        pass('var foo;', Context.Empty, {
             source: 'var foo;',
@@ -2309,4 +2468,6 @@ describe('Statements - Variable', () => {
                         ]
                     }
             });
+
+          });
     });
