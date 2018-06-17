@@ -10,6 +10,7 @@ describe('Statements - While', () => {
     const invalidSyntax = [
         `while 1 break;`,
         'while 0 break;',
+        'while false break;',
         `while 'hood' break;`,
         `while (false) async function* g() {}`,
         `while (false) label1: label2: function f() {}`,

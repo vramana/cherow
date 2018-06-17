@@ -103,8 +103,8 @@ export const enum Token {
     Modulo             = 49  | IsBinaryOp | Punctuator | 10 << PrecStart, // %
     Divide             = 50  | IsBinaryOp | Punctuator | 10 << PrecStart, // /
     Exponentiate       = 51  | IsBinaryOp | Punctuator | 11 << PrecStart, // **
-    LogicalAnd         = 52  | IsBinaryOp | Punctuator | 2 << PrecStart, // &&
-    LogicalOr          = 53  | IsBinaryOp | Punctuator | 1 << PrecStart, // ||
+    LogicalAnd         = 52  | IsBinaryOp | Punctuator | 2 << PrecStart | IsLogical, // &&
+    LogicalOr          = 53  | IsBinaryOp | Punctuator | 1 << PrecStart | IsLogical, // ||
     StrictEqual        = 54  | IsBinaryOp | Punctuator | 6 << PrecStart, // ===
     StrictNotEqual     = 55  | IsBinaryOp | Punctuator | 6 << PrecStart, // !==
     LooseEqual         = 56  | IsBinaryOp | Punctuator | 6 << PrecStart, // ==

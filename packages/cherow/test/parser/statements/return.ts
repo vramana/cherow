@@ -20,7 +20,6 @@ describe('Statements - Return', () => {
       fail('do { return; } while(0);', Context.Empty, {
           source: 'do { return; } while(0);',
       });
-
   });
 
   describe('Pass', () => {

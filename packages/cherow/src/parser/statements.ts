@@ -612,7 +612,7 @@ export function parseIfStatement(parser: Parser, context: Context): ESTree.IfSta
 function parseConsequentOrAlternate(parser: Parser, context: Context): ESTree.Statement | ESTree.FunctionDeclaration {
     return context & Context.Strict || parser.token !== Token.FunctionKeyword ?
         parseStatement(parser, context) :
-        parseFunctionDeclaration(parser, context);
+        parseFunctionDeclaration(parser, context | Context.InIf);
 }
 
 /**

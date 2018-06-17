@@ -59,7 +59,8 @@ export const enum Errors {
     UnterminatedTemplate,
     InvalidPrivateFieldAccess,
     UndefinedUnicodeCodePoint,
-    MultipleDefaultsInSwitch
+    MultipleDefaultsInSwitch,
+    GeneratorInSingleStatementContext
 }
 /*@internal*/
 export const errorMessages: {
@@ -122,6 +123,7 @@ export const errorMessages: {
     [Errors.InvalidPrivateFieldAccess]: 'Invalid private field \'%0\'',
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
+    [Errors.GeneratorInSingleStatementContext]: 'Generators can only be declared at the top level or inside a block.',
 
 };
 

@@ -4,7 +4,8 @@ import * as ESTree from '../estree';
 import { parseClassBodyAndElementList, parseLeftHandSideExpression, parseFormalListAndBody } from './expressions';
 import { Context, BindingType, BindingOrigin, ModifierState, expect, consume, swapContext, finishNode, getLocation } from '../common';
 import { parseDelimitedBindingList, parseBindingIdentifier } from './pattern';
-import { recordErrors, Errors } from '../errors';
+import { nextToken } from '../lexer/scan';
+import { recordErrors, Errors, report } from '../errors';
 
 // Declarations
 
@@ -54,7 +55,11 @@ export function parseFunctionDeclaration(
 ): ESTree.FunctionDeclaration {
     const pos = getLocation(parser);
     expect(parser, context, Token.FunctionKeyword);
-    if (consume(parser, context, Token.Multiply)) state |= ModifierState.Generator;
+    if (parser.token === Token.Multiply) {
+      if (context & Context.InIf) report(parser, Errors.GeneratorInSingleStatementContext);
+      nextToken(parser, context);
+      state = state | ModifierState.Generator;
+    }
     let id: ESTree.Identifier | null = null;
     if (parser.token !== Token.LeftParen) {
         id = parseBindingIdentifier(parser, context);

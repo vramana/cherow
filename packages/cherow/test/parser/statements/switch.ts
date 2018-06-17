@@ -1,10 +1,35 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
+import { parseSource } from '../../../src/parser/parser'
+import * as t from 'assert';
 
 describe('Statements - Switch', () => {
 
   describe('Failure', () => {
-    fail('switch (c) { default: default: }', Context.Empty, {
+
+
+    const invalidSyntax = [
+      `switch() {case 0: }`,
+      'switch(value);',
+      'switch { case a:}',
+      'switch(a) { default: default: }',
+  ];
+
+  for (const arg of invalidSyntax) {
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
+      });
+
+      it(`${arg}`, () => {
+        t.throws(() => {
+            parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+        });
+    });
+  }
+
+ fail('switch (c) { default: default: }', Context.Empty, {
       source: 'switch (c) { default: default: }',
   });
     fail(`duplicate default`, Context.Empty, {

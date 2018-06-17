@@ -11,7 +11,11 @@ describe('Statements - With', () => {
           // Esprima issue: https://github.com/jquery/esprima/issues/1877
           `with(1) b: function a(){}`,
           'with ({}) async function f() {}',
+          'with ({}) async function* g() {}',
+          'with ({}) async function f() {}',
           `with ({}) class C {}`,
+          'with ({}) function* g() {}',
+          'with ({}) label1: label2: function test262() {}',
           `with ({}) function foo() {}`,
           `with ({}) let x;`,
           'while (false) function f() {}',
@@ -46,6 +50,53 @@ describe('Statements - With', () => {
 
       const validSyntax = [
           `with({}){ p1 = 'x1'; }`,
+          'with (a = { x: 7 }) {  with (b = { x: 4}) x++; }',
+          'with ({ x: 0 }) {}',
+          'with (a = { x: 7 }) {}',
+          'with(myObj){p1=false}',
+          'with(myObj){p1={b:"hi"}}',
+          'with(myObj){(function(){ p1 = "x1"; })();}',
+          'with(myObj){ var f = function(){ p1 = "x1"; return value; } }',
+          'with (foo) { bar(); }',
+          `with(myObj){
+            for(var prop in myObj){
+              st_p1 = p1;
+              p1 = 'x1';
+              st_p2 = p2;
+              this.p2 = 'x2';
+              st_p3 = p3;
+              del = delete p3;
+              st_parseInt = parseInt;
+              st_NaN = NaN;
+              st_Infinity = Infinity;
+              st_eval = eval;
+              st_parseFloat = parseFloat;
+              st_isNaN = isNaN;
+              st_isFinite = isFinite;
+              var p4 = 'x4';
+              p5 = 'x5';
+              var value = 'value';
+              break;
+            }
+          }`,
+          `with(myObj){
+            st_p1 = p1;
+            st_p2 = p2;
+            st_p3 = p3;
+            st_parseInt = parseInt;
+            st_NaN = NaN;
+            st_Infinity = Infinity;
+            st_eval = eval;
+            st_parseFloat = parseFloat;
+            st_isNaN = isNaN;
+            st_isFinite = isFinite;
+            p1 = 'x1';
+            this.p2 = 'x2';
+            del = delete p3;
+            var p4 = 'x4';
+            p5 = 'x5';
+            var value = 'value';
+          }`
       ];
 
       for (const arg of validSyntax) {

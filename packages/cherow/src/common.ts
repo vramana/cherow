@@ -38,6 +38,7 @@ export const enum Context {
     Asi                  = 1 << 27,
     AllowSuperProperty   = 1 << 28,
     InClass              = 1 << 29,
+    InIf                 = 1 << 30,
 }
 
 /* Mutual parser flags */
@@ -120,9 +121,7 @@ export const enum LabelState {
 }
 
 export function swapContext(context: Context, state: ModifierState): Context {
-    context = (context | Context.Yield) ^ Context.Yield;
-    context = (context | Context.Async) ^ Context.Async;
-    context = (context | Context.InParameter) ^ Context.InParameter;
+    context = (context | Context.Yield | Context.Async | Context.InParameter) ^ (Context.Yield | Context.Async | Context.InParameter);
     if (state & ModifierState.Generator) context = context | Context.Yield;
     if (state & ModifierState.Async) context = context | Context.Async;
     // `new.target` disallowed for arrows in global scope
@@ -130,7 +129,7 @@ export function swapContext(context: Context, state: ModifierState): Context {
     return context;
 }
 
-export function expect(parser: Parser, context: Context, token: Token, errMsg = Errors.UnexpectedToken): boolean {
+export function expect(parser: Parser, context: Context, token: Token, errMsg: Errors = Errors.UnexpectedToken): boolean {
     if (parser.token !== token) {
         recordErrors(parser, context, errMsg, tokenDesc(parser.token));
         return false;

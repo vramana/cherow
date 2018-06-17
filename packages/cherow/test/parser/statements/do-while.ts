@@ -5,23 +5,36 @@ import { parseSource } from '../../../src/parser/parser';
 
 describe('Statements - Do while', () => {
 
+
   describe('Failure', () => {
 
-      fail('do class C {} while (false)', Context.Empty, {
-          source: 'do class C {} while (false)',
-      });
+    const invalidSyntax = [
+        `do break; while 1;`,
+        'do break; while 0;',
+        'do break; while true;',
+        `do break; while false;`,
+        `do break; while '';`,
+        `do break; while 'hood';`,
+        'do async function f() {} while (false)',
+        'do async function* g() {} while (false)',
+        'do class C {} while (false)',
+        'do const x = null; while (false)',
+        'do function* g() {} while (false)',
+        'do label1: label2: function f() {} while (false)',
+        'do function f() {} while (false)',
+        'do let x; while (false)',
+        'while ( false ) Label: continue Label;',
+        `while '' break;`,
+        `while() {}`,
+    ];
 
-      fail('do function f() {} while (false)', Context.Empty, {
-          source: 'do function f() {} while (false)',
-      });
-
-      fail('do let x; while (false)', Context.Empty, {
-          source: 'do let x; while (false)',
-      });
-
-      fail('do label1: label2: function f() {} while (false)', Context.Empty, {
-          source: 'do label1: label2: function f() {} while (false)',
-      });
+    for (const arg of invalidSyntax) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parseSource(`${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
 
   });
 

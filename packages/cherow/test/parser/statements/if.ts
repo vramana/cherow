@@ -7,7 +7,6 @@ describe('Statements - If', () => {
 
   describe('Failures', () => {
 
-
     const invalidSyntax = [
       // Esprima issue: https://github.com/jquery/esprima/issues/1866
       'if (true) class C {} else class D {}',
@@ -18,12 +17,14 @@ describe('Statements - If', () => {
       'if(!(true))',
       'if(!("A"))',
       'if (false) label1: label2: function test262() {} else ;',
-      //'if (false) ; else function* g() {  }',
+      'if (false) label1: label2: function test262() {}',
+      'if (false) ; else function* g() {  }',
       'if (true) let x; else let y;',
       'if (false) ; else class C {}',
       'if (false) ; else async function f() {  }',
       'if (true) ; else label1: label2: function test262() {}',
-      // 'if (true) function* g() {  } else ;',
+      'if (false) ; else async function* f() {  }',
+      'if (true) function* g() {  } else ;',
       '"use strict"; if (true) function f() {  } else function _f() {}',
       'if (true) class C {}',
       '"use strict"; if (true) function f() {  } else function _f() {}',
@@ -67,6 +68,11 @@ describe('Statements - If', () => {
         'function f() { if (1) { return () => { while (true) hi(); } } }',
         'if (1) { eval(42) }',
         'if (true) if (false) {} else ; else {}',
+        `if (false) { } else { }`,
+        `if (false) { }`,
+        '2; if (true) { 3; }',
+        `if(1);`,
+        `if(!(1)){}`
 
     ];
 

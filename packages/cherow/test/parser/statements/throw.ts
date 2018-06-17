@@ -145,7 +145,6 @@ describe('Pass', () => {
           }],
           sourceType: 'script'
       }
-
   });
 
   pass(`throw {}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
