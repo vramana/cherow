@@ -432,7 +432,7 @@ export function parseVariableStatement(
 export function parseForStatement(parser: Parser, context: Context): any {
     const pos = getLocation(parser);
     nextToken(parser, context);
-    const forAwait = context & Context.Async && consume(parser, context, Token.AwaitKeyword);
+    const forAwait = (context & Context.Async) > 0 && consume(parser, context, Token.AwaitKeyword);
     expect(parser, context, Token.LeftParen);
     let init: any = null;
     let declarations: ESTree.VariableDeclarator[] | null = null;
