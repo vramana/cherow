@@ -1,6 +1,6 @@
 import { Parser } from '../types';
 import { Chars } from '../chars';
-import { Token, descKeyword } from '../token';
+import { Token, descKeywordTable } from '../token';
 import { Context, Flags } from '../common';
 import { isValidIdentifierStart } from '../unicode';
 import { Errors, report } from '../errors';
@@ -32,7 +32,8 @@ export function scanIdentifier(parser: Parser): Token {
   parser.tokenValue = parser.source.slice(index, parser.index);
 
   if (parser.index >= parser.length || first <= Chars.MaxAsciiCharacter && first !== Chars.Backslash) {
-      return getIdentifierToken(parser);
+    const lookupValue = descKeywordTable[parser.tokenValue];
+    return typeof lookupValue === 'number' ? lookupValue : Token.Identifier;
   }
 
   // slow path
@@ -74,7 +75,8 @@ export function scanIdentifierSuffix(parser: Parser): Token {
   }
   if (start < parser.index) parser.tokenValue += parser.source.slice(start, parser.index);
 
-  const token = getIdentifierToken(parser);
+  const lookupValue = descKeywordTable[parser.tokenValue];
+  const token = typeof lookupValue === 'number' ? lookupValue : Token.Identifier;
 
   if (hasEscape) {
       if (token & Token.IdentifierOrContextual) {
@@ -129,22 +131,6 @@ export function scanIdentifierUnicodeEscape(parser: Parser): number {
   parser.index += 4;
   parser.column += 4;
   return cp1 << 12 | cp2 << 8 | cp3 << 4 | cp4;
-}
-
-/**
-* Get identifier token
-*
-* @param parser Parser object
-*/
-function getIdentifierToken(parser: Parser): Token {
-  const len = parser.tokenValue.length;
-  if (len >= 2 && len <= 11) {
-      const token = descKeyword(parser.tokenValue);
-      if (token > 0) {
-          return token;
-      }
-  }
-  return Token.Identifier;
 }
 
 /**
