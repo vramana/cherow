@@ -88,7 +88,7 @@ function run(iterations) {
         disableOptimizations(parser);
         const start = process.hrtime();
         while (k--) {
-          parser.parseSource(expr, undefined, 4095);
+          parser.parseSource(expr, undefined, 4095 ^ 64 ^ 32);
         }
         const end = process.hrtime(start);
         benchmark.addResult(end);
