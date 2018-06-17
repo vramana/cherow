@@ -15,6 +15,25 @@ import { isValidIdentifierStart } from '../unicode';
 // . BigInt
 //
 
+// lookup table
+const parseLeadingZeroTable: Array<Function> = [];
+
+// binary integer. see [https://tc39.github.io/ecma262/#prod-BinaryIntegerLiteral)
+parseLeadingZeroTable[Chars.LowerB] = parseLeadingZeroTable[Chars.UpperB] = (parser: Parser, context: Context) => scanOctalOrBinaryDigits(parser, context, 2);
+// octal integer. see [https://tc39.github.io/ecma262/#prod-OctalIntegerLiteral)
+parseLeadingZeroTable[Chars.LowerO] = parseLeadingZeroTable[Chars.UpperO] = (parser: Parser, context: Context) => scanOctalOrBinaryDigits(parser, context, 8);
+// hex integer. see [https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
+parseLeadingZeroTable[Chars.LowerX] = parseLeadingZeroTable[Chars.UpperX] = (parser: Parser, context: Context) => scanHexDigits(parser, context);
+
+// scan implicit oct
+parseLeadingZeroTable.fill(scanImplicitOctalDigits, Chars.Zero, Chars.Seven + 1);
+// non octal. see [https://tc39.github.io/ecma262/#prod-annexB-NonOctalDigit]
+parseLeadingZeroTable[Chars.Eight] = parseLeadingZeroTable[Chars.Nine]
+  = (parser: Parser, context: Context) => context & Context.Strict ? report(parser, Errors.Unexpected) : scanNumeric(parser, context);
+
+// unexpected underscore
+parseLeadingZeroTable[Chars.Underscore] = (parser: Parser) => report(parser, Errors.TrailingNumericSeparator);
+
 /**
  *  Scans numeric and decimal literal literal
  *
@@ -114,34 +133,7 @@ export function scanNumeric(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 export function parseLeadingZero(parser: Parser, context: Context): Token {
-
-  switch (parser.source.charCodeAt(parser.index + 1)) {
-      case Chars.LowerX:
-      case Chars.UpperX:
-          return scanHexDigits(parser, context);
-      case Chars.LowerB:
-      case Chars.UpperB:
-          return scanOctalOrBinaryDigits(parser, context, 2);
-      case Chars.LowerO:
-      case Chars.UpperO:
-          return scanOctalOrBinaryDigits(parser, context, 8);
-      case Chars.Underscore:
-          report(parser, Errors.TrailingNumericSeparator);
-      case Chars.Zero:
-      case Chars.One:
-      case Chars.Two:
-      case Chars.Three:
-      case Chars.Four:
-      case Chars.Five:
-      case Chars.Six:
-      case Chars.Seven:
-          return scanImplicitOctalDigits(parser, context);
-      case Chars.Eight:
-      case Chars.Nine:
-          if (context & Context.Strict) recordErrors(parser, context, Errors.Unexpected);
-      default:
-          return scanNumeric(parser, context);
-  }
+  return (parseLeadingZeroTable[parser.source.charCodeAt(parser.index + 1)] || scanNumeric)(parser, context);
 }
 
 /**
