@@ -95,6 +95,9 @@ class Benchmark {
   }
 
   addResult(res) {
+    if (allowNatives) {
+      v8.collectGarbage();
+    }
     if (res) {
       this.elapsed[this.sutIndex] = res[0] * 10e8 + res[1];
       if (this.sutIndex === 2 && this.elapsed[0] && this.elapsed[1] && this.elapsed[2]) {
