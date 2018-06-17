@@ -10,11 +10,9 @@ import { scanRegularExpression } from '../lexer/regexp';
 import {
     Context,
     Flags,
-    swapFlags,
     BindingOrigin,
     BindingType,
     ModifierState,
-    setContext,
     swapContext,
     consume,
     expect,
@@ -982,7 +980,7 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
     //
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBracket);
-    context = setContext(context, Context.DisallowIn | Context.Asi);
+    context = (context | Context.DisallowIn | Context.Asi) ^ (Context.DisallowIn | Context.Asi);
     const elements: (ESTree.Expression | ESTree.SpreadElement | null)[] = [];
 
     while (parser.token !== Token.RightBracket) {
@@ -1087,7 +1085,7 @@ export function parseFormalListAndBody(parser: Parser, context: Context): any {
  */
 function parseFormalParameters(parser: Parser, context: Context): any {
     context = context | Context.InParameter;
-    parser.flags = swapFlags(parser.flags, Flags.SimpleParameterList);
+    parser.flags = (parser.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
     expect(parser, context, Token.LeftParen);
     const args: any = [];
     parseDelimitedBindingList(parser, context, BindingType.Args, BindingOrigin.FunctionArgs, args);
@@ -1128,7 +1126,7 @@ function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatem
             }
         }
 
-        parser.flags = swapFlags(parser.flags, Flags.StrictReserved | Flags.StrictEvalArguments);
+        parser.flags = (parser.flags | Flags.StrictReserved | Flags.StrictEvalArguments) ^ (Flags.StrictReserved | Flags.StrictEvalArguments);
 
         const previousSwitchStatement = parser.switchStatement;
         const previousIterationStatement = parser.iterationStatement;
@@ -1243,7 +1241,7 @@ export function parseClassExpression(parser: Parser, context: Context): any {
 
 export function parseClassBodyAndElementList(parser: Parser, context: Context): ESTree.ClassBody {
     const pos = getLocation(parser);
-    context = setContext(context, Context.TaggedTemplate);
+    context = (context | Context.TaggedTemplate) ^ Context.TaggedTemplate;
     expect(parser, context, Token.LeftBrace);
     const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
     while (parser.token !== Token.RightBrace) {
@@ -1372,7 +1370,7 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-    context = setContext(context, Context.DisallowIn | Context.Asi);
+    context = (context | Context.DisallowIn | Context.Asi) ^ (Context.DisallowIn | Context.Asi);
     while (parser.token !== Token.RightBrace) {
         properties.push(parser.token === Token.Ellipsis ?
             parseSpreadProperties(parser, context) :

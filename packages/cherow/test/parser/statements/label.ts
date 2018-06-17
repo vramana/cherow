@@ -1,28 +1,44 @@
 import * as t from 'assert';
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
+import { parseSource } from '../../../src/parser/parser'
 
 describe('Statements - Label', () => {
 
   describe('Failure', () => {
-      /*      fail(` L: let
-            [a] = 0;`, Context.Empty, {
-                source: ` L: let
-                [a] = 0;`
-            });*/
 
-      fail('label: class C {};', Context.Empty, {
-          source: 'label: class C {};',
+    const invalidSyntax = [
+      `do { test262: { continue test262;} } while (false)`,
+      'label: async function f() {}',
+      `label: async function* g() {}`,
+      `label: class C {}`,
+      `label: const x = null;`,
+      'yi\\u0065ld: 1;',
+      //'aw\\u0061it: 1;',
+      'while (false) class C {}',
+      'while (false) let x = 1;',
+      'while (false) async function f() {}',
+      'while 0 break;',
+      'while true break;',
+      'while "hood" break;',
+      'while ( false ) Label: continue Label;',
+      `while '' break;`,
+      `"use strict"; label: function g() {}`,
+      `label: let x;`,
+  ];
+
+
+  for (const arg of invalidSyntax) {
+      it(`${arg}`, () => {
+          t.throws(() => {
+              parseSource(`${arg}`, undefined, Context.Empty);
+          });
       });
+  }
 
-      fail('"use strict"; label: function g() {}', Context.Empty, {
-          source: '"use strict"; label: function g() {}',
+      fail('label: async;', Context.Strict, {
+           source: 'label: async;',
       });
-
-      fail('label: let x;', Context.Empty, {
-          source: 'label: let x;',
-      });
-
   });
 
   describe('Pass', () => {

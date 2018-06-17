@@ -119,22 +119,10 @@ export const enum LabelState {
     CrossingBoundary,
 }
 
-export function setGrammar(flags: Flags, mask: Flags): Context {
-    return (flags | mask) ^ mask;
-}
-
-export function swapFlags(flags: Flags, mask: Flags): Flags {
-    return (flags | mask) ^ mask;
-}
-
-export function setContext(context: Context, mask: Context): Context {
-    return (context | mask) ^ mask;
-}
-
 export function swapContext(context: Context, state: ModifierState): Context {
-    context = setContext(context, Context.Yield);
-    context = setContext(context, Context.Async);
-    context = setContext(context, Context.InParameter);
+    context = (context | Context.Yield) ^ Context.Yield;
+    context = (context | Context.Async) ^ Context.Async;
+    context = (context | Context.InParameter) ^ Context.InParameter;
     if (state & ModifierState.Generator) context = context | Context.Yield;
     if (state & ModifierState.Async) context = context | Context.Async;
     // `new.target` disallowed for arrows in global scope
