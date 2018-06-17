@@ -40,7 +40,7 @@
     "mocha-no-side-effect-code": false,
     "no-any": false,
     "no-arg": true,
-    "no-backbone-get-set-outside-model": true,
+    "no-backbone-get-set-outside-model": false,
     "no-bitwise": false,
     "no-conditional-assignment": false,
     "no-console": [true, "debug", "info", "log", "time", "timeEnd", "trace"],
@@ -50,11 +50,11 @@
     "no-duplicate-super": true,
     "no-duplicate-switch-case": true,
     "no-duplicate-variable": true,
-    "no-empty": true,
+    "no-empty": false,
     "no-floating-promises": true,
     "no-for-in-array": true,
     "no-implicit-dependencies": false,
-    "no-import-side-effect": true,
+    "no-import-side-effect": false,
     "no-increment-decrement": false,
     "no-invalid-regexp": true,
     "no-invalid-template-strings": true,
@@ -85,32 +85,25 @@
     "react-this-binding-issue": true,
     "react-unused-props-and-state": true,
     "restrict-plus-operands": false, // the plus operand should really only be used for strings and numbers
-    "strict-boolean-expressions": [
-      true,
-      "allow-null-union",
-      "allow-undefined-union",
-      "allow-string",
-      "allow-number",
-      "allow-mix"
-    ],
+    "strict-boolean-expressions": [true, "allow-null-union", "allow-undefined-union", "allow-string", "allow-number", "allow-mix"],
     "switch-default": false,
     "switch-final-break": true,
-    "triple-equals": [true, "allow-null-check"],
+    "triple-equals": false,
     "use-isnan": true,
-    "use-named-parameter": true,
+    "use-named-parameter": false,
 
     /**
      * Code Clarity. The following rules should be turned on because they make the code
      * generally more clear to the reader.
      */
     "adjacent-overload-signatures": true,
-    "array-type": [true, "array"],
+    "array-type": false,
     "arrow-parens": false, // for simple functions the parens on arrow functions are not needed
     "ban-comma-operator": true, // possibly controversial
     "binary-expression-operand-order": false,
     "callable-types": true,
     "chai-prefer-contains-to-index-of": true,
-    "chai-vague-errors": true,
+    "chai-vague-errors": false,
     "class-name": false,
     "comment-format": true,
     "completed-docs": [true, "classes"],
@@ -133,9 +126,9 @@
     "no-duplicate-imports": true,
     "no-empty-interface": false,
     "no-for-in": false,
-    "no-function-expression": true,
+    "no-function-expression": false,
     "no-inferrable-types": false, // turn no-inferrable-types off in order to make the code consistent in its use of type decorations
-    "no-multiline-string": true, // multiline-strings often introduce unnecessary whitespace into the string literals
+    "no-multiline-string": false, // multiline-strings often introduce unnecessary whitespace into the string literals
     "no-null-keyword": false, // turn no-null-keyword off and use undefined to mean not initialized and null to mean without a value
     "no-parameter-properties": true,
     "no-redundant-jsdoc": true,
@@ -143,7 +136,7 @@
     "no-require-imports": true,
     "no-return-await": true,
     "no-shadowed-variable": true,
-    "no-suspicious-comment": true,
+    "no-suspicious-comment": false,
     "no-this-assignment": true,
     "no-typeof-undefined": true,
     "no-unnecessary-class": false,
@@ -161,7 +154,7 @@
     "one-variable-per-declaration": false,
     "only-arrow-functions": false, // there are many valid reasons to declare a function
     "ordered-imports": false,
-    "prefer-array-literal": true,
+    "prefer-array-literal": false,
     "prefer-const": true,
     "prefer-for-of": false,
     "prefer-method-signature": true,
@@ -181,7 +174,7 @@
     "underscore-consistent-invocation": true,
     "unified-signatures": true,
     "use-default-type-parameter": true,
-    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+    "variable-name": false,
 
     /**
      * Accessibility. The following rules should be turned on to guarantee the best user
@@ -230,15 +223,7 @@
     // Many teams like to have multiline be 'always'. There is no clear consensus on this rule but the
     // internal MS JavaScript coding standard does discourage it.
     "typedef-whitespace": false,
-    "whitespace": [
-      true,
-      "check-branch",
-      "check-decl",
-      "check-operator",
-      "check-module",
-      "check-separator",
-      "check-type"
-    ],
+    "whitespace": [true, "check-branch", "check-decl", "check-operator", "check-module", "check-separator", "check-type"],
 
     /**
      * Controversial/Configurable rules.
@@ -278,13 +263,12 @@
     "no-switch-case-fall-through": false, // now supported by TypeScript compiler
     //"no-var-self": true,
     "react-tsx-curly-spacing": true,
-    "typeof-compare": true
+    "typeof-compare": false, // the valid-typeof rule is currently superior to this version
+    "valid-typeof": true
   },
   "rulesDirectory": "node_modules/tslint-microsoft-contrib",
   "defaultSeverity": "warning",
   "linterOptions": {
-      "exclude": [
-          "packages/*/test/**/*.ts"
-      ]
+    "exclude": ["packages/*/test/**/*.ts"]
   }
 }
