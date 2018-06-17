@@ -148,7 +148,7 @@ table[Chars.Hyphen] = (parser: Parser, context: Context) => {
       if (next === Chars.Hyphen) {
           parser.index++; parser.column++;
           if ((parser.flags & Flags.NewLine) === Flags.NewLine || parser.startIndex === 0 &&
-              parser.source.charCodeAt(parser.index + 1) === Chars.GreaterThan) {
+              parser.source.charCodeAt(parser.index) === Chars.GreaterThan) {
               return skipSingleHTMLComment(parser, context);
           }
           return Token.Decrement;

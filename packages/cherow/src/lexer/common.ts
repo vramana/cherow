@@ -1,6 +1,6 @@
 import { Parser } from '../types';
 import { Token } from '../token';
-import { Context } from '../common';
+import { Context, Flags } from '../common';
 import { Chars } from '../chars';
 import { Errors, recordErrors, report } from '../errors';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from '../unicode';
@@ -88,6 +88,7 @@ export function consumeOpt(parser: Parser, ch: number): boolean {
  * @param parser Parser object
  */
 export function advanceNewline(parser: Parser, ch: number): void {
+  parser.flags |= Flags.NewLine;
   parser.index++; parser.column = 0; parser.line++;
   if (parser.index < parser.length && ch === Chars.CarriageReturn &&
       parser.source.charCodeAt(parser.index) === Chars.LineFeed) {

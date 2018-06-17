@@ -173,6 +173,103 @@ fail(`/*
           });
       }
 
+  pass('x = -1 <!--x;', Context.Empty, {
+    source: `x = -1 <!--x;`,
+    expected: {
+        "body": [
+          {
+            "expression": {
+              "left": {
+                "name": "x",
+                "type": "Identifier",
+              },
+              "operator": "=",
+              "right": {
+                "argument": {
+                  "type": "Literal",
+                  "value": 1,
+                },
+                "operator": "-",
+                "prefix": true,
+                "type": "UnaryExpression",
+              },
+              "type": "AssignmentExpression"
+            },
+            "type": "ExpressionStatement"
+         },
+        ],
+        "sourceType": "script",
+        "type": "Program"
+      }
+});
+
+  pass(`0/*
+  */-->`, Context.OptionsLoc, {
+      source: `0/*
+      */-->`,
+      expected: {
+        "type": "Program",
+        "sourceType": "script",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": 0,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 1
+                        }
+                    }
+                },
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 1
+                    }
+                }
+            }
+        ],
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 2,
+                "column": 11
+            }
+        }
+    }
+  });
+
+  pass(`0/*
+  */-->the comment extends to these characters`, Context.Empty, {
+      source: `0/*
+      */-->the comment extends to these characters`,
+      expected: {
+          "body": [
+            {
+              "expression": {
+                "type": "Literal",
+                "value": 0,
+              },
+              "type": "ExpressionStatement",
+            },
+         ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+  });
 
   pass('hello // ', Context.Empty, {
       source: `hello //`,

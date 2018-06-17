@@ -58,7 +58,7 @@ describe('Lexer - Whitespace', () => {
     });
     pass('should multiline comment with line feed and single line comment', {
         source: '/*\n*/--> a comment',
-        line: 2, column: 4,
+        line: 2, column:15,
     });
 
     pass('should skip spaces', {

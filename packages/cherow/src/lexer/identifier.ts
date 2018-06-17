@@ -185,6 +185,7 @@ export function scanMaybeIdentifier(parser: Parser, context: Context, first: num
       }
   }
 
+  // Note: This is wrong!
   if (!isValidIdentifierStart(first)) report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
   parser.column++;
   parser.tokenValue = fromCodePoint(first);
