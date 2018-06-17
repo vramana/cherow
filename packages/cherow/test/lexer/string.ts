@@ -55,6 +55,22 @@ describe('Lexer - String literals', () => {
     test(`${name}`, Context.OptionsRaw);
 }
 
+function fail(name: string, context: Context, opts: any): any {
+  it(name, () => {
+      const parser = createParserObject(opts.source, undefined);
+      t.throws(() => {
+          nextToken(parser, context)
+      });
+  });
+}
+
+fail('should fail "Λ\r\nλ"', Context.Empty, {
+source: '"Λ\r\nλ"'
+})
+
+fail('should fail "Λ\r\nλ"', Context.Empty, {
+  source: '"Λ\r\nλ"'
+  })
 
 pass("scans ''", {
   source: "''",

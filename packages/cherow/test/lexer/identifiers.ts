@@ -38,12 +38,9 @@ describe('Lexer - Identifier', () => {
       });
   }
 
-// TODO! Should not fail
-
-  fail('should fail "🀒"', Context.Empty, {
-      source: '🀒'
+  fail('should fail "abc\\"', Context.Empty, {
+    source: 'abc\\'
   })
-
 
   fail('should fail "💩"', Context.Empty, {
     source: '💩'
@@ -151,7 +148,6 @@ describe('Lexer - Identifier', () => {
       column: 10,
   });
 
-
   pass("scans 'a℘'", {
       source: "a℘",
       "value": "a℘",
@@ -251,6 +247,87 @@ describe('Lexer - Identifier', () => {
       column: 1,
   });
 
+  pass("scans '$$'", {
+    source: "$$",
+    "value": "$$",
+    raw: "'abc'",
+    token: Token.Identifier,
+    line: 1,
+    column: 2,
+});
+
+pass("scans '$$'", {
+  source: "$$",
+  "value": "$$",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '__'", {
+  source: "__",
+  "value": "__",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '__'", {
+  source: "__",
+  "value": "__",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans '_I'", {
+  source: "_I",
+  "value": "_I",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans 'O7'", {
+  source: "O7",
+  "value": "O7",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans 'wX'", {
+  source: "wX",
+  "value": "wX",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
+pass("scans 'R'", {
+  source: "R",
+  "value": "R",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 1,
+});
+
+pass("scans '_I'", {
+  source: "_I",
+  "value": "_I",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 2,
+});
+
   pass("scans 'ᢆ'", {
       source: " ᢆ",
       "value": "ᢆ",
@@ -286,6 +363,33 @@ describe('Lexer - Identifier', () => {
       line: 1,
       column: 2,
   });
+
+  pass("scans 'ab\\u0072'", {
+    source: "ab\\u0072",
+    "value": "abr",
+    raw: "'abc'",
+    token: Token.Identifier,
+    line: 1,
+    column: 8,
+});
+
+pass("scans '\\u{70}bc'", {
+  source: "\\u{70}bc",
+  "value": "pbc",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 8,
+});
+
+pass("scans '\\u0052oo'", {
+  source: "\\u0052oo",
+  "value": "Roo",
+  raw: "'abc'",
+  token: Token.Identifier,
+  line: 1,
+  column: 8,
+});
 
   pass("scans '\\u0052oo'", {
       source: "\\u0052oo",
@@ -412,6 +516,33 @@ describe('Lexer - Identifier', () => {
           line: 1,
           column: 6,
       });
+
+      pass("scans '\\u{000000000000000000070}bc'", {
+        source: "\\u{000000000000000000070}bc",
+        "value": "pbc",
+        raw: "",
+        token: Token.Identifier,
+        line: 1,
+        column: 27,
+    });
+
+    pass("scans 'ab\\u{0000000000000000000072}'", {
+      source: "ab\\u{0000000000000000000072}",
+      "value": "abr",
+      raw: "",
+      token: Token.Identifier,
+      line: 1,
+      column: 28,
+  });
+
+  pass("scans 'a\\u{0000000000000000000071}c'", {
+    source: "a\\u{0000000000000000000071}c",
+    "value": "aqc",
+    raw: "",
+    token: Token.Identifier,
+    line: 1,
+    column: 28,
+});
 
       pass("scans '\\uD800\\uDFFF'", {
           source: "\\uD800\\uDFFF",

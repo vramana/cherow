@@ -94,6 +94,8 @@ describe('Module - Export', () => {
     describe('Pass', () => {
 
         const programs = [
+            // Esprima issue: https://github.com/jquery/esprima/issues/1941
+            'export default [].concat(foo)',
             'export let x = 0;',
             'export var y = 0;',
             'export const z = 0;',
@@ -176,7 +178,7 @@ describe('Module - Export', () => {
             'export { a, b as dec }',
             'export { default } from "other"',
             'export default function foo() {} false',
-           // 'export default /foo/',
+            'export default /foo/',
             'export var namedOther = null;',
             'export var starAsVarDecl;',
             'export let starAsLetDecl;',

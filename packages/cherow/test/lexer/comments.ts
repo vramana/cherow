@@ -24,6 +24,34 @@ describe('Lexer - Comments', () => {
         });
     }
 
+    function fail(name: string, context: Context, opts: any): any {
+      it(name, () => {
+          const parser = createParserObject(opts.source, undefined);
+          t.throws(() => {
+              nextToken(parser, context)
+          });
+      });
+  }
+
+  fail('should fail "/* "', Context.Empty, {
+    source: '/* '
+})
+
+pass('should handle slash in a comment', {
+  source: `// /`,
+  line: 1, column: 4, index: 4
+});
+
+pass('should handle slash in a comment', {
+  source: `// */`,
+  line: 1, column: 5, index: 5
+});
+
+pass('single line comment escaped newlines are ignored', {
+  source: `//\\n \\r \\x0a \\u000a still comment`,
+  line: 1, column: 33, index: 33
+});
+
     pass('should handle correct interpretation of single line comments', {
         source: `//FOO
         ///`,
@@ -104,6 +132,22 @@ describe('Lexer - Comments', () => {
   pass('optional SingleLineDelimitedCommentSequence', {
     source: `-->the comment extends to these characters`,
     line: 1, column:  42, index: 42
+  });
+
+
+  pass('multi line comment ignore escape', {
+    source: '/* \\u{nope} \\unope \\xno */',
+    line: 1, column:  26, index: 26
+  });
+
+  pass('ignores escaped newline', {
+    source: '/* \\n \\r \\x0a \\u000a */',
+    line: 1, column:  23, index: 23
+  });
+
+  pass('multi line comment ignore escape', {
+    source: '/* \\u{nope} \\unope \\xno */',
+    line: 1, column:  26, index: 26
   });
 
 

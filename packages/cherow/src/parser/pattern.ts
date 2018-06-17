@@ -1,3 +1,4 @@
+import { VariableDeclaration, Statement } from './../estree';
 import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
@@ -359,7 +360,8 @@ function parseBindingList(
             parserObjectAssignmentPattern(parser, context, type) :
             parseArrayAssignmentPattern(parser, context, type);
         if (parser.token !== Token.Assign) {
-            if (origin & BindingOrigin.ForStatement && isInOrOf(parser)) {} else if (origin & (BindingOrigin.FunctionArgs | BindingOrigin.CatchClause)) {} else {
+            if (origin & BindingOrigin.ForStatement && isInOrOf(parser)) {
+            } else if (origin & (BindingOrigin.FunctionArgs | BindingOrigin.CatchClause)) {} else {
                 recordErrors(parser, context, Errors.DeclarationMissingInitializer);
             }
         }
@@ -370,10 +372,17 @@ function parseBindingList(
       recordErrors(parser, context, Errors.UnexpectedToken, tokenDesc(parser.token));
     }
 
-    if (parser.token !== Token.Assign) return type & BindingType.Variable ?
-        parseVariableDeclaration(parser, context, left, null) : left;
+    if (parser.token !== Token.Assign) {
+      if (origin & BindingOrigin.Statement && type & BindingType.Const) {
+        recordErrors(parser, context, Errors.DeclarationMissingInitializer);
+      }
+      return type & BindingType.Variable ?
+      parseVariableDeclaration(parser, context, left, null) : left;
+    }
     nextToken(parser, context);
+
     parser.flags |= Flags.SimpleParameterList;
+
     return type & BindingType.Variable ?
         parseVariableDeclaration(parser, context, left, parseAssignmentExpression(parser, context)) :
         parseAssignmentPattern(parser, context, left, pos);
