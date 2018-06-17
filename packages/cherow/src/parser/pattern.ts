@@ -1,4 +1,3 @@
-import { VariableDeclaration, Statement } from './../estree';
 import { Parser, Location } from '../types';
 import { Token, tokenDesc } from '../token';
 import * as ESTree from '../estree';
@@ -315,7 +314,7 @@ export function parseDelimitedBindingList(
     context: Context,
     type: BindingType,
     origin: BindingOrigin,
-    args: any[] = []) {
+    args: any[] = []): any[] {
     let elementCount = 0;
     const inited = false;
     const isBinding = parser.token === Token.LeftBrace || parser.token === Token.LeftBracket;

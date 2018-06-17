@@ -79,7 +79,7 @@ export function verifyRegExpPattern(parser: Parser, context: Context): {
  * @export
  * @param parser Parser object
  * @param context Context masks
- * @param depth
+ * @param depth Depth
  * @param state Validation state
  */
 function validateRegexBody(
@@ -387,7 +387,6 @@ function validateCharacterClass(parser: Parser): RegexpState {
  *
  * @param parser Parser object
  * @param context Context masks
- * @returns
  */
 function scanRegexFlags(parser: Parser, context: Context): RegexpState {
 
@@ -647,7 +646,6 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
                         else if (subState & RegexpState.Valid) subState = RegexpState.UnicodeMode;
                         else if (subState & RegexpState.SloppyMode) subState = RegexpState.Invalid;
                     }
-                    break;
                 }
         }
 
@@ -656,7 +654,7 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
             surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
         } else if (!(prevState & ClassRangesState.IsTrailSurrogate) &&
                    prevState & ClassRangesState.IsSurrogateLead &&
-                   (ch & 0x1fffff) > 0xffff) {
+                   (ch & 0x1FFFFF) > 0xFFFF) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
             surrogate = ch;
         } else {

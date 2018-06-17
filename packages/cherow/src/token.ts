@@ -2,7 +2,7 @@
  * https://tc39.github.io/ecma262/#sec-ecmascript-language-source-code
  */
 export const enum Token {
-    Type = 0xff,
+    Type = 0xFF,
 
     /* Precedence */
     PrecStart          = 8,

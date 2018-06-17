@@ -130,8 +130,6 @@ export const errorMessages: {
     [Errors.UnexpectedTokenNumber]: 'Unexpected number' ,
     [Errors.UnexpectedTokenIdentifier]: 'Unexpected identifier' ,
     [Errors.InvalidEscapedReservedWord]: 'Keyword must not contain escaped characters' ,
-
-
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

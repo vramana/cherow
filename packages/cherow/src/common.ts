@@ -207,9 +207,9 @@ export function lookahead<T>(
 export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return !(parser.flags & Flags.NewLine) && parser.token === Token.FunctionKeyword;
-  }
+}
 
-  /**
+/**
  * Validates if the next token in the stream is a left paren or a period
  *
  * @param parser Parser object
@@ -218,9 +218,9 @@ export function nextTokenIsFuncKeywordOnSameLine(parser: Parser, context: Contex
 export function nextTokenIsLeftParenOrPeriod(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.LeftParen || parser.token === Token.Period;
-  }
+}
 
-  /**
+/**
  * Validates if the next token in the stream is left parenthesis.
  *
  * @param parser Parser object
@@ -232,17 +232,17 @@ export function nextTokenIsLeftParenOrKeyword(parser: Parser, context: Context):
     return (parser.token & Token.Identifier) === Token.Identifier ||
             parser.token === Token.Keyword ||
             parser.token === Token.LeftParen;
-  }
+}
 
 export function nextTokenIsLeftParen(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.LeftParen;
-  }
+}
 
 export function nextTokenIsPeriod(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.Period;
-  }
+}
 
 /**
  * Validates if the next token in the stream is arrow
@@ -253,10 +253,9 @@ export function nextTokenIsPeriod(parser: Parser, context: Context): boolean {
 export function nextTokenIsArrow(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     return parser.token === Token.Arrow;
-  }
+}
 
-
-  /**
+/**
  * Returns true if this an valid lexical binding and not an identifier
  *
  * @param parser Parser object
@@ -333,7 +332,7 @@ function isIterationStatement(parser: Parser): boolean {
  */
 export function addLabel(parser: Parser, label: string): void {
     if (parser.labelSet === undefined) parser.labelSet = {};
-    parser.labelSet['@' + label] = true;
+    parser.labelSet[`@${label}`] = true;
     parser.labelSetStack[parser.labelDepth] = parser.labelSet;
     parser.iterationStack[parser.labelDepth] = isIterationStatement(parser);
     parser.labelSet = undefined;
@@ -347,7 +346,7 @@ export function addLabel(parser: Parser, label: string): void {
  * @param label Label
  */
 export function validateContinueLabel(parser: Parser, context: Context, label: string): void {
-    const state = getLabel(parser, '@' + label, true);
+    const state = getLabel(parser, `@${label}`, true);
     if (state !== LabelState.Iteration) {
         if (state === LabelState.CrossingBoundary) {
             recordErrors(parser, context, Errors.InvalidNestedStatement);
@@ -364,7 +363,7 @@ export function validateContinueLabel(parser: Parser, context: Context, label: s
  * @param label Label
  */
 export function validateBreakStatement(parser: Parser, context: Context, label: any): void {
-    const state = getLabel(parser, '@' + label);
+    const state = getLabel(parser, `@${label}`);
     if (state !== LabelState.Iteration) recordErrors(parser, context, Errors.UnknownLabel, label);
 }
 

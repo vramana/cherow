@@ -1,4 +1,3 @@
-import { BigIntLiteral } from './../estree';
 import { Parser } from '../types';
 import { Chars } from '../chars';
 import { Token } from '../token';
@@ -229,13 +228,13 @@ export function scanHexDigits(parser: Parser, context: Context): Token {
 }
 
 /**
-* Scans implicit octals
-*
-* @see [https://tc39.github.io/ecma262/#sec-additional-syntax-numeric-literals)
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Scans implicit octals
+ *
+ * @see [https://tc39.github.io/ecma262/#sec-additional-syntax-numeric-literals)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanImplicitOctalDigits(parser: Parser, context: Context): Token {
   let { index, column } = parser;
   const start = index;
@@ -263,11 +262,11 @@ export function scanImplicitOctalDigits(parser: Parser, context: Context): Token
 }
 
 /**
-* Scans decimal digit or separator
-*
-* @param parser Parser object
-* @param context Context masks
-*/
+ * Scans decimal digit or separator
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanDecimalDigitsOrSeparator(parser: Parser): string {
   let start = parser.index;
   let state = NumericState.None;

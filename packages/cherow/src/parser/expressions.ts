@@ -494,7 +494,7 @@ function parseMemberExpression(
  * @param pos Location info
  * @param expr Expression
  */
-function parseMemberExpressionContinuation(parser: Parser, context: Context, expr: any, pos: Location) {
+function parseMemberExpressionContinuation(parser: Parser, context: Context, expr: any, pos: Location): any {
     while (true) {
         switch (parser.token) {
             case Token.LeftBracket:
@@ -713,15 +713,14 @@ function parseTemplateLiteral(parser: Parser, context: Context): ESTree.Template
 }
 
 /**
-* Parse template head
-*
-* @param parser Parser object
-* @param context Context masks
-* @param cooked Cooked template value
-* @param raw Raw template value
-* @param pos Current location
-*/
-
+ * Parse template head
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param cooked Cooked template value
+ * @param raw Raw template value
+ * @param pos Current location
+ */
 function parseTemplateHead(
 parser: Parser,
 context: Context,
@@ -741,14 +740,13 @@ raw: string,
 }
 
 /**
-* Parse template
-*
-* @param parser Parser object
-* @param context Context masks
-* @param expression Expression AST node
-* @param quasis Array of Template elements
-*/
-
+ * Parse template
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param expression Expression AST node
+ * @param quasis Array of Template elements
+ */
 function parseTemplate(
   parser: Parser,
   context: Context,
@@ -1142,7 +1140,6 @@ function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatem
         parser.labelSetStack[parser.labelDepth] = parser.functionBoundaryStack;
         parser.iterationStack[parser.labelDepth] = LabelState.Empty;
         parser.labelDepth++;
-
 
         while (parser.token !== Token.RightBrace) {
             body.push(parseStatementListItem(parser, context));

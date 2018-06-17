@@ -1,6 +1,6 @@
 import { Token } from '../token';
 import { Context, Flags, LabelState } from '../common';
-import { Parser, OnError, Options, OnComment, EcmaVersion } from '../types';
+import { Parser, OnError, Options, OnComment } from '../types';
 import * as ESTree from '../estree';
 import { parseStatementList } from './statements';
 import { parseModuleItemList } from './module';

@@ -135,12 +135,11 @@ export function skipBomAndShebang(parser: Parser, context: Context): void {
 }
 
 /**
-* Scans private name. Stage 3 proposal related
-*
-* @param parser Parser object
-* @param context Context masks
-*/
-
+ * Scans private name. Stage 3 proposal related
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanPrivateName(parser: Parser, context: Context): Token {
   let index = parser.index;
   const next = parser.source.charCodeAt(index + 1);
@@ -154,23 +153,21 @@ export function scanPrivateName(parser: Parser, context: Context): Token {
 export function readNext(parser: Parser, ch: number): number {
   parser.index++;
   parser.column++;
-  if (ch > 0xffff) parser.index++;
+  if (ch > 0xFFFF) parser.index++;
   if (parser.index >= parser.length) recordErrors(parser, Context.Empty, Errors.Unexpected);
   return nextUnicodeChar(parser);
 }
 
-export function nextUnicodeChar(parser: Parser) {
-  let {
-      index
-  } = parser;
+export function nextUnicodeChar(parser: Parser): number {
+  let { index } = parser;
   const hi = parser.source.charCodeAt(index++);
 
-  if (hi < 0xd800 || hi > 0xdbff) return hi;
+  if (hi < 0xD800 || hi > 0xDBFF) return hi;
   if (index === parser.source.length) return hi;
   const lo = parser.source.charCodeAt(index);
 
-  if (lo < 0xdc00 || lo > 0xdfff) return hi;
-  return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+  if (lo < 0xDC00 || lo > 0xDFFF) return hi;
+  return (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
 }
 
 export function isDecimalDigit(code: number): boolean {
@@ -260,7 +257,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
   return missingDigits ? res | RegexpState.MissingDigits : res;
 }
 
-export function isFlagStart(code: number) {
+export function isFlagStart(code: number): boolean {
   return isValidIdentifierPart(code) ||
       code === Chars.Backslash ||
       code === Chars.Dollar ||
@@ -270,11 +267,9 @@ export function isFlagStart(code: number) {
 }
 
 /**
-* Returns true if valid unicode continue
-*
-* @param {number} code
-* @returns {boolean}
-*/
+ * Returns true if valid unicode continue
+ *
+ */
 export function isValidUnicodeidcontinue(code: number): boolean {
   return isValidIdentifierPart(code) ||
       code === Chars.Dollar ||
@@ -283,12 +278,11 @@ export function isValidUnicodeidcontinue(code: number): boolean {
 }
 
 /**
-* Adjust correct regexp validator state
-*
-*
-* @param parser Parser object
-* @param code Code point
-*/
+ * Adjust correct regexp validator state
+ *
+ * @param parser Parser object
+ * @param code Code point
+ */
 export function setValidationState(prevState: RegexpState, currState: RegexpState): RegexpState {
   if (currState & RegexpState.Invalid) return RegexpState.Invalid;
   if (currState & RegexpState.SloppyMode) {
@@ -302,13 +296,12 @@ export function setValidationState(prevState: RegexpState, currState: RegexpStat
 }
 
 /**
-* Adjust correct regexp validator state
-*
-*
-* @param parser Parser object
-* @param flagState State returned by the regular expression flag
-* @param bodyState State returned after parsing the regex body
-*/
+ * Adjust correct regexp validator state
+ *
+ * @param parser Parser object
+ * @param flagState State returned by the regular expression flag
+ * @param bodyState State returned after parsing the regex body
+ */
 
 export function setRegExpState(parser: Parser, flagState: RegexpState, bodyState: RegexpState): RegexpState {
   if (parser.capturingParens < parser.largestBackReference) return RegexpState.Invalid;
@@ -344,12 +337,12 @@ export function parseBackReferenceIndex(parser: Parser, code: number): RegexpSta
 }
 
 /**
-* Get unicode range
-*
-* @param range Left unicode range
-* @param state Current lexer state
-* @param right Right unicode range
-*/
+ * Get unicode range
+ *
+ * @param range Left unicode range
+ * @param state Current lexer state
+ * @param right Right unicode range
+ */
 export function getUnicodeRange(range: any, state: RegexpState, right: number): RegexpState {
   if (range === RegexpState.InvalidCharClassRange || right === RegexpState.InvalidCharClassRange || range > right) {
       if (state === RegexpState.UnicodeMode) return RegexpState.Invalid;
@@ -359,13 +352,12 @@ export function getUnicodeRange(range: any, state: RegexpState, right: number): 
 }
 
 /**
-* Get non-unicode range
-*
-* @param range Left unicode range
-* @param state Current lexer state
-* @param right Right unicode range
-*/
-
+ * Get non-unicode range
+ *
+ * @param range Left unicode range
+ * @param state Current lexer state
+ * @param right Right unicode range
+ */
 export function getRange(ch: number, range: number, state: RegexpState): RegexpState {
   if (range === RegexpState.InvalidCharClassRange || ch === RegexpState.InvalidCharClassRange || range > ch) {
       if (state === RegexpState.SloppyMode) return RegexpState.Invalid;
@@ -374,7 +366,7 @@ export function getRange(ch: number, range: number, state: RegexpState): RegexpS
   return state;
 }
 
-export function mapToToken(token: Token) {
+export function mapToToken(token: Token): (parser: Parser) => Token {
   return (parser: Parser) => {
       parser.index++;
       parser.column++;
@@ -413,15 +405,12 @@ export function escapeInvalidCharacters(code: number): string {
 }
 
 /**
-* Throws a string error for either string or template literal
-*
-* @param parser Parser object
-* @param context Context masks
-*/
-export function recordStringErrors(
-  parser: Parser,
-  code: Escape,
-): void {
+ * Throws a string error for either string or template literal
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function recordStringErrors(parser: Parser, code: Escape): void {
   switch (code) {
       case Escape.Empty:
           return;

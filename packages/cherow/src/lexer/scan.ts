@@ -319,10 +319,10 @@ table[Chars.VerticalBar] = (parser: Parser) => {
 table[Chars.Hash] = scanPrivateName;
 
 /**
-*
-* parser Parser object
-* context Context masks
-*/
+ *
+ * parser Parser object
+ * context Context masks
+ */
 export function nextToken(parser: Parser, context: Context): Token {
   parser.flags &= ~Flags.NewLine;
   // remember last token position before scanning

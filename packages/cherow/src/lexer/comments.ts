@@ -1,5 +1,5 @@
 import { Token } from '../token';
-import { Context, Flags } from '../common';
+import { Context } from '../common';
 import { consumeOpt, advanceNewline } from './common';
 import { Chars } from '../chars';
 import { Parser } from '../types';

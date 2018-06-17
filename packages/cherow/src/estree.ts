@@ -278,10 +278,9 @@ export interface Comment {
     loc?: any;
   }
 
-  /**
-  * Core types
-  */
-
+/**
+ * Core types
+ */
 export interface Program extends _Node<'Program'> {
     sourceType: 'script' | 'module';
     body: (Statement | ModuleDeclaration)[];
@@ -677,12 +676,11 @@ export interface YieldExpression extends _Expression<'YieldExpression'> {
     delegate: boolean;
   }
 
-  /**
-  * JSX types
-  *
-  * Reference: https://github.com/facebook/jsx/blob/master/AST.md
-  */
-
+/**
+ * JSX types
+ *
+ * Reference: https://github.com/facebook/jsx/blob/master/AST.md
+ */
 export interface JSXIdentifier extends _Node<'JSXIdentifier'> {
     name: string;
     raw?: string;

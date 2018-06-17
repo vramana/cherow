@@ -1,7 +1,7 @@
 import { Parser } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { Context, Flags } from '../common';
+import { Context } from '../common';
 import { readNext, fromCodePoint, Escape, recordStringErrors } from './common';
 import { Errors, report } from '../errors';
 import { table } from './string';
@@ -101,12 +101,11 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
 }
 
 /**
-* Consumes template brace
-*
-* @param parser Parser object
-* @param context Context masks
-*/
-
+ * Consumes template brace
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function consumeTemplateBrace(parser: Parser, context: Context): Token {
   if (parser.index >= parser.length) report(parser, Errors.UnterminatedTemplate);
   // Upon reaching a '}', consume it and rewind the scanner state
@@ -116,11 +115,11 @@ export function consumeTemplateBrace(parser: Parser, context: Context): Token {
 }
 
 /**
-* Scan looser template segment
-*
-* @param parser Parser object
-* @param ch codepoint
-*/
+ * Scan looser template segment
+ *
+ * @param parser Parser object
+ * @param ch codepoint
+ */
 function scanLooserTemplateSegment(parser: Parser, ch: number): number {
   while (ch !== Chars.Backtick) {
       if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
