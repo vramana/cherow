@@ -5,7 +5,6 @@ import { Context, Flags } from '../common';
 import { isValidIdentifierStart } from '../unicode';
 import { Errors, report } from '../errors';
 import {
-  hasBit,
   fromCodePoint,
   toHex,
   escapeInvalidCharacters,
@@ -78,9 +77,9 @@ export function scanIdentifierSuffix(parser: Parser): Token {
   const token = getIdentifierToken(parser);
 
   if (hasEscape) {
-      if (hasBit(token, Token.Identifier) || hasBit(token, Token.Contextual)) {
+      if (token & Token.IdentifierOrContextual) {
           return token;
-      } else if (hasBit(token, Token.FutureReserved) ||
+      } else if (token & Token.FutureReserved ||
           token === Token.LetKeyword ||
           token === Token.StaticKeyword) {
           return Token.EscapedStrictReserved;

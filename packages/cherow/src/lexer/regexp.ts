@@ -15,8 +15,7 @@ import {
     RegexpState,
     toHex,
     RegExpFlags,
-    isFlagStart,
-    hasBit
+    isFlagStart
 } from './common';
 
 // WIP
@@ -626,7 +625,7 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
             case Chars.RightBracket:
                 {
                     if (state & ClassRangesState.SeenUnicoderange &&
-                        hasBit(prevState, ClassRangesState.IsSurrogateLead) &&
+                        prevState & ClassRangesState.IsSurrogateLead &&
                         (leftUnicodeRange === RegexpState.InvalidCharClassRange ||
                             prevChar & RegexpState.InvalidCharClassRange || leftUnicodeRange > prevChar)) {
                         if (subState & RegexpState.UnicodeMode ||
@@ -652,11 +651,11 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
                 }
         }
 
-        if (hasBit(prevState, ClassRangesState.IsSurrogateLead) && ch >= 0xDC00 && ch <= 0xDFFF) {
+        if (prevState & ClassRangesState.IsSurrogateLead && ch >= 0xDC00 && ch <= 0xDFFF) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
             surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
-        } else if (!hasBit(prevState, ClassRangesState.IsTrailSurrogate) &&
-                   hasBit(prevState, ClassRangesState.IsSurrogateLead) &&
+        } else if (!(prevState & ClassRangesState.IsTrailSurrogate) &&
+                   prevState & ClassRangesState.IsSurrogateLead &&
                    (ch & 0x1fffff) > 0xffff) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
             surrogate = ch;
@@ -666,8 +665,8 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
         }
 
         if (state & ClassRangesState.SeenUnicoderange) {
-            const rightUnicodeRange = state & ClassRangesState.IsTrailSurrogate ? surrogate : hasBit(prevState, ClassRangesState.IsSurrogateLead) ? prevChar : ch;
-            if (!(state & ClassRangesState.IsSurrogateLead) || hasBit(prevState, ClassRangesState.IsSurrogateLead)) {
+            const rightUnicodeRange = state & ClassRangesState.IsTrailSurrogate ? surrogate : prevState & ClassRangesState.IsSurrogateLead ? prevChar : ch;
+            if (!(state & ClassRangesState.IsSurrogateLead) || prevState & ClassRangesState.IsSurrogateLead) {
                 state = state & ~ClassRangesState.SeenUnicoderange;
                 subState = getUnicodeRange(leftUnicodeRange, subState, rightUnicodeRange);
             }

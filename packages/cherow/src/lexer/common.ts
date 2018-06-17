@@ -5,8 +5,6 @@ import { Chars } from '../chars';
 import { Errors, recordErrors, report } from '../errors';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from '../unicode';
 
-export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
-
 /* Numeric literal state */
 export const enum NumericState {
   None         = 0,
@@ -215,7 +213,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
       state = state | QuantifierPrefixState.IsLow;
       parser.index++;
       parser.column++;
-      if (hasBit(state, QuantifierPrefixState.Start)) {
+      if (state & QuantifierPrefixState.Start) {
           state = state & ~QuantifierPrefixState.Start;
           if (ch === Chars.Zero) {
               if (parser.index >= parser.length) return false;
@@ -239,7 +237,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
           parser.index++;
           parser.column++;
           state = state | QuantifierPrefixState.IsHigh;
-          if (hasBit(state, QuantifierPrefixState.Start)) {
+          if (state & QuantifierPrefixState.Start) {
               state = state & ~QuantifierPrefixState.Start;
               if (ch === Chars.Zero) {
                   if (parser.index >= parser.length) return false;
@@ -254,9 +252,9 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
       }
   }
 
-  if (hasBit(state, QuantifierPrefixState.HasBadNumber) || !consumeOpt(parser, Chars.RightBrace)) return false;
-  const hasLow = hasBit(state, QuantifierPrefixState.IsLow);
-  const hasHi = hasBit(state, QuantifierPrefixState.IsHigh);
+  if (state & QuantifierPrefixState.HasBadNumber || !consumeOpt(parser, Chars.RightBrace)) return false;
+  const hasLow = (state & QuantifierPrefixState.IsLow) > 0;
+  const hasHi = (state & QuantifierPrefixState.IsHigh) > 0;
   const res: any = (hasLow !== hasHi || (hasLow && hasHi && min <= max));
   return missingDigits ? res | RegexpState.MissingDigits : res;
 }

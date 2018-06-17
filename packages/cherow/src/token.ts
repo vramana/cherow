@@ -22,6 +22,7 @@ export const enum Token {
     NumericLiteral     = 1 << 21,
     StringLiteral      = 1 << 22,
     Identifier         = 1 << 23,
+    IdentifierOrContextual = Identifier | Contextual,
     RegularExpression  = 1 << 24,
     Punctuator        = 1 << 25,
     Template           = 1 << 26,
