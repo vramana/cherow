@@ -3,7 +3,7 @@ import { pass } from '../../test-utils';
 import { Context } from '../../../src/common';
 import { parseSource } from '../../../src/parser/parser';
 
-describe('Declarations - Let', () => {
+describe('Statements - Let', () => {
 
     // Testing lexical scoping in sloppy mode
     const lexivalScoping = [
