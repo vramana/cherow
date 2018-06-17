@@ -687,7 +687,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
     }
     consumeSemicolon(parser, context);
 
-    if (label === null && parser.iterationStatement === LabelState.Empty) {
+    if (label === null &&  parser.iterationStatement === LabelState.Empty && parser.switchStatement === LabelState.Empty) {
         report(parser, Errors.IllegalContinue);
     }
     return finishNode(parser, context, pos, {
@@ -738,7 +738,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
     expect(parser, context, Token.LeftParen);
     const object = parseExpression(parser, context);
     expect(parser, context, Token.RightParen);
-    const body = parseStatement(parser, context);
+    const body = parseStatement(parser, context, LabelledFunctionState.Disallow);
     return finishNode(parser, context, pos, {
         type: 'WithStatement',
         object,

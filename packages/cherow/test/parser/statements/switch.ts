@@ -3,10 +3,274 @@ import { Context } from '../../../src/common';
 
 describe('Statements - Switch', () => {
 
-  fail('switch(foo) { default: {} default: bar }', Context.Empty, {
-    source: 'switch(foo) { default: {} default: bar }',
-    expected: {}
+  describe('Failure', () => {
+    fail('switch (c) { default: default: }', Context.Empty, {
+      source: 'switch (c) { default: default: }',
   });
+    fail(`duplicate default`, Context.Empty, {
+      source: `function SwitchTest(value){
+        var result = 0;
+        switch(value) {
+          case 0:
+            result += 2;
+          default:
+            result += 32;
+            break;
+          default:
+            result += 32;
+            break;
+        }
+        return result;
+      }`
+  });
+
+    fail('()?c:d=>{}=>{}', Context.Empty, {
+          source: '()?c:d=>{}=>{}',
+      });
+  });
+
+  describe('Pass', () => {
+
+    pass(`switch(a){case 1:}`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+      source: `switch(a){case 1:}`,
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 18,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 18
+          }
+        },
+        body: [
+          {
+            type: 'SwitchStatement',
+            start: 0,
+            end: 18,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 18
+              }
+            },
+            discriminant: {
+              type: 'Identifier',
+              start: 7,
+              end: 8,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 7
+                },
+                end: {
+                  line: 1,
+                  column: 8
+                }
+              },
+              name: 'a'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                start: 10,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 10
+                  },
+                  end: {
+                    line: 1,
+                    column: 17
+                  }
+                },
+                consequent: [],
+                test: {
+                  type: 'Literal',
+                  start: 15,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 15
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  value: 1,
+                  raw: '1'
+                }
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+  });
+
+  pass(`switch (answer) { case 0: hi(); continue; }`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    source: `switch (answer) { case 0: hi(); continue; }`,
+    expected: {
+      "type": "Program",
+      "sourceType": "script",
+      "body": [
+          {
+              "type": "SwitchStatement",
+              "discriminant": {
+                  "type": "Identifier",
+                  "name": "answer",
+                  "start": 8,
+                  "end": 14,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 8
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 14
+                      }
+                  }
+              },
+              "cases": [
+                  {
+                      "type": "SwitchCase",
+                      "test": {
+                          "type": "Literal",
+                          "value": 0,
+                          "start": 23,
+                          "end": 24,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 23
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 24
+                              }
+                          },
+                          "raw": "0"
+                      },
+                      "consequent": [
+                          {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                  "type": "CallExpression",
+                                  "callee": {
+                                      "type": "Identifier",
+                                      "name": "hi",
+                                      "start": 26,
+                                      "end": 28,
+                                      "loc": {
+                                          "start": {
+                                              "line": 1,
+                                              "column": 26
+                                          },
+                                          "end": {
+                                              "line": 1,
+                                              "column": 28
+                                          }
+                                      }
+                                  },
+                                  "arguments": [],
+                                  "start": 26,
+                                  "end": 30,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 26
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 30
+                                      }
+                                  }
+                              },
+                              "start": 26,
+                              "end": 31,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 26
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 31
+                                  }
+                              }
+                          },
+                          {
+                              "type": "ContinueStatement",
+                              "label": null,
+                              "start": 32,
+                              "end": 41,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 32
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 41
+                                  }
+                              }
+                          }
+                      ],
+                      "start": 18,
+                      "end": 41,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 18
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 41
+                          }
+                      }
+                  }
+              ],
+              "start": 0,
+              "end": 43,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 43
+                  }
+              }
+          }
+      ],
+      "start": 0,
+      "end": 43,
+      "loc": {
+          "start": {
+              "line": 1,
+              "column": 0
+          },
+          "end": {
+              "line": 1,
+              "column": 43
+          }
+      }
+  }
+  });
+
 
   pass('switch(fkleuver) { default: {} }', Context.OptionsRanges | Context.OptionsLoc, {
       source: 'switch(fkleuver) { default: {} }',
@@ -115,4 +379,7 @@ describe('Statements - Switch', () => {
           }]
       }
   });
+
+
+});
 });

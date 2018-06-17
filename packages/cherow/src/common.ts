@@ -268,6 +268,7 @@ export function nextTokenIsArrow(parser: Parser, context: Context): boolean {
     return parser.token === Token.Arrow;
   }
 
+
   /**
  * Returns true if this an valid lexical binding and not an identifier
  *
@@ -278,8 +279,10 @@ export function isLexical(parser: Parser, context: Context): boolean {
     nextToken(parser, context);
     const { token } = parser;
     return (token & Token.Identifier) === Token.Identifier ||
+    (token & Token.Contextual) === Token.Contextual ||
     token === Token.LeftBracket ||
     token === Token.LeftBrace ||
+    token === Token.AwaitKeyword ||
     token === Token.LetKeyword ||
     token === Token.YieldKeyword;
 }
