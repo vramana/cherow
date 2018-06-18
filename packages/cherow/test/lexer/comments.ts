@@ -37,9 +37,46 @@ describe('Lexer - Comments', () => {
     source: '/* '
 })
 
+
+fail('should fail "/* "', Context.Module, {
+  source: `<!--the comment extends to these characters`
+})
+
 pass('should handle slash in a comment', {
   source: `// /`,
   line: 1, column: 4, index: 4
+});
+
+pass('should handle slash in a comment', {
+  source: `// \u2028\u2028`,
+  line: 3, column: 0, index: 5
+});
+
+
+pass('should handle slash in a comment', {
+  source: `// \r`,
+  line: 2, column: 0, index: 4
+});
+
+pass('should handle slash in a comment', {
+  source: `// \r\n`,
+  line: 3, column: 0, index: 5
+});
+
+pass('should handle slash in a comment', {
+  source: `// \\n\\r`,
+  line: 1, column: 7, index: 7
+});
+
+pass('should handle slash in a comment', {
+  source: `// \\r\\n\\u2028`,
+  line: 1, column: 13, index: 13
+});
+
+
+pass('should handle slash in a comment', {
+  source: `// \u2028\u2028`,
+  line: 3, column: 0, index: 5
 });
 
 pass('should handle slash in a comment', {

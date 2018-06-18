@@ -61,10 +61,10 @@ table[Chars.Slash] = (parser: Parser) => {
   parser.index++; parser.column++;
   if (parser.index < parser.length) {
       const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.Slash) {
+      if (consumeOpt(parser, Chars.Slash)) {
           return skipSingleLineComment(parser);
       }
-      if (next === Chars.Asterisk) {
+      if (consumeOpt(parser, Chars.Asterisk)) {
           return skipMultilineComment(parser);
       } else if (next === Chars.EqualSign) {
           parser.index++;
@@ -202,8 +202,8 @@ table[Chars.LessThan] = (parser: Parser, context: Context) => {
           if (consumeOpt(parser, Chars.EqualSign)) return Token.ShiftLeftAssign;
           return Token.ShiftLeft;
       } else if (consumeOpt(parser, Chars.Exclamation) &&
-      consumeOpt(parser, Chars.Hyphen) &&
-      consumeOpt(parser, Chars.Hyphen)) {
+                 consumeOpt(parser, Chars.Hyphen) &&
+                 consumeOpt(parser, Chars.Hyphen)) {
           return skipSingleHTMLComment(parser, context);
       }
   }

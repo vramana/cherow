@@ -37,14 +37,14 @@ export function skipSingleLineComment(parser: Parser, returnToken: Token = Token
           case Chars.LineFeed:
           case Chars.LineSeparator:
           case Chars.ParagraphSeparator:
-              if (!--lastIsCR) parser.index++;
+              if (!--lastIsCR) parser.line++;
               parser.index++;
               parser.column = 0;
               parser.line++;
               return returnToken;
           default:
               if (lastIsCR) {
-                  parser.index++;
+                  parser.line++;
                   lastIsCR = 0;
               }
               parser.column++;
@@ -65,12 +65,13 @@ export function skipSingleLineComment(parser: Parser, returnToken: Token = Token
 export function skipMultilineComment(parser: Parser): any {
   let lastIsCR = 0;
   while (parser.index < parser.length) {
-      const ch = parser.source.charCodeAt(parser.index);
-      switch (ch) {
+      switch (parser.source.charCodeAt(parser.index)) {
           case Chars.Asterisk:
               parser.index++;
               parser.column++;
-              if (consumeOpt(parser, Chars.Slash)) return Token.MultiComment;
+              if (consumeOpt(parser, Chars.Slash)) {
+                return Token.MultiComment;
+              }
               break;
           case Chars.CarriageReturn:
               lastIsCR = 2;
@@ -92,5 +93,5 @@ export function skipMultilineComment(parser: Parser): any {
       }
   }
 
-  report(parser, Errors.Unexpected);
+  report(parser, Errors.UnterminatedComment);
 }
