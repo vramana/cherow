@@ -1551,6 +1551,12 @@ describe('Runtime - Unicode regular expressions', () => {
       `a|/u`, `|/u`, 'a||/u',
       `a|b/u`,
       `abc/u`,
+      '\\u000A/',
+      '\\uFFFF/',
+      '\\u0042/',
+      '\\u0047/',
+      '\\u000A/',
+      '\\u000A/',
   ];
 
   for (const arg of validCases) {

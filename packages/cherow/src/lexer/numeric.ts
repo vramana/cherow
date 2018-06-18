@@ -23,7 +23,7 @@ parseLeadingZeroTable[Chars.LowerB] = parseLeadingZeroTable[Chars.UpperB] = (par
 // octal integer. see [https://tc39.github.io/ecma262/#prod-OctalIntegerLiteral)
 parseLeadingZeroTable[Chars.LowerO] = parseLeadingZeroTable[Chars.UpperO] = (parser: Parser, context: Context) => scanOctalOrBinaryDigits(parser, context, 8);
 // hex integer. see [https://tc39.github.io/ecma262/#prod-HexIntegerLiteral)
-parseLeadingZeroTable[Chars.LowerX] = parseLeadingZeroTable[Chars.UpperX] = (parser: Parser, context: Context) => scanHexDigits(parser, context);
+parseLeadingZeroTable[Chars.LowerX] = parseLeadingZeroTable[Chars.UpperX] = scanHexDigits;
 
 // scan implicit oct
 parseLeadingZeroTable.fill(scanImplicitOctalDigits, Chars.Zero, Chars.Seven + 1);

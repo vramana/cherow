@@ -173,7 +173,6 @@ function validateRegexBody(
             case Chars.Asterisk:
             case Chars.Plus:
             case Chars.QuestionMark:
-
                 if (maybeQuantifier) {
                     maybeQuantifier = false;
                     if (parser.index < parser.length) {
@@ -355,7 +354,6 @@ function validateAtomEscape(parser: Parser): RegexpState {
         case Chars.Eight:
         case Chars.Nine:
             return parseBackReferenceIndex(parser, next);
-
         case Chars.CarriageReturn:
         case Chars.LineFeed:
         case Chars.ParagraphSeparator:

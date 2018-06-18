@@ -110,10 +110,10 @@ export function skipBomAndShebang(parser: Parser, context: Context): void {
                       parser.flags |= Flags.NewLine;
                       parser.index++; parser.column = 0; parser.line++;
                       if (parser.index < parser.length && ch === Chars.CarriageReturn &&
-                          parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
-                          parser.index++;
-                      }
-                          break loop;
+                            parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
+                            parser.index++;
+                        }
+                      break loop;
                       default:
                           parser.index++;
                           parser.column++;
