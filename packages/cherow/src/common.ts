@@ -35,7 +35,6 @@ export const enum Context {
     NewTarget            = 1 << 24,
     TaggedTemplate       = 1 << 25,
     Statement            = 1 << 26,
-    Asi                  = 1 << 27,
     AllowSuperProperty   = 1 << 28,
     InClass              = 1 << 29,
     InIf                 = 1 << 30,
@@ -145,13 +144,13 @@ export function consume(parser: Parser, context: Context, token: Token): boolean
 /**
  * Automatic Semicolon Insertion
  *
- * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-rules-of-automatic-semicolon-insertion)
  *
  * @param parser Parser object
  * @param context Context masks
  */
 export function consumeSemicolon(parser: Parser, context: Context): void | boolean {
-    return (parser.token & Token.ASI) === Token.ASI || parser.flags & Flags.NewLine
+    return parser.token & Token.ASI || parser.flags & Flags.NewLine
       ? consume(parser, context, Token.Semicolon)
       : recordErrors(parser, context, Errors.Unexpected);
   }

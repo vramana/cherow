@@ -38,6 +38,7 @@ export function skipSingleLineComment(parser: Parser, returnToken: Token = Token
           case Chars.LineSeparator:
           case Chars.ParagraphSeparator:
               if (!--lastIsCR) parser.line++;
+              parser.flags |= Flags.NewLine;
               parser.index++;
               parser.column = 0;
               parser.line++;

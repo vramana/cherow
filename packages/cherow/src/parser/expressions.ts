@@ -979,7 +979,7 @@ function parseArrayLiteral(parser: Parser, context: Context): ESTree.ArrayExpres
     //
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBracket);
-    context = (context | Context.DisallowIn | Context.Asi) ^ (Context.DisallowIn | Context.Asi);
+    context = (context | Context.DisallowIn) ^ Context.DisallowIn;
     const elements: (ESTree.Expression | ESTree.SpreadElement | null)[] = [];
 
     while (parser.token !== Token.RightBracket) {
@@ -1368,7 +1368,7 @@ export function parseObjectLiteral(parser: Parser, context: Context): ESTree.Obj
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-    context = (context | Context.DisallowIn | Context.Asi) ^ (Context.DisallowIn | Context.Asi);
+    context = (context | Context.DisallowIn) ^ Context.DisallowIn;
     while (parser.token !== Token.RightBrace) {
         properties.push(parser.token === Token.Ellipsis ?
             parseSpreadProperties(parser, context) :
