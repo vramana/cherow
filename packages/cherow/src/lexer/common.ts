@@ -83,20 +83,6 @@ export function consumeOpt(parser: Parser, ch: number): boolean {
 }
 
 /**
- * Advance to new line
- *
- * @param parser Parser object
- */
-export function advanceNewline(parser: Parser, ch: number): void {
-  parser.flags |= Flags.NewLine;
-  parser.index++; parser.column = 0; parser.line++;
-  if (parser.index < parser.length && ch === Chars.CarriageReturn &&
-      parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
-      parser.index++;
-  }
-}
-
-/**
  * Skips BOM and shebang
  *
  * parser Parser object
@@ -121,7 +107,12 @@ export function skipBomAndShebang(parser: Parser, context: Context): void {
                       case Chars.LineFeed:
                       case Chars.LineSeparator:
                       case Chars.ParagraphSeparator:
-                          advanceNewline(parser, ch);
+                      parser.flags |= Flags.NewLine;
+                      parser.index++; parser.column = 0; parser.line++;
+                      if (parser.index < parser.length && ch === Chars.CarriageReturn &&
+                          parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
+                          parser.index++;
+                      }
                           break loop;
                       default:
                           parser.index++;
