@@ -646,7 +646,7 @@ describe('Runtime - Unicode regular expressions', () => {
 
   for (const arg of invalidCases) {
       it(`${arg}`, () => {
-          const parser = createParserObject(`${arg}`, undefined);
+          const parser = createParserObject(`${arg}`, undefined, undefined, undefined);
           const {
               state
           } = verifyRegExpPattern(parser, Context.OptionsEditorMode);
@@ -1555,7 +1555,7 @@ describe('Runtime - Unicode regular expressions', () => {
 
   for (const arg of validCases) {
       it(`${arg}`, () => {
-          const parser = createParserObject(`${arg}`, undefined);
+          const parser = createParserObject(`${arg}`, undefined, undefined, undefined);
           const {
               state
           } = verifyRegExpPattern(parser, Context.OptionsEditorMode);

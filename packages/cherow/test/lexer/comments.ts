@@ -10,7 +10,7 @@ describe('Lexer - Comments', () => {
 
     function pass(name: string, opts: any) {
         it(name, () => {
-            const parser = createParserObject(opts.source, undefined);
+            const parser = createParserObject(opts.source, undefined, undefined, undefined);
             const token = nextToken(parser, Context.Empty);
             t.deepEqual({
                 index: parser.index,
@@ -26,7 +26,7 @@ describe('Lexer - Comments', () => {
 
     function fail(name: string, context: Context, opts: any): any {
       it(name, () => {
-          const parser = createParserObject(opts.source, undefined);
+          const parser = createParserObject(opts.source, undefined, undefined, undefined);
           t.throws(() => {
               nextToken(parser, context)
           });

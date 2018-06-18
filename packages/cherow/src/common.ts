@@ -481,7 +481,7 @@ export function finishNode < T extends ESTree.Node > (
   meta: Location,
   node: any): T {
 
-  const { lastIndex, lastLine, lastColumn } = parser;
+  const { lastIndex, lastLine, lastColumn, sourceFile } = parser;
 
   if (context & Context.OptionsRanges) {
       node.start = meta.index;
@@ -499,6 +499,8 @@ export function finishNode < T extends ESTree.Node > (
               column: lastColumn
           }
       };
+
+      if (sourceFile) node.loc.source = sourceFile;
   }
 
   return node as T;

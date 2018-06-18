@@ -58,7 +58,7 @@ describe('Lexer - Regeular expressions', () => {
     const s = String.fromCharCode(cu);
     if (!isAlphaDigit(s) && !isSyntaxCharacter(s) && s !== "/") {
         it(`scans '[\\c${s}]/u'`, () => {
-            const parser = createParserObject(`[\\c${s}]/u`, undefined);
+            const parser = createParserObject(`[\\c${s}]/u`, undefined, undefined, undefined);
             const { state } = verifyRegExpPattern(parser, Context.OptionsEditorMode);
 
             t.deepEqual({

@@ -18,8 +18,9 @@ import { doLexicalAnalysis } from './tokenize';
  */
 export function createParserObject(
   source: string,
-  onComment?: OnComment,
-  onError?: OnError,
+  onComment: OnComment | void,
+  onError: OnError | void,
+  sourceFile: string | void,
 ): Parser {
     return {
         // The source code to parse
@@ -60,6 +61,7 @@ export function createParserObject(
         capturingParens: 0,
         largestBackReference: 0,
         lastValue: 0,
+        sourceFile,
         // Misc
         token: Token.EndOfSource,
         tokenValue: undefined,
@@ -86,6 +88,7 @@ export function parseSource(
   let onError: OnError;
   let onComment: OnComment;
   let sourceFile: string = '';
+
   if (options !== undefined) {
       // The flag to enable module syntax support
       if (options.module) context |= Context.Module;
@@ -122,7 +125,7 @@ export function parseSource(
   }
 
   // Create the parser object
-  const parser = createParserObject(source, onComment, onError);
+  const parser = createParserObject(source, onComment, onError, sourceFile);
   skipBomAndShebang(parser, context);
   const body = (context & Context.Module) === Context.Module ?
       parseModuleItemList(parser, context) : parseStatementList(parser, context);
@@ -206,7 +209,7 @@ export function parseModule(source: string, options?: Options): ESTree.Program {
  */
 export function validateRegExp(source: string, options?: Options): boolean {
     // Create the parser object
-    const parser = createParserObject(source, undefined, undefined);
+    const parser = createParserObject(source, undefined, undefined, undefined);
 
     let context = Context.Empty;
 

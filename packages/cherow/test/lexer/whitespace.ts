@@ -10,7 +10,7 @@ describe('Lexer - Whitespace', () => {
 
     function pass(name: string, opts: any) {
         it(name, () => {
-            const parser = createParserObject(opts.source, undefined);
+            const parser = createParserObject(opts.source, undefined, undefined, undefined);
             const token = nextToken(parser, Context.Empty);
             t.deepEqual({
                 line: parser.line,
