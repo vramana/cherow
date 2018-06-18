@@ -51,7 +51,7 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
     }
 
     while (parser.token !== Token.EndOfSource) {
-            statements.push(parseStatementListItem(parser, context));
+      statements.push(parseStatementListItem(parser, context));
     }
 
     return statements;
@@ -66,7 +66,7 @@ export function parseStatementList(parser: Parser, context: Context): ESTree.Sta
  * @param context Context masks
  */
 export function parseStatementListItem(parser: Parser, context: Context): ESTree.Statement {
-   // ECMA 262 6th Edition
+   // ECMA 262 8th Edition
   // StatementListItem[Yield, Return] :
   //   Statement[?Yield, ?Return]
   //   Declaration[?Yield]

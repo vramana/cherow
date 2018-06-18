@@ -73,6 +73,11 @@ pass('should handle slash in a comment', {
   line: 1, column: 13, index: 13
 });
 
+pass('should handle Esprima issue #1828', {
+  source: `ident /* multiline
+  comment */ -->`,
+  line: 1, column: 5, index: 5
+});
 
 pass('should handle slash in a comment', {
   source: `// \u2028\u2028`,

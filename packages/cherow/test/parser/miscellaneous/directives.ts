@@ -8,6 +8,8 @@ describe('Miscellaneous - Directives', () => {
   describe('Failure', () => {
 
     const InvalidSyntax = [
+      // Esprima issue: #1731
+      '"use strict"; 08',
       '"\\1;" "use strict";',
       '"use strict"; function f(){"\\1";}',
       '"\\1;" "use strict"; null',
@@ -48,6 +50,9 @@ describe('Miscellaneous - Directives', () => {
       'function hello() { "use strict"; "\\00"; }',
       'function hello() { "use strict"; "\\0123"; }',
       'function hello("\\000008") { "use strict"; }',
+      `"use strict";
+      "use strict";
+      var public = 1;`,
       ` function fun() {
           "use strict";
                  var public = 1;
@@ -58,13 +63,7 @@ describe('Miscellaneous - Directives', () => {
 
         it(`${arg}`, () => {
             t.throws(() => {
-                parseSource(`/* comment in front */ ${arg}`, undefined, Context.Empty);
-            });
-        });
-
-        it(`${arg}`, () => {
-            t.throws(() => {
-                parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
+                parseSource(`${arg}`, undefined, Context.Empty);
             });
         });
     }
@@ -73,11 +72,28 @@ describe('Miscellaneous - Directives', () => {
     describe('Pass', () => {
 
       const validSyntax = [
+        ` "icefapper directive";`,
+        ` "icefapper directive"; "no strict"; "use strict";`,
+        '"use   strict";  var public = 1;',
+        '"use \\t strict";  var public = 1;',
+        '"use \\b  strict";  var public = 1;',
+        '"use   strict";  var public = 1;',
         '("use strict")',
         '"\\n\\r\\t\\v\\b\\f\\\\\\\'\\"\\0"',
         '"use some future directive"',
         '"use some future directive";',
         '"use some future directive"; "use strict";',
+        `/* comment */ "use  strict";`,
+        `"use  strict";
+        var public = 1;`,
+        ` "another directive"
+        "use strict" ;`,
+        `// comment
+        /* comment */ "use strict";`,
+        `"use strict";    /* comment */   // comment`,
+        ` var interface = 2;
+        "use strict";
+        var public = 1;`,
         '"Hello\\312World"',
         '"use strict"',
         '\'use\\x20strict\'',
@@ -105,6 +121,8 @@ describe('Miscellaneous - Directives', () => {
         '({ wrap() { "use strict"; foo } })',
         '"\\u0075se strict"',
         '"use asm"; "use strict"; foo',
+        "var public = 1; 'use strict'; var anotherVariableNotReserveWord = 2;",
+        "var public = 1; var anotherVariableNotReserveWord = 2; 'use strict';",
         'function wrap() { "use asm"; "use strict"; foo }',
         '"use strict"; foo; "use asm"',
         'function wrap() { "use asm"; foo; "use strict" }',
