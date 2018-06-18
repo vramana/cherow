@@ -842,6 +842,7 @@ export function parseIdentifier(parser: Parser, context: Context): ESTree.Identi
 export function parseLiteral(parser: Parser, context: Context): ESTree.Literal {
     const pos = getLocation(parser);
     const { tokenValue, tokenRaw } = parser;
+    if (context & Context.Strict && parser.flags & Flags.HasOctal) report(parser, Errors.StrictOctalEscape);
     parser.flags &= ~Flags.Assignable;
     nextToken(parser, context);
     const node: any = finishNode(parser, context, pos, {
@@ -1112,7 +1113,7 @@ function parseFunctionBody(parser: Parser, context: Context): ESTree.BlockStatem
         while (parser.token === Token.StringLiteral) {
             const { tokenRaw, tokenValue } = parser;
             body.push(parseDirective(parser, context));
-            if (tokenRaw.length === /* length of prologue*/ 12 && tokenValue === 'use strict') {
+            if (tokenValue.length === 10 && tokenValue === 'use strict') {
                 if (parser.flags & Flags.SimpleParameterList) {
                     recordErrors(parser, context, Errors.IllegalUseStrict);
                 } else if (parser.flags & Flags.StrictReserved) {

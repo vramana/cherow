@@ -61,11 +61,10 @@ table[Chars.Slash] = (parser: Parser) => {
   parser.index++; parser.column++;
   if (parser.index < parser.length) {
       const next = parser.source.charCodeAt(parser.index);
-      if (consumeOpt(parser, Chars.Slash)) {
-          return skipSingleLineComment(parser);
-      }
-      if (consumeOpt(parser, Chars.Asterisk)) {
-          return skipMultilineComment(parser);
+      if (next === Chars.Slash || next === Chars.Asterisk) {
+          return next === Chars.Slash
+            ? skipSingleLineComment(parser)
+            : skipMultilineComment(parser);
       } else if (next === Chars.EqualSign) {
           parser.index++;
           parser.column++;

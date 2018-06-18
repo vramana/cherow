@@ -84,11 +84,9 @@ export const enum BindingKind {
     Let,
     Const
 }
-
-/* Recovery state */
-export const enum Recovery {
-    Empty         = 0,
-    Unterminated  = 1 << 0,
+export const enum LabelledFunctionState {
+  Allow,
+  Disallow,
 }
 
 /* Tokenizer state */
