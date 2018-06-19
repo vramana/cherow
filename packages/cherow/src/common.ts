@@ -307,7 +307,16 @@ export function reinterpret(parser: Parser, context: Context, node: any): void {
             node.type = 'AssignmentPattern';
           //  if (node.operator !== '=') recordErrors(parser, context, Errors.InvalidLHSDefaultValue);
             delete node.operator;
+            reinterpret(parser, context, node.left);
             return;
+        case 'Property':
+            reinterpret(parser, context, node.value);
+            return;
+        case 'SpreadElement':
+            node.type = 'RestElement';
+            reinterpret(parser, context, node.argument);
+            return;
+
         default: // ignore
     }
 }

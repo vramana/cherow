@@ -9,6 +9,9 @@ describe('Lexer - Regeular expressions', () => {
   describe('Unicode - Invalid', () => {
       const invalidCases = [
 
+          'a\n/',
+          `a\r
+          /`,
           'a\\1/',
           '(a)\\2/',
           '((a))\\3/',
@@ -1320,9 +1323,9 @@ describe('Lexer - Regeular expressions', () => {
           '\\D/',
           '\\]/',
           '\\{/',
-          // '^a-zA-Z]*$/',
-          // '^a-zA-Z]*$/',
-          // '^0-9]+$/',
+          '[^a-zA-Z]*$/',
+          '[^a-zA-Z]*$/',
+          '[^0-9]+$/',
           // '\\/',
           '\\v/',
           '()|/',
@@ -1338,7 +1341,7 @@ describe('Lexer - Regeular expressions', () => {
           'a+?/',
           'a*?/',
           'a{1,2}/',
-          //        '^-J]/ug',
+          '[^-J]/ug',
           // '^-fdsasgJ]/g',
           'oo/i',
           '\\D/',

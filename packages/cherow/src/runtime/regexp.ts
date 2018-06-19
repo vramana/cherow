@@ -3,16 +3,14 @@ import { Chars } from '../chars';
 import { Context } from '../common';
 import { Token } from '../token';
 import { Errors, recordErrors } from '../errors';
-import {consumeOpt, toHex } from '../lexer/common';
+import { consumeOpt, toHex } from '../lexer/common';
 import {
     parseBackReferenceIndex,
     validateQuantifierPrefix,
     ClassRangesState,
     setRegExpState,
     setValidationState,
-    getUnicodeRange,
-    getRange,
-   RegexpState,
+    RegexpState,
     RegExpFlags,
     isFlagStart
 } from './common';
@@ -26,51 +24,6 @@ import {
 // - Optimize
 // - Maybe convert 'validateRegexBody' to a lookup table
 //
-
-/**
- * Scans regular expression pattern
- *
- * @export
- * @param parser Parser object
- * @param context Context masks
- */
-export function scanRegularExpression(parser: Parser, context: Context): Token {
-
-    const { flags, pattern} = verifyRegExpPattern(parser, context);
-    parser.tokenRegExp = { pattern, flags };
-
-    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
-
-    try {
-        parser.tokenValue = new RegExp(pattern, flags);
-    } catch (e) {
-        parser.tokenValue = null;
-    }
-
-    return Token.RegularExpression;
-}
-
-/**
- * Validates regular expression pattern
- *
- * @export
- * @param parser Parser object
- * @param context Context masks
- */
-
-export function verifyRegExpPattern(parser: Parser, context: Context): {
-    flags: string; pattern: string; state: RegexpState;
-} {
-    const bodyStart = parser.index;
-    const bodyState = validateRegexBody(parser, context, 0, RegexpState.Valid);
-    const bodyEnd = parser.index - 1;
-    const { index: flagStart } = parser;
-    const flagState = scanRegexFlags(parser, context);
-    const flags = parser.source.slice(flagStart, parser.index);
-    const pattern = parser.source.slice(bodyStart, bodyEnd);
-    const state = setRegExpState(parser, flagState, bodyState);
-    return { flags, pattern, state };
-}
 
 /**
  * Validate the regular expression body
@@ -139,7 +92,7 @@ export function validateRegexBody(
                     ch = parser.source.charCodeAt(parser.index);
                     if (ch === Chars.Colon || ch === Chars.EqualSign || ch === Chars.Exclamation) {
                         parser.index++; parser.column++;
-                    } else state = RegexpState.Invalid;
+                    } else state = RegexpState.Invalid; // Invalid group
                 } else {
                     ++parser.capturingParens;
                 }
@@ -150,9 +103,8 @@ export function validateRegexBody(
 
              // `)`
             case Chars.RightParen:
-
                 if (depth > 0) return state;
-                state = RegexpState.Invalid;
+                state = RegexpState.SloppyMode;
                 maybeQuantifier = true;
                 break;
 
@@ -164,7 +116,7 @@ export function validateRegexBody(
 
             // `]`
             case Chars.RightBracket:
-                state = RegexpState.Invalid;
+                state = RegexpState.SloppyMode;
                 maybeQuantifier = true;
                 break;
 
@@ -187,18 +139,18 @@ export function validateRegexBody(
 
                 if (maybeQuantifier) {
                     // Missing the first digits - '/a{,15}/u' - results in,
-                    // 'Incomplete quantifier' without the 'u-flag'
+                    // Incomplete quantifier without the 'u-flag'
                     let res: number | boolean = validateQuantifierPrefix(parser);
                     if ((res as number) & RegexpState.MissingDigits) {
-                        res = res as number ^ RegexpState.MissingDigits;
-                        if (res) state = RegexpState.SloppyMode;
-                        else state = RegexpState.Invalid;
+                        res = (res as number) ^ RegexpState.MissingDigits;
+                        state = res ? RegexpState.SloppyMode : RegexpState.Invalid;
                     } else if (!res) {
                         // Nothing to repeat
                         state = RegexpState.Invalid;
                     }
-                    if (parser.index < parser.length) {
-                        consumeOpt(parser, Chars.QuestionMark);
+                    if (parser.index < parser.length && parser.source.charCodeAt(parser.index) === Chars.QuestionMark) {
+                        parser.index++;
+                        parser.column++;
                     }
                     maybeQuantifier = false;
                 } else {
@@ -209,7 +161,6 @@ export function validateRegexBody(
 
             // `}`
             case Chars.RightBrace:
-
                 state = RegexpState.Invalid;
                 maybeQuantifier = false;
                 break;
@@ -377,60 +328,6 @@ function validateCharacterClass(parser: Parser): RegexpState {
     consumeOpt(parser, Chars.Caret);
     const next = parser.source.charCodeAt(parser.index);
     return validateClassRanges(parser, next);
-}
-
-/**
- * Scan regular expression flags
- *
- * @param parser Parser object
- * @param context Context masks
- */
-function scanRegexFlags(parser: Parser, context: Context): RegexpState {
-
-    let mask = RegExpFlags.Empty;
-
-    loop:
-        while (parser.index < parser.length) {
-            const c = parser.source.charCodeAt(parser.index);
-            switch (c) {
-                case Chars.LowerG:
-                    if (mask & RegExpFlags.Global) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'g');
-                    mask |= RegExpFlags.Global;
-                    break;
-                case Chars.LowerI:
-                    if (mask & RegExpFlags.IgnoreCase) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'i');
-                    mask |= RegExpFlags.IgnoreCase;
-                    break;
-                case Chars.LowerM:
-                    if (mask & RegExpFlags.Multiline) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'm');
-                    mask |= RegExpFlags.Multiline;
-                    break;
-                case Chars.LowerU:
-                    if (mask & RegExpFlags.Unicode) {
-                        recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'u');
-                        return RegexpState.Invalid;
-                    }
-                    mask |= RegExpFlags.Unicode;
-                    break;
-
-                case Chars.LowerY:
-                    if (mask & RegExpFlags.Sticky) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'y');
-                    mask |= RegExpFlags.Sticky;
-                    break;
-                case Chars.LowerS:
-                    if (mask & RegExpFlags.DotAll) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 's');
-                    mask |= RegExpFlags.DotAll;
-                    break;
-
-                default:
-                    if (!isFlagStart(c)) break loop;
-                    return RegexpState.Invalid;
-            }
-            parser.index++;
-            parser.column++;
-        }
-
-    return mask & RegExpFlags.Unicode ? RegexpState.UnicodeMode : RegexpState.SloppyMode;
 }
 
 /**
@@ -613,7 +510,9 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
     let count = 0;
 
     while (parser.index < parser.length) {
-        parser.index++; parser.column++;
+
+        parser.index++;
+        parser.column++;
 
         switch (ch) {
 
@@ -646,24 +545,28 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
                 }
         }
 
-        if (prevState & ClassRangesState.IsSurrogateLead && ch >= 0xDC00 && ch <= 0xDFFF) {
+        if (prevState & ClassRangesState.IsSurrogateLead && (ch & 0xFC00) === 0xDC00) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
-            surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
-        } else if (!(prevState & ClassRangesState.IsTrailSurrogate) &&
-                   prevState & ClassRangesState.IsSurrogateLead &&
-                   (ch & 0x1FFFFF) > 0xFFFF) {
+            surrogate = (prevChar - Chars.LeadSurrogateMin) * 0x400 + (ch - Chars.TrailSurrogateMin) + Chars.NonBMPMin;
+        } else if (!(prevState & ClassRangesState.IsTrailSurrogate) && prevState & ClassRangesState.IsSurrogateLead && (ch & 0x1FFFFF) > 0xFFFF) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
             surrogate = ch;
         } else {
             state = state & ~(ClassRangesState.IsTrailSurrogate | ClassRangesState.IsSurrogateLead);
-            if (ch >= 0xD800 && ch <= 0xDBFF) state = state | ClassRangesState.IsSurrogateLead;
+            if ((ch & 0xFC00) === Chars.LeadSurrogateMin) state = state | ClassRangesState.IsSurrogateLead;
         }
 
         if (state & ClassRangesState.SeenUnicoderange) {
             const rightUnicodeRange = state & ClassRangesState.IsTrailSurrogate ? surrogate : prevState & ClassRangesState.IsSurrogateLead ? prevChar : ch;
-            if (!(state & ClassRangesState.IsSurrogateLead) || prevState & ClassRangesState.IsSurrogateLead) {
+            if (!(state & ClassRangesState.IsSurrogateLead) ||
+                  prevState & ClassRangesState.IsSurrogateLead) {
                 state = state & ~ClassRangesState.SeenUnicoderange;
-                subState = getUnicodeRange(leftUnicodeRange, subState, rightUnicodeRange);
+                if (leftUnicodeRange === RegexpState.InvalidCharClassRange ||
+                    rightUnicodeRange === RegexpState.InvalidCharClassRange ||
+                    leftUnicodeRange > rightUnicodeRange) {
+                  if (subState === RegexpState.UnicodeMode) subState = RegexpState.Invalid;
+                  else if (subState !== RegexpState.Invalid) subState = RegexpState.SloppyMode;
+              }
             }
         } else if (ch === Chars.Hyphen && count > 0) {
             state = state | ClassRangesState.SeenUnicoderange;
@@ -673,7 +576,12 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
 
         if (state & ClassRangesState.InCharacterRange) {
             state = state & ~ClassRangesState.InCharacterRange;
-            subState = getRange(ch, CharacterRange, subState);
+            if (CharacterRange === RegexpState.InvalidCharClassRange ||
+                ch === RegexpState.InvalidCharClassRange ||
+                CharacterRange > ch) {
+              if (subState === RegexpState.SloppyMode) subState = RegexpState.Invalid;
+              else if (subState !== RegexpState.Invalid) subState = RegexpState.UnicodeMode;
+          }
         } else if (ch === Chars.Hyphen && count > 0) {
             state = state | ClassRangesState.InCharacterRange;
         } else {
@@ -681,9 +589,8 @@ function validateClassRanges(parser: Parser, ch: number): RegexpState {
         }
 
         prevState = state;
-        prevChar = ch;
+        prevChar = ch = parser.source.charCodeAt(parser.index);
         count++;
-        ch = parser.source.charCodeAt(parser.index);
     }
     return RegexpState.Invalid;
 }

@@ -1,7 +1,7 @@
 import { Parser } from '../types';
 import { consumeOpt } from '../lexer/common';
 import { Chars } from '../chars';
-import { isValidIdentifierPart, mustEscape } from '../unicode';
+import { isValidIdentifierPart } from '../unicode';
 
 /* Regular expression flags */
 export const enum RegExpFlags {
@@ -183,7 +183,7 @@ export function parseBackReferenceIndex(parser: Parser, code: number): RegexpSta
       code = parser.source.charCodeAt(parser.index);
       if (code >= Chars.Zero && code <= Chars.Nine) {
           value = value * 10 + (code - Chars.Zero);
-          parser.index++;
+          parser.index++; parser.column++;
       } else {
           break;
       }
@@ -191,34 +191,4 @@ export function parseBackReferenceIndex(parser: Parser, code: number): RegexpSta
 
   parser.largestBackReference = value;
   return RegexpState.Valid;
-}
-
-/**
- * Get unicode range
- *
- * @param range Left unicode range
- * @param state Current lexer state
- * @param right Right unicode range
- */
-export function getUnicodeRange(range: any, state: RegexpState, right: number): RegexpState {
-  if (range === RegexpState.InvalidCharClassRange || right === RegexpState.InvalidCharClassRange || range > right) {
-      if (state === RegexpState.UnicodeMode) return RegexpState.Invalid;
-      else if (state !== RegexpState.Invalid) return RegexpState.SloppyMode;
-  }
-  return state;
-}
-
-/**
- * Get non-unicode range
- *
- * @param range Left unicode range
- * @param state Current lexer state
- * @param right Right unicode range
- */
-export function getRange(ch: number, range: number, state: RegexpState): RegexpState {
-  if (range === RegexpState.InvalidCharClassRange || ch === RegexpState.InvalidCharClassRange || range > ch) {
-      if (state === RegexpState.SloppyMode) return RegexpState.Invalid;
-      else if (state !== RegexpState.Invalid) return RegexpState.UnicodeMode;
-  }
-  return state;
 }
