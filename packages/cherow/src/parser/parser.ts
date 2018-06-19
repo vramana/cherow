@@ -5,10 +5,10 @@ import * as ESTree from '../estree';
 import { parseStatementList } from './statements';
 import { parseModuleItemList } from './module';
 import { Chars } from '../chars';
-import { consumeOpt, RegexpState, skipBomAndShebang } from '../lexer/common';
+import { consumeOpt, skipBomAndShebang } from '../lexer/common';
+import { RegexpState } from '../runtime/common';
 import { verifyRegExpPattern } from '../lexer/regexp';
 import { Errors, recordErrors, } from '../errors';
-import { doLexicalAnalysis } from './tokenize';
 
 /**
  * Creates the parser object
@@ -126,7 +126,9 @@ export function parseSource(
 
   // Create the parser object
   const parser = createParserObject(source, onComment, onError, sourceFile);
+
   skipBomAndShebang(parser, context);
+
   const body = (context & Context.Module) === Context.Module ?
       parseModuleItemList(parser, context) : parseStatementList(parser, context);
 
@@ -222,14 +224,4 @@ export function validateRegExp(source: string, options?: Options): boolean {
     const { state } = verifyRegExpPattern(parser, context);
     if (state === RegexpState.Invalid) recordErrors(parser, context, Errors.InvalidRegularExp);
     return (state === RegexpState.Valid) ? true : false;
-}
-
-/**
- *  Performs lexical analysis (tokenization)
- *
- * @param source source code to parse
- * @param options parser options
- */
-export function tokenize(): any {
-  return doLexicalAnalysis();
 }
