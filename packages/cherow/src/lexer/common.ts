@@ -10,7 +10,6 @@ export const enum NumericState {
   None         = 0,
   IsFloat      = 1 << 0,
   IsBigInt     = 1 << 1,
-  HasSeparator = 1 << 2,
 }
 
 /* Sting / template literal escapes */
@@ -30,8 +29,6 @@ export const enum ClassRangesState {
   SeenUnicoderange = 1 << 8,
   InCharacterRange = 1 << 10,
 }
-
-
 
 /**
  * Consume an token in the scanner on match. This is an equalent to
