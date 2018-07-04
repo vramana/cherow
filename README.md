@@ -23,4 +23,6 @@ This repo is managed as a monorepo that is composed of many independent [npm](ht
 All packages conforms to the standard ECMAScript® 2019 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) language specification (*draft*)
 
 
+## Help Wanted!
 
+If you're familiar with JavaScript and parsing, and you'd like to see this project progress, please consider contributing. A good place to start is to look for issues tagged with [help wanted](https://github.com/cherow/cherow/labels/help%20wanted) and/or [good first issue](https://github.com/cherow/cherow/labels/good%20first%20issue). Check out our [CONTRIBUTING.md](.github/CONTRIBUTING.md) to get started with setting up the repo.
