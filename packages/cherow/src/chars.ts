@@ -5,10 +5,9 @@ export const enum CharType {
   Invalid     = 0b0,
   IDContinue  = 0b1,
   IDStart     = 0b10,
-  Hex         = 0b100,
-  Decimal     = 0b1000,
-  Whitespace  = 0b10000,
-  LineFeed    = 0b100000,
+  Decimal     = 0b100,
+  Whitespace  = 0b1000,
+  LineFeed    = 0b10000,
   WSOrLF      = Whitespace | LineFeed,
   Letters     = IDContinue | IDStart,
 }
@@ -80,12 +79,12 @@ export const LatinLetters = [
     CharType.Invalid,     /* 0x3E > */
     CharType.Invalid,     /* 0x3F   */
     CharType.Invalid,     /* 0x40 @ */
-    CharType.Hex,         /* 0x41 A */
-    CharType.Hex,         /* 0x42 B */
-    CharType.Hex,         /* 0x43 C */
-    CharType.Hex,         /* 0x44 D */
-    CharType.Hex,         /* 0x45 E */
-    CharType.Hex,         /* 0x46 F */
+    CharType.Letters,     /* 0x41 A */
+    CharType.Letters,     /* 0x42 B */
+    CharType.Letters,     /* 0x43 C */
+    CharType.Letters,     /* 0x44 D */
+    CharType.Letters,     /* 0x45 E */
+    CharType.Letters,     /* 0x46 F */
     CharType.Letters,     /* 0x47 G */
     CharType.Letters,     /* 0x48 H */
     CharType.Letters,     /* 0x49 I */
@@ -112,12 +111,12 @@ export const LatinLetters = [
     CharType.Invalid,     /* 0x5E   */
     CharType.Letters,     /* 0x5F _ */
     CharType.Invalid,     /* 0x60   */
-    CharType.Hex,         /* 0x61 a */
-    CharType.Hex,         /* 0x62 b */
-    CharType.Hex,         /* 0x63 c */
-    CharType.Hex,         /* 0x64 d */
-    CharType.Hex,         /* 0x65 e */
-    CharType.Hex,         /* 0x66 f */
+    CharType.Letters,     /* 0x61 a */
+    CharType.Letters,     /* 0x62 b */
+    CharType.Letters,     /* 0x63 c */
+    CharType.Letters,     /* 0x64 d */
+    CharType.Letters,     /* 0x65 e */
+    CharType.Letters,     /* 0x66 f */
     CharType.Letters,     /* 0x67 g */
     CharType.Letters,     /* 0x68 h */
     CharType.Letters,     /* 0x69 i */
