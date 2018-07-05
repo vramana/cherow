@@ -39,6 +39,10 @@ describe('Lexer - Nuasdfmbers', () => {
         });
     }
 
+    fail('should fail on keyword immediately after numeric literal', Context.Empty, {
+      source: '3in'
+    })
+
     fail('should fail on chinese immediately after numeric literal', Context.Empty, {
       source: '123中国'
     })

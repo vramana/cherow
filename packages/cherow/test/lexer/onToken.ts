@@ -94,13 +94,138 @@ describe("Lexer - OnToken", () => {
       }
 
       pass('should tokenize single-quoted string with escaped linefeed', {
-        source: '"a\\n"',
+          source: '"a\\n"',
+          value: [{
+              type: 'StringLiteral',
+              "value": "\"a\\n\""
+          }],
+          line: 1,
+          column: 5,
+      });
+
+      pass('should tokenize and not recognize greater than as HTML Close comment', {
+        source: 'x = y-->10;\n --> nothing',
         value: [{
-            type: 'StringLiteral',
-            "value": "\"a\\n\""
-        }],
-        line: 1,
-        column: 5,
+              "type": "Identifier",
+              "value": "x",
+            },
+            {
+              "type": "Punctuator",
+              "value": "=",
+           },
+            {
+              "type": "Identifier",
+              "value": "y",
+            },
+            {
+             "type": "Punctuator",
+              "value": "--",
+            },
+            {
+              "type": "Punctuator",
+              "value": ">",
+            },
+            {
+              "type": "Numeric",
+              "value": "10",
+            },
+            {
+              "type": "Punctuator",
+              "value": ";"
+            }],
+      line: 2,
+      column: 12,
+  });
+
+    pass('should tokenizse identifier and skip HTML Open comment', {
+      source: 'foo <!--bar\n+baz',
+      value: [{
+              "type": "Identifier",
+              "value": "foo"
+            }],
+      line: 3,
+      column: 4,
+  });
+
+    pass('should tokenize single-quoted string with escaped linefeed', {
+      source: 'while (x-->0)',
+      value: [{
+              "type": "Keyword",
+              "value": "while",
+            },
+            {
+              "type": "Punctuator",
+              "value": "(",
+            },
+            {
+              "type": "Identifier",
+              "value": "x",
+            },
+            {
+              "type": "Punctuator",
+              "value": "--",
+            },
+            {
+              "type": "Punctuator",
+              "value": ">",
+            },
+            {
+              "type": "Numeric",
+              "value": "0",
+            },
+            {
+             "type": "Punctuator",
+              "value": ")",
+            }
+          ],
+      line: 1,
+      column: 13,
+    });
+
+    pass('should tokenize and skip HTML comment at the end', {
+      source: 'var a = 1, b = 1; a <!--b;',
+      value: [ {
+              "type": "Keyword",
+              "value": "var",
+            },
+            {
+              "type": "Identifier",
+              "value": "a",
+            },
+            {
+             "type": "Punctuator",
+              "value": "=",
+            },
+            {
+              "type": "Numeric",
+              "value": "1",
+            },
+            {
+              "type": "Punctuator",
+              "value": ",",
+           },
+            {
+              "type": "Identifier",
+              "value": "b",
+            },
+            {
+              "type": "Punctuator",
+              "value": "=",
+            },
+            {
+              "type": "Numeric",
+              "value": "1",
+            },
+            {
+              "type": "Punctuator",
+              "value": ";",
+            },
+            {
+              "type": "Identifier",
+              "value": "a"
+            }],
+      line: 1,
+      column: 26,
     });
 
     pass('should tokenize array literal', {

@@ -40,11 +40,11 @@ export function scanJSXToken(state: ParserState): Token {
 }
 
 /**
-* Scans JSX Attribute value
-*
-* @param state state object
-* @param context Context masks
-*/
+ * Scans JSX Attribute value
+ *
+ * @param state state object
+ * @param context Context masks
+ */
 
 export function scanJSXAttributeValue(state: ParserState, context: Context): Token {
   state.lastIndex = state.index;
@@ -60,7 +60,7 @@ export function scanJSXAttributeValue(state: ParserState, context: Context): Tok
  * @param state state object
  * @param context Context masks
  * @param quote Code point
-*/
+ */
 function scanJSXString(state: ParserState, context: Context, quote: number): Token {
   nextChar(state); // skip the quote
   state.tokenValue = '';

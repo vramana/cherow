@@ -1,5 +1,5 @@
 import { ParserState } from '../types';
-import { Context, Flags } from '../common';
+import { Flags } from '../common';
 import { Token, KeywordDescTable } from '../token';
 
 export const enum TokenType {
@@ -30,14 +30,14 @@ export const TokenTypes = [
 
 // Usage: if (context & Context.Tokenize) edgeCaseCrap(state, token, Token.Type)
 
-export function edgeCaseCrap(state: ParserState, t: Token, type: TokenType) {
+export function edgeCaseCrap(state: ParserState, t: Token, type: TokenType): void {
   state.flags |= Flags.EdgeCase; // If the flag is on, the 'nextToken' will not push anything to 'onToken'
   state.onToken(TokenTypes[type & 0xFF], t & Token.Punctuator ? KeywordDescTable[t & Token.Type] : state.tokenValue);
 }
 
 // TODO! Optimize and refactor this!
 
-export function getTokenValue(state: ParserState, t: Token) {
+export function getTokenValue(state: ParserState, t: Token): string {
   if (t & Token.Punctuator) return KeywordDescTable[t & Token.Type];
   return state.source.slice(state.startIndex, state.index);
 }
@@ -53,4 +53,3 @@ export function convertTokenType(t: Token): string {
   if (t & (Token.Reserved | Token.FutureReserved)) return 'Keyword';
   return 'BooleanLiteral'; // true / false
 }
-

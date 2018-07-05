@@ -2,7 +2,6 @@ import * as t from 'assert';
 import { nextToken } from '../../src/lexer/scan';
 import { State } from '../../src/state';
 import { Context } from '../../src/common';
-import { Token } from '../../src/token';
 
 // https://github.com/tc39/test262/tree/master/test/language/white-space
 

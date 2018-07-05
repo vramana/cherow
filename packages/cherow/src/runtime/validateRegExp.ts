@@ -1,6 +1,5 @@
 import { State } from '../state';
 import { Context } from '../common';
-import { Options } from '../types';
 import { Chars } from '../chars';
 import { consume } from '../lexer/common';
 import { RegexpState } from '../runtime/common';

@@ -79,7 +79,7 @@ export function constructError(index: number, line: number, column: number, desc
   return error;
 }
 
-export function report(parser: ParserState, type: Errors, ...params: string[]) {
+export function report(parser: ParserState, type: Errors, ...params: string[]): any {
   const { index, line, column } = parser;
   const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
   const error = constructError(index, line, column, message);

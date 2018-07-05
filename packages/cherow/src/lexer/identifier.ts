@@ -85,7 +85,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
   if (nextChar(state) === Chars.LeftBrace) {
       let digit = toHex(nextChar(state));
       //  '\\u{}'
-      if (state.nextChar === Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape)
+      if (state.nextChar === Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
       // Note: The 'while' loop will only execute if the digit is higher than or equal to zero. And the 'value'
       // will still be 0 if invalid hex value. So no need for further validations
       while (digit >= 0) {

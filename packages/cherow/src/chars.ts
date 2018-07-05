@@ -1,307 +1,156 @@
 import { unicodeLookup } from './unicode';
 
+/*@internal*/
 export const enum CharType {
-  IDStart,
-  Zero,
-  Number,
-  Invalid,
-  LineTerminator,
-  Exclamation,
-  OpenParen,
-  CloseParen,
-  OpenBracket,
-  CloseBracket,
-  Comma,
-  Colon,
-  Question,
-  Tilde,
-  Quote,
-  BackQuote,
-  Dot,
-  Slash,
-  BackSlash,
-  Semicolon,
-  OpenBrace,
-  CloseBrace,
-  Add,
-  Sub,
-  Multiply,
-  Modulo,
-  And,
-  Xor,
-  Or,
-  Less,
-  Greater,
-  Equal,
-  WhiteSpace,
-  PrivateName
+  Invalid     = 0b0,
+  IDContinue  = 0b1,
+  IDStart     = 0b10,
+  Hex         = 0b100,
+  Decimal     = 0b1000,
+  Whitespace  = 0b10000,
+  LineFeed    = 0b100000,
+  WSOrLF      = Whitespace | LineFeed,
+  Letters     = IDContinue | IDStart,
 }
 
-const LatinLetters = [
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.WhiteSpace,
-  CharType.LineTerminator,
-  CharType.WhiteSpace,
-  CharType.WhiteSpace,
-  CharType.LineTerminator,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.WhiteSpace,
-  CharType.Exclamation,
-  CharType.Quote,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.Modulo,
-  CharType.And,
-  CharType.Quote,
-  CharType.OpenParen,
-  CharType.CloseParen,
-  CharType.Multiply,
-  CharType.Add,
-  CharType.Comma,
-  CharType.Sub,
-  CharType.Dot,
-  CharType.Slash,
-  CharType.Zero,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Number,
-  CharType.Colon,
-  CharType.Semicolon,
-  CharType.Less,
-  CharType.Equal,
-  CharType.Greater,
-  CharType.Question,
-  CharType.PrivateName,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.OpenBracket,
-  CharType.BackSlash,
-  CharType.CloseBracket,
-  CharType.Xor,
-  CharType.IDStart,
-  CharType.BackQuote,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.OpenBrace,
-  CharType.Or,
-  CharType.CloseBrace,
-  CharType.Tilde,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.WhiteSpace,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.Invalid,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart,
-  CharType.IDStart
+/*@internal*/
+export const LatinLetters = [
+    CharType.Invalid,     /* 0x00   */
+    CharType.Invalid,     /* 0x01   */
+    CharType.Invalid,     /* 0x02   */
+    CharType.Invalid,     /* 0x03   */
+    CharType.Invalid,     /* 0x04   */
+    CharType.Invalid,     /* 0x05   */
+    CharType.Invalid,     /* 0x06   */
+    CharType.Invalid,     /* 0x07   */
+    CharType.Invalid,     /* 0x08   */
+    CharType.Whitespace,  /* 0x09   */
+    CharType.WSOrLF,      /* 0x0A   */
+    CharType.Whitespace,  /* 0x0B   */
+    CharType.Whitespace,  /* 0x0C   */
+    CharType.WSOrLF,      /* 0x0D   */
+    CharType.Invalid,     /* 0x0E   */
+    CharType.Invalid,     /* 0x0F   */
+    CharType.Invalid,     /* 0x10   */
+    CharType.Invalid,     /* 0x11   */
+    CharType.Invalid,     /* 0x12   */
+    CharType.Invalid,     /* 0x13   */
+    CharType.Invalid,     /* 0x14   */
+    CharType.Invalid,     /* 0x15   */
+    CharType.Invalid,     /* 0x16   */
+    CharType.Invalid,     /* 0x17   */
+    CharType.Invalid,     /* 0x18   */
+    CharType.Invalid,     /* 0x19   */
+    CharType.Invalid,     /* 0x1A   */
+    CharType.Invalid,     /* 0x1B   */
+    CharType.Invalid,     /* 0x1C   */
+    CharType.Invalid,     /* 0x1D   */
+    CharType.Invalid,     /* 0x1E   */
+    CharType.Invalid,     /* 0x1F   */
+    CharType.Whitespace,  /* 0x20   */
+    CharType.Invalid,     /* 0x21 ! */
+    CharType.Invalid,     /* 0x22   */
+    CharType.Invalid,     /* 0x23 # */
+    CharType.Letters,     /* 0x24 $ */
+    CharType.Invalid,     /* 0x25 % */
+    CharType.Invalid,     /* 0x26 & */
+    CharType.Invalid,     /* 0x27   */
+    CharType.Invalid,     /* 0x28   */
+    CharType.Invalid,     /* 0x29   */
+    CharType.Invalid,     /* 0x2A   */
+    CharType.Invalid,     /* 0x2B   */
+    CharType.Invalid,     /* 0x2C   */
+    CharType.Invalid,     /* 0x2D   */
+    CharType.Invalid,     /* 0x2E   */
+    CharType.Invalid,     /* 0x2F   */
+    CharType.Decimal,     /* 0x30 0 */
+    CharType.Decimal,     /* 0x31 1 */
+    CharType.Decimal,     /* 0x32 2 */
+    CharType.Decimal,     /* 0x33 3 */
+    CharType.Decimal,     /* 0x34 4 */
+    CharType.Decimal,     /* 0x35 5 */
+    CharType.Decimal,     /* 0x36 6 */
+    CharType.Decimal,     /* 0x37 7 */
+    CharType.Decimal,     /* 0x38 8 */
+    CharType.Decimal,     /* 0x39 9 */
+    CharType.Invalid,     /* 0x3A   */
+    CharType.Invalid,     /* 0x3B   */
+    CharType.Invalid,     /* 0x3C < */
+    CharType.Invalid,     /* 0x3D = */
+    CharType.Invalid,     /* 0x3E > */
+    CharType.Invalid,     /* 0x3F   */
+    CharType.Invalid,     /* 0x40 @ */
+    CharType.Hex,         /* 0x41 A */
+    CharType.Hex,         /* 0x42 B */
+    CharType.Hex,         /* 0x43 C */
+    CharType.Hex,         /* 0x44 D */
+    CharType.Hex,         /* 0x45 E */
+    CharType.Hex,         /* 0x46 F */
+    CharType.Letters,     /* 0x47 G */
+    CharType.Letters,     /* 0x48 H */
+    CharType.Letters,     /* 0x49 I */
+    CharType.Letters,     /* 0x4A J */
+    CharType.Letters,     /* 0x4B K */
+    CharType.Letters,     /* 0x4C L */
+    CharType.Letters,     /* 0x4D M */
+    CharType.Letters,     /* 0x4E N */
+    CharType.Letters,     /* 0x4F O */
+    CharType.Letters,     /* 0x50 P */
+    CharType.Letters,     /* 0x51 Q */
+    CharType.Letters,     /* 0x52 R */
+    CharType.Letters,     /* 0x53 S */
+    CharType.Letters,     /* 0x54 T */
+    CharType.Letters,     /* 0x55 U */
+    CharType.Letters,     /* 0x56 V */
+    CharType.Letters,     /* 0x57 W */
+    CharType.Letters,     /* 0x58 X */
+    CharType.Letters,     /* 0x59 Y */
+    CharType.Letters,     /* 0x5A Z */
+    CharType.Invalid,     /* 0x5B   */
+    CharType.Invalid,     /* 0x5C   */
+    CharType.Invalid,     /* 0x5D   */
+    CharType.Invalid,     /* 0x5E   */
+    CharType.Letters,     /* 0x5F _ */
+    CharType.Invalid,     /* 0x60   */
+    CharType.Hex,         /* 0x61 a */
+    CharType.Hex,         /* 0x62 b */
+    CharType.Hex,         /* 0x63 c */
+    CharType.Hex,         /* 0x64 d */
+    CharType.Hex,         /* 0x65 e */
+    CharType.Hex,         /* 0x66 f */
+    CharType.Letters,     /* 0x67 g */
+    CharType.Letters,     /* 0x68 h */
+    CharType.Letters,     /* 0x69 i */
+    CharType.Letters,     /* 0x6A j */
+    CharType.Letters,     /* 0x6B k */
+    CharType.Letters,     /* 0x6C l */
+    CharType.Letters,     /* 0x6D m */
+    CharType.Letters,     /* 0x6E n */
+    CharType.Letters,     /* 0x6F o */
+    CharType.Letters,     /* 0x70 p */
+    CharType.Letters,     /* 0x71 q */
+    CharType.Letters,     /* 0x72 r */
+    CharType.Letters,     /* 0x73 s */
+    CharType.Letters,     /* 0x74 t */
+    CharType.Letters,     /* 0x75 u */
+    CharType.Letters,     /* 0x76 v */
+    CharType.Letters,     /* 0x77 w */
+    CharType.Letters,     /* 0x78 x */
+    CharType.Letters,     /* 0x79 y */
+    CharType.Letters,     /* 0x7A z */
+    CharType.Invalid,     /* 0x7B   */
+    CharType.Invalid,     /* 0x7C   */
+    CharType.Invalid,     /* 0x7D   */
+    CharType.Invalid,     /* 0x7E   */
+    CharType.Invalid      /* 0x7F   */
 ];
 
 export function isIdentifierPart(code: Chars): boolean {
-  return LatinLetters[code] <= CharType.Number || (unicodeLookup[(code >>> 5) + 0] >>> code & 31 & 1) !== 0;
+  return (LatinLetters[code] & CharType.IDContinue) != 0 || (unicodeLookup[(code >>> 5) + 0] >>> code & 31 & 1) !== 0;
 }
 
 export function isIdentifierStart(code: Chars): boolean {
-  return LatinLetters[code] === CharType.IDStart || (unicodeLookup[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
+  return (LatinLetters[code] & CharType.IDStart) != 0 || (unicodeLookup[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Options, OnError, OnToken } from '../types';
+import { Options, OnToken } from '../types';
 import { Context } from '../common';
 import * as ESTree from '../estree';
 import { State } from '../state';
@@ -18,7 +18,6 @@ export function parseSource(
   options: Options | void,
   /*@internal*/
   context: Context): any {
-  let onError: OnError;
   let onComment: any;
   let onToken: OnToken;
   let sourceFile: string = '';
@@ -50,8 +49,6 @@ export function parseSource(
       if (options.impliedStrict) context |= Context.Strict;
       // The flag to enable experimental features
       if (options.experimental) context |= Context.OptionsExperimental;
-      // The flag to enable editor mode
-      if (options.edit != null) onError = options.edit;
       if (options.onToken != null) onToken = options.onToken;
       // The callback for handling comments
       if (options.onComment != null) onComment = options.onComment;

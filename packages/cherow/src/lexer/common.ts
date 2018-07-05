@@ -1,9 +1,8 @@
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { mustEscape } from '../unicode';
+import { mustEscape, isIDStart } from '../unicode';
 import { Context, Flags } from '../common';
-import { isIDStart } from '../unicode';
 import { report, Errors } from '../errors';
 import { scanIdentifier } from './identifier';
 
@@ -45,7 +44,6 @@ export function nextUnicodeChar(state: ParserState): number {
   if (lo < 0xDC00 || lo > 0xDFFF) return hi;
   return (hi & 0x3FF) << 10 | lo & 0x3FF | 0x10000;
 }
-
 
 export function toHex(code: number): number {
   code -= Chars.Zero;
@@ -135,7 +133,6 @@ export function skipBomAndShebang(state: ParserState, context: Context): void {
    }
  }
 
-
 /**
  * Scans private name. Stage 3 proposal related
  *
@@ -153,4 +150,59 @@ export function scanPrivateName(state: ParserState, context: Context): Token {
   state.startColumn = state.column;
   scanIdentifier(state, context);
   return Token.Hash;
+}
+
+/**
+ * Does a lookahead and if the 'isLookaHead' is set to false or the result is true it will continue parsing
+ * and never rewind the parser state
+ *
+ * @param state ParserState instance
+ * @param callback Callback function to be called
+ * @param isLookahead Boolean
+ */
+export function lookAheadOrScan <T> (state: ParserState, callback: (state: ParserState) => T, isLookahead: boolean): T {
+  const savedIndex = state.index;
+  const savedLine = state.line;
+  const savedColumn = state.column;
+  const savedlastIndex = state.lastIndex;
+  const startIndex = state.startIndex;
+  const savedLastLine = state.startLine;
+  const savedLastColumn = state.lastColumn;
+  const savedStartColumn = state.startColumn;
+  const savedFlags = state.flags;
+  const savedTokenValue = state.tokenValue;
+  const savedNextChar = state.nextChar;
+  const savedToken = state.token;
+  const savedTokenRaw = state.tokenRaw;
+  const savedTokenRegExp = state.tokenRegExp;
+  const savedCommentStart = state.commentStart;
+  const savedCommentType = state.commentType;
+  const savedCapturingParens = state.capturingParens;
+  const savedAssignable = state.assignable;
+  const savedDestructible = state.destructible;
+  const result = callback(state);
+
+  if (!result || isLookahead) {
+      state.index = savedIndex;
+      state.line = savedLine;
+      state.column = savedColumn;
+      state.lastIndex = savedlastIndex;
+      state.startIndex = startIndex;
+      state.startLine = savedLastLine;
+      state.lastColumn = savedLastColumn;
+      state.startColumn = savedStartColumn;
+      state.flags = savedFlags;
+      state.tokenValue = savedTokenValue;
+      state.nextChar = savedNextChar;
+      state.token = savedToken;
+      state.tokenRaw = savedTokenRaw;
+      state.tokenRegExp =savedTokenRegExp ;
+      state.commentStart = savedCommentStart;
+      state.commentType = savedCommentType;
+      state.capturingParens = savedCapturingParens;
+      state.assignable = savedAssignable;
+      state.destructible = savedDestructible;
+  }
+
+  return result;
 }

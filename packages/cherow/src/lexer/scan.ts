@@ -2,7 +2,7 @@ import { Context, Flags } from '../common';
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consume, mapToToken, scanPrivateName, escapeInvalidCharacters, nextChar } from './common';
+import { consume, mapToToken, scanPrivateName, escapeInvalidCharacters } from './common';
 import { CommentType, skipSingleLineComment, skipMultilineComment, skipSingleHTMLComment } from './comments';
 import { getTokenValue, convertTokenType } from './tokenizer';
 import { scanStringLiteral } from './string';

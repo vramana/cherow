@@ -75,12 +75,12 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
 }
 
 /**
-* Skips multiline comment
-*
-* @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
-*
-* @param state Parser object
-*/
+ * Skips multiline comment
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment)
+ *
+ * @param state Parser object
+ */
 export function skipMultilineComment(state: ParserState): any {
   let lastIsCR = 0;
   if (state.onComment) state.commentStart = state.index;
