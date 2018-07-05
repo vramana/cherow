@@ -1,11 +1,23 @@
-import { Parser } from '../types';
+import { Context } from '../common';
+import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { Context } from '../common';
-import { readNext, fromCodePoint, Escape, recordStringErrors } from './common';
-import { Errors, report } from '../errors';
-import { table } from './string';
+import {  recordStringErrors, table } from './string';
+import { report, Errors } from '../errors';
+import { fromCodePoint, Escape, nextUnicodeChar } from './common';
 
+// Note! This will be refactored once I start with the parser. - K.F
+
+// Note: This can be optimized further, but not in the same way as string literal.
+// If we try that, we loose around 300ms
+
+export function readNext(state: ParserState, ch: number): number {
+  state.index++;
+  state.column++;
+  if (ch > 0xFFFF) state.index++;
+  if (state.index >= state.length) report(state, Errors.Unexpected);
+  return state.nextChar = nextUnicodeChar(state);
+}
 /**
  * Scan template
  *
@@ -13,8 +25,8 @@ import { table } from './string';
  * @param context Context masks
  * @param first Codepoint
  */
-export function scanTemplate(parser: Parser, context: Context, first: number): Token {
-  const { index: start, lastValue } = parser;
+export function scanTemplate(parser: ParserState, context: Context): Token {
+  const { index: start, nextChar: first } = parser;
   let tail = true;
   let ret: string | void = '';
 
@@ -24,7 +36,7 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
       while (ch !== Chars.Backtick) {
 
           switch (ch) {
-              // Break after a literal `${` (thus the dedicated code path).
+
               case Chars.Dollar:
                   {
                       const index = parser.index + 1;
@@ -42,17 +54,16 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
               case Chars.Backslash:
                   ch = readNext(parser, ch);
 
-                  if (ch >= 128) {
+                  if (ch >= Chars.MaxAsciiCharacter) {
                       ret += fromCodePoint(ch);
                   } else {
-                      parser.lastValue = ch;
-                      const code = table[ch](parser, context, ch);
+                      const code = table[ch](parser, context);
 
                       if (code >= 0) {
                           ret += fromCodePoint(code);
                       } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
                           ret = undefined;
-                          ch = scanLooserTemplateSegment(parser, parser.lastValue);
+                          ch = scanLooserTemplateSegment(parser, parser.nextChar);
                           if (ch < 0) {
                               ch = -ch;
                               tail = false;
@@ -61,7 +72,6 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
                       } else {
                           recordStringErrors(parser, code as Escape);
                       }
-                      ch = parser.lastValue;
                   }
 
                   break;
@@ -88,8 +98,7 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
 
   parser.index++;
   parser.column++;
-  parser.tokenValue = ret;
-  parser.lastValue = lastValue;
+  (parser.tokenValue as any) = ret;
 
   if (tail) {
       parser.tokenRaw = parser.source.slice(start + 1, parser.index - 1);
@@ -106,12 +115,12 @@ export function scanTemplate(parser: Parser, context: Context, first: number): T
  * @param parser Parser object
  * @param context Context masks
  */
-export function consumeTemplateBrace(parser: Parser, context: Context): Token {
-  if (parser.index >= parser.length) report(parser, Errors.UnterminatedTemplate);
+export function consumeTemplateBrace(parser: ParserState, context: Context): Token {
+  if (parser.index >= parser.length) report(parser, Errors.UnterminatedString);
   // Upon reaching a '}', consume it and rewind the scanner state
   parser.index--;
   parser.column--;
-  return scanTemplate(parser, context, Chars.RightBrace);
+  return scanTemplate(parser, context);
 }
 
 /**
@@ -120,7 +129,7 @@ export function consumeTemplateBrace(parser: Parser, context: Context): Token {
  * @param parser Parser object
  * @param ch codepoint
  */
-function scanLooserTemplateSegment(parser: Parser, ch: number): number {
+function scanLooserTemplateSegment(parser: ParserState, ch: number): number {
   while (ch !== Chars.Backtick) {
       if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
           parser.index++;

@@ -1,8 +1,8 @@
-import { Parser } from '../types';
+import { ParserState } from '../types';
 import { Chars } from '../chars';
 import { Context } from '../common';
 import { Token } from '../token';
-import { Errors, recordErrors } from '../errors';
+import { Errors, report } from '../errors';
 import { validateRegexBody } from '../runtime/regexp';
 import { setRegExpState, RegexpState, RegExpFlags, isFlagStart } from '../runtime/common';
 
@@ -13,17 +13,17 @@ import { setRegExpState, RegexpState, RegExpFlags, isFlagStart } from '../runtim
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanRegularExpression(parser: Parser, context: Context): Token {
+export function scanRegularExpression(state: ParserState, context: Context): Token {
 
-    const { flags, pattern} = verifyRegExpPattern(parser, context);
-    parser.tokenRegExp = { pattern, flags };
+    const { flags, pattern} = verifyRegExpPattern(state, context);
+    state.tokenRegExp = { pattern, flags };
 
-    if (context & Context.OptionsRaw) parser.tokenRaw = parser.source.slice(parser.startIndex, parser.index);
+    if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
 
     try {
-        parser.tokenValue = new RegExp(pattern, flags);
+      state.tokenValue = new RegExp(pattern, flags);
     } catch (e) {
-        parser.tokenValue = null;
+      state.tokenValue = null;
     }
 
     return Token.RegularExpression;
@@ -37,14 +37,14 @@ export function scanRegularExpression(parser: Parser, context: Context): Token {
  * @param context Context masks
  */
 
-export function verifyRegExpPattern(parser: Parser, context: Context): {
+export function verifyRegExpPattern(parser: ParserState, context: Context): {
     flags: string; pattern: string; state: RegexpState;
 } {
     const bodyStart = parser.index;
     const bodyState = validateRegexBody(parser, context, 0, RegexpState.Valid);
     const bodyEnd = parser.index - 1;
     const { index: flagStart } = parser;
-    const flagState = scanRegexFlags(parser, context);
+    const flagState = scanRegexFlags(parser);
     const flags = parser.source.slice(flagStart, parser.index);
     const pattern = parser.source.slice(bodyStart, bodyEnd);
     const state = setRegExpState(parser, flagState, bodyState);
@@ -57,7 +57,7 @@ export function verifyRegExpPattern(parser: Parser, context: Context): {
  * @param parser Parser object
  * @param context Context masks
  */
-function scanRegexFlags(parser: Parser, context: Context): RegexpState {
+function scanRegexFlags(parser: ParserState): RegexpState {
 
     let mask = RegExpFlags.Empty;
 
@@ -66,31 +66,31 @@ function scanRegexFlags(parser: Parser, context: Context): RegexpState {
             const c = parser.source.charCodeAt(parser.index);
             switch (c) {
                 case Chars.LowerG:
-                    if (mask & RegExpFlags.Global) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'g');
+                    if (mask & RegExpFlags.Global) report(parser, Errors.DuplicateRegExpFlag, 'g');
                     mask |= RegExpFlags.Global;
                     break;
                 case Chars.LowerI:
-                    if (mask & RegExpFlags.IgnoreCase) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'i');
+                    if (mask & RegExpFlags.IgnoreCase) report(parser, Errors.DuplicateRegExpFlag, 'i');
                     mask |= RegExpFlags.IgnoreCase;
                     break;
                 case Chars.LowerM:
-                    if (mask & RegExpFlags.Multiline) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'm');
+                    if (mask & RegExpFlags.Multiline) report(parser, Errors.DuplicateRegExpFlag, 'm');
                     mask |= RegExpFlags.Multiline;
                     break;
                 case Chars.LowerU:
                     if (mask & RegExpFlags.Unicode) {
-                        recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'u');
+                        report(parser, Errors.Unexpected, 'u');
                         return RegexpState.Invalid;
                     }
                     mask |= RegExpFlags.Unicode;
                     break;
 
                 case Chars.LowerY:
-                    if (mask & RegExpFlags.Sticky) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 'y');
+                    if (mask & RegExpFlags.Sticky) report(parser, Errors.DuplicateRegExpFlag, 'y');
                     mask |= RegExpFlags.Sticky;
                     break;
                 case Chars.LowerS:
-                    if (mask & RegExpFlags.DotAll) recordErrors(parser, context, Errors.DuplicateRegExpFlag, 's');
+                    if (mask & RegExpFlags.DotAll) report(parser, Errors.DuplicateRegExpFlag, 's');
                     mask |= RegExpFlags.DotAll;
                     break;
 

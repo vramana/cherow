@@ -1,7 +1,7 @@
-import { Parser } from '../types';
-import { consumeOpt } from '../lexer/common';
+import { ParserState } from '../types';
+import { consume } from '../lexer/common';
 import { Chars } from '../chars';
-import { isValidIdentifierPart } from '../unicode';
+import { isIDContinue } from '../unicode';
 
 /* Regular expression flags */
 export const enum RegExpFlags {
@@ -56,7 +56,7 @@ export const enum RegexpState {
 //
 // Returns true if parsing succeeds, and set the min_out and max_out
 // values. Values are truncated to RegExpTree::kInfinity if they overflow.
-export function validateQuantifierPrefix(parser: Parser): boolean | number {
+export function validateQuantifierPrefix(parser: ParserState): boolean | number {
 
   let state = QuantifierPrefixState.Start;
   let min = 0;
@@ -83,7 +83,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
       ch = parser.source.charCodeAt(parser.index);
   }
 
-  if (consumeOpt(parser, Chars.Comma)) {
+  if (consume(parser, Chars.Comma)) {
       state = state | QuantifierPrefixState.Start;
       if (parser.index >= parser.length) return false;
       while (parser.index < parser.length) {
@@ -107,7 +107,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
       }
   }
 
-  if (state & QuantifierPrefixState.HasBadNumber || !consumeOpt(parser, Chars.RightBrace)) return false;
+  if (state & QuantifierPrefixState.HasBadNumber || !consume(parser, Chars.RightBrace)) return false;
   const hasLow = (state & QuantifierPrefixState.IsLow) > 0;
   const hasHi = (state & QuantifierPrefixState.IsHigh) > 0;
   const res: any = (hasLow !== hasHi || (hasLow && hasHi && min <= max));
@@ -115,7 +115,7 @@ export function validateQuantifierPrefix(parser: Parser): boolean | number {
 }
 
 export function isFlagStart(code: number): boolean {
-  return isValidIdentifierPart(code) ||
+  return isIDContinue(code) ||
       code === Chars.Backslash ||
       code === Chars.Dollar ||
       code === Chars.Underscore ||
@@ -128,7 +128,7 @@ export function isFlagStart(code: number): boolean {
  *
  */
 export function isValidUnicodeidcontinue(code: number): boolean {
-  return isValidIdentifierPart(code) ||
+  return isIDContinue(code) ||
       code === Chars.Dollar ||
       code === Chars.Underscore ||
       code >= Chars.Zero && code <= Chars.Nine;
@@ -160,7 +160,7 @@ export function setValidationState(prevState: RegexpState, currState: RegexpStat
  * @param bodyState State returned after parsing the regex body
  */
 
-export function setRegExpState(parser: Parser, flagState: RegexpState, bodyState: RegexpState): RegexpState {
+export function setRegExpState(parser: ParserState, flagState: RegexpState, bodyState: RegexpState): RegexpState {
   if (parser.capturingParens < parser.largestBackReference) return RegexpState.Invalid;
   if (bodyState & RegexpState.Invalid || flagState & RegexpState.Invalid) return RegexpState.Invalid;
   if (bodyState & RegexpState.UnicodeMode) return flagState & RegexpState.UnicodeMode ? RegexpState.Valid : RegexpState.Invalid;
@@ -177,7 +177,7 @@ export function setRegExpState(parser: Parser, flagState: RegexpState, bodyState
  * @param parser Parser object
  * @param code Code point
  */
-export function parseBackReferenceIndex(parser: Parser, code: number): RegexpState {
+export function parseBackReferenceIndex(parser: ParserState, code: number): RegexpState {
   let value = code - Chars.Zero;
   while (parser.index < parser.length) {
       code = parser.source.charCodeAt(parser.index);

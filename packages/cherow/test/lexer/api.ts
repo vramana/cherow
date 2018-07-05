@@ -1,38 +1,37 @@
 import * as t from 'assert';
-import { validateRegExp } from '../../src/cherow';
+import { nextToken } from '../../src/lexer/scan';
+import { State } from '../../src/state';
+import { Context } from '../../src/common';
 
-describe('Charow API', () => {
+describe('Lexer - BigInt', () => {
 
-    describe('Regular expression validation', () => {
+  function fail(name: string, context: Context, opts: any): any {
+      it(name, () => {
+          const state = new State(opts.source, undefined, undefined);
+          t.throws(() => {
+              nextToken(state, context)
+          });
+      });
+  }
 
-        it('Esprima is not a valid regular expression', () => {
-            t.throws(() => {
-                validateRegExp('esprima');
-            });
-        });
+  fail('Binary BigInt literal containing an invalid digit', Context.Empty, {
+      source: '0b2n'
+  })
 
-        it('should throw if missing slash at the start', () => {
-            t.throws(() => {
-                validateRegExp('a/');
-            });
-        });
+  fail('It is a Syntax Error if the NumericLiteralBase contains an ExponentPart', Context.Empty, {
+      source: '0e0n'
+  })
 
-        it('should validate regular expression successfully', () => {
-            t.doesNotThrow(() => {
-                validateRegExp('/a/');
-            });
-        });
+  fail('Hexadecimal BigInt literal containing an invalid digit', Context.Strict | Context.Module, {
+      source: '0xgn'
+  })
 
-        it('should throw on invalid unicode regular expression', () => {
-            t.throws(() => {
-                validateRegExp('/\\03b/u');
-            });
-        });
+//  fail('it is a Syntax Error if the MV is not an integer. (decimalIntegerLiteral dot decimalDigits)', //Context.Strict | Context.Module, {
+  //    source: '2017.8n'
+  //})
 
-        it('should validate a complex regular expression successfully', () => {
-            t.doesNotThrow(() => {
-                validateRegExp('/^^^^^^^robot$$$$/u');
-            });
-        });
-    });
+
+  fail('Octal BigInt literal containing an invalid digit', Context.Strict | Context.Module, {
+      source: '0o9n'
+  })
 });

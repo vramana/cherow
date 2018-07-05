@@ -1,20 +1,20 @@
-import { Parser } from '../types';
-import { Token } from '../token';
 import { Context, Flags } from '../common';
-import { consumeOpt, escapeInvalidCharacters, nextUnicodeChar, mapToToken, scanPrivateName } from './common';
+import { ParserState } from '../types';
+import { Token } from '../token';
 import { Chars } from '../chars';
-import { scanIdentifier, scanMaybeIdentifier } from './identifier';
-import { skipSingleHTMLComment, skipSingleLineComment, skipMultilineComment } from './comments';
+import { consume, mapToToken, scanPrivateName, escapeInvalidCharacters, nextChar } from './common';
+import { CommentType, skipSingleLineComment, skipMultilineComment, skipSingleHTMLComment } from './comments';
+import { getTokenValue, convertTokenType } from './tokenizer';
 import { scanStringLiteral } from './string';
-import { scanNumeric, parseLeadingZero } from './numeric';
-import { Errors, recordErrors } from '../errors';
 import { scanTemplate } from './template';
+import { scanIdentifier, scanNonASCIIOrWhitespace, scanIdentifierRest } from './identifier';
+import { scanNumeric, parseLeadingZeroTable } from './numbers';
+import { report, Errors } from '../errors';
+import { scanRegularExpression } from './regexp';
 
-function unreachable(parser: Parser, context: Context): void {
-  recordErrors(parser, context, Errors.UnexpectedToken, escapeInvalidCharacters(nextUnicodeChar(parser)));
-}
+const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) => report(state, Errors.IllegalCaracter, escapeInvalidCharacters(state.nextChar));
 
-const table = new Array(0xFFFF).fill(unreachable, 0, 128).fill(scanMaybeIdentifier, 128) as((parser: Parser, context: Context, first: number) => Token)[];
+const table = new Array(0xFFFF).fill(unexpectedCharacter, 0, 128).fill(scanNonASCIIOrWhitespace, 128) as((state: ParserState, context: Context) => Token)[];
 
 // `,`, `~`, `?`, `[`, `]`, `{`, `}`, `:`, `;`, `(` ,`)`, `"`, `'`
 table[Chars.Comma] = mapToToken(Token.Comma);
@@ -28,46 +28,157 @@ table[Chars.Colon] = mapToToken(Token.Colon);
 table[Chars.Semicolon] = mapToToken(Token.Semicolon);
 table[Chars.LeftParen] = mapToToken(Token.LeftParen);
 table[Chars.RightParen] = mapToToken(Token.RightParen);
-table[Chars.SingleQuote] = table[Chars.DoubleQuote] = scanStringLiteral;
-table[Chars.Zero] = parseLeadingZero;
+// Decorators
+table[Chars.At] = mapToToken(Token.At);
 
 table[Chars.Space] =
   table[Chars.Tab] =
   table[Chars.FormFeed] =
-  table[Chars.VerticalTab] =
-  table[Chars.FormFeed] = (parser: Parser) => {
-      parser.index++; parser.column++;
+  table[Chars.VerticalTab] = state => {
+      ++state.index;
+      ++state.column;
       return Token.WhiteSpace;
   };
 
-table[Chars.LineFeed] = (parser: Parser) => {
-  parser.index++;  parser.column = 0; parser.line++;
-  parser.flags |= Flags.NewLine;
-  return Token.WhiteSpace;
+table[Chars.DoubleQuote] =
+  table[Chars.SingleQuote] = scanStringLiteral;
+
+table[Chars.LineFeed] = state => {
+    state.column = 0;
+    ++state.index;
+    ++state.line;
+    state.flags |= Flags.LineTerminator;
+    return Token.WhiteSpace;
 };
 
-table[Chars.CarriageReturn] = (parser: Parser) => {
-  parser.index++;  parser.column = 0; parser.line++;
-  parser.flags |= Flags.NewLine;
-  if (parser.index < parser.length &&
-      parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
-      parser.index++;
+table[Chars.CarriageReturn] = state => {
+  state.column = 0;
+  ++state.index;
+  ++state.line;
+  state.flags |= Flags.LineTerminator;
+  if (state.index < state.length &&
+      state.source.charCodeAt(state.index) === Chars.LineFeed) {
+      ++state.index;
   }
   return Token.WhiteSpace;
 };
 
-// `/`, `/=`, `/>`
-table[Chars.Slash] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index < parser.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.Slash || next === Chars.Asterisk) {
-          return next === Chars.Slash
-            ? skipSingleLineComment(parser)
-            : skipMultilineComment(parser);
+// `1`...`9`
+for (let i = Chars.One; i <= Chars.Nine; i++) table[i] = scanNumeric;
+
+// `A`...`Z`
+for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) table[i] = scanIdentifier;
+
+// `a`...z`
+for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) table[i] = scanIdentifier;
+
+// '#'
+table[Chars.Hash] = scanPrivateName;
+
+// `$foo`, `_var`
+table[Chars.Dollar] = table[Chars.Underscore] = scanIdentifier;
+
+// `\\u{N}var`
+table[Chars.Backslash] = scanIdentifierRest;
+
+// `foo`
+table[Chars.Backtick] = scanTemplate;
+
+// `0`
+table[Chars.Zero] = (state: ParserState, context: Context) => (parseLeadingZeroTable[state.source.charCodeAt(state.index + 1)] || scanNumeric)(state, context);
+
+// `=`, `==`, `===`, `=>`
+table[Chars.EqualSign] = state => {
+  ++state.index;
+  ++state.column;
+  const next = state.source.charCodeAt(state.index);
+  if (next === Chars.EqualSign) {
+      ++state.index;
+      ++state.column;
+      if (consume(state, Chars.EqualSign)) {
+          return Token.StrictEqual;
+      } else {
+          return Token.LooseEqual;
+      }
+  } else if (next === Chars.GreaterThan) {
+      ++state.index;
+      ++state.column;
+      return Token.Arrow;
+  }
+  return Token.Assign;
+};
+
+// `.`, `...`, `.123` (numeric literal)
+table[Chars.Period] = (state: ParserState, context: Context) => {
+  let index = state.index + 1;
+  const next = state.source.charCodeAt(index);
+
+  if (next === Chars.Period) {
+      index++;
+      // Not a double
+      if (index < state.source.length &&
+          state.source.charCodeAt(index) === Chars.Period) {
+          state.index = index + 1;
+          state.column += 3;
+          return Token.Ellipsis;
+      }
+  } else if (next >= Chars.Zero && next <= Chars.Nine) {
+           return scanNumeric(state, context, true);
+  }
+  state.index++;
+  state.column++;
+  return Token.Period;
+};
+
+// `<`, `<=`, `<<`, `<<=`, `</`,  <!--
+table[Chars.LessThan] = (state: ParserState, context: Context) => {
+  ++state.index;
+  ++state.column;
+  if (state.index < state.source.length) {
+      const next = state.source.charCodeAt(state.index);
+      if (next === Chars.EqualSign) {
+          ++state.index;
+          ++state.column;
+          return Token.LessThanOrEqual;
+      } else if (next === Chars.LessThan) {
+          ++state.index;
+          ++state.column;
+          if (consume(state, Chars.EqualSign)) return Token.ShiftLeftAssign;
+          return Token.ShiftLeft;
+      } else if (context & Context.OptionsJSX && next === Chars.Slash) {
+        const index = state.index + 1;
+        if (index < state.length) {
+            const next = state.source.charCodeAt(index);
+            if (next === Chars.Asterisk || next === Chars.Slash) report(state, Errors.Unexpected);
+        }
+        state.index++; state.column++;
+        return Token.JSXClose;
+        // This is a "<!--" opening comment - treat as //
+      } else if (consume(state, Chars.Exclamation) && consume(state, Chars.Hyphen) && consume(state, Chars.Hyphen)) {
+          return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);
+      }
+  }
+
+  return Token.LessThan;
+};
+
+// `/`, `/=`, `/>`, '/*..*/'
+table[Chars.Slash] = (state, context) => {
+  ++state.index;
+  ++state.column;
+
+  if (context & Context.ExpressionStart) {
+      return scanRegularExpression(state, context);
+  }
+  if (state.index < state.length) {
+      const next = state.source.charCodeAt(state.index);
+      if (consume(state, Chars.Slash)) {
+          return skipSingleLineComment(state, CommentType.Single);
+      } else if (consume(state, Chars.Asterisk)) {
+          return skipMultilineComment(state);
       } else if (next === Chars.EqualSign) {
-          parser.index++;
-          parser.column++;
+          ++state.index;
+          ++state.column;
           return Token.DivideAssign;
       }
   }
@@ -75,64 +186,75 @@ table[Chars.Slash] = (parser: Parser) => {
 };
 
 // `!`, `!=`, `!==`
-table[Chars.Exclamation] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (!consumeOpt(parser, Chars.EqualSign)) return Token.Negate;
-  if (!consumeOpt(parser, Chars.EqualSign)) return Token.LooseNotEqual;
+table[Chars.Exclamation] = state => {
+  ++state.index;
+  ++state.column;
+  if (!consume(state, Chars.EqualSign)) return Token.Negate;
+  if (!consume(state, Chars.EqualSign)) return Token.LooseNotEqual;
   return Token.StrictNotEqual;
 };
 
 // `%`, `%=`
-table[Chars.Percent] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (consumeOpt(parser, Chars.EqualSign)) return Token.ModuloAssign;
-  return Token.Modulo;
+table[Chars.Percent] = state => {
+  ++state.index;
+  ++state.column;
+  return consume(state, Chars.EqualSign) ? Token.ModuloAssign : Token.Modulo;
 };
 
 // `&`, `&&`, `&=`
-table[Chars.Ampersand] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.BitwiseAnd;
-  const next = parser.source.charCodeAt(parser.index);
+table[Chars.Ampersand] = state => {
+  ++state.index;
+  ++state.column;
+  if (state.index >= state.length) return Token.BitwiseAnd;
+  const next = state.source.charCodeAt(state.index);
   if (next === Chars.Ampersand) {
-      parser.index++; parser.column++;
+      ++state.index;
+      ++state.column;
       return Token.LogicalAnd;
   }
   if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
+      ++state.index;
+      ++state.column;
       return Token.BitwiseAndAssign;
   }
   return Token.BitwiseAnd;
 };
 
 // `*`, `**`, `*=`, `**=`
-table[Chars.Asterisk] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.Multiply;
-  const next = parser.source.charCodeAt(parser.index);
+table[Chars.Asterisk] = state => {
+  ++state.index;
+  ++state.column;
+  if (state.index >= state.length) return Token.Multiply;
+  const next = state.source.charCodeAt(state.index);
   if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
+      ++state.index;
+      ++state.column;
       return Token.MultiplyAssign;
   }
+  // Exponentiation operator
   if (next !== Chars.Asterisk) return Token.Multiply;
-  parser.index++; parser.column++;
-  if (!consumeOpt(parser, Chars.EqualSign)) return Token.Exponentiate;
+  ++state.index;
+  ++state.column;
+  if (!consume(state, Chars.EqualSign)) return Token.Exponentiate;
   return Token.ExponentiateAssign;
 };
 
 // `+`, `++`, `+=`
-table[Chars.Plus] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.Add;
+table[Chars.Plus] = state => {
+  ++state.index;
+  ++state.column;
+  if (state.index >= state.length) return Token.Add;
 
-  const next = parser.source.charCodeAt(parser.index);
+  const next = state.source.charCodeAt(state.index);
   if (next === Chars.Plus) {
-      parser.index++; parser.column++;
+      ++state.index;
+      ++state.column;
       return Token.Increment;
   }
 
   if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
+      ++state.index;
+      ++state.column;
       return Token.AddAssign;
   }
 
@@ -140,19 +262,24 @@ table[Chars.Plus] = (parser: Parser) => {
 };
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = (parser: Parser, context: Context) => {
-  parser.index++; parser.column++;
-  if (parser.index < parser.source.length) {
-      const next = parser.source.charCodeAt(parser.index);
+table[Chars.Hyphen] = (state, context) => {
+  ++state.index;
+  ++state.column;
+  if (state.index < state.source.length) {
+      const next = state.source.charCodeAt(state.index);
       if (next === Chars.Hyphen) {
-          parser.index++; parser.column++;
-          if ((parser.flags & Flags.NewLine) === Flags.NewLine || parser.startIndex === 0 &&
-          consumeOpt(parser, Chars.GreaterThan)) {
-              return skipSingleHTMLComment(parser, context);
+          ++state.index;
+          ++state.column;
+          // https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment
+          // If there was a new line in the multi-line comment, the text after --> is a comment.
+          if ((state.flags & Flags.LineTerminator || state.startIndex === 0) &&
+              consume(state, Chars.GreaterThan)) {
+              return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
           }
           return Token.Decrement;
       } else if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
+          ++state.index;
+          ++state.column;
           return Token.SubtractAssign;
       }
   }
@@ -160,169 +287,87 @@ table[Chars.Hyphen] = (parser: Parser, context: Context) => {
   return Token.Subtract;
 };
 
-// `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = (parser: Parser, context: Context) => {
-  let index = parser.index + 1;
-  const next = parser.source.charCodeAt(index);
-
-  if (next === Chars.Period) {
-      index++;
-      if (index < parser.source.length &&
-          parser.source.charCodeAt(index) === Chars.Period) {
-          parser.index = index + 1;
-          parser.column += 3;
-          return Token.Ellipsis;
-      }
-  } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      return scanNumeric(parser, context);
-  }
-  parser.index++; parser.column++;
-  return Token.Period;
-};
-
-// `1`...`9`
-for (let i = Chars.One; i <= Chars.Nine; i++) {
-  table[i] = scanNumeric;
-}
-
-// `<`, `<=`, `<<`, `<<=`, `</`,  <!--
-table[Chars.LessThan] = (parser: Parser, context: Context) => {
-  parser.index++;
-  parser.column++;
-  if (parser.index < parser.source.length) {
-      const next = parser.source.charCodeAt(parser.index);
-      if (next === Chars.EqualSign) {
-          parser.index++;
-          parser.column++;
-          return Token.LessThanOrEqual;
-      } else if (next === Chars.LessThan) {
-          parser.index++;
-          parser.column++;
-          if (consumeOpt(parser, Chars.EqualSign)) return Token.ShiftLeftAssign;
-          return Token.ShiftLeft;
-      } else if (consumeOpt(parser, Chars.Exclamation) &&
-                 consumeOpt(parser, Chars.Hyphen) &&
-                 consumeOpt(parser, Chars.Hyphen)) {
-          return skipSingleHTMLComment(parser, context);
-      }
-  }
-
-  return Token.LessThan;
-};
-
-// `=`, `==`, `===`, `=>`
-table[Chars.EqualSign] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  const next = parser.source.charCodeAt(parser.index);
-  if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
-      if (consumeOpt(parser, Chars.EqualSign)) {
-          return Token.StrictEqual;
-      } else {
-          return Token.LooseEqual;
-      }
-  } else if (next === Chars.GreaterThan) {
-      parser.index++; parser.column++;
-      return Token.Arrow;
-  }
-  return Token.Assign;
-};
-
-// `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
-table[Chars.GreaterThan] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index >= parser.length) return Token.GreaterThan;
-  let next = parser.source.charCodeAt(parser.index);
-
-  if (next === Chars.EqualSign) {
-      parser.index++; parser.column++;
-      return Token.GreaterThanOrEqual;
-  }
-
-  if (next !== Chars.GreaterThan) return Token.GreaterThan;
-  parser.index++; parser.column++;
-
-  if (parser.index < parser.length) {
-      next = parser.source.charCodeAt(parser.index);
-
-      if (next === Chars.GreaterThan) {
-          parser.index++; parser.column++;
-          if (consumeOpt(parser, Chars.EqualSign)) {
-              return Token.LogicalShiftRightAssign;
-          } else {
-              return Token.LogicalShiftRight;
-          }
-      } else if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
-          return Token.ShiftRightAssign;
-      }
-  }
-  return Token.ShiftRight;
-};
-
-// `A`...`Z`
-for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
-  table[i] = scanIdentifier;
-}
-// `a`...z`
-for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
-  table[i] = scanIdentifier;
-}
-
-// `\\u{N}var` , `$foo`, `_var`
-table[Chars.Backslash] = table[Chars.Dollar] = table[Chars.Underscore] = scanIdentifier;
-
-// ``string``
-table[Chars.Backtick] = scanTemplate;
-
 // `^`, `^=`
-table[Chars.Caret] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (consumeOpt(parser, Chars.EqualSign))  return Token.BitwiseXorAssign;
+table[Chars.Caret] = state => {
+  ++state.index;
+  ++state.column;
+  if (consume(state, Chars.EqualSign)) return Token.BitwiseXorAssign;
   return Token.BitwiseXor;
 };
 
 // `|`, `||`, `|=`
-table[Chars.VerticalBar] = (parser: Parser) => {
-  parser.index++; parser.column++;
-  if (parser.index < parser.length) {
-      const next = parser.source.charCodeAt(parser.index);
+table[Chars.VerticalBar] = state => {
+  ++state.index;
+  ++state.column;
+  if (state.index < state.length) {
+      const next = state.source.charCodeAt(state.index);
       if (next === Chars.VerticalBar) {
-          parser.index++;
-          parser.column++;
+          ++state.index;
+          ++state.column;
           return Token.LogicalOr;
       }
       if (next === Chars.EqualSign) {
-          parser.index++; parser.column++;
+          ++state.index;
+          ++state.column;
           return Token.BitwiseOrAssign;
       }
   }
   return Token.BitwiseOr;
 };
 
-// '#'
-table[Chars.Hash] = scanPrivateName;
+// `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
+table[Chars.GreaterThan] = state => {
+  ++state.index;
+  ++state.column;
+  if (state.index >= state.length) return Token.GreaterThan;
+  let next = state.source.charCodeAt(state.index);
 
-/**
- *
- * parser Parser object
- * context Context masks
- */
-export function nextToken(parser: Parser, context: Context): Token {
-  parser.flags &= ~Flags.NewLine;
-  // remember last token position before scanning
-  parser.lastIndex = parser.index;
-  parser.lastLine = parser.line;
-  parser.lastColumn = parser.column;
-  let token: Token;
-  while (parser.index < parser.length) {
-      parser.startIndex = parser.index;
-      parser.startColumn = parser.column;
-      parser.startLine = parser.line;
-      const first = parser.source.charCodeAt(parser.index);
-      token = table[first](parser, context, first);
-      if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
-      return parser.token = token;
+  if (next === Chars.EqualSign) {
+      ++state.index;
+      ++state.column;
+      return Token.GreaterThanOrEqual;
   }
-  return parser.token = Token.EndOfSource;
+
+  if (next !== Chars.GreaterThan) return Token.GreaterThan;
+  ++state.index;
+  ++state.column;
+
+  if (state.index < state.length) {
+      next = state.source.charCodeAt(state.index);
+
+      if (next === Chars.GreaterThan) {
+          ++state.index;
+          ++state.column;
+          if (consume(state, Chars.EqualSign)) {
+              return Token.LogicalShiftRightAssign;
+          } else {
+              return Token.LogicalShiftRight;
+          }
+      } else if (next === Chars.EqualSign) {
+          ++state.index;
+          ++state.column;
+          return Token.ShiftRightAssign;
+      }
+  }
+  return Token.ShiftRight;
+};
+
+export function nextToken(state: ParserState, context: Context): Token {
+  state.lastIndex = state.index;
+  state.lastLine = state.line;
+  state.lastColumn = state.column;
+  const onToken = state.onToken;
+  while (state.index < state.length) {
+      state.startIndex = state.index;
+      state.startColumn = state.column;
+      state.startLine = state.line;
+      state.nextChar = state.source.charCodeAt(state.index);
+      const token: any = table[state.nextChar](state, context);
+      if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
+      if (!(state.flags & Flags.EdgeCase) && onToken) {
+          onToken(convertTokenType(token), getTokenValue(state, token));
+      }
+      return state.token = token;
+  }
+  return Token.EndOfSource;
 }

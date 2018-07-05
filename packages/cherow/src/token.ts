@@ -1,208 +1,162 @@
+
 /**
  * https://tc39.github.io/ecma262/#sec-ecmascript-language-source-code
  */
 export const enum Token {
-    Type = 0xFF,
+           /* Attribute names */Contextual              = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b00000000,
+                                Reserved                = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b00000000,
+                                FutureReserved          = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b00000000,
+                                Invalid                 = 0b0000000000000001000 << 12 | 0b0000 << 8 | 0b00000000,
+                                ASI                     = 0b0000000000000010000 << 12 | 0b0000 << 8 | 0b00000000,
+                                IsLogical               = 0b0000000000000100000 << 12 | 0b0000 << 8 | 0b00000000,
+               /* ECMA tokens */WhiteSpace              = 0b0000000000010000000 << 12 | 0b0000 << 8 | 0b00000000, // Note: LineTerminator and WhiteSpace are treated as one token
+                                Comments                = 0b0000000000110000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                NumericLiteral          = 0b0000000001000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                StringLiteral           = 0b0000000010000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                Identifier              = 0b0000000100000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                IdentifierOrContextual  = 0b0000000100000000001 << 12 | 0b0000 << 8 | 0b00000000,
+                                RegularExpression       = 0b0000001000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                Punctuator              = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                Template                = 0b0000100000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                      /* Misc */IsAssignOp              = 0b0001000000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                IsBinaryOp              = 0b0010000000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                IsUnaryOp               = 0b0100000000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                                IsUpdateOp              = 0b1000000000000000000 << 12 | 0b0000 << 8 | 0b00000000,
+                 /* Constants */Keyword                 = 0b0000000100000000111 << 12 | 0b0000 << 8 | 0b00000000,
 
-    /* Precedence */
-    PrecStart          = 8,
-    Precedence         = 15 << PrecStart, // 8-11
+                                Type                    = 0b0000000000000000000 << 12 | 0b0000 << 8 | 0b11111111,
+                /* Precedence */PrecStart               = 0b0000000000000000000 << 12 | 0b0000  | 8 | 0b00000000,
 
-    /* Attribute names */
-    Contextual         = 1 << 12,
-    Reserved           = 1 << 13,
-    FutureReserved     = 1 << 14,
-    Invalid            = 1 << 16,
-    ASI                = 1 << 17,
-    IsLogical          = 1 << 18,
-
-    /* ECMA tokens */
-    WhiteSpace         = 1 << 19, // Note: LineTerminator and WhiteSpace are treated as one token
-    Comments           = 1 << 20 | WhiteSpace,
-    NumericLiteral     = 1 << 21,
-    StringLiteral      = 1 << 22,
-    Identifier         = 1 << 23,
-    IdentifierOrContextual = Identifier | Contextual,
-    RegularExpression  = 1 << 24,
-    Punctuator        = 1 << 25,
-    Template           = 1 << 26,
-
-    /** Misc */
-    IsAssignOp         = 1 << 27,
-    IsBinaryOp         = 1 << 28,
-    IsUnaryOp          = 1 << 29,
-    IsUpdateOp         = 1 << 30,
-
-    /** Constants */
-    Keyword = Token.Identifier | Token.Reserved | Token.FutureReserved | Token.Contextual,
-
-    /* Node types */
-    EndOfSource = 0 | ASI, // Pseudo
-
-    /* Booleans */
-    FalseKeyword      = 1 | Reserved,
-    TrueKeyword       = 2 | Reserved,
-
-    /* Null literal */
-    NullKeyword       = 3 | Reserved,
-
-    /* Template nodes */
-    TemplateHead  = 4 | Template,
-    TemplateCont = 5 | Template,
-    TemplateTail  = 6 | Template,
-
-    /* Punctuators */
-    Arrow        = 7  | Punctuator, // =>
-    LeftParen    = 8  | Punctuator, // (
-    LeftBrace    = 9  | Punctuator, // {
-    Period       = 10 | Punctuator, // .
-    Ellipsis     = 11 | Punctuator, // ...
-    RightBrace   = 12 | Punctuator | ASI, // }
-    RightParen   = 13 | Punctuator, // )
-    Semicolon    = 14 | Punctuator | ASI, // ;
-    Comma        = 15 | Punctuator, // ,
-    LeftBracket  = 16 | Punctuator, // [
-    RightBracket = 17 | Punctuator, // ]
-    Colon        = 18 | Punctuator, // :
-    QuestionMark = 19 | Punctuator, // ?
-    SingleQuote  = 20 | Punctuator, // '
-    DoubleQuote  = 21 | Punctuator, // "
-    JSXClose     = 22 | Punctuator, // </
-    JSXAutoClose = 23 | Punctuator, // />
-
-    /* Update operators */
-    Increment = 24 | Punctuator | IsUpdateOp, // ++
-    Decrement = 25 | Punctuator | IsUpdateOp, // --
-
-    /* Assign operators */
-    Assign                  = 26  | Punctuator | IsAssignOp, // =
-    ShiftLeftAssign         = 27  | Punctuator | IsAssignOp, // <<=
-    ShiftRightAssign        = 28  | Punctuator | IsAssignOp, // >>=
-    LogicalShiftRightAssign = 29  | Punctuator | IsAssignOp, // >>>=
-    ExponentiateAssign      = 30  | Punctuator | IsAssignOp, // **=
-    AddAssign               = 31  | Punctuator | IsAssignOp, // +=
-    SubtractAssign          = 32  | Punctuator | IsAssignOp, // -=
-    MultiplyAssign          = 33  | Punctuator | IsAssignOp, // *=
-    DivideAssign            = 34  | Punctuator | IsAssignOp, // /=
-    ModuloAssign            = 35  | Punctuator | IsAssignOp, // %=
-    BitwiseXorAssign        = 36  | Punctuator | IsAssignOp, // ^=
-    BitwiseOrAssign         = 37  | Punctuator | IsAssignOp, // |=
-    BitwiseAndAssign        = 38  | Punctuator | IsAssignOp, // &=
-
-    /* Unary/binary operators */
-    TypeofKeyword      = 39  | IsUnaryOp | Punctuator | Reserved,
-    DeleteKeyword      = 40  | IsUnaryOp | Punctuator | Reserved,
-    VoidKeyword        = 41  | IsUnaryOp | Punctuator | Reserved,
-    Negate             = 42  | IsUnaryOp | Punctuator, // !
-    Complement         = 43  | IsUnaryOp | Punctuator, // ~
-    Add                = 44  | IsUnaryOp | IsBinaryOp | Punctuator | 9 << PrecStart, // +
-    Subtract           = 45  | IsUnaryOp | IsBinaryOp | Punctuator | 9 << PrecStart, // -
-    InKeyword          = 46  | IsBinaryOp | Punctuator | 7 << PrecStart | Reserved,
-    InstanceofKeyword  = 47  | IsBinaryOp | Punctuator | 7 << PrecStart | Reserved,
-    Multiply           = 48  | IsBinaryOp | Punctuator | 10 << PrecStart, // *
-    Modulo             = 49  | IsBinaryOp | Punctuator | 10 << PrecStart, // %
-    Divide             = 50  | IsBinaryOp | Punctuator | 10 << PrecStart, // /
-    Exponentiate       = 51  | IsBinaryOp | Punctuator | 11 << PrecStart, // **
-    LogicalAnd         = 52  | IsBinaryOp | Punctuator | 2 << PrecStart | IsLogical, // &&
-    LogicalOr          = 53  | IsBinaryOp | Punctuator | 1 << PrecStart | IsLogical, // ||
-    StrictEqual        = 54  | IsBinaryOp | Punctuator | 6 << PrecStart, // ===
-    StrictNotEqual     = 55  | IsBinaryOp | Punctuator | 6 << PrecStart, // !==
-    LooseEqual         = 56  | IsBinaryOp | Punctuator | 6 << PrecStart, // ==
-    LooseNotEqual      = 57  | IsBinaryOp | Punctuator | 6 << PrecStart, // !=
-    LessThanOrEqual    = 58  | IsBinaryOp | Punctuator | 7 << PrecStart, // <=
-    GreaterThanOrEqual = 59  | IsBinaryOp | Punctuator | 7 << PrecStart, // >=
-    LessThan           = 60  | IsBinaryOp | Punctuator | 7 << PrecStart, // <
-    GreaterThan        = 61  | IsBinaryOp | Punctuator | 7 << PrecStart, // >
-    ShiftLeft          = 62  | IsBinaryOp | Punctuator | 8 << PrecStart, // <<
-    ShiftRight         = 63  | IsBinaryOp | Punctuator | 8 << PrecStart, // >>
-    LogicalShiftRight  = 64  | IsBinaryOp | Punctuator | 8 << PrecStart, // >>>
-    BitwiseAnd         = 65  | IsBinaryOp | Punctuator | 5 << PrecStart, // &
-    BitwiseOr          = 66  | IsBinaryOp | Punctuator | 3 << PrecStart, // |
-    BitwiseXor         = 67  | IsBinaryOp | Punctuator | 4 << PrecStart, // ^
-
-    /* Variable declaration kinds */
-    VarKeyword   = 68 | Reserved,
-    LetKeyword   = 69 | FutureReserved,
-    ConstKeyword = 70 | Reserved,
-
-    /* Other reserved words */
-    BreakKeyword    = 71 | Reserved,
-    CaseKeyword     = 72 | Reserved,
-    CatchKeyword    = 73 | Reserved,
-    ClassKeyword    = 74 | Reserved,
-    ContinueKeyword = 75 | Reserved,
-    DebuggerKeyword = 76 | Reserved,
-    DefaultKeyword  = 77 | Reserved,
-    DoKeyword       = 78 | Reserved,
-    ElseKeyword     = 79 | Reserved,
-    ExportKeyword   = 80 | Reserved,
-    ExtendsKeyword  = 81 | Reserved,
-    FinallyKeyword  = 82 | Reserved,
-    ForKeyword      = 83 | Reserved,
-    FunctionKeyword = 84 | Reserved,
-    IfKeyword       = 85 | Reserved,
-    ImportKeyword   = 86 | Reserved,
-    NewKeyword      = 87 | Reserved,
-    ReturnKeyword   = 88 | Reserved,
-    SuperKeyword    = 89 | Reserved,
-    SwitchKeyword   = 90 | Reserved,
-    ThisKeyword     = 91 | Reserved,
-    ThrowKeyword    = 92 | Reserved,
-    TryKeyword      = 93 | Reserved,
-    WhileKeyword    = 94 | Reserved,
-    WithKeyword     = 95 | Reserved,
-
-    /* Eval & arguments */
-    Arguments        = 96 | Identifier,
-    Eval             = 97 | Identifier,
-
-    /* Decorators */
-    At               = 98 | Identifier,
-
-    /* Private names or shebang comment start */
-    Hash             = 99 | Identifier,
-
-    /* Strict mode reserved words */
-    ImplementsKeyword = 100 | FutureReserved,
-    InterfaceKeyword  = 101 | FutureReserved,
-    PackageKeyword    = 102 | FutureReserved,
-    PrivateKeyword    = 103 | FutureReserved,
-    ProtectedKeyword  = 104 | FutureReserved,
-    PublicKeyword     = 105 | FutureReserved,
-    StaticKeyword     = 106 | FutureReserved,
-    YieldKeyword      = 107 | FutureReserved,
-
-    /* Contextual keywords */
-    AsKeyword          = 108 | Contextual,
-    AsyncKeyword       = 109 | Contextual,
-    AwaitKeyword       = 110 | Contextual,
-    ConstructorKeyword = 111 | Contextual,
-    GetKeyword         = 112 | Contextual,
-    SetKeyword         = 113 | Contextual,
-    FromKeyword        = 114 | Contextual,
-    OfKeyword          = 115 | Contextual,
-
-    /* Comments */
-    SingleComment      = 116 | WhiteSpace | Comments,
-    MultiComment       = 117 | WhiteSpace | Comments,
-    HTMLComment        = 118 | WhiteSpace | Comments,
-
-    /* WhiteSpace */
-    Space              = 119 | WhiteSpace,
-    Tab                = 120 | WhiteSpace,
-    LineFeed           = 121 | WhiteSpace,
-    CarriageReturn     = 122 | WhiteSpace,
-
-    /* Numbers */
-    BigInt             = 123 | NumericLiteral,
-
-    /* Enum */
-    EnumKeyword        = 124 | Reserved,
-
-    /** Escaped keywords */
-
-    EscapedStrictReserved  = 125,
-    EscapedKeyword         = 126,
+                                Precedence              = 0b0000000000000000000 << 12 | 0b1111 << 8 | 0b00000000, // 8-11
+                /* Node types */EndOfSource             = 0b0000000000000010000 << 12 | 0b0000 << 8 | 0b00000000, // Pseudo
+                  /* Booleans */FalseKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b00000001,
+                                TrueKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b00000010,
+              /* Null literal */NullKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b00000011,
+            /* Template nodes */TemplateHead            = 0b0000100000000000000 << 12 | 0b0000 << 8 | 0b00000100,
+                                TemplateCont            = 0b0000100000000000000 << 12 | 0b0000 << 8 | 0b00000101,
+                                TemplateTail            = 0b0000100000000000000 << 12 | 0b0000 << 8 | 0b00000110,
+               /* Punctuators */Arrow                   = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00000111, // =>
+                                LeftParen               = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001000, // (
+                                LeftBrace               = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001001, // {
+                                Period                  = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001010, // .
+                                Ellipsis                = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001011, // ...
+                                RightBrace              = 0b0000010000000010000 << 12 | 0b0000 << 8 | 0b00001100, // }
+                                RightParen              = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001101, // )
+                                Semicolon               = 0b0000010000000010000 << 12 | 0b0000 << 8 | 0b00001110, // ;
+                                Comma                   = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00001111, // ,
+                                LeftBracket             = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010000, // [
+                                RightBracket            = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010001, // ]
+                                Colon                   = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010010, // :
+                                QuestionMark            = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010011, // ?
+                                SingleQuote             = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010100, // '
+                                DoubleQuote             = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010101, // "
+                                JSXClose                = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010110, // </
+                                JSXAutoClose            = 0b0000010000000000000 << 12 | 0b0000 << 8 | 0b00010111, // />
+          /* Update operators */Increment               = 0b1000010000000000000 << 12 | 0b0000 << 8 | 0b00011000, // ++
+                                Decrement               = 0b1000010000000000000 << 12 | 0b0000 << 8 | 0b00011001, // --
+          /* Assign operators */Assign                  = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011010, // =
+                                ShiftLeftAssign         = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011011, // <<=
+                                ShiftRightAssign        = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011100, // >>=
+                                LogicalShiftRightAssign = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011101, // >>>=
+                                ExponentiateAssign      = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011110, // **=
+                                AddAssign               = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00011111, // +=
+                                SubtractAssign          = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100000, // -=
+                                MultiplyAssign          = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100001, // *=
+                                DivideAssign            = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100010, // /=
+                                ModuloAssign            = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100011, // %=
+                                BitwiseXorAssign        = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100100, // ^=
+                                BitwiseOrAssign         = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100101, // |=
+                                BitwiseAndAssign        = 0b0001010000000000000 << 12 | 0b0000 << 8 | 0b00100110, // &=
+    /* Unary/binary operators */TypeofKeyword           = 0b0100010000000000010 << 12 | 0b0000 << 8 | 0b00100111,
+                                DeleteKeyword           = 0b0100010000000000010 << 12 | 0b0000 << 8 | 0b00101000,
+                                VoidKeyword             = 0b0100010000000000010 << 12 | 0b0000 << 8 | 0b00101001,
+                                Negate                  = 0b0100010000000000000 << 12 | 0b0000 << 8 | 0b00101010, // !
+                                Complement              = 0b0100010000000000000 << 12 | 0b0000 << 8 | 0b00101011, // ~
+                                Add                     = 0b0110010000000000000 << 12 | 0b1001 << 8 | 0b00101100, // +
+                                Subtract                = 0b0110010000000000000 << 12 | 0b1001 << 8 | 0b00101101, // -
+                                InKeyword               = 0b0010010000000000010 << 12 | 0b0111 << 8 | 0b00101110,
+                                InstanceofKeyword       = 0b0010010000000000010 << 12 | 0b0111 << 8 | 0b00101111,
+                                Multiply                = 0b0010010000000000000 << 12 | 0b1010 << 8 | 0b00110000, // *
+                                Modulo                  = 0b0010010000000000000 << 12 | 0b1010 << 8 | 0b00110001, // %
+                                Divide                  = 0b0010010000000000000 << 12 | 0b1010 << 8 | 0b00110010, // /
+                                Exponentiate            = 0b0010010000000000000 << 12 | 0b1011 << 8 | 0b00110011, // **
+                                LogicalAnd              = 0b0010010000000100000 << 12 | 0b0010 << 8 | 0b00110100, // &&
+                                LogicalOr               = 0b0010010000000100000 << 12 | 0b0001 << 8 | 0b00110101, // ||
+                                StrictEqual             = 0b0010010000000000000 << 12 | 0b0110 << 8 | 0b00110110, // ===
+                                StrictNotEqual          = 0b0010010000000000000 << 12 | 0b0110 << 8 | 0b00110111, // !==
+                                LooseEqual              = 0b0010010000000000000 << 12 | 0b0110 << 8 | 0b00111000, // ==
+                                LooseNotEqual           = 0b0010010000000000000 << 12 | 0b0110 << 8 | 0b00111001, // !=
+                                LessThanOrEqual         = 0b0010010000000000000 << 12 | 0b0111 << 8 | 0b00111010, // <=
+                                GreaterThanOrEqual      = 0b0010010000000000000 << 12 | 0b0111 << 8 | 0b00111011, // >=
+                                LessThan                = 0b0010010000000000000 << 12 | 0b0111 << 8 | 0b00111100, // <
+                                GreaterThan             = 0b0010010000000000000 << 12 | 0b0111 << 8 | 0b00111101, // >
+                                ShiftLeft               = 0b0010010000000000000 << 12 | 0b1000 << 8 | 0b00111110, // <<
+                                ShiftRight              = 0b0010010000000000000 << 12 | 0b1000 << 8 | 0b00111111, // >>
+                                LogicalShiftRight       = 0b0010010000000000000 << 12 | 0b1000 << 8 | 0b01000000, // >>>
+                                BitwiseAnd              = 0b0010010000000000000 << 12 | 0b0101 << 8 | 0b01000001, // &
+                                BitwiseOr               = 0b0010010000000000000 << 12 | 0b0011 << 8 | 0b01000010, // |
+                                BitwiseXor              = 0b0010010000000000000 << 12 | 0b0100 << 8 | 0b01000011, // ^
+/* Variable declaration kinds */VarKeyword              = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01000100,
+                                LetKeyword              = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01000101,
+                                ConstKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01000110,
+      /* Other reserved words */BreakKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01000111,
+                                CaseKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001000,
+                                CatchKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001001,
+                                ClassKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001010,
+                                ContinueKeyword         = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001011,
+                                DebuggerKeyword         = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001100,
+                                DefaultKeyword          = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001101,
+                                DoKeyword               = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001110,
+                                ElseKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01001111,
+                                ExportKeyword           = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010000,
+                                ExtendsKeyword          = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010001,
+                                FinallyKeyword          = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010010,
+                                ForKeyword              = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010011,
+                                FunctionKeyword         = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010100,
+                                IfKeyword               = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010101,
+                                ImportKeyword           = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010110,
+                                NewKeyword              = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01010111,
+                                ReturnKeyword           = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011000,
+                                SuperKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011001,
+                                SwitchKeyword           = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011010,
+                                ThisKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011011,
+                                ThrowKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011100,
+                                TryKeyword              = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011101,
+                                WhileKeyword            = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011110,
+                                WithKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01011111,
+          /* Eval & arguments */Arguments               = 0b0000000100000000000 << 12 | 0b0000 << 8 | 0b01100000,
+                                Eval                    = 0b0000000100000000000 << 12 | 0b0000 << 8 | 0b01100001,
+                /* Decorators */At                      = 0b0000000100000000000 << 12 | 0b0000 << 8 | 0b01100010,
+      /* Priv names / shebang */Hash                    = 0b0000000100000000000 << 12 | 0b0000 << 8 | 0b01100011,
+/* Strict mode reserved words */ImplementsKeyword       = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01100100,
+                                InterfaceKeyword        = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01100101,
+                                PackageKeyword          = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01100110,
+                                PrivateKeyword          = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01100111,
+                                ProtectedKeyword        = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01101000,
+                                PublicKeyword           = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01101001,
+                                StaticKeyword           = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01101010,
+                                YieldKeyword            = 0b0000000000000000100 << 12 | 0b0000 << 8 | 0b01101011,
+       /* Contextual keywords */AsKeyword               = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01101100,
+                                AsyncKeyword            = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01101101,
+                                AwaitKeyword            = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01101110,
+                                ConstructorKeyword      = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01101111,
+                                GetKeyword              = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01110000,
+                                SetKeyword              = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01110001,
+                                FromKeyword             = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01110010,
+                                OfKeyword               = 0b0000000000000000001 << 12 | 0b0000 << 8 | 0b01110011,
+                  /* Comments */SingleComment           = 0b0000000000110000000 << 12 | 0b0000 << 8 | 0b01110100,
+                                MultiComment            = 0b0000000000110000000 << 12 | 0b0000 << 8 | 0b01110101,
+                                HTMLComment             = 0b0000000000110000000 << 12 | 0b0000 << 8 | 0b01110110,
+                /* WhiteSpace */Space                   = 0b0000000000010000000 << 12 | 0b0000 << 8 | 0b01110111,
+                                Tab                     = 0b0000000000010000000 << 12 | 0b0000 << 8 | 0b01111000,
+                                LineFeed                = 0b0000000000010000000 << 12 | 0b0000 << 8 | 0b01111001,
+                                CarriageReturn          = 0b0000000000010000000 << 12 | 0b0000 << 8 | 0b01111010,
+                   /* Numbers */BigInt                  = 0b0000000001000000000 << 12 | 0b0000 << 8 | 0b01111011,
+                      /* Enum */EnumKeyword             = 0b0000000000000000010 << 12 | 0b0000 << 8 | 0b01111100,
+          /* Escaped keywords */EscapedStrictReserved   = 0b0000000000000000000 << 12 | 0b0000 << 8 | 0b01111101,
+                                EscapedKeyword          = 0b0000000000000000000 << 12 | 0b0000 << 8 | 0b01111110,
+                                JSXIdentifier           = 0b0000000000000000000 << 12 | 0b0000 << 8 | 0b01111111,
+                                JSXText                 = 0b0000000000000000000 << 12 | 0b0000 << 8 | 0b10000000,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -212,135 +166,128 @@ export const enum Token {
 //
 // All to lower it to a single monomorphic array access.
 export const KeywordDescTable = [
-    'end of source',
+  'end of source',
 
-    /* Constants/Bindings */
-    'false', 'true', 'null',
+  /* Constants/Bindings */
+  'false', 'true', 'null',
 
-    /* Template nodes */
-    'template head', 'template body', 'template tail',
+  /* Template nodes */
+  'template head', 'template body', 'template tail',
 
-    /* Punctuator */
-    '=>', '(', '{', '.', '...', '}', ')', ';', ',', '[', ']', ':', '?', '\'', '"', '</', '/>',
+  /* Punctuator */
+  '=>', '(', '{', '.', '...', '}', ')', ';', ',', '[', ']', ':', '?', '\'', '"', '</', '/>',
 
-    /* Update operators */
-    '++', '--',
+  /* Update operators */
+  '++', '--',
 
-    /* Assign operators */
-    '=', '<<=', '>>=', '>>>=', '**=', '+=', '-=', '*=', '/=', '%=', '^=', '|=',
-    '&=',
+  /* Assign operators */
+  '=', '<<=', '>>=', '>>>=', '**=', '+=', '-=', '*=', '/=', '%=', '^=', '|=',
+  '&=',
 
-    /* Unary/binary operators */
-    'typeof', 'delete', 'void', '!', '~', '+', '-', 'in', 'instanceof', '*', '%', '/', '**', '&&',
-    '||', '===', '!==', '==', '!=', '<=', '>=', '<', '>', '<<', '>>', '>>>', '&', '|', '^',
+  /* Unary/binary operators */
+  'typeof', 'delete', 'void', '!', '~', '+', '-', 'in', 'instanceof', '*', '%', '/', '**', '&&',
+  '||', '===', '!==', '==', '!=', '<=', '>=', '<', '>', '<<', '>>', '>>>', '&', '|', '^',
 
-    /* Variable declaration kinds */
-    'var', 'let', 'const',
+  /* Variable declaration kinds */
+  'var', 'let', 'const',
 
-    /* Other reserved words */
-    'break', 'case', 'catch', 'class', 'continue', 'debugger', 'default', 'do', 'else', 'export',
-    'extends', 'finally', 'for', 'function', 'if', 'import', 'new', 'return', 'super', 'switch',
-    'this', 'throw', 'try', 'while', 'with',
+  /* Other reserved words */
+  'break', 'case', 'catch', 'class', 'continue', 'debugger', 'default', 'do', 'else', 'export',
+  'extends', 'finally', 'for', 'function', 'if', 'import', 'new', 'return', 'super', 'switch',
+  'this', 'throw', 'try', 'while', 'with',
 
-     /* Eval & arguments */
-     'arguments', 'eval',
+   /* Eval & arguments */
+   'arguments', 'eval',
 
-     /* Decorators */
-     'at',
+   /* Decorators */
+   'at',
 
-     /* Private names or shebang comment start */
-     '#',
+   /* Private names or shebang comment start */
+   '#',
 
-    /* Strict mode reserved words */
-    'implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield',
+  /* Strict mode reserved words */
+  'implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield',
 
-    /* Contextual keywords */
-    'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
+  /* Contextual keywords */
+  'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
 
-    /* Comments */
-    'SingleComment', 'MultiComment', 'HTMLComment',
+  /* Comments */
+  'SingleComment', 'MultiComment', 'HTMLComment',
 
-    /* WhiteSpace */
-    'space', 'tab', 'line feed', 'carrige return',
+  /* WhiteSpace */
+  'space', 'tab', 'line feed', 'carrige return',
 
-    /* Numbers */
-    'bigInt',
+  /* Numbers */
+  'bigInt',
 
-    /* Enum */
+  /* Enum */
 
-    'enum',
+  'enum',
 
-    /* Escaped keywords */
+  /* Escaped keywords */
 
-    'escaped strict reserved', 'escaped keyword'
+  'escaped strict reserved', 'escaped keyword',
+
+  /* JSX */
+
+  'JSXText', 'JSXIdentifier'
 ];
-
-/**
- * The conversion function between token and its string description/representation.
- */
-export function tokenDesc(token: Token): string {
-    if ((token & Token.Type) < KeywordDescTable.length) {
-        return KeywordDescTable[token & Token.Type];
-    } else {
-        throw new Error('unreachable');
-    }
-}
 
 // Normal object is much faster than Object.create(null), even with typeof check to avoid Object.prototype interference
 export const descKeywordTable: {[key: string]: Token} = {
-  this: Token.ThisKeyword,
-  function: Token.FunctionKeyword,
-  if: Token.IfKeyword,
-  return: Token.ReturnKeyword,
-  var: Token.VarKeyword,
-  else: Token.ElseKeyword,
-  for: Token.ForKeyword,
-  new: Token.NewKeyword,
-  in: Token.InKeyword,
-  typeof: Token.TypeofKeyword,
-  while: Token.WhileKeyword,
-  case: Token.CaseKeyword,
-  break: Token.BreakKeyword,
-  try: Token.TryKeyword,
-  catch: Token.CatchKeyword,
-  delete: Token.DeleteKeyword,
-  throw: Token.ThrowKeyword,
-  switch: Token.SwitchKeyword,
-  continue: Token.ContinueKeyword,
-  default: Token.DefaultKeyword,
-  instanceof: Token.InstanceofKeyword,
-  do: Token.DoKeyword,
-  void: Token.VoidKeyword,
-  finally: Token.FinallyKeyword,
-  arguments: Token.Arguments,
-  async: Token.AsyncKeyword,
-  await: Token.AwaitKeyword,
-  class: Token.ClassKeyword,
-  const: Token.ConstKeyword,
-  constructor: Token.ConstructorKeyword,
-  debugger: Token.DebuggerKeyword,
-  enum: Token.EnumKeyword,
-  eval: Token.Eval,
-  export: Token.ExportKeyword,
-  extends: Token.ExtendsKeyword,
-  false: Token.FalseKeyword,
-  from: Token.FromKeyword,
-  get: Token.GetKeyword,
-  implements: Token.ImplementsKeyword,
-  import: Token.ImportKeyword,
-  interface: Token.InterfaceKeyword,
-  let: Token.LetKeyword,
-  null: Token.NullKeyword,
-  of: Token.OfKeyword,
-  package: Token.PackageKeyword,
-  private: Token.PrivateKeyword,
-  protected: Token.ProtectedKeyword,
-  public: Token.PublicKeyword,
-  set: Token.SetKeyword,
-  static: Token.StaticKeyword,
-  super: Token.SuperKeyword,
-  true: Token.TrueKeyword,
-  with: Token.WithKeyword,
-  yield: Token.YieldKeyword,
-  as: Token.AsKeyword,
+this: Token.ThisKeyword,
+function: Token.FunctionKeyword,
+if: Token.IfKeyword,
+return: Token.ReturnKeyword,
+var: Token.VarKeyword,
+else: Token.ElseKeyword,
+for: Token.ForKeyword,
+new: Token.NewKeyword,
+in: Token.InKeyword,
+typeof: Token.TypeofKeyword,
+while: Token.WhileKeyword,
+case: Token.CaseKeyword,
+break: Token.BreakKeyword,
+try: Token.TryKeyword,
+catch: Token.CatchKeyword,
+delete: Token.DeleteKeyword,
+throw: Token.ThrowKeyword,
+switch: Token.SwitchKeyword,
+continue: Token.ContinueKeyword,
+default: Token.DefaultKeyword,
+instanceof: Token.InstanceofKeyword,
+do: Token.DoKeyword,
+void: Token.VoidKeyword,
+finally: Token.FinallyKeyword,
+arguments: Token.Arguments,
+async: Token.AsyncKeyword,
+await: Token.AwaitKeyword,
+class: Token.ClassKeyword,
+const: Token.ConstKeyword,
+constructor: Token.ConstructorKeyword,
+debugger: Token.DebuggerKeyword,
+enum: Token.EnumKeyword,
+eval: Token.Eval,
+export: Token.ExportKeyword,
+extends: Token.ExtendsKeyword,
+false: Token.FalseKeyword,
+from: Token.FromKeyword,
+get: Token.GetKeyword,
+implements: Token.ImplementsKeyword,
+import: Token.ImportKeyword,
+interface: Token.InterfaceKeyword,
+let: Token.LetKeyword,
+null: Token.NullKeyword,
+of: Token.OfKeyword,
+package: Token.PackageKeyword,
+private: Token.PrivateKeyword,
+protected: Token.ProtectedKeyword,
+public: Token.PublicKeyword,
+set: Token.SetKeyword,
+static: Token.StaticKeyword,
+super: Token.SuperKeyword,
+true: Token.TrueKeyword,
+with: Token.WithKeyword,
+yield: Token.YieldKeyword,
+as: Token.AsKeyword,
 };

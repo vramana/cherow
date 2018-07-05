@@ -1,17 +1,13 @@
-import { Parser } from '../types';
+import { ParserState } from '../types';
 import { Chars } from '../chars';
 import { Context } from '../common';
-import { Token } from '../token';
-import { Errors, recordErrors } from '../errors';
-import { consumeOpt, toHex } from '../lexer/common';
+import { consume, toHex } from '../lexer/common';
 import {
     parseBackReferenceIndex,
     validateQuantifierPrefix,
     ClassRangesState,
-    setRegExpState,
     setValidationState,
     RegexpState,
-    RegExpFlags,
     isFlagStart
 } from './common';
 
@@ -29,13 +25,13 @@ import {
  * Validate the regular expression body
  *
  * @export
- * @param parser Parser object
+ * @param State Parser object
  * @param context Context masks
  * @param depth Depth
  * @param state Validation state
  */
 export function validateRegexBody(
-    parser: Parser,
+    parser: ParserState,
     context: Context,
     depth: number,
     state: RegexpState
@@ -75,7 +71,7 @@ export function validateRegexBody(
                 } else {
                     // Atom ::
                     //   \ AtomEscape
-                    if (consumeOpt(parser, Chars.LowerB) || consumeOpt(parser, Chars.UpperB)) {
+                    if (consume(parser, Chars.LowerB) || consume(parser, Chars.UpperB)) {
                         maybeQuantifier = false;
                     } else {
                         state = setValidationState(state, validateAtomEscape(parser));
@@ -127,7 +123,7 @@ export function validateRegexBody(
                 if (maybeQuantifier) {
                     maybeQuantifier = false;
                     if (parser.index < parser.length) {
-                        consumeOpt(parser, Chars.QuestionMark);
+                        consume(parser, Chars.QuestionMark);
                     }
                 } else {
                     state = RegexpState.Invalid;
@@ -187,7 +183,7 @@ export function validateRegexBody(
  * @param parser Parser object
  */
 
-function validateAtomEscape(parser: Parser): RegexpState {
+function validateAtomEscape(parser: ParserState): RegexpState {
     // Atom ::
     //   \ AtomEscape
 
@@ -234,7 +230,7 @@ function validateAtomEscape(parser: Parser): RegexpState {
 
             // RegExpUnicodeEscapeSequence[?U]
         case Chars.LowerU:
-            if (consumeOpt(parser, Chars.LeftBrace)) {
+            if (consume(parser, Chars.LeftBrace)) {
 
                 // \u{N}
                 let ch2 = parser.source.charCodeAt(parser.index);
@@ -323,9 +319,9 @@ function validateAtomEscape(parser: Parser): RegexpState {
  * @param parser Parser object
  * @param context Context masks
  */
-function validateCharacterClass(parser: Parser): RegexpState {
+function validateCharacterClass(parser: ParserState): RegexpState {
     if (parser.index >= parser.length) return RegexpState.Invalid;
-    consumeOpt(parser, Chars.Caret);
+    consume(parser, Chars.Caret);
     const next = parser.source.charCodeAt(parser.index);
     return validateClassRanges(parser, next);
 }
@@ -343,7 +339,7 @@ function validateCharacterClass(parser: Parser): RegexpState {
  *
  * @param parser Parser object
  */
-export function validateClassAndClassCharacterEscape(parser: Parser): RegexpState | Chars {
+export function validateClassAndClassCharacterEscape(parser: ParserState): RegexpState | Chars {
 
     switch (parser.source.charCodeAt(parser.index++)) {
 
@@ -402,7 +398,7 @@ export function validateClassAndClassCharacterEscape(parser: Parser): RegexpStat
 
         case Chars.LowerU:
             {
-                if (consumeOpt(parser, Chars.LeftBrace)) {
+                if (consume(parser, Chars.LeftBrace)) {
                     // \u{N}
                     let ch = parser.source.charCodeAt(parser.index);
                     let code = toHex(ch);
@@ -498,7 +494,7 @@ export function validateClassAndClassCharacterEscape(parser: Parser): RegexpStat
  * @param parser Parser object
  * @param context Context masks
  */
-function validateClassRanges(parser: Parser, ch: number): RegexpState {
+function validateClassRanges(parser: ParserState, ch: number): RegexpState {
 
     let prevChar = 0;
     let surrogate = 0;

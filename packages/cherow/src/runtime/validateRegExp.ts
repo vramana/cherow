@@ -1,8 +1,8 @@
-import { createParserObject } from '../parser/parser';
+import { State } from '../state';
 import { Context } from '../common';
 import { Options } from '../types';
 import { Chars } from '../chars';
-import { consumeOpt } from '../lexer/common';
+import { consume } from '../lexer/common';
 import { RegexpState } from '../runtime/common';
 import { verifyRegExpPattern } from '../lexer/regexp';
 import { Errors, report, } from '../errors';
@@ -15,8 +15,8 @@ import { Errors, report, } from '../errors';
  * @param source source code to parse
  */
 export function validateRegExp(source: string): boolean {
-  const parser = createParserObject(source, undefined, undefined, undefined);
-  if (!consumeOpt(parser, Chars.Slash)) report(parser, Errors.InvalidRegularExp);
+  const parser = new State(source, undefined, undefined);
+  if (!consume(parser, Chars.Slash)) report(parser, Errors.InvalidRegularExp);
   const { state } = verifyRegExpPattern(parser, Context.Empty);
   if (state === RegexpState.Invalid) report(parser, Errors.InvalidRegularExp);
   return (state === RegexpState.Valid) ? true : false;

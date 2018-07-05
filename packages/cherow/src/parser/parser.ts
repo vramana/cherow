@@ -1,76 +1,13 @@
-import { Token } from '../token';
-import { Context, Flags, LabelState } from '../common';
-import { Parser, OnError, Options, OnComment } from '../types';
+import { Options, OnError, OnToken } from '../types';
+import { Context } from '../common';
 import * as ESTree from '../estree';
+import { State } from '../state';
 import { parseStatementList } from './statements';
 import { parseModuleItemList } from './module';
 import { skipBomAndShebang } from '../lexer/common';
 
 /**
- * Creates the parser object
- *
- * @param source The source coode to parser
- * @param sourceFile Optional source file info to be attached in every node
- */
-export function createParserObject(
-  source: string,
-  onComment: OnComment | void,
-  onError: OnError | void,
-  sourceFile: string | void,
-): Parser {
-    return {
-        // The source code to parse
-        source: source,
-        // Source length
-        length: source.length,
-        // Current position
-        index: 0,
-        // Current line
-        line: 1,
-        // Current column
-        column: 0,
-        // Start position  before current token
-        startIndex: 0,
-        // Start position column before current token
-        startColumn: 0,
-        // Start position line before current token
-        startLine: 1,
-        // End position after parsing after current token
-        lastIndex: 0,
-        // End column position after current token
-        lastColumn: 0,
-        // End line position after current token
-        lastLine: 0,
-        // Mutable parser flags. Allows destructuring by default
-        flags: Flags.Assignable,
-        // Tokenizing
-        tokens: [],
-        // Label tracking
-        labelSet: undefined,
-        labelSetStack: [],
-        iterationStack: [],
-        labelDepth: 0,
-        switchStatement: LabelState.Empty,
-        iterationStatement: LabelState.Empty,
-        functionBoundaryStack: undefined,
-        // Regular expression
-        capturingParens: 0,
-        largestBackReference: 0,
-        lastValue: 0,
-        sourceFile,
-        // Misc
-        token: Token.EndOfSource,
-        tokenValue: undefined,
-        tokenRaw: '',
-        tokenRegExp: undefined,
-        priorNode: undefined,
-        onError,
-        onComment
-    };
-}
-
-/**
- * Creating the parser
+ * Parse source
  *
  * @param source The source coode to parser
  * @param options The parser options
@@ -80,9 +17,10 @@ export function parseSource(
   source: string,
   options: Options | void,
   /*@internal*/
-  context: Context): ESTree.Program {
+  context: Context): any {
   let onError: OnError;
-  let onComment: OnComment;
+  let onComment: any;
+  let onToken: OnToken;
   let sourceFile: string = '';
 
   if (options !== undefined) {
@@ -112,21 +50,19 @@ export function parseSource(
       if (options.impliedStrict) context |= Context.Strict;
       // The flag to enable experimental features
       if (options.experimental) context |= Context.OptionsExperimental;
-      // The flag to set to bypass methods in Node
-      if (options.node) context |= Context.OptionsNode;
       // The flag to enable editor mode
       if (options.edit != null) onError = options.edit;
+      if (options.onToken != null) onToken = options.onToken;
       // The callback for handling comments
       if (options.onComment != null) onComment = options.onComment;
   }
 
-  // Create the parser object
-  const parser = createParserObject(source, onComment, onError, sourceFile);
+  const state = new State(source, onToken, onComment);
 
-  skipBomAndShebang(parser, context);
+  skipBomAndShebang(state, context);
 
   const body = (context & Context.Module) === Context.Module ?
-      parseModuleItemList(parser, context) : parseStatementList(parser, context);
+      parseModuleItemList() : parseStatementList();
 
   const node: ESTree.Program = {
       type: 'Program',
@@ -147,8 +83,8 @@ export function parseSource(
               column: 0
           },
           end: {
-              line: parser.line,
-              column: parser.column
+              line: state.line,
+              column: state.column
           }
       };
 
@@ -156,7 +92,8 @@ export function parseSource(
   }
 
   return node;
-}
+
+  }
 
 /**
  * Parse either script code or module code
@@ -168,9 +105,9 @@ export function parseSource(
  * @param options parser options
  */
 export function parse(source: string, options?: Options): ESTree.Program {
-    return options && options.module ?
-        parseModule(source, options) :
-        parseScript(source, options);
+  return options && options.module ?
+      parseModule(source, options) :
+      parseScript(source, options);
 }
 
 /**
@@ -182,7 +119,7 @@ export function parse(source: string, options?: Options): ESTree.Program {
  * @param options parser options
  */
 export function parseScript(source: string, options?: Options): ESTree.Program {
-    return parseSource(source, options, Context.Empty);
+  return parseSource(source, options, Context.Empty);
 }
 
 /**
@@ -194,5 +131,5 @@ export function parseScript(source: string, options?: Options): ESTree.Program {
  * @param options parser options
  */
 export function parseModule(source: string, options?: Options): ESTree.Program {
-    return parseSource(source, options, Context.Strict | Context.Module);
+  return parseSource(source, options, Context.Strict | Context.Module);
 }

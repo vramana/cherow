@@ -1,180 +1,161 @@
-import { Parser } from '../types';
-import { Chars } from '../chars';
 import { Token, descKeywordTable } from '../token';
+import { ParserState } from '../types';
+import { Chars, isIdentifierPart } from '../chars';
 import { Context, Flags } from '../common';
-import { isValidIdentifierStart } from '../unicode';
-import { Errors, report } from '../errors';
-import {
-  fromCodePoint,
-  toHex,
-  escapeInvalidCharacters,
-  isIdentifierPart,
-  isWhiteSpaceSingleLine,
-  isAsciiCodePoint,
-  consumeOpt
-} from './common';
+import { nextChar, fromCodePoint, toHex } from './common';
+import { report, Errors } from '../errors';
 
 /**
  * Scans identifier
  *
- * @param parser Parser object
+ * @param state ParserState instance
  */
-export function scanIdentifier(parser: Parser): Token {
-  const { index } = parser;
-  let first = parser.source.charCodeAt(parser.index);
+export function scanIdentifier(state: ParserState, context: Context): Token {
   // Hot path - fast scanning for identifiers and non-escaped keywords
-  while (isAsciiCodePoint(first)) {
-      parser.index++;
-      parser.column++;
-      first = parser.source.charCodeAt(parser.index);
+  while (isIdentifierPart(nextChar(state))) {}
+  state.tokenValue = state.source.slice(state.startIndex, state.index);
+  if (state.index >= state.length || state.nextChar <= Chars.MaxAsciiCharacter && state.nextChar !== Chars.Backslash) {
+    if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.tokenValue;
+    return descKeywordTable[state.tokenValue] || Token.Identifier;
   }
-
-  parser.tokenValue = parser.source.slice(index, parser.index);
-
-  if (parser.index >= parser.length || first <= Chars.MaxAsciiCharacter && first !== Chars.Backslash) {
-    const lookupValue = descKeywordTable[parser.tokenValue];
-    return typeof lookupValue === 'number' ? lookupValue : Token.Identifier;
-  }
-
-  // slow path
-  return scanIdentifierSuffix(parser);
+  return scanIdentifierRest(state, context);
 }
 
 /**
- * Scans identifier suffix. The identifier scanning will fall back into
- * this if the hot path fails or any surrogate pairs / unicode escapes
+ * Scans the rest of the identifiers. It's the slow path that has to deal with multi unit encoding
  *
- * @param parser Parser object
+ * @param state ParserState instance
  */
-export function scanIdentifierSuffix(parser: Parser): Token {
-  let start = parser.index;
+export function scanIdentifierRest(state: ParserState, context: Context): Token {
+  let start = state.index;
   let hasEscape = false;
-
-  while (parser.index < parser.length) {
-      let ch = parser.source.charCodeAt(parser.index);
-      if (ch === Chars.Backslash) {
-          const pendingIndex = parser.index;
-          const escaped = scanIdentifierUnicodeEscape(parser);
-          if (escaped < 0 || escaped === Chars.Backslash || !isValidIdentifierStart(escaped)) return Token.Invalid;
-          parser.tokenValue += parser.source.slice(start, pendingIndex);
-          parser.tokenValue += fromCodePoint(escaped);
-          hasEscape = true;
-          start = parser.index;
-      } else {
-          // Utf1
-          if ((ch & 0xFC00) === Chars.LeadSurrogateMin) {
-              const lo = parser.source.charCodeAt(parser.index + 1);
-              parser.column++;
-              ch = (ch & 0x3FF) << 10 | lo & 0x3FF | Chars.NonBMPMin;
+  while (state.index < state.length) {
+      // The backslash char have it's 4th bit set. Checking that first before checking for
+      // a Unicode escape sequence prevents additional checks for 63%
+      if ((state.nextChar & 8) === 8 && state.nextChar === Chars.Backslash) {
+          state.tokenValue += state.source.slice(start, state.index);
+          const cookedChar = scanIdentifierUnicodeEscape(state);
+          if (cookedChar < 0 || !isIdentifierPart(cookedChar)) {
+              return Token.Invalid;
           }
-          if (!isIdentifierPart(ch)) break;
-          parser.index++;
-          parser.column++;
-          if (ch > Chars.MaxAsciiCharacter) parser.index++;
+          state.tokenValue += fromCodePoint(cookedChar);
+          hasEscape = true;
+          start = state.index;
+      } else {
+          if (!isIdentifierPart(state.source.charCodeAt(state.index))) break;
+          nextChar(state);
+          if (state.nextChar > 0xFFFF0) state.index++;
       }
   }
-  if (start < parser.index) parser.tokenValue += parser.source.slice(start, parser.index);
 
-  const lookupValue = descKeywordTable[parser.tokenValue];
-  const token = typeof lookupValue === 'number' ? lookupValue : Token.Identifier;
+  if (start < state.index) state.tokenValue += state.source.slice(start, state.index);
 
-  if (hasEscape) {
-      if (token & Token.IdentifierOrContextual) {
-          return token;
-      } else if (token & Token.FutureReserved ||
-          token === Token.LetKeyword ||
-          token === Token.StaticKeyword) {
-          return Token.EscapedStrictReserved;
-      } else return Token.EscapedKeyword;
+  // If we have encountered any multi-unit characters, we need to deal with them here
+  if ((state.nextChar & 0xFC00) === 0xD800) {
+      const code = state.nextChar;
+      nextChar(state);
+      const lo = state.source.charCodeAt(state.index);
+      if ((lo & 0xFC00) !== 0xDC00) report(state, Errors.Unexpected);
+      state.tokenValue += fromCodePoint(0x10000 + ((code & 0x3FF) << 10) + (lo & 0x3FF));
+      nextChar(state);
   }
-  return token;
+  // 'options -> rawIdentifier'
+  if (context & Context.OptionsRawidentifiers) state.tokenRaw += state.source.slice(state.startIndex, state.index);
+  if (start < state.index && isIdentifierPart(state.source.charCodeAt(state.index))) scanIdentifierRest(state, context);
+
+  const t = descKeywordTable[state.tokenValue] || Token.Identifier;
+
+  if (!hasEscape || t & Token.IdentifierOrContextual) return t;
+
+  if (t & Token.FutureReserved || t === Token.LetKeyword || t === Token.StaticKeyword) {
+      return Token.EscapedStrictReserved;
+  }
+  return Token.EscapedKeyword;
 }
 
 /**
  * Scans identifier unicode escape
  *
- * @param parser Parser object
+ * @param state ParserState instance
  */
-export function scanIdentifierUnicodeEscape(parser: Parser): number {
-  parser.index++;
-  parser.column++;
-  if (parser.source.charCodeAt(parser.index) !== Chars.LowerU) report(parser, Errors.InvalidUnicodeEscape);
-  parser.index++;
-  parser.column++;
-  if (consumeOpt(parser, Chars.LeftBrace)) {
-      //\u{HexDigits}
-      let value = 0;
-      let digit = toHex(parser.source.charCodeAt(parser.index));
-      if (digit < 0) return -1;
+export function scanIdentifierUnicodeEscape(state: ParserState): number {
+   // Read 'u' characters
+  if (nextChar(state) !== Chars.LowerU) report(state, Errors.Unexpected);
+  let value = 0;
+  if (nextChar(state) === Chars.LeftBrace) {
+      let digit = toHex(nextChar(state));
+      //  '\\u{}'
+      if (state.nextChar === Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape)
+      // Note: The 'while' loop will only execute if the digit is higher than or equal to zero. And the 'value'
+      // will still be 0 if invalid hex value. So no need for further validations
       while (digit >= 0) {
-          value = (value << 4) | digit;
-          if (value > Chars.NonBMPMax) report(parser, Errors.UndefinedUnicodeCodePoint);
-          parser.index++;
-          parser.column++;
-          digit = toHex(parser.source.charCodeAt(parser.index));
+          value = value * 0x10 + digit;
+          if (value > 0x10FFFF) report(state, Errors.UndefinedUnicodeCodePoint);
+          digit = toHex(nextChar(state));
       }
-      if (value < 0 || !consumeOpt(parser, Chars.RightBrace)) {
-          report(parser, Errors.InvalidUnicodeEscape);
-      }
+      if (value < 0 || state.nextChar != Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
+      nextChar(state);
       return value;
   }
-  //\uHex4Digits
-  if (parser.index + 4 > parser.length) return -1;
-  const cp1 = toHex(parser.source.charCodeAt(parser.index));
-  if (cp1 < 0) return -1;
-  const cp2 = toHex(parser.source.charCodeAt(parser.index + 1));
-  if (cp2 < 0) return -1;
-  const cp3 = toHex(parser.source.charCodeAt(parser.index + 2));
-  if (cp3 < 0) return -1;
-  const cp4 = toHex(parser.source.charCodeAt(parser.index + 3));
-  if (cp4 < 0) return -1;
-  parser.index += 4;
-  parser.column += 4;
-  return cp1 << 12 | cp2 << 8 | cp3 << 4 | cp4;
+
+  // 4 characters have to be read for this to be valid
+  for (let i = 0; i < 4; i++) {
+      const digit = toHex(state.nextChar);
+      if (digit < 0) report(state, Errors.InvalidUnicodeEscape);
+      value = value * 0x10  + digit;
+      nextChar(state);
+  }
+
+  return value;
 }
 
-/**
- * Scans maybe identifier
- *
- * @param parser Parser object
- * @param context Context masks
- * @param first code point
- */
-export function scanMaybeIdentifier(parser: Parser, context: Context, first: number): Token {
-  const c = context;
-  if (isWhiteSpaceSingleLine(first)) {
-      parser.index++;
-      parser.column++;
-      return Token.WhiteSpace;
-  } else if (first === Chars.LineSeparator || first === Chars.ParagraphSeparator) {
-      parser.index++;
-      parser.column = 0;
-      parser.line++;
-      parser.flags |= Flags.NewLine;
-      return Token.WhiteSpace;
+export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): any {
+  // Non-ASCII code points can only be identifiers or whitespace.
+  switch (state.nextChar) {
+      case Chars.LineSeparator:
+      case Chars.ParagraphSeparator:
+          state.index++;
+          state.column = 0;
+          state.line++;
+          state.flags |= Flags.LineTerminator;
+          return Token.WhiteSpace;
+          // http://en.wikipedia.org/wiki/Whitespace_character
+      case Chars.Space:
+      case Chars.NonBreakingSpace:
+      case Chars.Ogham:
+      case Chars.EnQuad:
+      case Chars.EmQuad:
+      case Chars.EnSpace:
+      case Chars.EmSpace:
+      case Chars.ThreePerEmSpace:
+      case Chars.FourPerEmSpace:
+      case Chars.SixPerEmSpace:
+      case Chars.FigureSpace:
+      case Chars.PunctuationSpace:
+      case Chars.ThinSpace:
+      case Chars.HairSpace:
+      case Chars.ZeroWidthSpace:
+      case Chars.Zwnj:
+      case Chars.Zwj:
+      case Chars.Zwnbs:
+      case Chars.NarrowNoBreakSpace:
+      case Chars.MathematicalSpace:
+      case Chars.IdeographicSpace:
+          state.index++;
+          state.column++;
+          return Token.WhiteSpace;
+
+      default:
+
+          if ((state.nextChar & 0xFC00) === 0xD800) {
+              state.index++;
+              state.column++;
+              const lo = state.source.charCodeAt(state.index);
+              if ((lo & 0xFC00) !== 0xDC00) report(state, Errors.Unexpected);
+              state.tokenValue += fromCodePoint(0x10000 + ((state.nextChar & 0x3FF) << 10) + (lo & 0x3FF));
+              state.index++;
+              state.column++;
+          }
+          return scanIdentifierRest(state, context);
   }
-
-  first = parser.source.charCodeAt(parser.index++);
-
-  // Left to fix:
-  //
-  // - Remove this, and use the existing code in 'scanIdentifierSuffix'
-  // - Add support for scanning '𪘀' and 'abc𪘀'
-  // - Make sure the column values are correct
-
-  if ((first & 0xFC00) === Chars.LeadSurrogateMin) {
-      const lo = parser.source.charCodeAt(parser.index);
-      if ((lo & 0xFC00) === 0xDC00) {
-          first = (first & 0x3FF) << 10 | lo & 0x3FF | Chars.NonBMPMin;
-          parser.index++;
-          parser.column++;
-      }
-  }
-
-  // Note: This is wrong!
-  if (!isValidIdentifierStart(first)) report(parser, Errors.Unexpected, escapeInvalidCharacters(first));
-  parser.column++;
-  parser.tokenValue = fromCodePoint(first);
-  if (parser.index < parser.length) return scanIdentifierSuffix(parser);
-  return Token.Identifier;
 }
