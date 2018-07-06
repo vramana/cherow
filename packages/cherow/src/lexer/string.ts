@@ -5,59 +5,50 @@ import { Chars } from '../chars';
 import { toHex, nextChar, nextUnicodeChar, Escape, fromCodePoint } from './common';
 import { report, Errors } from '../errors';
 
-// Rest the 'nextChar' and advance the index if in unicode range.
-// This is 'unique' only for string and template literals
-export function readNext(state: ParserState): number {
-  if (state.nextChar > 0xFFFF) ++state.index;
-  const ch = state.nextChar = state.source.charCodeAt(++state.index);
-  if (state.index >= state.length) report(state, Errors.UnterminatedString);
-  ++state.column;
-  return ch;
-}
-
 /**
  * Scan a string literal
  *
  * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
  *
- * @param state State
+ * @param state Parser instance
  * @param context Context masks
  */
-
 export function scanStringLiteral(state: ParserState, context: Context): Token {
-
   const quote = state.nextChar;
-
+  const { nextChar } = state;
   let ret = '';
+  let ch = readNext(state);
 
-  readNext(state);
+  while (ch !== quote) {
 
-  while (state.nextChar !== quote) {
-      if (state.nextChar === Chars.Backslash) {
-          nextChar(state);
-          if (state.nextChar >= Chars.MaxAsciiCharacter) {
-              ret += fromCodePoint(state.nextChar);
+      if (ch === Chars.Backslash) {
+          ch = readNext(state);
+
+          if (ch >= 128) {
+              ret += fromCodePoint(ch);
           } else {
+              state.nextChar = ch;
               const code = table[state.nextChar](state, context);
+
               if (code >= 0) ret += fromCodePoint(code);
               else recordStringErrors(state, code as Escape);
+              ch = state.nextChar;
           }
-      } else if ((state.nextChar & 83) < 3 &&
-                (state.nextChar === Chars.CarriageReturn ||
-                state.nextChar === Chars.LineFeed)) {
+      } else if ((ch & 83) < 3 && (ch === Chars.CarriageReturn || ch === Chars.LineFeed)) {
           report(state, Errors.UnterminatedString);
       } else {
-          ret += fromCodePoint(state.nextChar);
+          ret += fromCodePoint(ch);
       }
-      readNext(state);
+      ch = readNext(state);
   }
 
-  nextChar(state); // Consume the quote
+  state.index++; // Consume the quote
+  state.column++;
 
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
 
   state.tokenValue = ret;
-
+  state.nextChar = nextChar;
   return Token.StringLiteral;
 }
 
@@ -84,7 +75,6 @@ table[Chars.CarriageReturn] = state => {
           state.index = index + 1;
       }
   }
-
   return Escape.Empty;
 };
 
@@ -249,4 +239,10 @@ export function recordStringErrors(state: ParserState, code: Escape): any {
   if (code === Escape.OutOfRange) message = Errors.InvalidEightAndNine;
   report(state, message);
   return Token.Invalid;
+}
+
+export function readNext(state: ParserState): number {
+  state.index++; state.column++;
+  if (state.index >= state.length) report(state, Errors.UnterminatedString);
+  return nextUnicodeChar(state);
 }
