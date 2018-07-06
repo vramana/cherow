@@ -72,13 +72,10 @@ describe('Lexer - Surrogate Identifiers', () => {
       line: 1,
       column: 2,
   });
-
-
-
+/*
   function toHighSurrogate(code: number) {
     return (code >> 10) + (0xD800 - (0x10000 >> 10));
 }
-
 
 function toLowSurrogate(code: number) {
     return (code & ((1 << 10) - 1)) + 0xDC00;
@@ -101,5 +98,5 @@ for (var i = 0x10000; i < 0x10ffff; ++i) {
         column: `${str}`.length,
     });
   }
-
+*/
 });
