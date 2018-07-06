@@ -1,9 +1,8 @@
-import { unicodeLookup } from './../unicode';
 import { Token, descKeywordTable } from '../token';
 import { ParserState } from '../types';
 import { Chars, isIdentifierPart, AsciiLookup, CharType } from '../chars';
-import { Context, Flags } from '../common';
-import { nextChar, fromCodePoint, toHex, isWhiteSpaceCharacter, escapeInvalidCharacters } from './common';
+import { Context } from '../common';
+import { nextChar, fromCodePoint, toHex, isWhiteSpaceCharacter, skipToNewLine } from './common';
 import { report, Errors } from '../errors';
 
 /**
@@ -54,7 +53,8 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
 
   if (start < state.index) state.tokenValue += state.source.slice(start, state.index);
 
-  // If we have encountered any multi-unit characters, we need to deal with them here
+  // This is an optimized equalent for "normal" surrogate lead checking where the
+  // code unit is in the range 0xD800 to 0xDBFF.
   if ((state.nextChar & 0xFC00) === 0xD800) {
       const code = state.nextChar;
       nextChar(state);
@@ -122,12 +122,10 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
 export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): Token {
 
   // Both 'PS' and 'LS' have the 5th bit set and 7th bit unset. Checking for that first prevents additional checks
-  if ((state.nextChar & 83) < 3 && (state.nextChar === Chars.ParagraphSeparator || state.nextChar === Chars.LineSeparator)) {
-      state.index++;
-      state.column = 0;
-      state.line++;
-      state.flags |= Flags.LineTerminator;
-      return Token.WhiteSpace;
+  if ((state.nextChar & 83) < 3 &&
+      (state.nextChar === Chars.ParagraphSeparator ||
+          state.nextChar === Chars.LineSeparator)) {
+      return skipToNewLine(state);
   }
   // This is very rare. Anyway. There exist 25 white space characters, and we grouped them in
   // 'isWhiteSpaceCharacter' for faster lookup
@@ -142,7 +140,7 @@ export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): 
       state.column++;
       const lo = state.source.charCodeAt(state.index);
       if ((lo & 0xFC00) !== 0xDC00) report(state, Errors.Unexpected);
-      const surrogate = 0x10000 + ((state.nextChar & 0x3FF) << 10) + (lo & 0x3FF)
+      const surrogate = 0x10000 + ((state.nextChar & 0x3FF) << 10) + (lo & 0x3FF);
       state.tokenValue += fromCodePoint(surrogate);
       state.index++;
       state.column++;

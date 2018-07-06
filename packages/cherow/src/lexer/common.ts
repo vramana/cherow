@@ -28,6 +28,14 @@ export function consume(state: ParserState, code: number): boolean {
   return true;
 }
 
+export function skipToNewLine(state: ParserState): Token {
+  state.index++;
+  state.column = 0;
+  state.line++;
+  state.flags |= Flags.LineTerminator;
+  return Token.WhiteSpace;
+}
+
 export function nextChar(state: ParserState): number {
   ++state.column;
   return state.nextChar = state.source.charCodeAt(++state.index);

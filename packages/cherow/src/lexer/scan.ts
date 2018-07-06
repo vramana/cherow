@@ -123,7 +123,7 @@ table[Chars.Period] = (state: ParserState, context: Context) => {
           return Token.Ellipsis;
       }
   } else if (next >= Chars.Zero && next <= Chars.Nine) {
-           return scanNumeric(state, context, true);
+      return scanNumeric(state, context, true);
   }
   state.index++;
   state.column++;
@@ -205,7 +205,6 @@ table[Chars.Percent] = state => {
 table[Chars.Ampersand] = state => {
   ++state.index;
   ++state.column;
-  if (state.index >= state.length) return Token.BitwiseAnd;
   const next = state.source.charCodeAt(state.index);
   if (next === Chars.Ampersand) {
       ++state.index;
@@ -271,7 +270,6 @@ table[Chars.Hyphen] = (state, context) => {
           ++state.index;
           ++state.column;
           // https://tc39.github.io/ecma262/#prod-annexB-MultiLineComment
-          // If there was a new line in the multi-line comment, the text after --> is a comment.
           if ((state.flags & Flags.LineTerminator || state.startIndex === 0) &&
               consume(state, Chars.GreaterThan)) {
               return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
@@ -352,6 +350,12 @@ table[Chars.GreaterThan] = state => {
   return Token.ShiftRight;
 };
 
+/**
+ * Scans and return the next token in the stream.,
+ *
+ * @param state Parserstate instance
+ * @param context Context masks
+ */
 export function nextToken(state: ParserState, context: Context): Token {
   state.lastIndex = state.index;
   state.lastLine = state.line;
@@ -362,7 +366,7 @@ export function nextToken(state: ParserState, context: Context): Token {
       state.startColumn = state.column;
       state.startLine = state.line;
       state.nextChar = state.source.charCodeAt(state.index);
-      const token: any = table[state.nextChar](state, context);
+      const token: Token = table[state.nextChar](state, context);
       if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
       if (!(state.flags & Flags.EdgeCase) && onToken) {
           onToken(convertTokenType(token), getTokenValue(state, token));
