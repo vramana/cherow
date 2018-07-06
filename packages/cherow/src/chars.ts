@@ -294,5 +294,6 @@ export const enum Chars {
     NarrowNoBreakSpace = 0b10000000101111,
     MathematicalSpace  = 0b10000001011111,
     IdeographicSpace   = 0b11000000000000,
-    ByteOrderMark      = 0b1111111111101111
+    ByteOrderMark      = 0b1111111111101111,
+    BigEndian          = 0b1111111111101110
 }

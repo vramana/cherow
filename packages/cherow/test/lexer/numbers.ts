@@ -80,7 +80,25 @@ describe('Lexer - Nuasdfmbers', () => {
 
     fail('should fail "0o2424bb"', Context.Empty, {
       source: '0o2424bb'
-    })
+    });
+
+    pass("scans '\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u30001234'", {
+      source: "\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u30001234",
+      value: 1234,
+      raw: "1234",
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 19,
+    });
+
+    pass("scans '\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF123'", {
+      source: "\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF123",
+      value: 123,
+      raw: "123",
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 24,
+    });
 
     pass("scans '09.44'", {
       source: "09.44",

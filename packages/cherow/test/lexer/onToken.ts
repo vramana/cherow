@@ -94,13 +94,230 @@ describe("Lexer - OnToken", () => {
       }
 
       pass('should tokenize single-quoted string with escaped linefeed', {
-          source: '"a\\n"',
-          value: [{
-              type: 'StringLiteral',
-              "value": "\"a\\n\""
-          }],
-          line: 1,
-          column: 5,
+        source: '"a\\n"',
+        value: [{
+            type: 'StringLiteral',
+            "value": "\"a\\n\""
+        }],
+        line: 1,
+        column: 5,
+      });
+
+      pass('should tokenize assignment and multi line comment', {
+        source: `/* assignment */
+        a = b`,
+        value: [ {
+                "type": "RegularExpression",
+                "value": "/* assignment */",
+              },
+              {
+                "type": "Identifier",
+                "value": "a",
+              },
+              {
+                "type": "Punctuator",
+                "value": "=",
+              },
+              {
+                "type": "Identifier",
+                "value": "b",
+              }],
+        line: 2,
+        column: 13,
+      });
+
+      pass('should tokenize function expr with block comment', {
+        source: `(function(){ var version = 1; /* sync */ }).call(this)`,
+        value: [{
+                "type": "Punctuator",
+                "value": "(",
+              },
+              {
+                "type": "Keyword",
+                "value": "function",
+              },
+              {
+                "type": "Punctuator",
+                "value": "(",
+              },
+             {
+                "type": "Punctuator",
+                "value": ")",
+              },
+              {
+                "type": "Punctuator",
+                "value": "{",
+              },
+              {
+                "type": "Keyword",
+                "value": "var",
+             },
+              {
+                "type": "Identifier",
+                "value": "version",
+              },
+              {
+                "type": "Punctuator",
+                "value": "=",
+              },
+              {
+                "type": "Numeric",
+                "value": "1",
+              },
+              {
+               "type": "Punctuator",
+                "value": ";",
+              },
+              {
+                "type": "Punctuator",
+                "value": "}",
+              },
+              {
+                "type": "Punctuator",
+                "value": ")",
+              },
+              {
+                "type": "Punctuator",
+               "value": ".",
+              },
+              {
+                "type": "Identifier",
+                "value": "call",
+              },
+              {
+               "type": "Punctuator",
+                "value": "(",
+              },
+              {
+                "type": "Keyword",
+                "value": "this",
+              },
+              {
+                "type": "Punctuator",
+                "value": ")"
+              }],
+        line: 1,
+        column: 54,
+      });
+
+      pass('should tokenize switch statement with multi line comment', {
+        source: `switch (answer) { case 42: /* perfect */ bingo() }`,
+        value: [{
+                "type": "Keyword",
+                "value": "switch",
+              },
+              {
+                "type": "Punctuator",
+                "value": "(",
+              },
+              {
+               "type": "Identifier",
+                "value": "answer",
+              },
+              {
+                "type": "Punctuator",
+                "value": ")",
+              },
+              {
+                "type": "Punctuator",
+                "value": "{",
+              },
+              {
+                "type": "Keyword",
+               "value": "case",
+              },
+              {
+                "type": "Numeric",
+                "value": "42",
+              },
+              {
+                "type": "Punctuator",
+                "value": ":",
+              },
+              {
+                "type": "Identifier",
+                "value": "bingo",
+             },
+              {
+                "type": "Punctuator",
+                "value": "(",
+              },
+              {
+               "type": "Punctuator",
+                "value": ")",
+              },
+              {
+                "type": "Punctuator",
+                "value": "}",
+              }
+            ],
+        line: 1,
+        column: 50,
+      });
+
+      pass('should tokenize with statement with punctuators', {
+        source: 'with (false) /42/',
+        value: [{
+                "type": "Keyword",
+                "value": "with",
+              },
+              {
+                "type": "Punctuator",
+                "value": "(",
+              },
+              {
+               "type": "Keyword",
+                "value": "false",
+              },
+              {
+                "type": "Punctuator",
+                "value": ")",
+              },
+              {
+                "type": "Punctuator",
+               "value": "/",
+              },
+              {
+                "type": "Numeric",
+                "value": "42",
+              },
+             {
+                "type": "Punctuator",
+                "value": "/"
+              }],
+        line: 1,
+        column: 17,
+      });
+
+      pass('should tokenize identifier and skip HTML open comment', {
+        source: 'a<!--b',
+        value: [ {
+                "type": "Identifier",
+                "value": "a",
+              }],
+        line: 1,
+        column: 6,
+      });
+
+      pass('should tokenize number with crazy HTML close comment', {
+        source: `0/*
+        */-->`,
+        value: [{
+                "type": "Numeric",
+                "value": "0",
+              }],
+        line: 2,
+        column: 13,
+      });
+
+      pass('should tokenize single-quoted string with escaped linefeed', {
+        source: '"a\\n"',
+        value: [{
+            type: 'StringLiteral',
+            "value": "\"a\\n\""
+        }],
+        line: 1,
+        column: 5,
       });
 
       pass('should tokenize and not recognize greater than as HTML Close comment', {

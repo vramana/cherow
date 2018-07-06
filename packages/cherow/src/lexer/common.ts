@@ -99,14 +99,15 @@ export function escapeInvalidCharacters(code: number): string {
   }
 }
 /**
- * Skips BOM and shebang
+ * Skips any byte order mark at the start
  *
  * parser Parser object
  */
 export function skipBomAndShebang(state: ParserState, context: Context): void {
   let index = state.index;
   if (index === state.source.length) return;
-  if (state.nextChar === Chars.ByteOrderMark) {
+  if (state.nextChar === Chars.ByteOrderMark ||
+      state.nextChar === Chars.BigEndian) {
       index++;
       state.index = index;
   }
@@ -115,6 +116,7 @@ export function skipBomAndShebang(state: ParserState, context: Context): void {
       index < state.source.length &&
       state.source.charCodeAt(index) === Chars.Hash) {
       index++;
+      // '#!'
       if (index < state.source.length && state.source.charCodeAt(index) === Chars.Exclamation) {
           state.index = index + 1;
           while (state.index < state.length) {
