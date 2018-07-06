@@ -213,7 +213,7 @@ table[Chars.LowerU] = state => {
           if (digit < 0) return Escape.InvalidHex;
           code = code * 16 + digit;
           // Code point out of bounds
-          if (code > Chars.NonBMPMax) return Escape.OutOfRange;
+          if (code > 0x10FFFF) return Escape.OutOfRange;
           ch = nextChar(state);
       }
 

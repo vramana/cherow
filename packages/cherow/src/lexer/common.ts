@@ -17,8 +17,8 @@ export function fromCodePoint (code: Chars): string {
   return code <= 0xFFFF ?
       String.fromCharCode(code) :
       String.fromCharCode(
-          ((code - Chars.NonBMPMin) >> 10) + Chars.LeadSurrogateMin,
-          ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
+          ((code - 0x10000) >> 10) + 0xD800,
+          ((code - 0x10000) & (1024 - 1)) + 0xDC00);
 }
 
 export function consume(state: ParserState, code: number): boolean {
@@ -196,7 +196,7 @@ export function lookAheadOrScan <T> (state: ParserState, callback: (state: Parse
       state.nextChar = savedNextChar;
       state.token = savedToken;
       state.tokenRaw = savedTokenRaw;
-      state.tokenRegExp =savedTokenRegExp ;
+      state.tokenRegExp = savedTokenRegExp ;
       state.commentStart = savedCommentStart;
       state.commentType = savedCommentType;
       state.capturingParens = savedCapturingParens;
@@ -205,4 +205,14 @@ export function lookAheadOrScan <T> (state: ParserState, callback: (state: Parse
   }
 
   return result;
+}
+
+export function isWhiteSpaceCharacter(code: number): boolean {
+  return code >= 0x9 &&
+      (code <= 0xD ||
+          (code <= 0x200A &&
+              (code >= 0x2000 || code == 0xA0 || code == 0x1680)
+          ) ||
+          (code == 0x202F || code == 0x205F || code == 0x3000 || code == 0xFEFF)
+      );
 }

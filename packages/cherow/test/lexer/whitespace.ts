@@ -47,13 +47,8 @@ describe('Lexer - Whitespace', () => {
     });
 
     pass('should skip none-breaking space', {
-      source: '\xA0',
-      line: 1, column: 1,
-    });
-
-    pass('should skip none-breaking space', {
-      source: '\u200C',
-      line: 1, column: 1,
+      source: '\A0',
+      line: 1, column: 2,
     });
 
     pass('should skip punctual space', {

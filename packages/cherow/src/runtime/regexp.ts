@@ -243,7 +243,7 @@ function validateAtomEscape(parser: ParserState): RegexpState {
                     if (digit < 0) return RegexpState.Invalid;
                     code = code * 16 + digit;
                     // Code point out of bounds
-                    if (code > Chars.NonBMPMax) return RegexpState.Invalid;
+                    if (code > 0x10FFFF) return RegexpState.Invalid;
                     parser.index++;
                     ch2 = parser.source.charCodeAt(parser.index);
                 }
@@ -410,7 +410,7 @@ export function validateClassAndClassCharacterEscape(parser: ParserState): Regex
                         if (digit < 0) return RegexpState.InvalidCharClass;
                         code = code * 16 + digit;
                         // Code point out of bounds
-                        if (code > Chars.NonBMPMax) return RegexpState.InvalidCharClass;
+                        if (code > 0x10FFFF) return RegexpState.InvalidCharClass;
                         parser.index++;
                         ch = parser.source.charCodeAt(parser.index);
                     }
@@ -543,13 +543,13 @@ function validateClassRanges(parser: ParserState, ch: number): RegexpState {
 
         if (prevState & ClassRangesState.IsSurrogateLead && (ch & 0xFC00) === 0xDC00) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
-            surrogate = (prevChar - Chars.LeadSurrogateMin) * 0x400 + (ch - Chars.TrailSurrogateMin) + Chars.NonBMPMin;
+            surrogate = (prevChar - 0xD800) * 0x400 + (ch - 0xDC00) + 0x10000;
         } else if (!(prevState & ClassRangesState.IsTrailSurrogate) && prevState & ClassRangesState.IsSurrogateLead && (ch & 0x1FFFFF) > 0xFFFF) {
             state = state & ~ClassRangesState.IsSurrogateLead | ClassRangesState.IsTrailSurrogate;
             surrogate = ch;
         } else {
             state = state & ~(ClassRangesState.IsTrailSurrogate | ClassRangesState.IsSurrogateLead);
-            if ((ch & 0xFC00) === Chars.LeadSurrogateMin) state = state | ClassRangesState.IsSurrogateLead;
+            if ((ch & 0xFC00) === 0xD800) state = state | ClassRangesState.IsSurrogateLead;
         }
 
         if (state & ClassRangesState.SeenUnicoderange) {

@@ -38,19 +38,11 @@ describe('Lexer - Identifiers', () => {
       });
   }
 
-  fail('should fail "😍"', Context.Empty, {
-      source: '😍'
-  })
-
   fail('should fail "1foo"', Context.Empty, {
-    source: '1foo'
+      source: '1foo'
   })
   fail('should fail "abc\\"', Context.Empty, {
       source: 'abc\\'
-  })
-
-  fail('should fail "💩"', Context.Empty, {
-      source: '💩'
   })
 
   fail('should fail "\\123\\uD800"', Context.Empty, {
@@ -106,7 +98,7 @@ describe('Lexer - Identifiers', () => {
   })
 
   fail('should fail "\\u{}"', Context.Empty, {
-  source: '\\u{}'
+      source: '\\u{}'
   })
 
   fail('should fail "\\u{10401"', Context.Empty, {
@@ -661,6 +653,168 @@ describe('Lexer - Identifiers', () => {
   });
 
   describe('Escaped keywords', () => {
+
+      pass("scans '\\u0066rom'", {
+          source: "\\u0066rom",
+          value: "from",
+          raw: "\\u0066rom",
+          token: Token.FromKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u0061sync'", {
+          source: "\\u0061sync",
+          value: "async",
+          raw: "\\u0061s",
+          token: Token.AsyncKeyword,
+          line: 1,
+          column: 10,
+      });
+
+      pass("scans 'n\\u0065w'", {
+          source: "n\\u0065w",
+          value: "new",
+          raw: "n\\u0065w",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans 't\\u0061rget'", {
+          source: "t\\u0061rget",
+          value: "target",
+          raw: "t\\u0061rget",
+          token: Token.Identifier,
+          line: 1,
+          column: 11,
+      });
+
+      pass("scans 'g\\u0065t'", {
+          source: "g\\u0065t",
+          value: "get",
+          raw: "g\\u0065t",
+          token: Token.GetKeyword,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans 's\\u0065t'", {
+          source: "s\\u0065t",
+          value: "set",
+          raw: "s\\u0065t",
+          token: Token.SetKeyword,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans 'st\\u0061tic'", {
+          source: "st\\u0061tic",
+          value: "static",
+          raw: "st\\u0061tic",
+          token: Token.EscapedStrictReserved,
+          line: 1,
+          column: 11,
+      });
+
+      pass("scans 'o\\u0066'", {
+          source: "o\\u0066",
+          value: "of",
+          raw: "o\\u0066",
+          token: Token.OfKeyword,
+          line: 1,
+          column: 7,
+      });
+
+      pass("scans 'l\\u0065t'", {
+          source: "l\\u0065t",
+          value: "let",
+          raw: "l\\u0065t",
+          token: Token.EscapedStrictReserved,
+          line: 1,
+          column: 8,
+      });
+
+      pass("scans '\\u0061sync'", {
+          source: "\\u0061sync",
+          value: "async",
+          raw: "\\u0061s",
+          token: Token.AsyncKeyword,
+          line: 1,
+          column: 10,
+      });
+
+      pass("scans '\\u0061s'", {
+          source: "\\u0061s",
+          value: "as",
+          raw: "\\u0061s",
+          token: Token.AsKeyword,
+          line: 1,
+          column: 7,
+      });
+
+      pass("scans 'd\\u0065fault'", {
+          source: "d\\u0065fault",
+          value: "default",
+          raw: "d\\u0065fault",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 12,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
+
+      pass("scans '\\u{63}ase'", {
+          source: "\\u{63}ase",
+          value: "case",
+          raw: "'case'",
+          token: Token.EscapedKeyword,
+          line: 1,
+          column: 9,
+      });
 
       pass("scans '\\u{63}ase'", {
           source: "\\u{63}ase",

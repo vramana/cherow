@@ -1,22 +1,26 @@
+import { unicodeLookup } from './../unicode';
 import { Token, descKeywordTable } from '../token';
 import { ParserState } from '../types';
-import { Chars, isIdentifierPart } from '../chars';
+import { Chars, isIdentifierPart, AsciiLookup, CharType } from '../chars';
 import { Context, Flags } from '../common';
-import { nextChar, fromCodePoint, toHex } from './common';
+import { nextChar, fromCodePoint, toHex, isWhiteSpaceCharacter, escapeInvalidCharacters } from './common';
 import { report, Errors } from '../errors';
 
 /**
  * Scans identifier
  *
  * @param state ParserState instance
+ * @param context Context masks
  */
 export function scanIdentifier(state: ParserState, context: Context): Token {
-  // Hot path - fast scanning for identifiers and non-escaped keywords
-  while (isIdentifierPart(nextChar(state))) {}
-  state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (state.index >= state.length || state.nextChar <= Chars.MaxAsciiCharacter && state.nextChar !== Chars.Backslash) {
-    if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.tokenValue;
-    return descKeywordTable[state.tokenValue] || Token.Identifier;
+  // Hot path - fast path for utf8, non-multi unit char and not escape
+  while ((AsciiLookup[nextChar(state)] & (CharType.IDContinue | CharType.Decimal)) > 0) {}
+  if (state.startIndex < state.index) {
+      state.tokenValue = state.source.slice(state.startIndex, state.index);
+      if (state.index >= state.length || state.nextChar <= Chars.MaxAsciiCharacter && state.nextChar !== Chars.Backslash) {
+          if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.tokenValue;
+          return descKeywordTable[state.tokenValue] || Token.Identifier;
+      }
   }
   return scanIdentifierRest(state, context);
 }
@@ -25,6 +29,7 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
  * Scans the rest of the identifiers. It's the slow path that has to deal with multi unit encoding
  *
  * @param state ParserState instance
+ * @param context Context masks
  */
 export function scanIdentifierRest(state: ParserState, context: Context): Token {
   let start = state.index;
@@ -44,7 +49,6 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       } else {
           if (!isIdentifierPart(state.source.charCodeAt(state.index))) break;
           nextChar(state);
-          if (state.nextChar > 0xFFFF0) state.index++;
       }
   }
 
@@ -109,53 +113,41 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
   return value;
 }
 
-export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): any {
-  // Non-ASCII code points can only be identifiers or whitespace.
-  switch (state.nextChar) {
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
-          state.index++;
-          state.column = 0;
-          state.line++;
-          state.flags |= Flags.LineTerminator;
-          return Token.WhiteSpace;
-          // http://en.wikipedia.org/wiki/Whitespace_character
-      case Chars.Space:
-      case Chars.NonBreakingSpace:
-      case Chars.Ogham:
-      case Chars.EnQuad:
-      case Chars.EmQuad:
-      case Chars.EnSpace:
-      case Chars.EmSpace:
-      case Chars.ThreePerEmSpace:
-      case Chars.FourPerEmSpace:
-      case Chars.SixPerEmSpace:
-      case Chars.FigureSpace:
-      case Chars.PunctuationSpace:
-      case Chars.ThinSpace:
-      case Chars.HairSpace:
-      case Chars.ZeroWidthSpace:
-      case Chars.Zwnj:
-      case Chars.Zwj:
-      case Chars.Zwnbs:
-      case Chars.NarrowNoBreakSpace:
-      case Chars.MathematicalSpace:
-      case Chars.IdeographicSpace:
-          state.index++;
-          state.column++;
-          return Token.WhiteSpace;
+/**
+ * Checking non-ASCII code points. This can only be identifiers or whitespace
+ *
+ * @param state ParserState instance
+ * @param context Context masks
+ */
+export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): Token {
 
-      default:
-
-          if ((state.nextChar & 0xFC00) === 0xD800) {
-              state.index++;
-              state.column++;
-              const lo = state.source.charCodeAt(state.index);
-              if ((lo & 0xFC00) !== 0xDC00) report(state, Errors.Unexpected);
-              state.tokenValue += fromCodePoint(0x10000 + ((state.nextChar & 0x3FF) << 10) + (lo & 0x3FF));
-              state.index++;
-              state.column++;
-          }
-          return scanIdentifierRest(state, context);
+  // Both 'PS' and 'LS' have the 5th bit set and 7th bit unset. Checking for that first prevents additional checks
+  if ((state.nextChar & 83) < 3 && (state.nextChar === Chars.ParagraphSeparator || state.nextChar === Chars.LineSeparator)) {
+      state.index++;
+      state.column = 0;
+      state.line++;
+      state.flags |= Flags.LineTerminator;
+      return Token.WhiteSpace;
   }
+  // This is very rare. Anyway. There exist 25 white space characters, and we grouped them in
+  // 'isWhiteSpaceCharacter' for faster lookup
+  if (isWhiteSpaceCharacter(state.nextChar)) {
+      state.index++;
+      state.column++;
+      return Token.WhiteSpace;
+  }
+
+  if ((state.nextChar & 0xFC00) === 0xD800) {
+      state.index++;
+      state.column++;
+      const lo = state.source.charCodeAt(state.index);
+      if ((lo & 0xFC00) !== 0xDC00) report(state, Errors.Unexpected);
+      const surrogate = 0x10000 + ((state.nextChar & 0x3FF) << 10) + (lo & 0x3FF)
+      state.tokenValue += fromCodePoint(surrogate);
+      state.index++;
+      state.column++;
+  }
+  if (state.index < state.length) return scanIdentifierRest(state, context);
+  if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.tokenValue;
+  return Token.Identifier;
 }
