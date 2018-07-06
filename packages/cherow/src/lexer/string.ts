@@ -75,6 +75,7 @@ table[Chars.CarriageReturn] = state => {
           state.index = index + 1;
       }
   }
+
   return Escape.Empty;
 };
 
@@ -242,7 +243,9 @@ export function recordStringErrors(state: ParserState, code: Escape): any {
 }
 
 export function readNext(state: ParserState): number {
-  state.index++; state.column++;
+  if (state.nextChar > 0xFFFF) ++state.index;
+  const ch = state.nextChar = state.source.charCodeAt(++state.index);
   if (state.index >= state.length) report(state, Errors.UnterminatedString);
-  return nextUnicodeChar(state);
+  ++state.column;
+  return ch;
 }
