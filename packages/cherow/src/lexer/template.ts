@@ -2,109 +2,93 @@ import { Context } from '../common';
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import {  recordStringErrors, table } from './string';
+import { recordStringErrors, table, readNext } from './string';
 import { report, Errors } from '../errors';
-import { fromCodePoint, Escape, nextUnicodeChar } from './common';
+import { fromCodePoint, Escape } from './common';
 
-// Note! This will be refactored once I start with the parser. - K.F
-
-// Note: This can be optimized further, but not in the same way as string literal.
-// If we try that, we loose around 300ms
-
-export function readNext(state: ParserState, ch: number): number {
-  state.index++;
-  state.column++;
-  if (ch > 0xFFFF) state.index++;
-  if (state.index >= state.length) report(state, Errors.Unexpected);
-  return state.nextChar = nextUnicodeChar(state);
-}
 /**
  * Scan template
  *
  * @param parser Parser object
  * @param context Context masks
- * @param first Codepoint
  */
-export function scanTemplate(parser: ParserState, context: Context): Token {
-  const { index: start, nextChar: first } = parser;
+export function scanTemplate(state: ParserState, context: Context): Token {
+  const {index: start, nextChar} = state;
   let tail = true;
   let ret: string | void = '';
 
-  let ch = readNext(parser, first);
+  let ch = readNext(state);
 
   loop:
-      while (ch !== Chars.Backtick) {
-
-          switch (ch) {
-
-              case Chars.Dollar:
-                  {
-                      const index = parser.index + 1;
-                      if (index < parser.source.length &&
-                          parser.source.charCodeAt(index) === Chars.LeftBrace) {
-                          parser.index = index;
-                          parser.column++;
-                          tail = false;
-                          break loop;
-                      }
-                      ret += '$';
-                      break;
-                  }
-
-              case Chars.Backslash:
-                  ch = readNext(parser, ch);
-
-                  if (ch >= Chars.MaxAsciiCharacter) {
-                      ret += fromCodePoint(ch);
-                  } else {
-                      const code = table[ch](parser, context);
-
-                      if (code >= 0) {
-                          ret += fromCodePoint(code);
-                      } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
-                          ret = undefined;
-                          ch = scanLooserTemplateSegment(parser, parser.nextChar);
-                          if (ch < 0) {
-                              ch = -ch;
-                              tail = false;
-                          }
-                          break loop;
-                      } else {
-                          recordStringErrors(parser, code as Escape);
-                      }
-                  }
-
-                  break;
-
-              case Chars.CarriageReturn:
-                  if (parser.index < parser.length && parser.source.charCodeAt(parser.index) === Chars.LineFeed) {
-                      if (ret != null) ret += fromCodePoint(ch);
-                      ch = parser.source.charCodeAt(parser.index);
-                      parser.index++;
-                  }
-                  // falls through
-              case Chars.LineFeed:
-              case Chars.LineSeparator:
-              case Chars.ParagraphSeparator:
-                  parser.column = -1;
-                  parser.line++;
-                  // falls through
-              default:
-                  if (ret != null) ret += fromCodePoint(ch);
+  while (ch !== Chars.Backtick) {
+      switch (ch) {
+          // Break after a literal `${` (thus the dedicated code path).
+          case Chars.Dollar: {
+              const index = state.index + 1;
+              if (index < state.source.length &&
+                      state.source.charCodeAt(index) === Chars.LeftBrace) {
+                  state.index = index;
+                  state.column++;
+                  tail = false;
+                  break loop;
+              }
+              ret += '$';
+              break;
           }
 
-          ch = readNext(parser, ch);
+          case Chars.Backslash:
+              ch = readNext(state);
+
+              if (ch >= 128) {
+                  ret += fromCodePoint(ch);
+              } else {
+                  state.nextChar = ch;
+                  const code = table[state.nextChar](state, context);
+
+                  if (code >= 0) {
+                      ret += fromCodePoint(code);
+                  } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+                      ret = undefined;
+                      ch = scanLooserTemplateSegment(state, state.nextChar);
+                      if (ch < 0) { ch = -ch; tail = false; }
+                      break loop;
+                  } else {
+                    recordStringErrors(state, code as Escape);
+                  }
+                  ch = state.nextChar;
+              }
+
+              break;
+
+          case Chars.CarriageReturn:
+              if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) {
+                  if (ret != null) ret += fromCodePoint(ch);
+                  ch = state.source.charCodeAt(state.index);
+                  state.index++;
+              }
+              // falls through
+          case Chars.LineFeed: case Chars.LineSeparator: case Chars.ParagraphSeparator:
+              state.column = -1;
+              state.line++;
+              // falls through
+          default:
+              if (ret != null) ret += fromCodePoint(ch);
       }
 
-  parser.index++;
-  parser.column++;
-  (parser.tokenValue as any) = ret;
+      ch = readNext(state);
+  }
 
+  state.index++; // Consume the quote or opening brace
+  state.column++;
+
+  state.tokenValue = ret;
+
+  state.nextChar = nextChar;
   if (tail) {
-      parser.tokenRaw = parser.source.slice(start + 1, parser.index - 1);
+      state.tokenRaw = state.source.slice(start + 1, state.index - 1);
       return Token.TemplateTail;
   } else {
-      parser.tokenRaw = parser.source.slice(start + 1, parser.index - 2);
+      state.tokenRaw = state.source.slice(start + 1, state.index - 2);
       return Token.TemplateCont;
   }
 }
@@ -129,7 +113,7 @@ export function consumeTemplateBrace(parser: ParserState, context: Context): Tok
  * @param parser Parser object
  * @param ch codepoint
  */
-function scanLooserTemplateSegment(parser: ParserState, ch: number): number {
+export function scanLooserTemplateSegment(parser: ParserState, ch: number): number {
   while (ch !== Chars.Backtick) {
       if (ch === Chars.Dollar && parser.source.charCodeAt(parser.index + 1) === Chars.LeftBrace) {
           parser.index++;
@@ -139,7 +123,7 @@ function scanLooserTemplateSegment(parser: ParserState, ch: number): number {
 
       // Skip '\' and continue to scan the template token to search
       // for the end, without validating any escape sequences
-      ch = readNext(parser, ch);
+      ch = readNext(parser);
   }
 
   return ch;
