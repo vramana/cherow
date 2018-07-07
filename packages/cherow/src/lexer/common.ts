@@ -1,18 +1,19 @@
 import { ParserState } from '../types';
 import { Token } from '../token';
-import { Chars, whiteSpaceMap } from '../chars';
+import { Chars } from '../chars';
 import { mustEscape, isIDStart } from '../unicode';
 import { Context, Flags } from '../common';
 import { report, Errors } from '../errors';
 import { scanIdentifier } from './identifier';
 
-export const enum Escape {
+export const enum InvalidEscapeType {
   Empty = -1,
-      StrictOctal = -2,
-      EightOrNine = -3,
-      InvalidHex = -4,
-      OutOfRange = -5,
+  StrictOctal = -2,
+  EightOrNine = -3,
+  InvalidHex = -4,
+  OutOfRange = -5,
 }
+
 export function fromCodePoint (code: Chars): string {
   return code <= 0xFFFF ?
       String.fromCharCode(code) :

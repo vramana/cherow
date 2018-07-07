@@ -2,7 +2,7 @@ import { Context, Flags } from '../common';
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { toHex, nextChar, nextUnicodeChar, Escape, fromCodePoint } from './common';
+import { toHex, nextChar, nextUnicodeChar, InvalidEscapeType, fromCodePoint } from './common';
 import { report, Errors } from '../errors';
 
 /**
@@ -31,7 +31,7 @@ export function scanStringLiteral(state: ParserState, context: Context): Token {
               const code = table[state.nextChar](state, context);
 
               if (code >= 0) ret += fromCodePoint(code);
-              else recordStringErrors(state, code as Escape);
+              else reportInvalidEscapeError(state, code as InvalidEscapeType);
               ch = state.nextChar;
           }
       } else if ((ch & 83) < 3 && (ch === Chars.CarriageReturn || ch === Chars.LineFeed)) {
@@ -76,7 +76,7 @@ table[Chars.CarriageReturn] = state => {
       }
   }
 
-  return Escape.Empty;
+  return InvalidEscapeType.Empty;
 };
 
 table[Chars.LineFeed] =
@@ -84,7 +84,7 @@ table[Chars.LineFeed] =
   table[Chars.ParagraphSeparator] = state => {
       state.column = -1;
       state.line++;
-      return Escape.Empty;
+      return InvalidEscapeType.Empty;
   };
 
 table[Chars.CarriageReturn] = state => {
@@ -102,18 +102,19 @@ table[Chars.CarriageReturn] = state => {
       }
   }
 
-  return Escape.Empty;
+  return InvalidEscapeType.Empty;
 };
 
+// String literals don't allow ASCII line breaks
 table[Chars.LineFeed] =
   table[Chars.LineSeparator] =
   table[Chars.ParagraphSeparator] = state => {
       state.column = -1;
       state.line++;
-      return Escape.Empty;
+      return InvalidEscapeType.Empty;
   };
 
-// Null character, octals
+// Null character, octals specification.
 table[Chars.Zero] = table[Chars.One] = table[Chars.Two] = table[Chars.Three] = (state, context) => {
   // 1 to 3 octal digits
   let code = state.nextChar - Chars.Zero;
@@ -124,13 +125,13 @@ table[Chars.Zero] = table[Chars.One] = table[Chars.Two] = table[Chars.Three] = (
       if (next < Chars.Zero || next > Chars.Seven) {
           // Strict mode code allows only \0, then a non-digit.
           if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
-              if (context & Context.Strict) return Escape.StrictOctal;
+              if (context & Context.Strict) return InvalidEscapeType.StrictOctal;
               // If not in strict mode, we mark the 'octal' as found and continue
               // parsing until we parse out the literal AST node
               state.flags = state.flags | Flags.HasOctal;
           }
       } else if (context & Context.Strict) {
-          return Escape.StrictOctal;
+          return InvalidEscapeType.StrictOctal;
       } else {
           state.flags = state.flags | Flags.HasOctal;
           state.nextChar = next;
@@ -157,8 +158,9 @@ table[Chars.Zero] = table[Chars.One] = table[Chars.Two] = table[Chars.Three] = (
   return code;
 };
 
+// Octal character specification.
 table[Chars.Four] = table[Chars.Five] = table[Chars.Six] = table[Chars.Seven] = (state, context) => {
-  if (context & Context.Strict) return Escape.StrictOctal;
+  if (context & Context.Strict) return InvalidEscapeType.StrictOctal;
   let code = state.nextChar - Chars.Zero;
   const index = state.index + 1;
   const column = state.column + 1;
@@ -176,70 +178,65 @@ table[Chars.Four] = table[Chars.Five] = table[Chars.Six] = table[Chars.Seven] = 
   return code;
 };
 
-table[Chars.Eight] = table[Chars.Nine] = () => Escape.EightOrNine;
+table[Chars.Eight] = table[Chars.Nine] = () => InvalidEscapeType.EightOrNine;
 
-// ASCII escapes
+// Hexadecimal character specification
 table[Chars.LowerX] = state => {
     // 2 hex digits
   const ch1 = nextChar(state);
   const hi = toHex(ch1);
-  if (hi < 0 || state.index >= state.length) return Escape.InvalidHex;
+  if (hi < 0 || state.index >= state.length) return InvalidEscapeType.InvalidHex;
   const ch2 = nextChar(state);
   const lo = toHex(ch2);
-  if (lo < 0) return Escape.InvalidHex;
+  if (lo < 0) return InvalidEscapeType.InvalidHex;
   return hi * 16 + lo;
 };
 
+// Unicode character specification.
 table[Chars.LowerU] = state => {
-  let ch = nextChar(state);
-  if (ch === Chars.LeftBrace) {
+  if (nextChar(state) === Chars.LeftBrace) {
       // \u{N}
-      ch = nextChar(state);
-      let code = toHex(ch);
-      if (code < 0) return Escape.InvalidHex;
+      let code = toHex(nextChar(state));
+      if (code < 0) return InvalidEscapeType.InvalidHex;
 
-      ch = nextChar(state);
-      while (ch !== Chars.RightBrace) {
-          const digit = toHex(ch);
-          if (digit < 0) return Escape.InvalidHex;
-          code = code * 16 + digit;
+      nextChar(state);
+      while (state.nextChar !== Chars.RightBrace) {
+          const digit = toHex(state.nextChar);
+          if (digit < 0) return InvalidEscapeType.InvalidHex;
+          code = (code << 4) | digit;
           // Code point out of bounds
-          if (code > 0x10FFFF) return Escape.OutOfRange;
-          ch = nextChar(state);
+          if (code > 0x10FFFF) return InvalidEscapeType.OutOfRange;
+          nextChar(state);
       }
 
       return code;
   } else {
       // \uNNNN
-      let code = toHex(ch);
-      if (code < 0) return Escape.InvalidHex;
-
+      let code = toHex(state.nextChar);
+      if (code < 0) return InvalidEscapeType.InvalidHex;
       for (let i = 0; i < 3; i++) {
-          ch = nextChar(state);
-          const digit = toHex(ch);
-          if (digit < 0) return Escape.InvalidHex;
-          if (code < 0) return Escape.InvalidHex;
-          code = code * 16 + digit;
+          const digit = toHex(nextChar(state));
+          if (digit < 0) return InvalidEscapeType.InvalidHex;
+          code = (code << 4) | digit;
       }
       return code;
   }
 };
 
 /**
-* Throws a string error for either string or template literal
-*
-* @param state state object
-* @param context Context masks
-*/
-export function recordStringErrors(state: ParserState, code: Escape): any {
-  let message: Errors = Errors.Unexpected;
-  if (code === Escape.Empty) return;
-  if (code === Escape.StrictOctal) message = Errors.StrictOctalEscape;
-  if (code === Escape.EightOrNine) message = Errors.InvalidEightAndNine;
-  if (code === Escape.InvalidHex) message = Errors.StrictOctalEscape;
-  if (code === Escape.OutOfRange) message = Errors.InvalidEightAndNine;
-  report(state, message);
-  return Token.Invalid;
+ * Throws a string error for either string or template literal
+ *
+ * @param state state object
+ * @param context Context masks
+ */
+export function reportInvalidEscapeError(state: ParserState, type: InvalidEscapeType): any {
+  switch (type) {
+    case InvalidEscapeType.StrictOctal: report(state, Errors.StrictOctalEscape);
+    case InvalidEscapeType.EightOrNine: report(state, Errors.InvalidEightAndNine);
+    case InvalidEscapeType.InvalidHex: report(state, Errors.InvalidHexEscapeSequence);
+    case InvalidEscapeType.OutOfRange: report(state, Errors.UnicodeOverflow);
+    default: return;
+  }
 }
 
 export function readNext(state: ParserState): number {

@@ -94,7 +94,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
       // will still be 0 if invalid hex value. So no need for further validations
       while (digit >= 0) {
           value = (value << 4) | digit;
-          if (value > 0x10FFFF) report(state, Errors.UndefinedUnicodeCodePoint);
+          if (value > 0x10FFFF) report(state, Errors.UnicodeOverflow);
           digit = toHex(nextChar(state));
       }
       if (value < 0 || state.nextChar != Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);

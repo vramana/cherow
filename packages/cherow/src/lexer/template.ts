@@ -2,9 +2,9 @@ import { Context } from '../common';
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { recordStringErrors, table, readNext } from './string';
+import { reportInvalidEscapeError, table, readNext } from './string';
 import { report, Errors } from '../errors';
-import { fromCodePoint, Escape } from './common';
+import { fromCodePoint, InvalidEscapeType } from './common';
 
 /**
  * Scan template
@@ -47,13 +47,13 @@ export function scanTemplate(state: ParserState, context: Context): Token {
 
                   if (code >= 0) {
                       ret += fromCodePoint(code);
-                  } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+                  } else if (code !== InvalidEscapeType.Empty && context & Context.TaggedTemplate) {
                       ret = undefined;
                       ch = scanLooserTemplateSegment(state, state.nextChar);
                       if (ch < 0) { ch = -ch; tail = false; }
                       break loop;
                   } else {
-                    recordStringErrors(state, code as Escape);
+                    reportInvalidEscapeError(state, code as InvalidEscapeType);
                   }
                   ch = state.nextChar;
               }

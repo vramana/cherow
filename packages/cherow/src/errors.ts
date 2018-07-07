@@ -29,7 +29,8 @@ export const enum Errors {
   InvalidRegularExp,
   UnexpectedToken,
   IllegalCaracter,
-  UndefinedUnicodeCodePoint,
+  UnicodeOverflow,
+  InvalidHexEscapeSequence
 
 }
 
@@ -63,8 +64,10 @@ export const errorMessages: {
   [Errors.InvalidRegularExp]: 'Invalid regular expression',
   [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',
   [Errors.IllegalCaracter]: 'Illegal character \'%0\'',
-  [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
+  [Errors.UnicodeOverflow]: 'Unicode codepoint must not be greater than 0x10FFFF',
   [Errors.DuplicateRegExpFlag]: 'Duplicate regular expression flag \'%0\'',
+  [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
+
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
