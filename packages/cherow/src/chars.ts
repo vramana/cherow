@@ -6,7 +6,6 @@ export const enum CharType {
   IDContinue  = 0b1,
   IDStart     = 0b10,
   Decimal     = 0b100,
-  Whitespace  = 0b1000,
   Letters     = IDContinue | IDStart,
 }
 
@@ -21,11 +20,11 @@ export const AsciiLookup = [
     CharType.Invalid,     /* 0x06   */
     CharType.Invalid,     /* 0x07   */
     CharType.Invalid,     /* 0x08   */
-    CharType.Whitespace,  /* 0x09   */
-    CharType.Whitespace,  /* 0x0A   */
-    CharType.Whitespace,  /* 0x0B   */
-    CharType.Whitespace,  /* 0x0C   */
-    CharType.Whitespace,  /* 0x0D   */
+    CharType.Invalid,     /* 0x09   */
+    CharType.Invalid,     /* 0x0A   */
+    CharType.Invalid,     /* 0x0B   */
+    CharType.Invalid,     /* 0x0C   */
+    CharType.Invalid,     /* 0x0D   */
     CharType.Invalid,     /* 0x0E   */
     CharType.Invalid,     /* 0x0F   */
     CharType.Invalid,     /* 0x10   */
@@ -44,7 +43,7 @@ export const AsciiLookup = [
     CharType.Invalid,     /* 0x1D   */
     CharType.Invalid,     /* 0x1E   */
     CharType.Invalid,     /* 0x1F   */
-    CharType.Whitespace,  /* 0x20   */
+    CharType.Invalid,     /* 0x20   */
     CharType.Invalid,     /* 0x21 ! */
     CharType.Invalid,     /* 0x22   */
     CharType.Invalid,     /* 0x23 # */

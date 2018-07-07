@@ -7,14 +7,14 @@ import { CommentType, skipSingleLineComment, skipMultilineComment, skipSingleHTM
 import { getTokenValue, convertTokenType } from './tokenizer';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
-import { scanIdentifier, scanNonASCIIOrWhitespace, scanIdentifierRest } from './identifier';
+import { scanIdentifier, maybeIdentifier, scanIdentifierRest } from './identifier';
 import { scanNumeric, parseLeadingZeroTable } from './numbers';
 import { report, Errors } from '../errors';
 import { scanRegularExpression } from './regexp';
 
 const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) => report(state, Errors.IllegalCaracter, escapeInvalidCharacters(state.nextChar));
 
-const table = new Array(0xFFFF).fill(unexpectedCharacter, 0, 128).fill(scanNonASCIIOrWhitespace, 128) as((state: ParserState, context: Context) => Token)[];
+const table = new Array(0xFFFF).fill(unexpectedCharacter, 0, 128).fill(maybeIdentifier, 128) as((state: ParserState, context: Context) => Token)[];
 
 // `,`, `~`, `?`, `[`, `]`, `{`, `}`, `:`, `;`, `(` ,`)`, `"`, `'`
 table[Chars.Comma] = mapToToken(Token.Comma);

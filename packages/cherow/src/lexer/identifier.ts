@@ -54,7 +54,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   if (start < state.index) state.tokenValue += state.source.slice(start, state.index);
 
   // This is an optimized equalent for "normal" surrogate lead checking where the
-  // code unit is in the range 0xD800 to 0xDBFF.
+  // code unit is in the range U+D800 - U+DBFF.
   if ((state.nextChar & 0xFC00) === 0xD800) {
       const code = state.nextChar;
       nextChar(state);
@@ -93,7 +93,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
       // Note: The 'while' loop will only execute if the digit is higher than or equal to zero. And the 'value'
       // will still be 0 if invalid hex value. So no need for further validations
       while (digit >= 0) {
-          value = value * 0x10 + digit;
+          value = (value << 4) | digit;
           if (value > 0x10FFFF) report(state, Errors.UndefinedUnicodeCodePoint);
           digit = toHex(nextChar(state));
       }
@@ -106,7 +106,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
   for (let i = 0; i < 4; i++) {
       const digit = toHex(state.nextChar);
       if (digit < 0) report(state, Errors.InvalidUnicodeEscape);
-      value = value * 0x10  + digit;
+      value = (value << 4) | digit;
       nextChar(state);
   }
 
@@ -119,7 +119,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
  * @param state ParserState instance
  * @param context Context masks
  */
-export function scanNonASCIIOrWhitespace(state: ParserState, context: Context): Token {
+export function maybeIdentifier(state: ParserState, context: Context): Token {
 
   // Both 'PS' and 'LS' have the 5th bit set and 7th bit unset. Checking for that first prevents additional checks
   if ((state.nextChar & 83) < 3 &&

@@ -40,8 +40,9 @@ describe('Lexer - Chars', () => {
 
       // Whitespace
 
-      [0x09, CharType.Whitespace, false],
-      [0x0C, CharType.Whitespace, false],
+      [0x09, CharType.Invalid, false],
+      [0x0C, CharType.Invalid, false],
+      [0x20, CharType.Invalid, false],
   ];
 
   for (const [char, expected, IDStart] of items) {

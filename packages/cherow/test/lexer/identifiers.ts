@@ -69,6 +69,10 @@ describe('Lexer - Identifiers', () => {
       source: '\\u'
   })
 
+  fail('should fail "\\u0x11ffff"', Context.Empty, {
+    source: '\\u0x11ffff'
+  })
+
   fail('should fail "\\u%"', Context.Empty, {
       source: '\\u%'
   })
@@ -103,6 +107,14 @@ describe('Lexer - Identifiers', () => {
 
   fail('should fail "\\u{10401"', Context.Empty, {
       source: '\\u{10401'
+  })
+
+  fail('should fail "\\u0"', Context.Empty, {
+    source: '\\u0'
+  })
+
+  fail('should fail "a\\u"', Context.Empty, {
+    source: 'a\\u'
   })
 
   const enum Chars {
@@ -167,6 +179,15 @@ describe('Lexer - Identifiers', () => {
 
   describe('Invalid unicode identifiers', () => {
 
+      pass("scans '\\uD800\\uDEA7'", {
+        source: "\\uD800\\uDEA7",
+        value: "",
+        raw: "",
+        token: Token.Invalid,
+        line: 1,
+        column: 6,
+      });
+
       pass("scans 'a\\uD800\\uDC00b'", {
           source: "a\\uD800\\uDC00b",
           "value": "a",
@@ -185,13 +206,42 @@ describe('Lexer - Identifiers', () => {
           column: 6,
       });
 
-      pass("scans '\\uD801'", {
-          source: "\\uD801",
+      // Missing low surrogate with trailer
+      pass("scans '\\ud841!!'", {
+          source: "\\ud841!!",
           value: "",
           raw: "'case'",
           token: Token.Invalid,
           line: 1,
           column: 6,
+      });
+
+      // Missing low surrogate
+      pass("scans '\\ud841'", {
+        source: "\\ud841",
+        value: "",
+        raw: "'case'",
+        token: Token.Invalid,
+        line: 1,
+        column: 6,
+    });
+
+      pass("scans '\\uD801'", {
+        source: "\\uD801",
+        value: "",
+        raw: "'case'",
+        token: Token.Invalid,
+        line: 1,
+        column: 6,
+    });
+
+      pass("scans '\\u{10FFFF}'", {
+        source: "\\u{10FFFF}",
+        value: "",
+        raw: "'case'",
+        token: Token.Invalid,
+        line: 1,
+        column: 10,
       });
 
       pass("scans '\\uD801'", {
@@ -260,6 +310,15 @@ describe('Lexer - Identifiers', () => {
   });
 
   describe('Unicode identifiers (UTF-8)', () => {
+
+    pass("scans '\\u0159'", {
+      source: "\\u0159",
+      value:  "ř",
+      raw: "",
+      token: Token.Identifier,
+      line: 1,
+      column: 6,
+      });
 
       pass("scans '\\u0069'", {
           source: "\\u0069",
@@ -654,6 +713,15 @@ describe('Lexer - Identifiers', () => {
 
   describe('Escaped keywords', () => {
 
+      pass("scans 'v\\u0061r'", {
+        source: "v\\u0061r",
+        value: "var",
+        raw: "",
+        token: Token.EscapedKeyword,
+        line: 1,
+        column: 8,
+      });
+
       pass("scans '\\u0066rom'", {
           source: "\\u0066rom",
           value: "from",
@@ -982,6 +1050,15 @@ describe('Lexer - Identifiers', () => {
   });
 
   describe('Others', () => {
+
+    pass("scans '𞸀'", {
+      source: "𞸀",
+      value: "𞸀",
+      raw: "𞸀",
+      token: Token.Identifier,
+      line: 1,
+      column: 2,
+     });
 
     pass("scans '\u000A\u000D\u2028\u2029ab'", {
       source: "\u000A\u000D\u2028\u2029ab",
