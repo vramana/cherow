@@ -1,6 +1,6 @@
 import { ParserState } from '../types';
 import { Token } from '../token';
-import { Chars } from '../chars';
+import { Chars, whiteSpaceMap } from '../chars';
 import { mustEscape, isIDStart } from '../unicode';
 import { Context, Flags } from '../common';
 import { report, Errors } from '../errors';
@@ -215,14 +215,4 @@ export function lookAheadOrScan <T> (state: ParserState, callback: (state: Parse
   }
 
   return result;
-}
-
-export function isWhiteSpaceCharacter(code: number): boolean {
-  return code >= 0x9 &&
-      (code <= 0xD ||
-          (code <= 0x200A &&
-              (code >= 0x2000 || code == 0xA0 || code == 0x1680) //0x00A0 - No break space
-          ) ||
-          (code == 0x202F || code == 0x205F || code == 0x3000 || code == 0xFEFF)
-      );
 }

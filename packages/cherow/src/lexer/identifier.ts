@@ -1,8 +1,8 @@
 import { Token, descKeywordTable } from '../token';
 import { ParserState } from '../types';
-import { Chars, isIdentifierPart, AsciiLookup, CharType } from '../chars';
+import { Chars, isIdentifierPart, AsciiLookup, CharType, whiteSpaceMap } from '../chars';
 import { Context } from '../common';
-import { nextChar, fromCodePoint, toHex, isWhiteSpaceCharacter, skipToNewLine } from './common';
+import { nextChar, fromCodePoint, toHex, skipToNewLine } from './common';
 import { report, Errors } from '../errors';
 
 /**
@@ -127,13 +127,8 @@ export function maybeIdentifier(state: ParserState, context: Context): Token {
           state.nextChar === Chars.LineSeparator)) {
       return skipToNewLine(state);
   }
-  // This is very rare. Anyway. There exist 25 white space characters, and we grouped them in
-  // 'isWhiteSpaceCharacter' for faster lookup
-  if (isWhiteSpaceCharacter(state.nextChar)) {
-      state.index++;
-      state.column++;
-      return Token.WhiteSpace;
-  }
+
+  if (whiteSpaceMap[state.nextChar](state)) return Token.WhiteSpace;
 
   if ((state.nextChar & 0xFC00) === 0xD800) {
       state.index++;
