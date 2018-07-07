@@ -18,7 +18,7 @@ export class State {
   public nextChar: number;
   public flags: Flags;
   public token: Token;
-  public tokenRaw: string;
+  public tokenRaw: string | null;
   public tokenRegExp: any;
   public onToken: OnToken;
   public onComment: OnComment;
@@ -47,7 +47,7 @@ export class State {
       this.tokenValue = '';
       this.nextChar = source.charCodeAt(0);
       this.token = Token.EndOfSource;
-      this.tokenRaw = '';
+      this.tokenRaw = null;
       this.tokenRegExp = undefined;
       this.onToken = onToken;
       this.onComment = onComment;

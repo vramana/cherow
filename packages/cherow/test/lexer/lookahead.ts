@@ -85,7 +85,7 @@ describe('Lexer - Lookahead', () => {
   pass('should find the "number" keyword and rewind when found a string literal', {
       source: 'number "string literal"',
       value: 'number',
-      raw: '', // Raw should be "" because we haven't set the "rawIdentifier" option
+      raw: null, // Raw should be "null" because we haven't set the "rawIdentifier" option
       rewind: false,
       token: Token.NumericLiteral,
       context: Context.OptionsRaw,
@@ -115,7 +115,7 @@ describe('Lexer - Lookahead', () => {
   pass('should figure out if "let" is an valid identifier and rewind if it is', {
       source: 'let [foo]', // not an identifier!
       value: 'let',
-      raw: '', // Raw should be "" because we haven't set the "rawIdentifier" option
+      raw: null, // Raw should be "null" because we haven't set the "rawIdentifier" option
       rewind: false,
       token: Token.Contextual,
       context: Context.OptionsRaw,
@@ -130,7 +130,7 @@ describe('Lexer - Lookahead', () => {
   pass('should figure out if next token is "async" followed by left parenthesis', {
       source: 'async(chinese)',
       value: 'async',
-      raw: '', // Raw should be "" because we haven't set the "rawIdentifier" option
+      raw: null, // Raw should be "null" because we haven't set the "rawIdentifier" option
       rewind: false,
       token: Token.LeftParen,
       context: Context.OptionsRaw,
@@ -145,7 +145,7 @@ describe('Lexer - Lookahead', () => {
   pass('should figure out if next token is "async" followed by left parenthesis and rewind when found a right parenthesis', {
       source: 'async)',
       value: 'async',
-      raw: '',
+      raw: null,
       rewind: false,
       token: Token.LeftParen,
       context: Context.OptionsRaw,

@@ -26,9 +26,9 @@ describe('Lexer - BigInt', () => {
       source: '0xgn'
   })
 
-//  fail('it is a Syntax Error if the MV is not an integer. (decimalIntegerLiteral dot decimalDigits)', //Context.Strict | Context.Module, {
-  //    source: '2017.8n'
-  //})
+  fail('it is a Syntax Error if the MV is not an integer. (decimalIntegerLiteral dot decimalDigits)', Context.Strict | Context.Module, {
+      source: '2017.8n'
+  });
 
 
   fail('Octal BigInt literal containing an invalid digit', Context.Strict | Context.Module, {

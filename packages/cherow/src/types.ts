@@ -93,7 +93,7 @@ export interface ParserState {
     length: number;
     commentState: number | undefined;
     nextChar: number;
-    tokenRaw: string;
+    tokenRaw: string | null;
     token: Token;
     onToken: any;
     onComment: any;

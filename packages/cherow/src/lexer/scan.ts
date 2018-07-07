@@ -65,7 +65,7 @@ table[Chars.CarriageReturn] = state => {
 };
 
 // `1`...`9`
-for (let i = Chars.One; i <= Chars.Nine; i++) table[i] = scanNumeric;
+for (let i = Chars.One; i <= Chars.Nine; i++) table[i] = (state: ParserState, context: Context) => scanNumeric(state, context, false);
 
 // `A`...`Z`
 for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) table[i] = scanIdentifier;

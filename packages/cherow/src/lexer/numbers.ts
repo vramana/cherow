@@ -1,9 +1,10 @@
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Context, Flags } from '../common';
-import { Chars, isIdentifierStart } from '../chars';
+import { Chars, AsciiLookup, CharType } from '../chars';
 import { nextChar, consume, toHex } from './common';
 import { Errors, report } from '../errors';
+import { unicodeLookup } from '../unicode';
 
 // lookup table
 export const parseLeadingZeroTable: Array < Function > = [];
@@ -34,17 +35,19 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
   if (isFloat) {
       state.tokenValue = 0;
   } else {
-      // Most number values fit into 4 bytes, but for long numbers
-      // we would need a workaround...
-      const maximumDigits = 10;
-      let digit = maximumDigits - 1;
+
+      // Hot path - fast path for decimal digits that fits into 4 bytes
+      const maxDigits = 10;
+      let digit = maxDigits - 1;
       state.tokenValue = state.nextChar - Chars.Zero;
       while (digit >= 0 && nextChar(state) <= Chars.Nine && state.nextChar >= Chars.Zero) {
           state.tokenValue = state.tokenValue * 10 + state.nextChar - Chars.Zero;
           --digit;
       }
-
-      if (digit >= 0 && state.nextChar !== Chars.Period && (state.index >= state.length || !isIdentifierStart(state.nextChar))) {
+      // Performance comes first, readability in 9th place
+      if (digit >= 0 && state.nextChar !== Chars.Period && (state.index >= state.length ||
+              ((AsciiLookup[state.nextChar] & CharType.IDStart) < 0 ||
+                  (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) < 1))) {
           if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
           return Token.NumericLiteral;
       }
@@ -52,7 +55,13 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
 
   // Consume any decimal dot and fractional component
   if (isFloat || state.nextChar === Chars.Period) {
-      if (!isFloat) nextChar(state);
+      if (!isFloat) {
+          nextChar(state);
+          // Note: It's a Syntax Error if the MV is not an integer (BigInt), so we need to
+          // set the 'isFloat' to true so it eventually can be catched later
+          isFloat = true;
+      }
+
       while (nextChar(state) <= Chars.Nine && state.nextChar >= Chars.Zero) {}
   }
 
@@ -82,12 +91,9 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
   }
 
   // Number followed by IdentifierStart is an error
-  if (state.index < state.length) {
-      if (state.nextChar >= Chars.MaxAsciiCharacter) {
-          report(state, Errors.IDStartAfterNumber);
-      } else {
-          if (isIdentifierStart(state.nextChar)) report(state, Errors.IDStartAfterNumber);
-      }
+  if (state.index < state.length && (AsciiLookup[state.nextChar] & CharType.IDStart) > 0 ||
+      (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) > 0) {
+      report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
   }
 
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
@@ -104,31 +110,34 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
  * @param context Context masks
  */
 export function scanImplicitOctalDigits(state: ParserState, context: Context): Token {
-    let { index, column } = state;
-    // Octal integer literals are not permitted in strict mode code.
-    if (context & Context.Strict) report(state, Errors.Unexpected);
-    let next = state.source.charCodeAt(state.index);
-    state.tokenValue = 0;
-    state.flags |= Flags.HasOctal;
+  let { index, column } = state;
+  // Octal integer literals are not permitted in strict mode code.
+  if (context & Context.Strict) report(state, Errors.Unexpected);
+  let next = state.source.charCodeAt(state.index);
+  state.tokenValue = 0;
+  state.flags |= Flags.HasOctal;
 
-    // Implicit octal, unless there is a non-octal digit.
-    // (Annex B.1.1 on Numeric Literals)
-    while (index < state.length && (next = state.source.charCodeAt(index), (next >= Chars.Zero && next <= Chars.Nine))) {
-        // Use the decimal scanner for 08 and 09
-        if (next >= Chars.Eight) {
+  // Implicit octal, unless there is a non-octal digit.
+  // (Annex B.1.1 on Numeric Literals)
+  while (index < state.length && (next = state.source.charCodeAt(index), (next >= Chars.Zero && next <= Chars.Nine))) {
+      // Use the decimal scanner for 08 and 09
+      if (next >= Chars.Eight) {
           if (context & Context.Strict) report(state, Errors.DeprecatedOctal);
           return scanNumeric(state, context, false);
-        }
-        state.tokenValue = state.tokenValue * 8 + (next - Chars.Zero);
-        index++;
-        column++;
-    }
+      }
+      state.tokenValue = state.tokenValue * 8 + (next - Chars.Zero);
+      index++;
+      column++;
+  }
 
-    state.index = index;
-    state.column = column;
-    if (isIdentifierStart(next)) report(state, Errors.Unexpected);
-    if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-    return Token.NumericLiteral;
+  state.index = index;
+  state.column = column;
+  if (state.index < state.length && (AsciiLookup[next] & CharType.IDStart) > 0 ||
+      (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
+      report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
+  }
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+  return Token.NumericLiteral;
 }
 
 /**
@@ -142,31 +151,33 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): T
  */
 
 export function scanOctalOrBinaryDigits(state: ParserState, context: Context, base: number): Token {
-    state.index++;
-    state.column++;
-    let code = nextChar(state);
-    if (!(code >= Chars.Zero && code <= Chars.Nine)) report(state, Errors.MissingDigits);
-    let digits = 0;
-    state.tokenValue = 0;
-    while (state.index < state.length) {
-        code = state.source.charCodeAt(state.index);
-        const converted = code - Chars.Zero;
-        if (!(code >= Chars.Zero && code <= Chars.Nine) || converted >= base) break;
-        state.tokenValue = state.tokenValue * base + converted;
-        state.index++;
-        state.column++;
-        digits++;
-    }
+  state.index++;
+  state.column++;
+  let code = nextChar(state);
+  if (!(code >= Chars.Zero && code <= Chars.Nine)) report(state, Errors.MissingDigits);
+  let digits = 0;
+  state.tokenValue = 0;
+  while (state.index < state.length) {
+      code = state.source.charCodeAt(state.index);
+      const converted = code - Chars.Zero;
+      if (!(code >= Chars.Zero && code <= Chars.Nine) || converted >= base) break;
+      state.tokenValue = state.tokenValue * base + converted;
+      state.index++;
+      state.column++;
+      digits++;
+  }
 
-    if (digits === 0) {
-        report(state, Errors.Unexpected);
-    }
-    const isBigInt = consume(state, Chars.LowerN);
-    if (isIdentifierStart(state.source.charCodeAt(state.index))) {
-        report(state, Errors.Unexpected);
-    }
-    if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-    return isBigInt ? Token.BigInt : Token.NumericLiteral;
+  if (digits === 0) {
+      report(state, Errors.Unexpected);
+  }
+  const isBigInt = consume(state, Chars.LowerN);
+  const next = state.source.charCodeAt(state.index);
+  if (state.index < state.length && (AsciiLookup[next] & CharType.IDStart) > 0 ||
+      (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
+      report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
+  }
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
+  return isBigInt ? Token.BigInt : Token.NumericLiteral;
 }
 
 /**

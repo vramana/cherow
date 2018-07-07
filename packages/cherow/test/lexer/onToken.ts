@@ -93,6 +93,26 @@ describe("Lexer - OnToken", () => {
           });
       }
 
+      pass('should tokenize multi-line comment and never recognize HTML comment because no newline', {
+        source: '/* */ -->',
+        value: [
+              {
+                "type": "RegularExpression",
+                "value": "/* */",
+              },
+              {
+                "type": "Punctuator",
+                "value": "--",
+             },
+              {
+               "type": "Punctuator",
+                "value": ">",
+              },
+            ],
+        line: 1,
+        column: 5,
+      });
+
       pass('should tokenize single-quoted string with escaped linefeed', {
         source: '"a\\n"',
         value: [{

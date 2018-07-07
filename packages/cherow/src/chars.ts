@@ -12,7 +12,7 @@ export const enum CharType {
 /*
  * Note:
  *
- * ASCII character lookup (applies to `1`...`9`, `A`...`Z`, `a`...`z`, '$, '_', all others are 0b0.
+ * ASCII character lookup (applies to `1`...`9`, `A`...`Z`, `a`...`z`, '$, '_'), all others are 0b0.
  * There is no performance concerns because I'm only validating values.
  */
 
