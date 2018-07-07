@@ -56,6 +56,7 @@ table[Chars.CarriageReturn] = state => {
   ++state.index;
   ++state.line;
   state.flags |= Flags.LineTerminator;
+   // If it's a \r\n sequence, consume it as a single EOL.
   if (state.index < state.length &&
       state.source.charCodeAt(state.index) === Chars.LineFeed) {
       ++state.index;

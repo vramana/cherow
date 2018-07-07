@@ -79,7 +79,12 @@ fail('should fail on HTML open comment in module code', Context.Module, {
 
 fail('should fail on HTML open comment in module code', Context.Module, {
   source: '<!-- foo'
-})
+});
+
+pass('should skip a simple single with Mongolian Vowel Separator', {
+  source: `//\u180E`,
+  line: 1, column: 3, index: 3
+});
 
 pass('should skip a simple single line comment', {
   source: `// `,
@@ -125,6 +130,27 @@ pass('should skip single line with newline and line feed', {
 pass('should handle slash in a comment', {
   source: `// */`,
   line: 1, column: 5, index: 5
+});
+
+pass('should handle multiline comment with carriage return and newline', {
+  source: `/**\r\n*/`,
+  line: 2, column: 2, index: 7
+});
+
+pass('should handle multiline comment with multiple carriage return and newline', {
+  source: `/**\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n*/`,
+  line: 2, column: 2, index: 49
+});
+
+pass('should handle multiline comment with carriage return and multiple newline', {
+  source: `/**\r\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n*/`,
+  line: 2, column: 2, index: 35
+});
+
+
+pass('should handle multiline comment with carriage return and newline, paragrap separator and line separator', {
+  source: `/**\r\n\u2028\u2029*/`,
+  line: 2, column: 2, index: 9
 });
 
 pass('should skip multiline comment with multiple newline', {

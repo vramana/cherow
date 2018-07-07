@@ -983,6 +983,33 @@ describe('Lexer - Identifiers', () => {
 
   describe('Others', () => {
 
+    pass("scans '\u000A\u000D\u2028\u2029ab'", {
+      source: "\u000A\u000D\u2028\u2029ab",
+      value: "ab",
+      raw: "cD",
+      token: Token.Identifier,
+      line: 5,
+      column: 2,
+     });
+
+     pass("scans 'a\u2001b'", {
+      source: "a\u2001b",
+      value: "a",
+      raw: "a",
+      token: Token.Identifier,
+      line: 1,
+      column: 1,
+     });
+
+    pass("scans 'cD'", {
+      source: "a\u03C2\u180E",
+      value: "aς",
+      raw: "cD",
+      token: Token.Identifier,
+      line: 1,
+      column: 2,
+     });
+
       pass("scans 'cD'", {
           source: "cD",
           value: "cD",
