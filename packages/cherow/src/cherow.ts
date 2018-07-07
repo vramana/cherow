@@ -6,7 +6,6 @@ import { validateRegExp } from './runtime/validateRegExp';
 export const version = '__VERSION__';
 
 export { ESTree, Scanner, parseSource, parse, parseModule, parseScript, validateRegExp };
-export * from './chars';
 export * from './errors';
 export * from './token';
 export * from './types';

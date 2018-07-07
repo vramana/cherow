@@ -9,6 +9,13 @@ export const enum CharType {
   Letters     = IDContinue | IDStart,
 }
 
+/*
+ * Note:
+ *
+ * ASCII character lookup (applies to `1`...`9`, `A`...`Z`, `a`...`z`, '$, '_', all others are 0b0.
+ * There is no performance concerns because I'm only validating values.
+ */
+
 /*@internal*/
 export const AsciiLookup = [
     CharType.Invalid,     /* 0b0   */
@@ -141,10 +148,12 @@ export const AsciiLookup = [
     CharType.Invalid      /* 0x7F   */
 ];
 
+/*@internal*/
 export function isIdentifierPart(code: Chars): boolean {
   return (AsciiLookup[code] & CharType.IDContinue) > 0 || (unicodeLookup[(code >>> 5) + 0] >>> code & 31 & 1) > 0;
 }
 
+/*@internal*/
 export function isIdentifierStart(code: Chars): boolean {
   return (AsciiLookup[code] & CharType.IDStart) > 0 || (unicodeLookup[(code >>> 5) + 34816] >>> code & 31 & 1) > 0;
 }
