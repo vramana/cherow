@@ -366,12 +366,11 @@ export function nextToken(state: ParserState, context: Context): Token {
       state.startColumn = state.column;
       state.startLine = state.line;
       state.nextChar = state.source.charCodeAt(state.index);
-      const token: Token = table[state.nextChar](state, context);
-      if ((token & Token.WhiteSpace) === Token.WhiteSpace) continue;
-      if (!(state.flags & Flags.EdgeCase) && onToken) {
-          onToken(convertTokenType(token), getTokenValue(state, token));
+      if (((state.token = table[state.nextChar](state, context)) & Token.WhiteSpace) !== Token.WhiteSpace) {
+        if (!(state.flags & Flags.EdgeCase) && onToken) onToken(convertTokenType(state.token), getTokenValue(state, state.token));
+        return state.token;
       }
-      return state.token = token;
   }
-  return Token.EndOfSource;
+
+  return state.token = Token.EndOfSource;
 }
