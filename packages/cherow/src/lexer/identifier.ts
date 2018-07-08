@@ -4,7 +4,7 @@ import { Chars, isIdentifierPart, AsciiLookup, CharType, whiteSpaceMap } from '.
 import { Context } from '../common';
 import { nextChar, fromCodePoint, toHex, skipToNewLine } from './common';
 import { report, Errors } from '../errors';
-
+import { unicodeLookup } from '../unicode';
 /**
  * Scans identifier
  *
@@ -39,9 +39,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       if ((state.nextChar & 8) === 8 && state.nextChar === Chars.Backslash) {
           state.tokenValue += state.source.slice(start, state.index);
           const cookedChar = scanIdentifierUnicodeEscape(state);
-          if (cookedChar === Chars.Backslash || !isIdentifierPart(cookedChar)) {
-              return Token.Invalid;
-          }
+          if (cookedChar === Chars.Backslash || !isIdentifierPart(cookedChar)) return Token.Invalid;
           state.tokenValue += fromCodePoint(cookedChar);
           hasEscape = true;
           start = state.index;
@@ -65,7 +63,9 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   }
   // 'options -> rawIdentifier'
   if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.source.slice(state.startIndex, state.index);
-  if (start < state.index && isIdentifierPart(state.source.charCodeAt(state.index))) scanIdentifierRest(state, context);
+  if (start < state.index &&
+     (AsciiLookup[state.nextChar] & CharType.IDStart) > 0 ||
+     (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) > 0) scanIdentifierRest(state, context);
 
   const t = descKeywordTable[state.tokenValue] || Token.Identifier;
 

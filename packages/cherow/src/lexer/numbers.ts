@@ -116,10 +116,9 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): T
   let next = state.source.charCodeAt(state.index);
   state.tokenValue = 0;
   state.flags |= Flags.HasOctal;
-
   // Implicit octal, unless there is a non-octal digit.
   // (Annex B.1.1 on Numeric Literals)
-  while (index < state.length && (next = state.source.charCodeAt(index), (next >= Chars.Zero && next <= Chars.Nine))) {
+  while (index < state.length && next >= Chars.Zero && next <= Chars.Nine) {
       // Use the decimal scanner for 08 and 09
       if (next >= Chars.Eight) {
           if (context & Context.Strict) report(state, Errors.DeprecatedOctal);
@@ -128,12 +127,12 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): T
       state.tokenValue = state.tokenValue * 8 + (next - Chars.Zero);
       index++;
       column++;
+      next = state.source.charCodeAt(index);
   }
 
   state.index = index;
   state.column = column;
-  if (state.index < state.length && (AsciiLookup[next] & CharType.IDStart) > 0 ||
-      (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
+  if ((AsciiLookup[next] & CharType.IDStart) > 0 || (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
       report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
   }
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
@@ -153,27 +152,22 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): T
 export function scanOctalOrBinaryDigits(state: ParserState, context: Context, base: number): Token {
   state.index++;
   state.column++;
-  let code = nextChar(state);
-  if (!(code >= Chars.Zero && code <= Chars.Nine)) report(state, Errors.MissingDigits);
+  nextChar(state);
+  if (!(state.nextChar >= Chars.Zero && state.nextChar <= Chars.Nine)) report(state, Errors.MissingDigits);
   let digits = 0;
   state.tokenValue = 0;
   while (state.index < state.length) {
-      code = state.source.charCodeAt(state.index);
-      const converted = code - Chars.Zero;
-      if (!(code >= Chars.Zero && code <= Chars.Nine) || converted >= base) break;
+      const converted = state.nextChar - Chars.Zero;
+      if (!(state.nextChar >= Chars.Zero && state.nextChar <= Chars.Nine) || converted >= base) break;
       state.tokenValue = state.tokenValue * base + converted;
-      state.index++;
-      state.column++;
+      nextChar(state);
       digits++;
   }
 
-  if (digits === 0) {
-      report(state, Errors.Unexpected);
-  }
+  if (digits === 0) report(state, Errors.Unexpected);
   const isBigInt = consume(state, Chars.LowerN);
   const next = state.source.charCodeAt(state.index);
-  if (state.index < state.length && (AsciiLookup[next] & CharType.IDStart) > 0 ||
-      (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
+  if ((AsciiLookup[next] & CharType.IDStart) > 0 || (unicodeLookup[(next >>> 5) + 34816] >>> next & 31 & 1) > 0) {
       report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
   }
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
@@ -193,7 +187,6 @@ export function scanHexDigits(state: ParserState, context: Context): Token {
     state.column++;
     state.tokenValue = toHex(nextChar(state));
     if (state.tokenValue < 0) report(state, Errors.MissingHexDigits);
-
     while (state.index < state.length) {
         const digit = toHex(nextChar(state));
         if (digit < 0) break;
