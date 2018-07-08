@@ -34,7 +34,7 @@ describe('Lexer - String literal', () => {
                       value: parser.tokenValue,
                       line: parser.line,
                       column: parser.column,
-                  }, {
+                  },          {
                       token: Token.StringLiteral,
                       value: opts.value,
                       line: opts.line,
@@ -71,260 +71,260 @@ describe('Lexer - String literal', () => {
     test(`${name} (normal, end)`, Context.Empty, true);
 }
 
-fail("doesn't scan '", "'");
-fail("doesn't scan \"", "\"");
-fail("doesn't scan '\\x0g'", "'\\x0g'");
-fail("doesn't scan '\\xg0'", "'\\xg0'");
-fail("doesn't scan '\\xgg'", "'\\xgg'");
-fail("doesn't scan '\\xfg'", "'\\xfg'");
-fail("doesn't scan '\\u000g'", "'\\u000g'");
-fail("doesn't scan '\\u00g0'", "'\\u00g0'");
-fail("doesn't scan '\\u0g00'", "'\\u0g00'");
-fail("doesn't scan '\\ug000'", "'\\ug000'");
-fail("doesn't scan '\\ugggg'", "'\\ugggg'");
-fail("doesn't scan '\\ufffg'", "'\\ufffg'");
-fail("doesn't scan '\\'", "'\\'");
-fail("doesn't scan \"\\\"", "\"\\\"");
-fail("doesn't scan '\\1'", "'\\1'", true);
-fail("doesn't scan \"\\1\"", "\"\\1\"", true);
-fail("doesn't scan '\\7'", "'\\7'", true);
-fail("doesn't scan \"\\7\"", "\"\\7\"", true);
-fail("doesn't scan '\\\\\\'", "'\\\\\\'");
-fail("doesn't scan \"\\\\\\\"", "\"\\\\\\\"");
-fail("doesn't scan '\\u1'", "'\\u1'");
-fail("doesn't scan '\\uA'", "'\\uA'");
-fail("doesn't scan '\\u11'", "'\\u11'");
-fail("doesn't scan '\\uAA'", "'\\uAA'");
-fail("doesn't scan '\\u111'", "'\\u111'");
-fail("doesn't scan '\\uAAA'", "'\\uAAA'");
-fail("doesn't scan '\\n'", "'\n'");
-fail("doesn't scan \"\\n\"", "\"\n\"");
-fail("doesn't scan '\\u{g}'", "'\\u{g}'");
-fail("doesn't scan '\\u{g0}'", "'\\u{g0}'");
-fail("doesn't scan '\\u{0g}'", "'\\u{0g}'");
-fail("doesn't scan '\\u{0g0}'", "'\\u{0g0}'");
-fail("doesn't scan '\\u{g0g}'", "'\\u{g0g}'");
-fail("doesn't scan '\\u{110000}'", "'\\u{110000}'");
-fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
+  fail('doesn\'t scan \'', '\'');
+  fail('doesn\'t scan "', '"');
+  fail('doesn\'t scan \'\\x0g\'', '\'\\x0g\'');
+  fail('doesn\'t scan \'\\xg0\'', '\'\\xg0\'');
+  fail('doesn\'t scan \'\\xgg\'', '\'\\xgg\'');
+  fail('doesn\'t scan \'\\xfg\'', '\'\\xfg\'');
+  fail('doesn\'t scan \'\\u000g\'', '\'\\u000g\'');
+  fail('doesn\'t scan \'\\u00g0\'', '\'\\u00g0\'');
+  fail('doesn\'t scan \'\\u0g00\'', '\'\\u0g00\'');
+  fail('doesn\'t scan \'\\ug000\'', '\'\\ug000\'');
+  fail('doesn\'t scan \'\\ugggg\'', '\'\\ugggg\'');
+  fail('doesn\'t scan \'\\ufffg\'', '\'\\ufffg\'');
+  fail('doesn\'t scan \'\\\'', '\'\\\'');
+  fail('doesn\'t scan "\\"', '"\\"');
+  fail('doesn\'t scan \'\\1\'', '\'\\1\'', true);
+  fail('doesn\'t scan "\\1"', '"\\1"', true);
+  fail('doesn\'t scan \'\\7\'', '\'\\7\'', true);
+  fail('doesn\'t scan "\\7"', '"\\7"', true);
+  fail('doesn\'t scan \'\\\\\\\'', '\'\\\\\\\'');
+  fail('doesn\'t scan "\\\\\\"', '"\\\\\\"');
+  fail('doesn\'t scan \'\\u1\'', '\'\\u1\'');
+  fail('doesn\'t scan \'\\uA\'', '\'\\uA\'');
+  fail('doesn\'t scan \'\\u11\'', '\'\\u11\'');
+  fail('doesn\'t scan \'\\uAA\'', '\'\\uAA\'');
+  fail('doesn\'t scan \'\\u111\'', '\'\\u111\'');
+  fail('doesn\'t scan \'\\uAAA\'', '\'\\uAAA\'');
+  fail('doesn\'t scan \'\\n\'', '\'\n\'');
+  fail('doesn\'t scan "\\n"', '"\n"');
+  fail('doesn\'t scan \'\\u{g}\'', '\'\\u{g}\'');
+  fail('doesn\'t scan \'\\u{g0}\'', '\'\\u{g0}\'');
+  fail('doesn\'t scan \'\\u{0g}\'', '\'\\u{0g}\'');
+  fail('doesn\'t scan \'\\u{0g0}\'', '\'\\u{0g0}\'');
+  fail('doesn\'t scan \'\\u{g0g}\'', '\'\\u{g0g}\'');
+  fail('doesn\'t scan \'\\u{110000}\'', '\'\\u{110000}\'');
+  fail('doesn\'t scan \'\\u{11ffff}\'', '\'\\u{11ffff}\'');
 
-  pass("scans ''", {
-      source: "''",
-      value: "",
-      raw: "''",
+  pass('scans \'\'', {
+      source: '\'\'',
+      value: '',
+      raw: '\'\'',
       line: 1,
       column: 2,
   });
 
-  pass("scans \"\"", {
-      source: "\"\"",
-      value: "",
-      raw: "\"\"",
+  pass('scans ""', {
+      source: '""',
+      value: '',
+      raw: '""',
       line: 1,
       column: 2,
   });
-  pass("scans 'abc'", {
-      source: "'abc'",
-      value: "abc",
-      raw: "'abc'",
+  pass('scans \'abc\'', {
+      source: '\'abc\'',
+      value: 'abc',
+      raw: '\'abc\'',
       line: 1,
       column: 5,
   });
 
-  pass("scans \"abc\"", {
-      source: "\"abc\"",
-      value: "abc",
-      raw: "\"abc\"",
+  pass('scans "abc"', {
+      source: '"abc"',
+      value: 'abc',
+      raw: '"abc"',
       line: 1,
       column: 5,
   });
 
-  pass("scans '123'", {
-      source: "'123'",
-      value: "123",
-      raw: "'123'",
+  pass('scans \'123\'', {
+      source: '\'123\'',
+      value: '123',
+      raw: '\'123\'',
       line: 1,
       column: 5,
   });
 
-  pass("scans \"123\"", {
-      source: "\"123\"",
-      value: "123",
-      raw: "\"123\"",
+  pass('scans "123"', {
+      source: '"123"',
+      value: '123',
+      raw: '"123"',
       line: 1,
       column: 5,
   });
-  pass("scans '\\b'", {
-      source: "'\\b'",
-      value: "\b",
-      raw: "'\\b'",
+  pass('scans \'\\b\'', {
+      source: '\'\\b\'',
+      value: '\b',
+      raw: '\'\\b\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\b\"", {
-      source: "\"\\b\"",
-      value: "\b",
-      raw: "\"\\b\"",
+  pass('scans "\\b"', {
+      source: '"\\b"',
+      value: '\b',
+      raw: '"\\b"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\t'", {
-      source: "'\\t'",
-      value: "\t",
-      raw: "'\\t'",
+  pass('scans \'\\t\'', {
+      source: '\'\\t\'',
+      value: '\t',
+      raw: '\'\\t\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\t\"", {
-      source: "\"\\t\"",
-      value: "\t",
-      raw: "\"\\t\"",
+  pass('scans "\\t"', {
+      source: '"\\t"',
+      value: '\t',
+      raw: '"\\t"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\n'", {
-      source: "'\\n'",
-      value: "\n",
-      raw: "'\\n'",
+  pass('scans \'\\n\'', {
+      source: '\'\\n\'',
+      value: '\n',
+      raw: '\'\\n\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\n\"", {
-      source: "\"\\n\"",
-      value: "\n",
-      raw: "\"\\n\"",
+  pass('scans "\\n"', {
+      source: '"\\n"',
+      value: '\n',
+      raw: '"\\n"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\v'", {
-      source: "'\\v'",
-      value: "\v",
-      raw: "'\\v'",
+  pass('scans \'\\v\'', {
+      source: '\'\\v\'',
+      value: '\v',
+      raw: '\'\\v\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\v\"", {
-      source: "\"\\v\"",
-      value: "\v",
-      raw: "\"\\v\"",
+  pass('scans "\\v"', {
+      source: '"\\v"',
+      value: '\v',
+      raw: '"\\v"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\f'", {
-      source: "'\\f'",
-      value: "\f",
-      raw: "'\\f'",
+  pass('scans \'\\f\'', {
+      source: '\'\\f\'',
+      value: '\f',
+      raw: '\'\\f\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\f\"", {
-      source: "\"\\f\"",
-      value: "\f",
-      raw: "\"\\f\"",
+  pass('scans "\\f"', {
+      source: '"\\f"',
+      value: '\f',
+      raw: '"\\f"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\r'", {
-      source: "'\\r'",
-      value: "\r",
-      raw: "'\\r'",
+  pass('scans \'\\r\'', {
+      source: '\'\\r\'',
+      value: '\r',
+      raw: '\'\\r\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\r\"", {
-      source: "\"\\r\"",
-      value: "\r",
-      raw: "\"\\r\"",
+  pass('scans "\\r"', {
+      source: '"\\r"',
+      value: '\r',
+      raw: '"\\r"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\\"'", {
-      source: "'\\\"'",
-      value: "\"",
-      raw: "'\\\"'",
+  pass('scans \'\\"\'', {
+      source: '\'\\"\'',
+      value: '"',
+      raw: '\'\\"\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\\"\"", {
-      source: "\"\\\"\"",
-      value: "\"",
-      raw: "\"\\\"\"",
+  pass('scans "\\""', {
+      source: '"\\""',
+      value: '"',
+      raw: '"\\""',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\''", {
-      source: "'\\''",
-      value: "'",
-      raw: "'\\''",
+  pass('scans \'\\\'\'', {
+      source: '\'\\\'\'',
+      value: '\'',
+      raw: '\'\\\'\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\'\"", {
-      source: "\"\\'\"",
-      value: "'",
-      raw: "\"\\'\"",
+  pass('scans "\\\'"', {
+      source: '"\\\'"',
+      value: '\'',
+      raw: '"\\\'"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\"'", {
-      source: "'\"'",
-      value: "\"",
-      raw: "'\"'",
+  pass('scans \'"\'', {
+      source: '\'"\'',
+      value: '"',
+      raw: '\'"\'',
       line: 1,
       column: 3,
   });
 
-  pass("scans \"'\"", {
-      source: "\"'\"",
-      value: "'",
-      raw: "\"'\"",
+  pass('scans "\'"', {
+      source: '"\'"',
+      value: '\'',
+      raw: '"\'"',
       line: 1,
       column: 3,
   });
 
-  pass("scans '\\0'", {
-      source: "'\\0'",
-      value: "\0",
-      raw: "'\\0'",
+  pass('scans \'\\0\'', {
+      source: '\'\\0\'',
+      value: '\0',
+      raw: '\'\\0\'',
       line: 1,
       column: 4,
   });
 
-  pass("scans \"\\0\"", {
-      source: "\"\\0\"",
-      value: "\0",
-      raw: "\"\\0\"",
+  pass('scans "\\0"', {
+      source: '"\\0"',
+      value: '\0',
+      raw: '"\\0"',
       line: 1,
       column: 4,
   });
 
-  pass("scans '\\u180E'", {
-      source: "'\u180E'",
-      value: "\u180E",
-      raw: "'\u180E'",
+  pass('scans \'\\u180E\'', {
+      source: '\'\u180E\'',
+      value: '\u180E',
+      raw: '\'\u180E\'',
       line: 1,
       column: 3,
   });
 
-  pass("scans \"\\u180E\"", {
-      source: "\"\u180E\"",
-      value: "\u180E",
-      raw: "\"\u180E\"",
+  pass('scans "\\u180E"', {
+      source: '"\u180E"',
+      value: '\u180E',
+      raw: '"\u180E"',
       line: 1,
       column: 3,
   });
@@ -333,7 +333,7 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
       for (let code = Chars.EnglishUpperA; code <= Chars.EnglishUpperZ; code++) {
           const letter = String.fromCharCode(code);
 
-          pass("scans " + letter, {
+          pass('scans ' + letter, {
               source: `'${letter}'`,
               value: letter,
               raw: `'${letter}'`,
@@ -348,7 +348,7 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
       for (let code = Chars.EnglishLowerA; code <= Chars.EnglishLowerZ; code++) {
           const letter = String.fromCharCode(code);
 
-          pass("scans " + letter, {
+          pass('scans ' + letter, {
               source: `'${letter}'`,
               value: letter,
               raw: `'${letter}'`,
@@ -362,7 +362,7 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
   describe('Russian capitals', () => {
       for (let code = Chars.RussianUpperА; code <= Chars.RussianUpperЯ; code++) {
           const letter = String.fromCharCode(code);
-          pass("scans " + letter, {
+          pass('scans ' + letter, {
               source: `'${letter}'`,
               value: letter,
               raw: `'${letter}'`,
@@ -375,7 +375,7 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
   describe('Russian small letters', () => {
       for (let code = Chars.RussianLowerА; code <= Chars.RussianLowerЯ; code++) {
           const letter = String.fromCharCode(code);
-          pass("scans " + letter, {
+          pass('scans ' + letter, {
               source: `'${letter}'`,
               value: letter,
               raw: `'${letter}'`,
@@ -404,7 +404,7 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
                   value: parser.tokenValue,
                   line: parser.line,
                   column: parser.column,
-              }, {
+              },          {
                   token: Token.StringLiteral,
                   value: ch,
                   line: 1,
@@ -420,13 +420,13 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
           const ch = String.fromCodePoint(code);
           const escape0 = `\\${code}`;
           it(`Scans '${escape0}'`, () => {
-              let parser = new State(`'${escape0}'`, undefined, undefined);
+              const parser = new State(`'${escape0}'`, undefined, undefined);
               t.deepEqual({
                   token: nextToken(parser, Context.Empty),
                   value: parser.tokenValue,
                   line: parser.line,
                   column: parser.column,
-              }, {
+              },          {
                   token: Token.StringLiteral,
                   value: ch,
                   line: 1,
@@ -446,13 +446,13 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
           fail(`'${escape0}'`, `'${escape0}'`, true);
 
           it(`Scans '${escape0}'`, () => {
-              let parser = new State(`'${escape0}'`, undefined, undefined);
+              const parser = new State(`'${escape0}'`, undefined, undefined);
               t.deepEqual({
                   token: nextToken(parser, Context.Empty),
                   value: parser.tokenValue,
                   line: parser.line,
                   column: parser.column,
-              }, {
+              },          {
                   token: Token.StringLiteral,
                   value: ch,
                   line: 1,
@@ -468,13 +468,13 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
           const ch = String.fromCodePoint(code);
           const escape0 = `\\${code.toString(8)}`;
           it(`Scans '${escape0}'`, () => {
-              let parser = new State(`'${escape0}'`, undefined, undefined);
+              const parser = new State(`'${escape0}'`, undefined, undefined);
               t.deepEqual({
                   token: nextToken(parser, Context.Empty),
                   value: parser.tokenValue,
                   line: parser.line,
                   column: parser.column,
-              }, {
+              },          {
                   token: Token.StringLiteral,
                   value: ch,
                   line: 1,
@@ -499,13 +499,13 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
               for (let code = start; code <= end; code++) {
                   const ch = String.fromCodePoint(code);
                   const escape = `\\u{${code.toString(16)}}`;
-                  let parser = new State(`'${escape}'`, undefined, undefined);
+                  const parser = new State(`'${escape}'`, undefined, undefined);
                   t.deepEqual({
                       token: nextToken(parser, Context.Empty),
                       value: parser.tokenValue,
                       line: parser.line,
                       column: parser.column,
-                  }, {
+                  },          {
                       token: Token.StringLiteral,
                       value: ch,
                       line: 1,
@@ -524,13 +524,13 @@ fail("doesn't scan '\\u{11ffff}'", "'\\u{11ffff}'");
               const escape = `\\u{${code.toString(16)}}`;
               it(`scans ${startStr} - ${endStr}`, function() {
                   this.slow(150);
-                  let parser = new State(`'${escape}'`, undefined, undefined);
+                  const parser = new State(`'${escape}'`, undefined, undefined);
                   t.deepEqual({
                       token: nextToken(parser, Context.Empty),
                       value: parser.tokenValue,
                       line: parser.line,
                       column: parser.column,
-                  }, {
+                  },          {
                       token: Token.StringLiteral,
                       value: ch,
                       line: 1,

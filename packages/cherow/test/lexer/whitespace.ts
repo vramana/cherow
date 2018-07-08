@@ -14,10 +14,10 @@ describe('Lexer - Whitespace', () => {
             t.deepEqual({
                 line: state.line,
                 column: state.column,
-            }, {
+            },          {
                 line: opts.line,
                 column: opts.column
-            }, );
+            },);
         });
     }
 

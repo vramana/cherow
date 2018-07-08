@@ -16,7 +16,7 @@ describe('Lexer - Identifiers (japanese)', () => {
                   value: state.tokenValue,
                   line: state.line,
                   column: state.column,
-              }, {
+              },          {
                   token: Token.Identifier,
                   value: opts.value,
                   line: opts.line,
@@ -28,38 +28,37 @@ describe('Lexer - Identifiers (japanese)', () => {
       test(`${name}`, Context.Empty);
   }
 
-
-  pass("scans 'もしもし'", {
-      source: "もしもし",
-      "value": "もしもし",
-      raw: "もしもし",
+  pass('scans \'もしもし\'', {
+      source: 'もしもし',
+      'value': 'もしもし',
+      raw: 'もしもし',
       token: Token.Identifier,
       line: 1,
       column: 4,
   });
 
-  pass("scans '番号123'", {
-      source: "番号123",
-      "value": "番号123",
-      raw: "番号123",
+  pass('scans \'番号123\'', {
+      source: '番号123',
+      'value': '番号123',
+      raw: '番号123',
       token: Token.Identifier,
       line: 1,
       column: 5,
   });
 
-  pass("scans '番号123'", {
-      source: "番号123",
-      "value": "番号123",
-      raw: "番号123",
+  pass('scans \'番号123\'', {
+      source: '番号123',
+      'value': '番号123',
+      raw: '番号123',
       token: Token.Identifier,
       line: 1,
       column: 5,
   });
 
-  pass("scans '番号123番号123'", {
-      source: "番号123番号123",
-      "value": "番号123番号123",
-      raw: "番号123番号123",
+  pass('scans \'番号123番号123\'', {
+      source: '番号123番号123',
+      'value': '番号123番号123',
+      raw: '番号123番号123',
       token: Token.Identifier,
       line: 1,
       column: 10,

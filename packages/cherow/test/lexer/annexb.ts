@@ -12,11 +12,11 @@ describe('Lexer - AnnexB', () => {
               index: state.index,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               line: opts.line,
               index: opts.index,
               column: opts.column
-          }, );
+          },);
       });
   }
 

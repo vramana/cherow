@@ -15,13 +15,13 @@ describe('Lexer - Private name', () => {
               value: state.tokenValue,
               column: state.column,
               index: state.index,
-          }, {
+          },          {
               token: Token.Hash,
               line: opts.line,
               value: opts.value,
               column: opts.column,
               index: opts.index
-          }, );
+          },);
       });
   }
 
@@ -29,7 +29,7 @@ describe('Lexer - Private name', () => {
       it(name, () => {
           const state = new State(opts.source, undefined, undefined);
           t.throws(() => {
-              scanPrivateName(state, context)
+              scanPrivateName(state, context);
           });
       });
   }
@@ -49,7 +49,6 @@ describe('Lexer - Private name', () => {
   fail('should fail on private name with underscore', Context.InClass, {
       source: '#_a'
   });
-
 
   fail('should fail on private name with underscore', Context.InClass, {
       source: '#_a'

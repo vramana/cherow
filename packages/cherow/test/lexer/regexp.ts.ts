@@ -2174,9 +2174,6 @@ describe('Lexer - Regular expressions', () => {
     }
   });
 
-
-
-
   describe('No unicode', () => {
     const noUnicodeCases = [
       '[\\c-a]/u',
@@ -2842,7 +2839,7 @@ describe('Lexer - Regular expressions', () => {
           'a(?!b(?!cd)e/u',
           '^\\s*|\\s*$/u',
           '^((4\\d{3})|(5[1-5]\\d{2})|(6011))([- ])?\\d{4}([- ])?\\d{4}([- ])?\\d{4}|3[4,7]\\d{13}$/u',
-          "/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/u",
+          '/^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/u',
           `^[^\\x20-\\x7e]*$/u`,
           `^[ｧ-ﾝﾞﾟ\\-]*$/u`,
           '^[ァ-ンヴー]*$/u',
@@ -3828,15 +3825,13 @@ describe('Lexer - Regular expressions', () => {
     for (const arg of noUnicodeCases) {
       passOrFail(`Scans ${arg}`, {
         source: `${arg}`,
-        value: "foo",
-        raw: "foo",
+        value: 'foo',
+        raw: 'foo',
         token: Token.Identifier,
         line: 1,
         column: 3,
     });
     }
   });
-
-
 
 });

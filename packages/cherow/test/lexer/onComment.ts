@@ -4,7 +4,7 @@ import { State } from '../../src/state';
 import { Context } from '../../src/common';
 import { CommentTypes } from '../../src/lexer/comments';
 
-describe("Lexer - OnComment", () => {
+describe('Lexer - OnComment', () => {
 
   function pass(name: string, opts: any) {
       it(name, () => {
@@ -16,12 +16,12 @@ describe("Lexer - OnComment", () => {
                   value: state.source.slice(state.commentStart, state.commentType >> 24),
                   line: state.line,
                   column: state.column,
-              }, {
+              },          {
                   type: opts.type,
                   value: opts.value,
                   line: opts.line,
                   column: opts.column
-              }, );
+              },);
           }
       });
   }
@@ -44,16 +44,16 @@ describe("Lexer - OnComment", () => {
 
   pass('should skip HTMLCommentClose comment', {
     source: '--> foo',
-    "type": "HTMLClose",
-    "value": " foo",
+    'type': 'HTMLClose',
+    'value': ' foo',
     line: 1,
     column: 7,
   });
 
   pass('should skip HTMLCommentOpen comment', {
     source: '<!-- foo',
-    "type": "HTMLOpen",
-    "value": " foo",
+    'type': 'HTMLOpen',
+    'value': ' foo',
     line: 1,
     column: 8,
   });

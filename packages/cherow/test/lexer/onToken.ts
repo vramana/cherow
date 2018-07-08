@@ -5,9 +5,9 @@ import { Context } from '../../src/common';
 import { Token } from '../../src/token';
 import { TokenType, TokenTypes, edgeCaseCrap } from '../../src/lexer/tokenizer';
 
-describe("Lexer - OnToken", () => {
+describe('Lexer - OnToken', () => {
 
-  describe("Lexer - Tokenizer types", () => {
+  describe('Lexer - Tokenizer types', () => {
 
       // Test comment type lookup
       const items: [TokenType, string][] = [
@@ -21,14 +21,14 @@ describe("Lexer - OnToken", () => {
           [TokenType.Numeric, 'Numeric'],
           [TokenType.RegularExpression, 'RegularExpression'],
           [TokenType.Template, 'Template'],
-      ]
+      ];
 
       for (const [token, expected] of items) {
           it(`should stringify '${expected}' tokenized tokens`, () => {
-              t.equal(TokenTypes[token & 0xFF], expected)
-          })
+              t.equal(TokenTypes[token & 0xFF], expected);
+          });
 
-          if (!/^\w+$/.test(expected)) continue
+          if (!/^\w+$/.test(expected)) continue;
       }
   });
 
@@ -40,7 +40,7 @@ describe("Lexer - OnToken", () => {
                   type,
                   value
               });
-          }, undefined, );
+          },                      undefined,);
           nextToken(state, Context.Empty);
           state.tokenValue = 'let';
           edgeCaseCrap(state, Token.LetKeyword, TokenType.Identifier);
@@ -48,7 +48,7 @@ describe("Lexer - OnToken", () => {
               tokens,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               tokens: [{
                       type: 'Identifier',
                       value: 'let'
@@ -60,7 +60,7 @@ describe("Lexer - OnToken", () => {
               ], // "Fixed"
               line: 1,
               column: 3
-          }, );
+          },);
       });
   });
 
@@ -74,7 +74,7 @@ describe("Lexer - OnToken", () => {
                       type,
                       value
                   });
-              }, undefined, );
+              },                      undefined,);
 
               // Get the first token in the stream
               nextToken(state, Context.ExpressionStart);
@@ -85,11 +85,11 @@ describe("Lexer - OnToken", () => {
                   tokens,
                   line: state.line,
                   column: state.column,
-              }, {
+              },          {
                   tokens: opts.value,
                   line: opts.line,
                   column: opts.column
-              }, );
+              },);
           });
       }
 
@@ -97,16 +97,16 @@ describe("Lexer - OnToken", () => {
         source: '/* */ -->',
         value: [
               {
-                "type": "RegularExpression",
-                "value": "/* */",
+                'type': 'RegularExpression',
+                'value': '/* */',
               },
               {
-                "type": "Punctuator",
-                "value": "--",
+                'type': 'Punctuator',
+                'value': '--',
              },
               {
-               "type": "Punctuator",
-                "value": ">",
+               'type': 'Punctuator',
+                'value': '>',
               },
             ],
         line: 1,
@@ -117,7 +117,7 @@ describe("Lexer - OnToken", () => {
         source: '"a\\n"',
         value: [{
             type: 'StringLiteral',
-            "value": "\"a\\n\""
+            'value': '"a\\n"'
         }],
         line: 1,
         column: 5,
@@ -127,20 +127,20 @@ describe("Lexer - OnToken", () => {
         source: `/* assignment */
         a = b`,
         value: [ {
-                "type": "RegularExpression",
-                "value": "/* assignment */",
+                'type': 'RegularExpression',
+                'value': '/* assignment */',
               },
               {
-                "type": "Identifier",
-                "value": "a",
+                'type': 'Identifier',
+                'value': 'a',
               },
               {
-                "type": "Punctuator",
-                "value": "=",
+                'type': 'Punctuator',
+                'value': '=',
               },
               {
-                "type": "Identifier",
-                "value": "b",
+                'type': 'Identifier',
+                'value': 'b',
               }],
         line: 2,
         column: 13,
@@ -149,72 +149,72 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize function expr with block comment', {
         source: `(function(){ var version = 1; /* sync */ }).call(this)`,
         value: [{
-                "type": "Punctuator",
-                "value": "(",
+                'type': 'Punctuator',
+                'value': '(',
               },
               {
-                "type": "Keyword",
-                "value": "function",
+                'type': 'Keyword',
+                'value': 'function',
               },
               {
-                "type": "Punctuator",
-                "value": "(",
+                'type': 'Punctuator',
+                'value': '(',
               },
              {
-                "type": "Punctuator",
-                "value": ")",
+                'type': 'Punctuator',
+                'value': ')',
               },
               {
-                "type": "Punctuator",
-                "value": "{",
+                'type': 'Punctuator',
+                'value': '{',
               },
               {
-                "type": "Keyword",
-                "value": "var",
+                'type': 'Keyword',
+                'value': 'var',
              },
               {
-                "type": "Identifier",
-                "value": "version",
+                'type': 'Identifier',
+                'value': 'version',
               },
               {
-                "type": "Punctuator",
-                "value": "=",
+                'type': 'Punctuator',
+                'value': '=',
               },
               {
-                "type": "Numeric",
-                "value": "1",
+                'type': 'Numeric',
+                'value': '1',
               },
               {
-               "type": "Punctuator",
-                "value": ";",
+               'type': 'Punctuator',
+                'value': ';',
               },
               {
-                "type": "Punctuator",
-                "value": "}",
+                'type': 'Punctuator',
+                'value': '}',
               },
               {
-                "type": "Punctuator",
-                "value": ")",
+                'type': 'Punctuator',
+                'value': ')',
               },
               {
-                "type": "Punctuator",
-               "value": ".",
+                'type': 'Punctuator',
+               'value': '.',
               },
               {
-                "type": "Identifier",
-                "value": "call",
+                'type': 'Identifier',
+                'value': 'call',
               },
               {
-               "type": "Punctuator",
-                "value": "(",
+               'type': 'Punctuator',
+                'value': '(',
               },
               {
-                "type": "Keyword",
-                "value": "this",
+                'type': 'Keyword',
+                'value': 'this',
               },
               {
-                "type": "Punctuator",
-                "value": ")"
+                'type': 'Punctuator',
+                'value': ')'
               }],
         line: 1,
         column: 54,
@@ -223,52 +223,52 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize switch statement with multi line comment', {
         source: `switch (answer) { case 42: /* perfect */ bingo() }`,
         value: [{
-                "type": "Keyword",
-                "value": "switch",
+                'type': 'Keyword',
+                'value': 'switch',
               },
               {
-                "type": "Punctuator",
-                "value": "(",
+                'type': 'Punctuator',
+                'value': '(',
               },
               {
-               "type": "Identifier",
-                "value": "answer",
+               'type': 'Identifier',
+                'value': 'answer',
               },
               {
-                "type": "Punctuator",
-                "value": ")",
+                'type': 'Punctuator',
+                'value': ')',
               },
               {
-                "type": "Punctuator",
-                "value": "{",
+                'type': 'Punctuator',
+                'value': '{',
               },
               {
-                "type": "Keyword",
-               "value": "case",
+                'type': 'Keyword',
+               'value': 'case',
               },
               {
-                "type": "Numeric",
-                "value": "42",
+                'type': 'Numeric',
+                'value': '42',
               },
               {
-                "type": "Punctuator",
-                "value": ":",
+                'type': 'Punctuator',
+                'value': ':',
               },
               {
-                "type": "Identifier",
-                "value": "bingo",
+                'type': 'Identifier',
+                'value': 'bingo',
              },
               {
-                "type": "Punctuator",
-                "value": "(",
+                'type': 'Punctuator',
+                'value': '(',
               },
               {
-               "type": "Punctuator",
-                "value": ")",
+               'type': 'Punctuator',
+                'value': ')',
               },
               {
-                "type": "Punctuator",
-                "value": "}",
+                'type': 'Punctuator',
+                'value': '}',
               }
             ],
         line: 1,
@@ -278,32 +278,32 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize with statement with punctuators', {
         source: 'with (false) /42/',
         value: [{
-                "type": "Keyword",
-                "value": "with",
+                'type': 'Keyword',
+                'value': 'with',
               },
               {
-                "type": "Punctuator",
-                "value": "(",
+                'type': 'Punctuator',
+                'value': '(',
               },
               {
-               "type": "Keyword",
-                "value": "false",
+               'type': 'Keyword',
+                'value': 'false',
               },
               {
-                "type": "Punctuator",
-                "value": ")",
+                'type': 'Punctuator',
+                'value': ')',
               },
               {
-                "type": "Punctuator",
-               "value": "/",
+                'type': 'Punctuator',
+               'value': '/',
               },
               {
-                "type": "Numeric",
-                "value": "42",
+                'type': 'Numeric',
+                'value': '42',
               },
              {
-                "type": "Punctuator",
-                "value": "/"
+                'type': 'Punctuator',
+                'value': '/'
               }],
         line: 1,
         column: 17,
@@ -312,8 +312,8 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize identifier and skip HTML open comment', {
         source: 'a<!--b',
         value: [ {
-                "type": "Identifier",
-                "value": "a",
+                'type': 'Identifier',
+                'value': 'a',
               }],
         line: 1,
         column: 6,
@@ -323,8 +323,8 @@ describe("Lexer - OnToken", () => {
         source: `0/*
         */-->`,
         value: [{
-                "type": "Numeric",
-                "value": "0",
+                'type': 'Numeric',
+                'value': '0',
               }],
         line: 2,
         column: 13,
@@ -334,7 +334,7 @@ describe("Lexer - OnToken", () => {
         source: '"a\\n"',
         value: [{
             type: 'StringLiteral',
-            "value": "\"a\\n\""
+            'value': '"a\\n"'
         }],
         line: 1,
         column: 5,
@@ -343,224 +343,223 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize and not recognize greater than as HTML Close comment', {
         source: 'x = y-->10;\n --> nothing',
         value: [{
-              "type": "Identifier",
-              "value": "x",
+              'type': 'Identifier',
+              'value': 'x',
             },
             {
-              "type": "Punctuator",
-              "value": "=",
+              'type': 'Punctuator',
+              'value': '=',
            },
             {
-              "type": "Identifier",
-              "value": "y",
+              'type': 'Identifier',
+              'value': 'y',
             },
             {
-             "type": "Punctuator",
-              "value": "--",
+             'type': 'Punctuator',
+              'value': '--',
             },
             {
-              "type": "Punctuator",
-              "value": ">",
+              'type': 'Punctuator',
+              'value': '>',
             },
             {
-              "type": "Numeric",
-              "value": "10",
+              'type': 'Numeric',
+              'value': '10',
             },
             {
-              "type": "Punctuator",
-              "value": ";"
+              'type': 'Punctuator',
+              'value': ';'
             }],
       line: 2,
       column: 12,
   });
 
-    pass('should tokenizse identifier and skip HTML Open comment', {
+      pass('should tokenizse identifier and skip HTML Open comment', {
       source: 'foo <!--bar\n+baz',
       value: [{
-              "type": "Identifier",
-              "value": "foo"
+              'type': 'Identifier',
+              'value': 'foo'
             }],
       line: 3,
       column: 4,
   });
 
-    pass('should tokenize single-quoted string with escaped linefeed', {
+      pass('should tokenize single-quoted string with escaped linefeed', {
       source: 'while (x-->0)',
       value: [{
-              "type": "Keyword",
-              "value": "while",
+              'type': 'Keyword',
+              'value': 'while',
             },
             {
-              "type": "Punctuator",
-              "value": "(",
+              'type': 'Punctuator',
+              'value': '(',
             },
             {
-              "type": "Identifier",
-              "value": "x",
+              'type': 'Identifier',
+              'value': 'x',
             },
             {
-              "type": "Punctuator",
-              "value": "--",
+              'type': 'Punctuator',
+              'value': '--',
             },
             {
-              "type": "Punctuator",
-              "value": ">",
+              'type': 'Punctuator',
+              'value': '>',
             },
             {
-              "type": "Numeric",
-              "value": "0",
+              'type': 'Numeric',
+              'value': '0',
             },
             {
-             "type": "Punctuator",
-              "value": ")",
+             'type': 'Punctuator',
+              'value': ')',
             }
           ],
       line: 1,
       column: 13,
     });
 
-    pass('should tokenize and skip HTML comment at the end', {
+      pass('should tokenize and skip HTML comment at the end', {
       source: 'var a = 1, b = 1; a <!--b;',
       value: [ {
-              "type": "Keyword",
-              "value": "var",
+              'type': 'Keyword',
+              'value': 'var',
             },
             {
-              "type": "Identifier",
-              "value": "a",
+              'type': 'Identifier',
+              'value': 'a',
             },
             {
-             "type": "Punctuator",
-              "value": "=",
+             'type': 'Punctuator',
+              'value': '=',
             },
             {
-              "type": "Numeric",
-              "value": "1",
+              'type': 'Numeric',
+              'value': '1',
             },
             {
-              "type": "Punctuator",
-              "value": ",",
+              'type': 'Punctuator',
+              'value': ',',
            },
             {
-              "type": "Identifier",
-              "value": "b",
+              'type': 'Identifier',
+              'value': 'b',
             },
             {
-              "type": "Punctuator",
-              "value": "=",
+              'type': 'Punctuator',
+              'value': '=',
             },
             {
-              "type": "Numeric",
-              "value": "1",
+              'type': 'Numeric',
+              'value': '1',
             },
             {
-              "type": "Punctuator",
-              "value": ";",
+              'type': 'Punctuator',
+              'value': ';',
             },
             {
-              "type": "Identifier",
-              "value": "a"
+              'type': 'Identifier',
+              'value': 'a'
             }],
       line: 1,
       column: 26,
     });
 
-    pass('should tokenize array literal', {
+      pass('should tokenize array literal', {
       source: '[1,2,abc]',
       value: [ {
-              "type": "Punctuator",
-              "value": "[",
+              'type': 'Punctuator',
+              'value': '[',
            },
             {
-              "type": "Numeric",
-              "value": "1",
+              'type': 'Numeric',
+              'value': '1',
             },
             {
-              "type": "Punctuator",
-              "value": ",",
+              'type': 'Punctuator',
+              'value': ',',
             },
             {
-              "type": "Numeric",
-             "value": "2",
+              'type': 'Numeric',
+             'value': '2',
             },
             {
-              "type": "Punctuator",
-              "value": ",",
+              'type': 'Punctuator',
+              'value': ',',
             },
            {
-              "type": "Identifier",
-              "value": "abc",
+              'type': 'Identifier',
+              'value': 'abc',
             },
             {
-              "type": "Punctuator",
-              "value": "]"
+              'type': 'Punctuator',
+              'value': ']'
             }],
       line: 1,
       column: 9,
   });
 
-    pass('should tokenize decimal point', {
+      pass('should tokenize decimal point', {
       source: '500.',
       value: [{
           type: 'Numeric',
-          "value": "500."
+          'value': '500.'
       }],
       line: 1,
       column: 5,
   });
 
-    pass('should tokenize assignment and function expression', {
+      pass('should tokenize assignment and function expression', {
       source: 'var f = function(){;};',
       value: [{
-              "type": "Keyword",
-              "value": "var",
+              'type': 'Keyword',
+              'value': 'var',
             },
             {
-              "type": "Identifier",
-              "value": "f",
+              'type': 'Identifier',
+              'value': 'f',
             },
             {
-              "type": "Punctuator",
-              "value": "=",
+              'type': 'Punctuator',
+              'value': '=',
             },
             {
-              "type": "Keyword",
-              "value": "function",
+              'type': 'Keyword',
+              'value': 'function',
             },
             {
-              "type": "Punctuator",
-              "value": "(",
+              'type': 'Punctuator',
+              'value': '(',
             },
             {
-              "type": "Punctuator",
-              "value": ")",
+              'type': 'Punctuator',
+              'value': ')',
             },
             {
-              "type": "Punctuator",
-              "value": "{",
+              'type': 'Punctuator',
+              'value': '{',
             },
             {
-              "type": "Punctuator",
-              "value": ";",
+              'type': 'Punctuator',
+              'value': ';',
             },
             {
-              "type": "Punctuator",
-              "value": "}",
+              'type': 'Punctuator',
+              'value': '}',
             },
             {
-              "type": "Punctuator",
-              "value": ";"
+              'type': 'Punctuator',
+              'value': ';'
             }],
       line: 1,
       column: 22,
   });
 
-
       pass('should tokenize string literal correctly', {
           source: '"String literal tokenizing works!"',
           value: [{
               type: 'StringLiteral',
-              "value": "\"String literal tokenizing works!\""
+              'value': '"String literal tokenizing works!"'
           }],
           line: 1,
           column: 34,
@@ -598,16 +597,16 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two identifiers with a punctuator in the middle', {
           source: 'foo+bar',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "+",
+                  'type': 'Punctuator',
+                  'value': '+',
               },
               {
-                  "type": "Identifier",
-                  "value": "bar",
+                  'type': 'Identifier',
+                  'value': 'bar',
               }
           ],
           line: 1,
@@ -648,8 +647,8 @@ describe("Lexer - OnToken", () => {
                   value: 'works'
               },
               {
-                  type: "Punctuator",
-                  value: "+"
+                  type: 'Punctuator',
+                  value: '+'
               },
               {
                   type: 'Identifier',
@@ -883,28 +882,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'a=b:c;',
           value: [{
-                  "type": "Identifier",
-                  "value": "a",
+                  'type': 'Identifier',
+                  'value': 'a',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Identifier",
-                  "value": "b",
+                  'type': 'Identifier',
+                  'value': 'b',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "c",
+                  'type': 'Identifier',
+                  'value': 'c',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -914,28 +913,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize double label', {
           source: 'foo: foo: x;',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";"
+                  'type': 'Punctuator',
+                  'value': ';'
               }
           ],
           line: 1,
@@ -945,28 +944,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'foo++("toString");',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "++",
+                  'type': 'Punctuator',
+                  'value': '++',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "StringLiteral",
-                  "value": "\"toString\"",
+                  'type': 'StringLiteral',
+                  'value': '"toString"',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -976,60 +975,60 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'class g_pig { constructor() {} async() {} }',
           value: [{
-                  "type": "Keyword",
-                  "value": "class",
+                  'type': 'Keyword',
+                  'value': 'class',
               },
               {
-                  "type": "Identifier",
-                  "value": "g_pig",
+                  'type': 'Identifier',
+                  'value': 'g_pig',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{"
+                  'type': 'Punctuator',
+                  'value': '{'
               },
               {
-                  "type": "Identifier",
-                  "value": "constructor",
+                  'type': 'Identifier',
+                  'value': 'constructor',
               },
               {
-                  "type": "Punctuator",
-                  "value": "("
+                  'type': 'Punctuator',
+                  'value': '('
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{"
+                  'type': 'Punctuator',
+                  'value': '{'
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               },
               {
-                  "type": "Identifier",
-                  "value": "async",
+                  'type': 'Identifier',
+                  'value': 'async',
               },
               {
-                  "type": "Punctuator",
-                  "value": "("
+                  'type': 'Punctuator',
+                  'value': '('
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{"
+                  'type': 'Punctuator',
+                  'value': '{'
               },
               {
-                  "type": "Punctuator",
-                  "value": "}"
+                  'type': 'Punctuator',
+                  'value': '}'
               },
               {
-                  "type": "Punctuator",
-                  "value": "}"
+                  'type': 'Punctuator',
+                  'value': '}'
               }
           ],
           line: 1,
@@ -1039,60 +1038,58 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize null', {
           source: 'null',
           value: [{
-              "type": "NullLiteral",
-              "value": "null"
+              'type': 'NullLiteral',
+              'value': 'null'
           }],
           line: 1,
           column: 4,
       });
 
-
-
       pass('should tokenize object literal', {
           source: 'x={set (x){}};',
           value: [{
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Identifier",
-                  "value": "set",
+                  'type': 'Identifier',
+                  'value': 'set',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";"
+                  'type': 'Punctuator',
+                  'value': ';'
               }
           ],
           line: 1,
@@ -1102,56 +1099,56 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize block', {
           source: '{a:1,\"b\":2,c:c}',
           value: [{
-                  "type": "Punctuator",
-                  "value": "{"
+                  'type': 'Punctuator',
+                  'value': '{'
               },
               {
-                  "type": "Identifier",
-                  "value": "a",
+                  'type': 'Identifier',
+                  'value': 'a',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Numeric",
-                  "value": "1"
+                  'type': 'Numeric',
+                  'value': '1'
               },
               {
-                  "type": "Punctuator",
-                  "value": ",",
+                  'type': 'Punctuator',
+                  'value': ',',
               },
               {
-                  "type": "StringLiteral",
-                  "value": "\"b\"",
+                  'type': 'StringLiteral',
+                  'value': '"b"',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Numeric",
-                  "value": "2",
+                  'type': 'Numeric',
+                  'value': '2',
               },
               {
-                  "type": "Punctuator",
-                  "value": ",",
+                  'type': 'Punctuator',
+                  'value': ',',
               },
               {
-                  "type": "Identifier",
-                  "value": "c",
+                  'type': 'Identifier',
+                  'value': 'c',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "c"
+                  'type': 'Identifier',
+                  'value': 'c'
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               }
           ],
           line: 1,
@@ -1161,8 +1158,8 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize regular expression', {
           source: '/a/i',
           value: [{
-              "type": "RegularExpression",
-              "value": "/a/i"
+              'type': 'RegularExpression',
+              'value': '/a/i'
           }],
           line: 1,
           column: 2,
@@ -1171,28 +1168,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize function declaration', {
           source: 'function foo() {}',
           value: [{
-                  "type": "Keyword",
-                  "value": "function",
+                  'type': 'Keyword',
+                  'value': 'function',
               },
               {
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               }
           ],
           line: 1,
@@ -1202,32 +1199,31 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize incomplete addition', {
           source: 'foo+;',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "+",
+                  'type': 'Punctuator',
+                  'value': '+',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
           column: 5,
       });
 
-
       pass('should tokenize -- without rhs, followed by semi', {
           source: '--;',
           value: [{
-                  "type": "Punctuator",
-                  "value": "--",
+                  'type': 'Punctuator',
+                  'value': '--',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -1237,12 +1233,12 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize typeof as label', {
           source: 'typeof:',
           value: [{
-                  "type": "Punctuator",
-                  "value": "typeof",
+                  'type': 'Punctuator',
+                  'value': 'typeof',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":"
+                  'type': 'Punctuator',
+                  'value': ':'
               }
           ],
           line: 1,
@@ -1252,24 +1248,24 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize keyword as varname', {
           source: 'var false = 5;',
           value: [{
-                  "type": "Keyword",
-                  "value": "var",
+                  'type': 'Keyword',
+                  'value': 'var',
               },
               {
-                  "type": "Keyword",
-                  "value": "false",
+                  'type': 'Keyword',
+                  'value': 'false',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Numeric",
-                  "value": "5",
+                  'type': 'Numeric',
+                  'value': '5',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";"
+                  'type': 'Punctuator',
+                  'value': ';'
               }
           ],
           line: 1,
@@ -1279,8 +1275,8 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: '_\\u{1EE03}',
           value: [{
-              "type": "Identifier",
-              "value": "_\\u{1EE03}",
+              'type': 'Identifier',
+              'value': '_\\u{1EE03}',
           }],
           line: 1,
           column: 10,
@@ -1289,8 +1285,8 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize identifier + surrogate', {
           source: 'a𪘀',
           value: [{
-              "type": "Identifier",
-              "value": "a𪘀",
+              'type': 'Identifier',
+              'value': 'a𪘀',
           }],
           line: 1,
           column: 3,
@@ -1299,8 +1295,8 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize template', {
           source: '`()`',
           value: [{
-              "type": "Template",
-              "value": "`()`"
+              'type': 'Template',
+              'value': '`()`'
           }],
           line: 1,
           column: 4,
@@ -1309,28 +1305,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'x=5\n/5/',
           value: [{
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Numeric",
-                  "value": "5",
+                  'type': 'Numeric',
+                  'value': '5',
               },
               {
-                  "type": "Punctuator",
-                  "value": "/",
+                  'type': 'Punctuator',
+                  'value': '/',
               },
               {
-                  "type": "Numeric",
-                  "value": "5",
+                  'type': 'Numeric',
+                  'value': '5',
               },
               {
-                  "type": "Punctuator",
-                  "value": "/"
+                  'type': 'Punctuator',
+                  'value': '/'
               }
           ],
           line: 2,
@@ -1340,28 +1336,28 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize nvalid assignment after non-assignment', {
           source: 'x + b <<= y;',
           value: [{
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "+",
+                  'type': 'Punctuator',
+                  'value': '+',
               },
               {
-                  "type": "Identifier",
-                  "value": "b",
+                  'type': 'Identifier',
+                  'value': 'b',
               },
               {
-                  "type": "Punctuator",
-                  "value": "<<=",
+                  'type': 'Punctuator',
+                  'value': '<<=',
               },
               {
-                  "type": "Identifier",
-                  "value": "y",
+                  'type': 'Identifier',
+                  'value': 'y',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";"
+                  'type': 'Punctuator',
+                  'value': ';'
               }
           ],
           line: 1,
@@ -1371,20 +1367,20 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize weird punctuator', {
           source: 'x +== y',
           value: [{
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "+=",
+                  'type': 'Punctuator',
+                  'value': '+=',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Identifier",
-                  "value": "y"
+                  'type': 'Identifier',
+                  'value': 'y'
               }
           ],
           line: 1,
@@ -1394,72 +1390,72 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'for ((x = {x:x in y}) in z);',
           value: [{
-                  "type": "Keyword",
-                  "value": "for",
+                  'type': 'Keyword',
+                  'value': 'for',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "in",
+                  'type': 'Punctuator',
+                  'value': 'in',
               },
               {
-                  "type": "Identifier",
-                  "value": "y",
+                  'type': 'Identifier',
+                  'value': 'y',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "in",
+                  'type': 'Punctuator',
+                  'value': 'in',
               },
               {
-                  "type": "Identifier",
-                  "value": "z",
+                  'type': 'Identifier',
+                  'value': 'z',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -1469,24 +1465,24 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize assigning to group with non-assignable expression 5', {
           source: 'x()=b',
           value: [{
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "=",
+                  'type': 'Punctuator',
+                  'value': '=',
               },
               {
-                  "type": "Identifier",
-                  "value": "b",
+                  'type': 'Identifier',
+                  'value': 'b',
               }
           ],
           line: 1,
@@ -1496,24 +1492,24 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize string literal and punctuators', {
           source: '"string"-- &= x;',
           value: [{
-                  "type": "StringLiteral",
-                  "value": "\"string\"",
+                  'type': 'StringLiteral',
+                  'value': '"string"',
               },
               {
-                  "type": "Punctuator",
-                  "value": "--",
+                  'type': 'Punctuator',
+                  'value': '--',
               },
               {
-                  "type": "Punctuator",
-                  "value": "&=",
+                  'type': 'Punctuator',
+                  'value': '&=',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -1523,20 +1519,20 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize invalid call assignment', {
           source: 'foo()--',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "--",
+                  'type': 'Punctuator',
+                  'value': '--',
               }
           ],
           line: 1,
@@ -1545,48 +1541,48 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize do while expects a semi 5 (parses /foo/ as regex, regardless)', {
           source: 'do{}while(x)/foo/;',
           value: [{
-                  "type": "Keyword",
-                  "value": "do",
+                  'type': 'Keyword',
+                  'value': 'do',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               },
               {
-                  "type": "Keyword",
-                  "value": "while",
+                  'type': 'Keyword',
+                  'value': 'while',
               },
               {
-                  "type": "Punctuator",
-                  "value": "(",
+                  'type': 'Punctuator',
+                  'value': '(',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Punctuator",
-                  "value": "/",
+                  'type': 'Punctuator',
+                  'value': '/',
               },
               {
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": "/",
+                  'type': 'Punctuator',
+                  'value': '/',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";"
+                  'type': 'Punctuator',
+                  'value': ';'
               }
           ],
           line: 1,
@@ -1596,16 +1592,16 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize treaming op with single line comment', {
           source: 'a>>=a // foo',
           value: [{
-                  "type": "Identifier",
-                  "value": "a",
+                  'type': 'Identifier',
+                  'value': 'a',
               },
               {
-                  "type": "Punctuator",
-                  "value": ">>=",
+                  'type': 'Punctuator',
+                  'value': '>>=',
               },
               {
-                  "type": "Identifier",
-                  "value": "a",
+                  'type': 'Identifier',
+                  'value': 'a',
               }
           ],
           line: 1,
@@ -1615,40 +1611,40 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize break arg', {
           source: 'while(true)break 5+5;',
           value: [{
-                  "type": "Keyword",
-                  "value": "while",
+                  'type': 'Keyword',
+                  'value': 'while',
               },
               {
-                  "type": "Punctuator",
-                  "value": "("
+                  'type': 'Punctuator',
+                  'value': '('
               },
               {
-                  "type": "Keyword",
-                  "value": "true",
+                  'type': 'Keyword',
+                  'value': 'true',
               },
               {
-                  "type": "Punctuator",
-                  "value": ")",
+                  'type': 'Punctuator',
+                  'value': ')',
               },
               {
-                  "type": "Keyword",
-                  "value": "break",
+                  'type': 'Keyword',
+                  'value': 'break',
               },
               {
-                  "type": "Numeric",
-                  "value": "5",
+                  'type': 'Numeric',
+                  'value': '5',
               },
               {
-                  "type": "Punctuator",
-                  "value": "+",
+                  'type': 'Punctuator',
+                  'value': '+',
               },
               {
-                  "type": "Numeric",
-                  "value": "5",
+                  'type': 'Numeric',
+                  'value': '5',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               }
           ],
           line: 1,
@@ -1658,36 +1654,36 @@ describe("Lexer - OnToken", () => {
       pass('should tokenize two parenthesis', {
           source: 'foo: { foo: x; }',
           value: [{
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Punctuator",
-                  "value": "{",
+                  'type': 'Punctuator',
+                  'value': '{',
               },
               {
-                  "type": "Identifier",
-                  "value": "foo",
+                  'type': 'Identifier',
+                  'value': 'foo',
               },
               {
-                  "type": "Punctuator",
-                  "value": ":",
+                  'type': 'Punctuator',
+                  'value': ':',
               },
               {
-                  "type": "Identifier",
-                  "value": "x",
+                  'type': 'Identifier',
+                  'value': 'x',
               },
               {
-                  "type": "Punctuator",
-                  "value": ";",
+                  'type': 'Punctuator',
+                  'value': ';',
               },
               {
-                  "type": "Punctuator",
-                  "value": "}",
+                  'type': 'Punctuator',
+                  'value': '}',
               }
           ],
           line: 1,

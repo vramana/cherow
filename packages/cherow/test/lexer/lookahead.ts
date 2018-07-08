@@ -14,7 +14,7 @@ describe('Lexer - Lookahead', () => {
           nextToken(state, opts.context);
           lookAheadOrScan(state, function(state: ParserState) {
               return nextToken(state, opts.context) === opts.token;
-          }, opts.rewind);
+          },              opts.rewind);
 
           t.deepEqual({
               value: state.tokenValue,
@@ -25,7 +25,7 @@ describe('Lexer - Lookahead', () => {
               startLine: state.startLine,
               lastLine: state.lastLine,
               lastColumn: state.lastColumn,
-          }, {
+          },          {
               value: opts.value,
               raw: opts.raw,
               line: opts.line,
@@ -99,7 +99,7 @@ describe('Lexer - Lookahead', () => {
 
   pass('should find the "case" keyword and rewind when found the "else" keyword', {
       source: 'keyword case',
-      value: "keyword",
+      value: 'keyword',
       raw: 'keyword',
       rewind: false,
       token: Token.ElseKeyword,
@@ -172,7 +172,6 @@ describe('Lexer - Lookahead', () => {
       startLine: 2,
       lastLine: 1,
   });
-
 
   pass('should figure out if next token is "async" followed by left parenthesis', {
     source: `/* habol pa more! */ from, china`,

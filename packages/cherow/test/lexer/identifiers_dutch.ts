@@ -16,7 +16,7 @@ describe('Lexer - Identifiers (dutch)', () => {
                   value: state.tokenValue,
                   line: state.line,
                   column: state.column,
-              }, {
+              },          {
                   token: Token.Identifier,
                   value: opts.value,
                   line: opts.line,
@@ -28,10 +28,10 @@ describe('Lexer - Identifiers (dutch)', () => {
       test(`${name}`, Context.Empty);
   }
 
-  pass("scans 'nummer123'", {
-      source: "nummer123",
-      "value": "nummer123",
-      raw: "nummer123",
+  pass('scans \'nummer123\'', {
+      source: 'nummer123',
+      'value': 'nummer123',
+      raw: 'nummer123',
       token: Token.Identifier,
       line: 1,
       column: 9,

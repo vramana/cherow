@@ -16,10 +16,10 @@ describe('Lexer - JSX', () => {
               value: state.tokenValue,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               token: Token.StringLiteral,
-              value: "chinese pig",
-              raw: "\"chinese pig\"",
+              value: 'chinese pig',
+              raw: '"chinese pig"',
               line: 1,
               column: 13,
           });
@@ -34,7 +34,7 @@ describe('Lexer - JSX', () => {
               value: state.tokenValue,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               token: Token.JSXClose,
               value: 0,
               line: 1,
@@ -49,7 +49,7 @@ describe('Lexer - JSX', () => {
               value: state.tokenValue,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               token: Token.LeftBrace,
               value: 0,
               line: 1,
@@ -65,7 +65,7 @@ describe('Lexer - JSX', () => {
               value: state.tokenValue,
               line: state.line,
               column: state.column,
-          }, {
+          },          {
               token: Token.JSXText,
               value: 0,
               line: 1,
