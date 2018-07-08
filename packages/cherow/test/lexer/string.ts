@@ -122,6 +122,7 @@ describe('Lexer - String literal', () => {
       line: 1,
       column: 2,
   });
+
   pass('scans \'abc\'', {
       source: '\'abc\'',
       value: 'abc',

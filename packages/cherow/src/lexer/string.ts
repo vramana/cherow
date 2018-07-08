@@ -24,7 +24,7 @@ export function scanStringLiteral(state: ParserState, context: Context): Token {
       if (ch === Chars.Backslash) {
           ch = readNext(state);
 
-          if (ch >= 128) {
+          if (ch >= 0x80) {
               ret += fromCodePoint(ch);
           } else {
               state.nextChar = ch;
@@ -34,7 +34,8 @@ export function scanStringLiteral(state: ParserState, context: Context): Token {
               else reportInvalidEscapeError(state, code as InvalidEscapeType);
               ch = state.nextChar;
           }
-      } else if ((ch & 83) < 3 && (ch === Chars.CarriageReturn || ch === Chars.LineFeed)) {
+        // Fast check for '\n', and '\r'
+      } else if ((ch & 0x53) < 3 && (ch === Chars.CarriageReturn || ch === Chars.LineFeed)) {
           report(state, Errors.UnterminatedString);
       } else {
           ret += fromCodePoint(ch);

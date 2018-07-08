@@ -48,7 +48,7 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
   if (state.onComment) state.commentStart = state.index;
   while (state.index < state.length) {
       const next = state.source.charCodeAt(state.index);
-      if ((next & 83) < 3 && (
+      if ((next & 0x53) < 3 && (
               next === Chars.LineFeed ||
               next === Chars.CarriageReturn ||
               next === Chars.LineSeparator ||

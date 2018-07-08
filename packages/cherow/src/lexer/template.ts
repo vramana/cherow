@@ -39,7 +39,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
           case Chars.Backslash:
               ch = readNext(state);
 
-              if (ch >= 128) {
+              if (ch >= 0x80) {
                   ret += fromCodePoint(ch);
               } else {
                   state.nextChar = ch;

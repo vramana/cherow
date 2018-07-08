@@ -154,8 +154,10 @@ table[Chars.LessThan] = (state: ParserState, context: Context) => {
         }
         state.index++; state.column++;
         return Token.JSXClose;
-        // This is a "<!--" opening comment - treat as //
-      } else if (consume(state, Chars.Exclamation) && consume(state, Chars.Hyphen) && consume(state, Chars.Hyphen)) {
+        // <!-- marks the beginning of HTML opening comment - treat as //
+      } else if (consume(state, Chars.Exclamation) &&
+                 consume(state, Chars.Hyphen) &&
+                 consume(state, Chars.Hyphen)) {
           return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);
       }
   }

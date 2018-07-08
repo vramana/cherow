@@ -120,9 +120,9 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
  * @param context Context masks
  */
 export function maybeIdentifier(state: ParserState, context: Context): Token {
-
-  // Both 'PS' and 'LS' have the 5th bit set and 7th bit unset. Checking for that first prevents additional checks
-  if ((state.nextChar & 83) < 3 &&
+  // Both 'PS' and 'LS' are unicode separators that are treated as line terminators, in addition to \n, \r.
+  // They both have the 5th bit set and 7th bit unset. Checking for that first prevents additional checks
+  if ((state.nextChar & 0x53) < 3 &&
       (state.nextChar === Chars.ParagraphSeparator ||
           state.nextChar === Chars.LineSeparator)) {
       return skipToNewLine(state);
