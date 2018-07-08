@@ -39,7 +39,7 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       if ((state.nextChar & 8) === 8 && state.nextChar === Chars.Backslash) {
           state.tokenValue += state.source.slice(start, state.index);
           const cookedChar = scanIdentifierUnicodeEscape(state);
-          if (cookedChar < 0 || !isIdentifierPart(cookedChar)) {
+          if (cookedChar === Chars.Backslash || !isIdentifierPart(cookedChar)) {
               return Token.Invalid;
           }
           state.tokenValue += fromCodePoint(cookedChar);
@@ -64,12 +64,18 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
       nextChar(state);
   }
   // 'options -> rawIdentifier'
-  if (context & Context.OptionsRawidentifiers) state.tokenRaw += state.source.slice(state.startIndex, state.index);
+  if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.source.slice(state.startIndex, state.index);
   if (start < state.index && isIdentifierPart(state.source.charCodeAt(state.index))) scanIdentifierRest(state, context);
 
   const t = descKeywordTable[state.tokenValue] || Token.Identifier;
 
-  if (!hasEscape || t & Token.IdentifierOrContextual) return t;
+  if (!hasEscape) return t;
+
+  // TODO(fkleuver): Not sure if this is correct?
+  if (context & Context.Strict && (t & Token.YieldKeyword || t & Token.AwaitKeyword)) return Token.Invalid;
+
+  // If not in strict mode context, this will 'fall through' and returned below
+  if (t & Token.IdentifierOrContextual) return t;
 
   if (t & Token.FutureReserved || t === Token.LetKeyword || t === Token.StaticKeyword) {
       return Token.EscapedStrictReserved;

@@ -17,7 +17,7 @@ describe('Lexer - Template literal', () => {
                       value: parser.tokenValue,
                       line: parser.line,
                       column: parser.column,
-                  }, {
+                  },          {
                       token: Token.TemplateTail,
                       value: opts.value,
                       line: opts.line,
@@ -41,7 +41,7 @@ describe('Lexer - Template literal', () => {
   pass('scans "`\n`"', {
       source: '`\n`',
       value: '\n',
-      raw: "\n",
+      raw: '\n',
       line: 2,
       column: 1,
   });

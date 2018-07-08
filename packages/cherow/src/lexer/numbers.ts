@@ -45,9 +45,9 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
           --digit;
       }
       // Performance comes first, readability in 9th place
-      if (digit >= 0 && state.nextChar !== Chars.Period && (state.index >= state.length ||
+      if (digit >= 0 && state.nextChar !== Chars.Period &&
               ((AsciiLookup[state.nextChar] & CharType.IDStart) < 0 ||
-                  (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) < 1))) {
+                  (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) < 1)) {
           if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, state.index);
           return Token.NumericLiteral;
       }
@@ -90,8 +90,8 @@ export function scanNumeric(state: ParserState, context: Context, isFloat: boole
       while (nextChar(state) <= Chars.Nine && state.nextChar >= Chars.Zero) {}
   }
 
-  // Number followed by IdentifierStart is an error
-  if (state.index < state.length && (AsciiLookup[state.nextChar] & CharType.IDStart) > 0 ||
+  // Numbers can't be followed by  an identifier start
+  if ((AsciiLookup[state.nextChar] & CharType.IDStart) > 0 ||
       (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) > 0) {
       report(state, state.nextChar >= Chars.MaxAsciiCharacter ? Errors.IDStartAfterNumber : Errors.IDStartAfterNumber);
   }
