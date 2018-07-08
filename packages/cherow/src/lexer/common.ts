@@ -70,35 +70,6 @@ export function mapToToken(token: Token): (state: ParserState) => Token {
   };
 }
 
-export function escapeInvalidCharacters(code: number): string {
-  switch (code) {
-      case Chars.Null:
-          return '\\0';
-      case Chars.Backspace:
-          return '\\b';
-      case Chars.Tab:
-          return '\\t';
-      case Chars.LineFeed:
-          return '\\n';
-      case Chars.VerticalTab:
-          return '\\v';
-      case Chars.FormFeed:
-          return '\\f';
-      case Chars.CarriageReturn:
-          return '\\r';
-      case Chars.Hash:
-          return '\\#';
-      case Chars.At:
-          return '\\@';
-      default:
-          if (!mustEscape(code)) return fromCodePoint(code);
-          if (code < 0x10) return `\\x0${code.toString(16)}`;
-          if (code < 0x100) return `\\x${code.toString(16)}`;
-          if (code < 0x1000) return `\\u0${code.toString(16)}`;
-          if (code < 0x10000) return `\\u${code.toString(16)}`;
-          return `\\u{${code.toString(16)}}`;
-  }
-}
 /**
  * Skips any byte order mark at the start
  *
@@ -106,7 +77,6 @@ export function escapeInvalidCharacters(code: number): string {
  */
 export function skipBomAndShebang(state: ParserState, context: Context): void {
   let index = state.index;
-  if (index === state.source.length) return;
   if (state.nextChar === Chars.ByteOrderMark ||
       state.nextChar === Chars.BigEndian) {
       index++;

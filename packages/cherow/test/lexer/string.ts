@@ -44,8 +44,8 @@ describe('Lexer - String literal', () => {
           });
       }
 
-      test(`${name} (normal, has next)`, Context.Empty, false);
-      test(`${name} (normal, end)`, Context.Empty, true);
+      test(`${name}`, Context.Empty, false);
+      test(`${name}`, Context.Empty, true);
   }
 
   function fail(name: string, source: string, strict?: boolean) {
@@ -67,45 +67,46 @@ describe('Lexer - String literal', () => {
         });
     }
 
-    test(`${name} (normal, has next)`, Context.Empty, false);
-    test(`${name} (normal, end)`, Context.Empty, true);
+    test(`${name}`, Context.Empty, false);
+    test(`${name}`, Context.Empty, true);
 }
 
-  fail('doesn\'t scan \'', '\'');
-  fail('doesn\'t scan "', '"');
-  fail('doesn\'t scan \'\\x0g\'', '\'\\x0g\'');
-  fail('doesn\'t scan \'\\xg0\'', '\'\\xg0\'');
-  fail('doesn\'t scan \'\\xgg\'', '\'\\xgg\'');
-  fail('doesn\'t scan \'\\xfg\'', '\'\\xfg\'');
-  fail('doesn\'t scan \'\\u000g\'', '\'\\u000g\'');
-  fail('doesn\'t scan \'\\u00g0\'', '\'\\u00g0\'');
-  fail('doesn\'t scan \'\\u0g00\'', '\'\\u0g00\'');
-  fail('doesn\'t scan \'\\ug000\'', '\'\\ug000\'');
-  fail('doesn\'t scan \'\\ugggg\'', '\'\\ugggg\'');
-  fail('doesn\'t scan \'\\ufffg\'', '\'\\ufffg\'');
-  fail('doesn\'t scan \'\\\'', '\'\\\'');
-  fail('doesn\'t scan "\\"', '"\\"');
-  fail('doesn\'t scan \'\\1\'', '\'\\1\'', true);
-  fail('doesn\'t scan "\\1"', '"\\1"', true);
-  fail('doesn\'t scan \'\\7\'', '\'\\7\'', true);
-  fail('doesn\'t scan "\\7"', '"\\7"', true);
-  fail('doesn\'t scan \'\\\\\\\'', '\'\\\\\\\'');
-  fail('doesn\'t scan "\\\\\\"', '"\\\\\\"');
-  fail('doesn\'t scan \'\\u1\'', '\'\\u1\'');
-  fail('doesn\'t scan \'\\uA\'', '\'\\uA\'');
-  fail('doesn\'t scan \'\\u11\'', '\'\\u11\'');
-  fail('doesn\'t scan \'\\uAA\'', '\'\\uAA\'');
-  fail('doesn\'t scan \'\\u111\'', '\'\\u111\'');
-  fail('doesn\'t scan \'\\uAAA\'', '\'\\uAAA\'');
-  fail('doesn\'t scan \'\\n\'', '\'\n\'');
-  fail('doesn\'t scan "\\n"', '"\n"');
-  fail('doesn\'t scan \'\\u{g}\'', '\'\\u{g}\'');
-  fail('doesn\'t scan \'\\u{g0}\'', '\'\\u{g0}\'');
-  fail('doesn\'t scan \'\\u{0g}\'', '\'\\u{0g}\'');
-  fail('doesn\'t scan \'\\u{0g0}\'', '\'\\u{0g0}\'');
-  fail('doesn\'t scan \'\\u{g0g}\'', '\'\\u{g0g}\'');
-  fail('doesn\'t scan \'\\u{110000}\'', '\'\\u{110000}\'');
-  fail('doesn\'t scan \'\\u{11ffff}\'', '\'\\u{11ffff}\'');
+  fail('should fail on \'', '\'');
+  fail('should fail on \'', '\0');
+  fail('should fail on "', '"');
+  fail('should fail on \'\\x0g\'', '\'\\x0g\'');
+  fail('should fail on \'\\xg0\'', '\'\\xg0\'');
+  fail('should fail on \'\\xgg\'', '\'\\xgg\'');
+  fail('should fail on \'\\xfg\'', '\'\\xfg\'');
+  fail('should fail on \'\\u000g\'', '\'\\u000g\'');
+  fail('should fail on \'\\u00g0\'', '\'\\u00g0\'');
+  fail('should fail on \'\\u0g00\'', '\'\\u0g00\'');
+  fail('should fail on \'\\ug000\'', '\'\\ug000\'');
+  fail('should fail on \'\\ugggg\'', '\'\\ugggg\'');
+  fail('should fail on \'\\ufffg\'', '\'\\ufffg\'');
+  fail('should fail on \'\\\'', '\'\\\'');
+  fail('should fail on "\\"', '"\\"');
+  fail('should fail on \'\\1\'', '\'\\1\'', true);
+  fail('should fail on "\\1"', '"\\1"', true);
+  fail('should fail on \'\\7\'', '\'\\7\'', true);
+  fail('should fail on "\\7"', '"\\7"', true);
+  fail('should fail on \'\\\\\\\'', '\'\\\\\\\'');
+  fail('should fail on "\\\\\\"', '"\\\\\\"');
+  fail('should fail on \'\\u1\'', '\'\\u1\'');
+  fail('should fail on \'\\uA\'', '\'\\uA\'');
+  fail('should fail on \'\\u11\'', '\'\\u11\'');
+  fail('should fail on \'\\uAA\'', '\'\\uAA\'');
+  fail('should fail on \'\\u111\'', '\'\\u111\'');
+  fail('should fail on \'\\uAAA\'', '\'\\uAAA\'');
+  fail('should fail on \'\\n\'', '\'\n\'');
+  fail('should fail on "\\n"', '"\n"');
+  fail('should fail on \'\\u{g}\'', '\'\\u{g}\'');
+  fail('should fail on \'\\u{g0}\'', '\'\\u{g0}\'');
+  fail('should fail on \'\\u{0g}\'', '\'\\u{0g}\'');
+  fail('should fail on \'\\u{0g0}\'', '\'\\u{0g0}\'');
+  fail('should fail on \'\\u{g0g}\'', '\'\\u{g0g}\'');
+  fail('should fail on \'\\u{110000}\'', '\'\\u{110000}\'');
+  fail('should fail on \'\\u{11ffff}\'', '\'\\u{11ffff}\'');
 
   pass('scans \'\'', {
       source: '\'\'',

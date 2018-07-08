@@ -2,7 +2,7 @@ import { Context, Flags } from '../common';
 import { ParserState } from '../types';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consume, mapToToken, scanPrivateName, escapeInvalidCharacters } from './common';
+import { consume, mapToToken, scanPrivateName } from './common';
 import { CommentType, skipSingleLineComment, skipMultilineComment, skipSingleHTMLComment } from './comments';
 import { getTokenValue, convertTokenType } from './tokenizer';
 import { scanStringLiteral } from './string';
@@ -12,9 +12,9 @@ import { scanNumeric, parseLeadingZeroTable } from './numbers';
 import { report, Errors } from '../errors';
 import { scanRegularExpression } from './regexp';
 
-const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) => report(state, Errors.IllegalCaracter, escapeInvalidCharacters(state.nextChar));
+const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) => report(state, Errors.IllegalCaracter, String.fromCharCode(state.nextChar));
 
-const table = new Array(0xFFFF).fill(unexpectedCharacter, 0, 128).fill(maybeIdentifier, 128) as((state: ParserState, context: Context) => Token)[];
+const table = new Array(0xFFFF).fill(unexpectedCharacter, 0, 0x80).fill(maybeIdentifier, 0x80) as((state: ParserState, context: Context) => Token)[];
 
 // `,`, `~`, `?`, `[`, `]`, `{`, `}`, `:`, `;`, `(` ,`)`, `"`, `'`
 table[Chars.Comma] = mapToToken(Token.Comma);
