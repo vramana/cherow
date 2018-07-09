@@ -141,7 +141,7 @@ export function scanPrivateName(state: ParserState, context: Context): Token {
  * @param callback Callback function to be called
  * @param isLookahead Boolean
  */
-export function lookAheadOrScan <T> (state: ParserState, callback: (state: ParserState) => T, isLookahead: boolean): T {
+export function lookAheadOrScan <T> (state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T {
   const savedIndex = state.index;
   const savedLine = state.line;
   const savedColumn = state.column;
@@ -161,7 +161,7 @@ export function lookAheadOrScan <T> (state: ParserState, callback: (state: Parse
   const savedCapturingParens = state.capturingParens;
   const savedAssignable = state.assignable;
   const savedDestructible = state.destructible;
-  const result = callback(state);
+  const result = callback(state, context);
 
   if (!result || isLookahead) {
       state.index = savedIndex;

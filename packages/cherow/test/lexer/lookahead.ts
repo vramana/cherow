@@ -12,8 +12,9 @@ describe('Lexer - Lookahead', () => {
       it(name, () => {
           const state = new State(opts.source, undefined, () => {});
           nextToken(state, opts.context);
-          lookAheadOrScan(state, function(state: ParserState) {
-              return nextToken(state, opts.context) === opts.token;
+          lookAheadOrScan(state, opts.context, (state: ParserState, context: Context) => {
+            context = opts.context;
+            return nextToken(state, context) === opts.token;
           },              opts.rewind);
 
           t.deepEqual({
