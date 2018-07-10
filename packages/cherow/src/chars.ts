@@ -3,19 +3,11 @@ import { State } from './state';
 
 /*@internal*/
 export const enum CharType {
-  Invalid     = 0b0,
   IDContinue  = 0b1,
   IDStart     = 0b10,
   Decimal     = 0b100,
   Letters     = IDContinue | IDStart,
 }
-
-/*
- * Note:
- *
- * ASCII character lookup (applies to `1`...`9`, `A`...`Z`, `a`...`z`, '$, '_'), all others are 0b0.
- * There is no performance concerns because I'm only validating values.
- */
 
 /*@internal*/
 export const AsciiLookup = new Uint8Array(0x80)

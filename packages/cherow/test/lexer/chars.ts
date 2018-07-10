@@ -31,18 +31,6 @@ describe('Lexer - Chars', () => {
       [0x37, CharType.Decimal, false],
       [0x38, CharType.Decimal, false],
       [0x39, CharType.Decimal, false],
-
-      // '<', '#', '%', '<', '<'
-
-      [0x3C, CharType.Invalid, false], // Neither IDStart nor IDPart
-      [0x23, CharType.Invalid, false],
-      [0x25, CharType.Invalid, false],
-
-      // Whitespace
-
-      [0x09, CharType.Invalid, false],
-      [0x0C, CharType.Invalid, false],
-      [0x20, CharType.Invalid, false],
   ];
 
   for (const [char, expected, IDStart] of items) {
