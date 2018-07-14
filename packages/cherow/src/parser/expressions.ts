@@ -99,7 +99,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
   }
   if (state.token & Token.IsAssignOp) {
       const operator = state.token;
-      if (!state.assignable) report(state, Errors.Unexpected);
+      // if (!state.assignable) report(state, Errors.Unexpected);
       if (state.token === Token.Assign) {
         if (expr.type === 'ArrayExpression' ||
             expr.type === 'ObjectExpression'
@@ -546,7 +546,7 @@ function parseMemberExpressionContinuation(state: ParserState, context: Context,
  * @param Context Context masks
  */
 function parseArgumentList(state: ParserState, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
-  nextToken(state, context);
+  nextToken(state, context | Context.ExpressionStart);
   const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
   while (state.token !== Token.RightParen) {
       if (state.token === Token.Ellipsis) {
@@ -1184,7 +1184,7 @@ export function parseFunctionBody(state: ParserState, context: Context): ESTree.
   state.labelDepth--;
   state.switchStatement = previousSwitchStatement;
   state.iterationStatement = previousIterationStatement;
-  expect(state, context | Context.ExpressionStart, Token.RightBrace);
+  expect(state, context, Token.RightBrace);
   return finishNode(state, context, pos, {
       type: 'BlockStatement',
       body,

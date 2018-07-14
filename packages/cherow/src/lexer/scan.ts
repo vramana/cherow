@@ -360,6 +360,7 @@ table[Chars.GreaterThan] = state => {
  * @param context Context masks
  */
 export function nextToken(state: ParserState, context: Context): Token {
+  state.flags &= ~Flags.LineTerminator;
   state.lastIndex = state.index;
   state.lastLine = state.line;
   state.lastColumn = state.column;

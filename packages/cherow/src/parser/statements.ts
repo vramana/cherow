@@ -627,7 +627,7 @@ function parseForStatement(state: ParserState, context: Context): any {
           bindingType = BindingType.Const;
       } else if (token === Token.LetKeyword && lookAheadOrScan(state, context, isLexical, true)) {
           bindingType = BindingType.Let;
-      } else init = parseAssignmentExpression(state, context | Context.DisallowIn);
+      } else init = parseExpression(state, context | Context.DisallowIn);
 
       if (bindingType & BindingType.Variable) {
           const vpos = getLocation(state);
