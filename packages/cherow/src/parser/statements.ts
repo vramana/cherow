@@ -140,7 +140,7 @@ export function parseStatement(state: ParserState, context: Context, label: any)
 function parseSwitchStatement(state: ParserState, context: Context): ESTree.SwitchStatement {
   const pos = getLocation(state);
   nextToken(state, context);
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const discriminant = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   expect(state, context, Token.LeftBrace);
@@ -210,7 +210,7 @@ export function parseCaseOrDefaultClauses(
 export function parseIfStatement(state: ParserState, context: Context): ESTree.IfStatement {
   const pos = getLocation(state);
   nextToken(state, context);
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const consequent = parseConsequentOrAlternate(state, context);
@@ -270,7 +270,7 @@ export function parseDoWhileStatement(state: ParserState, context: Context): EST
 export function parseWhileStatement(state: ParserState, context: Context): ESTree.WhileStatement {
   const pos = getLocation(state);
   nextToken(state, context);
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const previousIterationStatement = state.iterationStatement;
@@ -351,7 +351,7 @@ export function parseWithStatement(state: ParserState, context: Context): ESTree
   if (context & Context.Strict) report(state, Errors.Unexpected);
   const pos = getLocation(state);
   nextToken(state, context);
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const object = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, context, LabelledFunctionState.Disallow);

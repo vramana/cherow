@@ -107,7 +107,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
           reinterpret(state, context, expr);
         }
       }
-      nextToken(state, context);
+      nextToken(state, context | Context.ExpressionStart);
       const right = parseAssignmentExpression(state, context);
       return finishNode(state, context, pos, {
           type: 'AssignmentExpression',
@@ -135,7 +135,7 @@ function parseConditionalExpression(state: ParserState, context: Context, pos: L
   const test = parseBinaryExpression(state, context, 0, pos);
   if (!optional(state, context, Token.QuestionMark)) return test;
   const consequent = parseAssignmentExpression(state, context);
-  expect(state, context, Token.Colon);
+  expect(state, context | Context.ExpressionStart, Token.Colon);
   const alternate = parseAssignmentExpression(state, context);
   return finishNode(state, context, pos, {
       type: 'ConditionalExpression',
@@ -182,7 +182,7 @@ function parseBinaryExpression(
       // When the next token is no longer a binary operator, it's potentially the
       // start of an expression, so we break the loop
       if (prec + delta <= minPrec) break;
-      nextToken(state, context);
+      nextToken(state, context | Context.ExpressionStart);
       left = finishNode(state, context, pos, {
           type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
           left,
@@ -690,7 +690,7 @@ export function parsePrimaryExpression(
           return parseIdentifier(state, context | Context.TaggedTemplate);
       case Token.StringLiteral:
       case Token.NumericLiteral:
-          state.assignable = false;
+          state.assignable = true;
           return parseLiteral(state, context);
       case Token.BigInt:
           state.assignable = false;
@@ -832,7 +832,7 @@ function parsePropertyDefinition(state: ParserState, context: Context): ESTree.P
           method = true;
           value = parseMethodDeclaration(state, context, isGenerator, isAsync);
       } else {
-          expect(state, context, Token.Colon);
+          expect(state, context | Context.ExpressionStart, Token.Colon);
           value = parseAssignmentExpression(state, context);
       }
   } else if (state.token & Token.IdentifierOrContextual) {
@@ -875,7 +875,7 @@ function parsePropertyDefinition(state: ParserState, context: Context): ESTree.P
       } else if (state.token === Token.LeftParen) {
           method = true;
           value = parseMethodDeclaration(state, context, isGenerator, isAsync);
-      } else if (optional(state, context, Token.Colon)) {
+      } else if (optional(state, context | Context.ExpressionStart, Token.Colon)) {
           value = parseAssignmentExpression(state, context);
       } else if (optional(state, context, Token.Assign)) {
           shorthand = true;
@@ -894,7 +894,7 @@ function parsePropertyDefinition(state: ParserState, context: Context): ESTree.P
       if (state.token === Token.LeftParen) {
           method = true;
           value = parseMethodDeclaration(state, context, isGenerator, isAsync);
-      } else if (optional(state, context, Token.Colon)) {
+      } else if (optional(state, context | Context.ExpressionStart, Token.Colon)) {
           value = parseAssignmentExpression(state, context);
       } else if (optional(state, context, Token.Assign)) {
           shorthand = true;

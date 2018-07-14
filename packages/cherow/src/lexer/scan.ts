@@ -169,12 +169,11 @@ table[Chars.LessThan] = (state: ParserState, context: Context) => {
 table[Chars.Slash] = (state, context) => {
   ++state.index;
   ++state.column;
-
-  if (context & Context.ExpressionStart) {
-      return scanRegularExpression(state, context);
-  }
   if (state.index < state.length) {
       const next = state.source.charCodeAt(state.index);
+      if (context & Context.ExpressionStart && (next !== Chars.Asterisk && next !== Chars.Slash)) {
+          return scanRegularExpression(state, context);
+      }
       if (consume(state, Chars.Slash)) {
           return skipSingleLineComment(state, CommentType.Single);
       } else if (consume(state, Chars.Asterisk)) {

@@ -18,9 +18,12 @@ export function scanIdentifier(state: ParserState, context: Context): Token {
       state.tokenValue = state.source.slice(state.startIndex, state.index);
       if (state.index >= state.length || state.nextChar <= Chars.MaxAsciiCharacter && state.nextChar !== Chars.Backslash) {
        if (context & Context.OptionsRawidentifiers) state.tokenRaw = state.tokenValue;
-       // hasOwnProperty
-       if (state.tokenValue.length <= 12) return descKeywordTable[state.tokenValue] || Token.Identifier;
-       else return Token.Identifier
+       // hasOwnProperty, tostring
+       if (state.tokenValue.length >= 2 && state.tokenValue.length <= 11) {
+        const t = descKeywordTable[state.tokenValue];
+        if (t > 0) return t;
+       }
+       return Token.Identifier;
     }
   }
   return scanIdentifierRest(state, context);
@@ -68,8 +71,6 @@ export function scanIdentifierRest(state: ParserState, context: Context): Token 
   if (start < state.index &&
      (AsciiLookup[state.nextChar] & CharType.IDStart) > 0 ||
      (unicodeLookup[(state.nextChar >>> 5) + 34816] >>> state.nextChar & 31 & 1) > 0) scanIdentifierRest(state, context);
-
-  if (state.tokenValue.length > 12) return Token.Identifier;
 
   const t = descKeywordTable[state.tokenValue] || Token.Identifier;
 
