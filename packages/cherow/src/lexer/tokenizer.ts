@@ -43,13 +43,13 @@ export function getTokenValue(state: ParserState, t: Token): string {
 }
 
 export function convertTokenType(t: Token): string {
-  if (t & (Token.Identifier | Token.Contextual | Token.FutureReserved)) return 'Identifier';
+  if (t & Token.NonReservedKeyword) return 'Identifier';
   if (t & Token.Punctuator) return 'Punctuator';
   if (t & Token.NumericLiteral) return 'Numeric';
   if ((t & Token.StringLiteral) === Token.StringLiteral) return 'StringLiteral';
   if (t & Token.RegularExpression) return 'RegularExpression';
   if (t & Token.Template) return 'Template';
   if (t === Token.NullKeyword) return 'NullLiteral';
-  if (t & (Token.Reserved | Token.FutureReserved)) return 'Keyword';
+  if (t & Token.ResOrFutureRes) return 'Keyword';
   return 'BooleanLiteral'; // true / false
 }

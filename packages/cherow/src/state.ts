@@ -1,5 +1,5 @@
 import { Token } from './token';
-import { Flags } from './common';
+import { Flags, LabelState } from './common';
 import { OnComment, OnToken } from './types';
 import { CommentType } from './lexer/comments';
 
@@ -30,7 +30,13 @@ export class State {
   public largestBackReference: number;
   public assignable: boolean;
   public destructible: boolean;
-
+  public labelSet: any;
+  public labelSetStack: {[key: string]: boolean}[];
+  public iterationStack: (boolean | LabelState)[];
+  public switchStatement: LabelState;
+  public iterationStatement: LabelState;
+  public labelDepth: number;
+  public functionBoundaryStack: any;
   constructor(source: string, onToken: OnToken | void, onComment: OnComment | void) {
       this.index = 0;
       this.lastIndex = 0;
@@ -57,5 +63,12 @@ export class State {
       this.largestBackReference = 0;
       this.assignable = true;
       this.destructible  = true;
+      this.labelSet = undefined;
+      this.labelSetStack = [];
+      this.iterationStack = [];
+      this.labelDepth = 0;
+      this.switchStatement = LabelState.Empty;
+      this.iterationStatement = LabelState.Empty;
+      this.functionBoundaryStack = undefined;
   }
 }

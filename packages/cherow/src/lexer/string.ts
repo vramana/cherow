@@ -15,7 +15,7 @@ import { report, Errors } from '../errors';
  */
 export function scanStringLiteral(state: ParserState, context: Context): Token {
   const quote = state.nextChar;
-  const { nextChar } = state;
+  const nextChar = state.nextChar;
   let ret: string | void = '';
   let ch = readNext(state);
 

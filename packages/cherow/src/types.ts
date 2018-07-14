@@ -1,5 +1,5 @@
 import { Token } from './token';
-import { Flags } from './common';
+import { Flags, LabelState } from './common';
 import { Comment } from './estree';
 import { CommentType } from './lexer/comments';
 
@@ -107,4 +107,21 @@ export interface ParserState {
     //
     assignable: boolean;
     destructible: boolean;
+    labelSet: any;
+    functionBoundaryStack: any;
+    labelSetStack: {[key: string]: boolean}[];
+    iterationStack: (boolean | LabelState)[];
+    switchStatement: LabelState;
+    iterationStatement: LabelState;
+    labelDepth: number;
+}
+
+/**
+ *  Line / column location
+ *
+ */
+export interface Location {
+  index: number;
+  column: number;
+  line: number;
 }

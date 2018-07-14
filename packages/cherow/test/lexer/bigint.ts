@@ -16,7 +16,7 @@ describe('Lexer - BigInt', () => {
                   value: state.tokenValue,
                   line: state.line,
                   column: state.column,
-              }, {
+              },          {
                   token: Token.BigInt,
                   value: opts.value,
                   line: opts.line,

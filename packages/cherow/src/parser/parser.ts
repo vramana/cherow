@@ -59,7 +59,7 @@ export function parseSource(
   skipBomAndShebang(state, context);
 
   const body = (context & Context.Module) === Context.Module ?
-      parseModuleItemList() : parseStatementList();
+      parseModuleItemList(state, context) : parseStatementList(state, context);
 
   const node: ESTree.Program = {
       type: 'Program',
