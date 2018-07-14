@@ -101,7 +101,7 @@ function parseVariableDeclaration(state: ParserState, context: Context): ESTree.
 
   let init: ESTree.Expression | null = null;
 
-  if (optional(state, context, Token.Assign)) {
+  if (optional(state, context | Context.ExpressionStart, Token.Assign)) {
       init = parseAssignmentExpression(state, context);
   }
   return finishNode(state, context, pos, {

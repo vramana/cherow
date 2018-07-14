@@ -676,8 +676,7 @@ export function parsePrimaryExpression(
   state: ParserState,
   context: Context,
   pos: Location): any {
-
-  switch (state.token) {
+      switch (state.token) {
       case Token.Eval:
       case Token.Arguments:
       case Token.LetKeyword:
@@ -734,6 +733,7 @@ export function parsePrimaryExpression(
       case Token.LeftParen:
           return parseGroupExpression(state, context);
       default:
+      if (state.token & Token.IdentifierOrContextual) return parseIdentifier(state, context | Context.TaggedTemplate);
       report(state, Errors.Unexpected);
   }
 }
