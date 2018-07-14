@@ -30,6 +30,16 @@ describe('Lexer - Yield and await as escaped identifiers', () => {
 
       test(`${name} `, Context.Empty);
   }
+
+  pass('scans "hasOwnProperty"', {
+    source: 'hasOwnProperty',
+    value: 'hasOwnProperty',
+    raw: 'hasOwnProperty',
+    token: Token.Identifier,
+    line: 1,
+    column: 14,
+  });
+
   pass('scans "yi\\u0065ld"', {
       source: 'yi\\u0065ld',
       value: 'yield',

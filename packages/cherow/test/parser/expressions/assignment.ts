@@ -5,6 +5,7 @@ describe('Expressions - Assignment', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+
   ['a = (b, c)', 'a = (b, c)', Context.OptionsRanges, {
     'type': 'Program',
     'sourceType': 'script',

@@ -5,6 +5,44 @@ describe('Expressions - Var', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+  ['var foo = /a/g', 'var foo = /a/g', Context.OptionsRanges, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "VariableDeclaration",
+            "kind": "var",
+            "declarations": [
+                {
+                    "type": "VariableDeclarator",
+                    "init": {
+                        "type": "Literal",
+                        "value": {},
+                        "regex": {
+                            "pattern": "a",
+                            "flags": "g"
+                        },
+                        "start": 10,
+                        "end": 14
+                    },
+                    "id": {
+                        "type": "Identifier",
+                        "name": "foo",
+                        "start": 4,
+                        "end": 7
+                    },
+                    "start": 4,
+                    "end": 14
+                }
+            ],
+            "start": 0,
+            "end": 14
+        }
+    ],
+    "start": 0,
+    "end": 14
+}],
+
   ['var chinese;', 'var chinese;', Context.OptionsRanges, {
     'type': 'Program',
     'sourceType': 'script',
