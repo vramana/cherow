@@ -377,10 +377,18 @@ describe('Lexer - OnToken', () => {
       pass('should tokenizse identifier and skip HTML Open comment', {
       source: 'foo <!--bar\n+baz',
       value: [{
-              'type': 'Identifier',
-              'value': 'foo'
+              "type": "Identifier",
+              "value": "foo",
+            },
+            {
+              "type": "Punctuator",
+              "value": "+",
+            },
+            {
+              "type": "Identifier",
+              "value": "baz",
             }],
-      line: 3,
+      line: 2,
       column: 4,
   });
 

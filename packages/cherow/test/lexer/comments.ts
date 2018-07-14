@@ -99,7 +99,7 @@ describe('Lexer - Comments', () => {
   pass('should skip a single line comment with new line', {
   source: `// foo
    `,
-  line: 3, column: 3, index: 10
+  line: 2, column: 3, index: 10
 });
 
   pass('should skip slash in a comment', {
@@ -124,7 +124,7 @@ describe('Lexer - Comments', () => {
 
   pass('should skip single line with newline and line feed', {
   source: `// \r\n`,
-  line: 4, column: 0, index: 5
+  line: 3, column: 0, index: 5
 });
 
   pass('should handle slash in a comment', {
@@ -175,7 +175,7 @@ describe('Lexer - Comments', () => {
   pass('should handle correct interpretation of single line comments', {
         source: `//FOO
         ///`,
-        line: 3, column: 11, index: 17
+        line: 2, column: 11, index: 17
     });
 
   pass('should handle correct interpretation of single line comments', {
@@ -280,7 +280,7 @@ describe('Lexer - Comments', () => {
 
   pass('should skip multiline comments with line feed', {
     source: `//foo!@#^&$1234\nbar;`,
-    line: 3, column: 4, index: 20
+    line: 2, column: 3, index: 19
   });
 
   pass('should skip multiline comments with line feed', {
@@ -336,7 +336,7 @@ line: 1, column: 38, index: 38
 
   pass('should skip HTML single line comments with line feed', {
   source: `  \t <!-- foo bar\n  `,
-  line: 3, column: 2, index: 19
+  line: 2, column: 2, index: 19
 });
 
   pass('should skip line separators', {

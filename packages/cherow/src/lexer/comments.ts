@@ -59,6 +59,7 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
           ++state.index;
           state.column = 0;
           ++state.line;
+          break;
       } else {
           if (lastIsCR) {
               ++state.line;
