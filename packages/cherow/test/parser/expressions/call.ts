@@ -6,6 +6,81 @@ describe('Expressions - Call', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
 
+  ['this.finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");', 'this.finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");', Context.Empty, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "CallExpression",
+                "callee": {
+                    "type": "MemberExpression",
+                    "object": {
+                        "type": "ThisExpression"
+                    },
+                    "computed": false,
+                    "property": {
+                        "type": "Identifier",
+                        "name": "finishNode"
+                    }
+                },
+                "arguments": [
+                    {
+                        "type": "Identifier",
+                        "name": "node"
+                    },
+                    {
+                        "type": "ConditionalExpression",
+                        "test": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "MemberExpression",
+                                "object": {
+                                    "type": "Literal",
+                                    "value": /&&|||/,
+                                    "regex": {
+                                        "pattern": "&&|||",
+                                        "flags": ""
+                                    }
+                                },
+                                "computed": false,
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "test"
+                                }
+                            },
+                            "arguments": [
+                                {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "node"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "operator"
+                                    }
+                                }
+                            ]
+                        },
+                        "consequent": {
+                            "type": "Literal",
+                            raw: null,
+                            "value": "LogicalExpression"
+                        },
+                        "alternate": {
+                            "type": "Literal",
+                            raw: null,
+                            "value": "BinaryExpression"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}],
   ['a.b( o.bar )', 'a.b( o.bar )', Context.OptionsRanges, {
     'type': 'Program',
     'sourceType': 'script',

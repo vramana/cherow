@@ -555,7 +555,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
           expressions.push(parseAssignmentExpression(state, context));
       }
 
-      if (state.token !== Token.RightParen) expect(state, context, Token.Comma);
+      if (state.token !== Token.RightParen) expect(state, context | Context.ExpressionStart, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);
@@ -835,7 +835,7 @@ function parsePropertyDefinition(state: ParserState, context: Context): ESTree.P
           expect(state, context | Context.ExpressionStart, Token.Colon);
           value = parseAssignmentExpression(state, context);
       }
-  } else if (state.token & Token.IdentifierOrContextual) {
+  } else if (state.token & (Token.IdentifierOrContextual | Token.Reserved)) {
       token = state.token;
       key = parseIdentifier(state, context);
 

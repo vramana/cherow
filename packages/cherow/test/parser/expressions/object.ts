@@ -6,6 +6,107 @@ describe('Expressions - Object literal', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
 
+  ['({ default: obj })', '({ default: obj })', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "ObjectExpression",
+                "properties": [
+                    {
+                        "type": "Property",
+                        "key": {
+                            "type": "Identifier",
+                            "name": "default",
+                            "start": 3,
+                            "end": 10,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 3
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 10
+                                }
+                            }
+                        },
+                        "value": {
+                            "type": "Identifier",
+                            "name": "obj",
+                            "start": 12,
+                            "end": 15,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        "kind": "init",
+                        "computed": false,
+                        "method": false,
+                        "shorthand": false,
+                        "start": 3,
+                        "end": 15,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 3
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 15
+                            }
+                        }
+                    }
+                ],
+                "start": 1,
+                "end": 17,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 1
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 17
+                    }
+                }
+            },
+            "start": 0,
+            "end": 18,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 18
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 18,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 18
+        }
+    }
+}],
   ['({*[a](){}})', '({*[a](){}})', Context.OptionsRanges, {
     'type': 'Program',
     'sourceType': 'script',
