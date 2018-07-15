@@ -24,6 +24,7 @@ import {
   validateBreakStatement,
   validateContinueLabel,
   BindingType,
+  BindingOrigin,
   reinterpret
 } from '../common';
 
@@ -61,7 +62,7 @@ export function parseStatementListItem(state: ParserState, context: Context): ES
     case Token.ClassKeyword:
         return parseClassDeclaration(state, context);
     case Token.ConstKeyword:
-        return parseVariableStatement(state, context);
+        return parseVariableStatement(state, context, BindingType.Const, BindingOrigin.Statement);
     case Token.LetKeyword:
         return parseLetOrExpressionStatement(state, context);
     case Token.AsyncKeyword:
@@ -85,8 +86,8 @@ export function parseStatementListItem(state: ParserState, context: Context): ES
 export function parseStatement(state: ParserState, context: Context, label: any): ESTree.Statement {
   switch (state.token) {
     case Token.VarKeyword:
-      return parseVariableStatement(state, context);
-      case Token.Semicolon:
+      return parseVariableStatement(state, context, BindingType.Var, BindingOrigin.Statement);
+    case Token.Semicolon:
       return parseEmptyStatement(state, context);
     case Token.SwitchKeyword:
       return parseSwitchStatement(state, context);
@@ -303,7 +304,7 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
       validateContinueLabel(state, tokenValue);
   }
   consumeSemicolon(state, context);
-  if (label === null && (state.iterationStatement & LabelState.Empty) !== LabelState.Empty) {
+  if (label === null &&  state.iterationStatement === LabelState.Empty && state.switchStatement === LabelState.Empty) {
       report(state, Errors.Unexpected);
   }
   return finishNode(state, context, pos, {
@@ -328,10 +329,10 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
       const { tokenValue  } = state;
       label = parseIdentifier(state, context);
       validateBreakStatement(state, tokenValue);
-  } else if ((state.iterationStatement & LabelState.Empty) !== LabelState.Empty &&
-      (state.switchStatement & LabelState.Empty) !== LabelState.Empty) {
-      report(state, Errors.Unexpected);
-  }
+  } else if (state.iterationStatement === LabelState.Empty &&
+        state.switchStatement === LabelState.Empty) {
+        report(state, Errors.Unexpected);
+    }
   consumeSemicolon(state, context);
   return finishNode(state, context, pos, {
       type: 'BreakStatement',
@@ -395,7 +396,7 @@ export function parseBlockStatement(state: ParserState, context: Context): ESTre
   while (state.token !== Token.RightBrace) {
       body.push(parseStatementListItem(state, context));
   }
-  expect(state, context, Token.RightBrace);
+  expect(state, context | Context.ExpressionStart, Token.RightBrace);
 
   return finishNode(state, context, pos, {
       type: 'BlockStatement',
@@ -531,11 +532,13 @@ export function parseEmptyStatement(state: ParserState, context: Context): ESTre
 export function parseVariableStatement(
   state: ParserState,
   context: Context,
+  type: BindingType,
+  origin: BindingOrigin,
 ): ESTree.VariableDeclaration {
   const pos = getLocation(state);
   const { token } = state;
   nextToken(state, context);
-  const declarations = parseVariableDeclarationList(state, context);
+  const declarations = parseVariableDeclarationList(state, context, type, origin);
   // Only consume semicolons if not inside the 'ForStatement' production
   consumeSemicolon(state, context);
   return finishNode(state, context, pos, {
@@ -559,7 +562,7 @@ function parseLetOrExpressionStatement(
   context: Context,
 ): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
     return lookAheadOrScan(state, context, isLexical, true)
-      ? parseVariableStatement(state, context)
+      ? parseVariableStatement(state, context, BindingType.Let, BindingOrigin.Statement)
       : parseExpressionOrLabelledStatement(state, context, LabelledFunctionState.Disallow);
 }
 
@@ -632,7 +635,7 @@ function parseForStatement(state: ParserState, context: Context): any {
       if (bindingType & BindingType.Variable) {
           const vpos = getLocation(state);
           nextToken(state, context);
-          declarations = parseVariableDeclarationList(state, context | Context.DisallowIn);
+          declarations = parseVariableDeclarationList(state, context | Context.DisallowIn, bindingType, BindingOrigin.ForStatement);
           init = finishNode(state, context, vpos, {
               type: 'VariableDeclaration',
               kind: KeywordDescTable[token & Token.Type],

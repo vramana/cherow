@@ -13,12 +13,12 @@ import { parseAssignmentExpression, parsePropertyName } from './expressions';
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifierOrPattern(state: ParserState, context: Context, args: string[] = []): ESTree.PatternTop {
+export function parseBindingIdentifierOrPattern(state: ParserState, context: Context): ESTree.PatternTop {
     switch (state.token) {
         case Token.LeftBrace:
         return parserObjectAssignmentPattern(state, context);
         case Token.LeftBracket:
-          return parseArrayAssignmentPattern(state, context, args);
+          return parseArrayAssignmentPattern(state, context);
         default:
         return parseBindingIdentifier(state, context);
     }
@@ -33,6 +33,12 @@ export function parseBindingIdentifierOrPattern(state: ParserState, context: Con
  * @param context Context masks
  */
 export function parseBindingIdentifier(state: ParserState, context: Context): ESTree.Identifier {
+  if (state.token & Token.Reserved) {
+      report(state, Errors.Unexpected);
+  } else if (context & Context.Strict &&
+      state.token & Token.FutureReserved) {
+      report(state, Errors.Unexpected);
+  }
   const pos = getLocation(state);
   const name = state.tokenValue;
   nextToken(state, context);
@@ -50,10 +56,10 @@ export function parseBindingIdentifier(state: ParserState, context: Context): ES
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseAssignmentRestElement(state: ParserState, context: Context, args: string[]): ESTree.RestElement {
+export function parseAssignmentRestElement(state: ParserState, context: Context): ESTree.RestElement {
   const pos = getLocation(state);
   expect(state, context, Token.Ellipsis);
-  const argument = parseBindingIdentifierOrPattern(state, context, args);
+  const argument = parseBindingIdentifierOrPattern(state, context);
   if (state.token === Token.Comma) report(state, Errors.Unexpected);
   return finishNode(state, context, pos, {
       type: 'RestElement',
@@ -108,7 +114,7 @@ function AssignmentRestProperty(state: ParserState, context: Context): ESTree.Re
 * @param Parser object
 * @param Context masks
 */
-function parseArrayAssignmentPattern(state: ParserState, context: Context, args: string[]): ESTree.ArrayPattern {
+export function parseArrayAssignmentPattern(state: ParserState, context: Context): ESTree.ArrayPattern {
 
   const pos = getLocation(state);
 
@@ -121,7 +127,7 @@ function parseArrayAssignmentPattern(state: ParserState, context: Context, args:
           elements.push(null);
       } else {
           if (state.token === Token.Ellipsis) {
-              elements.push(parseAssignmentRestElement(state, context, args));
+              elements.push(parseAssignmentRestElement(state, context));
               break;
           } else {
               elements.push(parseBindingInitializer(state, context));
@@ -145,7 +151,7 @@ function parseArrayAssignmentPattern(state: ParserState, context: Context, args:
 * @param Parser Parser object
 * @param Context Context masks
 */
-function parserObjectAssignmentPattern(state: ParserState, context: Context): ESTree.ObjectPattern {
+export function parserObjectAssignmentPattern(state: ParserState, context: Context): ESTree.ObjectPattern {
   const pos = getLocation(state);
   const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
   expect(state, context, Token.LeftBrace);

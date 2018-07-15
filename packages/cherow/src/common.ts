@@ -46,6 +46,17 @@ export const enum LabelState {
   CrossingBoundary = 1 << 1, // Crossing function boundary
 }
 
+/* Binding origin */
+export const enum BindingOrigin {
+  Empty           = 0,
+  ForStatement    = 1 << 0,
+  FunctionArgs    = 1 << 1,
+  CatchClause     = 1 << 2,
+  Export          = 1 << 3,
+  Import          = 1 << 4,
+  Statement       = 1 << 5,
+}
+
 /* Binding state */
 export const enum BindingType {
   Empty       = 0,

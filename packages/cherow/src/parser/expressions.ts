@@ -1400,10 +1400,10 @@ export function parsePropertyName(state: ParserState, context: Context): ESTree.
  * @param context Context masks
  */
 
-export function parseRestElement(state: ParserState, context: Context, args: string[] = []): ESTree.RestElement {
+export function parseRestElement(state: ParserState, context: Context): ESTree.RestElement {
   const pos = getLocation(state);
   expect(state, context, Token.Ellipsis);
-  const argument = parseBindingIdentifierOrPattern(state, context, args);
+  const argument = parseBindingIdentifierOrPattern(state, context);
   return finishNode(state, context, pos, {
       type: 'RestElement',
       argument,

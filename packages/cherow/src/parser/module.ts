@@ -18,6 +18,8 @@ import {
   parseIdentifierName,
   expect,
   optional,
+  BindingOrigin,
+  BindingType,
 } from '../common';
 
 export function parseModuleItemList(state: ParserState, context: Context): any {
@@ -139,19 +141,19 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
         case Token.LetKeyword:
             // export let z = 0;
             // export let x
-            declaration = parseVariableStatement(state, context);
+            declaration = parseVariableStatement(state, context, BindingType.Let, BindingOrigin.Export);
             break;
 
         case Token.ConstKeyword:
             // export const z = 0;
             // export const x
-            declaration = parseVariableStatement(state, context);
+            declaration = parseVariableStatement(state, context, BindingType.Const, BindingOrigin.Export);
             break;
 
         case Token.VarKeyword:
             // export var ariya = 123;
             // export var a, b, c;
-            declaration = parseVariableStatement(state, context);
+            declaration = parseVariableStatement(state, context, BindingType.Var, BindingOrigin.Export);
             break;
 
             // export HoistableDeclaration

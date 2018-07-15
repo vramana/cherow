@@ -30,7 +30,10 @@ export const enum Errors {
   UnexpectedToken,
   IllegalCaracter,
   UnicodeOverflow,
-  InvalidHexEscapeSequence
+  InvalidHexEscapeSequence,
+  ForInOfLoopMultiBindings,
+  DeclarationMissingInitializer,
+  ForInOfLoopInitializer
 
 }
 
@@ -67,7 +70,9 @@ export const errorMessages: {
   [Errors.UnicodeOverflow]: 'Unicode codepoint must not be greater than 0x10FFFF',
   [Errors.DuplicateRegExpFlag]: 'Duplicate regular expression flag \'%0\'',
   [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
-
+  [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
+  [Errors.DeclarationMissingInitializer]: 'Missing initializer in %0 declaration',
+  [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
