@@ -835,7 +835,7 @@ function parsePropertyDefinition(state: ParserState, context: Context): ESTree.P
           expect(state, context | Context.ExpressionStart, Token.Colon);
           value = parseAssignmentExpression(state, context);
       }
-  } else if (state.token & (Token.IdentifierOrContextual | Token.Reserved)) {
+  } else if (state.token & (Token.IdentifierOrContextual | Token.Reserved | Token.FutureReserved)) {
       token = state.token;
       key = parseIdentifier(state, context);
 
@@ -1017,7 +1017,7 @@ function parseArrayLiteral(state: ParserState, context: Context): ESTree.ArrayEx
           }
       } else {
           elements.push(parseAssignmentExpression(state, context));
-          if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
+          if (state.token !== Token.RightBracket) expect(state, context | Context.ExpressionStart, Token.Comma);
       }
   }
 

@@ -6,6 +6,142 @@ describe('Expressions - Object literal', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
 
+  ['const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', 'const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "VariableDeclaration",
+            "kind": "const",
+            "declarations": [
+                {
+                    "type": "VariableDeclarator",
+                    "init": {
+                        "type": "ObjectExpression",
+                        "properties": [
+                            {
+                                "type": "Property",
+                                "key": {
+                                    "type": "Identifier",
+                                    "name": "implements",
+                                    "start": 27,
+                                    "end": 37,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 27
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 37
+                                        }
+                                    }
+                                },
+                                "value": {
+                                    "type": "Literal",
+                                    raw: null,
+                                    "value": 16484,
+                                    "start": 39,
+                                    "end": 44,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 39
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 44
+                                        }
+                                    }
+                                },
+                                "kind": "init",
+                                "computed": false,
+                                "method": false,
+                                "shorthand": false,
+                                "start": 27,
+                                "end": 44,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 27
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 44
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 25,
+                        "end": 71,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 25
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 71
+                            }
+                        }
+                    },
+                    "id": {
+                        "type": "Identifier",
+                        "name": "descKeywordTable",
+                        "start": 6,
+                        "end": 22,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 6
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 22
+                            }
+                        }
+                    },
+                    "start": 6,
+                    "end": 71,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 71
+                        }
+                    }
+                }
+            ],
+            "start": 0,
+            "end": 71,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 71
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 71,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 71
+        }
+    }
+}],
   ['({ default: obj })', '({ default: obj })', Context.OptionsRanges | Context.OptionsLoc, {
     "type": "Program",
     "sourceType": "script",

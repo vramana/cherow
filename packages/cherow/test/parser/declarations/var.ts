@@ -5,6 +5,7 @@ describe('Expressions - Var', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+
   ['var foo = /a/g', 'var foo = /a/g', Context.OptionsRanges, {
     "type": "Program",
     "sourceType": "script",
