@@ -7,6 +7,7 @@ import { parseFunctionDeclaration, parseClassDeclaration, parseVariableDeclarati
 import { lookAheadOrScan } from '../lexer/common';
 import { parseBindingIdentifierOrPattern } from './pattern';
 import { Errors, report } from '../errors';
+import { parseDirective } from './directives';
 import {
   LabelledFunctionState,
   getLabel,
@@ -40,8 +41,16 @@ import {
 export function parseStatementList(state: ParserState, context: Context): ESTree.Statement[] {
   nextToken(state, context);
   const statements: ESTree.Statement[] = [];
+  while (state.token & Token.StringLiteral) {
+      const tokenValue = state.tokenValue;
+      if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
+          context |= Context.Strict;
+      }
+      statements.push(parseDirective(state, context));
+  }
+
   while (state.token !== Token.EndOfSource) {
-          statements.push(parseStatementListItem(state, context));
+      statements.push(parseStatementListItem(state, context));
   }
 
   return statements;
@@ -625,7 +634,7 @@ function parseForStatement(state: ParserState, context: Context): any {
   let test: ESTree.Expression | null = null;
   let update: ESTree.Expression | null = null;
   let right;
-  let sequencePos: Location | null = getLocation(state);
+  const sequencePos: Location | null = getLocation(state);
   let bindingType: BindingType = BindingType.Empty;
   if (state.token !== Token.Semicolon) {
       const token = state.token;
@@ -651,13 +660,11 @@ function parseForStatement(state: ParserState, context: Context): any {
 
   if (forAwait ? expect(state, context, Token.OfKeyword) : optional(state, context, Token.OfKeyword)) {
       type = 'ForOfStatement';
-      if (bindingType & BindingType.Variable) {}
-      else reinterpret(state, context, init);
+      if (bindingType & BindingType.Variable) {} else reinterpret(state, context, init);
       right = parseAssignmentExpression(state, context);
   } else if (optional(state, context, Token.InKeyword)) {
       type = 'ForInStatement';
-      if (bindingType & BindingType.Variable) {}
-      else reinterpret(state, context, init);
+      if (bindingType & BindingType.Variable) {} else reinterpret(state, context, init);
       right = parseExpression(state, context);
   } else {
 

@@ -37,6 +37,7 @@ export const enum Flags {
   LineTerminator  = 1 << 0,
   HasOctal        = 1 << 1,
   EdgeCase        = 1 << 2,
+  SimpleParameterList = 1 << 3,
 }
 
 /*@internal*/

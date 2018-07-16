@@ -64,45 +64,45 @@ const valids: Array < [string, string, Context, any] > = [
       'end': 13
   }],
    ['class x{}\n/foo/', 'class x{}\n/foo/', Context.OptionsRanges, {
-      "body": [
+      'body': [
         {
-          "body": {
-            "body": [],
-            "end": 9,
-            "start": 7,
-            "type": "ClassBody",
+          'body': {
+            'body': [],
+            'end': 9,
+            'start': 7,
+            'type': 'ClassBody',
           },
-          "end": 9,
-          "id": {
-            "end": 7,
-            "name": "x",
-            "start": 6,
-            "type": "Identifier",
+          'end': 9,
+          'id': {
+            'end': 7,
+            'name': 'x',
+            'start': 6,
+            'type': 'Identifier',
           },
-          "start": 0,
-          "superClass": null,
-          "type": "ClassDeclaration",
+          'start': 0,
+          'superClass': null,
+          'type': 'ClassDeclaration',
         },
         {
-          "end": 15,
-          "expression": {
-            "end": 15,
-            "regex": {
-              "flags": "",
-              "pattern": "foo",
+          'end': 15,
+          'expression': {
+            'end': 15,
+            'regex': {
+              'flags': '',
+              'pattern': 'foo',
             },
-            "start": 10,
-            "type": "Literal",
-            "value": /foo/,
+            'start': 10,
+            'type': 'Literal',
+            'value': /foo/,
           },
-          "start": 10,
-          "type": "ExpressionStatement",
+          'start': 10,
+          'type': 'ExpressionStatement',
         },
       ],
-      "end": 15,
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program",
+      'end': 15,
+      'sourceType': 'script',
+      'start': 0,
+      'type': 'Program',
     }],
    ['class A extends gPig {}', '(class A extends gPig {})', Context.OptionsRanges, {
     'type': 'Program',

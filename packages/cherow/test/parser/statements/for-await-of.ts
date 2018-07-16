@@ -6,962 +6,962 @@ describe('Statements - For await of', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
   [`async function f() { for await (a of []); }`, `async function f() { for await (a of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "Identifier",
-                            "name": "a"
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'a'
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await (a.b of []); }`, `async function f() { for await (a.b of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "MemberExpression",
-                            "object": {
-                                "type": "Identifier",
-                                "name": "a"
+                        'left': {
+                            'type': 'MemberExpression',
+                            'object': {
+                                'type': 'Identifier',
+                                'name': 'a'
                             },
-                            "computed": false,
-                            "property": {
-                                "type": "Identifier",
-                                "name": "b"
+                            'computed': false,
+                            'property': {
+                                'type': 'Identifier',
+                                'name': 'b'
                             }
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ([a] of []); }`, `async function f() { for await ([a] of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ArrayPattern",
-                            "elements": [
+                        'left': {
+                            'type': 'ArrayPattern',
+                            'elements': [
                                 {
-                                    "type": "Identifier",
-                                    "name": "a"
+                                    'type': 'Identifier',
+                                    'name': 'a'
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ([a = 1] of []); }`, `async function f() { for await ([a = 1] of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ArrayPattern",
-                            "elements": [
+                        'left': {
+                            'type': 'ArrayPattern',
+                            'elements': [
                                 {
-                                    "type": "AssignmentPattern",
-                                    "left": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'AssignmentPattern',
+                                    'left': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "right": {
-                                        "type": "Literal",
+                                    'right': {
+                                        'type': 'Literal',
                                         raw: null,
-                                        "value": 1
+                                        'value': 1
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ([a = 1, ...b] of []); }`, `async function f() { for await ([a = 1, ...b] of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ArrayPattern",
-                            "elements": [
+                        'left': {
+                            'type': 'ArrayPattern',
+                            'elements': [
                                 {
-                                    "type": "AssignmentPattern",
-                                    "left": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'AssignmentPattern',
+                                    'left': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "right": {
-                                        "type": "Literal",
+                                    'right': {
+                                        'type': 'Literal',
                                         raw: null,
-                                        "value": 1
+                                        'value': 1
                                     }
                                 },
                                 {
-                                    "type": "RestElement",
-                                    "argument": {
-                                        "type": "Identifier",
-                                        "name": "b"
+                                    'type': 'RestElement',
+                                    'argument': {
+                                        'type': 'Identifier',
+                                        'name': 'b'
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({a} of []); }`, `async function f() { for await ({a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'value': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": true
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': true
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({a: a} of []); }`, `async function f() { for await ({a: a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'value': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({'a': a} of []); }`, `async function f() { for await ({'a': a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Literal",
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Literal',
                                         raw: null,
-                                        "value": "a"
+                                        'value': 'a'
                                     },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'value': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({[Symbol.iterator]: a} of []); }`, `async function f() { for await ({[Symbol.iterator]: a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "MemberExpression",
-                                        "object": {
-                                            "type": "Identifier",
-                                            "name": "Symbol"
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'MemberExpression',
+                                        'object': {
+                                            'type': 'Identifier',
+                                            'name': 'Symbol'
                                         },
-                                        "computed": false,
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "iterator"
+                                        'computed': false,
+                                        'property': {
+                                            'type': 'Identifier',
+                                            'name': 'iterator'
                                         }
                                     },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'value': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "kind": "init",
-                                    "computed": true,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': true,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({0: a} of []); }`, `async function f() { for await ({0: a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Literal",
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Literal',
                                         raw: null,
-                                        "value": 0
+                                        'value': 0
                                     },
-                                    "value": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'value': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({a = 1} of []); }`, `async function f() { for await ({a = 1} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "value": {
-                                        "type": "AssignmentPattern",
-                                        "left": {
-                                            "type": "Identifier",
-                                            "name": "a"
+                                    'value': {
+                                        'type': 'AssignmentPattern',
+                                        'left': {
+                                            'type': 'Identifier',
+                                            'name': 'a'
                                         },
-                                        "right": {
-                                            "type": "Literal",
+                                        'right': {
+                                            'type': 'Literal',
                                             raw: null,
-                                            "value": 1
+                                            'value': 1
                                         }
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": true
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': true
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({a: a = 1} of []); }`, `async function f() { for await ({a: a = 1} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Identifier",
-                                        "name": "a"
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Identifier',
+                                        'name': 'a'
                                     },
-                                    "value": {
-                                        "type": "AssignmentPattern",
-                                        "left": {
-                                            "type": "Identifier",
-                                            "name": "a"
+                                    'value': {
+                                        'type': 'AssignmentPattern',
+                                        'left': {
+                                            'type': 'Identifier',
+                                            'name': 'a'
                                         },
-                                        "right": {
-                                            "type": "Literal",
+                                        'right': {
+                                            'type': 'Literal',
                                             raw: null,
-                                            "value": 1
+                                            'value': 1
                                         }
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await ({'a': a = 1} of []); }`, `async function f() { for await ({'a': a = 1} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "ObjectPattern",
-                            "properties": [
+                        'left': {
+                            'type': 'ObjectPattern',
+                            'properties': [
                                 {
-                                    "type": "Property",
-                                    "key": {
-                                        "type": "Literal",
+                                    'type': 'Property',
+                                    'key': {
+                                        'type': 'Literal',
                                         raw: null,
-                                        "value": "a"
+                                        'value': 'a'
                                     },
-                                    "value": {
-                                        "type": "AssignmentPattern",
-                                        "left": {
-                                            "type": "Identifier",
-                                            "name": "a"
+                                    'value': {
+                                        'type': 'AssignmentPattern',
+                                        'left': {
+                                            'type': 'Identifier',
+                                            'name': 'a'
                                         },
-                                        "right": {
-                                            "type": "Literal",
+                                        'right': {
+                                            'type': 'Literal',
                                             raw: null,
-                                            "value": 1
+                                            'value': 1
                                         }
                                     },
-                                    "kind": "init",
-                                    "computed": false,
-                                    "method": false,
-                                    "shorthand": false
+                                    'kind': 'init',
+                                    'computed': false,
+                                    'method': false,
+                                    'shorthand': false
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await (var {0: a} of []); }`, `async function f() { for await (var {0: a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "VariableDeclaration",
-                            "kind": "var",
-                            "declarations": [
+                        'left': {
+                            'type': 'VariableDeclaration',
+                            'kind': 'var',
+                            'declarations': [
                                 {
-                                    "type": "VariableDeclarator",
-                                    "init": null,
-                                    "id": {
-                                        "type": "ObjectPattern",
-                                        "properties": [
+                                    'type': 'VariableDeclarator',
+                                    'init': null,
+                                    'id': {
+                                        'type': 'ObjectPattern',
+                                        'properties': [
                                             {
-                                                "type": "Property",
-                                                "kind": "init",
-                                                "key": {
-                                                    "type": "Literal",
+                                                'type': 'Property',
+                                                'kind': 'init',
+                                                'key': {
+                                                    'type': 'Literal',
                                                     raw: null,
-                                                    "value": 0
+                                                    'value': 0
                                                 },
-                                                "computed": false,
-                                                "value": {
-                                                    "type": "Identifier",
-                                                    "name": "a"
+                                                'computed': false,
+                                                'value': {
+                                                    'type': 'Identifier',
+                                                    'name': 'a'
                                                 },
-                                                "method": false,
-                                                "shorthand": false
+                                                'method': false,
+                                                'shorthand': false
                                             }
                                         ]
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await (var {a: a = 1} of []); }`, `async function f() { for await (var {a: a = 1} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "VariableDeclaration",
-                            "kind": "var",
-                            "declarations": [
+                        'left': {
+                            'type': 'VariableDeclaration',
+                            'kind': 'var',
+                            'declarations': [
                                 {
-                                    "type": "VariableDeclarator",
-                                    "init": null,
-                                    "id": {
-                                        "type": "ObjectPattern",
-                                        "properties": [
+                                    'type': 'VariableDeclarator',
+                                    'init': null,
+                                    'id': {
+                                        'type': 'ObjectPattern',
+                                        'properties': [
                                             {
-                                                "type": "Property",
-                                                "kind": "init",
-                                                "key": {
-                                                    "type": "Identifier",
-                                                    "name": "a"
+                                                'type': 'Property',
+                                                'kind': 'init',
+                                                'key': {
+                                                    'type': 'Identifier',
+                                                    'name': 'a'
                                                 },
-                                                "computed": false,
-                                                "value": {
-                                                    "type": "AssignmentPattern",
-                                                    "left": {
-                                                        "type": "Identifier",
-                                                        "name": "a"
+                                                'computed': false,
+                                                'value': {
+                                                    'type': 'AssignmentPattern',
+                                                    'left': {
+                                                        'type': 'Identifier',
+                                                        'name': 'a'
                                                     },
-                                                    "right": {
-                                                        "type": "Literal",
+                                                    'right': {
+                                                        'type': 'Literal',
                                                         raw: null,
-                                                        "value": 1
+                                                        'value': 1
                                                     }
                                                 },
-                                                "method": false,
-                                                "shorthand": false
+                                                'method': false,
+                                                'shorthand': false
                                             }
                                         ]
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await (var {'a': a = 1} of []); }`, `async function f() { for await (var {'a': a = 1} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "VariableDeclaration",
-                            "kind": "var",
-                            "declarations": [
+                        'left': {
+                            'type': 'VariableDeclaration',
+                            'kind': 'var',
+                            'declarations': [
                                 {
-                                    "type": "VariableDeclarator",
-                                    "init": null,
-                                    "id": {
-                                        "type": "ObjectPattern",
-                                        "properties": [
+                                    'type': 'VariableDeclarator',
+                                    'init': null,
+                                    'id': {
+                                        'type': 'ObjectPattern',
+                                        'properties': [
                                             {
-                                                "type": "Property",
-                                                "kind": "init",
-                                                "key": {
-                                                    "type": "Literal",
+                                                'type': 'Property',
+                                                'kind': 'init',
+                                                'key': {
+                                                    'type': 'Literal',
                                                     raw: null,
-                                                    "value": "a"
+                                                    'value': 'a'
                                                 },
-                                                "computed": false,
-                                                "value": {
-                                                    "type": "AssignmentPattern",
-                                                    "left": {
-                                                        "type": "Identifier",
-                                                        "name": "a"
+                                                'computed': false,
+                                                'value': {
+                                                    'type': 'AssignmentPattern',
+                                                    'left': {
+                                                        'type': 'Identifier',
+                                                        'name': 'a'
                                                     },
-                                                    "right": {
-                                                        "type": "Literal",
+                                                    'right': {
+                                                        'type': 'Literal',
                                                         raw: null,
-                                                        "value": 1
+                                                        'value': 1
                                                     }
                                                 },
-                                                "method": false,
-                                                "shorthand": false
+                                                'method': false,
+                                                'shorthand': false
                                             }
                                         ]
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
 }],
   [`async function f() { for await (const {'a': a} of []); }`, `async function f() { for await (const {'a': a} of []); }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "EmptyStatement"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'EmptyStatement'
                         },
-                        "left": {
-                            "type": "VariableDeclaration",
-                            "kind": "const",
-                            "declarations": [
+                        'left': {
+                            'type': 'VariableDeclaration',
+                            'kind': 'const',
+                            'declarations': [
                                 {
-                                    "type": "VariableDeclarator",
-                                    "init": null,
-                                    "id": {
-                                        "type": "ObjectPattern",
-                                        "properties": [
+                                    'type': 'VariableDeclarator',
+                                    'init': null,
+                                    'id': {
+                                        'type': 'ObjectPattern',
+                                        'properties': [
                                             {
-                                                "type": "Property",
-                                                "kind": "init",
-                                                "key": {
-                                                    "type": "Literal",
+                                                'type': 'Property',
+                                                'kind': 'init',
+                                                'key': {
+                                                    'type': 'Literal',
                                                     raw: null,
-                                                    "value": "a"
+                                                    'value': 'a'
                                                 },
-                                                "computed": false,
-                                                "value": {
-                                                    "type": "Identifier",
-                                                    "name": "a"
+                                                'computed': false,
+                                                'value': {
+                                                    'type': 'Identifier',
+                                                    'name': 'a'
                                                 },
-                                                "method": false,
-                                                "shorthand": false
+                                                'method': false,
+                                                'shorthand': false
                                             }
                                         ]
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     }
                 ]
             },
-            "async": true,
-            "generator": false,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': false,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]
@@ -974,56 +974,56 @@ const valids: Array < [string, string, Context, any] > = [
     for await (var x of []) let // ASI
     {}
   }`, Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "FunctionDeclaration",
-            "params": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
+            'type': 'FunctionDeclaration',
+            'params': [],
+            'body': {
+                'type': 'BlockStatement',
+                'body': [
                     {
-                        "type": "ForOfStatement",
-                        "body": {
-                            "type": "ExpressionStatement",
-                            "expression": {
-                                "type": "Identifier",
-                                "name": "let"
+                        'type': 'ForOfStatement',
+                        'body': {
+                            'type': 'ExpressionStatement',
+                            'expression': {
+                                'type': 'Identifier',
+                                'name': 'let'
                             }
                         },
-                        "left": {
-                            "type": "VariableDeclaration",
-                            "kind": "var",
-                            "declarations": [
+                        'left': {
+                            'type': 'VariableDeclaration',
+                            'kind': 'var',
+                            'declarations': [
                                 {
-                                    "type": "VariableDeclarator",
-                                    "init": null,
-                                    "id": {
-                                        "type": "Identifier",
-                                        "name": "x"
+                                    'type': 'VariableDeclarator',
+                                    'init': null,
+                                    'id': {
+                                        'type': 'Identifier',
+                                        'name': 'x'
                                     }
                                 }
                             ]
                         },
-                        "right": {
-                            "type": "ArrayExpression",
-                            "elements": []
+                        'right': {
+                            'type': 'ArrayExpression',
+                            'elements': []
                         },
-                        "await": true
+                        'await': true
                     },
                     {
-                        "type": "BlockStatement",
-                        "body": []
+                        'type': 'BlockStatement',
+                        'body': []
                     }
                 ]
             },
-            "async": true,
-            "generator": true,
-            "expression": false,
-            "id": {
-                "type": "Identifier",
-                "name": "f"
+            'async': true,
+            'generator': true,
+            'expression': false,
+            'id': {
+                'type': 'Identifier',
+                'name': 'f'
             }
         }
     ]

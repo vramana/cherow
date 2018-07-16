@@ -21,7 +21,7 @@ describe('Lexer - Private name', () => {
               value: opts.value,
               column: opts.column,
               index: opts.index
-          },);
+          }, );
       });
   }
 

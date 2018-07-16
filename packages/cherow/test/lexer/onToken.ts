@@ -40,7 +40,7 @@ describe('Lexer - OnToken', () => {
                   type,
                   value
               });
-          },                      undefined,);
+          },                      undefined, );
           nextToken(state, Context.Empty);
           state.tokenValue = 'let';
           edgeCaseCrap(state, Token.LetKeyword, TokenType.Identifier);
@@ -60,7 +60,7 @@ describe('Lexer - OnToken', () => {
               ], // "Fixed"
               line: 1,
               column: 3
-          },);
+          }, );
       });
   });
 
@@ -74,7 +74,7 @@ describe('Lexer - OnToken', () => {
                       type,
                       value
                   });
-              },                      undefined,);
+              },                      undefined, );
 
               // Get the first token in the stream
               nextToken(state, Context.ExpressionStart);
@@ -89,7 +89,7 @@ describe('Lexer - OnToken', () => {
                   tokens: opts.value,
                   line: opts.line,
                   column: opts.column
-              },);
+              }, );
           });
       }
 
@@ -353,16 +353,16 @@ describe('Lexer - OnToken', () => {
       pass('should tokenizse identifier and skip HTML Open comment', {
       source: 'foo <!--bar\n+baz',
       value: [{
-              "type": "Identifier",
-              "value": "foo",
+              'type': 'Identifier',
+              'value': 'foo',
             },
             {
-              "type": "Punctuator",
-              "value": "+",
+              'type': 'Punctuator',
+              'value': '+',
             },
             {
-              "type": "Identifier",
-              "value": "baz",
+              'type': 'Identifier',
+              'value': 'baz',
             }],
       line: 2,
       column: 4,

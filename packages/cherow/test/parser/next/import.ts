@@ -7,203 +7,203 @@ describe('Expressions - This', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['import("./module.js")', 'import("./module.js")', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "Import",
-                    "start": 0,
-                    "end": 6
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'Import',
+                    'start': 0,
+                    'end': 6
                 },
-                "arguments": [
+                'arguments': [
                     {
-                        "type": "Literal",
+                        'type': 'Literal',
                         raw: null,
-                        "value": "./module.js",
-                        "start": 7,
-                        "end": 20
+                        'value': './module.js',
+                        'start': 7,
+                        'end': 20
                     }
                 ],
-                "start": 0,
-                "end": 21
+                'start': 0,
+                'end': 21
             },
-            "start": 0,
-            "end": 21
+            'start': 0,
+            'end': 21
         }
     ],
-    "start": 0,
-    "end": 21
+    'start': 0,
+    'end': 21
 }],
   ['import(x).then()', 'import(x).then()', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "MemberExpression",
-                    "object": {
-                        "type": "CallExpression",
-                        "callee": {
-                            "type": "Import",
-                            "start": 0,
-                            "end": 6
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'MemberExpression',
+                    'object': {
+                        'type': 'CallExpression',
+                        'callee': {
+                            'type': 'Import',
+                            'start': 0,
+                            'end': 6
                         },
-                        "arguments": [
+                        'arguments': [
                             {
-                                "type": "Identifier",
-                                "name": "x",
-                                "start": 7,
-                                "end": 8
+                                'type': 'Identifier',
+                                'name': 'x',
+                                'start': 7,
+                                'end': 8
                             }
                         ],
-                        "start": 0,
-                        "end": 9
+                        'start': 0,
+                        'end': 9
                     },
-                    "computed": false,
-                    "property": {
-                        "type": "Identifier",
-                        "name": "then",
-                        "start": 10,
-                        "end": 14
+                    'computed': false,
+                    'property': {
+                        'type': 'Identifier',
+                        'name': 'then',
+                        'start': 10,
+                        'end': 14
                     },
-                    "start": 0,
-                    "end": 14
+                    'start': 0,
+                    'end': 14
                 },
-                "arguments": [],
-                "start": 0,
-                "end": 16
+                'arguments': [],
+                'start': 0,
+                'end': 16
             },
-            "start": 0,
-            "end": 16
+            'start': 0,
+            'end': 16
         }
     ],
-    "start": 0,
-    "end": 16
+    'start': 0,
+    'end': 16
 }],
   ['x = import(x)', 'x = import(x)', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "AssignmentExpression",
-                "left": {
-                    "type": "Identifier",
-                    "name": "x",
-                    "start": 0,
-                    "end": 1
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'AssignmentExpression',
+                'left': {
+                    'type': 'Identifier',
+                    'name': 'x',
+                    'start': 0,
+                    'end': 1
                 },
-                "operator": "=",
-                "right": {
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "Import",
-                        "start": 4,
-                        "end": 10
+                'operator': '=',
+                'right': {
+                    'type': 'CallExpression',
+                    'callee': {
+                        'type': 'Import',
+                        'start': 4,
+                        'end': 10
                     },
-                    "arguments": [
+                    'arguments': [
                         {
-                            "type": "Identifier",
-                            "name": "x",
-                            "start": 11,
-                            "end": 12
+                            'type': 'Identifier',
+                            'name': 'x',
+                            'start': 11,
+                            'end': 12
                         }
                     ],
-                    "start": 4,
-                    "end": 13
+                    'start': 4,
+                    'end': 13
                 },
-                "start": 0,
-                "end": 13
+                'start': 0,
+                'end': 13
             },
-            "start": 0,
-            "end": 13
+            'start': 0,
+            'end': 13
         }
     ],
-    "start": 0,
-    "end": 13
+    'start': 0,
+    'end': 13
 }],
   ['(import(y=x))', '(import(y=x))', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "Import",
-                    "start": 1,
-                    "end": 7
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'Import',
+                    'start': 1,
+                    'end': 7
                 },
-                "arguments": [
+                'arguments': [
                     {
-                        "type": "AssignmentExpression",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y",
-                            "start": 8,
-                            "end": 9
+                        'type': 'AssignmentExpression',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'y',
+                            'start': 8,
+                            'end': 9
                         },
-                        "operator": "=",
-                        "right": {
-                            "type": "Identifier",
-                            "name": "x",
-                            "start": 10,
-                            "end": 11
+                        'operator': '=',
+                        'right': {
+                            'type': 'Identifier',
+                            'name': 'x',
+                            'start': 10,
+                            'end': 11
                         },
-                        "start": 8,
-                        "end": 11
+                        'start': 8,
+                        'end': 11
                     }
                 ],
-                "start": 1,
-                "end": 12
+                'start': 1,
+                'end': 12
             },
-            "start": 0,
-            "end": 13
+            'start': 0,
+            'end': 13
         }
     ],
-    "start": 0,
-    "end": 13
+    'start': 0,
+    'end': 13
 }],
   ['import(1)', 'import(1)', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "Import",
-                    "start": 0,
-                    "end": 6
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'Import',
+                    'start': 0,
+                    'end': 6
                 },
-                "arguments": [
+                'arguments': [
                     {
-                        "type": "Literal",
+                        'type': 'Literal',
                         raw: null,
-                        "value": 1,
-                        "start": 7,
-                        "end": 8
+                        'value': 1,
+                        'start': 7,
+                        'end': 8
                     }
                 ],
-                "start": 0,
-                "end": 9
+                'start': 0,
+                'end': 9
             },
-            "start": 0,
-            "end": 9
+            'start': 0,
+            'end': 9
         }
     ],
-    "start": 0,
-    "end": 9
+    'start': 0,
+    'end': 9
 }],
 ];
 

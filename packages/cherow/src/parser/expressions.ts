@@ -7,6 +7,7 @@ import { Errors, report } from '../errors';
 import { parseAssignmentPattern, parseBindingIdentifierOrPattern } from './pattern';
 import { parseStatementListItem } from './statements';
 import { lookAheadOrScan } from '../lexer/common';
+import { parseDirective } from './directives';
 import {
   Context,
   Flags,
@@ -482,7 +483,6 @@ function parseImportCall(state: ParserState, context: Context, pos: Location): E
   });
 }
 
-
 /**
  * Parse member expression continuation
  *
@@ -561,7 +561,6 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
   expect(state, context, Token.RightParen);
   return expressions;
 }
-
 
 /**
  * Parse template literal
@@ -1164,26 +1163,39 @@ export function parseFormalParameterList(
 
 export function parseFunctionBody(state: ParserState, context: Context): ESTree.BlockStatement {
   const pos = getLocation(state);
-  expect(state, context, Token.LeftBrace);
+  nextToken(state, context);
   const body: ESTree.Statement[] = [];
-  const previousSwitchStatement = state.switchStatement;
-  const previousIterationStatement = state.iterationStatement;
+  if (state.token !== Token.RightBrace) {
+      // Note: A separate "while" loop is used to avoid unseting the
+      // mutual flags within the iteration loop itself.
+      while (state.token & Token.StringLiteral) {
+          if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
+              if (state.flags & Flags.SimpleParameterList) report(state, Errors.Unexpected);
+              context |= Context.Strict;
+          }
+          body.push(parseDirective(state, context));
+      }
 
-  if ((state.switchStatement & LabelState.Iteration) === LabelState.Iteration) {
-      state.switchStatement = LabelState.CrossingBoundary;
-  }
+      const previousSwitchStatement = state.switchStatement;
+      const previousIterationStatement = state.iterationStatement;
 
-  if ((state.iterationStatement & LabelState.Iteration) === LabelState.Iteration) {
-      state.iterationStatement = LabelState.CrossingBoundary;
-  }
+      if ((state.switchStatement & LabelState.Iteration) === LabelState.Iteration) {
+          state.switchStatement = LabelState.CrossingBoundary;
+      }
 
-  addCrossingBoundary(state);
-  while (state.token !== Token.RightBrace) {
-      body.push(parseStatementListItem(state, context));
+      if ((state.iterationStatement & LabelState.Iteration) === LabelState.Iteration) {
+          state.iterationStatement = LabelState.CrossingBoundary;
+      }
+
+      addCrossingBoundary(state);
+
+      while (state.token !== Token.RightBrace) {
+          body.push(parseStatementListItem(state, context));
+      }
+      state.labelDepth--;
+      state.switchStatement = previousSwitchStatement;
+      state.iterationStatement = previousIterationStatement;
   }
-  state.labelDepth--;
-  state.switchStatement = previousSwitchStatement;
-  state.iterationStatement = previousIterationStatement;
   expect(state, context, Token.RightBrace);
   return finishNode(state, context, pos, {
       type: 'BlockStatement',

@@ -7,239 +7,239 @@ describe('Expressions - Object literal', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', 'const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', Context.OptionsRanges | Context.OptionsLoc, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "VariableDeclaration",
-            "kind": "const",
-            "declarations": [
+            'type': 'VariableDeclaration',
+            'kind': 'const',
+            'declarations': [
                 {
-                    "type": "VariableDeclarator",
-                    "init": {
-                        "type": "ObjectExpression",
-                        "properties": [
+                    'type': 'VariableDeclarator',
+                    'init': {
+                        'type': 'ObjectExpression',
+                        'properties': [
                             {
-                                "type": "Property",
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "implements",
-                                    "start": 27,
-                                    "end": 37,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 27
+                                'type': 'Property',
+                                'key': {
+                                    'type': 'Identifier',
+                                    'name': 'implements',
+                                    'start': 27,
+                                    'end': 37,
+                                    'loc': {
+                                        'start': {
+                                            'line': 1,
+                                            'column': 27
                                         },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 37
+                                        'end': {
+                                            'line': 1,
+                                            'column': 37
                                         }
                                     }
                                 },
-                                "value": {
-                                    "type": "Literal",
+                                'value': {
+                                    'type': 'Literal',
                                     raw: null,
-                                    "value": 16484,
-                                    "start": 39,
-                                    "end": 44,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 39
+                                    'value': 16484,
+                                    'start': 39,
+                                    'end': 44,
+                                    'loc': {
+                                        'start': {
+                                            'line': 1,
+                                            'column': 39
                                         },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 44
+                                        'end': {
+                                            'line': 1,
+                                            'column': 44
                                         }
                                     }
                                 },
-                                "kind": "init",
-                                "computed": false,
-                                "method": false,
-                                "shorthand": false,
-                                "start": 27,
-                                "end": 44,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 27
+                                'kind': 'init',
+                                'computed': false,
+                                'method': false,
+                                'shorthand': false,
+                                'start': 27,
+                                'end': 44,
+                                'loc': {
+                                    'start': {
+                                        'line': 1,
+                                        'column': 27
                                     },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 44
+                                    'end': {
+                                        'line': 1,
+                                        'column': 44
                                     }
                                 }
                             }
                         ],
-                        "start": 25,
-                        "end": 71,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 25
+                        'start': 25,
+                        'end': 71,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 25
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 71
+                            'end': {
+                                'line': 1,
+                                'column': 71
                             }
                         }
                     },
-                    "id": {
-                        "type": "Identifier",
-                        "name": "descKeywordTable",
-                        "start": 6,
-                        "end": 22,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 6
+                    'id': {
+                        'type': 'Identifier',
+                        'name': 'descKeywordTable',
+                        'start': 6,
+                        'end': 22,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 6
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 22
+                            'end': {
+                                'line': 1,
+                                'column': 22
                             }
                         }
                     },
-                    "start": 6,
-                    "end": 71,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 6
+                    'start': 6,
+                    'end': 71,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 6
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 71
+                        'end': {
+                            'line': 1,
+                            'column': 71
                         }
                     }
                 }
             ],
-            "start": 0,
-            "end": 71,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            'start': 0,
+            'end': 71,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 71
+                'end': {
+                    'line': 1,
+                    'column': 71
                 }
             }
         }
     ],
-    "start": 0,
-    "end": 71,
-    "loc": {
-        "start": {
-            "line": 1,
-            "column": 0
+    'start': 0,
+    'end': 71,
+    'loc': {
+        'start': {
+            'line': 1,
+            'column': 0
         },
-        "end": {
-            "line": 1,
-            "column": 71
+        'end': {
+            'line': 1,
+            'column': 71
         }
     }
 }],
   ['({ default: obj })', '({ default: obj })', Context.OptionsRanges | Context.OptionsLoc, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "ObjectExpression",
-                "properties": [
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'ObjectExpression',
+                'properties': [
                     {
-                        "type": "Property",
-                        "key": {
-                            "type": "Identifier",
-                            "name": "default",
-                            "start": 3,
-                            "end": 10,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 3
+                        'type': 'Property',
+                        'key': {
+                            'type': 'Identifier',
+                            'name': 'default',
+                            'start': 3,
+                            'end': 10,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 3
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 10
+                                'end': {
+                                    'line': 1,
+                                    'column': 10
                                 }
                             }
                         },
-                        "value": {
-                            "type": "Identifier",
-                            "name": "obj",
-                            "start": 12,
-                            "end": 15,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 12
+                        'value': {
+                            'type': 'Identifier',
+                            'name': 'obj',
+                            'start': 12,
+                            'end': 15,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 12
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 15
+                                'end': {
+                                    'line': 1,
+                                    'column': 15
                                 }
                             }
                         },
-                        "kind": "init",
-                        "computed": false,
-                        "method": false,
-                        "shorthand": false,
-                        "start": 3,
-                        "end": 15,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 3
+                        'kind': 'init',
+                        'computed': false,
+                        'method': false,
+                        'shorthand': false,
+                        'start': 3,
+                        'end': 15,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 3
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 15
+                            'end': {
+                                'line': 1,
+                                'column': 15
                             }
                         }
                     }
                 ],
-                "start": 1,
-                "end": 17,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 1
+                'start': 1,
+                'end': 17,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 1
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 17
+                    'end': {
+                        'line': 1,
+                        'column': 17
                     }
                 }
             },
-            "start": 0,
-            "end": 18,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            'start': 0,
+            'end': 18,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 18
+                'end': {
+                    'line': 1,
+                    'column': 18
                 }
             }
         }
     ],
-    "start": 0,
-    "end": 18,
-    "loc": {
-        "start": {
-            "line": 1,
-            "column": 0
+    'start': 0,
+    'end': 18,
+    'loc': {
+        'start': {
+            'line': 1,
+            'column': 0
         },
-        "end": {
-            "line": 1,
-            "column": 18
+        'end': {
+            'line': 1,
+            'column': 18
         }
     }
 }],
@@ -295,56 +295,56 @@ const valids: Array < [string, string, Context, any] > = [
     'end': 12
 }],
   ['({foo: typeof /x/});', '({foo: typeof /x/});', Context.OptionsRanges, {
-      "body": [
+      'body': [
         {
-          "end": 20,
-          "expression": {
-            "end": 18,
-            "properties": [
+          'end': 20,
+          'expression': {
+            'end': 18,
+            'properties': [
               {
-               "computed": false,
-                "end": 17,
-                "key": {
-                  "end": 5,
-                  "name": "foo",
-                  "start": 2,
-                  "type": "Identifier",
+               'computed': false,
+                'end': 17,
+                'key': {
+                  'end': 5,
+                  'name': 'foo',
+                  'start': 2,
+                  'type': 'Identifier',
                 },
-                "kind": "init",
-                "method": false,
-                "shorthand": false,
-                "start": 2,
-                "type": "Property",
-                "value": {
-                  "argument": {
-                    "end": 17,
-                    "regex": {
-                      "flags": "",
-                     "pattern": "x",
+                'kind': 'init',
+                'method': false,
+                'shorthand': false,
+                'start': 2,
+                'type': 'Property',
+                'value': {
+                  'argument': {
+                    'end': 17,
+                    'regex': {
+                      'flags': '',
+                     'pattern': 'x',
                     },
-                    "start": 14,
-                    "type": "Literal",
-                    "value": /x/,
+                    'start': 14,
+                    'type': 'Literal',
+                    'value': /x/,
                   },
-                  "end": 17,
-                  "operator": "typeof",
-                  "prefix": true,
-                  "start": 7,
-                  "type": "UnaryExpression",
+                  'end': 17,
+                  'operator': 'typeof',
+                  'prefix': true,
+                  'start': 7,
+                  'type': 'UnaryExpression',
                 },
               },
             ],
-            "start": 1,
-            "type": "ObjectExpression",
+            'start': 1,
+            'type': 'ObjectExpression',
           },
-          "start": 0,
-          "type": "ExpressionStatement",
+          'start': 0,
+          'type': 'ExpressionStatement',
         },
       ],
-      "end": 20,
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program",
+      'end': 20,
+      'sourceType': 'script',
+      'start': 0,
+      'type': 'Program',
     }],
   ['foo = {[a]:b=x}', 'foo = {[a]:b=x}', Context.OptionsRanges, {
     'type': 'Program',

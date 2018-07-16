@@ -7,128 +7,128 @@ describe('Expressions - Group', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['(0, a)', '(0, a)', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "SequenceExpression",
-                "expressions": [
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'SequenceExpression',
+                'expressions': [
                     {
-                        "type": "Literal",
+                        'type': 'Literal',
                         raw: null,
-                        "value": 0,
-                        "start": 1,
-                        "end": 2
+                        'value': 0,
+                        'start': 1,
+                        'end': 2
                     },
                     {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 4,
-                        "end": 5
+                        'type': 'Identifier',
+                        'name': 'a',
+                        'start': 4,
+                        'end': 5
                     }
                 ],
-                "start": 1,
-                "end": 5
+                'start': 1,
+                'end': 5
             },
-            "start": 0,
-            "end": 6
+            'start': 0,
+            'end': 6
         }
     ],
-    "start": 0,
-    "end": 6
+    'start': 0,
+    'end': 6
 }],
   ['(a, 0)', '(a, 0)', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "SequenceExpression",
-                "expressions": [
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'SequenceExpression',
+                'expressions': [
                     {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 1,
-                        "end": 2
+                        'type': 'Identifier',
+                        'name': 'a',
+                        'start': 1,
+                        'end': 2
                     },
                     {
-                        "type": "Literal",
+                        'type': 'Literal',
                         raw: null,
-                        "value": 0,
-                        "start": 4,
-                        "end": 5
+                        'value': 0,
+                        'start': 4,
+                        'end': 5
                     }
                 ],
-                "start": 1,
-                "end": 5
+                'start': 1,
+                'end': 5
             },
-            "start": 0,
-            "end": 6
+            'start': 0,
+            'end': 6
         }
     ],
-    "start": 0,
-    "end": 6
+    'start': 0,
+    'end': 6
 }],
   ['((a,a),(a,a))', '((a,a),(a,a))', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "SequenceExpression",
-                "expressions": [
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'SequenceExpression',
+                'expressions': [
                     {
-                        "type": "SequenceExpression",
-                        "expressions": [
+                        'type': 'SequenceExpression',
+                        'expressions': [
                             {
-                                "type": "Identifier",
-                                "name": "a",
-                                "start": 2,
-                                "end": 3
+                                'type': 'Identifier',
+                                'name': 'a',
+                                'start': 2,
+                                'end': 3
                             },
                             {
-                                "type": "Identifier",
-                                "name": "a",
-                                "start": 4,
-                                "end": 5
+                                'type': 'Identifier',
+                                'name': 'a',
+                                'start': 4,
+                                'end': 5
                             }
                         ],
-                        "start": 2,
-                        "end": 5
+                        'start': 2,
+                        'end': 5
                     },
                     {
-                        "type": "SequenceExpression",
-                        "expressions": [
+                        'type': 'SequenceExpression',
+                        'expressions': [
                             {
-                                "type": "Identifier",
-                                "name": "a",
-                                "start": 8,
-                                "end": 9
+                                'type': 'Identifier',
+                                'name': 'a',
+                                'start': 8,
+                                'end': 9
                             },
                             {
-                                "type": "Identifier",
-                                "name": "a",
-                                "start": 10,
-                                "end": 11
+                                'type': 'Identifier',
+                                'name': 'a',
+                                'start': 10,
+                                'end': 11
                             }
                         ],
-                        "start": 8,
-                        "end": 11
+                        'start': 8,
+                        'end': 11
                     }
                 ],
-                "start": 1,
-                "end": 12
+                'start': 1,
+                'end': 12
             },
-            "start": 0,
-            "end": 13
+            'start': 0,
+            'end': 13
         }
     ],
-    "start": 0,
-    "end": 13
+    'start': 0,
+    'end': 13
 }],
   ['(a)', '(a)', Context.OptionsRanges, {
     'type': 'Program',
@@ -407,191 +407,191 @@ const valids: Array < [string, string, Context, any] > = [
   'end': 12
 }],
 ['(void /=/g/m.x);', '(void /=/g/m.x);', Context.OptionsRanges, {
-    "body": [
+    'body': [
       {
-        "end": 16,
-        "expression": {
-          "end": 14,
-          "left": {
-            "argument": {
-              "end": 10,
-              "regex": {
-                "flags": "g",
-                "pattern": "=",
+        'end': 16,
+        'expression': {
+          'end': 14,
+          'left': {
+            'argument': {
+              'end': 10,
+              'regex': {
+                'flags': 'g',
+                'pattern': '=',
               },
-              "start": 6,
-              "type": "Literal",
-              "value": /=/g,
+              'start': 6,
+              'type': 'Literal',
+              'value': /=/g,
             },
-            "end": 10,
-            "operator": "void",
-            "prefix": true,
-            "start": 1,
-            "type": "UnaryExpression",
+            'end': 10,
+            'operator': 'void',
+            'prefix': true,
+            'start': 1,
+            'type': 'UnaryExpression',
           },
-          "operator": "/",
-          "right": {
-            "computed": false,
-            "end": 14,
-            "object": {
-              "end": 12,
-              "name": "m",
-              "start": 11,
-              "type": "Identifier",
+          'operator': '/',
+          'right': {
+            'computed': false,
+            'end': 14,
+            'object': {
+              'end': 12,
+              'name': 'm',
+              'start': 11,
+              'type': 'Identifier',
             },
-            "property": {
-              "end": 14,
-              "name": "x",
-              "start": 13,
-              "type": "Identifier",
+            'property': {
+              'end': 14,
+              'name': 'x',
+              'start': 13,
+              'type': 'Identifier',
             },
-            "start": 11,
-            "type": "MemberExpression",
+            'start': 11,
+            'type': 'MemberExpression',
           },
-          "start": 1,
-          "type": "BinaryExpression",
+          'start': 1,
+          'type': 'BinaryExpression',
         },
-        "start": 0,
-        "type": "ExpressionStatement",
+        'start': 0,
+        'type': 'ExpressionStatement',
       },
     ],
-    "end": 16,
-    "sourceType": "script",
-    "start": 0,
-    "type": "Program",
+    'end': 16,
+    'sourceType': 'script',
+    'start': 0,
+    'type': 'Program',
   }],
 ['([delete /a/.x]);', '([delete /a/.x]);', Context.OptionsRanges, {
-    "body": [
+    'body': [
       {
-        "end": 17,
-        "expression": {
-          "elements": [
+        'end': 17,
+        'expression': {
+          'elements': [
             {
-              "argument": {
-                "computed": false,
-                "end": 14,
-                "object": {
-                  "end": 12,
-                  "regex": {
-                    "flags": "",
-                    "pattern": "a",
+              'argument': {
+                'computed': false,
+                'end': 14,
+                'object': {
+                  'end': 12,
+                  'regex': {
+                    'flags': '',
+                    'pattern': 'a',
                   },
-                  "start": 9,
-                  "type": "Literal",
-                  "value": /a/,
+                  'start': 9,
+                  'type': 'Literal',
+                  'value': /a/,
                 },
-                "property": {
-                  "end": 14,
-                  "name": "x",
-                  "start": 13,
-                  "type": "Identifier",
+                'property': {
+                  'end': 14,
+                  'name': 'x',
+                  'start': 13,
+                  'type': 'Identifier',
                 },
-                "start": 9,
-                "type": "MemberExpression",
+                'start': 9,
+                'type': 'MemberExpression',
               },
-              "end": 14,
-              "operator": "delete",
-              "prefix": true,
-              "start": 2,
-              "type": "UnaryExpression",
+              'end': 14,
+              'operator': 'delete',
+              'prefix': true,
+              'start': 2,
+              'type': 'UnaryExpression',
             },
           ],
-          "end": 15,
-          "start": 1,
-          "type": "ArrayExpression",
+          'end': 15,
+          'start': 1,
+          'type': 'ArrayExpression',
         },
-        "start": 0,
-        "type": "ExpressionStatement",
+        'start': 0,
+        'type': 'ExpressionStatement',
       },
     ],
-    "end": 17,
-    "sourceType": "script",
-    "start": 0,
-    "type": "Program",
+    'end': 17,
+    'sourceType': 'script',
+    'start': 0,
+    'type': 'Program',
   }],
 ['(delete /a/g.x);', '(delete /a/g.x);', Context.OptionsRanges, {
-    "body": [
+    'body': [
       {
-       "end": 16,
-        "expression": {
-          "argument": {
-            "computed": false,
-            "end": 14,
-            "object": {
-              "end": 12,
-              "regex": {
-                "flags": "g",
-                "pattern": "a",
+       'end': 16,
+        'expression': {
+          'argument': {
+            'computed': false,
+            'end': 14,
+            'object': {
+              'end': 12,
+              'regex': {
+                'flags': 'g',
+                'pattern': 'a',
               },
-              "start": 8,
-              "type": "Literal",
-              "value": /a/g,
+              'start': 8,
+              'type': 'Literal',
+              'value': /a/g,
             },
-            "property": {
-              "end": 14,
-              "name": "x",
-              "start": 13,
-              "type": "Identifier",
+            'property': {
+              'end': 14,
+              'name': 'x',
+              'start': 13,
+              'type': 'Identifier',
             },
-            "start": 8,
-            "type": "MemberExpression",
+            'start': 8,
+            'type': 'MemberExpression',
           },
-          "end": 14,
-          "operator": "delete",
-          "prefix": true,
-         "start": 1,
-          "type": "UnaryExpression",
+          'end': 14,
+          'operator': 'delete',
+          'prefix': true,
+         'start': 1,
+          'type': 'UnaryExpression',
         },
-        "start": 0,
-        "type": "ExpressionStatement"
+        'start': 0,
+        'type': 'ExpressionStatement'
       }
     ],
-    "end": 16,
-    "sourceType": "script",
-    "start": 0,
-    "type": "Program"
+    'end': 16,
+    'sourceType': 'script',
+    'start': 0,
+    'type': 'Program'
   }],
 ['(delete /a/.x);', '(delete /a/.x);', Context.OptionsRanges, {
-    "body": [
+    'body': [
       {
-        "end": 15,
-        "expression": {
-          "argument": {
-            "computed": false,
-            "end": 13,
-            "object": {
-              "end": 11,
-              "regex": {
-                "flags": "",
-                "pattern": "a",
+        'end': 15,
+        'expression': {
+          'argument': {
+            'computed': false,
+            'end': 13,
+            'object': {
+              'end': 11,
+              'regex': {
+                'flags': '',
+                'pattern': 'a',
               },
-              "start": 8,
-              "type": "Literal",
-              "value": /a/,
+              'start': 8,
+              'type': 'Literal',
+              'value': /a/,
             },
-            "property": {
-              "end": 13,
-              "name": "x",
-              "start": 12,
-              "type": "Identifier",
+            'property': {
+              'end': 13,
+              'name': 'x',
+              'start': 12,
+              'type': 'Identifier',
             },
-           "start": 8,
-            "type": "MemberExpression",
+           'start': 8,
+            'type': 'MemberExpression',
           },
-          "end": 13,
-          "operator": "delete",
-         "prefix": true,
-          "start": 1,
-          "type": "UnaryExpression",
+          'end': 13,
+          'operator': 'delete',
+         'prefix': true,
+          'start': 1,
+          'type': 'UnaryExpression',
         },
-       "start": 0,
-        "type": "ExpressionStatement"
+       'start': 0,
+        'type': 'ExpressionStatement'
       }
     ],
-    "end": 15,
-    "sourceType": "script",
-    "start": 0,
-    "type": "Program"
+    'end': 15,
+    'sourceType': 'script',
+    'start': 0,
+    'type': 'Program'
   }],
 ];
 

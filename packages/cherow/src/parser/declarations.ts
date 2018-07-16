@@ -101,7 +101,6 @@ export function parseVariableDeclarationList(state: ParserState, context: Contex
   return list;
 }
 
-
 /**
  * VariableDeclaration :
  *   BindingIdentifier Initializeropt

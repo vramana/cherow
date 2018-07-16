@@ -7,48 +7,48 @@ describe('Expressions - Member', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['set.push(existing);', 'set.push(existing);', Context.OptionsRanges, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "MemberExpression",
-                    "object": {
-                        "type": "Identifier",
-                        "name": "set",
-                        "start": 0,
-                        "end": 3
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'MemberExpression',
+                    'object': {
+                        'type': 'Identifier',
+                        'name': 'set',
+                        'start': 0,
+                        'end': 3
                     },
-                    "computed": false,
-                    "property": {
-                        "type": "Identifier",
-                        "name": "push",
-                        "start": 4,
-                        "end": 8
+                    'computed': false,
+                    'property': {
+                        'type': 'Identifier',
+                        'name': 'push',
+                        'start': 4,
+                        'end': 8
                     },
-                    "start": 0,
-                    "end": 8
+                    'start': 0,
+                    'end': 8
                 },
-                "arguments": [
+                'arguments': [
                     {
-                        "type": "Identifier",
-                        "name": "existing",
-                        "start": 9,
-                        "end": 17
+                        'type': 'Identifier',
+                        'name': 'existing',
+                        'start': 9,
+                        'end': 17
                     }
                 ],
-                "start": 0,
-                "end": 18
+                'start': 0,
+                'end': 18
             },
-            "start": 0,
-            "end": 19
+            'start': 0,
+            'end': 19
         }
     ],
-    "start": 0,
-    "end": 19
+    'start': 0,
+    'end': 19
 }],
   ['a[b, c]', 'a[b, c]', Context.OptionsRanges, {
     'type': 'Program',

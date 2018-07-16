@@ -7,73 +7,73 @@ describe('Expressions - Call', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['this.finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");', 'this.finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");', Context.Empty, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "MemberExpression",
-                    "object": {
-                        "type": "ThisExpression"
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'MemberExpression',
+                    'object': {
+                        'type': 'ThisExpression'
                     },
-                    "computed": false,
-                    "property": {
-                        "type": "Identifier",
-                        "name": "finishNode"
+                    'computed': false,
+                    'property': {
+                        'type': 'Identifier',
+                        'name': 'finishNode'
                     }
                 },
-                "arguments": [
+                'arguments': [
                     {
-                        "type": "Identifier",
-                        "name": "node"
+                        'type': 'Identifier',
+                        'name': 'node'
                     },
                     {
-                        "type": "ConditionalExpression",
-                        "test": {
-                            "type": "CallExpression",
-                            "callee": {
-                                "type": "MemberExpression",
-                                "object": {
-                                    "type": "Literal",
-                                    "value": /&&|||/,
-                                    "regex": {
-                                        "pattern": "&&|||",
-                                        "flags": ""
+                        'type': 'ConditionalExpression',
+                        'test': {
+                            'type': 'CallExpression',
+                            'callee': {
+                                'type': 'MemberExpression',
+                                'object': {
+                                    'type': 'Literal',
+                                    'value': /&&|||/,
+                                    'regex': {
+                                        'pattern': '&&|||',
+                                        'flags': ''
                                     }
                                 },
-                                "computed": false,
-                                "property": {
-                                    "type": "Identifier",
-                                    "name": "test"
+                                'computed': false,
+                                'property': {
+                                    'type': 'Identifier',
+                                    'name': 'test'
                                 }
                             },
-                            "arguments": [
+                            'arguments': [
                                 {
-                                    "type": "MemberExpression",
-                                    "object": {
-                                        "type": "Identifier",
-                                        "name": "node"
+                                    'type': 'MemberExpression',
+                                    'object': {
+                                        'type': 'Identifier',
+                                        'name': 'node'
                                     },
-                                    "computed": false,
-                                    "property": {
-                                        "type": "Identifier",
-                                        "name": "operator"
+                                    'computed': false,
+                                    'property': {
+                                        'type': 'Identifier',
+                                        'name': 'operator'
                                     }
                                 }
                             ]
                         },
-                        "consequent": {
-                            "type": "Literal",
+                        'consequent': {
+                            'type': 'Literal',
                             raw: null,
-                            "value": "LogicalExpression"
+                            'value': 'LogicalExpression'
                         },
-                        "alternate": {
-                            "type": "Literal",
+                        'alternate': {
+                            'type': 'Literal',
                             raw: null,
-                            "value": "BinaryExpression"
+                            'value': 'BinaryExpression'
                         }
                     }
                 ]
