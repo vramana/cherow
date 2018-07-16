@@ -1005,6 +1005,48 @@ const valids: Array < [string, string, Context, any] > = [
 }]
 ];
 
-pass('Declarations - Try (pass)', valids);
+const invalids: Array < [string, string, Context, any] > = [
 
+  ['try { }', 'try { }', Context.Empty, {}],
+  ['try { } catch(e=123) {}', 'try { } catch(e=123) {}', Context.Empty, {}],
+  ['try { } foo();', 'try { } foo();', Context.Empty, {}],
+  ['try { } catch (e) foo();', 'try { } catch (e) foo();', Context.Empty, {}],
+  ['try { } finally foo();', 'try { } finally foo();', Context.Empty, {}],
+  [`try{}
+  catch(){`, `try{}
+  catch(){`, Context.Empty, {}],
+  [`try{}
+  catch(){
+  finally{}`, `try{}
+  catch(){
+  finally{}`, Context.Empty, {}],
+  ['catch', 'catch', Context.Empty, {}],
+  ['try {} catch ((e)) {}', 'try {} catch ((e)) {}', Context.Empty, {}],
+  ['try { } catch (e) foo();', 'try { } catch (e) foo();', Context.Empty, {}],
+  ['try { } foo();', 'try { } foo();', Context.Empty, {}],
+  [`try{}
+  catch(){}
+  finally{}`, `try{}
+  catch(){}
+  finally{}`, Context.Empty, {}],
+  ['try', 'try', Context.Empty, {}],
+  [`try{
+    {
+    }
+    catch(e){}
+    finally{}
+  }`, `try{
+    {
+    }
+    catch(e){}
+    finally{}
+  }`, Context.Empty, {}],
+  [`try{}
+  catch(){}
+  finally{}`, `try{}
+  catch(){}
+  finally{}`, Context.Empty, {}],
+]
+fail('Declarations - Try (pass)', invalids);
+pass('Declarations - Try (pass)', valids);
 });

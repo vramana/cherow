@@ -117,7 +117,7 @@ export function parseStatement(state: ParserState, context: Context, label: any)
        return parseForStatement(state, context);
     case Token.AsyncKeyword:
       if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-        report(state, Errors.Unexpected);
+        report(state, Errors.AsyncFunctionInSingleStatementContext);
       }
       return parseExpressionOrLabelledStatement(state, context, label);
     case Token.FunctionKeyword:
@@ -586,8 +586,12 @@ export function parseExpressionOrLabelledStatement(
   const tokenValue = state.tokenValue;
   const expr: ESTree.Expression = parseExpression(state, context);
   if (token & Token.Keyword && state.token === Token.Colon) {
-      expect(state, context, Token.Colon);
-      if (getLabel(state, tokenValue, false, true)) {
+      nextToken(state, context | Context.ExpressionStart);
+      if (context & Context.Module && token === Token.AwaitKeyword) {
+          report(state, Errors.Unexpected);
+      } else if (context & Context.Strict && token & (Token.Contextual | Token.FutureReserved)) {
+          report(state, Errors.Unexpected);
+      } else if (getLabel(state, `@${tokenValue}`, false, true)) {
           report(state, Errors.LabelRedeclaration, tokenValue);
       }
       addLabel(state, tokenValue);

@@ -2167,6 +2167,7 @@ function OUT_FUNC(){}
 
 const invalids: Array < [string, string, Context, any] > = [
   ['break', 'break', Context.Empty, {}],
+  ['foo: function() {}', 'foo: function() {}', Context.Strict | Context.Module, {}],
   ['loop1: function a() {}  while (true) { continue loop1; }', 'loop1: function a() {}  while (true) { continue loop1; }', Context.Empty, {}],
   ['{  break foo; var y=2; }', '{  break foo; var y=2; }', Context.Empty, {}],
   ['loop1: while (true) { loop2: function a() { break loop2; } }', 'loop1: while (true) { loop2: function a() { break loop2; } }', Context.Empty, {}],

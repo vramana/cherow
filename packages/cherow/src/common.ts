@@ -239,7 +239,7 @@ function isIterationStatement(state: ParserState): boolean {
 */
 export function addLabel(state: ParserState, label: string): void {
   if (state.labelSet === undefined) state.labelSet = {};
-  state.labelSet[label] = true;
+  state.labelSet[`@${label}`] = true;
   state.labelSetStack[state.labelDepth] = state.labelSet;
   state.iterationStack[state.labelDepth] = isIterationStatement(state);
   state.labelSet = undefined;
@@ -265,7 +265,7 @@ export function addCrossingBoundary(state: ParserState): void {
 * @param label Label
 */
 export function validateContinueLabel(state: ParserState, label: string): void {
-  const sstate = getLabel(state, label, true);
+  const sstate = getLabel(state, `@${label}`, true);
   if ((sstate & LabelState.Iteration) !== LabelState.Iteration) {
       if (sstate & LabelState.CrossingBoundary) {
           report(state, Errors.Unexpected);
@@ -282,7 +282,7 @@ export function validateContinueLabel(state: ParserState, label: string): void {
 * @param label Label
 */
 export function validateBreakStatement(state: ParserState, label: any): void {
-  const lblstate = getLabel(state, label);
+  const lblstate = getLabel(state, `@${label}`);
   if ((lblstate & LabelState.Iteration) !== LabelState.Iteration) report(state, Errors.Unexpected);
 }
 

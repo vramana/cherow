@@ -47,7 +47,8 @@ export const enum Errors {
   IllegalReturn,
   NoCatchOrFinally,
   NoCatchClause,
-  MultipleDefaultsInSwitch
+  MultipleDefaultsInSwitch,
+  AsyncFunctionInSingleStatementContext
 }
 
 /*@internal*/
@@ -100,6 +101,7 @@ export const errorMessages: {
   [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',
   [Errors.NoCatchClause]: 'Missing catch clause',
   [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
+  [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
