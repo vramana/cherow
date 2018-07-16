@@ -1,4 +1,4 @@
-import { ParserState } from './../types';
+import { ParserState, Location } from './../types';
 import { Context, finishNode, getLocation, optional, expect, BindingType, BindingOrigin } from '../common';
 import { Token, KeywordDescTable } from '../token';
 import { nextToken } from '../lexer/scan';
@@ -50,8 +50,8 @@ export function parseFunctionDeclaration(
   state: ParserState,
   context: Context,
   isAsync: boolean,
+  pos: Location = getLocation(state),
 ): ESTree.FunctionDeclaration {
-  const pos = getLocation(state);
   nextToken(state, context);
   const isGenerator = optional(state, context | Context.ExpressionStart, Token.Multiply);
   let id: ESTree.Identifier | null = null;
@@ -60,12 +60,11 @@ export function parseFunctionDeclaration(
   }
   context = (context | Context.InGenerator) ^ Context.InGenerator;
   context = (context | Context.InAsync) ^ Context.InAsync;
-  context = (context | Context.InParam) ^ Context.InParam;
 
   if (isGenerator) context = context | Context.InGenerator;
   if (isAsync) context = context | Context.InAsync;
 
-  const params = parseFormalParameters(state, context | Context.NewTarget);
+  const params = parseFormalParameters(state, context | Context.NewTarget | Context.InParam);
   const body = parseFunctionBody(state, context | Context.NewTarget | Context.InFunctionBody);
 
   return finishNode(state, context, pos, {

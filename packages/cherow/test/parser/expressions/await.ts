@@ -447,7 +447,7 @@ const valids: Array < [string, string, Context, any] > = [
          'type': 'Identifier',
        },
         'params': [],
-        'start': 6,
+        'start': 0,
        'type': 'FunctionDeclaration',
       },
     ],
@@ -631,7 +631,7 @@ const valids: Array < [string, string, Context, any] > = [
               'start': 15,
               'end': 16
           },
-          'start': 6,
+          'start': 0,
           'end': 38
       }
   ],
@@ -939,7 +939,7 @@ const valids: Array < [string, string, Context, any] > = [
           'type': 'Identifier',
         },
         'params': [],
-        'start': 6,
+        'start': 0,
         'type': 'FunctionDeclaration',
       },
     ],

@@ -6,6 +6,145 @@ describe('Expressions - Functions', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
 
+  ['function* f() {}', 'function* f() {}', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "FunctionDeclaration",
+            "params": [],
+            "body": {
+                "type": "BlockStatement",
+                "body": [],
+                "start": 14,
+                "end": 16,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 14
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 16
+                    }
+                }
+            },
+            "async": false,
+            "generator": true,
+            "expression": false,
+            "id": {
+                "type": "Identifier",
+                "name": "f",
+                "start": 10,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 10
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                }
+            },
+            "start": 0,
+            "end": 16,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 16
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 16,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 16
+        }
+    }
+}],
+
+  ['function f() {}', 'function f() {}', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "FunctionDeclaration",
+            "params": [],
+            "body": {
+                "type": "BlockStatement",
+                "body": [],
+                "start": 13,
+                "end": 15,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 13
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 15
+                    }
+                }
+            },
+            "async": false,
+            "generator": false,
+            "expression": false,
+            "id": {
+                "type": "Identifier",
+                "name": "f",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 9
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 10
+                    }
+                }
+            },
+            "start": 0,
+            "end": 15,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 15
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 15,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 15
+        }
+    }
+}],
   ['function identity($) {return $;}', 'function identity($) {return $;}', Context.OptionsRanges | Context.OptionsLoc, {
     'type': 'Program',
     'sourceType': 'script',

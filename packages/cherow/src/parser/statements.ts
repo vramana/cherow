@@ -75,9 +75,7 @@ export function parseStatementListItem(state: ParserState, context: Context): ES
     case Token.LetKeyword:
         return parseLetOrExpressionStatement(state, context);
     case Token.AsyncKeyword:
-    if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-        return parseFunctionDeclaration(state, context, true);
-    }
+        return parseAsyncFunctionOrExpressionStatement(state, context);
     // falls through
     default:
         return parseStatement(state, context, LabelledFunctionState.Allow);
@@ -130,10 +128,9 @@ export function parseStatement(state: ParserState, context: Context, label: any)
       }
       return parseExpressionOrLabelledStatement(state, context, label);
     case Token.FunctionKeyword:
-      // V8
       report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
     case Token.ClassKeyword:
-    report(state, Errors.Unexpected);
+      report(state, Errors.Unexpected);
     default:
       return parseExpressionOrLabelledStatement(state, context, label);
   }
@@ -424,7 +421,7 @@ export function parseBlockStatement(state: ParserState, context: Context): ESTre
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
   if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(state, Errors.IllegalReturn);
   const pos = getLocation(state);
-  nextToken(state, context);
+  nextToken(state, context | Context.ExpressionStart);
   const argument = (state.token & Token.ASI) < 1 && (state.flags & Flags.LineTerminator) < 1 ?
       parseExpression(state, context  & ~Context.InFunctionBody) :
       null;
@@ -577,6 +574,25 @@ function parseLetOrExpressionStatement(
 }
 
 /**
+ * Parses either an async function declaration or an expression statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseAsyncFunctionOrExpressionStatement(
+  state: ParserState,
+  context: Context,
+): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
+    const pos = getLocation(state);
+    return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+      ? parseFunctionDeclaration(state, context, true, pos)
+      : parseExpressionOrLabelledStatement(state, context, LabelledFunctionState.Disallow);
+}
+
+/**
  * Parses either expression or labelled statement
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
@@ -598,7 +614,7 @@ export function parseExpressionOrLabelledStatement(
       nextToken(state, context | Context.ExpressionStart);
       if (context & Context.Module && token === Token.AwaitKeyword) {
           report(state, Errors.Unexpected);
-      } else if (context & Context.Strict && token & (Token.Contextual | Token.FutureReserved)) {
+      } else if (context & (Context.InGenerator | Context.Strict) && token === Token.YieldKeyword) {
           report(state, Errors.Unexpected);
       } else if (getLabel(state, `@${tokenValue}`, false, true)) {
           report(state, Errors.LabelRedeclaration, tokenValue);

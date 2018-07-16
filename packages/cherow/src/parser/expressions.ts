@@ -134,7 +134,7 @@ function parseConditionalExpression(state: ParserState, context: Context, pos: L
   // LogicalOrExpression
   // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
   const test = parseBinaryExpression(state, context, 0, pos);
-  if (!optional(state, context, Token.QuestionMark)) return test;
+  if (!optional(state, context | Context.ExpressionStart, Token.QuestionMark)) return test;
   const consequent = parseAssignmentExpression(state, context);
   expect(state, context | Context.ExpressionStart, Token.Colon);
   const alternate = parseAssignmentExpression(state, context);
@@ -1113,12 +1113,11 @@ export function parseFunctionExpression(state: ParserState, context: Context, po
   }
   context = (context | Context.InGenerator) ^ Context.InGenerator;
   context = (context | Context.InAsync) ^ Context.InAsync;
-  context = (context | Context.InParam) ^ Context.InParam;
 
   if (isGenerator) context = context | Context.InGenerator;
   if (isAsync) context = context | Context.InAsync;
 
-  const params = parseFormalParameters(state, context | Context.NewTarget);
+  const params = parseFormalParameters(state, context | Context.NewTarget | Context.InParam);
   const body = parseFunctionBody(state, context | Context.NewTarget | Context.InFunctionBody);
 
   return finishNode(state, context, pos, {
@@ -1352,7 +1351,7 @@ function parseMethodDeclaration(state: ParserState, context: Context, isGenerato
   if (isGenerator) context = context | Context.InGenerator;
   if (isAsync) context = context | Context.InAsync;
 
-  const params = parseFormalParameters(state, context | Context.NewTarget);
+  const params = parseFormalParameters(state, context | Context.NewTarget | Context.InParam);
   const body = parseFunctionBody(state, context | Context.NewTarget | Context.InFunctionBody);
 
   return finishNode(state, context, pos, {

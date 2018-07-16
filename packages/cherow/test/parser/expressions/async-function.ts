@@ -304,7 +304,7 @@ const valids: Array < [string, string, Context, any] > = [
                 'start': 15,
                 'end': 18
             },
-            'start': 6,
+            'start': 0,
             'end': 46
         }
     ],
@@ -472,7 +472,7 @@ const valids: Array < [string, string, Context, any] > = [
                 'start': 15,
                 'end': 18
             },
-            'start': 6,
+            'start': 0,
             'end': 58
         }
     ],
