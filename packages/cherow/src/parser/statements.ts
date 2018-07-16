@@ -122,7 +122,7 @@ export function parseStatement(state: ParserState, context: Context, label: any)
       return parseExpressionOrLabelledStatement(state, context, label);
     case Token.FunctionKeyword:
       // V8
-      report(state, Errors.Unexpected);
+      report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
     case Token.ClassKeyword:
     report(state, Errors.Unexpected);
     default:
@@ -156,7 +156,7 @@ function parseSwitchStatement(state: ParserState, context: Context): ESTree.Swit
           test = parseExpression(state, context);
       } else {
           expect(state, context, Token.DefaultKeyword);
-          if (seenDefault) report(state, Errors.Unexpected);
+          if (seenDefault) report(state, Errors.MultipleDefaultsInSwitch);
           seenDefault = true;
       }
       cases.push(parseCaseOrDefaultClauses(state, context, clausePos, test));
@@ -305,7 +305,7 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
   }
   consumeSemicolon(state, context);
   if (label === null &&  state.iterationStatement === LabelState.Empty && state.switchStatement === LabelState.Empty) {
-      report(state, Errors.Unexpected);
+      report(state, Errors.IllegalContinue);
   }
   return finishNode(state, context, pos, {
       type: 'ContinueStatement',
@@ -331,7 +331,7 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
       validateBreakStatement(state, tokenValue);
   } else if (state.iterationStatement === LabelState.Empty &&
         state.switchStatement === LabelState.Empty) {
-        report(state, Errors.Unexpected);
+        report(state, Errors.IllegalBreak);
     }
   consumeSemicolon(state, context);
   return finishNode(state, context, pos, {
@@ -349,7 +349,7 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
 * @param context Context masks
 */
 export function parseWithStatement(state: ParserState, context: Context): ESTree.WithStatement {
-  if (context & Context.Strict) report(state, Errors.Unexpected);
+  if (context & Context.Strict) report(state, Errors.StrictModeWith);
   const pos = getLocation(state);
   nextToken(state, context);
   expect(state, context | Context.ExpressionStart, Token.LeftParen);
@@ -413,7 +413,7 @@ export function parseBlockStatement(state: ParserState, context: Context): ESTre
 * @param context Context masks
 */
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
-  //if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(state, Errors.Unexpected);
+  if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(state, Errors.IllegalReturn);
   const pos = getLocation(state);
   nextToken(state, context);
   const argument = (state.token & Token.ASI) < 1 && (state.flags & Flags.LineTerminator) < 1 ?
@@ -440,7 +440,7 @@ export function parseTryStatement(state: ParserState, context: Context): ESTree.
   const block = parseBlockStatement(state, context);
   const handler = state.token === Token.CatchKeyword ? parseCatchBlock(state, context) : null;
   const finalizer = optional(state, context, Token.FinallyKeyword) ? parseBlockStatement(state, context) : null;
-  if (!handler && !finalizer)  report(state, Errors.Unexpected);
+  if (!handler && !finalizer)  report(state, Errors.NoCatchOrFinally);
   return finishNode(state, context, pos, {
       type: 'TryStatement',
       block,
@@ -472,9 +472,9 @@ export function parseCatchBlock(state: ParserState, context: Context): any {
   nextToken(state, context);
   let param: ESTree.PatternTop | null = null;
   if (optional(state, context, Token.LeftParen)) {
-      if (state.token === Token.RightParen) report(state, Errors.Unexpected);
+      if (state.token === Token.RightParen) report(state, Errors.NoCatchClause);
       param = parseBindingIdentifierOrPattern(state, context);
-      if (state.token === Token.Assign)  report(state, Errors.Unexpected);
+      if (state.token === Token.Assign)  report(state, Errors.NoCatchClause);
       expect(state, context, Token.RightParen);
   }
   const body = parseBlockStatement(state, context);
@@ -497,6 +497,7 @@ export function parseCatchBlock(state: ParserState, context: Context): any {
 export function parseThrowStatement(state: ParserState, context: Context): ESTree.ThrowStatement {
   const pos = getLocation(state);
   nextToken(state, context);
+  if (state.flags & Flags.LineTerminator) report(state, Errors.NewlineAfterThrow);
   const argument: ESTree.Expression = parseExpression(state, context);
   consumeSemicolon(state, context);
   return finishNode(state, context, pos, {
@@ -587,7 +588,7 @@ export function parseExpressionOrLabelledStatement(
   if (token & Token.Keyword && state.token === Token.Colon) {
       expect(state, context, Token.Colon);
       if (getLabel(state, tokenValue, false, true)) {
-          report(state, Errors.Unexpected);
+          report(state, Errors.LabelRedeclaration, tokenValue);
       }
       addLabel(state, tokenValue);
       let body: ESTree.Statement | ESTree.FunctionDeclaration | null = null;

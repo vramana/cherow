@@ -33,8 +33,21 @@ export const enum Errors {
   InvalidHexEscapeSequence,
   ForInOfLoopMultiBindings,
   DeclarationMissingInitializer,
-  ForInOfLoopInitializer
-
+  ForInOfLoopInitializer,
+  StrictFunction,
+  SloppyFunction,
+  UnNamedFunctionDecl,
+  StrictModeWith,
+  InvalidNestedStatement,
+  UnknownLabel,
+  LabelRedeclaration,
+  IllegalContinue,
+  IllegalBreak,
+  NewlineAfterThrow,
+  IllegalReturn,
+  NoCatchOrFinally,
+  NoCatchClause,
+  MultipleDefaultsInSwitch
 }
 
 /*@internal*/
@@ -72,7 +85,21 @@ export const errorMessages: {
   [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
   [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
   [Errors.DeclarationMissingInitializer]: 'Missing initializer in %0 declaration',
-  [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer'
+  [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
+  [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
+  [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+  [Errors.UnNamedFunctionDecl]: 'Function declaration must have a name in this context',
+  [Errors.StrictModeWith]: 'Strict mode code may not include a with statement',
+  [Errors.UnknownLabel]: 'Undefined label \'%0\'',
+  [Errors.LabelRedeclaration]: 'Label \'%0\' has already been declared',
+  [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
+  [Errors.IllegalContinue]: 'Illegal continue statement: no surrounding iteration statement',
+  [Errors.IllegalBreak]: 'Illegal break statement',
+  [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
+  [Errors.IllegalReturn]: 'Illegal return statement',
+  [Errors.NoCatchOrFinally]: 'Missing catch or finally after try',
+  [Errors.NoCatchClause]: 'Missing catch clause',
+  [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

@@ -6,6 +6,136 @@ describe('Statements - With', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
 
+  ['with({}){ p1 = "x1"; }', 'with({}){ p1 = "x1"; }', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "WithStatement",
+            "object": {
+                "type": "ObjectExpression",
+                "properties": [],
+                "start": 5,
+                "end": 7,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 5
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 7
+                    }
+                }
+            },
+            "body": {
+                "type": "BlockStatement",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "p1",
+                                "start": 10,
+                                "end": 12,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 10
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 12
+                                    }
+                                }
+                            },
+                            "operator": "=",
+                            "right": {
+                                "type": "Literal",
+                                raw: null,
+                                "value": "x1",
+                                "start": 15,
+                                "end": 19,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 15
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 19
+                                    }
+                                }
+                            },
+                            "start": 10,
+                            "end": 19,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 19
+                                }
+                            }
+                        },
+                        "start": 10,
+                        "end": 20,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 10
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 20
+                            }
+                        }
+                    }
+                ],
+                "start": 8,
+                "end": 22,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 8
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 22
+                    }
+                }
+            },
+            "start": 0,
+            "end": 22,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 22
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 22,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 22
+        }
+    }
+}],
   ['with ({}) ;', 'with ({}) ;', Context.OptionsRanges | Context.OptionsLoc, {
     "type": "Program",
     "sourceType": "script",
@@ -395,6 +525,17 @@ const valids: Array < [string, string, Context, any] > = [
 }]
 ];
 
+const invalids: Array < [string, string, Context, any] > = [
+
+  ['with ({}) async function f() {}', 'with ({}) async function f() {}', Context.Empty, {}],
+  ['with ({}) class C {}', 'with ({}) class C {}', Context.Empty, {}],
+  ['with ({}) function f() {}', 'with ({}) function f() {}', Context.Empty, {}],
+  ['with ({}) label1: label2: function test262() {}', 'with ({}) label1: label2: function test262() {}', Context.Empty, {}],
+  ['with ({}) let x;', 'with ({}) let x;', Context.Empty, {}],
+  ['with({}){ p1 = "x1"; }', 'with({}){ p1 = "x1"; }', Context.Strict, {}],
+];
+
+fail('Statements - With (failure)', invalids);
 pass('Statements - With (pass)', valids);
 
 });

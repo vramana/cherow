@@ -532,6 +532,14 @@ const valids: Array < [string, string, Context, any] > = [
 }]
 ];
 
-pass('Declarations - Return (pass)', valids);
+const invalids: Array < [string, string, Context, any] > = [
+  ['return;', 'return;', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['{ return; }', '{ return; }', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['if (false) { return; }', 'if (false) { return; }', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['do { return; } while(0);', 'do { return; } while(0);', Context.OptionsRanges | Context.OptionsLoc, {}],
+];
+
+fail('Statements - Return (failure)', invalids);
+pass('Statements - Return (pass)', valids);
 
 });
