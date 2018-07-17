@@ -700,6 +700,443 @@ const valids: Array < [string, string, Context, any] > = [
     'start': 0,
     'end': 22
 }],
+   ['export var x = 1;', 'export var x = 1;', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportNamedDeclaration',
+            'source': null,
+            'specifiers': [],
+            'declaration': {
+                'type': 'VariableDeclaration',
+                'kind': 'var',
+                'declarations': [
+                    {
+                        'type': 'VariableDeclarator',
+                        'init': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 1,
+                            'start': 15,
+                            'end': 16
+                        },
+                        'id': {
+                            'type': 'Identifier',
+                            'name': 'x',
+                            'start': 11,
+                            'end': 12
+                        },
+                        'start': 11,
+                        'end': 16
+                    }
+                ],
+                'start': 7,
+                'end': 17
+            },
+            'start': 0,
+            'end': 17
+        }
+    ],
+    'start': 0,
+    'end': 17
+}],
+   ['export async function f() { return 77; }', 'export async function f() { return 77; }', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportNamedDeclaration',
+            'source': null,
+            'specifiers': [],
+            'declaration': {
+                'type': 'FunctionDeclaration',
+                'params': [],
+                'body': {
+                    'type': 'BlockStatement',
+                    'body': [
+                        {
+                            'type': 'ReturnStatement',
+                            'argument': {
+                                'type': 'Literal',
+                                raw: null,
+                                'value': 77,
+                                'start': 35,
+                                'end': 37
+                            },
+                            'start': 28,
+                            'end': 38
+                        }
+                    ],
+                    'start': 26,
+                    'end': 40
+                },
+                'async': true,
+                'generator': false,
+                'expression': false,
+                'id': {
+                    'type': 'Identifier',
+                    'name': 'f',
+                    'start': 22,
+                    'end': 23
+                },
+                'start': 7,
+                'end': 40
+            },
+            'start': 0,
+            'end': 40
+        }
+    ],
+    'start': 0,
+    'end': 40
+}],
+   ['export var x = 23;', 'export var x = 23;', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportNamedDeclaration',
+            'source': null,
+            'specifiers': [],
+            'declaration': {
+                'type': 'VariableDeclaration',
+                'kind': 'var',
+                'declarations': [
+                    {
+                        'type': 'VariableDeclarator',
+                        'init': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 23,
+                            'start': 15,
+                            'end': 17
+                        },
+                        'id': {
+                            'type': 'Identifier',
+                            'name': 'x',
+                            'start': 11,
+                            'end': 12
+                        },
+                        'start': 11,
+                        'end': 17
+                    }
+                ],
+                'start': 7,
+                'end': 18
+            },
+            'start': 0,
+            'end': 18
+        }
+    ],
+    'start': 0,
+    'end': 18
+}],
+   ['export default 3;', 'export default 3;', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportDefaultDeclaration',
+            'declaration': {
+                'type': 'Literal',
+                raw: null,
+                'value': 3,
+                'start': 15,
+                'end': 16
+            },
+            'start': 0,
+            'end': 17
+        }
+    ],
+    'start': 0,
+    'end': 17
+}],
+   ['export { x as y } from "foo"', 'export { x as y } from "foo"', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportNamedDeclaration',
+            'source': {
+                'type': 'Literal',
+                raw: null,
+                'value': 'foo',
+                'start': 23,
+                'end': 28
+            },
+            'specifiers': [
+                {
+                    'type': 'ExportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'x',
+                        'start': 9,
+                        'end': 10
+                    },
+                    'exported': {
+                        'type': 'Identifier',
+                        'name': 'y',
+                        'start': 14,
+                        'end': 15
+                    },
+                    'start': 9,
+                    'end': 15
+                }
+            ],
+            'declaration': null,
+            'start': 0,
+            'end': 28
+        }
+    ],
+    'start': 0,
+    'end': 28
+}],
+   ['export function f() { return 77; }', 'export function f() { return 77; }', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportNamedDeclaration',
+            'source': null,
+            'specifiers': [],
+            'declaration': {
+                'type': 'FunctionDeclaration',
+                'params': [],
+                'body': {
+                    'type': 'BlockStatement',
+                    'body': [
+                        {
+                            'type': 'ReturnStatement',
+                            'argument': {
+                                'type': 'Literal',
+                                raw: null,
+                                'value': 77,
+                                'start': 29,
+                                'end': 31
+                            },
+                            'start': 22,
+                            'end': 32
+                        }
+                    ],
+                    'start': 20,
+                    'end': 34
+                },
+                'async': false,
+                'generator': false,
+                'expression': false,
+                'id': {
+                    'type': 'Identifier',
+                    'name': 'f',
+                    'start': 16,
+                    'end': 17
+                },
+                'start': 7,
+                'end': 34
+            },
+            'start': 0,
+            'end': 34
+        }
+    ],
+    'start': 0,
+    'end': 34
+}],
+   ['export default (function fName() { return 7; });', 'export default (function fName() { return 7; });', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportDefaultDeclaration',
+            'declaration': {
+                'type': 'FunctionExpression',
+                'params': [],
+                'body': {
+                    'type': 'BlockStatement',
+                    'body': [
+                        {
+                            'type': 'ReturnStatement',
+                            'argument': {
+                                'type': 'Literal',
+                                raw: null,
+                                'value': 7,
+                                'start': 42,
+                                'end': 43
+                            },
+                            'start': 35,
+                            'end': 44
+                        }
+                    ],
+                    'start': 33,
+                    'end': 46
+                },
+                'async': false,
+                'generator': false,
+                'expression': false,
+                'id': {
+                    'type': 'Identifier',
+                    'name': 'fName',
+                    'start': 25,
+                    'end': 30
+                },
+                'start': 16,
+                'end': 46
+            },
+            'start': 0,
+            'end': 48
+        }
+    ],
+    'start': 0,
+    'end': 48
+}],
+   ['export default class cName { valueOf() { return 45; } }', 'export default class cName { valueOf() { return 45; } }', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportDefaultDeclaration',
+            'declaration': {
+                'type': 'ClassDeclaration',
+                'id': {
+                    'type': 'Identifier',
+                    'name': 'cName',
+                    'start': 21,
+                    'end': 26
+                },
+                'superClass': null,
+                'body': {
+                    'type': 'ClassBody',
+                    'body': [
+                        {
+                            'type': 'MethodDefinition',
+                            'kind': 'method',
+                            'static': false,
+                            'computed': false,
+                            'key': {
+                                'type': 'Identifier',
+                                'name': 'valueOf',
+                                'start': 29,
+                                'end': 36
+                            },
+                            'value': {
+                                'type': 'FunctionExpression',
+                                'params': [],
+                                'body': {
+                                    'type': 'BlockStatement',
+                                    'body': [
+                                        {
+                                            'type': 'ReturnStatement',
+                                            'argument': {
+                                                'type': 'Literal',
+                                                raw: null,
+                                                'value': 45,
+                                                'start': 48,
+                                                'end': 50
+                                            },
+                                            'start': 41,
+                                            'end': 51
+                                        }
+                                    ],
+                                    'start': 39,
+                                    'end': 53
+                                },
+                                'async': false,
+                                'generator': false,
+                                'expression': false,
+                                'id': null,
+                                'start': 36,
+                                'end': 53
+                            },
+                            'start': 29,
+                            'end': 53
+                        }
+                    ],
+                    'start': 27,
+                    'end': 55
+                },
+                'start': 15,
+                'end': 55
+            },
+            'start': 0,
+            'end': 55
+        }
+    ],
+    'start': 0,
+    'end': 55
+}],
+   ['export default (class cName { valueOf() { return 45; } });', 'export default (class cName { valueOf() { return 45; } });', Context.OptionsRanges | Context.Module, {
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
+        {
+            'type': 'ExportDefaultDeclaration',
+            'declaration': {
+                'type': 'ClassExpression',
+                'id': {
+                    'type': 'Identifier',
+                    'name': 'cName',
+                    'start': 22,
+                    'end': 27
+                },
+                'superClass': null,
+                'body': {
+                    'type': 'ClassBody',
+                    'body': [
+                        {
+                            'type': 'MethodDefinition',
+                            'kind': 'method',
+                            'static': false,
+                            'computed': false,
+                            'key': {
+                                'type': 'Identifier',
+                                'name': 'valueOf',
+                                'start': 30,
+                                'end': 37
+                            },
+                            'value': {
+                                'type': 'FunctionExpression',
+                                'params': [],
+                                'body': {
+                                    'type': 'BlockStatement',
+                                    'body': [
+                                        {
+                                            'type': 'ReturnStatement',
+                                            'argument': {
+                                                'type': 'Literal',
+                                                raw: null,
+                                                'value': 45,
+                                                'start': 49,
+                                                'end': 51
+                                            },
+                                            'start': 42,
+                                            'end': 52
+                                        }
+                                    ],
+                                    'start': 40,
+                                    'end': 54
+                                },
+                                'async': false,
+                                'generator': false,
+                                'expression': false,
+                                'id': null,
+                                'start': 37,
+                                'end': 54
+                            },
+                            'start': 30,
+                            'end': 54
+                        }
+                    ],
+                    'start': 28,
+                    'end': 56
+                },
+                'start': 16,
+                'end': 56
+            },
+            'start': 0,
+            'end': 58
+        }
+    ],
+    'start': 0,
+    'end': 58
+}],
    ['export * from "foo"', 'export * from "foo"', Context.OptionsRanges | Context.Module, {
     'type': 'Program',
     'sourceType': 'module',
@@ -825,8 +1262,13 @@ const invalids: Array < [string, string, Context, any] > = [
   ['function foo() { }; () => { export { foo }; }', 'function foo() { }; () => { export { foo }; }', Context.Module, {}],
   ['function foo() { }; try { export { foo }; } catch(e) { }', 'function foo() { }; try { export { foo }; } catch(e) { }', Context.Module, {}],
   ['export 12;', 'export 12;', Context.Module, {}],
+  ['(class { method() { export default null; } });;', '(class { method() { export default null; } });', Context.Module, {}],
+  ['(class { *method() { export default null; } });', '(class { *method() { export default null; } });', Context.Module, {}],
+  [`for (let x = 0; false;)
+  export default null;`, `for (let x = 0; false;)
+  export default null;`, Context.Module, {}],
   ['function foo() { }; export { foo as 100 };', 'function foo() { }; export { foo as 100 };', Context.Module, {}],
-]
+];
 
 fail('Module - Export (pass)', invalids);
 pass('Module - Export (pass)', valids);

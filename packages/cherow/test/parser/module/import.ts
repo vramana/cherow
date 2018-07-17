@@ -7,306 +7,350 @@ describe('Module - Import', () => {
 const valids: Array < [string, string, Context, any] > = [
 
   ['import {} from "y"', 'import {} from "y"', Context.OptionsRanges | Context.Module, {
-      "body": [
+      'body': [
         {
-          "end": 18,
-          "source": {
-            "end": 18,
-            "raw": null,
-            "start": 15,
-            "type": "Literal",
-            "value": "y",
+          'end': 18,
+          'source': {
+            'end': 18,
+            'raw': null,
+            'start': 15,
+            'type': 'Literal',
+            'value': 'y',
           },
-          "specifiers": [],
-          "start": 0,
-         "type": "ImportDeclaration"
+          'specifiers': [],
+          'start': 0,
+         'type': 'ImportDeclaration'
         }
      ],
-      "end": 18,
-      "sourceType": "module",
-      "start": 0,
-      "type": "Program"
+      'end': 18,
+      'sourceType': 'module',
+      'start': 0,
+      'type': 'Program'
     }],
   ['import e, {f as g, h as i, j} from "module";', 'import e, {f as g, h as i, j} from "module";', Context.OptionsRanges | Context.Module, {
-    "type": "Program",
-    "sourceType": "module",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
         {
-            "type": "ImportDeclaration",
-            "specifiers": [
+            'type': 'ImportDeclaration',
+            'specifiers': [
                 {
-                    "type": "ImportDefaultSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "e",
-                        "start": 7,
-                        "end": 8
+                    'type': 'ImportDefaultSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'e',
+                        'start': 7,
+                        'end': 8
                     },
-                    "start": 7,
-                    "end": 8
+                    'start': 7,
+                    'end': 8
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "g",
-                        "start": 16,
-                        "end": 17
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'g',
+                        'start': 16,
+                        'end': 17
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "f",
-                        "start": 11,
-                        "end": 12
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'f',
+                        'start': 11,
+                        'end': 12
                     },
-                    "start": 11,
-                    "end": 17
+                    'start': 11,
+                    'end': 17
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "i",
-                        "start": 24,
-                        "end": 25
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'i',
+                        'start': 24,
+                        'end': 25
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "h",
-                        "start": 19,
-                        "end": 20
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'h',
+                        'start': 19,
+                        'end': 20
                     },
-                    "start": 19,
-                    "end": 25
+                    'start': 19,
+                    'end': 25
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "j",
-                        "start": 27,
-                        "end": 28
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'j',
+                        'start': 27,
+                        'end': 28
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "j",
-                        "start": 27,
-                        "end": 28
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'j',
+                        'start': 27,
+                        'end': 28
                     },
-                    "start": 27,
-                    "end": 28
+                    'start': 27,
+                    'end': 28
                 }
             ],
-            "source": {
-                "type": "Literal",
+            'source': {
+                'type': 'Literal',
                 raw: null,
-                "value": "module",
-                "start": 35,
-                "end": 43
+                'value': 'module',
+                'start': 35,
+                'end': 43
             },
-            "start": 0,
-            "end": 44
+            'start': 0,
+            'end': 44
         }
     ],
-    "start": 0,
-    "end": 44
+    'start': 0,
+    'end': 44
 }],
   ['import {n, o as p} from "module";', 'import {n, o as p} from "module";', Context.OptionsRanges | Context.Module, {
-    "type": "Program",
-    "sourceType": "module",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
         {
-            "type": "ImportDeclaration",
-            "specifiers": [
+            'type': 'ImportDeclaration',
+            'specifiers': [
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "n",
-                        "start": 8,
-                        "end": 9
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'n',
+                        'start': 8,
+                        'end': 9
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "n",
-                        "start": 8,
-                        "end": 9
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'n',
+                        'start': 8,
+                        'end': 9
                     },
-                    "start": 8,
-                    "end": 9
+                    'start': 8,
+                    'end': 9
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "p",
-                        "start": 16,
-                        "end": 17
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'p',
+                        'start': 16,
+                        'end': 17
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "o",
-                        "start": 11,
-                        "end": 12
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'o',
+                        'start': 11,
+                        'end': 12
                     },
-                    "start": 11,
-                    "end": 17
+                    'start': 11,
+                    'end': 17
                 }
             ],
-            "source": {
-                "type": "Literal",
+            'source': {
+                'type': 'Literal',
                 raw: null,
-                "value": "module",
-                "start": 24,
-                "end": 32
+                'value': 'module',
+                'start': 24,
+                'end': 32
             },
-            "start": 0,
-            "end": 33
+            'start': 0,
+            'end': 33
         }
     ],
-    "start": 0,
-    "end": 33
+    'start': 0,
+    'end': 33
 }],
   ['import { as, get, set, from } from "baz"', 'import { as, get, set, from } from "baz"', Context.OptionsRanges | Context.Module, {
-    "type": "Program",
-    "sourceType": "module",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'module',
+    'body': [
         {
-            "type": "ImportDeclaration",
-            "specifiers": [
+            'type': 'ImportDeclaration',
+            'specifiers': [
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "as",
-                        "start": 9,
-                        "end": 11
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'as',
+                        'start': 9,
+                        'end': 11
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "as",
-                        "start": 9,
-                        "end": 11
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'as',
+                        'start': 9,
+                        'end': 11
                     },
-                    "start": 9,
-                    "end": 11
+                    'start': 9,
+                    'end': 11
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "get",
-                        "start": 13,
-                        "end": 16
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'get',
+                        'start': 13,
+                        'end': 16
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "get",
-                        "start": 13,
-                        "end": 16
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'get',
+                        'start': 13,
+                        'end': 16
                     },
-                    "start": 13,
-                    "end": 16
+                    'start': 13,
+                    'end': 16
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "set",
-                        "start": 18,
-                        "end": 21
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'set',
+                        'start': 18,
+                        'end': 21
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "set",
-                        "start": 18,
-                        "end": 21
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'set',
+                        'start': 18,
+                        'end': 21
                     },
-                    "start": 18,
-                    "end": 21
+                    'start': 18,
+                    'end': 21
                 },
                 {
-                    "type": "ImportSpecifier",
-                    "local": {
-                        "type": "Identifier",
-                        "name": "from",
-                        "start": 23,
-                        "end": 27
+                    'type': 'ImportSpecifier',
+                    'local': {
+                        'type': 'Identifier',
+                        'name': 'from',
+                        'start': 23,
+                        'end': 27
                     },
-                    "imported": {
-                        "type": "Identifier",
-                        "name": "from",
-                        "start": 23,
-                        "end": 27
+                    'imported': {
+                        'type': 'Identifier',
+                        'name': 'from',
+                        'start': 23,
+                        'end': 27
                     },
-                    "start": 23,
-                    "end": 27
+                    'start': 23,
+                    'end': 27
                 }
             ],
-            "source": {
-                "type": "Literal",
+            'source': {
+                'type': 'Literal',
                 raw: null,
-                "value": "baz",
-                "start": 35,
-                "end": 40
+                'value': 'baz',
+                'start': 35,
+                'end': 40
             },
-            "start": 0,
-            "end": 40
+            'start': 0,
+            'end': 40
         }
     ],
-    "start": 0,
-    "end": 40
+    'start': 0,
+    'end': 40
 }],
   ['import a, {as} from \'foo\'', 'import a, {as} from \'foo\'', Context.OptionsRanges | Context.Module, {
-      "body": [
+      'body': [
         {
-          "end": 25,
-          "source": {
-            "end": 25,
-            "raw": null,
-            "start": 20,
-            "type": "Literal",
-            "value": "foo",
+          'end': 25,
+          'source': {
+            'end': 25,
+            'raw': null,
+            'start': 20,
+            'type': 'Literal',
+            'value': 'foo',
           },
-         "specifiers": [
+         'specifiers': [
             {
-              "end": 8,
-              "local": {
-                "end": 8,
-                "name": "a",
-                "start": 7,
-                "type": "Identifier",
+              'end': 8,
+              'local': {
+                'end': 8,
+                'name': 'a',
+                'start': 7,
+                'type': 'Identifier',
              },
-              "start": 7,
-              "type": "ImportDefaultSpecifier",
+              'start': 7,
+              'type': 'ImportDefaultSpecifier',
             },
             {
-              "end": 13,
-              "imported": {
-                "end": 13,
-                "name": "as",
-                "start": 11,
-               "type": "Identifier",
+              'end': 13,
+              'imported': {
+                'end': 13,
+                'name': 'as',
+                'start': 11,
+               'type': 'Identifier',
               },
-              "local": {
-                "end": 13,
-                "name": "as",
-                "start": 11,
-                "type": "Identifier",
+              'local': {
+                'end': 13,
+                'name': 'as',
+                'start': 11,
+                'type': 'Identifier',
               },
-              "start": 11,
-              "type": "ImportSpecifier",
+              'start': 11,
+              'type': 'ImportSpecifier',
             },
           ],
-          "start": 0,
-          "type": "ImportDeclaration",
+          'start': 0,
+          'type': 'ImportDeclaration',
         },
       ],
-      "end": 25,
-      "sourceType": "module",
-     "start": 0,
-      "type": "Program",
+      'end': 25,
+      'sourceType': 'module',
+     'start': 0,
+      'type': 'Program',
     }],
+    ['import x, * as ns from "foo"', 'import x, * as ns from "foo"', Context.OptionsRanges | Context.Module, {
+      'type': 'Program',
+      'sourceType': 'module',
+      'body': [
+          {
+              'type': 'ImportDeclaration',
+              'specifiers': [
+                  {
+                      'type': 'ImportDefaultSpecifier',
+                      'local': {
+                          'type': 'Identifier',
+                          'name': 'x',
+                          'start': 7,
+                          'end': 8
+                      },
+                      'start': 7,
+                      'end': 8
+                  },
+                  {
+                      'type': 'ImportNamespaceSpecifier',
+                      'local': {
+                          'type': 'Identifier',
+                          'name': 'ns',
+                          'start': 15,
+                          'end': 17
+                      },
+                      'start': 10,
+                      'end': 17
+                  }
+              ],
+              'source': {
+                  'type': 'Literal',
+                  raw: null,
+                  'value': 'foo',
+                  'start': 23,
+                  'end': 28
+              },
+              'start': 0,
+              'end': 28
+          }
+      ],
+      'start': 0,
+      'end': 28
+  }],
   ['import $ from "foo"', 'import $ from "foo"', Context.OptionsRanges | Context.Module, {
     'type': 'Program',
     'sourceType': 'module',
@@ -932,6 +976,7 @@ const invalids: Array < [string, string, Context, any] > = [
   ['import icefapper from 12', 'import icefapper from 12', Context.Module, {}],
   ['import icefapper from /', 'import icefapper from /', Context.Module, {}],
   ['import icefapper from []', 'import icefapper from []', Context.Module, {}],
+  ['function f() { export default null; }', 'function f() { export default null; }', Context.Module, {}],
   ['function foo() { import foo from "icefapper.js"; }', 'function foo() { import foo from "icefapper.js"; }', Context.Module, {}],
   ['import foo, bar from "foo.js";', 'import foo, bar from "foo.js";', Context.Module, {}],
   ['import { foo }, * as ns1 from "foo.js";', 'import { foo }, * as ns1 from "foo.js";', Context.Module, {}],
@@ -943,10 +988,16 @@ const invalids: Array < [string, string, Context, any] > = [
   ['import { foo as bar, ', 'import { foo as bar, ', Context.Module, {}],
   ['import { foo as switch } from "module";', 'import { foo as switch } from "module";', Context.Module, {}],
   ['import { foo, , } from "module";', 'import { foo, , } from "module";', Context.Module, {}],
+  ['import * as a in b from "foo";', 'import * as a in b from "foo";', Context.Module, {}],
+  [`try {
+    import v from './decl-pos-import-try-try.js';
+  } catch (err) { }`, `try {
+    import v from './decl-pos-import-try-try.js';
+  } catch (err) { }`, Context.Module, {}],
   [`for (const y in [])
   import v from './foo`, `for (const y in [])
   import v from './foo`, Context.Module, {}],
-]
+];
 
 fail('Module - Import (pass)', invalids);
 pass('Module - Import (pass)', valids);

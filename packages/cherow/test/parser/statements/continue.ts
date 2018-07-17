@@ -7,291 +7,291 @@ describe('Statements - Continue', () => {
 const valids: Array < [string, string, Context, any] > = [
   // "eval" or "arguments" are allowed as labels even in strict mode.
   ['"use strict"; eval: while (foo) { continue eval; }', '"use strict"; eval: while (foo) { continue eval; }', Context.OptionsRanges | Context.OptionsLoc, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "Literal",
+            'type': 'ExpressionStatement',
+            'expression': {
+                'type': 'Literal',
                 raw: null,
-                "value": "use strict",
-                "start": 0,
-                "end": 12,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                'value': 'use strict',
+                'start': 0,
+                'end': 12,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 12
+                    'end': {
+                        'line': 1,
+                        'column': 12
                     }
                 }
             },
-            "directive": "use strict",
-            "start": 0,
-            "end": 13,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            'directive': 'use strict',
+            'start': 0,
+            'end': 13,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 13
+                'end': {
+                    'line': 1,
+                    'column': 13
                 }
             }
         },
         {
-            "type": "LabeledStatement",
-            "label": {
-                "type": "Identifier",
-                "name": "eval",
-                "start": 14,
-                "end": 18,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 14
+            'type': 'LabeledStatement',
+            'label': {
+                'type': 'Identifier',
+                'name': 'eval',
+                'start': 14,
+                'end': 18,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 14
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 18
+                    'end': {
+                        'line': 1,
+                        'column': 18
                     }
                 }
             },
-            "body": {
-                "type": "WhileStatement",
-                "test": {
-                    "type": "Identifier",
-                    "name": "foo",
-                    "start": 27,
-                    "end": 30,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 27
+            'body': {
+                'type': 'WhileStatement',
+                'test': {
+                    'type': 'Identifier',
+                    'name': 'foo',
+                    'start': 27,
+                    'end': 30,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 27
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 30
+                        'end': {
+                            'line': 1,
+                            'column': 30
                         }
                     }
                 },
-                "body": {
-                    "type": "BlockStatement",
-                    "body": [
+                'body': {
+                    'type': 'BlockStatement',
+                    'body': [
                         {
-                            "type": "ContinueStatement",
-                            "label": {
-                                "type": "Identifier",
-                                "name": "eval",
-                                "start": 43,
-                                "end": 47,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 43
+                            'type': 'ContinueStatement',
+                            'label': {
+                                'type': 'Identifier',
+                                'name': 'eval',
+                                'start': 43,
+                                'end': 47,
+                                'loc': {
+                                    'start': {
+                                        'line': 1,
+                                        'column': 43
                                     },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 47
+                                    'end': {
+                                        'line': 1,
+                                        'column': 47
                                     }
                                 }
                             },
-                            "start": 34,
-                            "end": 48,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 34
+                            'start': 34,
+                            'end': 48,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 34
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 48
+                                'end': {
+                                    'line': 1,
+                                    'column': 48
                                 }
                             }
                         }
                     ],
-                    "start": 32,
-                    "end": 50,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 32
+                    'start': 32,
+                    'end': 50,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 32
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 50
+                        'end': {
+                            'line': 1,
+                            'column': 50
                         }
                     }
                 },
-                "start": 20,
-                "end": 50,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 20
+                'start': 20,
+                'end': 50,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 20
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 50
+                    'end': {
+                        'line': 1,
+                        'column': 50
                     }
                 }
             },
-            "start": 14,
-            "end": 50,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 14
+            'start': 14,
+            'end': 50,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 14
                 },
-                "end": {
-                    "line": 1,
-                    "column": 50
+                'end': {
+                    'line': 1,
+                    'column': 50
                 }
             }
         }
     ],
-    "start": 0,
-    "end": 50,
-    "loc": {
-        "start": {
-            "line": 1,
-            "column": 0
+    'start': 0,
+    'end': 50,
+    'loc': {
+        'start': {
+            'line': 1,
+            'column': 0
         },
-        "end": {
-            "line": 1,
-            "column": 50
+        'end': {
+            'line': 1,
+            'column': 50
         }
     }
 }],
   ['eval: while (foo) { continue eval; }', 'eval: while (foo) { continue eval; }', Context.OptionsRanges | Context.OptionsLoc, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
         {
-            "type": "LabeledStatement",
-            "label": {
-                "type": "Identifier",
-                "name": "eval",
-                "start": 0,
-                "end": 4,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+            'type': 'LabeledStatement',
+            'label': {
+                'type': 'Identifier',
+                'name': 'eval',
+                'start': 0,
+                'end': 4,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 4
+                    'end': {
+                        'line': 1,
+                        'column': 4
                     }
                 }
             },
-            "body": {
-                "type": "WhileStatement",
-                "test": {
-                    "type": "Identifier",
-                    "name": "foo",
-                    "start": 13,
-                    "end": 16,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 13
+            'body': {
+                'type': 'WhileStatement',
+                'test': {
+                    'type': 'Identifier',
+                    'name': 'foo',
+                    'start': 13,
+                    'end': 16,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 13
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 16
+                        'end': {
+                            'line': 1,
+                            'column': 16
                         }
                     }
                 },
-                "body": {
-                    "type": "BlockStatement",
-                    "body": [
+                'body': {
+                    'type': 'BlockStatement',
+                    'body': [
                         {
-                            "type": "ContinueStatement",
-                            "label": {
-                                "type": "Identifier",
-                                "name": "eval",
-                                "start": 29,
-                                "end": 33,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 29
+                            'type': 'ContinueStatement',
+                            'label': {
+                                'type': 'Identifier',
+                                'name': 'eval',
+                                'start': 29,
+                                'end': 33,
+                                'loc': {
+                                    'start': {
+                                        'line': 1,
+                                        'column': 29
                                     },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 33
+                                    'end': {
+                                        'line': 1,
+                                        'column': 33
                                     }
                                 }
                             },
-                            "start": 20,
-                            "end": 34,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 20
+                            'start': 20,
+                            'end': 34,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 20
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 34
+                                'end': {
+                                    'line': 1,
+                                    'column': 34
                                 }
                             }
                         }
                     ],
-                    "start": 18,
-                    "end": 36,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 18
+                    'start': 18,
+                    'end': 36,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 18
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 36
+                        'end': {
+                            'line': 1,
+                            'column': 36
                         }
                     }
                 },
-                "start": 6,
-                "end": 36,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 6
+                'start': 6,
+                'end': 36,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 6
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 36
+                    'end': {
+                        'line': 1,
+                        'column': 36
                     }
                 }
             },
-            "start": 0,
-            "end": 36,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            'start': 0,
+            'end': 36,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 36
+                'end': {
+                    'line': 1,
+                    'column': 36
                 }
             }
         }
     ],
-    "start": 0,
-    "end": 36,
-    "loc": {
-        "start": {
-            "line": 1,
-            "column": 0
+    'start': 0,
+    'end': 36,
+    'loc': {
+        'start': {
+            'line': 1,
+            'column': 0
         },
-        "end": {
-            "line": 1,
-            "column": 36
+        'end': {
+            'line': 1,
+            'column': 36
         }
     }
 }],

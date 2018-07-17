@@ -218,86 +218,86 @@ class C {
   }
 }
 `, Context.OptionsRanges | Context.OptionsNext, {
-    "body": [
+    'body': [
       {
-        "body": {
-          "body": [
+        'body': {
+          'body': [
             {
-              "computed": false,
-              "end": 48,
-              "key": {
-                "end": 14,
-                "name": "f",
-                "start": 13,
-                "type": "Identifier"
+              'computed': false,
+              'end': 48,
+              'key': {
+                'end': 14,
+                'name': 'f',
+                'start': 13,
+                'type': 'Identifier'
               },
-              "kind": "method",
-              "start": 13,
-              "static": false,
-              "type": "MethodDefinition",
-              "value": {
-                "async": false,
-                "body": {
-                  "body": [
+              'kind': 'method',
+              'start': 13,
+              'static': false,
+              'type': 'MethodDefinition',
+              'value': {
+                'async': false,
+                'body': {
+                  'body': [
                     {
-                      "end": 44,
-                      "expression": {
-                        "arguments": [
+                      'end': 44,
+                      'expression': {
+                        'arguments': [
                           {
-                            "end": 42,
-                            "raw": null,
-                            "start": 31,
-                            "type": "Literal",
-                            "value": "./page.js",
+                            'end': 42,
+                            'raw': null,
+                            'start': 31,
+                            'type': 'Literal',
+                            'value': './page.js',
                           },
                         ],
-                        "callee": {
-                          "end": 30,
-                          "start": 24,
-                          "type": "Import"
+                        'callee': {
+                          'end': 30,
+                          'start': 24,
+                          'type': 'Import'
                         },
-                        "end": 43,
-                        "start": 24,
-                        "type": "CallExpression",
+                        'end': 43,
+                        'start': 24,
+                        'type': 'CallExpression',
                       },
-                      "start": 24,
-                      "type": "ExpressionStatement"
+                      'start': 24,
+                      'type': 'ExpressionStatement'
                     }
                  ],
-                  "end": 48,
-                  "start": 18,
-                  "type": "BlockStatement",
+                  'end': 48,
+                  'start': 18,
+                  'type': 'BlockStatement',
                 },
-                "end": 48,
-                "expression": false,
-                "generator": false,
-                "id": null,
-                "params": [],
-                "start": 15,
-                "type": "FunctionExpression",
+                'end': 48,
+                'expression': false,
+                'generator': false,
+                'id': null,
+                'params': [],
+                'start': 15,
+                'type': 'FunctionExpression',
               }
             }
           ],
-          "end": 50,
-          "start": 9,
-          "type": "ClassBody",
+          'end': 50,
+          'start': 9,
+          'type': 'ClassBody',
         },
-        "end": 50,
-        "id": {
-          "end": 8,
-          "name": "C",
-          "start": 7,
-          "type": "Identifier",
+        'end': 50,
+        'id': {
+          'end': 8,
+          'name': 'C',
+          'start': 7,
+          'type': 'Identifier',
         },
-        "start": 1,
-        "superClass": null,
-        "type": "ClassDeclaration"
+        'start': 1,
+        'superClass': null,
+        'type': 'ClassDeclaration'
      }
     ],
-    "end": 51,
-    "sourceType": "script",
-    "start": 0,
-    "type": "Program"
+    'end': 51,
+    'sourceType': 'script',
+    'start': 0,
+    'type': 'Program'
   }],
 ];
 

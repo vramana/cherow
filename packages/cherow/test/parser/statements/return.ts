@@ -6,126 +6,126 @@ describe('Expressions - Return', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
   ['_ => { return /a/g; }', '_ => { return /a/g; }', Context.OptionsRanges | Context.OptionsLoc, {
-      "body": [
+      'body': [
         {
-          "end": 21,
-          "expression": {
-            "async": false,
-            "body": {
-              "body": [
+          'end': 21,
+          'expression': {
+            'async': false,
+            'body': {
+              'body': [
                 {
-                  "argument": {
-                    "end": 18,
-                    "loc": {
-                      "end": {
-                        "column": 16,
-                        "line": 1,
+                  'argument': {
+                    'end': 18,
+                    'loc': {
+                      'end': {
+                        'column': 16,
+                        'line': 1,
                       },
-                      "start": {
-                        "column": 14,
-                        "line": 1,
+                      'start': {
+                        'column': 14,
+                        'line': 1,
                       }
                     },
-                   "regex": {
-                      "flags": "g",
-                      "pattern": "a",
+                   'regex': {
+                      'flags': 'g',
+                      'pattern': 'a',
                     },
-                    "start": 14,
-                   "type": "Literal",
-                    "value": /a/g,
+                    'start': 14,
+                   'type': 'Literal',
+                    'value': /a/g,
                   },
-                  "end": 19,
-                  "loc": {
-                    "end": {
-                      "column": 17,
-                      "line": 1,
+                  'end': 19,
+                  'loc': {
+                    'end': {
+                      'column': 17,
+                      'line': 1,
                     },
-                    "start": {
-                      "column": 7,
-                      "line": 1,
+                    'start': {
+                      'column': 7,
+                      'line': 1,
                     }
                   },
-                  "start": 7,
-                  "type": "ReturnStatement",
+                  'start': 7,
+                  'type': 'ReturnStatement',
                 }
               ],
-              "end": 21,
-              "loc": {
-                "end": {
-                  "column": 19,
-                  "line": 1,
+              'end': 21,
+              'loc': {
+                'end': {
+                  'column': 19,
+                  'line': 1,
                 },
-                "start": {
-                  "column": 5,
-                  "line": 1,
+                'start': {
+                  'column': 5,
+                  'line': 1,
                 },
               },
-              "start": 5,
-              "type": "BlockStatement",
+              'start': 5,
+              'type': 'BlockStatement',
             },
-           "end": 21,
-            "expression": false,
-            "generator": false,
-            "id": null,
-            "loc": {
-              "end": {
-                "column": 19,
-                "line": 1,
+           'end': 21,
+            'expression': false,
+            'generator': false,
+            'id': null,
+            'loc': {
+              'end': {
+                'column': 19,
+                'line': 1,
               },
-              "start": {
-                "column": 0,
-                "line": 1,
+              'start': {
+                'column': 0,
+                'line': 1,
               }
             },
-            "params": [
+            'params': [
              {
-                "end": 1,
-                "loc": {
-                  "end": {
-                    "column": 1,
-                    "line": 1,
+                'end': 1,
+                'loc': {
+                  'end': {
+                    'column': 1,
+                    'line': 1,
                   },
-                  "start": {
-                    "column": 0,
-                    "line": 1,
+                  'start': {
+                    'column': 0,
+                    'line': 1,
                   },
                 },
-                "name": "_",
-                "start": 0,
-                "type": "Identifier",
+                'name': '_',
+                'start': 0,
+                'type': 'Identifier',
               },
             ],
-            "start": 0,
-            "type": "ArrowFunctionExpression",
+            'start': 0,
+            'type': 'ArrowFunctionExpression',
           },
-          "loc": {
-            "end": {
-              "column": 19,
-              "line": 1,
+          'loc': {
+            'end': {
+              'column': 19,
+              'line': 1,
             },
-           "start": {
-              "column": 0,
-              "line": 1,
+           'start': {
+              'column': 0,
+              'line': 1,
             },
          },
-          "start": 0,
-          "type": "ExpressionStatement",
+          'start': 0,
+          'type': 'ExpressionStatement',
         },
      ],
-      "end": 21,
-     "loc": {
-        "end": {
-          "column": 19,
-          "line": 1,
+      'end': 21,
+     'loc': {
+        'end': {
+          'column': 19,
+          'line': 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        'start': {
+          'column': 0,
+          'line': 1,
         },
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program",
+      'sourceType': 'script',
+      'start': 0,
+      'type': 'Program',
     }],
   ['_ => { return 0; }', '_ => { return 0; }', Context.OptionsRanges | Context.OptionsLoc, {
     'type': 'Program',

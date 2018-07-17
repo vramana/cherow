@@ -133,7 +133,7 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
 
   switch (state.token) {
 
-        // export * from 'fkleuver';
+      // export * from 'fkleuver';
       case Token.Multiply:
           {
               nextToken(state, context);
@@ -216,10 +216,14 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
           // export async (x) => y
           // export async x => y
       case Token.AsyncKeyword:
-
-          if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-              declaration = parseFunctionDeclaration(state, context, true);
-              break;
+          {
+              const pos = getLocation(state);
+              const line = state.line;
+              nextToken(state, context);
+              if (state.line === line) {
+                  declaration = parseFunctionDeclaration(state, context, true, pos);
+                  break;
+              }
           }
           // Falls through
       default:
@@ -251,7 +255,7 @@ function parseNamedExportDeclaration(state: ParserState, context: Context): ESTr
   if (state.token === Token.AsKeyword) {
       nextToken(state, context);
       if (!(state.token & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
-      exported = parseIdentifier(state, context)
+      exported = parseIdentifier(state, context);
   } else exported = local;
 
   return finishNode(state, context, pos, {
@@ -278,14 +282,16 @@ export function parseImportDeclaration(state: ParserState, context: Context): ES
 
     // 'import' ModuleSpecifier ';'
     if (state.token & Token.Identifier) {
-
-        specifiers.push(parseImportDefaultSpecifier(state, context));
+        specifiers.push(finishNode(state, context, getLocation(state), {
+          type: 'ImportDefaultSpecifier',
+          local: parseIdentifier(state, context),
+      }));
 
         if (optional(state, context, Token.Comma)) {
             if (state.token === Token.Multiply) {
-                parseNameSpaceImport(state, context, specifiers);
+                parseImportNamespace(state, context, specifiers);
             } else if (state.token === Token.LeftBrace) {
-                parseNamedImports(state, context, specifiers);
+                parseImportSpecifierOrNamedImports(state, context, specifiers);
             } else report(state, Errors.Unexpected);
         }
 
@@ -296,9 +302,9 @@ export function parseImportDeclaration(state: ParserState, context: Context): ES
         source = parseLiteral(state, context);
     } else {
         if (state.token === Token.Multiply) {
-            parseNameSpaceImport(state, context, specifiers);
+            parseImportNamespace(state, context, specifiers);
         } else if (state.token === Token.LeftBrace) {
-            parseNamedImports(state, context, specifiers);
+            parseImportSpecifierOrNamedImports(state, context, specifiers);
         } else report(state, Errors.Unexpected);
 
         source = parseModuleSpecifier(state, context);
@@ -314,55 +320,42 @@ export function parseImportDeclaration(state: ParserState, context: Context): ES
 }
 
 /**
- * Parse named imports
+ * Parse named imports or import specifier
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-
-function parseNamedImports(state: ParserState, context: Context, specifiers: ESTree.Specifiers[]): void {
-    expect(state, context, Token.LeftBrace);
-    while (state.token !== Token.RightBrace) {
-        specifiers.push(parseImportSpecifier(state, context));
-        if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
-    }
-
-    expect(state, context, Token.RightBrace);
-}
-
-/**
- * Parse import specifier
- *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 
-function parseImportSpecifier(state: ParserState, context: Context): ESTree.ImportSpecifier {
-    const pos = getLocation(state);
-    const t = state.token;
+function parseImportSpecifierOrNamedImports(state: ParserState, context: Context, specifiers: ESTree.Specifiers[]): void {
+  expect(state, context, Token.LeftBrace);
+  while (state.token !== Token.RightBrace) {
+      const pos = getLocation(state);
+      const t = state.token;
+      if (!(t & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
+      const imported = parseIdentifier(state, context);
+      let local: ESTree.Identifier;
+      if (optional(state, context, Token.AsKeyword)) {
+          local = parseBindingIdentifier(state, context);
+      } else {
+          // An import name that is a keyword is a syntax error if it is not followed
+          // by the keyword 'as'.
+          if (t & Token.Reserved) report(state, Errors.Unexpected);
+          local = imported;
+      }
 
-    if (!(t & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
+      specifiers.push(finishNode(state, context, pos, {
+          type: 'ImportSpecifier',
+          local,
+          imported,
+      }));
 
-    const imported = parseIdentifier(state, context);
-    let local: ESTree.Identifier;
-    if (optional(state, context, Token.AsKeyword)) {
-        local = parseBindingIdentifier(state, context);
-    } else {
-        // An import name that is a keyword is a syntax error if it is not followed
-        // by the keyword 'as'.
-        if (t & Token.Reserved) report(state, Errors.Unexpected);
-        local = imported;
-    }
+      if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
+  }
 
-    return finishNode(state, context, pos, {
-        type: 'ImportSpecifier',
-        local,
-        imported,
-    });
+  expect(state, context, Token.RightBrace);
 }
 
 /**
@@ -370,11 +363,11 @@ function parseImportSpecifier(state: ParserState, context: Context): ESTree.Impo
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 
-function parseNameSpaceImport(state: ParserState, context: Context, specifiers: ESTree.Specifiers[]): void {
+function parseImportNamespace(state: ParserState, context: Context, specifiers: ESTree.Specifiers[]): void {
     // NameSpaceImport:
     //  * as ImportedBinding
     const pos = getLocation(state);
@@ -392,7 +385,7 @@ function parseNameSpaceImport(state: ParserState, context: Context, specifiers: 
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleSpecifier)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Literal {
@@ -404,33 +397,21 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
 }
 
 /**
- * Parse import default specifier
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseImportDefaultSpecifier(state: ParserState, context: Context): ESTree.ImportDefaultSpecifier {
-    return finishNode(state, context, getLocation(state), {
-        type: 'ImportDefaultSpecifier',
-        local: parseIdentifier(state, context),
-    });
-}
-
-/**
  * Parses either async function or assignment expression
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
  * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 function parseAsyncFunctionOrAssignmentExpression(
   state: ParserState,
   context: Context
 ): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
+    const pos = getLocation(state);
     return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false) ?
-        parseFunctionDeclaration(state, context | Context.RequireIdentifier, true) :
+        parseFunctionDeclaration(state, context | Context.RequireIdentifier, true, pos) :
         parseAssignmentExpression(state, context) as any;
 }

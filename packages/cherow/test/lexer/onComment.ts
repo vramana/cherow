@@ -21,7 +21,7 @@ describe('Lexer - OnComment', () => {
                   value: opts.value,
                   line: opts.line,
                   column: opts.column
-              }, );
+              },);
           }
       });
   }

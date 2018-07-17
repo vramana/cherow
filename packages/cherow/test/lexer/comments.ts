@@ -40,7 +40,7 @@ describe('Lexer - Comments', () => {
               line: opts.line,
               index: opts.index,
               column: opts.column
-          }, );
+          },);
       });
   }
 

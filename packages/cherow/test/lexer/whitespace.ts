@@ -17,7 +17,7 @@ describe('Lexer - Whitespace', () => {
             },          {
                 line: opts.line,
                 column: opts.column
-            }, );
+            },);
         });
     }
 
