@@ -367,7 +367,7 @@ export function parseWithStatement(state: ParserState, context: Context): ESTree
   const pos = getLocation(state);
   nextToken(state, context);
   expect(state, context | Context.ExpressionStart, Token.LeftParen);
-  const object = parseExpression(state, context);
+  const object = parseAssignmentExpression(state, context);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, context, LabelledFunctionState.Disallow);
   return finishNode(state, context, pos, {

@@ -1136,17 +1136,21 @@ export function parseFunctionExpression(state: ParserState, context: Context, po
       id,
   });
 }
+
 export function parseFormalParameters(state: ParserState, context: Context): any {
   expect(state, context, Token.LeftParen);
   const params: (ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier)[] = [];
+  if (state.token === Token.Comma) report(state, Errors.Unexpected);
   while (state.token !== Token.RightParen) {
       if (state.token === Token.Ellipsis) {
           params.push(parseRestElement(state, context));
-          break;
+          break; //rest parameter must be the last
       }
-      params.push(parseFormalParameterList(state, context));
-      if (!optional(state, context, Token.Comma)) break;
-      if (state.token === Token.RightParen) break;
+      if (optional(state, context, Token.Comma)) {
+          if (state.token === Token.Comma) report(state, Errors.Unexpected);
+      } else {
+          params.push(parseFormalParameterList(state, context));
+      }
   }
   expect(state, context, Token.RightParen);
   return params;
