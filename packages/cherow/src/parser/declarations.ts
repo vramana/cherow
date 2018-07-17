@@ -22,7 +22,7 @@ export function parseClassDeclaration(state: ParserState, context: Context): any
   let id: ESTree.Identifier | null = null;
   if (state.token & Token.IdentifierOrContextual && state.token !== Token.ExtendsKeyword) {
       id = parseBindingIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
   let superClass: ESTree.Expression | null = null;
   if (optional(state, context, Token.ExtendsKeyword)) {
       superClass = parseLeftHandSideExpression(state, context, pos);
@@ -57,7 +57,8 @@ export function parseFunctionDeclaration(
   let id: ESTree.Identifier | null = null;
   if (state.token !== Token.LeftParen) {
       id = parseBindingIdentifier(state, context);
-  }
+  } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
+
   context = (context | Context.InGenerator) ^ Context.InGenerator;
   context = (context | Context.InAsync) ^ Context.InAsync;
 

@@ -19,6 +19,7 @@ import {
   getLocation,
   consumeSemicolon,
   nextTokenIsFuncKeywordOnSameLine,
+  nextTokenIsLeftParenOrPeriod,
   isLexical,
   expect,
   optional,
@@ -66,19 +67,26 @@ export function parseStatementList(state: ParserState, context: Context): ESTree
  */
 export function parseStatementListItem(state: ParserState, context: Context): ESTree.Statement {
   switch (state.token) {
-    case Token.FunctionKeyword:
-        return parseFunctionDeclaration(state, context, false);
-    case Token.ClassKeyword:
-        return parseClassDeclaration(state, context);
-    case Token.ConstKeyword:
-        return parseVariableStatement(state, context, BindingType.Const, BindingOrigin.Statement);
-    case Token.LetKeyword:
-        return parseLetOrExpressionStatement(state, context);
-    case Token.AsyncKeyword:
-        return parseAsyncFunctionOrExpressionStatement(state, context);
-    // falls through
-    default:
-        return parseStatement(state, context, LabelledFunctionState.Allow);
+      case Token.FunctionKeyword:
+          return parseFunctionDeclaration(state, context, false);
+      case Token.ClassKeyword:
+          return parseClassDeclaration(state, context);
+      case Token.ConstKeyword:
+          return parseVariableStatement(state, context, BindingType.Const, BindingOrigin.Statement);
+      case Token.LetKeyword:
+          return parseLetOrExpressionStatement(state, context);
+      case Token.AsyncKeyword:
+          return parseAsyncFunctionOrExpressionStatement(state, context);
+      case Token.ImportKeyword:
+          if (context & Context.OptionsNext && lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true)) {
+              return parseExpressionStatement(state, context);
+          }
+      case Token.ExportKeyword:
+          if (context & Context.Module) {
+              report(state, Errors.ImportExportDeclAtTopLevel, KeywordDescTable[state.token & Token.Type]);
+          }
+      default:
+          return parseStatement(state, context, LabelledFunctionState.Allow);
   }
 }
 
@@ -718,5 +726,22 @@ function parseForStatement(state: ParserState, context: Context): any {
           test,
           update
       });
+}
 
+/**
+ * Parses expression statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+export function parseExpressionStatement(state: ParserState, context: Context): ESTree.ExpressionStatement {
+  const pos = getLocation(state);
+  const expr: ESTree.Expression = parseExpression(state, context);
+  consumeSemicolon(state, context);
+  return finishNode(state, context, pos, {
+    type: 'ExpressionStatement',
+    expression: expr
+  });
 }

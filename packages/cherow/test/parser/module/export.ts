@@ -1,5 +1,5 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Module - Export', () => {
 
@@ -772,6 +772,62 @@ const valids: Array < [string, string, Context, any] > = [
 }],
 ];
 
+const invalids: Array < [string, string, Context, any] > = [
+  ['export foo', 'export foo', Context.Empty, {}],
+  ['export {', 'export {', Context.Module, {}],
+  ['export async;', 'export async;', Context.Module, {}],
+  ['var a; export { a', 'var a; export { a', Context.Module, {}],
+  ['var a; export { a,', 'var a; export { a,', Context.Module, {}],
+  ['var a; export { a, ;', 'var a; export { a, ;', Context.Module, {}],
+  ['var a; export { a as };', 'var a; export { a as };', Context.Module, {}],
+  ['var a, b; export { a as , b};', 'var a, b; export { a as , b};', Context.Module, {}],
+  ['class C { method() { export default null; } }', 'class C { method() { export default null; } }', Context.Module, {}],
+  ['{ export default null; }', '{ export default null; }', Context.Module, {}],
+  ['switch(0) { case 1: export default null; default: }', 'switch(0) { case 1: export default null; default: }', Context.Module, {}],
+  ['export { , };', 'export { , };', Context.Module, {}],
+  ['export default;', 'export default;', Context.Module, {}],
+  ['export default var x = 7;', 'export default var x = 7;', Context.Module, {}],
+  ['export default let x = 7;', 'export default let x = 7;', Context.Module, {}],
+  ['export *;', 'export *;', Context.Module, {}],
+  ['export * from;', 'export * from;', Context.Module, {}],
+  ['export { Q } from;', 'export { Q } from;', Context.Module, {}],
+  ['export default from \'module.js\';', 'export default from \'module.js\';', Context.Module, {}],
+  ['export { for }', 'export { for }', Context.Module, {}],
+  ['export { for as foo }', 'export { for as foo }', Context.Module, {}],
+  ['export * as z from "c";', 'export * as z from "c";', Context.Module, {}],
+  ['export function() {}', 'export function() {}', Context.Module, {}],
+  ['export function*() {}', 'export function*() {}', Context.Module, {}],
+  ['export class {}', 'export class {}', Context.Module, {}],
+  ['export class extends C {}', 'export class extends C {}', Context.Module, {}],
+  ['export async', 'export async', Context.Module, {}],
+  ['export async\nfunction async() { await 1; }', 'export async\nfunction async() { await 1; }', Context.Module, {}],
+  ['export * as namespace from \'./foo\' null;', 'export * as namespace from \'./foo\' null;', Context.Module, {}],
+  ['export {try};', 'export {try};', Context.Module, {}],
+  ['export * +', 'export * +', Context.Module, {}],
+  ['export default from "foo"', 'export default from "foo"', Context.Module, {}],
+  ['export {default}', 'export {default}', Context.Module, {}],
+  ['export {try as bar};', 'export {try as bar};', Context.Module, {}],
+  ['export typeof foo;', 'export typeof foo;', Context.Module, {}],
+  ['export new Foo();', 'export new Foo();', Context.Module, {}],
+  ['export *', 'export *', Context.Module, {}],
+  ['export { default }', 'export { default }', Context.Module, {}],
+  ['export { if }', 'export { if }', Context.Module, {}],
+  ['export { default as foo }', 'export { default as foo }', Context.Module, {}],
+  ['export { if as foo }', 'export { if as foo }', Context.Module, {}],
+  ['export * from foo', 'export * from foo', Context.Module, {}],
+  ['export { bar } from foo', 'export { bar } from foo', Context.Module, {}],
+  ['function foo() { }; export foo;', 'function foo() { }; export foo;', Context.Module, {}],
+  ['export B, * as A, { C, D } from "test";', 'export B, * as A, { C, D } from "test";', Context.Module, {}],
+  ['function foo() { }; export [ foo ];', 'function foo() { }; export [ foo ];', Context.Module, {}],
+  ['function foo() { export default function() { } }', 'function foo() { export default function() { } }', Context.Module, {}],
+  ['function foo() { }; export { , foo };', 'function foo() { }; export { , foo };', Context.Module, {}],
+  ['function foo() { }; () => { export { foo }; }', 'function foo() { }; () => { export { foo }; }', Context.Module, {}],
+  ['function foo() { }; try { export { foo }; } catch(e) { }', 'function foo() { }; try { export { foo }; } catch(e) { }', Context.Module, {}],
+  ['export 12;', 'export 12;', Context.Module, {}],
+  ['function foo() { }; export { foo as 100 };', 'function foo() { }; export { foo as 100 };', Context.Module, {}],
+]
+
+fail('Module - Export (pass)', invalids);
 pass('Module - Export (pass)', valids);
 
 });

@@ -48,7 +48,8 @@ export const enum Errors {
   NoCatchOrFinally,
   NoCatchClause,
   MultipleDefaultsInSwitch,
-  AsyncFunctionInSingleStatementContext
+  AsyncFunctionInSingleStatementContext,
+  ImportExportDeclAtTopLevel
 }
 
 /*@internal*/
@@ -102,6 +103,7 @@ export const errorMessages: {
   [Errors.NoCatchClause]: 'Missing catch clause',
   [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
   [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
+  [Errors.ImportExportDeclAtTopLevel]: '%0 declarations may only appear at top level of a module',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
