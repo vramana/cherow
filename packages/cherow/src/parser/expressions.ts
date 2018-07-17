@@ -100,7 +100,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
   }
   if (state.token & Token.IsAssignOp) {
       const operator = state.token;
-      // if (!state.assignable) report(state, Errors.Unexpected);
+      //if (!state.assignable) report(state, Errors.Unexpected);
       if (state.token === Token.Assign) {
         if (expr.type === 'ArrayExpression' ||
             expr.type === 'ObjectExpression'
@@ -298,7 +298,11 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
       switch (state.token) {
           case Token.Period:
               state.assignable = true;
+              state.destructible = false;
               nextToken(state, context);
+              if (!(state.token & (Token.Identifier | Token.Keyword))) {
+                report(state, Errors.Unexpected);
+              }
               expr = finishNode(state, context, pos, {
                   type: 'MemberExpression',
                   object: expr,
@@ -307,6 +311,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
               });
               continue;
           case Token.LeftBracket:
+              state.destructible = false;
               state.assignable = true;
               nextToken(state, context);
               expr = finishNode(state, context, pos, {
@@ -319,6 +324,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
               break;
           case Token.LeftParen:
               state.assignable = false;
+              state.destructible = false;
               const args = parseArgumentList(state, context);
               if (state.token === Token.Arrow) return args;
               expr = finishNode(state, context, pos, {
@@ -493,48 +499,53 @@ function parseImportCall(state: ParserState, context: Context, pos: Location): E
  */
 function parseMemberExpressionContinuation(state: ParserState, context: Context, expr: any, pos: Location) {
   while (true) {
-    switch (state.token) {
-        case Token.Period:
-            state.assignable = true;
-            nextToken(state, context);
-            expr = finishNode(state, context, pos, {
-                type: 'MemberExpression',
-                object: expr,
-                computed: false,
-                property: parseIdentifier(state, context),
-            });
-            continue;
-        case Token.LeftBracket:
-            state.assignable = true;
-            nextToken(state, context);
-            expr = finishNode(state, context, pos, {
-                type: 'MemberExpression',
-                object: expr,
-                computed: true,
-                property: parseExpression(state, context),
-            });
-            expect(state, context, Token.RightBracket);
-            break;
-            case Token.TemplateTail:
-            state.assignable = false;
-            expr = finishNode(state, context, pos, {
-              type: 'TaggedTemplateExpression',
-              tag: expr,
-              quasi: parseTemplateLiteral(state, context),
-          });
-            break;
-        case Token.TemplateCont:
-            state.assignable = false;
-            expr = finishNode(state, context, pos, {
-              type: 'TaggedTemplateExpression',
-              tag: expr,
-              quasi: parseTemplate(state, context | Context.TaggedTemplate),
-          });
-            break;
-        default:
-            return expr;
-    }
-}
+      switch (state.token) {
+          case Token.Period:
+              state.assignable = true;
+              state.destructible = false;
+              nextToken(state, context);
+              if (!(state.token & (Token.Identifier | Token.Keyword))) {
+                  report(state, Errors.Unexpected);
+              }
+              expr = finishNode(state, context, pos, {
+                  type: 'MemberExpression',
+                  object: expr,
+                  computed: false,
+                  property: parseIdentifier(state, context),
+              });
+              continue;
+          case Token.LeftBracket:
+              state.destructible = false;
+              state.assignable = true;
+              nextToken(state, context);
+              expr = finishNode(state, context, pos, {
+                  type: 'MemberExpression',
+                  object: expr,
+                  computed: true,
+                  property: parseExpression(state, context),
+              });
+              expect(state, context, Token.RightBracket);
+              break;
+          case Token.TemplateTail:
+              state.assignable = false;
+              expr = finishNode(state, context, pos, {
+                  type: 'TaggedTemplateExpression',
+                  tag: expr,
+                  quasi: parseTemplateLiteral(state, context),
+              });
+              break;
+          case Token.TemplateCont:
+              state.assignable = false;
+              expr = finishNode(state, context, pos, {
+                  type: 'TaggedTemplateExpression',
+                  tag: expr,
+                  quasi: parseTemplate(state, context | Context.TaggedTemplate),
+              });
+              break;
+          default:
+              return expr;
+      }
+  }
 }
 
 /**
@@ -549,12 +560,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
   nextToken(state, context | Context.ExpressionStart);
   const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
   while (state.token !== Token.RightParen) {
-      if (state.token === Token.Ellipsis) {
-        expressions.push(parseSpreadElement(state, context));
-      } else {
-          expressions.push(parseAssignmentExpression(state, context));
-      }
-
+      expressions.push(state.token === Token.Ellipsis ? parseSpreadElement(state, context) : parseAssignmentExpression(state, context));
       if (state.token !== Token.RightParen) expect(state, context | Context.ExpressionStart, Token.Comma);
   }
 

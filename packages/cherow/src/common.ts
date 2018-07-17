@@ -385,20 +385,3 @@ export function reinterpret(state: ParserState, context: Context, node: any): vo
           report(state, Errors.Unexpected);
   }
 }
-
-/**
- * Parse identifier name
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-IdentifierName)
- *
- * @param parser Parser object
- * @param context Context masks
- * @param t token
- */
-
-export function parseIdentifierName(state: ParserState, context: Context, t: Token): ESTree.Identifier {
-  if (!(t & (Token.Identifier | Token.Keyword))) {
-      report(state, Errors.Unexpected);
-  }
-  return parseIdentifier(state, context);
-}

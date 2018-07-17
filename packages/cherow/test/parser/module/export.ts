@@ -773,6 +773,7 @@ const valids: Array < [string, string, Context, any] > = [
 ];
 
 const invalids: Array < [string, string, Context, any] > = [
+  ['export /lol/ from "fkleuver";', 'export /lol/ from "fkleuver";', Context.Module, {}],
   ['export foo', 'export foo', Context.Empty, {}],
   ['export {', 'export {', Context.Module, {}],
   ['export async;', 'export async;', Context.Module, {}],
