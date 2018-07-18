@@ -126,6 +126,75 @@ const valids: Array < [string, string, Context, any] > = [
   'start': 0,
   'end': 19
 }],
+['export default function () {}', 'export default function () {}', Context.OptionsRanges | Context.OptionsLoc | Context.Module, {
+  'type': 'Program',
+  'sourceType': 'module',
+  'body': [
+      {
+          'type': 'ExportDefaultDeclaration',
+          'declaration': {
+              'type': 'FunctionDeclaration',
+              'params': [],
+              'body': {
+                  'type': 'BlockStatement',
+                  'body': [],
+                  'start': 27,
+                  'end': 29,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 27
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 29
+                      }
+                  }
+              },
+              'async': false,
+              'generator': false,
+              'expression': false,
+              'id': null,
+              'start': 15,
+              'end': 29,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 15
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 29
+                  }
+              }
+          },
+          'start': 0,
+          'end': 29,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 29
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 29,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 29
+      }
+  }
+}],
 ['function f() {}; f(); export { f };', 'function f() {}; f(); export { f };', Context.OptionsRanges | Context.Module, {
   'type': 'Program',
   'sourceType': 'module',
@@ -1240,6 +1309,7 @@ const invalids: Array < [string, string, Context, any] > = [
   ['export async', 'export async', Context.Module, {}],
   ['export async\nfunction async() { await 1; }', 'export async\nfunction async() { await 1; }', Context.Module, {}],
   ['export * as namespace from \'./foo\' null;', 'export * as namespace from \'./foo\' null;', Context.Module, {}],
+  ['export async function () {}', 'export async function () {}', Context.Module, {}],
   ['export {try};', 'export {try};', Context.Module, {}],
   ['export * +', 'export * +', Context.Module, {}],
   ['export default from "foo"', 'export default from "foo"', Context.Module, {}],

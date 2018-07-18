@@ -53,7 +53,12 @@ export function parseFunctionDeclaration(
   pos: Location = getLocation(state),
 ): ESTree.FunctionDeclaration {
   nextToken(state, context);
-  const isGenerator = optional(state, context | Context.ExpressionStart, Token.Multiply);
+  let isGenerator: boolean = false;
+  if (state.token === Token.Multiply) {
+      if (context & Context.DisallowGenerator) report(state, Errors.Unexpected);
+      nextToken(state, context | Context.ExpressionStart);
+      isGenerator = true;
+  }
   let id: ESTree.Identifier | null = null;
   if (state.token !== Token.LeftParen) {
       id = parseBindingIdentifier(state, context);

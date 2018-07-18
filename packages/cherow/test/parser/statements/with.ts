@@ -531,6 +531,15 @@ const invalids: Array < [string, string, Context, any] > = [
   ['with ({}) class C {}', 'with ({}) class C {}', Context.Empty, {}],
   ['with ({}) function f() {}', 'with ({}) function f() {}', Context.Empty, {}],
   ['with ({}) label1: label2: function test262() {}', 'with ({}) label1: label2: function test262() {}', Context.Empty, {}],
+  ['with ({}) const x = null;', 'with ({}) const x = null;', Context.Empty, {}],
+  ['with ({}) function* g() {}', 'with ({}) function* g() {}', Context.Empty, {}],
+  [`if (false) {
+    with ({}) let
+    [a] = 0;
+}`, `if (false) {
+  with ({}) let
+  [a] = 0;
+}`, Context.Empty, {}],
   ['with ({}) let x;', 'with ({}) let x;', Context.Empty, {}],
   ['with({}){ p1 = "x1"; }', 'with({}){ p1 = "x1"; }', Context.Strict, {}],
 ];

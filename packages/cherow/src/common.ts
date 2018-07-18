@@ -30,13 +30,14 @@ export const enum Context {
   InFunctionBody        = 1 << 20,
   DisallowIn            = 1 << 21,
   RequireIdentifier     = 1 << 22,
+  DisallowGenerator     = 1 << 23,
 }
 
 export const enum Flags {
-  Empty           = 0,
-  LineTerminator  = 1 << 0,
-  HasOctal        = 1 << 1,
-  EdgeCase        = 1 << 2,
+  Empty               = 0,
+  LineTerminator      = 1 << 0,
+  HasOctal            = 1 << 1,
+  EdgeCase            = 1 << 2,
   SimpleParameterList = 1 << 3,
 }
 

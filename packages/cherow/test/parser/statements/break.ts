@@ -2161,6 +2161,355 @@ function OUT_FUNC(){}
           'column': 22
       }
   }
+}],
+[`LABEL_OUT : var x=0, y=0, xx=0, yy=0;
+(function(){
+LABEL_DO_LOOP : do {
+    LABEL_IN : x++;
+    if(x===10)return;
+    LABEL_NESTED_LOOP : do {
+        LABEL_IN_NESTED : xx++;
+        if(xx===10)return;
+        break LABEL_NESTED_LOOP;
+        LABEL_IN_NESTED_2 : yy++;
+    } while (0);
+
+    LABEL_IN_2 : y++;
+
+    function IN_DO_FUNC(){}
+} while(0);
+
+LABEL_ANOTHER_LOOP : do {
+    ;
+} while(0);
+
+function OUT_FUNC(){}
+})();`, `LABEL_OUT : var x=0, y=0, xx=0, yy=0;
+(function(){
+LABEL_DO_LOOP : do {
+    LABEL_IN : x++;
+    if(x===10)return;
+    LABEL_NESTED_LOOP : do {
+        LABEL_IN_NESTED : xx++;
+        if(xx===10)return;
+        break LABEL_NESTED_LOOP;
+        LABEL_IN_NESTED_2 : yy++;
+    } while (0);
+
+    LABEL_IN_2 : y++;
+
+    function IN_DO_FUNC(){}
+} while(0);
+
+LABEL_ANOTHER_LOOP : do {
+    ;
+} while(0);
+
+function OUT_FUNC(){}
+})();`, Context.Empty, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'LabeledStatement',
+          'label': {
+              'type': 'Identifier',
+              'name': 'LABEL_OUT'
+          },
+          'body': {
+              'type': 'VariableDeclaration',
+              'kind': 'var',
+              'declarations': [
+                  {
+                      'type': 'VariableDeclarator',
+                      'init': {
+                          'type': 'Literal',
+                          raw: null,
+                          'value': 0
+                      },
+                      'id': {
+                          'type': 'Identifier',
+                          'name': 'x'
+                      }
+                  },
+                  {
+                      'type': 'VariableDeclarator',
+                      'init': {
+                          'type': 'Literal',
+                          raw: null,
+                          'value': 0
+                      },
+                      'id': {
+                          'type': 'Identifier',
+                          'name': 'y'
+                      }
+                  },
+                  {
+                      'type': 'VariableDeclarator',
+                      'init': {
+                          'type': 'Literal',
+                          raw: null,
+                          'value': 0
+                      },
+                      'id': {
+                          'type': 'Identifier',
+                          'name': 'xx'
+                      }
+                  },
+                  {
+                      'type': 'VariableDeclarator',
+                      'init': {
+                          'type': 'Literal',
+                          raw: null,
+                          'value': 0
+                      },
+                      'id': {
+                          'type': 'Identifier',
+                          'name': 'yy'
+                      }
+                  }
+              ]
+          }
+      },
+      {
+          'type': 'ExpressionStatement',
+          'expression': {
+              'type': 'CallExpression',
+              'callee': {
+                  'type': 'FunctionExpression',
+                  'params': [],
+                  'body': {
+                      'type': 'BlockStatement',
+                      'body': [
+                          {
+                              'type': 'LabeledStatement',
+                              'label': {
+                                  'type': 'Identifier',
+                                  'name': 'LABEL_DO_LOOP'
+                              },
+                              'body': {
+                                  'type': 'DoWhileStatement',
+                                  'body': {
+                                      'type': 'BlockStatement',
+                                      'body': [
+                                          {
+                                              'type': 'LabeledStatement',
+                                              'label': {
+                                                  'type': 'Identifier',
+                                                  'name': 'LABEL_IN'
+                                              },
+                                              'body': {
+                                                  'type': 'ExpressionStatement',
+                                                  'expression': {
+                                                      'type': 'UpdateExpression',
+                                                      'argument': {
+                                                          'type': 'Identifier',
+                                                          'name': 'x'
+                                                      },
+                                                      'operator': '++',
+                                                      'prefix': false
+                                                  }
+                                              }
+                                          },
+                                          {
+                                              'type': 'IfStatement',
+                                              'test': {
+                                                  'type': 'BinaryExpression',
+                                                  'left': {
+                                                      'type': 'Identifier',
+                                                      'name': 'x'
+                                                  },
+                                                  'right': {
+                                                      'type': 'Literal',
+                                                      raw: null,
+                                                      'value': 10
+                                                  },
+                                                  'operator': '==='
+                                              },
+                                              'consequent': {
+                                                  'type': 'ReturnStatement',
+                                                  'argument': null
+                                              },
+                                              'alternate': null
+                                          },
+                                          {
+                                              'type': 'LabeledStatement',
+                                              'label': {
+                                                  'type': 'Identifier',
+                                                  'name': 'LABEL_NESTED_LOOP'
+                                              },
+                                              'body': {
+                                                  'type': 'DoWhileStatement',
+                                                  'body': {
+                                                      'type': 'BlockStatement',
+                                                      'body': [
+                                                          {
+                                                              'type': 'LabeledStatement',
+                                                              'label': {
+                                                                  'type': 'Identifier',
+                                                                  'name': 'LABEL_IN_NESTED'
+                                                              },
+                                                              'body': {
+                                                                  'type': 'ExpressionStatement',
+                                                                  'expression': {
+                                                                      'type': 'UpdateExpression',
+                                                                      'argument': {
+                                                                          'type': 'Identifier',
+                                                                          'name': 'xx'
+                                                                      },
+                                                                      'operator': '++',
+                                                                      'prefix': false
+                                                                  }
+                                                              }
+                                                          },
+                                                          {
+                                                              'type': 'IfStatement',
+                                                              'test': {
+                                                                  'type': 'BinaryExpression',
+                                                                  'left': {
+                                                                      'type': 'Identifier',
+                                                                      'name': 'xx'
+                                                                  },
+                                                                  'right': {
+                                                                      'type': 'Literal',
+                                                                      raw: null,
+                                                                      'value': 10
+                                                                  },
+                                                                  'operator': '==='
+                                                              },
+                                                              'consequent': {
+                                                                  'type': 'ReturnStatement',
+                                                                  'argument': null
+                                                              },
+                                                              'alternate': null
+                                                          },
+                                                          {
+                                                              'type': 'BreakStatement',
+                                                              'label': {
+                                                                  'type': 'Identifier',
+                                                                  'name': 'LABEL_NESTED_LOOP'
+                                                              }
+                                                          },
+                                                          {
+                                                              'type': 'LabeledStatement',
+                                                              'label': {
+                                                                  'type': 'Identifier',
+                                                                  'name': 'LABEL_IN_NESTED_2'
+                                                              },
+                                                              'body': {
+                                                                  'type': 'ExpressionStatement',
+                                                                  'expression': {
+                                                                      'type': 'UpdateExpression',
+                                                                      'argument': {
+                                                                          'type': 'Identifier',
+                                                                          'name': 'yy'
+                                                                      },
+                                                                      'operator': '++',
+                                                                      'prefix': false
+                                                                  }
+                                                              }
+                                                          }
+                                                      ]
+                                                  },
+                                                  'test': {
+                                                      'type': 'Literal',
+                                                      raw: null,
+                                                      'value': 0
+                                                  }
+                                              }
+                                          },
+                                          {
+                                              'type': 'LabeledStatement',
+                                              'label': {
+                                                  'type': 'Identifier',
+                                                  'name': 'LABEL_IN_2'
+                                              },
+                                              'body': {
+                                                  'type': 'ExpressionStatement',
+                                                  'expression': {
+                                                      'type': 'UpdateExpression',
+                                                      'argument': {
+                                                          'type': 'Identifier',
+                                                          'name': 'y'
+                                                      },
+                                                      'operator': '++',
+                                                      'prefix': false
+                                                  }
+                                              }
+                                          },
+                                          {
+                                              'type': 'FunctionDeclaration',
+                                              'params': [],
+                                              'body': {
+                                                  'type': 'BlockStatement',
+                                                  'body': []
+                                              },
+                                              'async': false,
+                                              'generator': false,
+                                              'expression': false,
+                                              'id': {
+                                                  'type': 'Identifier',
+                                                  'name': 'IN_DO_FUNC'
+                                              }
+                                          }
+                                      ]
+                                  },
+                                  'test': {
+                                      'type': 'Literal',
+                                      raw: null,
+                                      'value': 0
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'LabeledStatement',
+                              'label': {
+                                  'type': 'Identifier',
+                                  'name': 'LABEL_ANOTHER_LOOP'
+                              },
+                              'body': {
+                                  'type': 'DoWhileStatement',
+                                  'body': {
+                                      'type': 'BlockStatement',
+                                      'body': [
+                                          {
+                                              'type': 'EmptyStatement'
+                                          }
+                                      ]
+                                  },
+                                  'test': {
+                                      'type': 'Literal',
+                                      raw: null,
+                                      'value': 0
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'FunctionDeclaration',
+                              'params': [],
+                              'body': {
+                                  'type': 'BlockStatement',
+                                  'body': []
+                              },
+                              'async': false,
+                              'generator': false,
+                              'expression': false,
+                              'id': {
+                                  'type': 'Identifier',
+                                  'name': 'OUT_FUNC'
+                              }
+                          }
+                      ]
+                  },
+                  'async': false,
+                  'generator': false,
+                  'expression': false,
+                  'id': null
+              },
+              'arguments': []
+          }
+      }
+  ]
 }]
 ];
 
@@ -2326,6 +2675,94 @@ try{
 }`, Context.Empty, {}],
 ['loop1: while (true) { loop2: function a() { break loop1; } }', 'loop1: while (true) { loop2: function a() { break loop1; } }', Context.Empty, {}],
 ['loop; while (true) { break loop1; }', 'loop; while (true) { break loop1; }', Context.Empty, {}],
+[`(function(){
+  LABEL_OUT : var x=0, y=0;
+  LABEL_DO_LOOP : do {
+      LABEL_IN : x++;
+      if(x===10)
+          return;
+      break IN_DO_FUNC;
+      LABEL_IN_2 : y++;
+      function IN_DO_FUNC(){}
+  } while(0);
+
+  LABEL_ANOTHER_LOOP : do {
+      ;
+  } while(0);
+
+  function OUT_FUNC(){}
+})();`, `(function(){
+  LABEL_OUT : var x=0, y=0;
+  LABEL_DO_LOOP : do {
+      LABEL_IN : x++;
+      if(x===10)
+          return;
+      break IN_DO_FUNC;
+      LABEL_IN_2 : y++;
+      function IN_DO_FUNC(){}
+  } while(0);
+
+  LABEL_ANOTHER_LOOP : do {
+      ;
+  } while(0);
+
+  function OUT_FUNC(){}
+})();`, Context.Empty, {}],
+[`(function(){
+  LABEL_OUT : var x=0, y=0;
+  LABEL_DO_LOOP : do {
+      LABEL_IN : x++;
+      if(x===10)
+          return;
+      break LABEL_IN;
+      LABEL_IN_2 : y++;
+
+      function IN_DO_FUNC(){}
+
+  } while(0);
+
+  LABEL_ANOTHER_LOOP : do {
+      ;
+  } while(0);
+
+  function OUT_FUNC(){}
+
+})();`, `(function(){
+  LABEL_OUT : var x=0, y=0;
+  LABEL_DO_LOOP : do {
+      LABEL_IN : x++;
+      if(x===10)
+          return;
+      break LABEL_IN;
+      LABEL_IN_2 : y++;
+
+      function IN_DO_FUNC(){}
+
+  } while(0);
+
+  LABEL_ANOTHER_LOOP : do {
+      ;
+  } while(0);
+
+  function OUT_FUNC(){}
+
+})();`, Context.Empty, {}],
+[`var x=1;
+break;
+var y=2;`, `var x=1;
+break;
+var y=2;`, Context.Empty, {}],
+[`LABEL : x=3.14;
+{
+  var x=1;
+  break LABEL;
+  var y=2;
+}`, `LABEL : x=3.14;
+{
+  var x=1;
+  break LABEL;
+  var y=2;
+}`, Context.Empty, {}],
 ];
 
 pass('Statements - Block (pass)', valids);

@@ -194,7 +194,6 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
           // export var ariya = 123;
           // export var a, b, c;
       case Token.VarKeyword:
-
           declaration = parseVariableStatement(state, context, BindingType.Var, BindingOrigin.Export);
           break;
 
@@ -203,7 +202,6 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
           // export function *foo() {}
           // export function *() {}
       case Token.FunctionKeyword:
-
           declaration = parseFunctionDeclaration(state, context, false);
           break;
 

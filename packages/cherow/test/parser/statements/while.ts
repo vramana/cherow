@@ -551,6 +551,16 @@ const valids: Array < [string, string, Context, any] > = [
 
 const invalids: Array < [string, string, Context, any] > = [
   ['while 1 break;', 'while 1 break;', Context.Empty, {}],
+  ['while false break;', 'while false break;', Context.Empty, {}],
+  ['while (false) class C {}', 'while (false) class C {}', Context.Empty, {}],
+  ['while (false) const x = null;', 'while (false) const x = null;', Context.Empty, {}],
+  ['while (false) function f() {}', 'while (false) function f() {}', Context.Empty, {}],
+  ['while (false) function* g() {}', 'while (false) function* g() {}', Context.Empty, {}],
+  ['while (false) label1: label2: function f() {}', 'while (false) label1: label2: function f() {}', Context.Empty, {}],
+  [`while (false) let
+  [a] = 0;`, `while (false) let
+  [a] = 0;`, Context.Empty, {}],
+  ['while (false) async function* g() {}', 'while (false) async function* g() {}', Context.Empty, {}],
   ['while "hood" break;', 'while "hood" break;', Context.Empty, {}],
   [`while({1}){
     break ;

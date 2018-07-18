@@ -17,7 +17,7 @@ describe('Lexer - Shebang, BOM and Big endian', () => {
               line: opts.line,
               column: opts.column,
               index: opts.index
-          },);
+          }, );
       });
   }
 

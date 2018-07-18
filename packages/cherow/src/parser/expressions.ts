@@ -684,7 +684,6 @@ export function parsePrimaryExpression(
       switch (state.token) {
       case Token.Eval:
       case Token.Arguments:
-      case Token.LetKeyword:
       case Token.StaticKeyword:
       case Token.YieldKeyword:
       case Token.AwaitKeyword:
@@ -715,6 +714,8 @@ export function parsePrimaryExpression(
           return parseFunctionExpression(state, context, pos, false);
       case Token.ClassKeyword:
           return parseClassExpression(state, context);
+      case Token.LetKeyword:
+          return parseLetAsIdentifier(state, context);
       case Token.AsyncKeyword:
           const expr = parseIdentifier(state, context);
           if (state.flags & Flags.LineTerminator) {
@@ -743,6 +744,25 @@ export function parsePrimaryExpression(
   }
 }
 
+/**
+ * Parse 'let' as identifier in 'sloppy mode', and throws
+ * in 'strict mode'  / 'module code'. We also avoid a lookahead on the
+ * ASI restictions while checking this after parsing out the 'let' keyword
+ *
+ * @param parser Parser object
+ * @param context context mask
+ */
+function parseLetAsIdentifier(state: ParserState, context: Context): ESTree.Identifier {
+  if (context & Context.Strict) report(state, Errors.Unexpected);
+  const pos = getLocation(state);
+  const name = state.tokenValue;
+  nextToken(state, context);
+  if (state.flags & Flags.LineTerminator && state.token === Token.LeftBracket) report(state, Errors.Unexpected);
+  return finishNode(state, context, pos, {
+      type: 'Identifier',
+      name,
+  });
+}
 /**
  * Parse regular expression literal
  *

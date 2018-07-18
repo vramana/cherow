@@ -62,7 +62,7 @@ export function parseStatementList(state: ParserState, context: Context): ESTree
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-StatementListItem)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 export function parseStatementListItem(state: ParserState, context: Context): ESTree.Statement {
@@ -95,7 +95,7 @@ export function parseStatementListItem(state: ParserState, context: Context): ES
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 export function parseStatement(state: ParserState, context: Context, label: any): ESTree.Statement {
@@ -149,7 +149,7 @@ export function parseStatement(state: ParserState, context: Context, label: any)
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-SwitchStatement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 function parseSwitchStatement(state: ParserState, context: Context): ESTree.SwitchStatement {
@@ -191,13 +191,13 @@ function parseSwitchStatement(state: ParserState, context: Context): ESTree.Swit
  * @see [Link](https://tc39.github.io/ecma262/#prod-CaseClauses)
  * @see [Link](https://tc39.github.io/ecma262/#prod-DefaultClause)
  *
- * @param state  Parser object
+ * @param state  Parser instance
  * @param context Context masks
  */
 export function parseCaseOrDefaultClauses(
   state: ParserState,
   context: Context,
-  pos: any,
+  pos: Location,
   test: ESTree.Expression | null
 ): ESTree.SwitchCase {
   expect(state, context, Token.Colon);
@@ -246,7 +246,7 @@ export function parseIfStatement(state: ParserState, context: Context): ESTree.I
 function parseConsequentOrAlternate(state: ParserState, context: Context): ESTree.Statement | ESTree.FunctionDeclaration {
   return context & Context.Strict || state.token !== Token.FunctionKeyword ?
       parseStatement(state, context, LabelledFunctionState.Disallow) :
-      parseFunctionDeclaration(state, context, false);
+      parseFunctionDeclaration(state, context | Context.DisallowGenerator, false);
 }
 
 /**
@@ -292,7 +292,6 @@ export function parseWhileStatement(state: ParserState, context: Context): ESTre
   state.iterationStatement = LabelState.Iteration;
   const body = parseStatement(state, context, LabelledFunctionState.Disallow);
   state.iterationStatement = previousIterationStatement;
-
   return finishNode(state, context, pos, {
       type: 'WhileStatement',
       test,
@@ -313,7 +312,7 @@ export function parseContinueStatement(state: ParserState, context: Context): ES
   nextToken(state, context);
   let label: ESTree.Identifier | undefined | null = null;
   if (!(state.flags & Flags.LineTerminator) && state.token & Token.Keyword) {
-      const { tokenValue  } = state;
+      const tokenValue = state.tokenValue;
       label = parseIdentifier(state, context);
       validateContinueLabel(state, tokenValue);
   }
@@ -340,11 +339,10 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
   nextToken(state, context);
   let label: ESTree.Identifier | undefined | null = null;
   if (!(state.flags & Flags.LineTerminator) && state.token & Token.Keyword) {
-      const { tokenValue  } = state;
+      const tokenValue = state.tokenValue;
       label = parseIdentifier(state, context);
       validateBreakStatement(state, tokenValue);
-  } else if (state.iterationStatement === LabelState.Empty &&
-        state.switchStatement === LabelState.Empty) {
+  } else if (state.iterationStatement === LabelState.Empty && state.switchStatement === LabelState.Empty) {
         report(state, Errors.IllegalBreak);
     }
   consumeSemicolon(state, context);
@@ -441,13 +439,13 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
 }
 
 /**
-* Parses try statement
-*
-* @see [Link](https://tc39.github.io/ecma262/#prod-TryStatement)
-*
-* @param state  state object
-* @param context Context masks
-*/
+ * Parses try statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TryStatement)
+ *
+ * @param state  parser instance
+ * @param context Context masks
+ */
 export function parseTryStatement(state: ParserState, context: Context): ESTree.TryStatement {
   const pos = getLocation(state);
   nextToken(state, context);
@@ -464,14 +462,14 @@ export function parseTryStatement(state: ParserState, context: Context): ESTree.
 }
 
 /**
-* Parses catch block
-*
-* @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
-*
-* @param parser  Parser object
-* @param context Context masks
-*/
-export function parseCatchBlock(state: ParserState, context: Context): any {
+ * Parses catch block
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+export function parseCatchBlock(state: ParserState, context: Context): ESTree.CatchClause {
    // TryStatement ::
   //   'try' Block Catch
   //   'try' Block Finally
@@ -525,7 +523,7 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
  *
- * @param state  Parser object
+ * @param state  Parser instance
  * @param context Context masks
  */
 export function parseEmptyStatement(state: ParserState, context: Context): ESTree.EmptyStatement {
@@ -541,7 +539,7 @@ export function parseEmptyStatement(state: ParserState, context: Context): ESTre
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 export function parseVariableStatement(
@@ -569,7 +567,7 @@ export function parseVariableStatement(
  * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 function parseLetOrExpressionStatement(
@@ -587,7 +585,7 @@ function parseLetOrExpressionStatement(
  * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 function parseAsyncFunctionOrExpressionStatement(
@@ -606,7 +604,7 @@ function parseAsyncFunctionOrExpressionStatement(
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
  * @see [Link](https://tc39.github.io/ecma262/#prod-LabelledStatement)
  *
- * @param parser  Parser object
+ * @param parser  Parser instance
  * @param context Context masks
  */
 export function parseExpressionOrLabelledStatement(
@@ -631,7 +629,7 @@ export function parseExpressionOrLabelledStatement(
       let body: ESTree.Statement | ESTree.FunctionDeclaration | null = null;
       if (state.token === Token.FunctionKeyword && !(context & Context.Strict) &&
           label === LabelledFunctionState.Allow) {
-          body = parseFunctionDeclaration(state, context, false);
+          body = parseFunctionDeclaration(state, context | Context.DisallowGenerator, false);
       } else body = parseStatement(state, context, state);
       state.labelDepth--;
       return finishNode(state, context, pos, {

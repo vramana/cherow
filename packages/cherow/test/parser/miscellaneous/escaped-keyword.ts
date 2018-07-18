@@ -6,102 +6,102 @@ describe('Miscellaneous - Escaped identifiers', () => {
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
   ['var y\\u0069eld = 1;', 'var y\\u0069eld = 1;', Context.OptionsRanges | Context.OptionsLoc, {
-      "body": [
+      'body': [
         {
-          "declarations": [
+          'declarations': [
             {
-              "end": 18,
-              "id": {
-                "end": 14,
-                "loc": {
-                  "end": {
-                    "column": 14,
-                    "line": 1,
+              'end': 18,
+              'id': {
+                'end': 14,
+                'loc': {
+                  'end': {
+                    'column': 14,
+                    'line': 1,
                   },
-                  "start": {
-                    "column": 4,
-                    "line": 1,
+                  'start': {
+                    'column': 4,
+                    'line': 1,
                   },
                 },
-                "name": "yield",
-                "start": 4,
-                "type": "Identifier",
+                'name': 'yield',
+                'start': 4,
+                'type': 'Identifier',
              },
-              "init": {
-                "end": 18,
-                "loc": {
-                  "end": {
-                    "column": 18,
-                    "line": 1,
+              'init': {
+                'end': 18,
+                'loc': {
+                  'end': {
+                    'column': 18,
+                    'line': 1,
                   },
-                  "start": {
-                    "column": 17,
-                    "line": 1,
+                  'start': {
+                    'column': 17,
+                    'line': 1,
                   },
                 },
-                "raw": null,
-                "start": 17,
-                "type": "Literal",
-                "value": 1,
+                'raw': null,
+                'start': 17,
+                'type': 'Literal',
+                'value': 1,
               },
-              "loc": {
-                "end": {
-                  "column": 18,
-                  "line": 1,
+              'loc': {
+                'end': {
+                  'column': 18,
+                  'line': 1,
                 },
-                "start": {
-                  "column": 4,
-                  "line": 1,
+                'start': {
+                  'column': 4,
+                  'line': 1,
                },
               },
-              "start": 4,
-              "type": "VariableDeclarator",
+              'start': 4,
+              'type': 'VariableDeclarator',
             },
           ],
-          "end": 19,
-          "kind": "var",
-          "loc": {
-            "end": {
-              "column": 19,
-              "line": 1,
+          'end': 19,
+          'kind': 'var',
+          'loc': {
+            'end': {
+              'column': 19,
+              'line': 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            'start': {
+              'column': 0,
+              'line': 1,
             },
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          'start': 0,
+          'type': 'VariableDeclaration',
        },
       ],
-      "end": 19,
-      "loc": {
-        "end": {
-          "column": 19,
-          "line": 1,
+      'end': 19,
+      'loc': {
+        'end': {
+          'column': 19,
+          'line': 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        'start': {
+          'column': 0,
+          'line': 1,
        },
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program",
+      'sourceType': 'script',
+      'start': 0,
+      'type': 'Program',
     }],
 
   ['(publ\\u0069c);', '(publ\\u0069c);', Context.Empty, {
-      "body": [
+      'body': [
         {
-          "expression": {
-            "name": "public",
-            "type": "Identifier",
+          'expression': {
+            'name': 'public',
+            'type': 'Identifier',
           },
-          "type": "ExpressionStatement",
+          'type': 'ExpressionStatement',
         },
       ],
-      "sourceType": "script",
-      "type": "Program",
+      'sourceType': 'script',
+      'type': 'Program',
     }],
 ];
 

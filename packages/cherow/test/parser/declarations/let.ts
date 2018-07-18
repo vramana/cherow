@@ -4134,6 +4134,2035 @@ const valids: Array < [string, string, Context, any] > = [
       }
   }
 }],
+['let [x, y, z] = [1, 2, 3];', 'let [x, y, z] = [1, 2, 3];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 1,
+                              'start': 17,
+                              'end': 18,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 17
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 18
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 2,
+                              'start': 20,
+                              'end': 21,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 20
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 21
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 3,
+                              'start': 23,
+                              'end': 24,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 23
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 24
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 16,
+                      'end': 25,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 16
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 25
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'Identifier',
+                              'name': 'x',
+                              'start': 5,
+                              'end': 6,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 6
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Identifier',
+                              'name': 'y',
+                              'start': 8,
+                              'end': 9,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 8
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 9
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Identifier',
+                              'name': 'z',
+                              'start': 11,
+                              'end': 12,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 11
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 12
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 13,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 13
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 25,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 25
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 26,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 26
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 26,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 26
+      }
+  }
+}],
+['switch (true) { default: let x; }', 'switch (true) { default: let x; }', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'SwitchStatement',
+          'discriminant': {
+              'type': 'Literal',
+              'value': true,
+              'start': 8,
+              'end': 12,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 8
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 12
+                  }
+              }
+          },
+          'cases': [
+              {
+                  'type': 'SwitchCase',
+                  'test': null,
+                  'consequent': [
+                      {
+                          'type': 'VariableDeclaration',
+                          'kind': 'let',
+                          'declarations': [
+                              {
+                                  'type': 'VariableDeclarator',
+                                  'init': null,
+                                  'id': {
+                                      'type': 'Identifier',
+                                      'name': 'x',
+                                      'start': 29,
+                                      'end': 30,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 29
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 30
+                                          }
+                                      }
+                                  },
+                                  'start': 29,
+                                  'end': 30,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 29
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 30
+                                      }
+                                  }
+                              }
+                          ],
+                          'start': 25,
+                          'end': 31,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 25
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 31
+                              }
+                          }
+                      }
+                  ],
+                  'start': 16,
+                  'end': 31,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 16
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 31
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 33,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 33
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 33,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 33
+      }
+  }
+}],
+['switch (true) { default: let x; }', 'switch (true) { default: let x; }', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'SwitchStatement',
+          'discriminant': {
+              'type': 'Literal',
+              'value': true,
+              'start': 8,
+              'end': 12,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 8
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 12
+                  }
+              }
+          },
+          'cases': [
+              {
+                  'type': 'SwitchCase',
+                  'test': null,
+                  'consequent': [
+                      {
+                          'type': 'VariableDeclaration',
+                          'kind': 'let',
+                          'declarations': [
+                              {
+                                  'type': 'VariableDeclarator',
+                                  'init': null,
+                                  'id': {
+                                      'type': 'Identifier',
+                                      'name': 'x',
+                                      'start': 29,
+                                      'end': 30,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 29
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 30
+                                          }
+                                      }
+                                  },
+                                  'start': 29,
+                                  'end': 30,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 29
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 30
+                                      }
+                                  }
+                              }
+                          ],
+                          'start': 25,
+                          'end': 31,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 25
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 31
+                              }
+                          }
+                      }
+                  ],
+                  'start': 16,
+                  'end': 31,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 16
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 31
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 33,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 33
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 33,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 33
+      }
+  }
+}],
+['let [[x]] = [null];', 'let [[x]] = [null];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [
+                          {
+                              'type': 'Literal',
+                              'value': null,
+                              'start': 13,
+                              'end': 17,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 13
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 17
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 12,
+                      'end': 18,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 12
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 18
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'ArrayPattern',
+                              'elements': [
+                                  {
+                                      'type': 'Identifier',
+                                      'name': 'x',
+                                      'start': 6,
+                                      'end': 7,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 6
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 7
+                                          }
+                                      }
+                                  }
+                              ],
+                              'start': 5,
+                              'end': 8,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 8
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 9,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 9
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 18,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 18
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 19,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 19
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 19,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 19
+      }
+  }
+}],
+['let [cover = (function () {}), xCover = (0, function() {})] = [];', 'let [cover = (function () {}), xCover = (0, function() {})] = [];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [],
+                      'start': 62,
+                      'end': 64,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 62
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 64
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'AssignmentPattern',
+                              'left': {
+                                  'type': 'Identifier',
+                                  'name': 'cover',
+                                  'start': 5,
+                                  'end': 10,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 5
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 10
+                                      }
+                                  }
+                              },
+                              'right': {
+                                  'type': 'FunctionExpression',
+                                  'params': [],
+                                  'body': {
+                                      'type': 'BlockStatement',
+                                      'body': [],
+                                      'start': 26,
+                                      'end': 28,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 26
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 28
+                                          }
+                                      }
+                                  },
+                                  'async': false,
+                                  'generator': false,
+                                  'expression': false,
+                                  'id': null,
+                                  'start': 14,
+                                  'end': 28,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 14
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 28
+                                      }
+                                  }
+                              },
+                              'start': 5,
+                              'end': 29,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 29
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'AssignmentPattern',
+                              'left': {
+                                  'type': 'Identifier',
+                                  'name': 'xCover',
+                                  'start': 31,
+                                  'end': 37,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 31
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 37
+                                      }
+                                  }
+                              },
+                              'right': {
+                                  'type': 'SequenceExpression',
+                                  'expressions': [
+                                      {
+                                          'type': 'Literal',
+                                          raw: null,
+                                          'value': 0,
+                                          'start': 41,
+                                          'end': 42,
+                                          'loc': {
+                                              'start': {
+                                                  'line': 1,
+                                                  'column': 41
+                                              },
+                                              'end': {
+                                                  'line': 1,
+                                                  'column': 42
+                                              }
+                                          }
+                                      },
+                                      {
+                                          'type': 'FunctionExpression',
+                                          'params': [],
+                                          'body': {
+                                              'type': 'BlockStatement',
+                                              'body': [],
+                                              'start': 55,
+                                              'end': 57,
+                                              'loc': {
+                                                  'start': {
+                                                      'line': 1,
+                                                      'column': 55
+                                                  },
+                                                  'end': {
+                                                      'line': 1,
+                                                      'column': 57
+                                                  }
+                                              }
+                                          },
+                                          'async': false,
+                                          'generator': false,
+                                          'expression': false,
+                                          'id': null,
+                                          'start': 44,
+                                          'end': 57,
+                                          'loc': {
+                                              'start': {
+                                                  'line': 1,
+                                                  'column': 44
+                                              },
+                                              'end': {
+                                                  'line': 1,
+                                                  'column': 57
+                                              }
+                                          }
+                                      }
+                                  ],
+                                  'start': 41,
+                                  'end': 57,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 41
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 57
+                                      }
+                                  }
+                              },
+                              'start': 31,
+                              'end': 58,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 31
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 58
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 59,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 59
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 64,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 64
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 65,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 65
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 65,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 65
+      }
+  }
+}],
+['let [x = 23] = [undefined];', 'let [x = 23] = [undefined];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [
+                          {
+                              'type': 'Identifier',
+                              'name': 'undefined',
+                              'start': 16,
+                              'end': 25,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 16
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 25
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 15,
+                      'end': 26,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 15
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 26
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'AssignmentPattern',
+                              'left': {
+                                  'type': 'Identifier',
+                                  'name': 'x',
+                                  'start': 5,
+                                  'end': 6,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 5
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 6
+                                      }
+                                  }
+                              },
+                              'right': {
+                                  'type': 'Literal',
+                                  raw: null,
+                                  'value': 23,
+                                  'start': 9,
+                                  'end': 11,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 9
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 11
+                                      }
+                                  }
+                              },
+                              'start': 5,
+                              'end': 11,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 11
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 12,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 12
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 26,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 26
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 27,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 27
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 27,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 27
+      }
+  }
+}],
+['let [...[]] = iter;', 'let [...[]] = iter;', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'Identifier',
+                      'name': 'iter',
+                      'start': 14,
+                      'end': 18,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 14
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 18
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'RestElement',
+                              'argument': {
+                                  'type': 'ArrayPattern',
+                                  'elements': [],
+                                  'start': 8,
+                                  'end': 10,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 8
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 10
+                                      }
+                                  }
+                              },
+                              'start': 5,
+                              'end': 10,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 10
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 11,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 11
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 18,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 18
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 19,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 19
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 19,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 19
+      }
+  }
+}],
+['let [ , , ...x] = [1, 2, 3, 4, 5];', 'let [ , , ...x] = [1, 2, 3, 4, 5];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 1,
+                              'start': 19,
+                              'end': 20,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 19
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 20
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 2,
+                              'start': 22,
+                              'end': 23,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 22
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 23
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 3,
+                              'start': 25,
+                              'end': 26,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 25
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 26
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 4,
+                              'start': 28,
+                              'end': 29,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 28
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 29
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 5,
+                              'start': 31,
+                              'end': 32,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 31
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 32
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 18,
+                      'end': 33,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 18
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 33
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          null,
+                          null,
+                          {
+                              'type': 'RestElement',
+                              'argument': {
+                                  'type': 'Identifier',
+                                  'name': 'x',
+                                  'start': 13,
+                                  'end': 14,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 13
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 14
+                                      }
+                                  }
+                              },
+                              'start': 10,
+                              'end': 14,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 10
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 14
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 15,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 15
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 33,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 33
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 34,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 34
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 34,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 34
+      }
+  }
+}],
+['let [...x] = [1, 2, 3];', 'let [...x] = [1, 2, 3];', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ArrayExpression',
+                      'elements': [
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 1,
+                              'start': 14,
+                              'end': 15,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 14
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 15
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 2,
+                              'start': 17,
+                              'end': 18,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 17
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 18
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Literal',
+                              raw: null,
+                              'value': 3,
+                              'start': 20,
+                              'end': 21,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 20
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 21
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 13,
+                      'end': 22,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 13
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 22
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ArrayPattern',
+                      'elements': [
+                          {
+                              'type': 'RestElement',
+                              'argument': {
+                                  'type': 'Identifier',
+                                  'name': 'x',
+                                  'start': 8,
+                                  'end': 9,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 8
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 9
+                                      }
+                                  }
+                              },
+                              'start': 5,
+                              'end': 9,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 5
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 9
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 10,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 10
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 22,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 22
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 23,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 23
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 23,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 23
+      }
+  }
+}],
+['let {} = null;', 'let {} = null;', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'Literal',
+                      'value': null,
+                      'start': 9,
+                      'end': 13,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 9
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 13
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ObjectPattern',
+                      'properties': [],
+                      'start': 4,
+                      'end': 6,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 6
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 13,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 13
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 14,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 14
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 14,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 14
+      }
+  }
+}],
+['let { cover = (function () {}), xCover = (0, function() {})  } = {};', 'let { cover = (function () {}), xCover = (0, function() {})  } = {};', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ObjectExpression',
+                      'properties': [],
+                      'start': 65,
+                      'end': 67,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 65
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 67
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ObjectPattern',
+                      'properties': [
+                          {
+                              'type': 'Property',
+                              'kind': 'init',
+                              'key': {
+                                  'type': 'Identifier',
+                                  'name': 'cover',
+                                  'start': 6,
+                                  'end': 11,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 6
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 11
+                                      }
+                                  }
+                              },
+                              'computed': false,
+                              'value': {
+                                  'type': 'AssignmentPattern',
+                                  'left': {
+                                      'type': 'Identifier',
+                                      'name': 'cover',
+                                      'start': 6,
+                                      'end': 11,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 6
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 11
+                                          }
+                                      }
+                                  },
+                                  'right': {
+                                      'type': 'FunctionExpression',
+                                      'params': [],
+                                      'body': {
+                                          'type': 'BlockStatement',
+                                          'body': [],
+                                          'start': 27,
+                                          'end': 29,
+                                          'loc': {
+                                              'start': {
+                                                  'line': 1,
+                                                  'column': 27
+                                              },
+                                              'end': {
+                                                  'line': 1,
+                                                  'column': 29
+                                              }
+                                          }
+                                      },
+                                      'async': false,
+                                      'generator': false,
+                                      'expression': false,
+                                      'id': null,
+                                      'start': 15,
+                                      'end': 29,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 15
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 29
+                                          }
+                                      }
+                                  },
+                                  'start': 6,
+                                  'end': 30,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 6
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 30
+                                      }
+                                  }
+                              },
+                              'method': false,
+                              'shorthand': true,
+                              'start': 6,
+                              'end': 30,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 6
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 30
+                                  }
+                              }
+                          },
+                          {
+                              'type': 'Property',
+                              'kind': 'init',
+                              'key': {
+                                  'type': 'Identifier',
+                                  'name': 'xCover',
+                                  'start': 32,
+                                  'end': 38,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 32
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 38
+                                      }
+                                  }
+                              },
+                              'computed': false,
+                              'value': {
+                                  'type': 'AssignmentPattern',
+                                  'left': {
+                                      'type': 'Identifier',
+                                      'name': 'xCover',
+                                      'start': 32,
+                                      'end': 38,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 32
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 38
+                                          }
+                                      }
+                                  },
+                                  'right': {
+                                      'type': 'SequenceExpression',
+                                      'expressions': [
+                                          {
+                                              'type': 'Literal',
+                                              raw: null,
+                                              'value': 0,
+                                              'start': 42,
+                                              'end': 43,
+                                              'loc': {
+                                                  'start': {
+                                                      'line': 1,
+                                                      'column': 42
+                                                  },
+                                                  'end': {
+                                                      'line': 1,
+                                                      'column': 43
+                                                  }
+                                              }
+                                          },
+                                          {
+                                              'type': 'FunctionExpression',
+                                              'params': [],
+                                              'body': {
+                                                  'type': 'BlockStatement',
+                                                  'body': [],
+                                                  'start': 56,
+                                                  'end': 58,
+                                                  'loc': {
+                                                      'start': {
+                                                          'line': 1,
+                                                          'column': 56
+                                                      },
+                                                      'end': {
+                                                          'line': 1,
+                                                          'column': 58
+                                                      }
+                                                  }
+                                              },
+                                              'async': false,
+                                              'generator': false,
+                                              'expression': false,
+                                              'id': null,
+                                              'start': 45,
+                                              'end': 58,
+                                              'loc': {
+                                                  'start': {
+                                                      'line': 1,
+                                                      'column': 45
+                                                  },
+                                                  'end': {
+                                                      'line': 1,
+                                                      'column': 58
+                                                  }
+                                              }
+                                          }
+                                      ],
+                                      'start': 42,
+                                      'end': 58,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 42
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 58
+                                          }
+                                      }
+                                  },
+                                  'start': 32,
+                                  'end': 59,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 32
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 59
+                                      }
+                                  }
+                              },
+                              'method': false,
+                              'shorthand': true,
+                              'start': 32,
+                              'end': 59,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 32
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 59
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 62,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 62
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 67,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 67
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 68,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 68
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 68,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 68
+      }
+  }
+}],
+['let { x = thrower() } = {};', 'let { x = thrower() } = {};', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'VariableDeclaration',
+          'kind': 'let',
+          'declarations': [
+              {
+                  'type': 'VariableDeclarator',
+                  'init': {
+                      'type': 'ObjectExpression',
+                      'properties': [],
+                      'start': 24,
+                      'end': 26,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 24
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 26
+                          }
+                      }
+                  },
+                  'id': {
+                      'type': 'ObjectPattern',
+                      'properties': [
+                          {
+                              'type': 'Property',
+                              'kind': 'init',
+                              'key': {
+                                  'type': 'Identifier',
+                                  'name': 'x',
+                                  'start': 6,
+                                  'end': 7,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 6
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 7
+                                      }
+                                  }
+                              },
+                              'computed': false,
+                              'value': {
+                                  'type': 'AssignmentPattern',
+                                  'left': {
+                                      'type': 'Identifier',
+                                      'name': 'x',
+                                      'start': 6,
+                                      'end': 7,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 6
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 7
+                                          }
+                                      }
+                                  },
+                                  'right': {
+                                      'type': 'CallExpression',
+                                      'callee': {
+                                          'type': 'Identifier',
+                                          'name': 'thrower',
+                                          'start': 10,
+                                          'end': 17,
+                                          'loc': {
+                                              'start': {
+                                                  'line': 1,
+                                                  'column': 10
+                                              },
+                                              'end': {
+                                                  'line': 1,
+                                                  'column': 17
+                                              }
+                                          }
+                                      },
+                                      'arguments': [],
+                                      'start': 10,
+                                      'end': 19,
+                                      'loc': {
+                                          'start': {
+                                              'line': 1,
+                                              'column': 10
+                                          },
+                                          'end': {
+                                              'line': 1,
+                                              'column': 19
+                                          }
+                                      }
+                                  },
+                                  'start': 6,
+                                  'end': 19,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 6
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 19
+                                      }
+                                  }
+                              },
+                              'method': false,
+                              'shorthand': true,
+                              'start': 6,
+                              'end': 19,
+                              'loc': {
+                                  'start': {
+                                      'line': 1,
+                                      'column': 6
+                                  },
+                                  'end': {
+                                      'line': 1,
+                                      'column': 19
+                                  }
+                              }
+                          }
+                      ],
+                      'start': 4,
+                      'end': 21,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 4
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 21
+                          }
+                      }
+                  },
+                  'start': 4,
+                  'end': 26,
+                  'loc': {
+                      'start': {
+                          'line': 1,
+                          'column': 4
+                      },
+                      'end': {
+                          'line': 1,
+                          'column': 26
+                      }
+                  }
+              }
+          ],
+          'start': 0,
+          'end': 27,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 27
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 27,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 27
+      }
+  }
+}],
 ['let [, ...x] = function*() {}();', 'let [, ...x] = function*() {}();', Context.OptionsRanges | Context.OptionsLoc, {
   'type': 'Program',
   'sourceType': 'script',
@@ -4289,6 +6318,12 @@ const valids: Array < [string, string, Context, any] > = [
 ];
 
 const invalids: Array < [string, string, Context, any] > = [
+  ['let [...[ x ] = []] = [];', 'let [...[ x ] = []] = [];', Context.Empty, {}],
+  ['let [...x = []] = [];', 'let [...x = []] = [];', Context.Empty, {}],
+  ['let [...{ x } = []] = [];', 'let [...{ x } = []] = [];', Context.Empty, {}],
+  ['let [...[x], y] = [1, 2, 3];', 'let [...[x], y] = [1, 2, 3];', Context.Empty, {}],
+  ['let [...x, y] = [1, 2, 3];', 'let [...x, y] = [1, 2, 3];', Context.Empty, {}],
+  ['let [...{ x }, y] = [1, 2, 3];', 'let [...{ x }, y] = [1, 2, 3];', Context.Empty, {}],
   ['for (;false;) let x = 1;', 'for (;false;) let x = 1;', Context.Empty, {}],
   ['do let x; while (false)', 'do let x; while (false)', Context.Empty, {}],
   ['if (true) {} else let x;', 'if (true) {} else let x;', Context.Empty, {}],

@@ -5,6 +5,300 @@ describe('Expressions - If', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+  ['if ((x!==1)&&(y!==1)&&(xx!==1)&(yy!==0)) {}', 'if ((x!==1)&&(y!==1)&&(xx!==1)&(yy!==0)) {}', Context.OptionsRanges | Context.OptionsLoc, {
+    'type': 'Program',
+    'sourceType': 'script',
+    'body': [
+        {
+            'type': 'IfStatement',
+            'test': {
+                'type': 'LogicalExpression',
+                'left': {
+                    'type': 'LogicalExpression',
+                    'left': {
+                        'type': 'BinaryExpression',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'x',
+                            'start': 5,
+                            'end': 6,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 5
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 6
+                                }
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 1,
+                            'start': 9,
+                            'end': 10,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 9
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 10
+                                }
+                            }
+                        },
+                        'operator': '!==',
+                        'start': 5,
+                        'end': 10,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 5
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 10
+                            }
+                        }
+                    },
+                    'right': {
+                        'type': 'BinaryExpression',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'y',
+                            'start': 14,
+                            'end': 15,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 14
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 15
+                                }
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 1,
+                            'start': 18,
+                            'end': 19,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 18
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 19
+                                }
+                            }
+                        },
+                        'operator': '!==',
+                        'start': 14,
+                        'end': 19,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 14
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 19
+                            }
+                        }
+                    },
+                    'operator': '&&',
+                    'start': 4,
+                    'end': 20,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 4
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 20
+                        }
+                    }
+                },
+                'right': {
+                    'type': 'BinaryExpression',
+                    'left': {
+                        'type': 'BinaryExpression',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'xx',
+                            'start': 23,
+                            'end': 25,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 23
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 25
+                                }
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 1,
+                            'start': 28,
+                            'end': 29,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 28
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 29
+                                }
+                            }
+                        },
+                        'operator': '!==',
+                        'start': 23,
+                        'end': 29,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 23
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 29
+                            }
+                        }
+                    },
+                    'right': {
+                        'type': 'BinaryExpression',
+                        'left': {
+                            'type': 'Identifier',
+                            'name': 'yy',
+                            'start': 32,
+                            'end': 34,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 32
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 34
+                                }
+                            }
+                        },
+                        'right': {
+                            'type': 'Literal',
+                            raw: null,
+                            'value': 0,
+                            'start': 37,
+                            'end': 38,
+                            'loc': {
+                                'start': {
+                                    'line': 1,
+                                    'column': 37
+                                },
+                                'end': {
+                                    'line': 1,
+                                    'column': 38
+                                }
+                            }
+                        },
+                        'operator': '!==',
+                        'start': 32,
+                        'end': 38,
+                        'loc': {
+                            'start': {
+                                'line': 1,
+                                'column': 32
+                            },
+                            'end': {
+                                'line': 1,
+                                'column': 38
+                            }
+                        }
+                    },
+                    'operator': '&',
+                    'start': 22,
+                    'end': 39,
+                    'loc': {
+                        'start': {
+                            'line': 1,
+                            'column': 22
+                        },
+                        'end': {
+                            'line': 1,
+                            'column': 39
+                        }
+                    }
+                },
+                'operator': '&&',
+                'start': 4,
+                'end': 39,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 4
+                    },
+                    'end': {
+                        'line': 1,
+                        'column': 39
+                    }
+                }
+            },
+            'consequent': {
+                'type': 'BlockStatement',
+                'body': [],
+                'start': 41,
+                'end': 43,
+                'loc': {
+                    'start': {
+                        'line': 1,
+                        'column': 41
+                    },
+                    'end': {
+                        'line': 1,
+                        'column': 43
+                    }
+                }
+            },
+            'alternate': null,
+            'start': 0,
+            'end': 43,
+            'loc': {
+                'start': {
+                    'line': 1,
+                    'column': 0
+                },
+                'end': {
+                    'line': 1,
+                    'column': 43
+                }
+            }
+        }
+    ],
+    'start': 0,
+    'end': 43,
+    'loc': {
+        'start': {
+            'line': 1,
+            'column': 0
+        },
+        'end': {
+            'line': 1,
+            'column': 43
+        }
+    }
+}],
   ['if (a) (function(){})', 'if (a) (function(){})', Context.OptionsRanges | Context.OptionsLoc, {
     'type': 'Program',
     'sourceType': 'script',
@@ -1359,6 +1653,216 @@ const valids: Array < [string, string, Context, any] > = [
         }
     }
 }],
+['2; do { 3; if (false) { } else { break; } } while (false)', '2; do { 3; if (false) { } else { break; } } while (false)', Context.OptionsRanges | Context.OptionsLoc, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'ExpressionStatement',
+          'expression': {
+              'type': 'Literal',
+              raw: null,
+              'value': 2,
+              'start': 0,
+              'end': 1,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 0
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 1
+                  }
+              }
+          },
+          'start': 0,
+          'end': 2,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 0
+              },
+              'end': {
+                  'line': 1,
+                  'column': 2
+              }
+          }
+      },
+      {
+          'type': 'DoWhileStatement',
+          'body': {
+              'type': 'BlockStatement',
+              'body': [
+                  {
+                      'type': 'ExpressionStatement',
+                      'expression': {
+                          'type': 'Literal',
+                          raw: null,
+                          'value': 3,
+                          'start': 8,
+                          'end': 9,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 8
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 9
+                              }
+                          }
+                      },
+                      'start': 8,
+                      'end': 10,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 8
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 10
+                          }
+                      }
+                  },
+                  {
+                      'type': 'IfStatement',
+                      'test': {
+                          'type': 'Literal',
+                          'value': false,
+                          'start': 15,
+                          'end': 20,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 15
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 20
+                              }
+                          }
+                      },
+                      'consequent': {
+                          'type': 'BlockStatement',
+                          'body': [],
+                          'start': 22,
+                          'end': 25,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 22
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 25
+                              }
+                          }
+                      },
+                      'alternate': {
+                          'type': 'BlockStatement',
+                          'body': [
+                              {
+                                  'type': 'BreakStatement',
+                                  'label': null,
+                                  'start': 33,
+                                  'end': 39,
+                                  'loc': {
+                                      'start': {
+                                          'line': 1,
+                                          'column': 33
+                                      },
+                                      'end': {
+                                          'line': 1,
+                                          'column': 39
+                                      }
+                                  }
+                              }
+                          ],
+                          'start': 31,
+                          'end': 41,
+                          'loc': {
+                              'start': {
+                                  'line': 1,
+                                  'column': 31
+                              },
+                              'end': {
+                                  'line': 1,
+                                  'column': 41
+                              }
+                          }
+                      },
+                      'start': 11,
+                      'end': 41,
+                      'loc': {
+                          'start': {
+                              'line': 1,
+                              'column': 11
+                          },
+                          'end': {
+                              'line': 1,
+                              'column': 41
+                          }
+                      }
+                  }
+              ],
+              'start': 6,
+              'end': 43,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 6
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 43
+                  }
+              }
+          },
+          'test': {
+              'type': 'Literal',
+              'value': false,
+              'start': 51,
+              'end': 56,
+              'loc': {
+                  'start': {
+                      'line': 1,
+                      'column': 51
+                  },
+                  'end': {
+                      'line': 1,
+                      'column': 56
+                  }
+              }
+          },
+          'start': 3,
+          'end': 57,
+          'loc': {
+              'start': {
+                  'line': 1,
+                  'column': 3
+              },
+              'end': {
+                  'line': 1,
+                  'column': 57
+              }
+          }
+      }
+  ],
+  'start': 0,
+  'end': 57,
+  'loc': {
+      'start': {
+          'line': 1,
+          'column': 0
+      },
+      'end': {
+          'line': 1,
+          'column': 57
+      }
+  }
+}],
 ['if (a) b()', 'if (a) b()', Context.OptionsRanges | Context.OptionsLoc, {
   'type': 'Program',
   'sourceType': 'script',
@@ -1455,6 +1959,33 @@ const valids: Array < [string, string, Context, any] > = [
           'column': 10
       }
   }
+}],
+[`if (false) let // ASI
+{}`, `if (false) let // ASI
+{}`, Context.Empty, {
+  'type': 'Program',
+  'sourceType': 'script',
+  'body': [
+      {
+          'type': 'IfStatement',
+          'test': {
+              'type': 'Literal',
+              'value': false
+          },
+          'consequent': {
+              'type': 'ExpressionStatement',
+              'expression': {
+                  'type': 'Identifier',
+                  'name': 'let'
+              }
+          },
+          'alternate': null
+      },
+      {
+          'type': 'BlockStatement',
+          'body': []
+      }
+  ]
 }],
 ['if (true) if (false) {} else ; else {}', 'if (true) if (false) {} else ; else {}', Context.OptionsRanges | Context.OptionsLoc, {
   'type': 'Program',
@@ -1593,18 +2124,24 @@ const invalids: Array < [string, string, Context, any] > = [
   ['if(!(true))', 'if(!(true))', Context.Empty, {}],
   ['if(!("A"))', 'if(!("A"))', Context.Empty, {}],
   ['if (false) label1: label2: function test262() {} else ;', 'if (false) label1: label2: function test262() {} else ;', Context.Empty, {}],
-//  ['if (false) ; else function* g() {  }', 'if (false) ; else function* g() {  }', Context.Empty, {}],
+  ['if (false) ; else function* g() {  }', 'if (false) ; else function* g() {  }', Context.Empty, {}],
   ['if (true) let x; else let y;', 'if (true) let x; else let y;', Context.Empty, {}],
   ['if (false) ; else class C {}', 'if (false) ; else class C {}', Context.Empty, {}],
   ['if (false) ; else async function f() {  }', 'if (false) ; else async function f() {  }', Context.Empty, {}],
   ['if (true) ; else label1: label2: function test262() {}', 'if (true) ; else label1: label2: function test262() {}', Context.Empty, {}],
- // ['if (true) function* g() {  } else ;', 'if (true) function* g() {  } else ;', Context.Empty, {}],
+  ['if (true) function* g() {  } else ;', 'if (true) function* g() {  } else ;', Context.Empty, {}],
   ['if (true) class C {}', 'if (true) classif (true) class C {}', Context.Empty, {}],
   ['if (true) const x = null;', 'if (true) const x = null;', Context.Empty, {}],
   ['if (true) function f() {  } else', 'if (true) function f() {  } else', Context.Empty, {}],
   ['if (false) ; else let x;', 'if (false) ; else let x;', Context.Empty, {}],
+  ['if (true) function f() {  } else function _f() {}', 'if (true) function f() {  } else function _f() {}', Context.Strict, {}],
+  ['if (true) function f() {  } else ;', 'if (true) function f() {  } else ;', Context.Strict, {}],
+  ['if (true) async function f() {  }', 'if (true) async function f() {  }', Context.Empty, {}],
   ['if (true) async function f() {  } else ;', 'if (true) async function f() {  } else ;', Context.Empty, {}],
   ['if();', 'if();', Context.Empty, {}],
+  [`if (false) let
+  [a] = 0;`, `if (false) let
+  [a] = 0;`, Context.Empty, {}],
   [`if({1})
   {
     ;
