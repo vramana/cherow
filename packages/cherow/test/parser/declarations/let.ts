@@ -5,6 +5,107 @@ describe('Expressions - Let', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+  ['"use strict"; let foo;', '"use strict"; let foo;', Context.OptionsRanges | Context.OptionsLoc, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                raw: null,
+                "value": "use strict",
+                "start": 0,
+                "end": 12,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 12
+                    }
+                }
+            },
+            "directive": "use strict",
+            "start": 0,
+            "end": 13,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 13
+                }
+            }
+        },
+        {
+            "type": "VariableDeclaration",
+            "kind": "let",
+            "declarations": [
+                {
+                    "type": "VariableDeclarator",
+                    "init": null,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "foo",
+                        "start": 18,
+                        "end": 21,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 18
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 21
+                            }
+                        }
+                    },
+                    "start": 18,
+                    "end": 21,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 18
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 21
+                        }
+                    }
+                }
+            ],
+            "start": 14,
+            "end": 22,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 14
+                },
+                "end": {
+                    "line": 1,
+                    "column": 22
+                }
+            }
+        }
+    ],
+    "start": 0,
+    "end": 22,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 22
+        }
+    }
+}],
   ['let foo;', 'let foo;', Context.OptionsRanges | Context.OptionsLoc, {
     'type': 'Program',
     'sourceType': 'script',
@@ -4131,6 +4232,223 @@ const valids: Array < [string, string, Context, any] > = [
       'end': {
           'line': 1,
           'column': 16
+      }
+  }
+}],
+['"use strict"; let [x, y, z] = [1, 2, 3];', '"use strict"; let [x, y, z] = [1, 2, 3];', Context.OptionsRanges | Context.OptionsLoc, {
+  "type": "Program",
+  "sourceType": "script",
+  "body": [
+      {
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "Literal",
+              raw: null,
+              "value": "use strict",
+              "start": 0,
+              "end": 12,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 12
+                  }
+              }
+          },
+          "directive": "use strict",
+          "start": 0,
+          "end": 13,
+          "loc": {
+              "start": {
+                  "line": 1,
+                  "column": 0
+              },
+              "end": {
+                  "line": 1,
+                  "column": 13
+              }
+          }
+      },
+      {
+          "type": "VariableDeclaration",
+          "kind": "let",
+          "declarations": [
+              {
+                  "type": "VariableDeclarator",
+                  "init": {
+                      "type": "ArrayExpression",
+                      "elements": [
+                          {
+                              "type": "Literal",
+                              raw: null,
+                              "value": 1,
+                              "start": 31,
+                              "end": 32,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 31
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 32
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Literal",
+                              raw: null,
+                              "value": 2,
+                              "start": 34,
+                              "end": 35,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 34
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 35
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Literal",
+                              raw: null,
+                              "value": 3,
+                              "start": 37,
+                              "end": 38,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 37
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 38
+                                  }
+                              }
+                          }
+                      ],
+                      "start": 30,
+                      "end": 39,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 30
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 39
+                          }
+                      }
+                  },
+                  "id": {
+                      "type": "ArrayPattern",
+                      "elements": [
+                          {
+                              "type": "Identifier",
+                              "name": "x",
+                              "start": 19,
+                              "end": 20,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 19
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 20
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Identifier",
+                              "name": "y",
+                              "start": 22,
+                              "end": 23,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 22
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 23
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Identifier",
+                              "name": "z",
+                              "start": 25,
+                              "end": 26,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 25
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 26
+                                  }
+                              }
+                          }
+                      ],
+                      "start": 18,
+                      "end": 27,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 18
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 27
+                          }
+                      }
+                  },
+                  "start": 18,
+                  "end": 39,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 18
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 39
+                      }
+                  }
+              }
+          ],
+          "start": 14,
+          "end": 40,
+          "loc": {
+              "start": {
+                  "line": 1,
+                  "column": 14
+              },
+              "end": {
+                  "line": 1,
+                  "column": 40
+              }
+          }
+      }
+  ],
+  "start": 0,
+  "end": 40,
+  "loc": {
+      "start": {
+          "line": 1,
+          "column": 0
+      },
+      "end": {
+          "line": 1,
+          "column": 40
       }
   }
 }],
