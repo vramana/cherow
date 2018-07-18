@@ -61,8 +61,8 @@ export function parseModuleItem(state: ParserState, context: Context): ReturnTyp
 
             // ImportDeclaration
         case Token.ImportKeyword:
-            // 'Dynamic Import' or meta property disallowed here
-            if (!(context & Context.OptionsNext && lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true))) {
+            // `import("...")` call or `import.meta` meta property disallowed here
+            if ((context & Context.OptionsNext) < 1 && !lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true)) {
                 return parseImportDeclaration(state, context);
             }
             // falls through
@@ -145,17 +145,39 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
               });
           }
 
-          // export {}
-          // export {} from 'fkleuver'
+          // export ExportClause FromClause ;
+          // export ExportClause ;
+          //
+          // ExportClause :
+          // { }
+          // { ExportsList }
+          // { ExportsList , }
+          //
+          // ExportsList :
+          // ExportSpecifier
+          // ExportsList , ExportSpecifier
       case Token.LeftBrace:
           {
-              expect(state, context, Token.LeftBrace);
-
-              let hasReservedWord = false;
-
+              nextToken(state, context);
+              let hasKeywordForLocalBindings = false;
               while (state.token !== Token.RightBrace) {
-                  if (state.token & Token.Reserved) hasReservedWord = true;
-                  specifiers.push(parseNamedExportDeclaration(state, context));
+                  if (!(state.token & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
+                  if (state.token & Token.Reserved) hasKeywordForLocalBindings = true;
+                  const bracePos = getLocation(state);
+                  const local = parseIdentifier(state, context);
+                  let exported: ESTree.Identifier | null;
+                  if (state.token === Token.AsKeyword) {
+                      nextToken(state, context);
+                      if (!(state.token & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
+                      exported = parseIdentifier(state, context);
+                  } else exported = local;
+
+                  specifiers.push(finishNode(state, context, bracePos, {
+                      type: 'ExportSpecifier',
+                      local,
+                      exported,
+                  }));
+
                   if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
               }
 
@@ -167,7 +189,7 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
                   // 'from' keyword since it references a local binding.
                   if ((state.token & Token.StringLiteral) !== Token.StringLiteral) report(state, Errors.Unexpected);
                   source = parseLiteral(state, context);
-              } else if (hasReservedWord) report(state, Errors.Unexpected);
+              } else if (hasKeywordForLocalBindings) report(state, Errors.Unexpected);
 
               consumeSemicolon(state, context);
 
@@ -233,33 +255,6 @@ export function parseExportDeclaration(state: ParserState, context: Context): an
       source,
       specifiers,
       declaration,
-  });
-}
-
-/**
- * Parse named export declaration
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-function parseNamedExportDeclaration(state: ParserState, context: Context): ESTree.ExportSpecifier {
-  const pos = getLocation(state);
-  // ExportSpecifier :
-  // IdentifierName
-  // IdentifierName as IdentifierName
-  if (!(state.token & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
-  const local = parseIdentifier(state, context);
-  let exported: ESTree.Identifier | null;
-  if (state.token === Token.AsKeyword) {
-      nextToken(state, context);
-      if (!(state.token & (Token.Identifier | Token.Keyword))) report(state, Errors.Unexpected);
-      exported = parseIdentifier(state, context);
-  } else exported = local;
-
-  return finishNode(state, context, pos, {
-      type: 'ExportSpecifier',
-      local,
-      exported,
   });
 }
 

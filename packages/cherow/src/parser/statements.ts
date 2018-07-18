@@ -574,7 +574,8 @@ function parseLetOrExpressionStatement(
   state: ParserState,
   context: Context,
 ): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
-    return lookAheadOrScan(state, context, isLexical, true)
+    // skips 'let' lookahead in strict mode
+    return (context & Context.Strict) === 0 && lookAheadOrScan(state, context, isLexical, true)
       ? parseVariableStatement(state, context, BindingType.Let, BindingOrigin.Statement)
       : parseExpressionOrLabelledStatement(state, context, LabelledFunctionState.Disallow);
 }
@@ -620,6 +621,8 @@ export function parseExpressionOrLabelledStatement(
       nextToken(state, context | Context.ExpressionStart);
       if (context & Context.Module && token === Token.AwaitKeyword) {
           report(state, Errors.Unexpected);
+      } else if (token & Token.Reserved) {
+          report(state, Errors.Unexpected);
       } else if (context & (Context.InGenerator | Context.Strict) && token === Token.YieldKeyword) {
           report(state, Errors.Unexpected);
       } else if (getLabel(state, `@${tokenValue}`, false, true)) {
@@ -664,7 +667,9 @@ function parseForStatement(state: ParserState, context: Context): any {
           bindingType = BindingType.Var;
       } else if (token === Token.ConstKeyword) {
           bindingType = BindingType.Const;
-      } else if (token === Token.LetKeyword && lookAheadOrScan(state, context, isLexical, true)) {
+      } else if ((context & Context.Strict) === 0 &&
+                token === Token.LetKeyword &&
+                lookAheadOrScan(state, context, isLexical, true)) {
           bindingType = BindingType.Let;
       } else init = parseExpression(state, context | Context.DisallowIn);
 

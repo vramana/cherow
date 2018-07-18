@@ -687,7 +687,6 @@ export function parsePrimaryExpression(
       case Token.StaticKeyword:
       case Token.YieldKeyword:
       case Token.AwaitKeyword:
-      case Token.FutureReserved:
       case Token.EscapedStrictReserved:
       case Token.Identifier:
           state.assignable = true;
@@ -739,7 +738,7 @@ export function parsePrimaryExpression(
       case Token.LeftParen:
           return parseGroupExpression(state, context);
       default:
-      if (state.token & Token.IdentifierOrContextual) return parseIdentifier(state, context | Context.TaggedTemplate);
+      if (state.token & (Token.FutureReserved | Token.IdentifierOrContextual)) return parseIdentifier(state, context | Context.TaggedTemplate);
       report(state, Errors.Unexpected);
   }
 }

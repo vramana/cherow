@@ -5,6 +5,66 @@ describe('Statements - Labeled', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
+  ['foo:yield', 'foo:yield', Context.Empty, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "LabeledStatement",
+            "label": {
+                "type": "Identifier",
+                "name": "foo"
+            },
+            "body": {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "yield"
+                }
+            }
+        }
+    ]
+}],
+  ['foo:implements', 'foo:implements', Context.Empty, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "LabeledStatement",
+            "label": {
+                "type": "Identifier",
+                "name": "foo"
+            },
+            "body": {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "implements"
+                }
+            }
+        }
+    ]
+}],
+  ['foo:package', 'foo:package', Context.Empty, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+        {
+            "type": "LabeledStatement",
+            "label": {
+                "type": "Identifier",
+                "name": "foo"
+            },
+            "body": {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "package"
+                }
+            }
+        }
+    ]
+}],
   ['foo:/bar/', 'foo:/bar/', Context.Empty, {
       'body': [
        {
@@ -737,29 +797,30 @@ const valids: Array < [string, string, Context, any] > = [
         }
     }
 }],
-
 ];
 
 const invalids: Array < [string, string, Context, any] > = [
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: let x;', 'label: let x;', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['a: async function* a(){}', 'a: async function* a(){}', Context.OptionsRanges | Context.OptionsLoc, {}],
-  //['label: function* g() {}', 'label: function* g() {}', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: const x = null;', 'label: const x = null;', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['label: let x;', 'label: let x;', Context.Empty, {}],
+  ['a: async function* a(){}', 'a: async function* a(){}', Context.Empty, {}],
+  ['label: function* g() {}', 'label: function* g() {}', Context.Empty, {}],
+  ['label: const x = null;', 'label: const x = null;', Context.Empty, {}],
   ['label: function g() {}', 'label: function g() {}', Context.Strict, {}],
-  ['label: let x;', 'label: let x;', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['label: let x;', 'label: let x;', Context.Empty, {}],
   ['yi\\u0065ld: 1;', 'yi\\u0065ld: 1;', Context.Strict, {}],
   ['await: 1;', 'await: 1;', Context.Strict | Context.Module, {}],
   ['yield: 1;', 'yield: 1;', Context.Strict, {}],
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['label: class C {};', 'label: class C {};', Context.OptionsRanges | Context.OptionsLoc, {}],
-  ['do { test262: { continue test262; } } while (false)', 'do { test262: { continue test262; } } while (false)', Context.OptionsRanges | Context.OptionsLoc, {}],
+  ['foo:for;', 'foo:for;', Context.Empty, {}],
+  // ['foo:implements;', 'foo:implements', Context.Strict, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['label: class C {};', 'label: class C {};', Context.Empty, {}],
+  ['do { test262: { continue test262; } } while (false)', 'do { test262: { continue test262; } } while (false)', Context.Empty, {}],
 ];
 
-fail('Statements - Labeled (pass)', invalids);
+fail('Statements - Labeled (failure)', invalids);
 pass('Statements - Labeled (pass)', valids);
 
 });
