@@ -8,6 +8,7 @@ import { parseAssignmentPattern, parseBindingIdentifierOrPattern } from './patte
 import { parseStatementListItem } from './statements';
 import { lookAheadOrScan } from '../lexer/common';
 import { parseDirective } from './directives';
+import { parseJSXRootElement } from './jsx';
 import {
   Context,
   Flags,
@@ -261,6 +262,8 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
           operator: KeywordDescTable[token & Token.Type],
           prefix: true,
       });
+  } else if (context & Context.OptionsJSX && token === Token.LessThan) {
+    return parseJSXRootElement(state, context | Context.InJSXChild);
   }
 
   const expression = parseLeftHandSideExpression(state, context, pos);

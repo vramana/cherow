@@ -10129,6 +10129,7 @@ describe('Expressions - Const', () => {
     ['do const x = 1; while (false)', 'do const x = 1; while (false)', Context.Empty, {}],
     ['const [...[ x ] = []] = [];', 'const [...[ x ] = []] = [];', Context.Empty, {}],
     ['const [...{ x } = []] = [];', 'const [...{ x } = []] = [];', Context.Empty, {}],
+    ['const let = bar;', 'const let = bar;', Context.Empty, {}],
 ];
 
   pass('Statements - Block (pass)', valids);

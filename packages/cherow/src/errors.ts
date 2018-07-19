@@ -49,7 +49,9 @@ export const enum Errors {
   NoCatchClause,
   MultipleDefaultsInSwitch,
   AsyncFunctionInSingleStatementContext,
-  ImportExportDeclAtTopLevel
+  ImportExportDeclAtTopLevel,
+  InvalidJSXAttributeValue,
+  NonEmptyJSXExpression
 }
 
 /*@internal*/
@@ -104,6 +106,8 @@ export const errorMessages: {
   [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
   [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
   [Errors.ImportExportDeclAtTopLevel]: '%0 declarations may only appear at top level of a module',
+  [Errors.InvalidJSXAttributeValue]: 'Invalid JSX attribute value',
+  [Errors.NonEmptyJSXExpression]: 'JSX attributes must only be assigned a non-empty  \'expression\'',
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

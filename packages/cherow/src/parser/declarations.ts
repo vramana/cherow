@@ -123,6 +123,7 @@ export function parseVariableDeclarationList(state: ParserState, context: Contex
  */
 
 function parseVariableDeclaration(state: ParserState, context: Context, type: BindingType, origin: BindingOrigin): ESTree.VariableDeclarator {
+  if ((type === BindingType.Let || type === BindingType.Const) && state.token === Token.LetKeyword) report(state, Errors.Unexpected);
   const isBinding = state.token === Token.LeftBrace || state.token === Token.LeftBracket;
   const pos = getLocation(state);
   const id = parseBindingIdentifierOrPattern(state, context);

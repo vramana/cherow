@@ -31,6 +31,7 @@ export const enum Context {
   DisallowIn            = 1 << 21,
   RequireIdentifier     = 1 << 22,
   DisallowGenerator     = 1 << 23,
+  InJSXChild   = 1 << 24,
 }
 
 export const enum Flags {
@@ -384,5 +385,24 @@ export function reinterpret(state: ParserState, context: Context, node: any): vo
           // Fall through
       default:
           report(state, Errors.Unexpected);
+  }
+}
+
+/**
+ * Returns tagName for JSX element
+ *
+ * @param elementName JSX Element name
+ */
+export function isEqualTagNames(
+  elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression
+): string {
+  // tslint:disable-next-line:switch-default | this switch is exhaustive
+  switch (elementName.type) {
+    case 'JSXIdentifier':
+      return elementName.name;
+    case 'JSXNamespacedName':
+      return `${isEqualTagNames(elementName.namespace)}:${isEqualTagNames(elementName.name)}`;
+    case 'JSXMemberExpression':
+      return `${isEqualTagNames(elementName.object)}.${isEqualTagNames(elementName.property)}`;
   }
 }

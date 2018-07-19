@@ -316,10 +316,11 @@ table[Chars.VerticalBar] = state => {
 };
 
 // `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
-table[Chars.GreaterThan] = state => {
+table[Chars.GreaterThan] = (state: ParserState, context: Context) => {
   ++state.index;
   ++state.column;
   if (state.index >= state.length) return Token.GreaterThan;
+  if (context & Context.InJSXChild) return Token.GreaterThan;
   let next = state.source.charCodeAt(state.index);
 
   if (next === Chars.EqualSign) {

@@ -5,6 +5,7 @@ import { Context } from '../common';
 import { nextChar, fromCodePoint, toHex, skipToNewLine } from './common';
 import { report, Errors } from '../errors';
 import { unicodeLookup } from '../unicode';
+
 /**
  * Scans identifier
  *
