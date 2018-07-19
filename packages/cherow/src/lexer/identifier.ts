@@ -109,7 +109,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): number {
           if (value > 0x10FFFF) report(state, Errors.UnicodeOverflow);
           digit = toHex(nextChar(state));
       }
-      if (value < 0 || state.nextChar != Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
+      if (value < 0 || state.nextChar !== Chars.RightBrace) report(state, Errors.InvalidUnicodeEscape);
       nextChar(state);
       return value;
   }

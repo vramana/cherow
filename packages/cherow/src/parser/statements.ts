@@ -81,10 +81,12 @@ export function parseStatementListItem(state: ParserState, context: Context): ES
           if (context & Context.OptionsNext && lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true)) {
               return parseExpressionStatement(state, context);
           }
+          // falls through
       case Token.ExportKeyword:
           if (context & Context.Module) {
               report(state, Errors.ImportExportDeclAtTopLevel, KeywordDescTable[state.token & Token.Type]);
           }
+          // falls through
       default:
           return parseStatement(state, context, LabelledFunctionState.Allow);
   }
@@ -137,8 +139,10 @@ export function parseStatement(state: ParserState, context: Context, label: any)
       return parseExpressionOrLabelledStatement(state, context, label);
     case Token.FunctionKeyword:
       report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+      // falls through
     case Token.ClassKeyword:
       report(state, Errors.Unexpected);
+      // falls through
     default:
       return parseExpressionOrLabelledStatement(state, context, label);
   }

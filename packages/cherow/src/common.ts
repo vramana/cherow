@@ -382,7 +382,7 @@ export function reinterpret(state: ParserState, context: Context, node: any): vo
 
       case 'MemberExpression':
           if (!(context & Context.InParam)) return;
-          // Fall through
+          // falls through
       default:
           report(state, Errors.Unexpected);
   }

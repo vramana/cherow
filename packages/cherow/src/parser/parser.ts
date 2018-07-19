@@ -49,9 +49,9 @@ export function parseSource(
       if (options.impliedStrict) context |= Context.Strict;
       // The flag to enable experimental features
       if (options.experimental) context |= Context.OptionsExperimental;
-      if (options.onToken != null) onToken = options.onToken;
+      if (options.onToken !== null) onToken = options.onToken;
       // The callback for handling comments
-      if (options.onComment != null) onComment = options.onComment;
+      if (options.onComment !== null) onComment = options.onComment;
   }
 
   const state = new State(source, onToken, onComment);

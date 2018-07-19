@@ -97,8 +97,8 @@ export function skipMultilineComment(state: ParserState): any {
               break;
           case Chars.CarriageReturn:
               lastIsCR = 2;
-          case Chars.LineFeed:
-          case Chars.LineSeparator:
+          case Chars.LineFeed: // falls through
+          case Chars.LineSeparator: // falls through
           case Chars.ParagraphSeparator:
               if (!--lastIsCR) state.line++;
               state.flags |= Flags.LineTerminator;

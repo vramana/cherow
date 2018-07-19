@@ -62,7 +62,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
 
           case Chars.CarriageReturn:
               if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) {
-                  if (ret != null) ret += fromCodePoint(ch);
+                  if (ret !== null) ret += fromCodePoint(ch);
                   ch = state.source.charCodeAt(state.index);
                   state.index++;
               }
@@ -72,7 +72,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
               state.line++;
               // falls through
           default:
-              if (ret != null) ret += fromCodePoint(ch);
+              if (ret !== null) ret += fromCodePoint(ch);
       }
 
       ch = readNext(state);

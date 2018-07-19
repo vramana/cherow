@@ -232,10 +232,10 @@ table[Chars.LowerU] = state => {
  */
 export function reportInvalidEscapeError(state: ParserState, type: InvalidEscapeType): any {
   switch (type) {
-    case InvalidEscapeType.StrictOctal: report(state, Errors.StrictOctalEscape);
-    case InvalidEscapeType.EightOrNine: report(state, Errors.InvalidEightAndNine);
-    case InvalidEscapeType.InvalidHex: report(state, Errors.InvalidHexEscapeSequence);
-    case InvalidEscapeType.OutOfRange: report(state, Errors.UnicodeOverflow);
+    case InvalidEscapeType.StrictOctal: report(state, Errors.StrictOctalEscape); // falls through
+    case InvalidEscapeType.EightOrNine: report(state, Errors.InvalidEightAndNine); // falls through
+    case InvalidEscapeType.InvalidHex: report(state, Errors.InvalidHexEscapeSequence); // falls through
+    case InvalidEscapeType.OutOfRange: report(state, Errors.UnicodeOverflow); // falls through
     default: return;
   }
 }
