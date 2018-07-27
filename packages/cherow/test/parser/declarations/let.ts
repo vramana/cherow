@@ -6299,6 +6299,110 @@ const valids: Array < [string, string, Context, any] > = [
       }
   }
 }],
+[` let async = function(a){return {bind: "someMethodButIUseString"}};
+async(function (req, res) { }).bind;`, ` let async = function(a){return {bind: "someMethodButIUseString"}};
+async(function (req, res) { }).bind;`, Context.Empty, {
+    "body": [
+      {
+        "declarations": [
+          {
+            "id": {
+              "name": "async",
+              "type": "Identifier",
+            },
+            "init": {
+              "async": false,
+              "body": {
+                "body": [
+                  {
+                    "argument": {
+                      "properties": [
+                        {
+                          "computed": false,
+                          "key": {
+                            "name": "bind",
+                            "type": "Identifier",
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "type": "Property",
+                          "value": {
+                         "raw": null,
+                            "type": "Literal",
+                            "value": "someMethodButIUseString",
+                          }
+                        }
+                      ],
+                      "type": "ObjectExpression",
+                    },
+                    "type": "ReturnStatement"
+                  }
+                ],
+                "type": "BlockStatement"
+              },
+              "expression": false,
+              "generator": false,
+              "id": null,
+              "params": [
+                {
+                  "name": "a",
+                  "type": "Identifier",
+                },
+              ],
+              "type": "FunctionExpression"
+            },
+            "type": "VariableDeclarator"
+          }
+        ],
+        "kind": "let",
+        "type": "VariableDeclaration"
+     },
+      {
+        "expression": {
+          "computed": false,
+          "object": {
+            "arguments": [
+              {
+                "async": false,
+                "body": {
+                  "body": [],
+                  "type": "BlockStatement",
+                },
+                "expression": false,
+                "generator": false,
+                "id": null,
+                "params": [
+                  {
+                    "name": "req",
+                    "type": "Identifier",
+                  },
+                  {
+                    "name": "res",
+                    "type": "Identifier",
+                  },
+                ],
+                "type": "FunctionExpression",
+              },
+            ],
+            "callee": {
+              "name": "async",
+              "type": "Identifier",
+            },
+            "type": "CallExpression",
+          },
+          "property": {
+            "name": "bind",
+            "type": "Identifier",
+          },
+          "type": "MemberExpression"
+        },
+        "type": "ExpressionStatement"
+      }
+    ],
+    "sourceType": "script",
+    "type": "Program"
+  }],
 ['let { x = thrower() } = {};', 'let { x = thrower() } = {};', Context.OptionsRanges | Context.OptionsLoc, {
   'type': 'Program',
   'sourceType': 'script',

@@ -1,7 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
-describe('Miscellaneous - JSX', () => {
+describe('Miscellaneous JSX', () => {
 
   // valid tests
 const valids: Array < [string, string, Context, any] > = [
@@ -2371,7 +2371,1341 @@ const valids: Array < [string, string, Context, any] > = [
       "type": "Program",
     }],
 
+    ['svg:path></svg:path>', `import React, { Component } from 'react';
+    import { withRouter } from 'react-router';
+    import { withStyles } from '@material-ui/core/styles';
+    import withWidth from '@material-ui/core/withWidth';
+    import styles from "./styles";
+    import { connect } from 'react-redux';
+    import { compose } from 'recompose';
+    import Snackbar from '@material-ui/core/Snackbar';
+    import Typography from '@material-ui/core/Typography';
+    import { closeSnackBar, openSnackBar } from '../../actions/snack-bar';
 
+    class App extends Component {
+      componentDidMount() {
+        setTimeout(() => {
+          this.props.dispatch(openSnackBar({
+            message: 'Test Message'
+          }))
+        }, 2000);
+      }
+      render() {
+        const { classes } = this.props;
+        const snackBarOrigin = (this.props.width === 'sm' || this.props.width === 'xs') ? { vertical: 'bottom', horizontal: 'left' } : { vertical: 'bottom', horizontal: 'left' };
+        return (
+          <div className={classes.app}>
+            {/* REMOVE THIS CONTENT */}
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Typography variant="display4">Hello World</Typography>
+              <Typography variant="display1">You can remove this content in components/App/index.jsx</Typography>
+            </div>
+            {/* REMOVE THIS CONTENT */}
+            <div id="dialog-holder"></div>
+            <Snackbar
+              anchorOrigin={snackBarOrigin}
+              open={this.props.snackBar.open}
+              onClose={() => this.props.dispatch(closeSnackBar())}
+              ContentProps={{
+                'aria-describedby': 'message-id',
+              }}
+              autoHideDuration={this.props.snackBar.autoHideDuration}
+              message={<span id="message-id">{this.props.snackBar.message}</span>}
+            />
+          </div>
+        );
+      }
+    }
+
+    const mapStateToProps = (state) => {
+      return {
+        snackBar: state.snackBar
+      };
+    };
+
+    export default withRouter(compose(
+      connect(mapStateToProps),
+      withStyles(styles),
+      withWidth()
+    )(App));`, Context.OptionsJSX | Context.Module | Context.Strict, {
+       "body": [
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "react",
+           },
+           "specifiers": [
+             {
+               "local": {
+                 "name": "React",
+                 "type": "Identifier",
+               },
+               "type": "ImportDefaultSpecifier",
+             },
+             {
+               "imported": {
+                 "name": "Component",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "Component",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier",
+             },
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "react-router",
+           },
+           "specifiers": [
+             {
+               "imported": {
+                 "name": "withRouter",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "withRouter",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier",
+             },
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "@material-ui/core/styles",
+           },
+           "specifiers": [
+             {
+               "imported": {
+                 "name": "withStyles",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "withStyles",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier"
+             }
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "@material-ui/core/withWidth",
+           },
+           "specifiers": [
+             {
+               "local": {
+                 "name": "withWidth",
+                 "type": "Identifier",
+               },
+               "type": "ImportDefaultSpecifier",
+             },
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "./styles",
+           },
+           "specifiers": [
+             {
+               "local": {
+                 "name": "styles",
+                 "type": "Identifier"
+               },
+               "type": "ImportDefaultSpecifier"
+             }
+           ],
+           "type": "ImportDeclaration"
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "react-redux",
+           },
+           "specifiers": [
+             {
+               "imported": {
+                 "name": "connect",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "connect",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier"
+             }
+           ],
+           "type": "ImportDeclaration"
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "recompose"
+           },
+           "specifiers": [
+             {
+               "imported": {
+                 "name": "compose",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "compose",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier"
+             }
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "@material-ui/core/Snackbar",
+           },
+           "specifiers": [
+             {
+               "local": {
+                 "name": "Snackbar",
+                 "type": "Identifier",
+               },
+               "type": "ImportDefaultSpecifier",
+             }
+           ],
+           "type": "ImportDeclaration"
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "@material-ui/core/Typography",
+           },
+           "specifiers": [
+             {
+               "local": {
+                 "name": "Typography",
+                 "type": "Identifier",
+               },
+               "type": "ImportDefaultSpecifier",
+             },
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "source": {
+             "raw": null,
+             "type": "Literal",
+             "value": "../../actions/snack-bar",
+           },
+           "specifiers": [
+             {
+               "imported": {
+                 "name": "closeSnackBar",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "closeSnackBar",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier",
+             },
+             {
+               "imported": {
+                 "name": "openSnackBar",
+                 "type": "Identifier",
+               },
+               "local": {
+                 "name": "openSnackBar",
+                 "type": "Identifier",
+               },
+               "type": "ImportSpecifier",
+             },
+           ],
+           "type": "ImportDeclaration",
+         },
+         {
+           "body": {
+             "body": [
+               {
+                 "computed": false,
+                 "key": {
+                   "name": "componentDidMount",
+                   "type": "Identifier",
+                 },
+                 "kind": "method",
+                 "static": false,
+                 "type": "MethodDefinition",
+                 "value": {
+                   "async": false,
+                   "body": {
+                     "body": [
+                       {
+                         "expression": {
+                           "arguments": [
+                             {
+                               "async": false,
+                               "body": {
+                                 "body": [
+                                   {
+                                     "expression": {
+                                       "arguments": [
+                                         {
+                                           "arguments": [
+                                             {
+                                               "properties": [
+                                                 {
+                                                   "computed": false,
+                                                   "key": {
+                                                     "name": "message",
+                                                     "type": "Identifier",
+                                                   },
+                                                   "kind": "init",
+                                                   "method": false,
+                                                   "shorthand": false,
+                                                   "type": "Property",
+                                                   "value": {
+                                                     "raw": null,
+                                                     "type": "Literal",
+                                                     "value": "Test Message",
+                                                   }
+                                                 }
+                                               ],
+                                               "type": "ObjectExpression",
+                                             },
+                                           ],
+                                           "callee": {
+                                             "name": "openSnackBar",
+                                             "type": "Identifier",
+                                           },
+                                           "type": "CallExpression",
+                                         }
+                                       ],
+                                       "callee": {
+                                         "computed": false,
+                                         "object": {
+                                           "computed": false,
+                                           "object": {
+                                             "type": "ThisExpression",
+                                           },
+                                           "property": {
+                                             "name": "props",
+                                             "type": "Identifier",
+                                           },
+                                           "type": "MemberExpression"
+                                         },
+                                         "property": {
+                                           "name": "dispatch",
+                                           "type": "Identifier"
+                                         },
+                                         "type": "MemberExpression"
+                                       },
+                                       "type": "CallExpression"
+                                     },
+                                     "type": "ExpressionStatement"
+                                   }
+                                 ],
+                                 "type": "BlockStatement"
+                               },
+                               "expression": false,
+                               "generator": false,
+                               "id": null,
+                               "params": [],
+                               "type": "ArrowFunctionExpression"
+                             },
+                             {
+                               "raw": null,
+                               "type": "Literal",
+                               "value": 2000,
+                             }
+                           ],
+                           "callee": {
+                             "name": "setTimeout",
+                             "type": "Identifier",
+                           },
+                           "type": "CallExpression",
+                         },
+                         "type": "ExpressionStatement",
+                       },
+                     ],
+                     "type": "BlockStatement",
+                   },
+                   "expression": false,
+                   "generator": false,
+                   "id": null,
+                   "params": [],
+                   "type": "FunctionExpression",
+                 },
+               },
+               {
+                 "computed": false,
+                 "key": {
+                   "name": "render",
+                   "type": "Identifier",
+                 },
+                 "kind": "method",
+                 "static": false,
+                 "type": "MethodDefinition",
+                 "value": {
+                   "async": false,
+                   "body": {
+                     "body": [
+                       {
+                         "declarations": [
+                           {
+                             "id": {
+                               "properties": [
+                                 {
+                                   "computed": false,
+                                   "key": {
+                                     "name": "classes",
+                                     "type": "Identifier",
+                                   },
+                                   "kind": "init",
+                                   "method": false,
+                                   "shorthand": true,
+                                   "type": "Property",
+                                   "value": {
+                                     "name": "classes",
+                                     "type": "Identifier",
+                                   }
+                                 }
+                               ],
+                               "type": "ObjectPattern",
+                             },
+                             "init": {
+                               "computed": false,
+                               "object": {
+                                 "type": "ThisExpression",
+                               },
+                               "property": {
+                                 "name": "props",
+                                 "type": "Identifier",
+                               },
+                               "type": "MemberExpression",
+                             },
+                             "type": "VariableDeclarator",
+                           },
+                         ],
+                         "kind": "const",
+                         "type": "VariableDeclaration",
+                       },
+                       {
+                         "declarations": [
+                           {
+                             "id": {
+                               "name": "snackBarOrigin",
+                               "type": "Identifier",
+                             },
+                             "init": {
+                               "alternate": {
+                                 "properties": [
+                                   {
+                                     "computed": false,
+                                     "key": {
+                                       "name": "vertical",
+                                       "type": "Identifier",
+                                     },
+                                     "kind": "init",
+                                     "method": false,
+                                     "shorthand": false,
+                                     "type": "Property",
+                                     "value": {
+                                       "raw": null,
+                                       "type": "Literal",
+                                       "value": "bottom",
+                                     }
+                                   },
+                                   {
+                                     "computed": false,
+                                     "key": {
+                                       "name": "horizontal",
+                                       "type": "Identifier",
+                                     },
+                                     "kind": "init",
+                                     "method": false,
+                                     "shorthand": false,
+                                     "type": "Property",
+                                     "value": {
+                                       "raw": null,
+                                       "type": "Literal",
+                                       "value": "left"
+                                     }
+                                   }
+                                 ],
+                                 "type": "ObjectExpression",
+                               },
+                               "consequent": {
+                                 "properties": [
+                                   {
+                                     "computed": false,
+                                     "key": {
+                                       "name": "vertical",
+                                       "type": "Identifier",
+                                     },
+                                     "kind": "init",
+                                     "method": false,
+                                     "shorthand": false,
+                                     "type": "Property",
+                                     "value": {
+                                       "raw": null,
+                                       "type": "Literal",
+                                       "value": "bottom",
+                                     }
+                                   },
+                                   {
+                                     "computed": false,
+                                     "key": {
+                                       "name": "horizontal",
+                                       "type": "Identifier",
+                                     },
+                                     "kind": "init",
+                                     "method": false,
+                                     "shorthand": false,
+                                     "type": "Property",
+                                     "value": {
+                                       "raw": null,
+                                       "type": "Literal",
+                                       "value": "left",
+                                     }
+                                   }
+                                 ],
+                                 "type": "ObjectExpression"
+                               },
+                               "test": {
+                                 "left": {
+                                   "left": {
+                                     "computed": false,
+                                     "object": {
+                                       "computed": false,
+                                       "object": {
+                                         "type": "ThisExpression",
+                                       },
+                                       "property": {
+                                         "name": "props",
+                                         "type": "Identifier",
+                                       },
+                                       "type": "MemberExpression"
+                                     },
+                                     "property": {
+                                       "name": "width",
+                                       "type": "Identifier",
+                                     },
+                                     "type": "MemberExpression",
+                                   },
+                                   "operator": "===",
+                                   "right": {
+                                     "raw": null,
+                                     "type": "Literal",
+                                     "value": "sm",
+                                   },
+                                   "type": "BinaryExpression",
+                                 },
+                                 "operator": "||",
+                                 "right": {
+                                   "left": {
+                                     "computed": false,
+                                     "object": {
+                                       "computed": false,
+                                       "object": {
+                                         "type": "ThisExpression"
+                                       },
+                                       "property": {
+                                         "name": "props",
+                                         "type": "Identifier",
+                                       },
+                                       "type": "MemberExpression"
+                                     },
+                                     "property": {
+                                       "name": "width",
+                                       "type": "Identifier",
+                                     },
+                                     "type": "MemberExpression"
+                                   },
+                                   "operator": "===",
+                                   "right": {
+                                     "raw": null,
+                                     "type": "Literal",
+                                     "value": "xs",
+                                   },
+                                   "type": "BinaryExpression"
+                                 },
+                                 "type": "LogicalExpression"
+                               },
+                               "type": "ConditionalExpression"
+                             },
+                             "type": "VariableDeclarator"
+                           }
+                         ],
+                         "kind": "const",
+                         "type": "VariableDeclaration"
+                       },
+                       {
+                         "argument": {
+                           "children": [
+                             {
+                               "type": "JSXText",
+                               "value": "\n            ",
+                             },
+                             {
+                               "expression": {
+                                 "type": "JSXEmptyExpression"
+                               },
+                               "type": "JSXExpressionContainer"
+                             },
+                             {
+                               "type": "JSXText",
+                               "value": "\n            ",
+                             },
+                             {
+                               "children": [
+                                 {
+                                   "type": "JSXText",
+                                   "value": "\n              ",
+                                 },
+                                 {
+                                   "children": [
+                                     {
+                                       "type": "JSXText",
+                                       "value": "Hello World",
+                                     }
+                                   ],
+                                   "closingElement": {
+                                     "name": {
+                                       "name": "Typography",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXClosingElement"
+                                   },
+                                   "openingElement": {
+                                     "attributes": [
+                                       {
+                                         "name": {
+                                           "name": "variant",
+                                           "type": "JSXIdentifier",
+                                         },
+                                         "type": "JSXAttribute",
+                                         "value": {
+                                           "raw": null,
+                                           "type": "Literal",
+                                           "value": "display4",
+                                         },
+                                       },
+                                     ],
+                                     "name": {
+                                       "name": "Typography",
+                                       "type": "JSXIdentifier"
+                                     },
+                                     "selfClosing": false,
+                                     "type": "JSXOpeningElement",
+                                   },
+                                   "type": "JSXElement",
+                                 },
+                                 {
+                                   "type": "JSXText",
+                                   "value": "\n              "
+                                 },
+                                 {
+                                   "children": [
+                                     {
+                                       "type": "JSXText",
+                                       "value": "You can remove this content in components/App/index.jsx",
+                                     },
+                                   ],
+                                   "closingElement": {
+                                     "name": {
+                                       "name": "Typography",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXClosingElement",
+                                   },
+                                   "openingElement": {
+                                     "attributes": [
+                                       {
+                                         "name": {
+                                           "name": "variant",
+                                           "type": "JSXIdentifier",
+                                         },
+                                         "type": "JSXAttribute",
+                                         "value": {
+                                           "raw": null,
+                                           "type": "Literal",
+                                           "value": "display1",
+                                         },
+                                       },
+                                     ],
+                                     "name": {
+                                       "name": "Typography",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "selfClosing": false,
+                                     "type": "JSXOpeningElement",
+                                   },
+                                   "type": "JSXElement",
+                                 },
+                                 {
+                                   "type": "JSXText",
+                                   "value": "\n            ",
+                                 },
+                               ],
+                               "closingElement": {
+                                 "name": {
+                                   "name": "div",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "type": "JSXClosingElement",
+                               },
+                               "openingElement": {
+                                 "attributes": [
+                                   {
+                                     "name": {
+                                       "name": "style",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "properties": [
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "textAlign",
+                                               "type": "Identifier",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "center",
+                                             }
+                                           },
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "display",
+                                               "type": "Identifier",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "flex"
+                                             }
+                                           },
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "flexDirection",
+                                               "type": "Identifier"
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "column",
+                                             }
+                                           },
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "justifyContent",
+                                               "type": "Identifier",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "center",
+                                             }
+                                           },
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "alignItems",
+                                               "type": "Identifier",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "center",
+                                             },
+                                           },
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "name": "height",
+                                               "type": "Identifier",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "100%",
+                                             }
+                                           }
+                                         ],
+                                         "type": "ObjectExpression",
+                                       },
+                                       "type": "JSXExpressionContainer"
+                                     }
+                                   }
+                                 ],
+                                 "name": {
+                                   "name": "div",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "selfClosing": false,
+                                 "type": "JSXOpeningElement",
+                               },
+                               "type": "JSXElement"
+                             },
+                             {
+                               "type": "JSXText",
+                               "value": "\n            ",
+                             },
+                             {
+                               "expression": {
+                                 "type": "JSXEmptyExpression"
+                               },
+                               "type": "JSXExpressionContainer"
+                             },
+                             {
+                               "type": "JSXText",
+                               "value": "\n            ",
+                             },
+                             {
+                               "children": [],
+                               "closingElement": {
+                                 "name": {
+                                   "name": "div",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "type": "JSXClosingElement"
+                               },
+                               "openingElement": {
+                                 "attributes": [
+                                   {
+                                     "name": {
+                                       "name": "id",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "raw": null,
+                                       "type": "Literal",
+                                       "value": "dialog-holder"
+                                     }
+                                   }
+                                 ],
+                                 "name": {
+                                   "name": "div",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "selfClosing": false,
+                                 "type": "JSXOpeningElement",
+                               },
+                               "type": "JSXElement"
+                             },
+                             {
+                               "type": "JSXText",
+                               "value": "\n            ",
+                             },
+                             {
+                               "children": [],
+                               "closingElement": null,
+                               "openingElement": {
+                                 "attributes": [
+                                   {
+                                     "name": {
+                                       "name": "anchorOrigin",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "name": "snackBarOrigin",
+                                         "type": "Identifier",
+                                       },
+                                       "type": "JSXExpressionContainer",
+                                     }
+                                   },
+                                   {
+                                     "name": {
+                                       "name": "open",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "computed": false,
+                                         "object": {
+                                           "computed": false,
+                                           "object": {
+                                             "computed": false,
+                                             "object": {
+                                               "type": "ThisExpression",
+                                             },
+                                             "property": {
+                                               "name": "props",
+                                               "type": "Identifier",
+                                             },
+                                             "type": "MemberExpression",
+                                           },
+                                           "property": {
+                                             "name": "snackBar",
+                                             "type": "Identifier",
+                                           },
+                                           "type": "MemberExpression"
+                                         },
+                                         "property": {
+                                           "name": "open",
+                                           "type": "Identifier",
+                                         },
+                                         "type": "MemberExpression",
+                                       },
+                                       "type": "JSXExpressionContainer"
+                                     }
+                                   },
+                                   {
+                                     "name": {
+                                       "name": "onClose",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "async": false,
+                                         "body": {
+                                           "arguments": [
+                                             {
+                                               "arguments": [],
+                                               "callee": {
+                                                 "name": "closeSnackBar",
+                                                 "type": "Identifier",
+                                               },
+                                               "type": "CallExpression",
+                                             },
+                                           ],
+                                           "callee": {
+                                             "computed": false,
+                                             "object": {
+                                               "computed": false,
+                                               "object": {
+                                                 "type": "ThisExpression",
+                                               },
+                                               "property": {
+                                                 "name": "props",
+                                                 "type": "Identifier",
+                                               },
+                                               "type": "MemberExpression",
+                                             },
+                                             "property": {
+                                               "name": "dispatch",
+                                               "type": "Identifier",
+                                             },
+                                             "type": "MemberExpression"
+                                           },
+                                           "type": "CallExpression"
+                                         },
+                                         "expression": true,
+                                         "generator": false,
+                                         "id": null,
+                                         "params": [],
+                                         "type": "ArrowFunctionExpression"
+                                       },
+                                       "type": "JSXExpressionContainer"
+                                     }
+                                   },
+                                   {
+                                     "name": {
+                                       "name": "ContentProps",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "properties": [
+                                           {
+                                             "computed": false,
+                                             "key": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "aria-describedby",
+                                             },
+                                             "kind": "init",
+                                             "method": false,
+                                             "shorthand": false,
+                                             "type": "Property",
+                                             "value": {
+                                               "raw": null,
+                                               "type": "Literal",
+                                               "value": "message-id"
+                                             }
+                                           }
+                                         ],
+                                         "type": "ObjectExpression"
+                                       },
+                                       "type": "JSXExpressionContainer"
+                                     }
+                                   },
+                                   {
+                                     "name": {
+                                       "name": "autoHideDuration",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "computed": false,
+                                         "object": {
+                                           "computed": false,
+                                           "object": {
+                                             "computed": false,
+                                             "object": {
+                                               "type": "ThisExpression"
+                                             },
+                                             "property": {
+                                               "name": "props",
+                                               "type": "Identifier",
+                                             },
+                                             "type": "MemberExpression",
+                                           },
+                                           "property": {
+                                             "name": "snackBar",
+                                             "type": "Identifier",
+                                           },
+                                           "type": "MemberExpression",
+                                         },
+                                         "property": {
+                                           "name": "autoHideDuration",
+                                           "type": "Identifier",
+                                         },
+                                         "type": "MemberExpression"
+                                       },
+                                       "type": "JSXExpressionContainer"
+                                     }
+                                   },
+                                   {
+                                     "name": {
+                                       "name": "message",
+                                       "type": "JSXIdentifier",
+                                     },
+                                     "type": "JSXAttribute",
+                                     "value": {
+                                       "expression": {
+                                         "children": [
+                                           {
+                                             "expression": {
+                                               "computed": false,
+                                               "object": {
+                                                 "computed": false,
+                                                 "object": {
+                                                   "computed": false,
+                                                   "object": {
+                                                     "type": "ThisExpression"
+                                                   },
+                                                   "property": {
+                                                     "name": "props",
+                                                     "type": "Identifier",
+                                                   },
+                                                   "type": "MemberExpression",
+                                                 },
+                                                 "property": {
+                                                   "name": "snackBar",
+                                                   "type": "Identifier",
+                                                 },
+                                                 "type": "MemberExpression"
+                                               },
+                                               "property": {
+                                                 "name": "message",
+                                                 "type": "Identifier"
+                                               },
+                                               "type": "MemberExpression"
+                                             },
+                                             "type": "JSXExpressionContainer"
+                                           }
+                                         ],
+                                         "closingElement": {
+                                           "name": {
+                                             "name": "span",
+                                             "type": "JSXIdentifier",
+                                           },
+                                           "type": "JSXClosingElement"
+                                         },
+                                         "openingElement": {
+                                           "attributes": [
+                                             {
+                                               "name": {
+                                                 "name": "id",
+                                                 "type": "JSXIdentifier",
+                                               },
+                                               "type": "JSXAttribute",
+                                               "value": {
+                                                 "raw": null,
+                                                 "type": "Literal",
+                                                 "value": "message-id",
+                                               }
+                                             }
+                                           ],
+                                           "name": {
+                                             "name": "span",
+                                             "type": "JSXIdentifier",
+                                           },
+                                           "selfClosing": false,
+                                           "type": "JSXOpeningElement",
+                                         },
+                                         "type": "JSXElement",
+                                       },
+                                       "type": "JSXExpressionContainer",
+                                     },
+                                   },
+                                 ],
+                                 "name": {
+                                   "name": "Snackbar",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "selfClosing": true,
+                                 "type": "JSXOpeningElement",
+                               },
+                               "type": "JSXElement",
+                             },
+                             {
+                               "type": "JSXText",
+                               "value": "\n          ",
+                             },
+                           ],
+                           "closingElement": {
+                             "name": {
+                               "name": "div",
+                               "type": "JSXIdentifier",
+                             },
+                             "type": "JSXClosingElement",
+                           },
+                           "openingElement": {
+                             "attributes": [
+                               {
+                                 "name": {
+                                   "name": "className",
+                                   "type": "JSXIdentifier",
+                                 },
+                                 "type": "JSXAttribute",
+                                 "value": {
+                                   "expression": {
+                                     "computed": false,
+                                     "object": {
+                                       "name": "classes",
+                                       "type": "Identifier"
+                                     },
+                                     "property": {
+                                       "name": "app",
+                                       "type": "Identifier",
+                                     },
+                                     "type": "MemberExpression"
+                                   },
+                                   "type": "JSXExpressionContainer"
+                                 }
+                               }
+                             ],
+                             "name": {
+                               "name": "div",
+                               "type": "JSXIdentifier",
+                             },
+                             "selfClosing": false,
+                             "type": "JSXOpeningElement",
+                           },
+                           "type": "JSXElement",
+                         },
+                         "type": "ReturnStatement"
+                       }
+                     ],
+                     "type": "BlockStatement"
+                   },
+                   "expression": false,
+                   "generator": false,
+                   "id": null,
+                   "params": [],
+                   "type": "FunctionExpression"
+                 }
+               }
+             ],
+             "type": "ClassBody",
+           },
+           "id": {
+             "name": "App",
+             "type": "Identifier",
+           },
+           "superClass": {
+             "name": "Component",
+             "type": "Identifier",
+           },
+           "type": "ClassDeclaration",
+         },
+         {
+           "declarations": [
+             {
+               "id": {
+                 "name": "mapStateToProps",
+                 "type": "Identifier",
+               },
+               "init": {
+                 "async": false,
+                 "body": {
+                   "body": [
+                     {
+                       "argument": {
+                         "properties": [
+                           {
+                             "computed": false,
+                             "key": {
+                               "name": "snackBar",
+                               "type": "Identifier",
+                             },
+                             "kind": "init",
+                             "method": false,
+                             "shorthand": false,
+                             "type": "Property",
+                             "value": {
+                               "computed": false,
+                               "object": {
+                                 "name": "state",
+                                 "type": "Identifier",
+                               },
+                               "property": {
+                                 "name": "snackBar",
+                                 "type": "Identifier",
+                               },
+                               "type": "MemberExpression"
+                             }
+                           }
+                         ],
+                         "type": "ObjectExpression"
+                       },
+                       "type": "ReturnStatement"
+                     }
+                   ],
+                   "type": "BlockStatement"
+                 },
+                 "expression": false,
+                 "generator": false,
+                 "id": null,
+                 "params": [
+                   {
+                     "name": "state",
+                     "type": "Identifier",
+                   },
+                 ],
+                 "type": "ArrowFunctionExpression"
+               },
+               "type": "VariableDeclarator"
+             }
+           ],
+            "kind": "const",
+            "type": "VariableDeclaration",
+         },
+          {
+           "declaration": {
+              "arguments": [
+                {
+                  "arguments": [
+                    {
+                      "name": "App",
+                      "type": "Identifier",
+                    }
+                  ],
+                  "callee": {
+                    "arguments": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "mapStateToProps",
+                            "type": "Identifier"
+                          }
+                        ],
+                        "callee": {
+                          "name": "connect",
+                          "type": "Identifier",
+                        },
+                        "type": "CallExpression",
+                      },
+                      {
+                        "arguments": [
+                         {
+                            "name": "styles",
+                            "type": "Identifier",
+                          },
+                        ],
+                        "callee": {
+                          "name": "withStyles",
+                          "type": "Identifier",
+                        },
+                        "type": "CallExpression",
+                      },
+                      {
+                        "arguments": [],
+                        "callee": {
+                          "name": "withWidth",
+                          "type": "Identifier",
+                        },
+                        "type": "CallExpression"
+                      }
+                    ],
+                    "callee": {
+                      "name": "compose",
+                      "type": "Identifier",
+                    },
+                    "type": "CallExpression"
+                 },
+                  "type": "CallExpression"
+                }
+             ],
+              "callee": {
+                "name": "withRouter",
+                "type": "Identifier",
+              },
+              "type": "CallExpression"
+            },
+            "type": "ExportDefaultDeclaration"
+          },
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }]
 ];
 
 const invalids: Array < [string, string, Context, any] > = [
@@ -2410,7 +3744,7 @@ const invalids: Array < [string, string, Context, any] > = [
   ['var x = <div>one</div><div>two</div>;', 'var x = <div>one</div><div>two</div>;', Context.OptionsJSX, {}],
 ];
 
-fail('Miscellaneous - JSX (pass)', invalids);
-pass('Miscellaneous - JSX (pass)', valids);
+fail('Miscellaneous JSX (pass)', invalids);
+pass('Miscellaneous JSX (pass)', valids);
 
 });

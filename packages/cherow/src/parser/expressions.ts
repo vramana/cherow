@@ -91,7 +91,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
       if (state.token & Token.Identifier) {
           expr = parseArrowFunction(state, context, pos, [parseIdentifier(state, context)], true);
           state.assignable = false;
-      } else if (state.token & Token.Arrow) {
+      } else if (state.token === Token.Arrow) {
           expr = parseArrowFunction(state, context, pos, expr, t === Token.AsyncKeyword);
           state.assignable = false;
       }
