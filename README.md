@@ -7,6 +7,8 @@
 [![build status](https://img.shields.io/travis/cherow/cherow/master.svg?style=flat-square)](https://travis-ci.org/cherow/cherow)
 [![Coverage Status](https://img.shields.io/coveralls/github/cherow/cherow/master.svg?style=flat-square)](https://coveralls.io/github/cherow/cherow?branch=master)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/cherow/cherow.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cherow/cherow/context:javascript)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/cherow/cherow.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cherow/cherow/alerts)
 
 Cherow is a very fast and lightweight, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
