@@ -88,6 +88,7 @@ export interface ParserState {
     column: number;
     startColumn: number;
     lastColumn: number;
+    prevIdentifier: number; // Note: Used in regExp scanner
     source: string;
     flags: Flags;
     length: number;
@@ -105,8 +106,8 @@ export interface ParserState {
     capturingParens: number;
     largestBackReference: number;
     //
-    assignable: boolean;
-    destructible: boolean;
+    assignable: boolean; // TODO: Use bitmasks
+    destructible: boolean; // TODO: Use bitmasks
     labelSet: any;
     functionBoundaryStack: any;
     labelSetStack: {[key: string]: boolean}[];
