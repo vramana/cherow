@@ -87,8 +87,6 @@ export interface ParserState {
     lastLine: number;
     column: number;
     startColumn: number;
-    lastColumn: number;
-    prevIdentifier: number; // Note: Used in regExp scanner
     source: string;
     flags: Flags;
     length: number;
