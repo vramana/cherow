@@ -4,6 +4,8 @@
 	"scripts": {
     "bench": "node --allow-natives-syntax bench/bench.js 100",
     "postinstall": "lerna bootstrap --ci --hoist",
+    "build": "lerna run build",
+    "dev": "lerna run dev",
 		"commit": "git-cz"
 	},
 	"dependencies": {

@@ -42,7 +42,8 @@
   ],
   "scripts": {
     "lint": "nps lint",
-    "build": "nps build.default",
+    "build": "tsc -b",
+    "dev": "tsc -b -w",
     "test": "exit 0",
     "test:watch": "nps test.watch"
   },

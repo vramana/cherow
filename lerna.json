@@ -3,7 +3,6 @@
   "packages": [
     "packages/cherow",
     "packages/cherow-cli",
-    "packages/cherow-eslint",
     "packages/cherow-minify"
   ],
   "version": "1.6.8"

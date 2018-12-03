@@ -20,6 +20,8 @@
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint -f=beauty lib/ test/",
+    "build": "tsc -b",
+    "dev": "tsc -b -w",
     "test": "ava"
   },
   "dependencies": {
