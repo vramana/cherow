@@ -87,6 +87,7 @@ export interface ParserState {
     lastLine: number;
     column: number;
     startColumn: number;
+    lastColumn: number;
     source: string;
     flags: Flags;
     length: number;
@@ -104,8 +105,8 @@ export interface ParserState {
     capturingParens: number;
     largestBackReference: number;
     //
-    assignable: boolean; // TODO: Use bitmasks
-    destructible: boolean; // TODO: Use bitmasks
+    assignable: boolean;
+    destructible: boolean;
     labelSet: any;
     functionBoundaryStack: any;
     labelSetStack: {[key: string]: boolean}[];
