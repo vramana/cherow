@@ -1,16 +1,27 @@
 {
+	"name": "cherow",
 	"private": true,
 	"scripts": {
     "bench": "node --allow-natives-syntax bench/bench.js 100",
     "postinstall": "lerna bootstrap --ci --hoist",
 		"commit": "git-cz"
 	},
+	"dependencies": {
+		"chalk": "^2.4.1",
+		"commander": "^2.19.0"
+	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.5",
 		"@types/node": "^10.12.11",
+		"ava": "^1.0.0-beta.5.1",
+		"clean-assert": "^3.0.0",
 		"commitizen": "^3.0.5",
 		"coveralls": "^3.0.2",
 		"cz-conventional-changelog": "^2.1.0",
+		"eslint": "^5.9.0",
+		"eslint-config-gplane": "^3.4.0",
+		"eslint-formatter-beauty": "^3.0.0",
+		"eslump": "https://github.com/Aladdin-ADD/eslump#fe8be58c359c208418987a4d48edd0034d91737b",
 		"lerna": "^3.5.1",
 		"mocha": "^5.2.0",
 		"nps": "^5.9.3",
@@ -27,7 +38,9 @@
 		"tsconfig-paths": "^3.7.0",
 		"tslint": "^5.11.0",
 		"tslint-microsoft-contrib": "^6.0.0",
-		"typescript": "^3.2.1"
+		"typescript": "^3.2.1",
+		"unexpected": "^10.39.2",
+		"unicode-11.0.0": "^0.7.8"
 	},
 	"config": {
 		"commitizen": {

@@ -1,5 +1,5 @@
 {
-  "name": "cherow-cli",
+  "name": "@cherow/cherow-cli",
   "version": "1.6.8",
   "description": "CLI for Cherow.",
   "bin": {
@@ -47,8 +47,8 @@
     "test:watch": "nps test.watch"
   },
   "dependencies": {
+    "@cherow/cherow": "^1.6.8",
     "chalk": "^2.4.1",
-    "cherow": "^1.6.8",
-    "commander": "^2.19.1"
+    "commander": "^2.19.0"
   }
 }
