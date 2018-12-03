@@ -49,6 +49,6 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "cherow": "^1.6.8",
-    "commander": "^2.15.1"
+    "commander": "^2.19.1"
   }
 }
