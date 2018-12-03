@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "importHelpers": true,
+    "lib": ["esnext"],
+    "module": "umd",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "stripInternal": true,
+    "target": "es2018"
+  }
+}

@@ -1,6 +1,9 @@
 {
-  "extends": "./configs/tsconfig-build.json",
-  "include": ["src", "test"],
-  "compileOnSave": false,
-  "buildOnSave": false
+  "extends": "../tsconfig-build.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "declarationDir": "dist",
+    "outDir": "dist/build"
+  },
+  "include": ["src"]
 }
