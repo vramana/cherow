@@ -1,6 +1,6 @@
 {
   "name": "cherow-minify",
-  "version": "0.0.1",
+  "version": "1.6.8",
   "description": "JavaScript code minifier based on Cherow.",
   "main": "dist/umd/cherow-minify.js",
   "module": "dist/es2015/cherow-minify.js",
