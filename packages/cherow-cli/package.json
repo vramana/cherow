@@ -41,7 +41,7 @@
     "README.md"
   ],
   "scripts": {
-    "lint": "nps lint",
+    "lint": "cross-env tslint --project tsconfig-test.json -e \"test/**\" -t stylish",
     "build": "tsc -b",
     "dev": "tsc -b -w",
     "test": "exit 0",
@@ -51,5 +51,9 @@
     "@cherow/cherow": "^1.6.8",
     "chalk": "^2.4.1",
     "commander": "^2.19.0"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "tslint": "^5.11.0"
   }
 }

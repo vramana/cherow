@@ -2,11 +2,12 @@
 	"name": "cherow",
 	"private": true,
 	"scripts": {
+		"commit": "git-cz",
     "bench": "node --allow-natives-syntax bench/bench.js 100",
-    "postinstall": "lerna bootstrap --ci --hoist",
     "build": "lerna run build",
     "dev": "lerna run dev --parallel",
-		"commit": "git-cz"
+    "lint": "lerna run lint",
+    "postinstall": "lerna bootstrap --ci --hoist"
 	},
 	"dependencies": {
 		"chalk": "^2.4.1",
