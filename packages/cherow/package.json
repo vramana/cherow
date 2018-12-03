@@ -50,11 +50,13 @@
     "test": "nps test",
     "test:watch": "nps test.watch",
     "coverage": "nps coverage",
-    "post_coverage": "nps coverage.post"
+    "post_coverage": "nps coverage.post",
+    "fuzz": "eslump ./test/fuzz/cherow.js .fuzz-output/"
   },
   "devDependencies": {
     "clean-assert": "^2.0.0",
     "coveralls": "^3.0.1",
+    "eslump": "https://github.com/Aladdin-ADD/eslump#fe8be58c359c208418987a4d48edd0034d91737b",
     "mocha": "^5.2.0",
     "nps": "^5.9.0",
     "nps-utils": "^1.5.0",
@@ -70,6 +72,7 @@
     "tslint": "^5.10.0",
     "tslint-microsoft-contrib": "^5.0.3",
     "typescript": "^2.9.2",
+    "unexpected": "^10.39.2",
     "unicode-11.0.0": "^0.7.7"
   },
   "nyc": {
