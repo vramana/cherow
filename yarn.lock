@@ -44,7 +44,7 @@
   dependencies:
     "@babel/highlight" "7.0.0-beta.44"
 
-"@babel/code-frame@^7.0.0", "@babel/code-frame@^7.0.0-beta.46":
+"@babel/code-frame@^7.0.0":
   version "7.0.0"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.0.0.tgz#06e2ab19bdb535385559aabb5ba59729482800f8"
   integrity sha512-OfC2uemaknXr87bdLUkWog7nYuliM9Ij5HUcajsVcMCpQrcLmtxRbVFTIqmcSkSeYRBFBRxs2FiUqFJDLdiebA==
@@ -2873,18 +2873,19 @@ eslint@^4.19.1:
     table "4.0.2"
     text-table "~0.2.0"
 
-"eslump@https://github.com/Aladdin-ADD/eslump#fe8be58c359c208418987a4d48edd0034d91737b":
-  version "1.6.2"
-  resolved "https://github.com/Aladdin-ADD/eslump#fe8be58c359c208418987a4d48edd0034d91737b"
+eslump@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/eslump/-/eslump-2.0.0.tgz#e8fe8ca1ec2ee3abed471f82baba4333b2fdfde3"
+  integrity sha512-80p4ogK1rh8LWyTIRAeL4BEC1sSP0O/8JYNygSvLQXN0+zhKlTtRsESOsBUU+POHNISTifbefaEJNqpqZQxdKQ==
   dependencies:
-    "@babel/code-frame" "^7.0.0-beta.46"
+    "@babel/code-frame" "^7.0.0"
     mkdirp "^0.5.1"
     optionator "^0.8.2"
     random-int "^1.0.0"
     random-item "^1.0.0"
     shift-codegen "5.1.0"
     shift-fuzzer "^1.0.2"
-    shift-reducer "^4.3.0"
+    shift-reducer "^5.0.0"
 
 esm@^3.0.84:
   version "3.0.84"
@@ -6863,6 +6864,11 @@ shelljs@0.7.6:
     interpret "^1.0.0"
     rechoir "^0.6.2"
 
+shift-ast@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmjs.org/shift-ast/-/shift-ast-5.0.0.tgz#0ebf08ccfde5316c6614763c4e277720cbc200c3"
+  integrity sha512-kMhr/GwgrQ1U2kaa50sD5YxNDQEZHAZigVwrf/NNeezb6oiYnpPMV8v1WVRhCW8sjI7xUdzuPujSQ3gA2IuUAQ==
+
 shift-ast@^4.0.0:
   version "4.0.0"
   resolved "http://registry.npmjs.org/shift-ast/-/shift-ast-4.0.0.tgz#1d4152a2add28644a52aeb2e0c87d8925d3d97ff"
@@ -6891,6 +6897,13 @@ shift-reducer@^4.3.0:
   integrity sha512-IJmk9grLnuO8vLSG5e52wFXaDLXJmVMGPXKQljhh/Pwb1mQL8OgCr6c4OYyIa3OInTH9rBtms3SwDFWsJzVEnA==
   dependencies:
     shift-ast "^4.0.0"
+
+shift-reducer@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmjs.org/shift-reducer/-/shift-reducer-5.0.0.tgz#13069af02633266c4538019b6d0f9b041bb4ddbb"
+  integrity sha512-Jgr6kPMZuzsQ63NdeLJT6BZvtJ6IDbYFBVqiid1bZlwxeJYq81Cj2Wc4UUERjO4Q9tz5U4KpWaZhitjcBvfiYA==
+  dependencies:
+    shift-ast "5.0.0"
 
 signal-exit@^3.0.0, signal-exit@^3.0.1, signal-exit@^3.0.2:
   version "3.0.2"
