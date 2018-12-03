@@ -62,6 +62,9 @@
       "build/test/**/*.*"
     ]
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@cherow/cherow": "^1.6.8"
   },

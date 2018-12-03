@@ -47,6 +47,9 @@
     "test": "exit 0",
     "test:watch": "nps test.watch"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@cherow/cherow": "^1.6.8",
     "chalk": "^2.4.1",

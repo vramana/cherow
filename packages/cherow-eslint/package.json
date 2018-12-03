@@ -24,6 +24,9 @@
     "dev": "tsc -b -w",
     "test": "ava"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@cherow/cherow": "^1.6.8"
   },

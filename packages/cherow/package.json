@@ -40,9 +40,14 @@
   ],
   "files": [
     "dist",
+    "src",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "cross-env tslint --project tsconfig-test.json -e \"test/**\" -t stylish",
     "build": "tsc -b",
