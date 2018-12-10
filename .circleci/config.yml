@@ -43,11 +43,7 @@ jobs:
     steps:
       - checkout
       - run: npm ci
-      - run: npm run coverage
-      - when:
-          condition: << parameters.coverage >>
-          steps:
-            - run: npm run post_coverage
+      - run: npm run test
 
 workflows:
   build_test:
