@@ -16,20 +16,21 @@ jobs:
   build:
     executor: docker-circleci
     steps:
-      - run: checkout
-
+      - checkout
       - run: npm ci
       - run: npm run build
 
   lint:
     executor: docker-circleci
     steps:
+      - checkout
       - run: npm ci
       - run: npm run lint
 
   bundle:
     executor: docker-circleci
     steps:
+      - checkout
       - run: npm ci
       - run: npm run bundle
 
@@ -40,6 +41,7 @@ jobs:
         type: boolean
         default: true
     steps:
+      - checkout
       - run: npm ci
       - run: npm run coverage
       - when:
