@@ -2,7 +2,7 @@
 
 "use strict";
 
-const cherow = require("../../dist/umd/cherow");
+const cherow = require("../../dist/cherow.umd");
 const testParser = require("./parser");
 
 function parse(code, generatorOptions) {
