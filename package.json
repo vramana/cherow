@@ -1,12 +1,13 @@
 {
-  "name": "@cherow/cherow",
+  "name": "cherow",
   "version": "1.6.8",
   "description": "Fast and lightweight, standard-compliant javascript parser written in ECMAScript",
-  "main": "dist/umd/cherow.js",
-  "module": "dist/es2015/cherow.js",
-  "jsnext:main": "dist/es2015/cherow.js",
-  "types": "dist/types/cherow.d.ts",
-  "typings": "dist/types/cherow.d.ts",
+  "main": "dist/cherow.umd.js",
+  "module": "dist/cherow.esm.js",
+  "jsnext:main": "dist/cherow.esm.js",
+  "browser": "dist/cherow.umd.js",
+  "types": "dist/cherow.d.ts",
+  "typings": "dist/cherow.d.ts",
   "author": "KFlash",
   "contributors": [
     "Fred Kleuver <https://github.com/fkleuver>"
@@ -49,26 +50,34 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "cross-env tslint --project tsconfig-test.json -e \"test/**\" -t stylish",
-    "build": "tsc -b",
-    "dev": "tsc -b -w",
-    "minify": "nps build.minify",
-    "test": "nps test",
-    "test:watch": "nps test.watch",
-    "coverage": "nps coverage",
-    "post_coverage": "nps coverage.post",
-    "fuzz": "eslump ./test/fuzz/cherow.js .fuzz-output/"
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "fuzz": "eslump ./test/fuzz/cherow.js .fuzz-output/",
+    "lint": "cross-env tslint -p tsconfig.json -t stylish",
+    "bundle": "cross-env rimraf dist && node scripts/bundle.js",
+    "test": "cross-env TS_NODE_PROJECT=\"test/tsconfig.json\" mocha test/**/*.ts -c -R progress -r ts-node/register -r source-map-support/register --recursive --globals expect",
+    "test:watch": "npm run test -- --watch --watch-extensions ts",
+    "test:verbose": "npm run test -- -R spec",
+    "test:watch:verbose": "npm run test:watch -- -R spec",
+    "coverage": "cross-env TS_NODE_PROJECT=\"test/tsconfig.json\" nyc -n src/**/*.ts -e .ts -i ts-node/register -r text-summary -r lcov -r html npm test",
+    "post_coverage": "cross-env cat ./coverage/lcov.info | coveralls"
   },
   "devDependencies": {
-    "clean-assert": "^3.0.0",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.12",
+    "clean-assert": "^2.0.0",
     "coveralls": "^3.0.2",
     "cross-env": "^5.2.0",
+    "eslump": "^2.0.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
+    "path": "^0.12.7",
+    "rimraf": "^2.6.2",
     "rollup": "^0.67.4",
     "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-terser": "^3.0.0",
     "rollup-plugin-typescript2": "^0.18.0",
-    "rollup-plugin-uglify": "^6.0.0",
+    "source-map-support": "^0.5.9",
     "ts-node": "^7.0.1",
     "tsconfig-paths": "^3.7.0",
     "tslint": "^5.11.0",
@@ -76,14 +85,5 @@
     "typescript": "^3.2.2",
     "unexpected": "^10.39.2",
     "unicode-11.0.0": "^0.7.8"
-  },
-  "nyc": {
-    "reporter": [
-      "lcov",
-      "text"
-    ],
-    "exclude": [
-      "build/test/**/*.*"
-    ]
   }
 }

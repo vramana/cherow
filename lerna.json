@@ -1,9 +1,0 @@
-{
-  "lerna": "3.5.1",
-  "packages": [
-    "packages/cherow",
-    "packages/cherow-cli",
-    "packages/cherow-minify"
-  ],
-  "version": "1.6.8"
-}
