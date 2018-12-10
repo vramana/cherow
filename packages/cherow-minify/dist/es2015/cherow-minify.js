@@ -1,3 +1,0 @@
-function minify() { }
-
-export { minify };
