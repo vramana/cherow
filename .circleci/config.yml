@@ -1,27 +1,54 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/working_directory
+version: 2.1
+
+executors:
+
+  docker-circleci:
+    parameters:
+      node:
+        type: string
+        default: "10.12"
+    working_directory: ~/repo
     docker:
-      - image: node:8
-        environment:
-          NO_WATCH_TESTS: 1
+      - image: "circleci/node:<< parameters.node >>-stretch-browsers"
+
+jobs:
+
+  build:
+    executor: docker-circleci
     steps:
       - checkout
-      - run: node --version
-      - run: npm --version
-      - run: yarn --version
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "yarn.lock" }}
-          - v1-dependencies-
+      - run: npm ci
+      - run: npm run build
 
-      - run: yarn install --frozen-lockfile
-      - run: ./node_modules/.bin/lerna bootstrap
-      - run: ./node_modules/.bin/lerna run test --scope cherow
-      # - run: ./node_modules/.bin/lerna run test --scope cherow-ts
+  lint:
+    executor: docker-circleci
+    steps:
+      - checkout
+      - run: npm ci
+      - run: npm run lint
 
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
+  bundle:
+    executor: docker-circleci
+    steps:
+      - checkout
+      - run: npm ci
+      - run: npm run bundle
+
+  test:
+    executor: docker-circleci
+    parameters:
+      coverage:
+        type: boolean
+        default: true
+    steps:
+      - checkout
+      - run: npm ci
+      - run: npm run test
+
+workflows:
+  build_test:
+    jobs:
+      - build
+      - lint
+      - bundle
+      - test
