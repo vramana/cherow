@@ -172,6 +172,20 @@ export const enum Token {
     BigIntLiteral      = 119 | IsExpressionStart,
     At                 = 120,
     JSXText            = 121,
+
+    /** TS */
+    KeyOfKeyword        = 122 | IsIdentifier,
+    ReadOnlyKeyword     = 123 | IsIdentifier,
+    IsKeyword           = 124 | IsIdentifier,
+    UniqueKeyword       = 125 | IsIdentifier,
+    DeclareKeyword      = 126 | IsIdentifier,
+    TypeKeyword         = 127 | IsIdentifier,
+    NameSpaceKeyword    = 128 | IsIdentifier,
+    AbstractKeyword     = 129 | IsIdentifier,
+    ModuleKeyword       = 130 | IsIdentifier | Keyword | Contextual,
+    GlobalKeyword       = 131 | IsIdentifier,
+    RequireKeyword      = 132 | IsIdentifier,
+    TargetKeyword       = 133 | IsIdentifier,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
