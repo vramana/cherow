@@ -531,11 +531,6 @@ describe('Declarations - Class', () => {
       'class foo { static classMethod() {} method() {} }',
       'class foo { static get property() {} static set property(value) {} }',
       'class foo extends bar { constructor() { super(); } }',
-      `class C {
-        *gen(id, module) {
-            yield module.mount(this)
-        }
-    }`
     ]
 
     for (const arg of liveCases) {

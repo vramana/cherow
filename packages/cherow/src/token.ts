@@ -182,7 +182,7 @@ export const enum Token {
     TypeKeyword         = 127 | IsIdentifier,
     NameSpaceKeyword    = 128 | IsIdentifier,
     AbstractKeyword     = 129 | IsIdentifier,
-    ModuleKeyword       = 130 | IsIdentifier | Keyword | Contextual,
+    ModuleKeyword       = 130 | IsIdentifier,
     GlobalKeyword       = 131 | IsIdentifier,
     RequireKeyword      = 132 | IsIdentifier,
     TargetKeyword       = 133 | IsIdentifier,
