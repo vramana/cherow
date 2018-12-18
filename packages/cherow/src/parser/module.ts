@@ -119,7 +119,7 @@ export function parseExportDeclaration(parser: Parser, context: Context): ESTree
                 let hasReservedWord = false;
 
                 while (parser.token !== Token.RightBrace) {
-                    if (parser.token & Token.Reserved) {
+                    if (parser.token !== Token.GetKeyword && parser.token & Token.Reserved) {
                         hasReservedWord = true;
                         setPendingError(parser);
                     }
