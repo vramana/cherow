@@ -3,52 +3,67 @@ System.register('cherow', [], function (exports, module) {
   return {
     execute: function () {
 
-      exports('parse', parse);
-      exports('parseSource', parseSource);
-      exports('parseModule', parseModule);
-      exports('parseScript', parseScript);
-      exports('constructError', constructError);
-      exports('report', report);
-      exports('tolerant', tolerant);
-      exports('tokenDesc', tokenDesc);
-      exports('descKeyword', descKeyword);
-      exports('isValidIdentifierPart', isValidIdentifierPart);
-      exports('isValidIdentifierStart', isValidIdentifierStart);
-      exports('mustEscape', mustEscape);
-      exports('validateBreakOrContinueLabel', validateBreakOrContinueLabel);
-      exports('addLabel', addLabel);
-      exports('popLabel', popLabel);
-      exports('hasLabel', hasLabel);
-      exports('finishNode', finishNode);
-      exports('expect', expect);
-      exports('consume', consume);
-      exports('nextToken', nextToken);
-      exports('consumeSemicolon', consumeSemicolon);
-      exports('parseExpressionCoverGrammar', parseExpressionCoverGrammar);
-      exports('restoreExpressionCoverGrammar', restoreExpressionCoverGrammar);
-      exports('swapContext', swapContext);
-      exports('validateParams', validateParams);
-      exports('lookahead', lookahead);
-      exports('isValidSimpleAssignmentTarget', isValidSimpleAssignmentTarget);
-      exports('getLocation', getLocation);
-      exports('isValidIdentifier', isValidIdentifier);
-      exports('isLexical', isLexical);
-      exports('isEndOfCaseOrDefaultClauses', isEndOfCaseOrDefaultClauses);
-      exports('nextTokenIsLeftParenOrPeriod', nextTokenIsLeftParenOrPeriod);
-      exports('nextTokenisIdentifierOrParen', nextTokenisIdentifierOrParen);
-      exports('nextTokenIsLeftParen', nextTokenIsLeftParen);
-      exports('nextTokenIsFuncKeywordOnSameLine', nextTokenIsFuncKeywordOnSameLine);
-      exports('isPropertyWithPrivateFieldKey', isPropertyWithPrivateFieldKey);
-      exports('parseAndClassifyIdentifier', parseAndClassifyIdentifier);
-      exports('nameIsArgumentsOrEval', nameIsArgumentsOrEval);
-      exports('setPendingError', setPendingError);
-      exports('isEqualTagNames', isEqualTagNames);
-      exports('isInstanceField', isInstanceField);
-      exports('validateUpdateExpression', validateUpdateExpression);
-      exports('setPendingExpressionError', setPendingExpressionError);
-      exports('validateCoverParenthesizedExpression', validateCoverParenthesizedExpression);
-      exports('validateAsyncArgumentList', validateAsyncArgumentList);
-      exports('isInOrOf', isInOrOf);
+      exports({
+        parse: parse,
+        parseSource: parseSource,
+        parseModule: parseModule,
+        parseScript: parseScript,
+        constructError: constructError,
+        report: report,
+        tolerant: tolerant,
+        tokenDesc: tokenDesc,
+        descKeyword: descKeyword,
+        isValidIdentifierPart: isValidIdentifierPart,
+        isValidIdentifierStart: isValidIdentifierStart,
+        mustEscape: mustEscape,
+        Context: void 0,
+        Flags: void 0,
+        Labels: void 0,
+        NumericState: void 0,
+        ScannerState: void 0,
+        ModifierState: void 0,
+        CoverParenthesizedState: void 0,
+        Escape: void 0,
+        RegexFlags: void 0,
+        CoverCallState: void 0,
+        RegexState: void 0,
+        ObjectState: void 0,
+        validateBreakOrContinueLabel: validateBreakOrContinueLabel,
+        addLabel: addLabel,
+        popLabel: popLabel,
+        hasLabel: hasLabel,
+        finishNode: finishNode,
+        expect: expect,
+        consume: consume,
+        nextToken: nextToken,
+        consumeSemicolon: consumeSemicolon,
+        parseExpressionCoverGrammar: parseExpressionCoverGrammar,
+        restoreExpressionCoverGrammar: restoreExpressionCoverGrammar,
+        swapContext: swapContext,
+        validateParams: validateParams,
+        lookahead: lookahead,
+        isValidSimpleAssignmentTarget: isValidSimpleAssignmentTarget,
+        getLocation: getLocation,
+        isValidIdentifier: isValidIdentifier,
+        isLexical: isLexical,
+        isEndOfCaseOrDefaultClauses: isEndOfCaseOrDefaultClauses,
+        nextTokenIsLeftParenOrPeriod: nextTokenIsLeftParenOrPeriod,
+        nextTokenisIdentifierOrParen: nextTokenisIdentifierOrParen,
+        nextTokenIsLeftParen: nextTokenIsLeftParen,
+        nextTokenIsFuncKeywordOnSameLine: nextTokenIsFuncKeywordOnSameLine,
+        isPropertyWithPrivateFieldKey: isPropertyWithPrivateFieldKey,
+        parseAndClassifyIdentifier: parseAndClassifyIdentifier,
+        nameIsArgumentsOrEval: nameIsArgumentsOrEval,
+        setPendingError: setPendingError,
+        isEqualTagNames: isEqualTagNames,
+        isInstanceField: isInstanceField,
+        validateUpdateExpression: validateUpdateExpression,
+        setPendingExpressionError: setPendingExpressionError,
+        validateCoverParenthesizedExpression: validateCoverParenthesizedExpression,
+        validateAsyncArgumentList: validateAsyncArgumentList,
+        isInOrOf: isInOrOf
+      });
+
       // Note: this *must* be kept in sync with the enum's order.
       //
       // It exploits the enum value ordering, and it's necessarily a complete and
@@ -2148,7 +2163,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseArrayAssignmentPattern(parser, context, args) {
           const pos = getLocation(parser);
-          expect(parser, context, 41943059 /* LeftBracket */);
+          nextToken(parser, context);
           const elements = [];
           while (parser.token !== 20 /* RightBracket */) {
               if (consume(parser, context, 16777234 /* Comma */)) {
@@ -6025,7 +6040,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseContinueStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12366 /* ContinueKeyword */);
+          nextToken(parser, context);
           // Appearing of continue without an IterationStatement leads to syntax error
           if (!(parser.flags & (Flags.InSwitchStatement | Flags.InIterationStatement))) {
               tolerant(parser, context, 30 /* InvalidNestedStatement */, tokenDesc(parser.token));
@@ -6052,7 +6067,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseBreakStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12362 /* BreakKeyword */);
+          nextToken(parser, context);
           let label = null;
           if (!(parser.flags & Flags.NewLine) && parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
               const { tokenValue } = parser;
@@ -6078,7 +6093,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseIfStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12377 /* IfKeyword */);
+          nextToken(parser, context);
           expect(parser, context, 50331659 /* LeftParen */);
           const test = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
           expect(parser, context, 16 /* RightParen */);
@@ -6111,7 +6126,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseDebuggerStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12367 /* DebuggerKeyword */);
+          nextToken(parser, context);
           consumeSemicolon(parser, context);
           return finishNode(context, parser, pos, {
               type: 'DebuggerStatement'
@@ -6127,7 +6142,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseTryStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12385 /* TryKeyword */);
+          nextToken(parser, context);
           const block = parseBlockStatement(parser, context);
           const handler = parser.token === 12364 /* CatchKeyword */ ? parseCatchBlock(parser, context) : null;
           const finalizer = consume(parser, context, 12373 /* FinallyKeyword */) ? parseBlockStatement(parser, context) : null;
@@ -6150,7 +6165,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseCatchBlock(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12364 /* CatchKeyword */);
+          nextToken(parser, context);
           let param = null;
           if (consume(parser, context, 50331659 /* LeftParen */)) {
               const params = [];
@@ -6175,7 +6190,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseThrowStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 302002272 /* ThrowKeyword */);
+          nextToken(parser, context);
           if (parser.flags & Flags.NewLine)
               tolerant(parser, context, 80 /* NewlineAfterThrow */);
           const argument = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
@@ -6268,7 +6283,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseDoWhileStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12369 /* DoKeyword */);
+          nextToken(parser, context);
           const body = parseIterationStatement(parser, context);
           expect(parser, context, 12386 /* WhileKeyword */);
           expect(parser, context, 50331659 /* LeftParen */);
@@ -6291,7 +6306,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseWhileStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 12386 /* WhileKeyword */);
+          nextToken(parser, context);
           expect(parser, context, 50331659 /* LeftParen */);
           const test = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
           expect(parser, context, 16 /* RightParen */);
@@ -6339,7 +6354,7 @@ System.register('cherow', [], function (exports, module) {
           }
           if (parser.flags & Flags.EscapedKeyword)
               tolerant(parser, context, 3 /* InvalidEscapedReservedWord */);
-          expect(parser, context, 12380 /* ReturnKeyword */);
+          nextToken(parser, context);
           const argument = !(parser.token & 1048576 /* ASI */) && !(parser.flags & Flags.NewLine)
               ? parseExpression(parser, (context & ~(Context.InFunctionBody | Context.AllowDecorator)) | Context.AllowIn)
               : null;
@@ -6381,7 +6396,7 @@ System.register('cherow', [], function (exports, module) {
           if (context & Context.Strict)
               tolerant(parser, context, 37 /* StrictModeWith */);
           const pos = getLocation(parser);
-          expect(parser, context, 12387 /* WithKeyword */);
+          nextToken(parser, context);
           expect(parser, context, 50331659 /* LeftParen */);
           const object = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
           expect(parser, context, 16 /* RightParen */);
@@ -6402,7 +6417,7 @@ System.register('cherow', [], function (exports, module) {
        */
       function parseSwitchStatement(parser, context) {
           const pos = getLocation(parser);
-          expect(parser, context, 33566814 /* SwitchKeyword */);
+          nextToken(parser, context);
           expect(parser, context, 50331659 /* LeftParen */);
           const discriminant = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
           expect(parser, context, 16 /* RightParen */);
@@ -6677,7 +6692,7 @@ System.register('cherow', [], function (exports, module) {
                       expect(parser, context, 41943052 /* LeftBrace */);
                       let hasReservedWord = false;
                       while (parser.token !== 17825807 /* RightBrace */) {
-                          if (parser.token & 12288 /* Reserved */) {
+                          if (parser.token !== 69743 /* GetKeyword */ && parser.token & 12288 /* Reserved */) {
                               hasReservedWord = true;
                               setPendingError(parser);
                           }
@@ -7324,7 +7339,7 @@ System.register('cherow', [], function (exports, module) {
       // tslint:disable-next-line:variable-name
       const Parser = exports('Parser', parser);
 
-      const version = exports('version', '1.6.8');
+      const version = exports('version', '1.6.9');
 
     }
   };

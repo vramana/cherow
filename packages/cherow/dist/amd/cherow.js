@@ -2099,7 +2099,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseArrayAssignmentPattern(parser, context, args) {
       const pos = getLocation(parser);
-      expect(parser, context, 41943059 /* LeftBracket */);
+      nextToken(parser, context);
       const elements = [];
       while (parser.token !== 20 /* RightBracket */) {
           if (consume(parser, context, 16777234 /* Comma */)) {
@@ -5960,7 +5960,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseContinueStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12366 /* ContinueKeyword */);
+      nextToken(parser, context);
       // Appearing of continue without an IterationStatement leads to syntax error
       if (!(parser.flags & (exports.Flags.InSwitchStatement | exports.Flags.InIterationStatement))) {
           tolerant(parser, context, 30 /* InvalidNestedStatement */, tokenDesc(parser.token));
@@ -5987,7 +5987,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseBreakStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12362 /* BreakKeyword */);
+      nextToken(parser, context);
       let label = null;
       if (!(parser.flags & exports.Flags.NewLine) && parser.token & (131072 /* IsIdentifier */ | 4096 /* Keyword */)) {
           const { tokenValue } = parser;
@@ -6013,7 +6013,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseIfStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12377 /* IfKeyword */);
+      nextToken(parser, context);
       expect(parser, context, 50331659 /* LeftParen */);
       const test = parseExpression(parser, (context & ~exports.Context.AllowDecorator) | exports.Context.AllowIn);
       expect(parser, context, 16 /* RightParen */);
@@ -6046,7 +6046,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseDebuggerStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12367 /* DebuggerKeyword */);
+      nextToken(parser, context);
       consumeSemicolon(parser, context);
       return finishNode(context, parser, pos, {
           type: 'DebuggerStatement'
@@ -6062,7 +6062,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseTryStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12385 /* TryKeyword */);
+      nextToken(parser, context);
       const block = parseBlockStatement(parser, context);
       const handler = parser.token === 12364 /* CatchKeyword */ ? parseCatchBlock(parser, context) : null;
       const finalizer = consume(parser, context, 12373 /* FinallyKeyword */) ? parseBlockStatement(parser, context) : null;
@@ -6085,7 +6085,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseCatchBlock(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12364 /* CatchKeyword */);
+      nextToken(parser, context);
       let param = null;
       if (consume(parser, context, 50331659 /* LeftParen */)) {
           const params = [];
@@ -6110,7 +6110,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseThrowStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 302002272 /* ThrowKeyword */);
+      nextToken(parser, context);
       if (parser.flags & exports.Flags.NewLine)
           tolerant(parser, context, 80 /* NewlineAfterThrow */);
       const argument = parseExpression(parser, (context & ~exports.Context.AllowDecorator) | exports.Context.AllowIn);
@@ -6203,7 +6203,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseDoWhileStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12369 /* DoKeyword */);
+      nextToken(parser, context);
       const body = parseIterationStatement(parser, context);
       expect(parser, context, 12386 /* WhileKeyword */);
       expect(parser, context, 50331659 /* LeftParen */);
@@ -6226,7 +6226,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseWhileStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 12386 /* WhileKeyword */);
+      nextToken(parser, context);
       expect(parser, context, 50331659 /* LeftParen */);
       const test = parseExpression(parser, (context & ~exports.Context.AllowDecorator) | exports.Context.AllowIn);
       expect(parser, context, 16 /* RightParen */);
@@ -6274,7 +6274,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       }
       if (parser.flags & exports.Flags.EscapedKeyword)
           tolerant(parser, context, 3 /* InvalidEscapedReservedWord */);
-      expect(parser, context, 12380 /* ReturnKeyword */);
+      nextToken(parser, context);
       const argument = !(parser.token & 1048576 /* ASI */) && !(parser.flags & exports.Flags.NewLine)
           ? parseExpression(parser, (context & ~(exports.Context.InFunctionBody | exports.Context.AllowDecorator)) | exports.Context.AllowIn)
           : null;
@@ -6316,7 +6316,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
       if (context & exports.Context.Strict)
           tolerant(parser, context, 37 /* StrictModeWith */);
       const pos = getLocation(parser);
-      expect(parser, context, 12387 /* WithKeyword */);
+      nextToken(parser, context);
       expect(parser, context, 50331659 /* LeftParen */);
       const object = parseExpression(parser, (context & ~exports.Context.AllowDecorator) | exports.Context.AllowIn);
       expect(parser, context, 16 /* RightParen */);
@@ -6337,7 +6337,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
    */
   function parseSwitchStatement(parser, context) {
       const pos = getLocation(parser);
-      expect(parser, context, 33566814 /* SwitchKeyword */);
+      nextToken(parser, context);
       expect(parser, context, 50331659 /* LeftParen */);
       const discriminant = parseExpression(parser, (context & ~exports.Context.AllowDecorator) | exports.Context.AllowIn);
       expect(parser, context, 16 /* RightParen */);
@@ -6612,7 +6612,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
                   expect(parser, context, 41943052 /* LeftBrace */);
                   let hasReservedWord = false;
                   while (parser.token !== 17825807 /* RightBrace */) {
-                      if (parser.token & 12288 /* Reserved */) {
+                      if (parser.token !== 69743 /* GetKeyword */ && parser.token & 12288 /* Reserved */) {
                           hasReservedWord = true;
                           setPendingError(parser);
                       }
@@ -7257,7 +7257,7 @@ define('cherow', ['exports'], function (exports) { 'use strict';
   // tslint:disable-next-line:variable-name
   const Parser = parser;
 
-  const version = '1.6.8';
+  const version = '1.6.9';
 
   exports.version = version;
   exports.ESTree = estree;
