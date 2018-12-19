@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report, tolerant } from '../errors';
+import { Errors, tolerant } from '../errors';
 import { parseBindingIdentifierOrPattern } from './pattern';
 import { Location, ForStatementType, Parser } from '../types';
 import {
@@ -151,7 +151,7 @@ export function parseEmptyStatement(parser: Parser, context: Context): ESTree.Em
  */
 export function parseContinueStatement(parser: Parser, context: Context): ESTree.ContinueStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.ContinueKeyword);
+  nextToken(parser, context);
   // Appearing of continue without an IterationStatement leads to syntax error
   if (!(parser.flags & (Flags.InSwitchStatement | Flags.InIterationStatement))) {
     tolerant(parser, context, Errors.InvalidNestedStatement, tokenDesc(parser.token));
@@ -179,7 +179,7 @@ export function parseContinueStatement(parser: Parser, context: Context): ESTree
  */
 export function parseBreakStatement(parser: Parser, context: Context): ESTree.BreakStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.BreakKeyword);
+  nextToken(parser, context);
   let label: ESTree.Identifier | undefined | null = null;
   if (!(parser.flags & Flags.NewLine) && parser.token & (Token.IsIdentifier | Token.Keyword)) {
       const { tokenValue } = parser;
@@ -206,7 +206,7 @@ export function parseBreakStatement(parser: Parser, context: Context): ESTree.Br
  */
 export function parseIfStatement(parser: Parser, context: Context): ESTree.IfStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.IfKeyword);
+  nextToken(parser, context);
   expect(parser, context, Token.LeftParen);
   const test = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   expect(parser, context, Token.RightParen);
@@ -241,7 +241,7 @@ function parseConsequentOrAlternate(parser: Parser, context: Context): ESTree.St
  */
 export function parseDebuggerStatement(parser: Parser, context: Context): ESTree.DebuggerStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.DebuggerKeyword);
+  nextToken(parser, context);
   consumeSemicolon(parser, context);
   return finishNode(context, parser, pos, {
     type: 'DebuggerStatement'
@@ -258,7 +258,7 @@ export function parseDebuggerStatement(parser: Parser, context: Context): ESTree
  */
 export function parseTryStatement(parser: Parser, context: Context): ESTree.TryStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.TryKeyword);
+  nextToken(parser, context);
   const block = parseBlockStatement(parser, context);
   const handler = parser.token === Token.CatchKeyword ? parseCatchBlock(parser, context) : null;
   const finalizer = consume(parser, context, Token.FinallyKeyword) ? parseBlockStatement(parser, context) : null;
@@ -281,7 +281,7 @@ export function parseTryStatement(parser: Parser, context: Context): ESTree.TryS
  */
 export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchClause {
   const pos = getLocation(parser);
-  expect(parser, context, Token.CatchKeyword);
+  nextToken(parser, context);
   let param: ESTree.PatternTop | null = null;
   if (consume(parser, context, Token.LeftParen)) {
     const params: string[] = [];
@@ -308,7 +308,7 @@ export function parseCatchBlock(parser: Parser, context: Context): ESTree.CatchC
  */
 export function parseThrowStatement(parser: Parser, context: Context): ESTree.ThrowStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.ThrowKeyword);
+  nextToken(parser, context);
   if (parser.flags & Flags.NewLine) tolerant(parser, context, Errors.NewlineAfterThrow);
   const argument: ESTree.Expression = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   consumeSemicolon(parser, context);
@@ -408,7 +408,7 @@ export function parseExpressionOrLabelledStatement(
  */
 export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.DoWhileStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.DoKeyword);
+  nextToken(parser, context);
   const body = parseIterationStatement(parser, context);
   expect(parser, context, Token.WhileKeyword);
   expect(parser, context, Token.LeftParen);
@@ -432,7 +432,7 @@ export function parseDoWhileStatement(parser: Parser, context: Context): ESTree.
  */
 export function parseWhileStatement(parser: Parser, context: Context): ESTree.WhileStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.WhileKeyword);
+  nextToken(parser, context);
   expect(parser, context, Token.LeftParen);
   const test = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   expect(parser, context, Token.RightParen);
@@ -482,7 +482,7 @@ export function parseReturnStatement(parser: Parser, context: Context): ESTree.R
     tolerant(parser, context, Errors.IllegalReturn);
   }
   if (parser.flags & Flags.EscapedKeyword) tolerant(parser, context, Errors.InvalidEscapedReservedWord);
-  expect(parser, context, Token.ReturnKeyword);
+  nextToken(parser, context);
   const argument = !(parser.token & Token.ASI) && !(parser.flags & Flags.NewLine)
       ? parseExpression(parser, (context & ~(Context.InFunctionBody | Context.AllowDecorator)) | Context.AllowIn)
       : null;
@@ -525,7 +525,7 @@ export function parseIterationStatement(parser: Parser, context: Context): ESTre
 export function parseWithStatement(parser: Parser, context: Context): ESTree.WithStatement {
   if (context & Context.Strict) tolerant(parser, context, Errors.StrictModeWith);
   const pos = getLocation(parser);
-  expect(parser, context, Token.WithKeyword);
+  nextToken(parser, context);
   expect(parser, context, Token.LeftParen);
   const object = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   expect(parser, context, Token.RightParen);
@@ -547,7 +547,7 @@ export function parseWithStatement(parser: Parser, context: Context): ESTree.Wit
  */
 export function parseSwitchStatement(parser: Parser, context: Context): ESTree.SwitchStatement {
   const pos = getLocation(parser);
-  expect(parser, context, Token.SwitchKeyword);
+  nextToken(parser, context);
   expect(parser, context, Token.LeftParen);
   const discriminant = parseExpression(parser, (context & ~Context.AllowDecorator) | Context.AllowIn);
   expect(parser, context, Token.RightParen);

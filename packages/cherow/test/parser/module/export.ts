@@ -124,6 +124,7 @@ describe('Module - Export', () => {
             'export class C { };',
             'export { };',
             'export { x as default };',
+            'export {get}; function get() {};',
             'function f() {}; f(); export { f };',
             'var a, b, c; export { a, b as baz, c };',
             'var d, e; export { d as dreary, e, };',

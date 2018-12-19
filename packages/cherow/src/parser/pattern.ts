@@ -1,6 +1,6 @@
 import * as ESTree from '../estree';
 import { Token, tokenDesc } from '../token';
-import { Errors, report, tolerant } from '../errors';
+import { Errors, tolerant } from '../errors';
 import { Location, Parser } from '../types';
 import { parseIdentifier, parseAssignmentExpression,  parsePropertyName } from './expressions';
 import {
@@ -13,9 +13,7 @@ import {
     isValidIdentifier,
     Flags,
     parseExpressionCoverGrammar,
-    restoreExpressionCoverGrammar,
     hasBit,
-    setPendingError
 } from '../utilities';
 
 // 12.15.5 Destructuring Assignment
@@ -148,7 +146,7 @@ function parseArrayAssignmentPattern(parser: Parser, context: Context, args: str
 
     const pos = getLocation(parser);
 
-    expect(parser, context, Token.LeftBracket);
+    nextToken(parser, context);
 
     const elements: (ESTree.Node | null)[] = [];
 
