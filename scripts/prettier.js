@@ -35,11 +35,10 @@ if (!files.length) {
 
 files.forEach(file => {
   const options = prettier.resolveConfig.sync(file, {
-    config: prettierConfigPath,
-    ignorePath: prettierIgnorePath
+    config: prettierConfigPath
   });
   try {
-    const fileInfo = prettier.getFileInfo.sync(file);
+    const fileInfo = prettier.getFileInfo.sync(file, { ignorePath: prettierIgnorePath });
     if (fileInfo.ignored) {
       return;
     }
