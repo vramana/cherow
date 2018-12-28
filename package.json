@@ -73,7 +73,6 @@
     "cross-env": "^5.2.0",
     "eslump": "^2.0.0",
     "husky": "^1.2.1",
-    "lint-staged": "^8.1.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "path": "^0.12.7",
@@ -96,13 +95,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "node ./scripts/prettier.js check-changed"
     }
-  },
-  "lint-staged": {
-    "**/*.{js,ts,tsx,json,jsx}": [
-      "node ./scripts/prettier.js check-changed",
-      "git add"
-    ]
   }
 }
