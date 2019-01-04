@@ -4,6 +4,12 @@ import { create } from '../../src/parser';
 import { Token, tokenDesc } from '../../src/token';
 import { validateRegularExpressions } from '../../src/scanner/regexp';
 
+/**
+ * Note! This file tests regular expression both with and without web compability.
+ *
+ * ------- STILL EARLY WORK IN PROGRESS!! -------
+ */
+
 describe('Lexer - Regular expressions', () => {
   // Unicode
 
@@ -292,10 +298,10 @@ describe('Lexer - Regular expressions', () => {
   fail('a{ 1, 1 }/u', Context.OptionsDisableWebCompat);
   fail('a{ 1 , 1 }/u', Context.OptionsDisableWebCompat);
 
-//  fail('(?<a>a)\\k<a>/', Context.OptionsDisableWebCompat);
+  //  fail('(?<a>a)\\k<a>/', Context.OptionsDisableWebCompat);
   //fail('(?<a>a)\\k<a>/u', Context.OptionsDisableWebCompat);
   //fail('(?<a>a)\\2/u', Context.OptionsDisableWebCompat);
-//  fail('(?<a>a)\\k<b>/u', Context.OptionsDisableWebCompat);
+  //  fail('(?<a>a)\\k<b>/u', Context.OptionsDisableWebCompat);
   fail('(?<a>a)(?<a>a)/u', Context.OptionsDisableWebCompat);
   fail('(?<a>a)(?<\\u{61}>a)/u', Context.OptionsDisableWebCompat);
   fail('(?<a>a)(?<\\u0061>a)/u', Context.OptionsDisableWebCompat);
@@ -1219,7 +1225,6 @@ describe('Lexer - Regular expressions', () => {
   fail('\\cG', Context.OptionsDisableWebCompat);
   fail('\\cH', Context.OptionsDisableWebCompat);
 
-
   fail('[d-G\\v]/u', Context.Empty);
   fail('[d-G\\f]/u', Context.Empty);
   fail('[d-G\\r]/u', Context.Empty);
@@ -1707,7 +1712,7 @@ describe('Lexer - Regular expressions', () => {
   fail('[\\u{012]/', Context.OptionsDisableWebCompat);
   fail('[\\u{0fail}]/', Context.Empty);
   fail('[\\u{xxxx}]/', Context.Empty);
-  fail('[\\u{012]/', Context.Empty)
+  fail('[\\u{012]/', Context.Empty);
   fail('[\\u{01234]/', Context.OptionsDisableWebCompat);
   fail('[\\u{1234}]/', Context.OptionsDisableWebCompat);
   fail('[\\u{12}]/', Context.OptionsDisableWebCompat);
@@ -2672,7 +2677,6 @@ describe('Lexer - Regular expressions', () => {
   fail('a{ 1, 1}/', Context.OptionsDisableWebCompat);
   fail('a{ 1, 1}/', Context.OptionsDisableWebCompat);
 
-
   /* fail('\\p{ASCII=Invalid}/u', Context.OptionsDisableWebCompat);
   fail('\\P{ASCII=F}/u', Context.OptionsDisableWebCompat);
   fail('\\P{ASCII=N}/u', Context.OptionsDisableWebCompat);
@@ -2733,8 +2737,6 @@ describe('Lexer - Regular expressions', () => {
   fail('\\P{Ascii}/u', Context.OptionsDisableWebCompat); */
 
   const tokdens: Array<[Context, string, Token]> = [
-
-
     [Context.OptionsDisableWebCompat, 'a|b/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, 'a|/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '|/u', Token.RegularExpression],
@@ -3061,7 +3063,7 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, '(?!)/u', Token.RegularExpression],
     //[Context.OptionsDisableWebCompat, '(?=a)*/', Token.RegularExpression],
 
-//    [Context.OptionsDisableWebCompat, '(?=a){}/', Token.RegularExpression],
+    //    [Context.OptionsDisableWebCompat, '(?=a){}/', Token.RegularExpression],
     // [Context.OptionsDisableWebCompat, '(?=a){a}/', Token.RegularExpression],
     // [Context.OptionsDisableWebCompat, '(?=a){1}/', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, 'a*/', Token.RegularExpression],
@@ -3112,7 +3114,6 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '\\w//', Token.RegularExpression],
     [Context.Empty, '\\W/u', Token.RegularExpression],
 
-
     [Context.Empty, '\\f/', Token.RegularExpression],
     [Context.Empty, '\\n/u', Token.RegularExpression],
     [Context.Empty, '\\v/', Token.RegularExpression],
@@ -3128,7 +3129,7 @@ describe('Lexer - Regular expressions', () => {
     // [Context.Empty, '\\u{20}/', Token.RegularExpression],
     [Context.Empty, '\\u{20}/u', Token.RegularExpression],
 
-   // [Context.Empty, '\\u{110000}/', Token.RegularExpression],
+    // [Context.Empty, '\\u{110000}/', Token.RegularExpression],
     [Context.Empty, '\\u{00000001}/u', Token.RegularExpression],
     [Context.Empty, '\\400/', Token.RegularExpression],
     [Context.Empty, '\\^/', Token.RegularExpression],
@@ -3143,7 +3144,7 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '\\{/', Token.RegularExpression],
     [Context.Empty, '\\//', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '\\a/', Token.RegularExpression],
-     [Context.OptionsDisableWebCompat, '[]/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[]/', Token.RegularExpression],
     [Context.Empty, '[a-b]/', Token.RegularExpression],
     [Context.Empty, '[a-b]/u', Token.RegularExpression],
     [Context.Empty, '[-a]/', Token.RegularExpression],
@@ -3153,7 +3154,6 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '[\\b-\\n]/u', Token.RegularExpression],
     [Context.Empty, '[\\d]/', Token.RegularExpression],
     [Context.Empty, '[\\D]/', Token.RegularExpression],
-
 
     [Context.Empty, '[\\s]/u', Token.RegularExpression],
     [Context.Empty, '[\\S]/', Token.RegularExpression],
@@ -3195,7 +3195,7 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '[\\u0000-\\D]/', Token.RegularExpression],
     [Context.Empty, '[\\u0000-\\S]/', Token.RegularExpression],
     [Context.Empty, '[\\u0000-\\W]/', Token.RegularExpression],
-//    [Context.Empty, '[0-9--/]/', Token.RegularExpression],
+    //    [Context.Empty, '[0-9--/]/', Token.RegularExpression],
     [Context.Empty, '[\\c_]/', Token.RegularExpression],
     [Context.Empty, '[\\]]/', Token.RegularExpression],
     [Context.Empty, '[\\{]/u', Token.RegularExpression],
@@ -3229,9 +3229,17 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '^[^\\x20-\\x7e]*$/', Token.RegularExpression],
     [Context.Empty, '^[^\\x20-\\x7e]*$/u', Token.RegularExpression],
     [Context.Empty, "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/", Token.RegularExpression],
-    [Context.Empty, '^((4\\d{3})|(5[1-5]\\d{2})|(6011))([- ])?\\d{4}([- ])?\\d{4}([- ])?\\d{4}|3[4,7]\\d{13}$/', Token.RegularExpression],
+    [
+      Context.Empty,
+      '^((4\\d{3})|(5[1-5]\\d{2})|(6011))([- ])?\\d{4}([- ])?\\d{4}([- ])?\\d{4}|3[4,7]\\d{13}$/',
+      Token.RegularExpression
+    ],
     [Context.Empty, '^\\s*|\\s*$/', Token.RegularExpression],
-    [Context.Empty, '^((4\\d{3})|(5[1-5]\\d{2})|(6011))([- ])?\\d{4}([- ])?\\d{4}([- ])?\\d{4}|3[4,7]\\d{13}$/u', Token.RegularExpression],
+    [
+      Context.Empty,
+      '^((4\\d{3})|(5[1-5]\\d{2})|(6011))([- ])?\\d{4}([- ])?\\d{4}([- ])?\\d{4}|3[4,7]\\d{13}$/u',
+      Token.RegularExpression
+    ],
     [Context.Empty, '^\\s*|\\s*$/u', Token.RegularExpression],
     [Context.Empty, '([a ]\\b)*\\b/', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<=(?<a>\\w){3})f/u', Token.RegularExpression],
@@ -3244,7 +3252,7 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, '((?<=\\w{3}))f/', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<a>(?<=\\w{3}))f/', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<a>(?<!\\D{3}))f|f/', Token.RegularExpression],
-//    [Context.OptionsDisableWebCompat, '(?<=(?<fst>.)|(?<snd>.))/u', Token.RegularExpression],
+    //    [Context.OptionsDisableWebCompat, '(?<=(?<fst>.)|(?<snd>.))/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<a>(?<!\\D{3}))f|f/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<!a)/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?<!a)/', Token.RegularExpression],
@@ -3999,7 +4007,7 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression],
-    [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression]
   ];
 
   for (const [ctx, op, token] of tokdens) {
@@ -4165,7 +4173,6 @@ describe('Lexer - Regular expressions', () => {
       [Context.OptionsDisableWebCompat, 'a{,0}/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, 'a{,1}/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, 'a{,50}/', Token.RegularExpression],
-
 
       [Context.Empty, 'foo/g', Token.RegularExpression],
       [Context.Empty, 'foo/i', Token.RegularExpression],
