@@ -20,6 +20,9 @@ export function create(source: string, onComment: OnComment): ParserState {
     tokenRaw: '',
     tokenRegExp: undefined,
     lastRegExpError: undefined,
+    capturingParens: 0,
+    largestBackReference: 0,
+    lastRegexUnicodeEscapeOrd: 0,
     length: source.length,
     lastChar: source.charCodeAt(0)
   };

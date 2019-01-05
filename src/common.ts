@@ -38,7 +38,7 @@ export const enum Flags {
   HexSpecifier = 1 << 6,
   BinarySpecifier = 1 << 7,
   OctalSpecifier = 1 << 8,
-  ContainsSeparator = 1 << 9,
+  ContainsSeparator = 1 << 9
 }
 
 /**
@@ -63,6 +63,9 @@ export interface ParserState {
   tokenRaw: string;
   length: number;
   lastRegExpError: any;
+  capturingParens: number;
+  largestBackReference: number;
+  lastRegexUnicodeEscapeOrd: number;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
