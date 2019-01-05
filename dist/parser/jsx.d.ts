@@ -1,0 +1,20 @@
+import * as ESTree from '../estree';
+import { ParserState, Location } from '../types';
+import { Context } from '../common';
+export declare function parseJSXRootElement(state: ParserState, context: Context): ESTree.JSXElement | ESTree.JSXFragment;
+export declare function parseJSXOpeningElement(state: ParserState, context: Context, name: ESTree.JSXIdentifier | ESTree.JSXMemberExpression | ESTree.JSXNamespacedName, attributes: (ESTree.JSXAttribute | ESTree.JSXSpreadAttribute)[], selfClosing: boolean, pos: Location): ESTree.JSXOpeningElement;
+export declare function parseJSXClosingFragment(state: ParserState, context: Context): ESTree.JSXClosingFragment;
+export declare function parseJSXClosingElement(state: ParserState, context: Context): ESTree.JSXClosingElement;
+export declare function parseJSXElementNameOrMemberExpression(state: ParserState, context: Context): ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression;
+export declare function parseJSXText(state: ParserState, context: Context): ESTree.JSXText;
+export declare function parseJSXExpressionContainer(state: ParserState, context: Context): ESTree.JSXExpressionContainer;
+export declare function parseJSXEmptyExpression(state: ParserState, context: Context): ESTree.JSXEmptyExpression;
+export declare function parseJSXSpreadChild(state: ParserState, context: Context): ESTree.JSXSpreadChild;
+export declare function parseJSXExpression(state: ParserState, context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild;
+export declare function parseJSXAttributes(state: ParserState, context: Context): ReturnType<typeof parseJSXAttribute>[];
+export declare function parseJSXSpreadAttribute(state: ParserState, context: Context): ESTree.JSXSpreadAttribute;
+export declare function parseJSXNamespacedName(state: ParserState, context: Context, namespace: ESTree.JSXIdentifier, pos: Location): ESTree.JSXNamespacedName;
+export declare function parseJSXIdentifier(state: ParserState, context: Context): ESTree.JSXIdentifier;
+export declare function parseJSXAttributeName(state: ParserState, context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName;
+export declare function parseJSXAttribute(state: ParserState, context: Context): any;
+//# sourceMappingURL=jsx.d.ts.map
