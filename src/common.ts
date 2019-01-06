@@ -1,6 +1,6 @@
 import * as ESTree from './estree';
-import * as Errors from './errors';
 import { Token } from './token';
+
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
  */
@@ -52,8 +52,8 @@ export type OnToken = void | Token[] | ((token: Token, start: number, end: numbe
  */
 export interface ParserState {
   source: string;
-  onComment: OnComment;
-  onToken: OnToken;
+  onComment: any;
+  onToken: any;
   flags: Flags;
   index: number;
   line: number;

@@ -4,16 +4,6 @@ import { report, reportRegExp, Errors } from '../errors';
 import { Token } from 'token';
 import { isIDContinue } from '../unicode';
 
-/**
- * A set of flags for maintaining the internal state machine.
- */
-export const enum SeekState {
-  None = 0,
-  NewLine = 1 << 0,
-  SameLine = 1 << 1,
-  LastIsCR = 1 << 2
-}
-
 export const enum Type {
   None = 0,
   MaybeQuantifier = 1 << 0,

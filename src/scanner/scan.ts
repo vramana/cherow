@@ -3,7 +3,7 @@ import { Token } from '../token';
 import { Chars } from '../chars';
 import { mustEscape } from '../unicode';
 import { Errors, report } from '../errors';
-import { consumeOpt, hasNext, nextChar, SeekState, advanceNewline, consumeLineFeed } from './common';
+import { consumeOpt, advanceNewline, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment } from './comments';
 import { scanString, scanTemplate } from './string';
 import { scanRegularExpression } from './regexp';
@@ -154,7 +154,7 @@ table[Chars.Hyphen] = state => {
     if (next === Chars.Hyphen) {
       state.index++;
       state.column++;
-      if (state.flags & SeekState.NewLine && consumeOpt(state, Chars.GreaterThan)) {
+      if (state.flags & Flags.NewLine && consumeOpt(state, Chars.GreaterThan)) {
         return skipSingleLineComment(state);
       }
       return Token.Decrement;
@@ -436,14 +436,14 @@ table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.Vert
 
 // Linefeed
 table[Chars.LineFeed] = state => {
-  consumeLineFeed(state, (state.flags & SeekState.LastIsCR) !== 0);
-  state.flags = (state.flags & ~SeekState.LastIsCR) | SeekState.NewLine;
+  consumeLineFeed(state, (state.flags & Flags.LastIsCR) !== 0);
+  state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
   return Token.WhiteSpace;
 };
 
 // CarriageReturn
 table[Chars.CarriageReturn] = state => {
-  state.flags |= SeekState.NewLine | SeekState.LastIsCR;
+  state.flags |= Flags.NewLine | Flags.LastIsCR;
   advanceNewline(state);
   return Token.WhiteSpace;
 };
