@@ -28,7 +28,9 @@ export const enum Errors {
   UnterminatedGroup,
   InvalidCaptureRef,
   LoneQuantifierBrackets,
-  DuplicateRegExpFlag
+  DuplicateRegExpFlag,
+  UnterminatedComment,
+  HtmlCommentInModule
 }
 
 /*@internal*/
@@ -60,7 +62,9 @@ export const errorMessages: {
   [Errors.InvalidExtendedUnicodeEscape]: 'Invalid extended unicode escape',
   [Errors.AlreadyDeclaredGroupName]: "Already declared group name '%0'",
   [Errors.LoneQuantifierBrackets]: 'Lone quantifier brackets',
-  [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '%0'"
+  [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '0'",
+  [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
+  [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

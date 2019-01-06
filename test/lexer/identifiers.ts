@@ -1,7 +1,6 @@
 import * as t from 'assert';
 import { scan, hasNext } from '../../src/scanner';
 import { Context } from '../../src/common';
-import { Chars } from '../../src/chars';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 

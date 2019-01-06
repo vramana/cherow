@@ -45,6 +45,7 @@ export const enum Flags {
  * The type of the `onComment` option.
  */
 export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start: number, end: number) => any);
+export type OnToken = void | Token[] | ((token: Token, start: number, end: number) => any);
 
 /**
  * The parser interface.
@@ -52,7 +53,7 @@ export type OnComment = void | ESTree.Comment[] | ((type: string, value: string,
 export interface ParserState {
   source: string;
   onComment: OnComment;
-
+  onToken: any;
   flags: Flags;
   index: number;
   line: number;
@@ -61,6 +62,7 @@ export interface ParserState {
   token: Token;
   tokenValue: any;
   tokenRaw: string;
+  currentChar: any;
   length: number;
   lastRegExpError: any;
   numCapturingParens: number;

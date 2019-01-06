@@ -89,5 +89,5 @@ export function skipBlockComment(state: ParserState): Token {
     }
   }
 
-  return report(state, Errors.Unexpected);
+  return report(state, Errors.UnterminatedComment);
 }

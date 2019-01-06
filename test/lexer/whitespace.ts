@@ -35,6 +35,13 @@ function run(isModule: boolean) {
     });
   }
 
+  function fail(name: string, source: string) {
+    it(name, () => {
+      const state = create(source, undefined);
+      t.throws(() => scan(state, Context.Empty));
+    });
+  }
+
   function passAll(name: (lt: string) => string, opts: (lt: string) => Opts) {
     pass(name('line feed'), opts('\n'));
     pass(name('carriage return'), opts('\r'));
@@ -42,6 +49,8 @@ function run(isModule: boolean) {
     // pass(name("line separators"), opts("\u2028"));
     // pass(name("paragraph separators"), opts("\u2029"));
   }
+
+  fail('fails on unclosed multiline comment', '/*');
 
   pass('skips white space', {
     source: '\u0020',

@@ -12,10 +12,10 @@ const enum Escape {
   OutOfRange = -5
 }
 
-function readNext(parser: ParserState, prev: number): number {
-  advance(parser, prev);
-  if (!hasNext(parser)) report(parser, Errors.Unexpected);
-  return nextUnicodeChar(parser);
+function readNext(state: ParserState, prev: number): number {
+  advance(state, prev);
+  if (!hasNext(state)) report(state, Errors.Unexpected);
+  return nextUnicodeChar(state);
 }
 
 const enum Constants {
@@ -191,12 +191,12 @@ function handleStringError(state: ParserState, code: Escape): void {
 /**
  * Scan a string token.
  */
-export function scanString(state: ParserState, context: Context, quote: number): Token {
-  const { index: start, lastChar } = state;
+export function scanString(state: ParserState, context: Context): Token {
+  const { index: start, lastChar, currentChar } = state;
   let ret = '';
 
-  let ch = readNext(state, quote);
-  while (ch !== quote) {
+  let ch = readNext(state, currentChar);
+  while (ch !== currentChar) {
     switch (ch) {
       case Chars.CarriageReturn:
       case Chars.LineFeed:
@@ -272,12 +272,12 @@ function scanBadTemplate(state: ParserState, ch: number): number {
   return ch;
 }
 
-export function scanTemplate(state: ParserState, context: Context, first: number): Token {
-  const { index: start, lastChar } = state;
+export function scanTemplate(state: ParserState, context: Context): Token {
+  const { index: start, lastChar, currentChar } = state;
   let tail = true;
   let ret: string | void = '';
 
-  let ch = readNext(state, first);
+  let ch = readNext(state, currentChar);
 
   loop: while (ch !== Chars.Backtick) {
     switch (ch) {

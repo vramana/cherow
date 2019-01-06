@@ -3,74 +3,39 @@ import { Token } from '../token';
 import { Chars } from '../chars';
 import { mustEscape } from '../unicode';
 import { Errors, report } from '../errors';
-import {
-  advanceOne,
-  consumeOpt,
-  hasNext,
-  nextChar,
-  fromCodePoint,
-  SeekState,
-  advanceNewline,
-  consumeLineFeed
-} from './common';
+import { consumeOpt, hasNext, nextChar, SeekState, advanceNewline, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment } from './comments';
 import { scanString, scanTemplate } from './string';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
-import { scanKnownIdentifier } from './identifier';
+import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
 
 const enum Constants {
   Size = 128
 }
 
-// Sanitizes characters for better human readability.
-function escapeForPrinting(code: number): string {
-  switch (code) {
-    case Chars.Null:
-      return '\\0';
-    case Chars.Backspace:
-      return '\\b';
-    case Chars.Tab:
-      return '\\t';
-    case Chars.LineFeed:
-      return '\\n';
-    case Chars.VerticalTab:
-      return '\\v';
-    case Chars.FormFeed:
-      return '\\f';
-    case Chars.CarriageReturn:
-      return '\\r';
-    default:
-      if (!mustEscape(code)) return fromCodePoint(code);
-      if (code < 0x10) return `\\x0${code.toString(16)}`;
-      if (code < 0x100) return `\\x${code.toString(16)}`;
-      if (code < 0x1000) return `\\u0${code.toString(16)}`;
-      if (code < 0x10000) return `\\u${code.toString(16)}`;
-      return `\\u{${code.toString(16)}}`;
-  }
-}
-
-function impossible(parser: ParserState): void {
-  return report(parser, Errors.Unexpected);
+function impossible(state: ParserState): void {
+  return report(state, Errors.Unexpected);
 }
 
 const statics = new Array(Constants.Size).fill(0) as Token[];
 
-function scanChar(parser: ParserState, context: Context, first: number) {
-  let c = context;
-  advanceOne(parser);
-  return statics[first];
+function scanChar(state: ParserState) {
+  state.index++;
+  state.column++;
+  return statics[state.currentChar];
 }
 
-const table = new Array(Constants.Size).fill(impossible) as Array<
-  (parser: ParserState, context: Context, first: number) => Token
+const table = new Array(Constants.Size).fill(impossible).fill(scanMaybeIdentifier, 0x80) as Array<
+  (state: ParserState, context: Context) => Token
 >;
 
 // `!`, `!=`, `!==`
-table[Chars.Exclamation] = parser => {
-  advanceOne(parser);
-  if (consumeOpt(parser, Chars.EqualSign)) {
-    if (consumeOpt(parser, Chars.EqualSign)) {
+table[Chars.Exclamation] = state => {
+  state.index++;
+  state.column++;
+  if (consumeOpt(state, Chars.EqualSign)) {
+    if (consumeOpt(state, Chars.EqualSign)) {
       return Token.StrictNotEqual;
     } else {
       return Token.LooseNotEqual;
@@ -87,9 +52,10 @@ table[Chars.DoubleQuote] = scanString;
 table[Chars.Dollar] = scanKnownIdentifier;
 
 // `%`, `%=`
-table[Chars.Percent] = parser => {
-  advanceOne(parser);
-  if (consumeOpt(parser, Chars.EqualSign)) {
+table[Chars.Percent] = state => {
+  state.index++;
+  state.column++;
+  if (consumeOpt(state, Chars.EqualSign)) {
     return Token.ModuloAssign;
   } else {
     return Token.Modulo;
@@ -97,16 +63,19 @@ table[Chars.Percent] = parser => {
 };
 
 // `&`, `&&`, `&=`
-table[Chars.Ampersand] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.Ampersand] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.Ampersand) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.LogicalAnd;
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.BitwiseAndAssign;
     }
   }
@@ -126,20 +95,23 @@ table[Chars.RightParen] = scanChar;
 statics[Chars.RightParen] = Token.RightParen;
 
 // `*`, `**`, `*=`, `**=`
-table[Chars.Asterisk] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.Asterisk] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.Asterisk) {
-      advanceOne(parser);
-      if (consumeOpt(parser, Chars.EqualSign)) {
+      state.index++;
+      state.column++;
+      if (consumeOpt(state, Chars.EqualSign)) {
         return Token.ExponentiateAssign;
       } else {
         return Token.Exponentiate;
       }
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.MultiplyAssign;
     }
   }
@@ -148,16 +120,19 @@ table[Chars.Asterisk] = parser => {
 };
 
 // `+`, `++`, `+=`
-table[Chars.Plus] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.Plus] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.Plus) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.Increment;
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.AddAssign;
     }
   }
@@ -170,19 +145,22 @@ table[Chars.Comma] = scanChar;
 statics[Chars.Comma] = Token.Comma;
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.Hyphen] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.Hyphen) {
-      advanceOne(parser);
-      if (parser.flags & SeekState.NewLine && consumeOpt(parser, Chars.GreaterThan)) {
-        return skipSingleLineComment(parser);
+      state.index++;
+      state.column++;
+      if (state.flags & SeekState.NewLine && consumeOpt(state, Chars.GreaterThan)) {
+        return skipSingleLineComment(state);
       }
       return Token.Decrement;
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.SubtractAssign;
     }
   }
@@ -191,46 +169,52 @@ table[Chars.Hyphen] = parser => {
 };
 
 // `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = parser => {
-  let index = parser.index + 1;
-  if (index < parser.length) {
-    const next = parser.source.charCodeAt(index);
+table[Chars.Period] = state => {
+  let index = state.index + 1;
+  if (index < state.length) {
+    const next = state.source.charCodeAt(index);
 
     if (next === Chars.Period) {
       index++;
-      if (index < parser.length && parser.source.charCodeAt(index) === Chars.Period) {
-        parser.index = index + 1;
-        parser.column += 3;
+      if (index < state.length && state.source.charCodeAt(index) === Chars.Period) {
+        state.index = index + 1;
+        state.column += 3;
         return Token.Ellipsis;
       }
     } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      scanNumeric(parser);
+      scanNumeric(state);
       return Token.NumericLiteral;
     }
   }
 
-  advanceOne(parser);
+  state.index++;
+  state.column++;
   return Token.Period;
 };
 
 // `/`, `/=`, `/>`
-table[Chars.Slash] = (parser, context) => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.Slash] = (state, context) => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
     if (context & Context.ExpressionStart && (next !== Chars.Asterisk && next !== Chars.Slash)) {
-      return scanRegularExpression(parser, context);
+      return scanRegularExpression(state, context);
     } else if (next === Chars.Slash) {
-      advanceOne(parser);
-      return skipSingleLineComment(parser);
+      state.index++;
+      state.column++;
+      return skipSingleLineComment(state);
     } else if (next === Chars.Asterisk) {
-      advanceOne(parser);
-      return skipBlockComment(parser);
+      state.index++;
+      state.column++;
+      return skipBlockComment(state);
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.DivideAssign;
     } else if (next === Chars.GreaterThan) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.JSXAutoClose;
     }
   }
@@ -252,43 +236,47 @@ table[Chars.Semicolon] = scanChar;
 statics[Chars.Semicolon] = Token.Semicolon;
 
 // `<`, `<=`, `<<`, `<<=`, `</`
-table[Chars.LessThan] = (parser, context) => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    switch (nextChar(parser)) {
+table[Chars.LessThan] = (state, context) => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    switch (state.source.charCodeAt(state.index)) {
       case Chars.LessThan:
-        advanceOne(parser);
-        if (consumeOpt(parser, Chars.EqualSign)) {
+        state.index++;
+        state.column++;
+        if (consumeOpt(state, Chars.EqualSign)) {
           return Token.ShiftLeftAssign;
         } else {
           return Token.ShiftLeft;
         }
 
       case Chars.EqualSign:
-        advanceOne(parser);
+        state.index++;
+        state.column++;
         return Token.LessThanOrEqual;
 
       case Chars.Exclamation: {
-        const index = parser.index + 1;
-        const next = parser.source.charCodeAt(index);
-        if (next === Chars.Hyphen && parser.source.charCodeAt(index + 1) === Chars.Hyphen) {
-          parser.index = index;
-          parser.column++;
-          return skipSingleLineComment(parser);
+        const index = state.index + 1;
+        const next = state.source.charCodeAt(index);
+        if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
+          state.index = index;
+          state.column++;
+          return skipSingleLineComment(state);
         }
       }
 
       case Chars.Slash: {
         if (!(context & Context.OptionsJSX)) break;
-        const index = parser.index + 1;
+        const index = state.index + 1;
 
         // Check that it's not a comment start.
-        if (index < parser.length) {
-          const next = parser.source.charCodeAt(index);
+        if (index < state.length) {
+          const next = state.source.charCodeAt(index);
           if (next === Chars.Asterisk || next === Chars.Slash) break;
         }
 
-        advanceOne(parser);
+        state.index++;
+        state.column++;
         return Token.JSXClose;
       }
 
@@ -300,20 +288,23 @@ table[Chars.LessThan] = (parser, context) => {
 };
 
 // `=`, `==`, `===`, `=>`
-table[Chars.EqualSign] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.EqualSign] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.EqualSign) {
-      advanceOne(parser);
-      if (consumeOpt(parser, Chars.EqualSign)) {
+      state.index++;
+      state.column++;
+      if (consumeOpt(state, Chars.EqualSign)) {
         return Token.StrictEqual;
       } else {
         return Token.LooseEqual;
       }
     } else if (next === Chars.GreaterThan) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.Arrow;
     }
   }
@@ -322,33 +313,38 @@ table[Chars.EqualSign] = parser => {
 };
 
 // `>`, `>=`, `>>`, `>>>`, `>>=`, `>>>=`
-table[Chars.GreaterThan] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.GreaterThan] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.GreaterThan) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
 
-      if (hasNext(parser)) {
-        const next = nextChar(parser);
+      if (state.index < state.length) {
+        const next = state.source.charCodeAt(state.index);
 
         if (next === Chars.GreaterThan) {
-          advanceOne(parser);
-          if (consumeOpt(parser, Chars.EqualSign)) {
+          state.index++;
+          state.column++;
+          if (consumeOpt(state, Chars.EqualSign)) {
             return Token.LogicalShiftRightAssign;
           } else {
             return Token.LogicalShiftRight;
           }
         } else if (next === Chars.EqualSign) {
-          advanceOne(parser);
+          state.index++;
+          state.column++;
           return Token.ShiftRightAssign;
         }
       }
 
       return Token.ShiftRight;
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.GreaterThanOrEqual;
     }
   }
@@ -382,9 +378,10 @@ table[Chars.RightBracket] = scanChar;
 statics[Chars.RightBracket] = Token.RightBracket;
 
 // `^`, `^=`
-table[Chars.Caret] = parser => {
-  advanceOne(parser);
-  if (consumeOpt(parser, Chars.EqualSign)) {
+table[Chars.Caret] = state => {
+  state.index++;
+  state.column++;
+  if (consumeOpt(state, Chars.EqualSign)) {
     return Token.BitwiseXorAssign;
   } else {
     return Token.BitwiseXor;
@@ -402,16 +399,19 @@ table[Chars.LeftBrace] = scanChar;
 statics[Chars.LeftBrace] = Token.LeftBrace;
 
 // `|`, `||`, `|=`
-table[Chars.VerticalBar] = parser => {
-  advanceOne(parser);
-  if (hasNext(parser)) {
-    const next = nextChar(parser);
+table[Chars.VerticalBar] = state => {
+  state.index++;
+  state.column++;
+  if (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
 
     if (next === Chars.VerticalBar) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.LogicalOr;
     } else if (next === Chars.EqualSign) {
-      advanceOne(parser);
+      state.index++;
+      state.column++;
       return Token.BitwiseOrAssign;
     }
   }
@@ -428,8 +428,9 @@ table[Chars.Tilde] = scanChar;
 statics[Chars.Tilde] = Token.Complement;
 
 // General whitespace
-table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = s => {
-  advanceOne(s);
+table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {
+  state.index++;
+  state.column++;
   return Token.WhiteSpace;
 };
 
@@ -454,11 +455,9 @@ table[Chars.CarriageReturn] = state => {
 export function scan(state: ParserState, context: Context): any {
   while (state.index < state.length) {
     state.startIndex = state.index;
-    let first = (state.lastChar = nextChar(state));
-    if (
-      ((state.token = table[state.lastChar](state, context, state.lastChar)) & Token.WhiteSpace) !==
-      Token.WhiteSpace
-    ) {
+    state.currentChar = state.source.charCodeAt(state.index);
+    if (((state.token = table[state.currentChar](state, context)) & Token.WhiteSpace) !== Token.WhiteSpace) {
+      if (context & Context.OptionsTokenize) state.onToken(state.token, state.startIndex, state.index);
       return state.token;
     }
   }

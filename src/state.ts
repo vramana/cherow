@@ -1,14 +1,15 @@
 import * as ESTree from './estree';
-import { Context, Flags, OnComment, ParserState, unimplemented } from './common';
+import { Context, Flags, OnComment, OnToken, ParserState, unimplemented } from './common';
 import { Token } from './token';
 
 /**
  * Create a new parser instance.
  */
-export function create(source: string, onComment: OnComment): ParserState {
+export function create(source: string, onComment: OnComment | void, onToken: OnToken | void): ParserState {
   return {
     source,
     onComment,
+    onToken,
     flags: Flags.Empty,
     index: 0,
     line: 1,
@@ -22,7 +23,8 @@ export function create(source: string, onComment: OnComment): ParserState {
     numCapturingParens: 0,
     largestBackReference: 0,
     length: source.length,
-    lastChar: source.charCodeAt(0)
+    currentChar: source.charCodeAt(0),
+    lastChar: 0
   };
 }
 
