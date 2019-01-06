@@ -1,10 +1,9 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { mustEscape } from '../unicode';
 import { Errors, report } from '../errors';
 import { consumeOpt, advanceNewline, consumeLineFeed } from './common';
-import { skipBlockComment, skipSingleLineComment } from './comments';
+import { skipBlockComment, skipSingleLineComment, CommentType } from './comments';
 import { scanString, scanTemplate } from './string';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
@@ -154,7 +153,7 @@ table[Chars.Hyphen] = state => {
       state.index++;
       state.column++;
       if (state.flags & Flags.NewLine && consumeOpt(state, Chars.GreaterThan)) {
-        return skipSingleLineComment(state);
+        return skipSingleLineComment(state, CommentType.HTMLClose);
       }
       return Token.Decrement;
     } else if (next === Chars.EqualSign) {
@@ -202,7 +201,7 @@ table[Chars.Slash] = (state, context) => {
     } else if (next === Chars.Slash) {
       state.index++;
       state.column++;
-      return skipSingleLineComment(state);
+      return skipSingleLineComment(state, CommentType.Single);
     } else if (next === Chars.Asterisk) {
       state.index++;
       state.column++;
@@ -260,7 +259,7 @@ table[Chars.LessThan] = (state, context) => {
         if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
           state.index = index;
           state.column++;
-          return skipSingleLineComment(state);
+          return skipSingleLineComment(state, CommentType.HTMLOpen);
         }
       }
 
