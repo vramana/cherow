@@ -9,13 +9,13 @@ import {
   updateState,
   parseRegexCapturingGroupNameRemainder,
   fromCodePoint,
-  nextUnicodeChar
+  nextUnicodeChar,
+  isFlagStart
 } from './common';
 import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
 import { Token } from '../token';
 import { Errors, report1, reportRegExp } from '../errors';
 import { unicodeLookup } from '../unicode';
-import { isIDContinue } from '../unicode';
 
 /**
  * TODO:
@@ -24,17 +24,6 @@ import { isIDContinue } from '../unicode';
  *
  * https://github.com/v8/v8/blob/master/src/regexp/regexp-parser.cc#L1274
  */
-
-export function isFlagStart(code: number): boolean {
-  return (
-    isIDContinue(code) ||
-    code === Chars.Backslash ||
-    code === Chars.Dollar ||
-    code === Chars.Underscore ||
-    code === Chars.Zwnj ||
-    code === Chars.Zwj
-  );
-}
 
 /**
  * Scan and validate regex flags

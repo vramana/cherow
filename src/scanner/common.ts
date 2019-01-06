@@ -1,7 +1,7 @@
 import { Chars } from '../chars';
 import { Context, ParserState } from '../common';
 import { reportRegExp, Errors } from '../errors';
-import { Token } from 'token';
+import { isIDContinue } from '../unicode';
 
 /**
  * A set of flags for maintaining the internal state machine.
@@ -46,6 +46,17 @@ export function advanceOne(parser: ParserState) {
 
 export function nextChar(parser: ParserState) {
   return parser.source.charCodeAt(parser.index);
+}
+
+export function isFlagStart(code: number): boolean {
+  return (
+    isIDContinue(code) ||
+    code === Chars.Backslash ||
+    code === Chars.Dollar ||
+    code === Chars.Underscore ||
+    code === Chars.Zwnj ||
+    code === Chars.Zwj
+  );
 }
 
 export function nextUnicodeChar(parser: ParserState) {
