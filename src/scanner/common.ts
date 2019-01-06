@@ -1,6 +1,7 @@
 import { Chars } from '../chars';
 import { Context, ParserState } from '../common';
-import { reportRegExp, Errors } from '../errors';
+import { report, reportRegExp, Errors } from '../errors';
+import { Token } from 'token';
 import { isIDContinue } from '../unicode';
 
 /**
@@ -35,6 +36,26 @@ export const enum RegexpState {
   InvalidClassRange = 0x110001
 }
 
+// Skip initial BOM and/or shebang.
+export function skipHashBang(state: ParserState) {
+  let index = state.index;
+  if (index === state.source.length) return;
+  if (state.source.charCodeAt(index) === Chars.ByteOrderMark) {
+    index++;
+    state.index = index;
+  }
+
+  if (index < state.source.length && state.source.charCodeAt(index) === Chars.Hash) {
+    index++;
+    if (index < state.source.length && state.source.charCodeAt(index) === Chars.Exclamation) {
+      state.index = index + 1;
+      // skipToNewline(state, SeekState.None);
+    } else {
+      report(state, Errors.Unexpected);
+    }
+  }
+}
+
 export function hasNext(parser: ParserState) {
   return parser.index < parser.length;
 }
@@ -44,8 +65,9 @@ export function advanceOne(parser: ParserState) {
   parser.column++;
 }
 
-export function nextChar(parser: ParserState) {
-  return parser.source.charCodeAt(parser.index);
+export function advance(parser: ParserState, ch: number) {
+  advanceOne(parser);
+  if (ch > 0xffff) parser.index++;
 }
 
 export function isFlagStart(code: number): boolean {
@@ -57,6 +79,10 @@ export function isFlagStart(code: number): boolean {
     code === Chars.Zwnj ||
     code === Chars.Zwj
   );
+}
+
+export function nextChar(parser: ParserState) {
+  return parser.source.charCodeAt(parser.index);
 }
 
 export function nextUnicodeChar(parser: ParserState) {
@@ -71,11 +97,65 @@ export function nextUnicodeChar(parser: ParserState) {
   return ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
 }
 
+/**
+ * An optimized equivalent of `advance(parser, nextUnicodeChar(parser))` that returns its result.
+ */
+export function consumeAny(parser: ParserState) {
+  const hi = parser.source.charCodeAt(parser.index++);
+  let code = hi;
+
+  if (hi >= 0xd800 && hi <= 0xdbff && hasNext(parser)) {
+    const lo = parser.source.charCodeAt(parser.index);
+    if (lo >= 0xdc00 && lo <= 0xdfff) {
+      code = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
+      parser.index++;
+    }
+  }
+
+  parser.column++;
+  return code;
+}
+
 export function consumeOpt(parser: ParserState, code: number) {
   if (parser.source.charCodeAt(parser.index) !== code) return false;
   parser.index++;
   parser.column++;
   return true;
+}
+
+// Note: currently unused.
+export function consumeOptAstral(parser: ParserState, code: number) {
+  let { index } = parser;
+  const hi = parser.source.charCodeAt(index++);
+  if (hi < 0xd800 || hi > 0xdbff) return false;
+  if (index === parser.source.length) return false;
+
+  const lo = parser.source.charCodeAt(index++);
+  if (lo < 0xdc00 || lo > 0xdfff) return false;
+
+  const codePoint = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
+  if (codePoint !== code) return false;
+
+  parser.index = index;
+  parser.column++;
+  return true;
+}
+
+/**
+ * Use to consume a line feed instead of `advanceNewline`.
+ */
+export function consumeLineFeed(parser: ParserState, lastIsCR: boolean) {
+  parser.index++;
+  if (!lastIsCR) {
+    parser.column = 0;
+    parser.line++;
+  }
+}
+
+export function advanceNewline(parser: ParserState) {
+  parser.index++;
+  parser.column = 0;
+  parser.line++;
 }
 
 // Avoid 90% of the ceremony of String.fromCodePoint
@@ -95,6 +175,34 @@ export function toHex(code: number): number {
   if (code < Chars.LowerA) return -1;
   if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
   return -1;
+}
+
+export function storeRaw(parser: ParserState, start: number) {
+  parser.tokenRaw = parser.source.slice(start, parser.index);
+}
+
+export function skipToNewline(parser: ParserState): Token {
+  while (hasNext(parser)) {
+    switch (nextChar(parser)) {
+      case Chars.CarriageReturn:
+        advanceNewline(parser);
+        if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) parser.index++;
+        parser.flags | SeekState.NewLine;
+        return Token.WhiteSpace;
+
+      case Chars.LineFeed:
+      case Chars.LineSeparator:
+      case Chars.ParagraphSeparator:
+        advanceNewline(parser);
+        parser.flags | SeekState.NewLine;
+        return Token.WhiteSpace;
+
+      default:
+        consumeAny(parser);
+    }
+  }
+
+  return Token.WhiteSpace;
 }
 
 export function isDigit(ch: number): boolean {

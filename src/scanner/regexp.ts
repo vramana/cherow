@@ -12,9 +12,9 @@ import {
   nextUnicodeChar,
   isFlagStart
 } from './common';
-import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
+import { Chars, AsciiLookup, CharType, isIdentifierPart, isIdentifierStart } from '../chars';
 import { Token } from '../token';
-import { Errors, report1, reportRegExp } from '../errors';
+import { Errors, report, reportRegExp } from '../errors';
 import { unicodeLookup } from '../unicode';
 
 /**
@@ -174,7 +174,7 @@ export function validateRegularExpression(
         if (context & Context.OptionsDisableWebCompat) {
           for (let i in backreferenceNames) {
             if (!groupNames.has(backreferenceNames[i])) {
-              report1(state, Errors.InvalidCaptureRef, backreferenceNames[i]);
+              report(state, Errors.InvalidCaptureRef, backreferenceNames[i]);
             }
           }
         }
@@ -623,7 +623,8 @@ function validateAtomEscape(
   backreferenceNames: string[],
   prev: number
 ): RegexpState {
-  switch (state.source.charCodeAt(state.index++)) {
+  let next = state.source.charCodeAt(state.index++);
+  switch (next) {
     // ControlEscape :: one of
     //   f n r t v
     case Chars.LowerF:
@@ -779,13 +780,14 @@ function validateAtomEscape(
     }
 
     case Chars.LowerK: {
+      let c = state.source.charCodeAt(state.index);
       if (!consumeOpt(state, Chars.LessThan)) {
         return context & Context.OptionsDisableWebCompat
           ? reportRegExp(state, Errors.InvalidNamedReference)
           : RegexpState.Plain;
       }
+      next = state.source.charCodeAt(state.index);
 
-      let next = state.source.charCodeAt(state.index);
       if ((AsciiLookup[next] & CharType.IDStart) !== 0 && ((unicodeLookup[(next >>> 5) + 0] >>> next) & 31 & 1) === 0) {
         return context & Context.OptionsDisableWebCompat
           ? reportRegExp(state, Errors.InvalidNamedReference)
@@ -799,12 +801,10 @@ function validateAtomEscape(
       if (state.source.charCodeAt(state.index) === Chars.GreaterThan) {
         state.tokenValue = next > 0xffff ? state.source.slice(state.index - 2, state.index) : fromCodePoint(next);
       } else {
-        // TODO: Optimize this crap :)
         state.tokenValue = fromCodePoint(next);
         while (isIdentifierPart(state.source.charCodeAt(state.index)))
           state.tokenValue += fromCodePoint(state.source.charCodeAt(state.index++));
       }
-
       backreferenceNames.push(state.tokenValue);
 
       if (!consumeOpt(state, Chars.GreaterThan)) {

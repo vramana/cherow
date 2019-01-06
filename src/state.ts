@@ -1,7 +1,6 @@
 import * as ESTree from './estree';
 import { Context, Flags, OnComment, ParserState, unimplemented } from './common';
 import { Token } from './token';
-import { errorMessages } from './errors';
 
 /**
  * Create a new parser instance.

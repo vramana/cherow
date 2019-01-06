@@ -93,7 +93,3 @@ export function finishNode<T extends ESTree.Node>(context: Context, start: numbe
 
   return node;
 }
-
-export function report(parser: ParserState, message: string): never {
-  return Errors.report(parser.index, parser.line, parser.column, message);
-}
