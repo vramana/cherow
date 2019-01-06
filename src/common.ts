@@ -63,9 +63,8 @@ export interface ParserState {
   tokenRaw: string;
   length: number;
   lastRegExpError: any;
-  capturingParens: number;
+  numCapturingParens: number;
   largestBackReference: number;
-  lastRegexUnicodeEscapeOrd: number;
   tokenRegExp: void | {
     pattern: string;
     flags: string;

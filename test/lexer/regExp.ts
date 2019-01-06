@@ -4,9 +4,6 @@ import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 import { scanRegularExpression } from '../../src/scanner/regexp';
 
-/**
- * Note! This file tests regular expression both with and without web compability.
- */
 describe('Lexer - Regular expressions', () => {
   function fail(source: string, ctx: Context) {
     it(`Invalid regular expressions - ${source}`, () => {
@@ -168,6 +165,24 @@ describe('Lexer - Regular expressions', () => {
   fail('[-', Context.Empty);
   fail('[--', Context.Empty);
   fail('[--', Context.Empty);
+  fail('foo/ii', Context.Empty);
+  fail('foo/ss', Context.Empty);
+  fail('foo/mm', Context.Empty);
+  fail('foo/uu', Context.Empty);
+  fail('a{b, 15}/u', Context.OptionsDisableWebCompat);
+  fail('a{1, 15}/u', Context.OptionsDisableWebCompat);
+  fail('a{, 15}/u', Context.OptionsDisableWebCompat);
+  fail('a{, 15}/u', Context.OptionsDisableWebCompat);
+  fail('a{, 15}/u', Context.Empty);
+  fail('/a{,5}/', Context.Empty);
+  fail('/a{,,,,,}/', Context.Empty);
+  fail('/a{,0,}/', Context.Empty);
+  fail('foo/iss', Context.Empty);
+  fail('foo/iss', Context.Empty);
+  fail('foo/iss', Context.Empty);
+  fail('foo/iss', Context.Empty);
+  fail('([\\d-\\s]+)/', Context.OptionsDisableWebCompat);
+  fail('a(b(c(d)e)f)g)/', Context.Empty);
   fail('[\\r\t--', Context.Empty);
   fail('[\\n\n--', Context.Empty);
   fail('[\\r\t--', Context.Empty);
@@ -4240,6 +4255,33 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, 'a(?:a(?:b)c)/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '(?:a(?:b)c)c/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, 'a(?:a(?:b)c)c/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(abc)d/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '123/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(1)/g', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(bcd)e/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(a(b)c)(d(e)f)/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(^)abc/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(^a)bc/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(^a)bc/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, 'bc/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(1)/g', Token.RegularExpression],
+    [
+      Context.OptionsDisableWebCompat,
+      '/(a(b)c)(d(e)f)(a(b)c)(d(e)f)(1)(?:(?:b)c)ca(?!(?!b)c)/g',
+      Token.RegularExpression
+    ],
+    [Context.OptionsDisableWebCompat, '\\n/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\\\n/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\r/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\\\u2029/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\//', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[\\/]/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[\\/]/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(.)\\1/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(.)\\1/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '.*x?/g', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(?:)/g', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(?:)/i', Token.RegularExpression],
     [Context.Empty, '(?:a(?:b))/u', Token.RegularExpression],
     [Context.Empty, 'a(?:a(?:b))/u', Token.RegularExpression],
     [Context.Empty, '(?:a(?:b))c/u', Token.RegularExpression],
@@ -4464,7 +4506,6 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, 'a(b)c/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '[b\\-a]/u', Token.RegularExpression]
   ];
-
 
   for (const [ctx, op, token] of tokdens) {
     it(`scans '${op}'`, () => {
@@ -6305,7 +6346,6 @@ describe('Lexer - Regular expressions', () => {
     if (isWebCompat) {
       // TODO ??
     }
-
     for (const [ctx, op, token] of tokens) {
       it(`scans '${op}'`, () => {
         const state = create(op, undefined);
