@@ -4,18 +4,6 @@ import { Token } from '../token';
 import { report, Errors } from '../errors';
 import { advance, fromCodePoint, hasNext, nextChar, nextUnicodeChar, storeRaw, toHex } from './common';
 
-/*
- * The string parsing works this way:
- *
- * - Template parts are double-parsed, once string-like for normal and a faster version for raw.
- * - String and template characters (for the initial parse) are handled via common logic.
- * - Raw characters are just a raw source slice, since the revised semantics effectively dictate
- *   ignoring all escapes except for not terminating on '\`' or `\${` (it's a bit obscure due to the
- *   indirection, but that's because the normal and raw values are derived from reading the same
- *   grammar). Way faster and better memory-wise.
- */
-
-// Intentionally negative
 const enum Escape {
   Empty = -1,
   StrictOctal = -2,
@@ -34,7 +22,6 @@ const enum Constants {
   Size = 128
 }
 
-// By default, consuming escapes defaults to returning the character.
 type Callback = (parser: ParserState, context: Context, first: number) => number;
 const table = new Array<Callback>(Constants.Size).fill(nextUnicodeChar);
 
@@ -81,10 +68,8 @@ table[Chars.Zero] = table[Chars.One] = table[Chars.Two] = table[Chars.Three] = (
     const next = parser.source.charCodeAt(index);
 
     if (next < Chars.Zero || next > Chars.Seven) {
-      // Verify that it's `\0` if we're in strict mode.
       if (code !== 0 && context & Context.Strict) return Escape.StrictOctal;
     } else if (context & Context.Strict) {
-      // This happens in cases like `\00` in strict mode.
       return Escape.StrictOctal;
     } else {
       parser.lastChar = next;
@@ -151,7 +136,6 @@ table[Chars.LowerU] = (parser, _, prev) => {
   let ch = (parser.lastChar = readNext(parser, prev));
   if (ch === Chars.LeftBrace) {
     // \u{N}
-    // The first digit is required, so handle it *out* of the loop.
     ch = parser.lastChar = readNext(parser, ch);
     let code = toHex(ch);
     if (code < 0) return Escape.InvalidHex;
@@ -161,9 +145,6 @@ table[Chars.LowerU] = (parser, _, prev) => {
       const digit = toHex(ch);
       if (digit < 0) return Escape.InvalidHex;
       code = (code << 4) | digit;
-
-      // Check this early to avoid `code` wrapping to a negative on overflow (which is
-      // reserved for abnormal conditions).
       if (code > 0x10fff) return Escape.OutOfRange;
       ch = parser.lastChar = readNext(parser, ch);
     }
@@ -249,8 +230,6 @@ export function scanString(state: ParserState, context: Context, quote: number):
   return Token.StringLiteral;
 }
 
-// Fallback for looser template segment validation (no actual parsing).
-// It returns `ch` as negative iff the segment ends with `${`
 function scanBadTemplate(state: ParserState, ch: number): number {
   while (ch !== Chars.Backtick) {
     // Break after a literal `${` (thus the dedicated code path).
@@ -293,9 +272,6 @@ function scanBadTemplate(state: ParserState, ch: number): number {
   return ch;
 }
 
-/**
- * Scan a template section. It can start either from the quote or closing brace.
- */
 export function scanTemplate(state: ParserState, context: Context, first: number): Token {
   const { index: start, lastChar } = state;
   let tail = true;
@@ -305,7 +281,6 @@ export function scanTemplate(state: ParserState, context: Context, first: number
 
   loop: while (ch !== Chars.Backtick) {
     switch (ch) {
-      // Break after a literal `${` (thus the dedicated code path).
       case Chars.Dollar: {
         const index = state.index + 1;
         if (index < state.source.length && state.source.charCodeAt(index) === Chars.LeftBrace) {
