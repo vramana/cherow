@@ -36,7 +36,7 @@ export function scanMaybeIdentifier(state: ParserState, context: Context): Token
       return Token.WhiteSpace;
   }
 
-  let c = context;
+  const c = context;
 
   // TODO
   return unimplemented();
@@ -52,7 +52,7 @@ export function scanKnownIdentifier(state: ParserState): Token {
 }
 
 export function scanIdentifierRest(state: ParserState): Token {
-  let a = scanIdentifierUnicodeEscape(state);
+  const a = scanIdentifierUnicodeEscape(state);
   // state.tokenValue += fromCodePoint(a);
   //while (state.index < state.length) {}
   // TODO
@@ -72,7 +72,7 @@ export function scanIdentifierUnicodeEscape(state: ParserState): any {
   let ch = state.source.charCodeAt(state.index++);
   ch = state.source.charCodeAt(state.index++);
   ch = state.source.charCodeAt(state.index++);
-  let value = 0;
+  const value = 0;
   if (ch === Chars.LeftBrace) {
     if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
     // \u{N}

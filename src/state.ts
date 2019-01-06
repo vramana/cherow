@@ -29,8 +29,8 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
 }
 
 function parseStatementListItem(state: ParserState, context: Context): ESTree.Statement {
-  let p = state;
-  let c = context;
+  const p = state;
+  const c = context;
   // TODO
   return unimplemented();
 }
@@ -39,8 +39,8 @@ function parseStatementListItem(state: ParserState, context: Context): ESTree.St
  * Parse a module body, function body, script body, etc.
  */
 export function parseBody(state: ParserState, context: Context): ESTree.Statement[] {
-  let p = state;
-  let c = context;
+  const p = state;
+  const c = context;
 
   const statements: ESTree.Statement[] = [];
 

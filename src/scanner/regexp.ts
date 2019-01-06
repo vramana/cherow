@@ -101,11 +101,11 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
   // TODO: Merge this function with the function above - flag scanning
 
   const bodyStart = state.index;
-  let regExpState = RegexpState.Valid;
+  const regExpState = RegexpState.Valid;
   let regexpBody = validateRegularExpression(state, context, 0, regExpState, Type.None);
   const bodyEnd = state.index - 1;
   const { index: flagStart } = state;
-  let regexpFlags = scanRegexFlags(state);
+  const regexpFlags = scanRegexFlags(state);
   if (state.numCapturingParens < state.largestBackReference) {
     regexpBody =
       (context & Context.OptionsDisableWebCompat) === 0
@@ -172,7 +172,7 @@ export function validateRegularExpression(
       case Chars.Slash: {
         if (depth !== 0) return reportRegExp(state, Errors.UnterminatedGroup);
         if (context & Context.OptionsDisableWebCompat) {
-          for (let i in backreferenceNames) {
+          for (const i in backreferenceNames) {
             if (!groupNames.has(backreferenceNames[i])) {
               report(state, Errors.InvalidCaptureRef, backreferenceNames[i]);
             }
@@ -249,7 +249,7 @@ export function validateRegularExpression(
                     next = next ^ RegexpState.InvalidPlainClass;
                   }
 
-                  let subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
+                  const subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
 
                   if ((subState & RegexpState.Valid) === 0) {
                     regExpState = subState;
@@ -266,7 +266,7 @@ export function validateRegularExpression(
                     return reportRegExp(state, Errors.InvalidCaptureGroupName);
                   }
 
-                  let subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
+                  const subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
                   if ((subState & RegexpState.Valid) === 0) {
                     regExpState = subState;
                     break;
@@ -290,7 +290,7 @@ export function validateRegularExpression(
             ++state.numCapturingParens;
           }
 
-          let subState = validateRegularExpression(state, context, depth + 1, RegexpState.Valid, Type.None);
+          const subState = validateRegularExpression(state, context, depth + 1, RegexpState.Valid, Type.None);
 
           switch (state.source.charCodeAt(state.index)) {
             case Chars.QuestionMark:
@@ -426,11 +426,11 @@ function parseRegexUnicodeEscape(state: ParserState): RegexpState {
 
 function parseOctalFromSecondDigit(state: ParserState, firstChar: number): RegexpState {
   if (firstChar >= Chars.Zero && firstChar <= Chars.Three) {
-    let secondChar = state.source.charCodeAt(state.index);
+    const secondChar = state.source.charCodeAt(state.index);
     if (secondChar >= Chars.Zero && secondChar <= Chars.Seven) {
       ++state.index;
 
-      let thirdChar = state.source.charCodeAt(state.index);
+      const thirdChar = state.source.charCodeAt(state.index);
       if (thirdChar >= Chars.Zero && thirdChar <= Chars.Seven) {
         ++state.index;
         return (firstChar - Chars.Zero) * 8 * 8 + (secondChar - Chars.Zero) * 8 + (thirdChar - Chars.Zero);
@@ -441,10 +441,10 @@ function parseOctalFromSecondDigit(state: ParserState, firstChar: number): Regex
       return firstChar - Chars.Zero;
     }
   } else {
-    let secondChar = state.source.charCodeAt(state.index);
+    const secondChar = state.source.charCodeAt(state.index);
     if (secondChar >= Chars.Zero && secondChar <= Chars.Seven) {
       ++state.index;
-      let thirdChar = state.source.charCodeAt(state.index);
+      const thirdChar = state.source.charCodeAt(state.index);
       if (thirdChar >= Chars.Zero && thirdChar <= Chars.Three) {
         ++state.index;
         return (firstChar - Chars.Zero) * 8 * 8 + (secondChar - Chars.Zero) * 8 + (thirdChar - Chars.Zero);
@@ -548,7 +548,7 @@ function validateClassCharacterEscape(state: ParserState, context: Context): Cha
         // Inside a character class, we also accept digits and underscore as
         // control characters, unless with /u. See Annex B:
         // ES#prod-annexB-ClassControlLetter
-        let letter = state.source.charCodeAt(state.index) | 32;
+        const letter = state.source.charCodeAt(state.index) | 32;
         if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
           ++state.index;
           // Control letters mapped to ASCII control characters in the range
@@ -563,7 +563,7 @@ function validateClassCharacterEscape(state: ParserState, context: Context): Cha
 
     case Chars.LowerP:
     case Chars.UpperP:
-      let regexPropState = parseRegexPropertyEscape(state, context);
+      const regexPropState = parseRegexPropertyEscape(state, context);
       if (regexPropState & RegexpState.Invalid) return RegexpState.InvalidClass;
 
       if (regexPropState & RegexpState.Plain) {
@@ -663,7 +663,7 @@ function validateAtomEscape(
     case Chars.LowerC:
       // Special case if it is an ASCII letter.
       // Convert uppercase to lower case letters.
-      let letter = state.source.charCodeAt(state.index) | 32;
+      const letter = state.source.charCodeAt(state.index) | 32;
       if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
         state.index++;
         return RegexpState.Valid;
@@ -731,7 +731,7 @@ function validateAtomEscape(
 
     case Chars.LowerP:
     case Chars.UpperP:
-      let regexPropState = parseRegexPropertyEscape(state, context);
+      const regexPropState = parseRegexPropertyEscape(state, context);
       if (regexPropState === RegexpState.Invalid) {
         return RegexpState.Invalid;
       } else if (regexPropState === RegexpState.Plain) {
@@ -765,7 +765,7 @@ function validateAtomEscape(
         // Try to parse a decimal literal that is no greater than the total number
         // of left capturing parentheses in the input.
         ++state.index;
-        let second = state.source.charCodeAt(state.index);
+        const second = state.source.charCodeAt(state.index);
         if (second >= Chars.Zero && second <= Chars.Nine) {
           return (context & Context.OptionsDisableWebCompat) === 0
             ? RegexpState.Plain
@@ -780,7 +780,7 @@ function validateAtomEscape(
     }
 
     case Chars.LowerK: {
-      let c = state.source.charCodeAt(state.index);
+      const c = state.source.charCodeAt(state.index);
       if (!consumeOpt(state, Chars.LessThan)) {
         return context & Context.OptionsDisableWebCompat
           ? reportRegExp(state, Errors.InvalidNamedReference)
@@ -894,7 +894,7 @@ function parseCharacterClass(state: ParserState, context: Context) {
     }
 
     if (urangeOpen) {
-      let urangeRight = isSurrogate ? surrogate : wasSurrogateHead ? prev : next;
+      const urangeRight = isSurrogate ? surrogate : wasSurrogateHead ? prev : next;
       if (!isSurrogateHead || wasSurrogateHead) {
         urangeOpen = false;
         if (

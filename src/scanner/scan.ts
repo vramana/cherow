@@ -24,9 +24,10 @@ function scanChar(state: ParserState) {
   return statics[state.currentChar];
 }
 
-const table = new Array(0xffff).fill(unexpectedCharacter, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as Array<
-  (state: ParserState, context: Context) => Token
->;
+const table = new Array(0xffff).fill(unexpectedCharacter, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as ((
+  state: ParserState,
+  context: Context
+) => Token)[];
 
 // `!`, `!=`, `!==`
 table[Chars.Exclamation] = state => {

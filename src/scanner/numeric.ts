@@ -49,7 +49,7 @@ export function scanNumeric(state: ParserState): Token {
     }
   }
 
-  let code = state.source.charCodeAt(state.index);
+  const code = state.source.charCodeAt(state.index);
   if (code !== Chars.LowerN && (isDigit(code) || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) !== 0)) {
     report(state, Errors.Unexpected);
   }

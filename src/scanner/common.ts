@@ -216,7 +216,7 @@ export function parseRegexCapturingGroupNameRemainder(
     // parseIdentifierRest(firstCharOrd, '');
   }
 
-  let name = state.tokenValue;
+  const name = state.tokenValue;
   if (namedGroups.has(name)) {
     return reportRegExp(state, Errors.AlreadyDeclaredGroupName, name);
   }

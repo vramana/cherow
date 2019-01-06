@@ -101,6 +101,56 @@ function run(isModule: boolean) {
     column: 1
   });
 
+  pass('skips single line comment with identifier and newline', {
+    source: '// foo\n',
+    hasNext: false,
+    line: 2,
+    column: 0
+  });
+
+  pass('skips multi line comment with escaped newline', {
+    source: '/* \\n \\r \\x0a \\u000a */',
+    hasNext: false,
+    line: 1,
+    column: 23
+  });
+
+  pass('skips single line comment with identifier and newline', {
+    source: '// foo\n',
+    hasNext: false,
+    line: 2,
+    column: 0
+  });
+
+  // should fail in the parser
+  pass('skips nested multi line comment', {
+    source: '/* /* */ */',
+    hasNext: true,
+    line: 1,
+    column: 10
+  });
+
+  pass('skips single line comment with slash', {
+    source: '// /',
+    hasNext: false,
+    line: 1,
+    column: 4
+  });
+
+  pass('skips single line comment with malformed escape', {
+    source: '//\\unope \\u{nope} \\xno ',
+    hasNext: false,
+    line: 1,
+    column: 23
+  });
+
+  pass('skips single line comment with escaped newlines', {
+    source: '//\\n \\r \\x0a \\u000a still comment',
+    hasNext: false,
+    line: 1,
+    column: 33
+  });
+
   pass('skips space between any tokens', {
     source: '\u0020var\u0020x\u0020=\u00201\u0020; result = x;',
     hasNext: true,

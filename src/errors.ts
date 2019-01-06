@@ -63,7 +63,7 @@ export const errorMessages: {
   [Errors.InvalidExtendedUnicodeEscape]: 'Invalid extended unicode escape',
   [Errors.AlreadyDeclaredGroupName]: "Already declared group name '%0'",
   [Errors.LoneQuantifierBrackets]: 'Lone quantifier brackets',
-  [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '0'",
+  [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '%0'",
   [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
   [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
   [Errors.IllegalCaracter]: "Illegal character '%0'"
@@ -79,21 +79,12 @@ export function constructError(index: number, line: number, column: number, desc
   return error;
 }
 
-/**
- * Report invalid regular expression
- * NOTE: The errors can't be thrown
- *
- * @param {Parser} state
- * @param {Errors} type
- * @param {...string[]} params
- * @returns {(RegexpState | any)}
- */
-export function reportRegExp(state: ParserState, type: Errors, ...params: string[]): RegexpState | any {
+export function reportRegExp(state: ParserState, type: Errors, ...params: string[]): RegexpState {
   state.lastRegExpError = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
   return RegexpState.Invalid;
 }
 
-export function report(parser: ParserState, type: Errors, ...params: string[]): any {
+export function report(parser: ParserState, type: Errors, ...params: string[]): never {
   const { index, line, column } = parser;
   const message = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
   const error = constructError(index, line, column, message);
