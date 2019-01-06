@@ -12,8 +12,8 @@ import { fromCodePoint, toHex, nextChar, Escape, scanNext } from './common';
  * @param state Parser instance
  * @param context Context masks
  */
-export function scanStringLiteral(state: ParserState, context: Context): Token {
-  const { index: start, lastChar, currentChar: quote } = state;
+export function scanStringLiteral(state: ParserState, context: Context, quote: number): Token {
+  const { index: start, lastChar } = state;
   let ret: string | void = '';
 
   let ch = scanNext(state, Errors.UnterminatedString);

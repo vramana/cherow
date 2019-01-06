@@ -10,24 +10,21 @@ import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
 import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
 
-const enum Constants {
-  Size = 128
-}
-
 const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) =>
   report(state, Errors.IllegalCaracter, String.fromCharCode(state.currentChar));
 
-const statics = new Array(Constants.Size).fill(0) as Token[];
+const statics = new Array(128).fill(0) as Token[];
 
-function scanChar(state: ParserState) {
+function scanChar(state: ParserState, _: Context, first: number) {
   state.index++;
   state.column++;
-  return statics[state.currentChar];
+  return statics[first];
 }
 
 const table = new Array(0xffff).fill(unexpectedCharacter, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
-  context: Context
+  context: Context,
+  first: number
 ) => Token)[];
 
 // `!`, `!=`, `!==`
@@ -464,8 +461,8 @@ table[Chars.CarriageReturn] = state => {
 export function scan(state: ParserState, context: Context): Token {
   while (state.index < state.length) {
     state.startIndex = state.index;
-    state.currentChar = state.source.charCodeAt(state.index);
-    if (((state.token = table[state.currentChar](state, context)) & Token.WhiteSpace) !== Token.WhiteSpace) {
+    const first = state.source.charCodeAt(state.index);
+    if (((state.token = table[first](state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
       if (state.onToken) state.onToken(state.token, state.startIndex, state.index);
       return state.token;
     }
