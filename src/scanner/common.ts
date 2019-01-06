@@ -26,6 +26,21 @@ export const enum RegexpState {
   InvalidClassRange = 0x110001
 }
 
+export const enum Escape {
+  Empty = -1,
+  StrictOctal = -2,
+  EightOrNine = -3,
+  InvalidHex = -4,
+  OutOfRange = -5
+}
+
+export function scanNext(state: ParserState): number {
+  state.index++;
+  state.column++;
+  if (state.index >= state.length) report(state, Errors.Unexpected);
+  return state.source.charCodeAt(state.index);
+}
+
 export function hasNext(parser: ParserState) {
   return parser.index < parser.length;
 }
@@ -114,15 +129,13 @@ export function fromCodePoint(code: number): string {
 }
 
 export function toHex(code: number): number {
-  code -= Chars.Zero;
-  if (code <= 9) return code;
-  code = (code | 0x20) - (Chars.LowerA - Chars.Zero);
-  if (code <= 5) return code + 10;
+  if (code < Chars.Zero) return -1;
+  if (code <= Chars.Nine) return code - Chars.Zero;
+  if (code < Chars.UpperA) return -1;
+  if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
+  if (code < Chars.LowerA) return -1;
+  if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
   return -1;
-}
-
-export function storeRaw(parser: ParserState, start: number): void {
-  parser.tokenRaw = parser.source.slice(start, parser.index);
 }
 
 export function isDigit(ch: number): boolean {
