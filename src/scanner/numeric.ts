@@ -1,25 +1,21 @@
 import { ParserState, Context, Flags } from '../common';
-import { toHex } from './common';
+import { toHex, isDigit } from './common';
 import { Chars } from '../chars';
 import { Token } from '../token';
-import * as Errors from '../errors';
+import { Errors, report } from '../errors';
 import { unicodeLookup } from '../unicode';
-
-export function isDigit(ch: number): boolean {
-  return ch >= Chars.Zero && ch <= Chars.Nine;
-}
 
 /**
  * Adds BigInt suffix
- * @param parser
+ * @param state
  */
-export function addMaybeBigIntSuffix(parser: ParserState): Token {
-  if (parser.source.charCodeAt(parser.index) === Chars.LowerN) {
-    parser.index++;
-    parser.column++;
+export function addMaybeBigIntSuffix(state: ParserState): Token {
+  if (state.source.charCodeAt(state.index) === Chars.LowerN) {
+    state.index++;
+    state.column++;
     return Token.BigIntLiteral;
   } else {
-    if ((parser.flags & (Flags.BinarySpecifier | Flags.OctalSpecifier)) === 0) parser.tokenValue = +parser.tokenValue;
+    if ((state.flags & (Flags.BinarySpecifier | Flags.OctalSpecifier)) === 0) state.tokenValue = +state.tokenValue;
     return Token.NumericLiteral;
   }
 }
@@ -29,44 +25,38 @@ export function addMaybeBigIntSuffix(parser: ParserState): Token {
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-NumericLiteral)
  *
- * @param parser Parser object
+ * @param state Parser object
  */
-export function scanNumeric(parser: ParserState): Token {
-  const start = parser.index;
-  while (isDigit(parser.source.charCodeAt(parser.index))) parser.index++;
-  if (parser.source.charCodeAt(parser.index) === Chars.Period) {
-    parser.index++;
-    while (isDigit(parser.source.charCodeAt(parser.index))) parser.index++;
+export function scanNumeric(state: ParserState): Token {
+  const start = state.index;
+  while (isDigit(state.source.charCodeAt(state.index))) state.index++;
+  if (state.source.charCodeAt(state.index) === Chars.Period) {
+    state.index++;
+    while (isDigit(state.source.charCodeAt(state.index))) state.index++;
   }
-  let end = parser.index;
-  if (
-    parser.source.charCodeAt(parser.index) === Chars.UpperE ||
-    parser.source.charCodeAt(parser.index) === Chars.LowerE
-  ) {
-    parser.index++;
-    parser.flags = Flags.Scientific;
-    if (
-      parser.source.charCodeAt(parser.index) === Chars.Plus ||
-      parser.source.charCodeAt(parser.index) === Chars.Hyphen
-    )
-      parser.index++;
-    if (isDigit(parser.source.charCodeAt(parser.index))) {
-      parser.index++;
-      while (isDigit(parser.source.charCodeAt(parser.index))) parser.index++;
-      end = parser.index;
+  let end = state.index;
+  if (state.source.charCodeAt(state.index) === Chars.UpperE || state.source.charCodeAt(state.index) === Chars.LowerE) {
+    state.index++;
+    state.flags = Flags.Scientific;
+    if (state.source.charCodeAt(state.index) === Chars.Plus || state.source.charCodeAt(state.index) === Chars.Hyphen)
+      state.index++;
+    if (isDigit(state.source.charCodeAt(state.index))) {
+      state.index++;
+      while (isDigit(state.source.charCodeAt(state.index))) state.index++;
+      end = state.index;
     } else {
-      Errors.report(parser.index, parser.line, parser.column, Errors.unterminatedComment());
+      report(state, Errors.Unexpected);
     }
   }
 
-  let code = parser.source.charCodeAt(parser.index);
+  let code = state.source.charCodeAt(state.index);
   if (code !== Chars.LowerN && (isDigit(code) || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) !== 0)) {
-    Errors.report(parser.index, parser.line, parser.column, Errors.unterminatedComment());
+    report(state, Errors.Unexpected);
   }
 
-  parser.tokenValue = parser.source.substring(start, end);
-  // if (context & Context.OptionsRaw) parser.tokenRaw = parser.tokenValue;
-  return addMaybeBigIntSuffix(parser);
+  state.tokenValue = state.source.substring(start, end);
+  // if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
+  return addMaybeBigIntSuffix(state);
 }
 
 /**
@@ -77,20 +67,20 @@ export function scanNumeric(parser: ParserState): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-function scanHexIntegerLiteral(parser: ParserState): number {
-  let value = toHex(parser.source.charCodeAt(parser.index));
-  if (value < 0) Errors.report(parser.index, parser.line, parser.column, Errors.unterminatedComment());
-  parser.index++;
-  parser.column++;
-  while (parser.index < parser.length) {
-    const digit = toHex(parser.source.charCodeAt(parser.index));
+function scanHexIntegerLiteral(state: ParserState): number {
+  let value = toHex(state.source.charCodeAt(state.index));
+  if (value < 0) report(state, Errors.Unexpected);
+  state.index++;
+  state.column++;
+  while (state.index < state.length) {
+    const digit = toHex(state.source.charCodeAt(state.index));
     if (digit < 0) break;
     value = value * 16 + digit;
-    parser.index++;
-    parser.column++;
+    state.index++;
+    state.column++;
   }
-  parser.tokenValue = value;
-  return addMaybeBigIntSuffix(parser);
+  state.tokenValue = value;
+  return addMaybeBigIntSuffix(state);
 }
 
 /**
@@ -102,18 +92,18 @@ function scanHexIntegerLiteral(parser: ParserState): number {
  * @param parser Parser object
  * @param base Context masks
  */
-function scanBinaryOrOctalDigits(parser: ParserState, base: 2 | 8): Token {
+function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
   let value: any = '';
-  while (parser.index < parser.length) {
-    const ch = parser.source.charCodeAt(parser.index);
+  while (state.index < state.length) {
+    const ch = state.source.charCodeAt(state.index);
     const converted = ch - Chars.Zero;
     if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
     value = value * base + converted;
-    parser.index++;
-    parser.column++;
+    state.index++;
+    state.column++;
   }
-  parser.tokenValue = value;
-  return addMaybeBigIntSuffix(parser);
+  state.tokenValue = value;
+  return addMaybeBigIntSuffix(state);
 }
 
 /**
@@ -124,19 +114,19 @@ function scanBinaryOrOctalDigits(parser: ParserState, base: 2 | 8): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-function scanImplicitOctalDigits(parser: ParserState, context: Context): number {
-  if (context & Context.Strict) Errors.report(parser.index, parser.line, parser.column, Errors.unterminatedComment());
-  let index = parser.index;
-  let column = parser.column;
+function scanImplicitOctalDigits(state: ParserState, context: Context): number {
+  if (context & Context.Strict) report(state, Errors.Unexpected);
+  let index = state.index;
+  let column = state.column;
   let code = 0;
-  parser.flags |= Flags.Octal;
+  state.flags |= Flags.Octal;
 
   // Implicit octal, unless there is a non-octal digit.
   // (Annex B.1.1 on Numeric Literals)
-  while (index < parser.length) {
-    const next = parser.source.charCodeAt(index);
+  while (index < state.length) {
+    const next = state.source.charCodeAt(index);
     if (next < Chars.Zero || next > Chars.Seven) {
-      return scanNumeric(parser);
+      return scanNumeric(state);
     } else {
       code = code * 8 + (next - Chars.Zero);
       index++;
@@ -144,13 +134,13 @@ function scanImplicitOctalDigits(parser: ParserState, context: Context): number 
     }
   }
 
-  parser.index = index;
-  parser.column = column;
-  parser.tokenValue = code;
+  state.index = index;
+  state.column = column;
+  state.tokenValue = code;
   return Token.NumericLiteral;
 }
 
-export function scanDonna(parser: ParserState, context: Context) {
+export function scanHexBinOct(parser: ParserState, context: Context) {
   if (parser.index + 2 < parser.length) {
     if (
       parser.source.charCodeAt(parser.index + 1) === Chars.UpperX ||

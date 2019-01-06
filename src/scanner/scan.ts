@@ -8,7 +8,6 @@ import {
   consumeOpt,
   hasNext,
   nextChar,
-  nextUnicodeChar,
   fromCodePoint,
   SeekState,
   advanceNewline,
@@ -18,7 +17,7 @@ import {
 import { skipBlockComment, skipSingleLineComment } from './comments';
 import { scanString, scanTemplate } from './string';
 import { scanRegularExpression } from './regexp';
-import { scanNumeric, scanDonna } from './numeric';
+import { scanNumeric, scanHexBinOct } from './numeric';
 import { scanKnownIdentifier } from './identifier';
 
 const enum Constants {
@@ -244,7 +243,7 @@ table[Chars.Slash] = (parser, context) => {
 for (let i = Chars.One; i <= Chars.Nine; i++) {
   table[i] = scanNumeric;
 }
-table[Chars.Zero] = scanDonna;
+table[Chars.Zero] = scanHexBinOct;
 // `:`
 table[Chars.Colon] = scanChar;
 statics[Chars.Colon] = Token.Colon;
