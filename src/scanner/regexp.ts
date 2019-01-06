@@ -18,10 +18,29 @@ import { unicodeLookup } from '../unicode';
 import { isIDContinue } from '../unicode';
 
 /**
- * Scan regular expression flags
+ * TODO:
  *
- * @param parser Parser object
- * @param context Context masks
+ * Adopt this V8 code to make the last non-failing tests work
+ *
+ * https://github.com/v8/v8/blob/master/src/regexp/regexp-parser.cc#L1274
+ */
+
+export function isFlagStart(code: number): boolean {
+  return (
+    isIDContinue(code) ||
+    code === Chars.Backslash ||
+    code === Chars.Dollar ||
+    code === Chars.Underscore ||
+    code === Chars.Zwnj ||
+    code === Chars.Zwj
+  );
+}
+
+/**
+ * Scan and validate regex flags
+ *
+ * @param {ParserState} state
+ * @returns {RegexpState}
  */
 function scanRegexFlags(state: ParserState): RegexpState {
   const enum Flags {
@@ -70,8 +89,6 @@ function scanRegexFlags(state: ParserState): RegexpState {
         break;
 
       default:
-        // Check if we need to replace the code with the Unicode variant when we check to see
-        // if it's a valid flag start (and thus need to report an error).
         if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(state);
         if (!isFlagStart(code)) break loop;
         return RegexpState.Invalid;
@@ -107,13 +124,13 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
         : reportRegExp(state, Errors.Unexpected);
   }
 
-  if (regexpBody === RegexpState.Invalid || regexpFlags === RegexpState.Invalid) throw state.lastRegExpError;
+  if (regexpBody & RegexpState.Invalid || regexpFlags & RegexpState.Invalid) throw state.lastRegExpError;
 
-  if (regexpBody === RegexpState.Unicode) {
-    if (regexpFlags === RegexpState.Unicode) return Token.RegularExpression;
+  if (regexpBody & RegexpState.Unicode) {
+    if (regexpFlags & RegexpState.Unicode) return Token.RegularExpression;
     reportRegExp(state, Errors.InvalidRegExpNoUFlag);
     throw state.lastRegExpError;
-  } else if (regexpBody === RegexpState.Plain) {
+  } else if (regexpBody & RegexpState.Plain) {
     if (regexpFlags !== RegexpState.Unicode) return Token.RegularExpression;
     reportRegExp(state, Errors.InvalidRegExpWithUFlag);
     throw state.lastRegExpError;
@@ -474,43 +491,33 @@ function parseRegexPropertyEscape(state: ParserState, context: Context): RegexpS
   return RegexpState.Unicode;
 }
 
-function parseRegexClassCharEscape(state: ParserState, context: Context): Chars | RegexpState {
+function validateClassCharacterEscape(state: ParserState, context: Context): Chars | RegexpState {
   let next = state.source.charCodeAt(state.index++);
+
   switch (next) {
-    case Chars.LowerU:
-      return parseRegexUnicodeEscape(state);
-
-    case Chars.LowerX: {
-      if (state.index >= state.length - 1) return RegexpState.InvalidClass;
-      const ch1 = state.source.charCodeAt(state.index);
-      const hi = toHex(ch1);
-      if (hi < 0) return RegexpState.InvalidClass;
-      state.index++;
-      const ch2 = state.source.charCodeAt(state.index);
-      const lo = toHex(ch2);
-      if (lo < 0) return RegexpState.InvalidClass;
-      state.index++;
-      return (hi << 4) | lo;
-    }
-
-    case Chars.LowerC:
-      if (state.index < state.length) {
-        let letter = state.source.charCodeAt(state.index) | 32;
-        if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
-          ++state.index;
-          return letter;
-        }
-        if ((context & Context.OptionsDisableWebCompat) === 0) {
-          return RegexpState.InvalidUnicodeClass;
-        }
-      }
-      return RegexpState.InvalidClass;
-
-    // \b and \B
     case Chars.LowerB:
       return Chars.Backspace;
     case Chars.UpperB:
       return RegexpState.InvalidClassRange;
+
+    case Chars.Caret:
+    case Chars.Dollar:
+    case Chars.Backslash:
+    case Chars.Period:
+    case Chars.Asterisk:
+    case Chars.Plus:
+    case Chars.QuestionMark:
+    case Chars.LeftParen:
+    case Chars.RightParen:
+    case Chars.LeftBracket:
+    case Chars.RightBracket:
+    case Chars.LeftBrace:
+    case Chars.RightBrace:
+    case Chars.VerticalBar:
+      return next;
+
+    // ControlEscape :: one of
+    //   f n r t v
     case Chars.LowerF:
       return 0x000c;
     case Chars.LowerN:
@@ -531,28 +538,61 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): Chars 
     case Chars.LowerW:
       return RegexpState.Escape;
 
+    case Chars.LowerU:
+      return parseRegexUnicodeEscape(state);
+
+    case Chars.LowerX: {
+      if (state.index >= state.length - 1) return RegexpState.InvalidClass;
+      const ch1 = state.source.charCodeAt(state.index);
+      const hi = toHex(ch1);
+      if (hi < 0) return RegexpState.InvalidClass;
+      state.index++;
+      const ch2 = state.source.charCodeAt(state.index);
+      const lo = toHex(ch2);
+      if (lo < 0) return RegexpState.InvalidClass;
+      state.index++;
+      return (hi << 4) | lo;
+    }
+
+    case Chars.LowerC:
+      if (state.index < state.length) {
+        // Inside a character class, we also accept digits and underscore as
+        // control characters, unless with /u. See Annex B:
+        // ES#prod-annexB-ClassControlLetter
+        let letter = state.source.charCodeAt(state.index) | 32;
+        if (letter >= Chars.LowerA && letter <= Chars.LowerZ) {
+          ++state.index;
+          // Control letters mapped to ASCII control characters in the range
+          // 0x00-0x1F.
+          return letter & 0x1f;
+        }
+        if ((context & Context.OptionsDisableWebCompat) === 0) {
+          return RegexpState.InvalidUnicodeClass;
+        }
+      }
+      return RegexpState.InvalidClass;
+
     case Chars.LowerP:
     case Chars.UpperP:
       let regexPropState = parseRegexPropertyEscape(state, context);
-      if (regexPropState === RegexpState.Invalid) {
-        return RegexpState.InvalidClass;
-      } else if (regexPropState === RegexpState.Plain) {
-        if ((context & Context.OptionsDisableWebCompat) === 0) return RegexpState.InvalidUnicodeClass;
-        return RegexpState.InvalidClass;
-      } else {
-        if ((context & Context.OptionsDisableWebCompat) === 0) return RegexpState.Escape;
-        return RegexpState.InvalidPlainClass;
+      if (regexPropState & RegexpState.Invalid) return RegexpState.InvalidClass;
+
+      if (regexPropState & RegexpState.Plain) {
+        return (context & Context.OptionsDisableWebCompat) === 0
+          ? RegexpState.InvalidUnicodeClass
+          : RegexpState.InvalidClass;
       }
+      return (context & Context.OptionsDisableWebCompat) === 0 ? RegexpState.Escape : RegexpState.InvalidPlainClass;
 
     case Chars.Zero:
       if ((context & Context.OptionsDisableWebCompat) === 0) {
         return parseOctalFromSecondDigit(state, next) | RegexpState.InvalidUnicodeClass;
       }
-
-      const ch = state.source.charCodeAt(state.index);
-
-      if (state.index < state.length && ch >= Chars.Zero && ch <= Chars.Nine) return RegexpState.InvalidClass;
-      return Chars.Null;
+      next = state.source.charCodeAt(state.index);
+      // With /u, \0 is interpreted as NUL if not followed by another digit.
+      return state.index < state.length && next >= Chars.Zero && next <= Chars.Nine
+        ? RegexpState.InvalidClass
+        : Chars.Null;
     case Chars.One:
     case Chars.Two:
     case Chars.Three:
@@ -560,31 +600,14 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): Chars 
     case Chars.Five:
     case Chars.Six:
     case Chars.Seven:
-      if ((context & Context.OptionsDisableWebCompat) === 0) {
-        return parseOctalFromSecondDigit(state, next) | RegexpState.InvalidUnicodeClass;
-      }
-      return RegexpState.InvalidClass;
+      return (context & Context.OptionsDisableWebCompat) === 0
+        ? parseOctalFromSecondDigit(state, next) | RegexpState.InvalidUnicodeClass
+        : RegexpState.InvalidClass;
     case Chars.Eight:
     case Chars.Nine:
       return next === Chars.LowerC || next === Chars.LowerK
         ? RegexpState.Invalid
         : next | RegexpState.InvalidUnicodeClass;
-
-    case Chars.Caret:
-    case Chars.Dollar:
-    case Chars.Backslash:
-    case Chars.Period:
-    case Chars.Asterisk:
-    case Chars.Plus:
-    case Chars.QuestionMark:
-    case Chars.LeftParen:
-    case Chars.RightParen:
-    case Chars.LeftBracket:
-    case Chars.RightBracket:
-    case Chars.LeftBrace:
-    case Chars.RightBrace:
-    case Chars.VerticalBar:
-      return next;
 
     case Chars.Slash:
       return Chars.Slash;
@@ -597,6 +620,8 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): Chars 
       }
 
     default:
+      // With /u, no identity escapes except for syntax characters and '-' are
+      // allowed. Otherwise, all identity escapes are allowed.
       return (AsciiLookup[next] & CharType.IDContinue) > 0 || ((unicodeLookup[(next >>> 5) + 0] >>> next) & 31 & 1) > 0
         ? RegexpState.InvalidClass
         : next | RegexpState.InvalidUnicodeClass;
@@ -816,17 +841,6 @@ function validateAtomEscape(
   }
 }
 
-export function isFlagStart(code: number): boolean {
-  return (
-    isIDContinue(code) ||
-    code === Chars.Backslash ||
-    code === Chars.Dollar ||
-    code === Chars.Underscore ||
-    code === Chars.Zwnj ||
-    code === Chars.Zwj
-  );
-}
-
 function parseCharacterClass(state: ParserState, context: Context) {
   let prev = 0;
   let surrogate = 0;
@@ -851,7 +865,7 @@ function parseCharacterClass(state: ParserState, context: Context) {
     if (consumeOpt(state, Chars.RightBracket)) {
       return flagState;
     } else if (consumeOpt(state, Chars.Backslash)) {
-      next = state.index === state.length ? -1 : parseRegexClassCharEscape(state, context);
+      next = state.index === state.length ? -1 : validateClassCharacterEscape(state, context);
       if (next === RegexpState.InvalidClass) {
         flagState = reportRegExp(state, Errors.UnterminatedCharClass);
       } else if (next & RegexpState.InvalidUnicodeClass) {
