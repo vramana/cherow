@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { hasNext, scan } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { fromCodePoint } from '../../src/scanner/common';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
@@ -25,7 +25,7 @@ describe('Lexer - string literal', () => {
           t.deepEqual(
             {
               token: scan(state, context),
-              hasNext: hasNext(state),
+              hasNext: state.index < state.length,
               value: state.tokenValue,
               raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
               line: state.line,
@@ -48,7 +48,7 @@ describe('Lexer - string literal', () => {
           t.deepEqual(
             {
               token: scan(state, context | Context.Strict),
-              hasNext: hasNext(state),
+              hasNext: state.index < state.length,
               value: state.tokenValue,
               raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
               line: state.line,
@@ -223,7 +223,7 @@ describe('Lexer - string literal', () => {
         t.deepEqual(
           {
             token: scan(state, context),
-            hasNext: hasNext(state),
+            hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
             line: state.line,
@@ -246,7 +246,7 @@ describe('Lexer - string literal', () => {
         t.deepEqual(
           {
             token: scan(state, context | Context.Strict),
-            hasNext: hasNext(state),
+            hasNext: state.index < state.length,
             value: state.tokenValue,
             raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
             line: state.line,

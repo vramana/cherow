@@ -41,20 +41,6 @@ export function scanNext(state: ParserState, err: Errors): number {
   return state.source.charCodeAt(state.index);
 }
 
-export function hasNext(parser: ParserState) {
-  return parser.index < parser.length;
-}
-
-export function advanceOne(parser: ParserState) {
-  parser.index++;
-  parser.column++;
-}
-
-export function advance(parser: ParserState, ch: number) {
-  advanceOne(parser);
-  if (ch > 0xffff) parser.index++;
-}
-
 export function isFlagStart(code: number): boolean {
   return (
     isIDContinue(code) ||
@@ -70,53 +56,47 @@ export function nextChar(parser: ParserState) {
   return parser.source.charCodeAt(parser.index);
 }
 
-export function nextUnicodeChar(parser: ParserState) {
-  let { index } = parser;
-  const hi = parser.source.charCodeAt(index++);
+export function nextUnicodeChar(state: ParserState) {
+  let { index } = state;
+  const hi = state.source.charCodeAt(index++);
 
   if (hi < 0xd800 || hi > 0xdbff) return hi;
-  if (index === parser.source.length) return hi;
-  const lo = parser.source.charCodeAt(index);
+  if (index === state.source.length) return hi;
+  const lo = state.source.charCodeAt(index);
 
   if (lo < 0xdc00 || lo > 0xdfff) return hi;
   return ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
 }
 
-export function consumeAny(parser: ParserState) {
-  const hi = parser.source.charCodeAt(parser.index++);
+export function consumeAny(state: ParserState) {
+  const hi = state.source.charCodeAt(state.index++);
   let code = hi;
 
-  if (hi >= 0xd800 && hi <= 0xdbff && hasNext(parser)) {
-    const lo = parser.source.charCodeAt(parser.index);
+  if (hi >= 0xd800 && hi <= 0xdbff && state.index < state.length) {
+    const lo = state.source.charCodeAt(state.index);
     if (lo >= 0xdc00 && lo <= 0xdfff) {
       code = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-      parser.index++;
+      state.index++;
     }
   }
 
-  parser.column++;
+  state.column++;
   return code;
 }
 
-export function consumeOpt(parser: ParserState, code: number): boolean {
-  if (parser.source.charCodeAt(parser.index) !== code) return false;
-  parser.index++;
-  parser.column++;
+export function consumeOpt(state: ParserState, code: number): boolean {
+  if (state.source.charCodeAt(state.index) !== code) return false;
+  state.index++;
+  state.column++;
   return true;
 }
 
-export function consumeLineFeed(parser: ParserState, lastIsCR: boolean): void {
-  parser.index++;
+export function consumeLineFeed(state: ParserState, lastIsCR: boolean): void {
+  state.index++;
   if (!lastIsCR) {
-    parser.column = 0;
-    parser.line++;
+    state.column = 0;
+    state.line++;
   }
-}
-
-export function advanceNewline(parser: ParserState): void {
-  parser.index++;
-  parser.column = 0;
-  parser.line++;
 }
 
 // Avoid 90% of the ceremony of String.fromCodePoint

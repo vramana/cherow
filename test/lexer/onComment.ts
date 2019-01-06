@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { scan, hasNext } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { Chars } from '../../src/chars';
 import { create } from '../../src/state';
@@ -18,7 +18,7 @@ describe('Lexer - OnComment', () => {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       let token: any;
-      const parser = create(opts.source, function(type: any, value: any, start: number | void, end: number | void) {
+      const state = create(opts.source, function(type: any, value: any, start: number | void, end: number | void) {
         token = {
           type,
           value,
@@ -26,18 +26,18 @@ describe('Lexer - OnComment', () => {
           end
         };
       });
-      scan(parser, Context.OptionsNext | Context.OptionsRanges);
+      scan(state, Context.OptionsNext | Context.OptionsRanges);
       t.deepEqual(
         {
-          hasNext: hasNext(parser),
+          hasNext: state.index < state.length,
           type: token.type,
           value: token.value,
           start: token.start,
           end: token.end,
-          column: parser.column
+          column: state.column
         },
         {
-          hasNext: hasNext(parser),
+          hasNext: state.index < state.length,
           type: opts.type,
           value: opts.value,
           start: opts.start,

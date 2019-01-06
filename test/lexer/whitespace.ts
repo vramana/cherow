@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { scan, hasNext } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -22,7 +22,7 @@ function run(isModule: boolean) {
       const found = scan(state, Context.Empty);
       t.deepEqual(
         {
-          hasNext: hasNext(state),
+          hasNext: state.index < state.length,
           line: state.line,
           column: state.column
         },

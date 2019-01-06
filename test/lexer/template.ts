@@ -1,4 +1,4 @@
-import { hasNext, scan } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { fromCodePoint } from '../../src/scanner/common';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
@@ -23,25 +23,25 @@ describe('Lexer - Template literal', () => {
 
       function execList(source: string, isEnd: boolean, isStrict: boolean) {
         for (const test of tests) {
-          const parser = create(source, undefined);
+          const state = create(source, undefined);
           const [context, result] = test(opts, token, isEnd, isStrict);
           const actual = isStrict ? context | Context.Strict : context;
 
           if (result != null) {
             assert.match<TestResult>(
               {
-                token: scan(parser, actual),
-                hasNext: hasNext(parser),
-                value: parser.tokenValue,
-                raw: parser.tokenRaw,
-                line: parser.line,
-                column: parser.column
+                token: scan(state, actual),
+                hasNext: state.index < state.length,
+                value: state.tokenValue,
+                raw: state.tokenRaw,
+                line: state.line,
+                column: state.column
               },
               result
             );
           } else {
             assert.throws(SyntaxError, () => {
-              scan(parser, actual);
+              scan(state, actual);
             });
           }
         }
@@ -210,16 +210,16 @@ describe('Lexer - Template literal', () => {
       const token = source.charCodeAt(column - 1) === Chars.Backtick ? Token.TemplateTail : Token.TemplateCont;
 
       if (strict !== true) {
-        const parser = create(source, undefined);
+        const state = create(source, undefined);
 
         assert.match(
           {
-            token: scan(parser, context),
-            hasNext: hasNext(parser),
-            value: parser.tokenValue,
-            raw: parser.tokenRaw,
-            line: parser.line,
-            column: parser.column
+            token: scan(state, context),
+            hasNext: state.index < state.length,
+            value: state.tokenValue,
+            raw: state.tokenRaw,
+            line: state.line,
+            column: state.column
           },
           {
             token,
@@ -233,15 +233,15 @@ describe('Lexer - Template literal', () => {
       }
 
       if (strict !== false) {
-        const parser = create(source, undefined);
+        const state = create(source, undefined);
         assert.match(
           {
-            token: scan(parser, context | Context.Strict),
-            hasNext: hasNext(parser),
-            value: parser.tokenValue,
-            raw: parser.tokenRaw,
-            line: parser.line,
-            column: parser.column
+            token: scan(state, context | Context.Strict),
+            hasNext: state.index < state.length,
+            value: state.tokenValue,
+            raw: state.tokenRaw,
+            line: state.line,
+            column: state.column
           },
           {
             token,

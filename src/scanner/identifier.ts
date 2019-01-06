@@ -1,5 +1,5 @@
 import { ParserState, Context, Flags, unimplemented } from '../common';
-import { hasNext, toHex, fromCodePoint, advanceNewline } from './common';
+import { toHex, fromCodePoint } from './common';
 import { Token, descKeywordTable } from '../token';
 import { unicodeLookup } from '../unicode';
 import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
@@ -32,7 +32,9 @@ export function scanMaybeIdentifier(state: ParserState, context: Context): Token
     case Chars.LineSeparator:
     case Chars.ParagraphSeparator:
       state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
-      advanceNewline(state);
+      state.index++;
+      state.column = 0;
+      state.line++;
       return Token.WhiteSpace;
   }
 

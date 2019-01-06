@@ -3,7 +3,7 @@ import { Token } from '../token';
 import { Context, Flags } from '../common';
 import { ParserState } from '../common';
 import { report, Errors } from '../errors';
-import { consumeOpt, advanceNewline, consumeLineFeed, consumeAny, Type } from './common';
+import { consumeOpt, consumeLineFeed, consumeAny, Type } from './common';
 
 export const enum CommentType {
   Single,
@@ -54,14 +54,18 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
   loop: while (state.index < state.length) {
     switch (state.source.charCodeAt(state.index)) {
       case Chars.CarriageReturn:
-        advanceNewline(state);
+        state.index++;
+        state.column = 0;
+        state.line++;
         if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
         state.flags | Flags.NewLine;
         break loop;
       case Chars.LineFeed:
       case Chars.LineSeparator:
       case Chars.ParagraphSeparator:
-        advanceNewline(state);
+        state.index++;
+        state.column = 0;
+        state.line++;
         state.flags | Flags.NewLine;
         break loop;
 
@@ -96,7 +100,9 @@ export function skipBlockComment(state: ParserState): Token {
 
       case Chars.CarriageReturn:
         state.flags |= Flags.NewLine | Flags.LastIsCR;
-        advanceNewline(state);
+        state.index++;
+        state.column = 0;
+        state.line++;
         break;
 
       case Chars.LineFeed:
@@ -107,7 +113,9 @@ export function skipBlockComment(state: ParserState): Token {
       case Chars.LineSeparator:
       case Chars.ParagraphSeparator:
         state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
-        advanceNewline(state);
+        state.index++;
+        state.column = 0;
+        state.line++;
         break;
 
       default:

@@ -2,7 +2,7 @@ import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
 import { Errors, report } from '../errors';
-import { consumeOpt, advanceNewline, consumeLineFeed } from './common';
+import { consumeOpt, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -451,7 +451,9 @@ table[Chars.LineFeed] = state => {
 table[Chars.CarriageReturn] = state => {
   // If it's a \r\n sequence, consume it as a single EOL.
   state.flags |= Flags.NewLine | Flags.LastIsCR;
-  advanceNewline(state);
+  state.index++;
+  state.column = 0;
+  state.line++;
   return Token.WhiteSpace;
 };
 

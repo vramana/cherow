@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { scan, hasNext } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
@@ -127,7 +127,7 @@ describe('Lexer - Numbers', () => {
         t.deepEqual(
           {
             token: tokenDesc(found),
-            hasNext: hasNext(state),
+            hasNext: state.index < state.length,
             value: state.tokenValue,
             line: state.line
             // column: state.column

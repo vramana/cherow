@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { hasNext, skipHashBang } from '../../src/scanner';
+import { skipHashBang } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -25,7 +25,7 @@ describe('Next - Hashbang grammar', () => {
 
         t.deepEqual(
           {
-            hasNext: hasNext(state),
+            hasNext: state.index < state.length,
             line: state.line,
             column: state.column,
             index: state.index
