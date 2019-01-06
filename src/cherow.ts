@@ -1,6 +1,6 @@
 import * as State from './state';
 import * as ESTree from './estree';
-import { OnComment, OnToken, Context } from './common';
+import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
 import { skipHashBang } from './scanner';
 
 /**
@@ -104,8 +104,14 @@ function parseSource(source: string, options: Options | void, context: Context):
     if (options.ranges) context |= Context.OptionsRanges;
     // The flag to attach raw property to each literal and identifier node
     if (options.raw) context |= Context.OptionsRaw;
-    if (options.onComment != null) onComment = options.onComment;
-    if (options.onToken != null) onToken = options.onToken;
+    if (options.onComment != null) {
+      if (Array.isArray(options.onComment)) onComment = pushComment(context, options.onComment);
+      else onComment = options.onComment;
+    }
+    if (options.onToken != null) {
+      if (Array.isArray(options.onToken)) onComment = pushToken(context, options.onToken);
+      else onToken = options.onToken;
+    }
   }
 
   const state = State.create(source, onComment, onToken);

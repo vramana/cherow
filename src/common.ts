@@ -87,6 +87,36 @@ export function unimplemented(): never {
 // runtime error.)
 export declare function unreachable(...values: never[]): never;
 
+export function pushComment(context: Context, array: any[]) {
+  return function(type: string, value: string, start: number, end: number) {
+    let comment: any = {
+      type,
+      value
+    };
+
+    if (context & Context.OptionsLoc) {
+      comment.start = start;
+      comment.end = end;
+    }
+    array.push(comment);
+  };
+}
+
+export function pushToken(context: Context, array: any[]) {
+  return function(type: string, value: string, start: number, end: number) {
+    let tokens: any = {
+      type,
+      value
+    };
+
+    if (context & Context.OptionsLoc) {
+      tokens.start = start;
+      tokens.end = end;
+    }
+    array.push(tokens);
+  };
+}
+
 export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
   if (context & Context.OptionsRanges) {
     node.start = start;

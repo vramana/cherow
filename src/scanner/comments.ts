@@ -65,7 +65,8 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
         consumeAny(state);
     }
   }
-  if (state.onComment) state.onComment(CommentTypes[type & 0xff], state.source.slice(start, state.index));
+  if (state.onComment)
+    state.onComment(CommentTypes[type & 0xff], state.source.slice(start, state.index), start, state.index);
   return Token.WhiteSpace;
 }
 
@@ -79,7 +80,12 @@ export function skipBlockComment(state: ParserState): Token {
         state.flags &= ~Flags.LastIsCR;
         if (consumeOpt(state, Chars.Slash)) {
           if (state.onComment)
-            state.onComment(CommentTypes[CommentType.Multi & 0xff], state.source.slice(start, state.index));
+            state.onComment(
+              CommentTypes[CommentType.Multi & 0xff],
+              state.source.slice(start, state.index - 2),
+              start,
+              state.index
+            );
           return Token.WhiteSpace;
         }
         break;
