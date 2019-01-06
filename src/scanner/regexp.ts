@@ -4,13 +4,12 @@ import {
   Type,
   consumeOpt,
   toHex,
-  consumeAny,
-  consumeOptAstral,
   scanIntervalQuantifier,
   setState,
   updateState,
   parseRegexCapturingGroupNameRemainder,
-  fromCodePoint
+  fromCodePoint,
+  nextUnicodeChar
 } from './common';
 import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
 import { Token } from '../token';
@@ -73,7 +72,7 @@ function scanRegexFlags(state: ParserState): RegexpState {
       default:
         // Check if we need to replace the code with the Unicode variant when we check to see
         // if it's a valid flag start (and thus need to report an error).
-        // if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(parser);
+        if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(state);
         if (!isFlagStart(code)) break loop;
         return RegexpState.Invalid;
     }
@@ -778,11 +777,13 @@ function validateAtomEscape(
           ? reportRegExp(state, Errors.InvalidNamedReference)
           : RegexpState.Plain;
       }
-      next = consumeAny(state);
+
+      state.index++;
+
+      if (next > 0xffff) state.index++;
+
       if (state.source.charCodeAt(state.index) === Chars.GreaterThan) {
-        state.tokenValue = consumeOptAstral(state, next)
-          ? state.source.slice(state.index - 2, state.index)
-          : fromCodePoint(next);
+        state.tokenValue = next > 0xffff ? state.source.slice(state.index - 2, state.index) : fromCodePoint(next);
       } else {
         // TODO: Optimize this crap :)
         state.tokenValue = fromCodePoint(next);

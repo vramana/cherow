@@ -48,45 +48,21 @@ export function nextChar(parser: ParserState) {
   return parser.source.charCodeAt(parser.index);
 }
 
-/**
- * An optimized equivalent of `advance(parser, nextUnicodeChar(parser))` that returns its result.
- */
-export function consumeAny(parser: ParserState) {
-  const hi = parser.source.charCodeAt(parser.index++);
-  let code = hi;
+export function nextUnicodeChar(parser: ParserState) {
+  let { index } = parser;
+  const hi = parser.source.charCodeAt(index++);
 
-  if (hi >= 0xd800 && hi <= 0xdbff && hasNext(parser)) {
-    const lo = parser.source.charCodeAt(parser.index);
-    if (lo >= 0xdc00 && lo <= 0xdfff) {
-      code = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-      parser.index++;
-    }
-  }
+  if (hi < 0xd800 || hi > 0xdbff) return hi;
+  if (index === parser.source.length) return hi;
+  const lo = parser.source.charCodeAt(index);
 
-  parser.column++;
-  return code;
+  if (lo < 0xdc00 || lo > 0xdfff) return hi;
+  return ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
 }
 
 export function consumeOpt(parser: ParserState, code: number) {
   if (parser.source.charCodeAt(parser.index) !== code) return false;
   parser.index++;
-  parser.column++;
-  return true;
-}
-
-export function consumeOptAstral(parser: ParserState, code: number) {
-  let { index } = parser;
-  const hi = parser.source.charCodeAt(index++);
-  if (hi < 0xd800 || hi > 0xdbff) return false;
-  if (index === parser.source.length) return false;
-
-  const lo = parser.source.charCodeAt(index++);
-  if (lo < 0xdc00 || lo > 0xdfff) return false;
-
-  const codePoint = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-  if (codePoint !== code) return false;
-
-  parser.index = index;
   parser.column++;
   return true;
 }
