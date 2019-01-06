@@ -67,9 +67,6 @@ export function nextUnicodeChar(parser: ParserState) {
   return ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
 }
 
-/**
- * An optimized equivalent of `advance(parser, nextUnicodeChar(parser))` that returns its result.
- */
 export function consumeAny(parser: ParserState) {
   const hi = parser.source.charCodeAt(parser.index++);
   let code = hi;
@@ -86,32 +83,14 @@ export function consumeAny(parser: ParserState) {
   return code;
 }
 
-export function consumeOpt(parser: ParserState, code: number) {
+export function consumeOpt(parser: ParserState, code: number): boolean {
   if (parser.source.charCodeAt(parser.index) !== code) return false;
   parser.index++;
   parser.column++;
   return true;
 }
 
-// Note: currently unused.
-export function consumeOptAstral(parser: ParserState, code: number) {
-  let { index } = parser;
-  const hi = parser.source.charCodeAt(index++);
-  if (hi < 0xd800 || hi > 0xdbff) return false;
-  if (index === parser.source.length) return false;
-
-  const lo = parser.source.charCodeAt(index++);
-  if (lo < 0xdc00 || lo > 0xdfff) return false;
-
-  const codePoint = ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
-  if (codePoint !== code) return false;
-
-  parser.index = index;
-  parser.column++;
-  return true;
-}
-
-export function consumeLineFeed(parser: ParserState, lastIsCR: boolean) {
+export function consumeLineFeed(parser: ParserState, lastIsCR: boolean): void {
   parser.index++;
   if (!lastIsCR) {
     parser.column = 0;
@@ -119,7 +98,7 @@ export function consumeLineFeed(parser: ParserState, lastIsCR: boolean) {
   }
 }
 
-export function advanceNewline(parser: ParserState) {
+export function advanceNewline(parser: ParserState): void {
   parser.index++;
   parser.column = 0;
   parser.line++;
@@ -135,16 +114,14 @@ export function fromCodePoint(code: number): string {
 }
 
 export function toHex(code: number): number {
-  if (code < Chars.Zero) return -1;
-  if (code <= Chars.Nine) return code - Chars.Zero;
-  if (code < Chars.UpperA) return -1;
-  if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
-  if (code < Chars.LowerA) return -1;
-  if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
+  code -= Chars.Zero;
+  if (code <= 9) return code;
+  code = (code | 0x20) - (Chars.LowerA - Chars.Zero);
+  if (code <= 5) return code + 10;
   return -1;
 }
 
-export function storeRaw(parser: ParserState, start: number) {
+export function storeRaw(parser: ParserState, start: number): void {
   parser.tokenRaw = parser.source.slice(start, parser.index);
 }
 

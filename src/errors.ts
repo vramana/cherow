@@ -30,7 +30,8 @@ export const enum Errors {
   LoneQuantifierBrackets,
   DuplicateRegExpFlag,
   UnterminatedComment,
-  HtmlCommentInModule
+  HtmlCommentInModule,
+  IllegalCaracter
 }
 
 /*@internal*/
@@ -64,7 +65,8 @@ export const errorMessages: {
   [Errors.LoneQuantifierBrackets]: 'Lone quantifier brackets',
   [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '0'",
   [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
-  [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules'
+  [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
+  [Errors.IllegalCaracter]: "Illegal character '%0'"
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

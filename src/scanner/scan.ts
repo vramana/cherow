@@ -14,9 +14,8 @@ const enum Constants {
   Size = 128
 }
 
-function impossible(state: ParserState): void {
-  return report(state, Errors.Unexpected);
-}
+const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) =>
+  report(state, Errors.IllegalCaracter, String.fromCharCode(state.currentChar));
 
 const statics = new Array(Constants.Size).fill(0) as Token[];
 
@@ -26,7 +25,7 @@ function scanChar(state: ParserState) {
   return statics[state.currentChar];
 }
 
-const table = new Array(0xffff).fill(impossible, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as Array<
+const table = new Array(0xffff).fill(unexpectedCharacter, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as Array<
   (state: ParserState, context: Context) => Token
 >;
 
@@ -443,6 +442,7 @@ table[Chars.LineFeed] = state => {
 
 // CarriageReturn
 table[Chars.CarriageReturn] = state => {
+  // If it's a \r\n sequence, consume it as a single EOL.
   state.flags |= Flags.NewLine | Flags.LastIsCR;
   advanceNewline(state);
   return Token.WhiteSpace;
@@ -452,7 +452,7 @@ table[Chars.CarriageReturn] = state => {
  * Scan for a single token. You must seek first, because this assumes the current pointer is
  * pointing to either the start of a token or the end of the source.
  */
-export function scan(state: ParserState, context: Context): any {
+export function scan(state: ParserState, context: Context): Token {
   while (state.index < state.length) {
     state.startIndex = state.index;
     state.currentChar = state.source.charCodeAt(state.index);
