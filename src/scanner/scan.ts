@@ -4,7 +4,7 @@ import { Chars } from '../chars';
 import { Errors, report } from '../errors';
 import { consumeOpt, advanceNewline, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, CommentType } from './comments';
-import { scanString } from './string';
+import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
@@ -45,12 +45,6 @@ table[Chars.Exclamation] = state => {
   }
 };
 
-// `"string"`
-table[Chars.DoubleQuote] = scanString;
-
-// `$var`
-table[Chars.Dollar] = scanKnownIdentifier;
-
 // `%`, `%=`
 table[Chars.Percent] = state => {
   state.index++;
@@ -83,8 +77,14 @@ table[Chars.Ampersand] = state => {
   return Token.BitwiseAnd;
 };
 
+// `$var`
+table[Chars.Dollar] = scanKnownIdentifier;
+
+// `"string"`
+table[Chars.DoubleQuote] = scanStringLiteral;
+
 // `'string'`
-table[Chars.SingleQuote] = scanString;
+table[Chars.SingleQuote] = scanStringLiteral;
 
 // `(`
 table[Chars.LeftParen] = scanChar;
@@ -169,7 +169,7 @@ table[Chars.Hyphen] = state => {
 };
 
 // `.`, `...`, `.123` (numeric literal)
-table[Chars.Period] = state => {
+table[Chars.Period] = (state, context) => {
   let index = state.index + 1;
   if (index < state.length) {
     const next = state.source.charCodeAt(index);
@@ -182,7 +182,7 @@ table[Chars.Period] = state => {
         return Token.Ellipsis;
       }
     } else if (next >= Chars.Zero && next <= Chars.Nine) {
-      scanNumeric(state);
+      scanNumeric(state, context);
       return Token.NumericLiteral;
     }
   }

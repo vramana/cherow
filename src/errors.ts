@@ -31,7 +31,13 @@ export const enum Errors {
   DuplicateRegExpFlag,
   UnterminatedComment,
   HtmlCommentInModule,
-  IllegalCaracter
+  IllegalCaracter,
+  UnicodeOverflow,
+  InvalidHexEscapeSequence,
+  InvalidEightAndNine,
+  StrictOctalEscape,
+  UnterminatedString,
+  UnterminatedTemplate
 }
 
 /*@internal*/
@@ -66,7 +72,13 @@ export const errorMessages: {
   [Errors.DuplicateRegExpFlag]: "Duplicate regular expression flag '%0'",
   [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
   [Errors.HtmlCommentInModule]: 'HTML comments are not allowed in modules',
-  [Errors.IllegalCaracter]: "Illegal character '%0'"
+  [Errors.IllegalCaracter]: "Illegal character '%0'",
+  [Errors.UnterminatedString]: 'Unterminated string literal',
+  [Errors.UnterminatedTemplate]: 'Unterminated template literal',
+  [Errors.StrictOctalEscape]: 'Octal escapes are not allowed in strict mode',
+  [Errors.InvalidEightAndNine]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+  [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
+  [Errors.UnicodeOverflow]: 'Unicode codepoint must not be greater than 0x10FFFF'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

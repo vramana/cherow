@@ -15,7 +15,7 @@ export function addMaybeBigIntSuffix(state: ParserState): Token {
     state.column++;
     return Token.BigIntLiteral;
   } else {
-    if ((state.flags & (Flags.BinarySpecifier | Flags.OctalSpecifier)) === 0) state.tokenValue = +state.tokenValue;
+    if ((state.flags & (Flags.Binary | Flags.Octal)) === 0) state.tokenValue = +state.tokenValue;
     return Token.NumericLiteral;
   }
 }
@@ -27,7 +27,7 @@ export function addMaybeBigIntSuffix(state: ParserState): Token {
  *
  * @param state Parser object
  */
-export function scanNumeric(state: ParserState): Token {
+export function scanNumeric(state: ParserState, context: Context): Token {
   const start = state.index;
   while (isDigit(state.source.charCodeAt(state.index))) state.index++;
   if (state.source.charCodeAt(state.index) === Chars.Period) {
@@ -55,7 +55,7 @@ export function scanNumeric(state: ParserState): Token {
   }
 
   state.tokenValue = state.source.substring(start, end);
-  // if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
+  if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
   return addMaybeBigIntSuffix(state);
 }
 
@@ -126,7 +126,7 @@ function scanImplicitOctalDigits(state: ParserState, context: Context): number {
   while (index < state.length) {
     const next = state.source.charCodeAt(index);
     if (next < Chars.Zero || next > Chars.Seven) {
-      return scanNumeric(state);
+      return scanNumeric(state, context);
     } else {
       code = code * 8 + (next - Chars.Zero);
       index++;

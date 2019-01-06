@@ -34,10 +34,7 @@ export const enum Flags {
   LastIsCR = 1 << 2,
   Scientific = 1 << 4,
   Octal = 1 << 5,
-  HexSpecifier = 1 << 6,
-  BinarySpecifier = 1 << 7,
-  OctalSpecifier = 1 << 8,
-  ContainsSeparator = 1 << 9
+  Binary = 1 << 7
 }
 
 /**

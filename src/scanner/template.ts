@@ -2,15 +2,21 @@ import { ParserState, Context } from '../common';
 import { Chars } from '../chars';
 import { Token } from '../token';
 import { Escape, fromCodePoint, scanNext } from './common';
-import { table, handleStringError } from './string';
+import { table, reportInvalidEscapeError } from './string';
 import { report, Errors } from '../errors';
 
+/**
+ * Scan template
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
 export function scanTemplate(state: ParserState, context: Context): Token {
   const { index: start, lastChar } = state;
   let tail = true;
   let ret: string | void = '';
 
-  let ch = scanNext(state);
+  let ch = scanNext(state, Errors.UnterminatedTemplate);
 
   loop: while (ch !== Chars.Backtick) {
     switch (ch) {
@@ -27,7 +33,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
       }
 
       case Chars.Backslash:
-        ch = scanNext(state);
+        ch = scanNext(state, Errors.UnterminatedTemplate);
 
         if (ch >= 128) {
           ret += fromCodePoint(ch);
@@ -39,14 +45,14 @@ export function scanTemplate(state: ParserState, context: Context): Token {
             ret += fromCodePoint(code);
           } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
             ret = undefined;
-            ch = scanBadTemplate(state, state.lastChar);
+            ch = scanLooserTemplateSegment(state, state.lastChar);
             if (ch < 0) {
               ch = -ch;
               tail = false;
             }
             break loop;
           } else {
-            handleStringError(state, code as Escape);
+            reportInvalidEscapeError(state, code as Escape);
           }
           ch = state.lastChar;
         }
@@ -72,7 +78,7 @@ export function scanTemplate(state: ParserState, context: Context): Token {
         if (ret != null) ret += fromCodePoint(ch);
     }
 
-    ch = scanNext(state);
+    ch = scanNext(state, Errors.UnterminatedTemplate);
   }
 
   state.index++;
@@ -88,48 +94,35 @@ export function scanTemplate(state: ParserState, context: Context): Token {
   }
 }
 
-function scanBadTemplate(state: ParserState, ch: number): number {
+/**
+ * Scan looser template segment
+ *
+ * @param parser Parser object
+ * @param ch codepoint
+ */
+function scanLooserTemplateSegment(state: ParserState, ch: number): number {
   while (ch !== Chars.Backtick) {
-    switch (ch) {
-      case Chars.Dollar: {
-        const index = state.index + 1;
-        if (index < state.source.length && state.source.charCodeAt(index) === Chars.LeftBrace) {
-          state.index = index;
-          state.column++;
-          return -ch;
-        }
-        break;
-      }
-
-      case Chars.Backslash:
-        ch = scanNext(state);
-        break;
-
-      case Chars.CarriageReturn:
-        if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) {
-          ch = state.source.charCodeAt(state.index);
-          state.index++;
-        }
-      // falls through
-
-      case Chars.LineFeed:
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
-        state.column = -1;
-        state.line++;
-      // falls through
-
-      default:
-      // do nothing
+    if (ch === Chars.Dollar && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
+      state.index++;
+      state.column++;
+      return -ch;
     }
 
-    ch = scanNext(state);
+    // Skip '\' and continue to scan the template token to search
+    // for the end, without validating any escape sequences
+    ch = scanNext(state, Errors.UnterminatedTemplate);
   }
 
   return ch;
 }
 
-export function scanTemplateNext(state: ParserState, context: Context): Token {
+/**
+ * Consumes template brace
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function consumeTemplateBrace(state: ParserState, context: Context): Token {
   if (state.index >= state.length) return report(state, Errors.Unexpected);
   state.index--;
   state.column--;

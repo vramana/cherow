@@ -4,6 +4,54 @@ import { Token } from '../token';
 import { report, Errors } from '../errors';
 import { fromCodePoint, toHex, nextChar, Escape, scanNext } from './common';
 
+/**
+ * Scan a string literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-literals-string-literals)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ */
+export function scanStringLiteral(state: ParserState, context: Context): Token {
+  const { index: start, lastChar, currentChar } = state;
+  let ret: string | void = '';
+
+  let ch = scanNext(state, Errors.UnterminatedString);
+  while (ch !== currentChar) {
+    switch (ch) {
+      case Chars.CarriageReturn:
+      case Chars.LineFeed:
+        report(state, Errors.Unexpected);
+      case Chars.Backslash:
+        ch = scanNext(state, Errors.UnterminatedString);
+
+        if (ch >= 128) {
+          ret += fromCodePoint(ch);
+        } else {
+          state.lastChar = ch;
+          const code = table[ch](state, context, ch);
+
+          if (code >= 0) ret += fromCodePoint(code);
+          else reportInvalidEscapeError(state, code as Escape);
+          ch = state.lastChar;
+        }
+        break;
+
+      default:
+        ret += fromCodePoint(ch);
+    }
+
+    ch = scanNext(state, Errors.UnterminatedString);
+  }
+
+  state.index++;
+  state.column++; // Consume the quote
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(start, state.index);
+  state.tokenValue = ret;
+  state.lastChar = lastChar;
+  return Token.StringLiteral;
+}
+
 export const table = new Array<(state: ParserState, context: Context, first: number) => number>(128).fill(nextChar);
 
 table[Chars.LowerB] = () => Chars.Backspace;
@@ -17,12 +65,9 @@ table[Chars.LowerV] = () => Chars.VerticalTab;
 table[Chars.CarriageReturn] = state => {
   state.column = -1;
   state.line++;
-
   const { index } = state;
-
   if (index < state.source.length) {
     const ch = state.source.charCodeAt(index);
-
     if (ch === Chars.LineFeed) {
       state.lastChar = ch;
       state.index = index + 1;
@@ -94,7 +139,7 @@ table[Chars.Four] = table[Chars.Five] = table[Chars.Six] = table[Chars.Seven] = 
     const next = state.source.charCodeAt(index);
 
     if (next >= Chars.Zero && next <= Chars.Seven) {
-      code = (code << 3) | (next - Chars.Zero);
+      code = code * 8 + (next - Chars.Zero);
       state.lastChar = next;
       state.index = index;
       state.column = column;
@@ -109,32 +154,31 @@ table[Chars.Eight] = table[Chars.Nine] = () => Escape.EightOrNine;
 
 // Hexadecimal character specification
 table[Chars.LowerX] = state => {
-  const ch1 = (state.lastChar = scanNext(state));
+  const ch1 = (state.lastChar = scanNext(state, Errors.InvalidHexEscapeSequence));
   const hi = toHex(ch1);
   if (hi < 0) return Escape.InvalidHex;
-  const ch2 = (state.lastChar = scanNext(state));
+  const ch2 = (state.lastChar = scanNext(state, Errors.InvalidHexEscapeSequence));
   const lo = toHex(ch2);
   if (lo < 0) return Escape.InvalidHex;
-
-  return (hi << 4) | lo;
+  return hi * 16 + lo;
 };
 
 // Unicode character specification.
 table[Chars.LowerU] = state => {
-  let ch = (state.lastChar = scanNext(state));
+  let ch = (state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape));
   if (ch === Chars.LeftBrace) {
     // \u{N}
-    ch = state.lastChar = scanNext(state);
+    ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
     let code = toHex(ch);
     if (code < 0) return Escape.InvalidHex;
 
-    ch = state.lastChar = scanNext(state);
+    ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
     while (ch !== Chars.RightBrace) {
       const digit = toHex(ch);
       if (digit < 0) return Escape.InvalidHex;
       code = (code << 4) | digit;
       if (code > 0x10fff) return Escape.OutOfRange;
-      ch = state.lastChar = scanNext(state);
+      ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
     }
 
     return code;
@@ -144,7 +188,7 @@ table[Chars.LowerU] = state => {
     if (code < 0) return Escape.InvalidHex;
 
     for (let i = 0; i < 3; i++) {
-      ch = state.lastChar = scanNext(state);
+      ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
       const digit = toHex(ch);
       if (digit < 0) return Escape.InvalidHex;
       code = (code << 4) | digit;
@@ -154,64 +198,27 @@ table[Chars.LowerU] = state => {
   }
 };
 
-export function handleStringError(state: ParserState, code: Escape): void {
+/**
+ * Throws a string error for either string or template literal
+ *
+ * @param state state object
+ * @param context Context masks
+ */
+export function reportInvalidEscapeError(state: ParserState, code: Escape): void {
   switch (code) {
     case Escape.StrictOctal:
-      return report(state, Errors.Unexpected);
+      return report(state, Errors.StrictOctalEscape);
 
     case Escape.EightOrNine:
-      return report(state, Errors.Unexpected);
+      return report(state, Errors.InvalidEightAndNine);
 
     case Escape.InvalidHex:
-      return report(state, Errors.Unexpected);
+      return report(state, Errors.InvalidHexEscapeSequence);
 
     case Escape.OutOfRange:
-      return report(state, Errors.Unexpected);
+      return report(state, Errors.UnicodeOverflow);
 
     default:
       return;
   }
-}
-
-/**
- * Scan a string token.
- */
-export function scanString(state: ParserState, context: Context): Token {
-  const { index: start, lastChar, currentChar } = state;
-  let ret = '';
-
-  let ch = scanNext(state);
-  while (ch !== currentChar) {
-    switch (ch) {
-      case Chars.CarriageReturn:
-      case Chars.LineFeed:
-        report(state, Errors.Unexpected);
-      case Chars.Backslash:
-        ch = scanNext(state);
-
-        if (ch >= 128) {
-          ret += fromCodePoint(ch);
-        } else {
-          state.lastChar = ch;
-          const code = table[ch](state, context, ch);
-
-          if (code >= 0) ret += fromCodePoint(code);
-          else handleStringError(state, code as Escape);
-          ch = state.lastChar;
-        }
-        break;
-
-      default:
-        ret += fromCodePoint(ch);
-    }
-
-    ch = scanNext(state);
-  }
-
-  state.index++;
-  state.column++; // Consume the quote
-  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(start, state.index);
-  state.tokenValue = ret;
-  state.lastChar = lastChar;
-  return Token.StringLiteral;
 }

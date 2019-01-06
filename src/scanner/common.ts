@@ -34,10 +34,10 @@ export const enum Escape {
   OutOfRange = -5
 }
 
-export function scanNext(state: ParserState): number {
+export function scanNext(state: ParserState, err: Errors): number {
   state.index++;
   state.column++;
-  if (state.index >= state.length) report(state, Errors.Unexpected);
+  if (state.index >= state.length) report(state, err);
   return state.source.charCodeAt(state.index);
 }
 
