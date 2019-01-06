@@ -61,7 +61,7 @@ export interface Options {
   onComment?: OnComment;
 }
 
-function parseRoot(source: string, options: Options | void, context: Context): ESTree.Program {
+function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
   let onComment: OnComment;
 
   if (options != null) {
@@ -107,7 +107,7 @@ function parseRoot(source: string, options: Options | void, context: Context): E
   const state = State.create(source, onComment);
 
   // Stage 3 - HashBang grammar
-  skipHashBang(state);
+  skipHashBang(state, context);
 
   const node: ESTree.Program = {
     type: 'Program',
@@ -124,15 +124,38 @@ function parseRoot(source: string, options: Options | void, context: Context): E
 }
 
 /**
- * Parse a script, optionally with various options.
+ * Parse either script code or module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
  */
-export function parseScript(source: string, options?: Options) {
-  return parseRoot(source, options, Context.Empty);
+export function parse(source: string, options?: Options): ESTree.Program {
+  return options && options.module ? parseModule(source, options) : parseScript(source, options);
 }
 
 /**
- * Parse a module, optionally with various options.
+ * Parse script code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-scripts)
+ *
+ * @param source source code to parse
+ * @param options parser options
  */
-export function parseModule(source: string, options?: Options) {
-  return parseRoot(source, options, Context.Strict | Context.Module);
+export function parseScript(source: string, options?: Options): ESTree.Program {
+  return parseSource(source, options, Context.Empty);
+}
+
+/**
+ * Parse module code
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-modules)
+ *
+ * @param source source code to parse
+ * @param options parser options
+ */
+export function parseModule(source: string, options?: Options): ESTree.Program {
+  return parseSource(source, options, Context.Strict | Context.Module);
 }

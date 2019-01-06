@@ -11,8 +11,7 @@ import {
   fromCodePoint,
   SeekState,
   advanceNewline,
-  consumeLineFeed,
-  skipToNewline
+  consumeLineFeed
 } from './common';
 import { skipBlockComment, skipSingleLineComment } from './comments';
 import { scanString, scanTemplate } from './string';
@@ -179,7 +178,7 @@ table[Chars.Hyphen] = parser => {
     if (next === Chars.Hyphen) {
       advanceOne(parser);
       if (parser.flags & SeekState.NewLine && consumeOpt(parser, Chars.GreaterThan)) {
-        return skipToNewline(parser);
+        return skipSingleLineComment(parser);
       }
       return Token.Decrement;
     } else if (next === Chars.EqualSign) {
@@ -275,7 +274,7 @@ table[Chars.LessThan] = (parser, context) => {
         if (next === Chars.Hyphen && parser.source.charCodeAt(index + 1) === Chars.Hyphen) {
           parser.index = index;
           parser.column++;
-          return skipToNewline(parser);
+          return skipSingleLineComment(parser);
         }
       }
 

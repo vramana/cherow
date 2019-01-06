@@ -1,7 +1,6 @@
 import * as t from 'assert';
 import { scan, hasNext } from '../../src/scanner';
 import { Context } from '../../src/common';
-import { Chars } from '../../src/chars';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 
@@ -122,16 +121,16 @@ describe('Lexer - Numbers', () => {
 
     for (const [ctx, token, op, value] of tokens) {
       it(`scans '${op}'`, () => {
-        const parser = create(op, undefined);
-        const found = scan(parser, ctx);
+        const state = create(op, undefined);
+        const found = scan(state, ctx);
 
         t.deepEqual(
           {
             token: tokenDesc(found),
-            hasNext: hasNext(parser),
-            value: parser.tokenValue,
-            line: parser.line
-            // column: parser.column
+            hasNext: hasNext(state),
+            value: state.tokenValue,
+            line: state.line
+            // column: state.column
           },
           {
             token: tokenDesc(token),

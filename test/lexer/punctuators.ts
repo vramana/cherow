@@ -71,15 +71,15 @@ describe('Lexer - Punctuators', () => {
 
   for (const [ctx, token, op] of tokens) {
     it(`scans '${op}'`, () => {
-      const parser = create(op, undefined);
-      const found = scan(parser, ctx);
+      const state = create(op, undefined);
+      const found = scan(state, ctx);
 
       t.deepEqual(
         {
           token: tokenDesc(found),
-          hasNext: hasNext(parser),
-          line: parser.line,
-          column: parser.column
+          hasNext: hasNext(state),
+          line: state.line,
+          column: state.column
         },
         {
           token: tokenDesc(token),
@@ -92,14 +92,14 @@ describe('Lexer - Punctuators', () => {
   }
 
   it("scans '.' in '..'", () => {
-    const parser = create('..', undefined);
-    const found = scan(parser, Context.Empty);
+    const state = create('..', undefined);
+    const found = scan(state, Context.Empty);
     t.deepEqual(
       {
         token: tokenDesc(found),
-        hasNext: hasNext(parser),
-        line: parser.line,
-        column: parser.column
+        hasNext: hasNext(state),
+        line: state.line,
+        column: state.column
       },
       {
         token: tokenDesc(Token.Period),

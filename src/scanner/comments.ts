@@ -1,5 +1,8 @@
 import { Chars } from '../chars';
 import { Token } from '../token';
+import { Context } from '../common';
+import { ParserState } from '../common';
+import { report, Errors } from '../errors';
 import {
   hasNext,
   advanceOne,
@@ -10,8 +13,26 @@ import {
   consumeLineFeed,
   consumeAny
 } from './common';
-import { ParserState } from '../common';
-import { report, Errors } from '../errors';
+
+// https://tc39.github.io/proposal-hashbang/out.html
+export function skipHashBang(state: ParserState, context: Context) {
+  let index = state.index;
+  if (index === state.source.length) return;
+  if (state.source.charCodeAt(index) === Chars.ByteOrderMark) {
+    index++;
+    state.index = index;
+  }
+
+  if (context & Context.OptionsNext && index < state.source.length && state.source.charCodeAt(index) === Chars.Hash) {
+    index++;
+    if (index < state.source.length && state.source.charCodeAt(index) === Chars.Exclamation) {
+      state.index = index + 1;
+      skipSingleLineComment(state);
+    } else {
+      report(state, Errors.Unexpected);
+    }
+  }
+}
 
 export function skipSingleLineComment(state: ParserState): Token {
   while (hasNext(state)) {

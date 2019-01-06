@@ -36,26 +36,6 @@ export const enum RegexpState {
   InvalidClassRange = 0x110001
 }
 
-// Skip initial BOM and/or shebang.
-export function skipHashBang(state: ParserState) {
-  let index = state.index;
-  if (index === state.source.length) return;
-  if (state.source.charCodeAt(index) === Chars.ByteOrderMark) {
-    index++;
-    state.index = index;
-  }
-
-  if (index < state.source.length && state.source.charCodeAt(index) === Chars.Hash) {
-    index++;
-    if (index < state.source.length && state.source.charCodeAt(index) === Chars.Exclamation) {
-      state.index = index + 1;
-      // skipToNewline(state, SeekState.None);
-    } else {
-      report(state, Errors.Unexpected);
-    }
-  }
-}
-
 export function hasNext(parser: ParserState) {
   return parser.index < parser.length;
 }
@@ -141,9 +121,6 @@ export function consumeOptAstral(parser: ParserState, code: number) {
   return true;
 }
 
-/**
- * Use to consume a line feed instead of `advanceNewline`.
- */
 export function consumeLineFeed(parser: ParserState, lastIsCR: boolean) {
   parser.index++;
   if (!lastIsCR) {
@@ -179,30 +156,6 @@ export function toHex(code: number): number {
 
 export function storeRaw(parser: ParserState, start: number) {
   parser.tokenRaw = parser.source.slice(start, parser.index);
-}
-
-export function skipToNewline(parser: ParserState): Token {
-  while (hasNext(parser)) {
-    switch (nextChar(parser)) {
-      case Chars.CarriageReturn:
-        advanceNewline(parser);
-        if (hasNext(parser) && nextChar(parser) === Chars.LineFeed) parser.index++;
-        parser.flags | SeekState.NewLine;
-        return Token.WhiteSpace;
-
-      case Chars.LineFeed:
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
-        advanceNewline(parser);
-        parser.flags | SeekState.NewLine;
-        return Token.WhiteSpace;
-
-      default:
-        consumeAny(parser);
-    }
-  }
-
-  return Token.WhiteSpace;
 }
 
 export function isDigit(ch: number): boolean {

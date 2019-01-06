@@ -20,16 +20,16 @@ describe('Lexer - string literal', () => {
       function test(name: string, context: Context, isEnd: boolean) {
         it(name, () => {
           if (opts.strict !== true) {
-            const parser = create(isEnd ? opts.source : `${opts.source} `, undefined);
+            const state = create(isEnd ? opts.source : `${opts.source} `, undefined);
 
             assert.match(
               {
-                token: scan(parser, context),
-                hasNext: hasNext(parser),
-                value: parser.tokenValue,
-                raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
-                line: parser.line,
-                column: parser.column
+                token: scan(state, context),
+                hasNext: hasNext(state),
+                value: state.tokenValue,
+                raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
+                line: state.line,
+                column: state.column
               },
               {
                 token: Token.StringLiteral,
@@ -43,16 +43,16 @@ describe('Lexer - string literal', () => {
           }
 
           if (opts.strict !== false) {
-            const parser = create(isEnd ? opts.source : `${opts.source} `, undefined);
+            const state = create(isEnd ? opts.source : `${opts.source} `, undefined);
 
             assert.match(
               {
-                token: scan(parser, context | Context.Strict),
-                hasNext: hasNext(parser),
-                value: parser.tokenValue,
-                raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
-                line: parser.line,
-                column: parser.column
+                token: scan(state, context | Context.Strict),
+                hasNext: hasNext(state),
+                value: state.tokenValue,
+                raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
+                line: state.line,
+                column: state.column
               },
               {
                 token: Token.StringLiteral,
@@ -77,16 +77,16 @@ describe('Lexer - string literal', () => {
       function test(name: string, context: Context, isEnd: boolean) {
         it(name, () => {
           if (strict !== true) {
-            const parser = create(isEnd ? source : `${source} `, undefined);
+            const state = create(isEnd ? source : `${source} `, undefined);
             assert.throws(SyntaxError, () => {
-              scan(parser, context);
+              scan(state, context);
             });
           }
 
           if (strict !== false) {
-            const parser = create(isEnd ? source : `${source} `, undefined);
+            const state = create(isEnd ? source : `${source} `, undefined);
             assert.throws(SyntaxError, () => {
-              scan(parser, context | Context.Strict);
+              scan(state, context | Context.Strict);
             });
           }
         });
@@ -180,16 +180,16 @@ describe('Lexer - string literal', () => {
       ) {
         let m = message;
         if (strict !== true) {
-          const parser = create(source, undefined);
+          const state = create(source, undefined);
 
           assert.match(
             {
-              token: scan(parser, context),
-              hasNext: hasNext(parser),
-              value: parser.tokenValue,
-              raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
-              line: parser.line,
-              column: parser.column
+              token: scan(state, context),
+              hasNext: hasNext(state),
+              value: state.tokenValue,
+              raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
+              line: state.line,
+              column: state.column
             },
             {
               token: Token.StringLiteral,
@@ -203,16 +203,16 @@ describe('Lexer - string literal', () => {
         }
 
         if (strict !== false) {
-          const parser = create(source, undefined);
+          const state = create(source, undefined);
 
           assert.match(
             {
-              token: scan(parser, context | Context.Strict),
-              hasNext: hasNext(parser),
-              value: parser.tokenValue,
-              raw: context & Context.OptionsRaw ? parser.tokenRaw : undefined,
-              line: parser.line,
-              column: parser.column
+              token: scan(state, context | Context.Strict),
+              hasNext: hasNext(state),
+              value: state.tokenValue,
+              raw: context & Context.OptionsRaw ? state.tokenRaw : undefined,
+              line: state.line,
+              column: state.column
             },
             {
               token: Token.StringLiteral,
@@ -435,16 +435,16 @@ describe('Lexer - string literal', () => {
 
         function attemptFailPart(message: string, source: string, context: Context, strict?: boolean) {
           if (strict !== true) {
-            const parser = create(source, undefined);
+            const state = create(source, undefined);
             assertError(message, () => {
-              scan(parser, context);
+              scan(state, context);
             });
           }
 
           if (strict !== false) {
-            const parser = create(source, undefined);
+            const state = create(source, undefined);
             assertError(message, () => {
-              scan(parser, context | Context.Strict);
+              scan(state, context | Context.Strict);
             });
           }
         }

@@ -18,13 +18,13 @@ function run(isModule: boolean) {
 
   function pass(name: string, opts: Opts) {
     it(name, () => {
-      const parser = create(opts.source, undefined);
-      const found = scan(parser, Context.Empty);
+      const state = create(opts.source, undefined);
+      const found = scan(state, Context.Empty);
       t.deepEqual(
         {
-          hasNext: hasNext(parser),
-          line: parser.line,
-          column: parser.column
+          hasNext: hasNext(state),
+          line: state.line,
+          column: state.column
         },
         {
           hasNext: opts.hasNext,
