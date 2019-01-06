@@ -53,7 +53,7 @@ export type OnToken = void | Token[] | ((token: Token, start: number, end: numbe
 export interface ParserState {
   source: string;
   onComment: OnComment;
-  onToken: any;
+  onToken: OnToken;
   flags: Flags;
   index: number;
   line: number;

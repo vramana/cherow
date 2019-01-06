@@ -1,6 +1,6 @@
 import * as State from './state';
 import * as ESTree from './estree';
-import { OnComment, Context } from './common';
+import { OnComment, OnToken, Context } from './common';
 import { skipHashBang } from './scanner';
 
 /**
@@ -59,10 +59,13 @@ export interface Options {
   disableWebCompat?: boolean;
 
   onComment?: OnComment;
+
+  onToken?: OnToken;
 }
 
 function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
   let onComment: OnComment;
+  let onToken: OnToken;
 
   if (options != null) {
     // The option to specify ecamVersion
@@ -102,9 +105,10 @@ function parseSource(source: string, options: Options | void, context: Context):
     // The flag to attach raw property to each literal and identifier node
     if (options.raw) context |= Context.OptionsRaw;
     if (options.onComment != null) onComment = options.onComment;
+    if (options.onToken != null) onToken = options.onToken;
   }
 
-  const state = State.create(source, onComment);
+  const state = State.create(source, onComment, onToken);
 
   // Stage 3 - HashBang grammar
   skipHashBang(state, context);
