@@ -16,7 +16,6 @@ export const enum Context {
   OptionsGlobalReturn = 1 << 6,
   OptionsExperimental = 1 << 7,
   OptionsNative = 1 << 8,
-  OptionsTokenize = 1 << 9,
 
   Strict = 1 << 12,
   Module = 1 << 14,
@@ -85,10 +84,7 @@ export function unimplemented(): never {
 // runtime error.)
 export declare function unreachable(...values: never[]): never;
 
-export function pushComment(
-  context: Context,
-  array: any[]
-): (type: string, value: string, start: number, end: number) => void {
+export function pushComment(context: Context, array: any[]): any {
   return function(type: string, value: string, start: number, end: number) {
     const comment: any = {
       type,
@@ -103,10 +99,7 @@ export function pushComment(
   };
 }
 
-export function pushToken(
-  context: Context,
-  array: any[]
-): (token: string, value: string, start: number, end: number) => void {
+export function pushToken(context: Context, array: any[]): any {
   return function(token: string, value: string, start: number, end: number) {
     const tokens: any = {
       token,

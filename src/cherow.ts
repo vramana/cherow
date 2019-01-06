@@ -92,8 +92,6 @@ function parseSource(source: string, options: Options | void, context: Context):
     if (options.experimental) context |= Context.OptionsExperimental;
     // The flag to enable "native" NodeJS / V8 features
     if (options.native) context |= Context.OptionsNative;
-    // The flag to enable tokenizing
-    if (options.tokenize) context |= Context.OptionsTokenize;
     // The flag to disable web compability (AnnexB)
     if (options.disableWebCompat) context |= Context.OptionsDisableWebCompat;
     // The flag to enable stage 3 support (ESNext)

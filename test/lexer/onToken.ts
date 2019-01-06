@@ -24,7 +24,7 @@ describe('Lexer - OnToken', () => {
           end
         };
       });
-      scan(parser, Context.OptionsTokenize);
+      scan(parser, Context.Empty);
       t.deepEqual(
         {
           hasNext: hasNext(parser),

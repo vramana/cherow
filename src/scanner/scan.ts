@@ -456,7 +456,7 @@ export function scan(state: ParserState, context: Context): Token {
     state.startIndex = state.index;
     state.currentChar = state.source.charCodeAt(state.index);
     if (((state.token = table[state.currentChar](state, context)) & Token.WhiteSpace) !== Token.WhiteSpace) {
-      if (context & Context.OptionsTokenize) state.onToken(state.token, state.startIndex, state.index);
+      if (state.onToken) state.onToken(state.token, state.startIndex, state.index);
       return state.token;
     }
   }
