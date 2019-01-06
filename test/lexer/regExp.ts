@@ -132,6 +132,13 @@ describe('Lexer - Regular expressions', () => {
     }
   }
 
+  [']', '{', '}'].forEach(c => {
+    describe('char=' + c, () => {
+      fail('' + c + '/', Context.OptionsDisableWebCompat);
+      fail('' + c + '/u', Context.Empty);
+    });
+  });
+
   fail('??/u', Context.Empty);
   fail('{1}?/u', Context.Empty);
   fail('{1,}?/u', Context.Empty);
@@ -199,6 +206,10 @@ describe('Lexer - Regular expressions', () => {
   fail('{1/u', Context.Empty);
   fail('{1,2/u', Context.Empty);
   fail('[\\S-a]/u', Context.Empty);
+  fail('\\x/u', Context.OptionsDisableWebCompat);
+  fail('[a\\p{x}b]/', Context.OptionsDisableWebCompat);
+  fail('\\p{Hex}\\P{Hex}/', Context.OptionsDisableWebCompat);
+  fail('[\\p{Hex}\\P{Hex}]/', Context.OptionsDisableWebCompat);
   fail('\\x/u', Context.OptionsDisableWebCompat);
   fail('\\x1/u', Context.OptionsDisableWebCompat);
   fail('[\\x]/u', Context.OptionsDisableWebCompat);
@@ -278,40 +289,50 @@ describe('Lexer - Regular expressions', () => {
   fail('\\05/u', Context.OptionsDisableWebCompat);
   fail('\\09/u', Context.OptionsDisableWebCompat);
   fail('\\019/u', Context.OptionsDisableWebCompat);
+  fail('a(?=x)?b/', Context.OptionsDisableWebCompat);
+  fail('a(?!x)?b/', Context.OptionsDisableWebCompat);
+  fail('a(?<!x)?b/', Context.OptionsDisableWebCompat);
+  fail('x$?/', Context.OptionsDisableWebCompat);
+  fail('^?x/', Context.OptionsDisableWebCompat);
+  fail('a\\b?b/', Context.OptionsDisableWebCompat);
+  fail('a\\B?b/', Context.OptionsDisableWebCompat);
+  fail('^?x/', Context.Empty);
+  fail('x$?/', Context.Empty);
+  fail('a\\b?b/', Context.Empty);
+  fail('a\\B?b/', Context.Empty);
+  fail('^?x/u', Context.OptionsDisableWebCompat);
+  fail('x$?/u', Context.OptionsDisableWebCompat);
+  fail('a\\B?b/u', Context.OptionsDisableWebCompat);
+  fail('a(?=x)?b/u', Context.OptionsDisableWebCompat);
+  fail('a(?<=x)?b/u', Context.OptionsDisableWebCompat);
+  fail('x$?/u', Context.Empty);
+  fail('a\\b?b/u', Context.Empty);
+  fail('a(?=x)?b/u', Context.Empty);
+  fail('a(?<=x)?b/u', Context.Empty);
+  fail('a(?<!x)?b/u', Context.Empty);
+  fail('7\\8/', Context.OptionsDisableWebCompat);
+  fail('7\\8a/', Context.OptionsDisableWebCompat);
+  fail('7\\9a/', Context.OptionsDisableWebCompat);
+  fail('7\\98/', Context.OptionsDisableWebCompat);
+  fail('\\986a/', Context.OptionsDisableWebCompat);
+  fail('[\\u{110000}]/', Context.OptionsDisableWebCompat);
   fail('[\\u{110000}]/', Context.Empty);
   fail('[\\u{110000}]/', Context.Empty);
   fail('[\\u{110000}]/', Context.Empty);
   fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
-  fail('[\\u{110000}]/', Context.Empty);
+  fail('(?<42a>a)/', Context.Empty);
+  fail('(?<aa)/', Context.OptionsDisableWebCompat);
+  fail('(?<x>y)\\k<z>/', Context.OptionsDisableWebCompat);
+  fail('(?<:a>a)/', Context.Empty);
+  fail('(?<a:>a)/', Context.OptionsDisableWebCompat);
+  fail('(?<a>a)(?<b>b)(?<a>a)/', Context.Empty);
+  fail('(?<a>.)\\k/', Context.OptionsDisableWebCompat);
+  fail('(?<a>.)\\k<a/', Context.OptionsDisableWebCompat);
+  fail('(?<a>.)\\k<b>/', Context.OptionsDisableWebCompat);
+  fail('(?<a>a)\\k<ab>/', Context.OptionsDisableWebCompat);
+  fail('(?<ab>a)\\k<a>/', Context.OptionsDisableWebCompat);
+  fail('\\k<a>(?<ab>a)/', Context.OptionsDisableWebCompat);
+  fail('\\k<a(?<a>a)/', Context.OptionsDisableWebCompat);
   fail('[\\xz]/', Context.Empty);
   fail('a{a}?/', Context.Empty);
   fail('\\u{110000}/', Context.Empty);
@@ -664,6 +685,13 @@ describe('Lexer - Regular expressions', () => {
   fail('\\p{<?...?>}', Context.Empty);
   fail('\\p/u', Context.Empty);
   fail('\\p{/u', Context.Empty);
+  fail('[\\d-a]+/', Context.OptionsDisableWebCompat);
+  fail('[\\d-a]+/u', Context.Empty);
+  fail('[a-\\d]+/', Context.OptionsDisableWebCompat);
+  fail('[a-\\d]+/u', Context.Empty);
+  fail('[\\s-\\d]+/', Context.OptionsDisableWebCompat);
+  fail('[\\s-\\d]+/u', Context.OptionsDisableWebCompat);
+  fail('[\\s-\\d]+/u', Context.Empty);
   fail('(?<a>a)(?<a>a)/', Context.OptionsDisableWebCompat);
   fail('[\\uD834\\uDF06-\\uD834\\uDF08a-z]/', Context.OptionsDisableWebCompat);
   fail('(?<abc>/', Context.OptionsDisableWebCompat);
@@ -2019,6 +2047,30 @@ describe('Lexer - Regular expressions', () => {
   fail('[\\)', Context.OptionsDisableWebCompat);
   fail('[\\|', Context.OptionsDisableWebCompat);
   fail('[\\|', Context.OptionsDisableWebCompat);
+  fail('7\\9a/u', Context.Empty);
+  fail('7\\89/u', Context.Empty);
+  fail('7\\98/u', Context.Empty);
+  fail('\\986a/u', Context.Empty);
+  fail('\\00/u', Context.Empty);
+
+  fail('\\500/', Context.OptionsDisableWebCompat);
+  fail('\\500/u', Context.Empty);
+  fail('foo \\2 bar/', Context.OptionsDisableWebCompat);
+  fail('foo \\2 bar/u', Context.Empty);
+  fail('foo \\1234 bar/u', Context.Empty);
+  fail('\\a/u', Context.Empty);
+  fail('\\x/', Context.OptionsDisableWebCompat);
+  fail('\\xa/u', Context.Empty);
+  fail('\\u/u', Context.Empty);
+  fail('\\ua/', Context.OptionsDisableWebCompat);
+  fail('\\c/', Context.OptionsDisableWebCompat);
+  fail('[\\c]/', Context.OptionsDisableWebCompat);
+  fail('[\\ce', Context.Empty);
+  fail('[\\cy', Context.Empty);
+  fail('[\\cp', Context.Empty);
+  fail('[\\cm', Context.Empty);
+  fail('[\\ce', Context.Empty);
+  fail('[\\cy', Context.Empty);
   fail('[\\cp', Context.Empty);
   fail('[\\cm', Context.Empty);
   fail('[\\ce', Context.Empty);
@@ -2937,6 +2989,8 @@ describe('Lexer - Regular expressions', () => {
   fail('\\\\', Context.Empty);
   fail('\\.', Context.Empty);
   fail('\\?', Context.OptionsDisableWebCompat);
+  fail('[\\ ]/u', Context.OptionsDisableWebCompat);
+  fail('[\\12-\\14]/', Context.OptionsDisableWebCompat);
   fail('\\(', Context.OptionsDisableWebCompat);
   fail('\\}', Context.OptionsDisableWebCompat);
   fail(']/', Context.OptionsDisableWebCompat);
@@ -3480,6 +3534,8 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '\\u{20}/u', Token.RegularExpression],
     [Context.Empty, '\\u{00000001}/u', Token.RegularExpression],
     [Context.Empty, '\\400/', Token.RegularExpression],
+    [Context.Empty, 'foo(?<brag$foo>bar)/', Token.RegularExpression],
+    [Context.Empty, '[💩-💫]/u', Token.RegularExpression],
     [Context.Empty, '\\^/', Token.RegularExpression],
     [Context.Empty, '\\./', Token.RegularExpression],
     [Context.Empty, '\\+/', Token.RegularExpression],
@@ -3817,6 +3873,13 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, '[\\ck]/u', Token.RegularExpression],
     [Context.Empty, '[\\cl]/u', Token.RegularExpression],
     [Context.Empty, '[\\cm]/u', Token.RegularExpression],
+    [Context.Empty, '(?<x>y)\\k<z>/', Token.RegularExpression],
+    [Context.Empty, '(?<aa)/', Token.RegularExpression],
+    [Context.Empty, '(?<ab>a)\\k<a>/', Token.RegularExpression],
+    [Context.Empty, '\\k<a(?<a>a)/', Token.RegularExpression],
+    [Context.Empty, '(?<a>.)\\k<a/', Token.RegularExpression],
+    [Context.Empty, '(?<a>.)\\k<b>/', Token.RegularExpression],
+    [Context.Empty, '(?<ab>a)\\k<a>/', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, `[\\{def]/u`, Token.RegularExpression],
     [Context.OptionsDisableWebCompat, `[\\}def]/u`, Token.RegularExpression],
     [Context.OptionsDisableWebCompat, `[\\|def]/u`, Token.RegularExpression],
@@ -3860,6 +3923,43 @@ describe('Lexer - Regular expressions', () => {
     [Context.OptionsDisableWebCompat, '[\\cN]/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '[\\cO]/u', Token.RegularExpression],
     [Context.OptionsDisableWebCompat, '[\\cP]/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, 'AD\\d{3}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '([A-HJ-NP-Z])?\\d{4}([A-Z]{3})?/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[A-Z]{2}[ ]?[A-Z0-9]{2}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[A-Z]{2}[ ]?\\d{4}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\d{4}/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '((D|DUBLIN)?([1-9]|6[wW]|1[0-8]|2[024]))?/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(948[5-9])|(949[0-7])/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(\\d{3}[A-Z]{2}\\d{3})?/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '((\\d{4}-)?\\d{3}-\\d{3}(-\\d{1})?)?/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '00[679]\\d{2}([ -]\\d{4})?/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '\\d{3}[ ]?\\d{2}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '6799/u', Token.RegularExpression],
+    [Context.Empty, '\\d{5}/u', Token.RegularExpression],
+    [Context.Empty, '9[78]3\\d{2}/u', Token.RegularExpression],
+    [Context.Empty, '969[123]\\d([ -]\\d{4})?/u', Token.RegularExpression],
+    [Context.Empty, '008(([0-4]\\d)|(5[01]))([ -]\\d{4})?/u', Token.RegularExpression],
+    [Context.Empty, '[ABCEGHJKLMNPRSTVXY]\\d[A-Z][ ]?\\d[A-Z]\\d/u', Token.RegularExpression],
+    [Context.Empty, '\\d{3}[-]\\d{3}/u', Token.RegularExpression],
+    [Context.Empty, '([A-HJ-NP-Z])?\\d{4}([A-Z]{3})?/u', Token.RegularExpression],
+    [Context.Empty, '((1[0-2]|[2-9])\\d{2})?/u', Token.RegularExpression],
+    [Context.Empty, '([A-Z]\\d{4}[A-Z]|(?:[A-Z]{2})?\\d{6})?/u', Token.RegularExpression],
+    [Context.Empty, 'StarShine|StarTrail|STARADDICT|StarText|StarNaute|StarXtrem|StarTab/u', Token.RegularExpression],
+    [Context.Empty, '\\d{5}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, 'JE\\d[\\dA-Z]?[ ]?\\d[ABD-HJLN-UW-Z]{2}/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '^[1]\\d{10}$/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '([^d][^e]) s *[\\./]?a *\\.?( [(].+[)])?$/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, 's/ *a|s\\. *a\\.?|( )sa$|( )+s ?a($| )/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '[\\u4e00-\\u9fa5]+?省/u', Token.RegularExpression],
+    [
+      Context.OptionsDisableWebCompat,
+      '\\[\\[cherow(.*?)\\]\\]|<[Gg]allery\\b([^>]*?)>[\\s\\S]*?</ ?[Gg]allery>/u',
+      Token.RegularExpression
+    ],
+    [Context.OptionsDisableWebCompat, '^(\\s*)(package)\\b(?:(\\s*)([^ ;$]+)(\\s*))?/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(?=\\s*(?:companion|class|object|interface))/', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '(Pingdom.com_bot_version_)(\\d+).(\\d+)/u', Token.RegularExpression],
+    [Context.OptionsDisableWebCompat, '^(\\s*)(package)\\b(?:(\\s*)([^ ;$]+)(\\s*))?/', Token.RegularExpression],
     [Context.Empty, '[\\cH]/u', Token.RegularExpression],
     [Context.Empty, '[\\cI]/u', Token.RegularExpression],
     [Context.Empty, '[\\cJ]/u', Token.RegularExpression],
@@ -4186,6 +4286,9 @@ describe('Lexer - Regular expressions', () => {
     [Context.Empty, 'so\\b/u', Token.RegularExpression],
     [Context.Empty, '[^o]t\\b/u', Token.RegularExpression],
     [Context.Empty, '[^o]t\\b/ui', Token.RegularExpression],
+    [Context.Empty, '7\\8/', Token.RegularExpression],
+    [Context.Empty, '7\\9/', Token.RegularExpression],
+    [Context.Empty, '\\8912/', Token.RegularExpression],
     [Context.Empty, '\\bro/u', Token.RegularExpression],
     [Context.Empty, 'r\\b/u', Token.RegularExpression],
     [Context.Empty, '\\brobot\\b/u', Token.RegularExpression],
@@ -5091,6 +5194,21 @@ describe('Lexer - Regular expressions', () => {
       [Context.Empty, '0\\1(a)/', Token.RegularExpression],
       [Context.Empty, '4\\1(a)/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '\\1|(a)/', Token.RegularExpression],
+      [Context.Empty, 'a\\p{x}b/', Token.RegularExpression],
+      [Context.Empty, 'a\\p{x}b/u', Token.RegularExpression],
+      [Context.Empty, '[a\\p{x}b]/', Token.RegularExpression],
+      [Context.Empty, '\\p{Hex}\\P{Hex}/', Token.RegularExpression],
+      [Context.Empty, '[\\p{Hex}\\P{Hex}]/', Token.RegularExpression],
+      [Context.Empty, '\\p{Hex}\\P{Hex}/u', Token.RegularExpression],
+      [Context.Empty, '[\\p{Hex}\\P{Hex}]/u', Token.RegularExpression],
+      [Context.Empty, 'a\\p{x}b/', Token.RegularExpression],
+      [Context.Empty, 'a\\p{x}b/u', Token.RegularExpression],
+      [Context.Empty, '[a\\p{x}b]/', Token.RegularExpression],
+      [Context.Empty, '[a\\p{x}b]/u', Token.RegularExpression],
+      [Context.Empty, '\\p{Hex}\\P{Hex}/', Token.RegularExpression],
+      [Context.Empty, '[\\p{Hex}\\P{Hex}]/', Token.RegularExpression],
+      [Context.Empty, '\\p{Hex}\\P{Hex}/u', Token.RegularExpression],
+      [Context.Empty, '[\\p{Hex}\\P{Hex}]/u', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '(\\1|a)/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '(a|\\1)/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '\\0/', Token.RegularExpression],
@@ -5165,6 +5283,7 @@ describe('Lexer - Regular expressions', () => {
       [Context.OptionsDisableWebCompat, '\\ud800\\udc00\\udc00/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, 'x\\ud810\\udc10\\udc10/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '\\ud900\\udd00\\udd00y/', Token.RegularExpression],
+      [Context.Empty, '[^\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\x7f]+/g', Token.RegularExpression],
       [Context.Empty, '[\\0]/', Token.RegularExpression],
       [Context.Empty, '[\\012]/', Token.RegularExpression],
       [Context.Empty, '[\\085]/', Token.RegularExpression],
@@ -5488,7 +5607,8 @@ describe('Lexer - Regular expressions', () => {
       [Context.Empty, '^.$/u', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '^[\\ud800\\udc00]$/u', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '^.$/u', Token.RegularExpression],
-
+      [Context.OptionsDisableWebCompat, '[\\d]/', Token.RegularExpression],
+      [Context.Empty, '[\\d]/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '[\\|def]/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '[\\ci]/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '[\\ch]/', Token.RegularExpression],
@@ -6092,7 +6212,13 @@ describe('Lexer - Regular expressions', () => {
       [Context.Empty, '(x?)foo$\\1/', Token.RegularExpression],
       [Context.Empty, 'f(o)\\b\\1/', Token.RegularExpression],
       [Context.Empty, 'f(o)\\B\\1/', Token.RegularExpression],
-      [Context.OptionsDisableWebCompat, '()foo$(?!bar)/', Token.RegularExpression],
+      [Context.Empty, 'foo(?<$foo>bar)/', Token.RegularExpression],
+      [Context.Empty, '(?<a>a).|(?<x>x)/;', Token.RegularExpression],
+      [Context.Empty, 'foo(?<brag_foo>bar)/', Token.RegularExpression],
+      [Context.Empty, 'foo(?<_foo>bar)/', Token.RegularExpression],
+      [Context.Empty, '(?<x>y)\\k<x>/', Token.RegularExpression],
+      [Context.Empty, '(?<a>a).|(?<x>x)/;', Token.RegularExpression],
+      [Context.Empty, 'foo(?<brag_foo>bar)/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, '(x?)foo$\\1/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, 'foo$(?=(ball)?)/', Token.RegularExpression],
       [Context.OptionsDisableWebCompat, 'foo$(?!bar)/', Token.RegularExpression],
