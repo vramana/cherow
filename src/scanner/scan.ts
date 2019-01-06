@@ -26,7 +26,7 @@ function scanChar(state: ParserState) {
   return statics[state.currentChar];
 }
 
-const table = new Array(Constants.Size).fill(impossible).fill(scanMaybeIdentifier, 0x80) as Array<
+const table = new Array(0xffff).fill(impossible, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as Array<
   (state: ParserState, context: Context) => Token
 >;
 

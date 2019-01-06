@@ -1,10 +1,46 @@
-import { ParserState, Context, unimplemented } from '../common';
-import { hasNext, toHex, fromCodePoint } from './common';
+import { ParserState, Context, Flags, unimplemented } from '../common';
+import { hasNext, toHex, fromCodePoint, advanceNewline } from './common';
 import { Token, descKeywordTable } from '../token';
 import { unicodeLookup } from '../unicode';
 import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
 
 // WORK IN PROGRESS
+
+export function scanMaybeIdentifier(state: ParserState, context: Context): Token {
+  switch (state.source.charCodeAt(state.index)) {
+    case Chars.NonBreakingSpace:
+    case Chars.Ogham:
+    case Chars.EnQuad:
+    case Chars.EmQuad:
+    case Chars.EnSpace:
+    case Chars.EmSpace:
+    case Chars.ThreePerEmSpace:
+    case Chars.FourPerEmSpace:
+    case Chars.SixPerEmSpace:
+    case Chars.FigureSpace:
+    case Chars.PunctuationSpace:
+    case Chars.ThinSpace:
+    case Chars.HairSpace:
+    case Chars.NarrowNoBreakSpace:
+    case Chars.MathematicalSpace:
+    case Chars.IdeographicSpace:
+    case Chars.Zwj:
+    case Chars.Zwnj:
+      state.index++;
+      state.column++;
+      return Token.WhiteSpace;
+    case Chars.LineSeparator:
+    case Chars.ParagraphSeparator:
+      state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
+      advanceNewline(state);
+      return Token.WhiteSpace;
+  }
+
+  let c = context;
+
+  // TODO
+  return unimplemented();
+}
 
 export function scanKnownIdentifier(state: ParserState): Token {
   while (isIdentifierPart(state.source.charCodeAt(state.index))) state.index++;
@@ -13,14 +49,6 @@ export function scanKnownIdentifier(state: ParserState): Token {
     state.tokenValue += fromCodePoint(scanIdentifierRest(state));
   }
   return descKeywordTable[state.tokenValue] || Token.Identifier;
-}
-
-export function scanMaybeIdentifier(parser: ParserState, context: Context): Token {
-  let p = parser;
-  let c = context;
-
-  // TODO
-  return unimplemented();
 }
 
 export function scanIdentifierRest(state: ParserState): Token {

@@ -46,8 +46,8 @@ function run(isModule: boolean) {
     pass(name('line feed'), opts('\n'));
     pass(name('carriage return'), opts('\r'));
     pass(name('Windows newline'), opts('\r'));
-    // pass(name("line separators"), opts("\u2028"));
-    // pass(name("paragraph separators"), opts("\u2029"));
+    pass(name('line separators'), opts('\u2028'));
+    pass(name('paragraph separators'), opts('\u2029'));
   }
 
   fail('fails on unclosed multiline comment', '/*');
@@ -56,6 +56,41 @@ function run(isModule: boolean) {
     source: '\u0020',
     hasNext: false,
     line: 1,
+    column: 1
+  });
+
+  pass('skips paragraphseparator', {
+    source: '\u2028',
+    hasNext: false,
+    line: 2,
+    column: 0
+  });
+
+  pass('skips lineapseparator', {
+    source: '\u2029',
+    hasNext: false,
+    line: 2,
+    column: 0
+  });
+
+  pass('skips lineseparator after identifier', {
+    source: 'foo \u2029',
+    hasNext: true,
+    line: 1,
+    column: 0
+  });
+
+  pass('skips crlf', {
+    source: '\r\n',
+    hasNext: false,
+    line: 2,
+    column: 0
+  });
+
+  pass('skips crlf before identifier', {
+    source: '\r\n foo',
+    hasNext: false,
+    line: 2,
     column: 1
   });
 
