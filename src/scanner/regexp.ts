@@ -32,7 +32,7 @@ export function scanRegularExpression(state: ParserState, context: Context): Tok
   let regexpBody = validateRegularExpression(state, context, 0, regExpState, Type.None);
   const bodyEnd = state.index - 1;
   const { index: flagStart } = state;
-  let regexpFlags = parseRegexFlags(state);
+  let regexpFlags = scanRegexFlags(state);
   if (state.numCapturingParens < state.largestBackReference) {
     regexpBody =
       (context & Context.OptionsDisableWebCompat) === 0
@@ -351,135 +351,14 @@ function parseRegexUnicodeEscape(state: ParserState): RegexpState {
   return codePoint;
 }
 
-function parseCharacterClass(state: ParserState, context: Context) {
-  let prev = 0;
-  let surrogate = 0; // current surrogate if prev is a head and c is a tail
-  let isSurrogate = false;
-  let isSurrogateHead = false;
-  let wasSurrogate = true; // start at surrogate boundary
-  let wasSurrogateHead = false; // there was no prev char
-  let urangeOpen = false; // we have not yet seen a range dash in umode
-  let urangeLeft = 0; // track codepoint of left of range
-  let nrangeOpen = false; // we have not yet seen a range dash in no-umode
-  let nrangeLeft = 0; // track codeunit of left of range
-
-  let flagState = RegexpState.Valid;
-  let next = state.source.charCodeAt(state.index);
-  if (next === Chars.Caret) {
-    ++state.index;
-    next = state.source.charCodeAt(state.index);
-  }
-
-  let n = 0;
-  while (true) {
-    if (consumeOpt(state, Chars.RightBracket)) {
-      return flagState;
-    } else if (consumeOpt(state, Chars.Backslash)) {
-      next = state.index === state.length ? -1 : parseRegexClassCharEscape(state, context);
-      if (next === RegexpState.InvalidClass) {
-        flagState = reportRegExp(state, Errors.UnterminatedCharClass);
-      } else if (next & RegexpState.InvalidUnicodeClass) {
-        next = next ^ RegexpState.InvalidUnicodeClass;
-        flagState =
-          next === RegexpState.InvalidClass
-            ? reportRegExp(state, Errors.RangeInvalid)
-            : setState(state, flagState, RegexpState.Plain, Errors.RangeInvalid);
-      } else if (next & RegexpState.InvalidPlainClass) {
-        // this condition is currently only met when a bad property escape was found
-        flagState = setState(state, flagState, RegexpState.Unicode, Errors.RangeInvalid);
-      }
-    } else if (
-      next === Chars.CarriageReturn ||
-      next === Chars.LineFeed ||
-      next === Chars.ParagraphSeparator ||
-      next === Chars.LineSeparator
-    ) {
-      return reportRegExp(state, Errors.AtEndOfPattern); // same as end of input
-    } else {
-      ++state.index;
-    }
-
-    if (next === RegexpState.Escape) {
-      isSurrogate = false;
-      isSurrogateHead = false;
-    } else if (wasSurrogateHead && (next & 0xfc00) == 0xdc00) {
-      isSurrogate = true;
-      isSurrogateHead = false;
-      surrogate = ((prev - 0xd800) << 10) + (next - 0xdc00) + 0x0010000;
-    } else if (!wasSurrogate && !wasSurrogateHead && (next & 0x1fffff) > 0xffff) {
-      isSurrogate = true;
-      isSurrogateHead = false;
-      surrogate = next;
-    } else {
-      isSurrogate = false;
-      isSurrogateHead = next >= 0xd800 && next <= 0xdbff;
-    }
-
-    if (urangeOpen) {
-      let urangeRight = isSurrogate ? surrogate : wasSurrogateHead ? prev : next;
-      if (!isSurrogateHead || wasSurrogateHead) {
-        urangeOpen = false;
-        if (
-          urangeLeft === RegexpState.InvalidClassRange ||
-          urangeRight === RegexpState.InvalidClassRange ||
-          urangeLeft > urangeRight
-        ) {
-          flagState = setState(state, flagState, RegexpState.Plain, Errors.RangeOutOfOrder);
-        }
-      }
-    } else if (next === Chars.Hyphen && n > 0) {
-      urangeOpen = true;
-    } else {
-      urangeLeft = isSurrogate ? surrogate : next;
-    }
-
-    if (nrangeOpen) {
-      nrangeOpen = false;
-      if (nrangeLeft === RegexpState.Escape || next === RegexpState.Escape) {
-        flagState =
-          context & Context.OptionsDisableWebCompat
-            ? reportRegExp(state, Errors.RangeInvalid)
-            : (flagState = setState(state, flagState, RegexpState.Plain, Errors.RangeOutOfOrder));
-      } else if (
-        nrangeLeft === RegexpState.InvalidClassRange ||
-        next === RegexpState.InvalidClassRange ||
-        nrangeLeft > next
-      ) {
-        flagState = setState(state, flagState, RegexpState.Unicode, Errors.InvalidRegExpWithUFlag);
-      }
-    } else if (next === Chars.Hyphen && n > 0) {
-      nrangeOpen = true;
-    } else {
-      nrangeLeft = next;
-    }
-
-    wasSurrogate = isSurrogate;
-    wasSurrogateHead = isSurrogateHead;
-    prev = next;
-
-    ++n;
-    if (state.index === state.length) break;
-    next = state.source.charCodeAt(state.index);
-  }
-  return reportRegExp(state, Errors.AtEndOfPattern);
-}
-
-function isOctal(c: number) {
-  return c >= Chars.Zero && c <= Chars.Seven;
-}
-function isLowerOctal(c: number) {
-  return c >= Chars.Zero && c <= Chars.Three;
-}
-
-function parseOctalFromSecondDigit(state: ParserState, firstChar: number) {
-  if (isLowerOctal(firstChar)) {
-    // third char may be any octal
+function parseOctalFromSecondDigit(state: ParserState, firstChar: number): RegexpState {
+  if (firstChar >= Chars.Zero && firstChar <= Chars.Three) {
     let secondChar = state.source.charCodeAt(state.index);
-    if (isOctal(secondChar)) {
+    if (secondChar >= Chars.Zero && secondChar <= Chars.Seven) {
       ++state.index;
 
       let thirdChar = state.source.charCodeAt(state.index);
-      if (isOctal(thirdChar)) {
+      if (thirdChar >= Chars.Zero && thirdChar <= Chars.Seven) {
         ++state.index;
         return (firstChar - Chars.Zero) * 8 * 8 + (secondChar - Chars.Zero) * 8 + (thirdChar - Chars.Zero);
       } else {
@@ -489,12 +368,11 @@ function parseOctalFromSecondDigit(state: ParserState, firstChar: number) {
       return firstChar - Chars.Zero;
     }
   } else {
-    // third char may only be the lower octals
     let secondChar = state.source.charCodeAt(state.index);
-    if (isOctal(secondChar)) {
+    if (secondChar >= Chars.Zero && secondChar <= Chars.Seven) {
       ++state.index;
       let thirdChar = state.source.charCodeAt(state.index);
-      if (isLowerOctal(thirdChar)) {
+      if (thirdChar >= Chars.Zero && thirdChar <= Chars.Three) {
         ++state.index;
         return (firstChar - Chars.Zero) * 8 * 8 + (secondChar - Chars.Zero) * 8 + (thirdChar - Chars.Zero);
       } else {
@@ -506,7 +384,7 @@ function parseOctalFromSecondDigit(state: ParserState, firstChar: number) {
   }
 }
 
-function parseRegexPropertyEscape(state: ParserState, context: Context) {
+function parseRegexPropertyEscape(state: ParserState, context: Context): RegexpState {
   if (!consumeOpt(state, Chars.LeftBrace)) {
     return (context & Context.OptionsDisableWebCompat) === 0
       ? RegexpState.Plain
@@ -529,15 +407,12 @@ function parseRegexPropertyEscape(state: ParserState, context: Context) {
   return RegexpState.Unicode;
 }
 
-function parseRegexClassCharEscape(state: ParserState, context: Context): any {
-  let c = state.source.charCodeAt(state.index++);
-
-  switch (c) {
-    // \u<????> and \u{<?..?>}
+function parseRegexClassCharEscape(state: ParserState, context: Context): Chars | RegexpState {
+  let next = state.source.charCodeAt(state.index++);
+  switch (next) {
     case Chars.LowerU:
       return parseRegexUnicodeEscape(state);
 
-    // \x<??>
     case Chars.LowerX: {
       if (state.index >= state.length - 1) return RegexpState.InvalidClass;
       const ch1 = state.source.charCodeAt(state.index);
@@ -559,7 +434,6 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): any {
           return letter;
         }
         if ((context & Context.OptionsDisableWebCompat) === 0) {
-          // this is now an `IdentityEscape` and just parses the `c` itself
           return RegexpState.InvalidUnicodeClass;
         }
       }
@@ -590,25 +464,22 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): any {
     case Chars.LowerW:
       return RegexpState.Escape;
 
-    // Unicode property escapes \p{<?...?>} \P{<?...?>}
     case Chars.LowerP:
     case Chars.UpperP:
       let regexPropState = parseRegexPropertyEscape(state, context);
       if (regexPropState === RegexpState.Invalid) {
         return RegexpState.InvalidClass;
       } else if (regexPropState === RegexpState.Plain) {
-        // semantically ignored without u-flag, syntactically only okay in web-compat / Annex B mode
         if ((context & Context.OptionsDisableWebCompat) === 0) return RegexpState.InvalidUnicodeClass;
         return RegexpState.InvalidClass;
       } else {
-        if ((context & Context.OptionsDisableWebCompat) === 0) return RegexpState.Escape; // ok, no flags
+        if ((context & Context.OptionsDisableWebCompat) === 0) return RegexpState.Escape;
         return RegexpState.InvalidPlainClass;
       }
 
     case Chars.Zero:
-      // cannot be followed by another digit
       if ((context & Context.OptionsDisableWebCompat) === 0) {
-        return parseOctalFromSecondDigit(state, c) | RegexpState.InvalidUnicodeClass;
+        return parseOctalFromSecondDigit(state, next) | RegexpState.InvalidUnicodeClass;
       }
 
       const ch = state.source.charCodeAt(state.index);
@@ -623,15 +494,15 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): any {
     case Chars.Six:
     case Chars.Seven:
       if ((context & Context.OptionsDisableWebCompat) === 0) {
-        return parseOctalFromSecondDigit(state, c) | RegexpState.InvalidUnicodeClass;
+        return parseOctalFromSecondDigit(state, next) | RegexpState.InvalidUnicodeClass;
       }
-      // without web compat this is a back reference which is illegal in character classes
       return RegexpState.InvalidClass;
     case Chars.Eight:
     case Chars.Nine:
-      return c === Chars.LowerC || c === Chars.LowerK ? RegexpState.Invalid : c | RegexpState.InvalidUnicodeClass;
+      return next === Chars.LowerC || next === Chars.LowerK
+        ? RegexpState.Invalid
+        : next | RegexpState.InvalidUnicodeClass;
 
-    // syntax chars
     case Chars.Caret:
     case Chars.Dollar:
     case Chars.Backslash:
@@ -646,7 +517,7 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): any {
     case Chars.LeftBrace:
     case Chars.RightBrace:
     case Chars.VerticalBar:
-      return c;
+      return next;
 
     case Chars.Slash:
       return Chars.Slash;
@@ -659,9 +530,9 @@ function parseRegexClassCharEscape(state: ParserState, context: Context): any {
       }
 
     default:
-      return (AsciiLookup[c] & CharType.IDContinue) > 0 || ((unicodeLookup[(c >>> 5) + 0] >>> c) & 31 & 1) > 0
+      return (AsciiLookup[next] & CharType.IDContinue) > 0 || ((unicodeLookup[(next >>> 5) + 0] >>> next) & 31 & 1) > 0
         ? RegexpState.InvalidClass
-        : c | RegexpState.InvalidUnicodeClass;
+        : next | RegexpState.InvalidUnicodeClass;
   }
 }
 
@@ -792,7 +663,6 @@ function validateAtomEscape(
     case Chars.Zero: {
       const next = state.source.charCodeAt(state.index);
       if (next >= Chars.Zero && next <= Chars.Nine) {
-        // With /u, decimal escape with leading 0 are not parsed as octal.
         return (context & Context.OptionsDisableWebCompat) === 0
           ? RegexpState.Plain
           : reportRegExp(state, Errors.InvalidBackReferenceNumber);
@@ -856,7 +726,7 @@ function validateAtomEscape(
 
       if (!consumeOpt(state, Chars.GreaterThan)) {
         if (context & Context.OptionsDisableWebCompat) {
-          return regexPropState(state, Errors.InvalidNamedReference);
+          return reportRegExp(state, Errors.InvalidNamedReference);
         }
         return RegexpState.Plain;
       }
@@ -888,7 +758,13 @@ export function isFlagStart(code: number): boolean {
   );
 }
 
-function parseRegexFlags(state: ParserState): RegexpState {
+/**
+ * Scan regular expression flags
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function scanRegexFlags(state: ParserState): RegexpState {
   const enum Flags {
     Empty = 0,
     Global = 0x01,
@@ -906,32 +782,32 @@ function parseRegexFlags(state: ParserState): RegexpState {
     let code = state.source.charCodeAt(state.index);
     switch (code) {
       case Chars.LowerG:
-        if (mask & Flags.Global) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.Global) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'g');
         mask |= Flags.Global;
         break;
 
       case Chars.LowerI:
-        if (mask & Flags.IgnoreCase) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.IgnoreCase) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'i');
         mask |= Flags.IgnoreCase;
         break;
 
       case Chars.LowerM:
-        if (mask & Flags.Multiline) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.Multiline) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'm');
         mask |= Flags.Multiline;
         break;
 
       case Chars.LowerU:
-        if (mask & Flags.Unicode) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.Unicode) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'u');
         mask |= Flags.Unicode;
         break;
 
       case Chars.LowerY:
-        if (mask & Flags.Sticky) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.Sticky) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'y');
         mask |= Flags.Sticky;
         break;
 
       case Chars.LowerS:
-        if (mask & Flags.DotAll) return reportRegExp(state, Errors.Unexpected);
+        if (mask & Flags.DotAll) return reportRegExp(state, Errors.DuplicateRegExpFlag, 's');
         mask |= Flags.DotAll;
         break;
 
@@ -940,7 +816,6 @@ function parseRegexFlags(state: ParserState): RegexpState {
         // if it's a valid flag start (and thus need to report an error).
         // if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(parser);
         if (!isFlagStart(code)) break loop;
-        // return report(parser, Errors.unknownRegExpFlagChar(fromCodePoint(code)));
         return RegexpState.Invalid;
     }
 
@@ -948,4 +823,117 @@ function parseRegexFlags(state: ParserState): RegexpState {
   }
 
   return mask & Flags.Unicode ? RegexpState.Unicode : RegexpState.Plain;
+}
+
+function parseCharacterClass(state: ParserState, context: Context) {
+  let prev = 0;
+  let surrogate = 0;
+  let isSurrogate = false;
+  let isSurrogateHead = false;
+  let wasSurrogate = true;
+  let wasSurrogateHead = false;
+  let urangeOpen = false;
+  let urangeLeft = 0;
+  let nrangeOpen = false;
+  let nrangeLeft = 0;
+
+  let flagState = RegexpState.Valid;
+  let next = state.source.charCodeAt(state.index);
+  if (next === Chars.Caret) {
+    ++state.index;
+    next = state.source.charCodeAt(state.index);
+  }
+
+  let n = 0;
+  while (true) {
+    if (consumeOpt(state, Chars.RightBracket)) {
+      return flagState;
+    } else if (consumeOpt(state, Chars.Backslash)) {
+      next = state.index === state.length ? -1 : parseRegexClassCharEscape(state, context);
+      if (next === RegexpState.InvalidClass) {
+        flagState = reportRegExp(state, Errors.UnterminatedCharClass);
+      } else if (next & RegexpState.InvalidUnicodeClass) {
+        next = next ^ RegexpState.InvalidUnicodeClass;
+        flagState =
+          next === RegexpState.InvalidClass
+            ? reportRegExp(state, Errors.RangeInvalid)
+            : setState(state, flagState, RegexpState.Plain, Errors.RangeInvalid);
+      } else if (next & RegexpState.InvalidPlainClass) {
+        // this condition is currently only met when a bad property escape was found
+        flagState = setState(state, flagState, RegexpState.Unicode, Errors.RangeInvalid);
+      }
+    } else if (
+      next === Chars.CarriageReturn ||
+      next === Chars.LineFeed ||
+      next === Chars.ParagraphSeparator ||
+      next === Chars.LineSeparator
+    ) {
+      return reportRegExp(state, Errors.AtEndOfPattern); // same as end of input
+    } else {
+      ++state.index;
+    }
+
+    if (next === RegexpState.Escape) {
+      isSurrogate = false;
+      isSurrogateHead = false;
+    } else if (wasSurrogateHead && (next & 0xfc00) == 0xdc00) {
+      isSurrogate = true;
+      isSurrogateHead = false;
+      surrogate = ((prev - 0xd800) << 10) + (next - 0xdc00) + 0x0010000;
+    } else if (!wasSurrogate && !wasSurrogateHead && (next & 0x1fffff) > 0xffff) {
+      isSurrogate = true;
+      isSurrogateHead = false;
+      surrogate = next;
+    } else {
+      isSurrogate = false;
+      isSurrogateHead = next >= 0xd800 && next <= 0xdbff;
+    }
+
+    if (urangeOpen) {
+      let urangeRight = isSurrogate ? surrogate : wasSurrogateHead ? prev : next;
+      if (!isSurrogateHead || wasSurrogateHead) {
+        urangeOpen = false;
+        if (
+          urangeLeft === RegexpState.InvalidClassRange ||
+          urangeRight === RegexpState.InvalidClassRange ||
+          urangeLeft > urangeRight
+        ) {
+          flagState = setState(state, flagState, RegexpState.Plain, Errors.RangeOutOfOrder);
+        }
+      }
+    } else if (next === Chars.Hyphen && n > 0) {
+      urangeOpen = true;
+    } else {
+      urangeLeft = isSurrogate ? surrogate : next;
+    }
+
+    if (nrangeOpen) {
+      nrangeOpen = false;
+      if (nrangeLeft === RegexpState.Escape || next === RegexpState.Escape) {
+        flagState =
+          context & Context.OptionsDisableWebCompat
+            ? reportRegExp(state, Errors.RangeInvalid)
+            : (flagState = setState(state, flagState, RegexpState.Plain, Errors.RangeOutOfOrder));
+      } else if (
+        nrangeLeft === RegexpState.InvalidClassRange ||
+        next === RegexpState.InvalidClassRange ||
+        nrangeLeft > next
+      ) {
+        flagState = setState(state, flagState, RegexpState.Unicode, Errors.InvalidRegExpWithUFlag);
+      }
+    } else if (next === Chars.Hyphen && n > 0) {
+      nrangeOpen = true;
+    } else {
+      nrangeLeft = next;
+    }
+
+    wasSurrogate = isSurrogate;
+    wasSurrogateHead = isSurrogateHead;
+    prev = next;
+
+    ++n;
+    if (state.index === state.length) break;
+    next = state.source.charCodeAt(state.index);
+  }
+  return reportRegExp(state, Errors.AtEndOfPattern);
 }
