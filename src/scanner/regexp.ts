@@ -19,6 +19,72 @@ import { unicodeLookup } from '../unicode';
 import { isIDContinue } from '../unicode';
 
 /**
+ * Scan regular expression flags
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function scanRegexFlags(state: ParserState): RegexpState {
+  const enum Flags {
+    Empty = 0,
+    Global = 0x01,
+    IgnoreCase = 0x02,
+    Multiline = 0x04,
+    Unicode = 0x08,
+    Sticky = 0x10,
+    DotAll = 0x20
+  }
+
+  let mask = Flags.Empty;
+
+  loop: while (state.index < state.length) {
+    let code = state.source.charCodeAt(state.index);
+    switch (code) {
+      case Chars.LowerG:
+        if (mask & Flags.Global) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'g');
+        mask |= Flags.Global;
+        break;
+
+      case Chars.LowerI:
+        if (mask & Flags.IgnoreCase) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'i');
+        mask |= Flags.IgnoreCase;
+        break;
+
+      case Chars.LowerM:
+        if (mask & Flags.Multiline) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'm');
+        mask |= Flags.Multiline;
+        break;
+
+      case Chars.LowerU:
+        if (mask & Flags.Unicode) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'u');
+        mask |= Flags.Unicode;
+        break;
+
+      case Chars.LowerY:
+        if (mask & Flags.Sticky) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'y');
+        mask |= Flags.Sticky;
+        break;
+
+      case Chars.LowerS:
+        if (mask & Flags.DotAll) return reportRegExp(state, Errors.DuplicateRegExpFlag, 's');
+        mask |= Flags.DotAll;
+        break;
+
+      default:
+        // Check if we need to replace the code with the Unicode variant when we check to see
+        // if it's a valid flag start (and thus need to report an error).
+        // if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(parser);
+        if (!isFlagStart(code)) break loop;
+        return RegexpState.Invalid;
+    }
+
+    state.index++;
+  }
+
+  return mask & Flags.Unicode ? RegexpState.Unicode : RegexpState.Plain;
+}
+
+/**
  * Scans regular expression pattern
  *
  * @export
@@ -27,6 +93,8 @@ import { isIDContinue } from '../unicode';
  */
 
 export function scanRegularExpression(state: ParserState, context: Context): Token {
+  // TODO: Merge this function with the function above - flag scanning
+
   const bodyStart = state.index;
   let regExpState = RegexpState.Valid;
   let regexpBody = validateRegularExpression(state, context, 0, regExpState, Type.None);
@@ -758,73 +826,6 @@ export function isFlagStart(code: number): boolean {
   );
 }
 
-/**
- * Scan regular expression flags
- *
- * @param parser Parser object
- * @param context Context masks
- */
-function scanRegexFlags(state: ParserState): RegexpState {
-  const enum Flags {
-    Empty = 0,
-    Global = 0x01,
-    IgnoreCase = 0x02,
-    Multiline = 0x04,
-    Unicode = 0x08,
-    Sticky = 0x10,
-    DotAll = 0x20
-  }
-
-  let mask = Flags.Empty;
-  const flagsStart = state.index;
-
-  loop: while (state.index < state.length) {
-    let code = state.source.charCodeAt(state.index);
-    switch (code) {
-      case Chars.LowerG:
-        if (mask & Flags.Global) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'g');
-        mask |= Flags.Global;
-        break;
-
-      case Chars.LowerI:
-        if (mask & Flags.IgnoreCase) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'i');
-        mask |= Flags.IgnoreCase;
-        break;
-
-      case Chars.LowerM:
-        if (mask & Flags.Multiline) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'm');
-        mask |= Flags.Multiline;
-        break;
-
-      case Chars.LowerU:
-        if (mask & Flags.Unicode) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'u');
-        mask |= Flags.Unicode;
-        break;
-
-      case Chars.LowerY:
-        if (mask & Flags.Sticky) return reportRegExp(state, Errors.DuplicateRegExpFlag, 'y');
-        mask |= Flags.Sticky;
-        break;
-
-      case Chars.LowerS:
-        if (mask & Flags.DotAll) return reportRegExp(state, Errors.DuplicateRegExpFlag, 's');
-        mask |= Flags.DotAll;
-        break;
-
-      default:
-        // Check if we need to replace the code with the Unicode variant when we check to see
-        // if it's a valid flag start (and thus need to report an error).
-        // if (code >= 0xd800 && code <= 0xdc00) code = nextUnicodeChar(parser);
-        if (!isFlagStart(code)) break loop;
-        return RegexpState.Invalid;
-    }
-
-    state.index++;
-  }
-
-  return mask & Flags.Unicode ? RegexpState.Unicode : RegexpState.Plain;
-}
-
 function parseCharacterClass(state: ParserState, context: Context) {
   let prev = 0;
   let surrogate = 0;
@@ -859,7 +860,6 @@ function parseCharacterClass(state: ParserState, context: Context) {
             ? reportRegExp(state, Errors.RangeInvalid)
             : setState(state, flagState, RegexpState.Plain, Errors.RangeInvalid);
       } else if (next & RegexpState.InvalidPlainClass) {
-        // this condition is currently only met when a bad property escape was found
         flagState = setState(state, flagState, RegexpState.Unicode, Errors.RangeInvalid);
       }
     } else if (
@@ -868,7 +868,7 @@ function parseCharacterClass(state: ParserState, context: Context) {
       next === Chars.ParagraphSeparator ||
       next === Chars.LineSeparator
     ) {
-      return reportRegExp(state, Errors.AtEndOfPattern); // same as end of input
+      return reportRegExp(state, Errors.AtEndOfPattern);
     } else {
       ++state.index;
     }
