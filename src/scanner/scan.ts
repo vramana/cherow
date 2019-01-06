@@ -156,8 +156,7 @@ table[Chars.Hyphen] = (state, context) => {
       state.column++;
       if (
         (context & Context.OptionsDisableWebCompat) === 0 &&
-        state.flags & Flags.NewLine &&
-        consumeOpt(state, Chars.GreaterThan)
+        (state.flags & Flags.NewLine && consumeOpt(state, Chars.GreaterThan))
       ) {
         return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
       }
@@ -239,7 +238,7 @@ statics[Chars.Colon] = Token.Colon;
 table[Chars.Semicolon] = scanChar;
 statics[Chars.Semicolon] = Token.Semicolon;
 
-// `<`, `<=`, `<<`, `<<=`, `</`
+// `<`, `<=`, `<<`, `<<=`, `</`, `<!--`
 table[Chars.LessThan] = (state, context) => {
   state.index++;
   state.column++;
@@ -260,13 +259,12 @@ table[Chars.LessThan] = (state, context) => {
         return Token.LessThanOrEqual;
 
       case Chars.Exclamation: {
+        // If the web compat mode is disabled, we break out of the switch statement rather than throwing, so we
+        // can report it as an unexpected token instead.
+        if (context & Context.OptionsDisableWebCompat) break;
         const index = state.index + 1;
         const next = state.source.charCodeAt(index);
-        if (
-          (context & Context.OptionsDisableWebCompat) === 0 &&
-          next === Chars.Hyphen &&
-          state.source.charCodeAt(index + 1) === Chars.Hyphen
-        ) {
+        if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
           state.index = index;
           state.column++;
           return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);

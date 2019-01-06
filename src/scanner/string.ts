@@ -13,16 +13,13 @@ import { fromCodePoint, toHex, nextChar, Escape, scanNext } from './common';
  * @param context Context masks
  */
 export function scanStringLiteral(state: ParserState, context: Context): Token {
-  const { index: start, lastChar, currentChar } = state;
+  const { index: start, lastChar, currentChar: quote } = state;
   let ret: string | void = '';
 
   let ch = scanNext(state, Errors.UnterminatedString);
-  while (ch !== currentChar) {
-    switch (ch) {
-      case Chars.CarriageReturn:
-      case Chars.LineFeed:
-        report(state, Errors.Unexpected);
-      case Chars.Backslash:
+  while (ch !== quote) {
+    if ((ch & 8) === 8) {
+      if (ch === Chars.Backslash) {
         ch = scanNext(state, Errors.UnterminatedString);
 
         if (ch >= 128) {
@@ -35,17 +32,15 @@ export function scanStringLiteral(state: ParserState, context: Context): Token {
           else reportInvalidEscapeError(state, code as Escape);
           ch = state.lastChar;
         }
-        break;
-
-      default:
-        ret += fromCodePoint(ch);
-    }
-
+      } else if (((ch & 83) < 3 && ch === Chars.CarriageReturn) || ch === Chars.LineFeed) {
+        report(state, Errors.Unexpected);
+      } else ret += fromCodePoint(ch);
+    } else ret += fromCodePoint(ch);
     ch = scanNext(state, Errors.UnterminatedString);
   }
 
-  state.index++;
-  state.column++; // Consume the quote
+  state.index++; // Consume the quote
+  state.column++;
   if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(start, state.index);
   state.tokenValue = ret;
   state.lastChar = lastChar;
