@@ -18,7 +18,7 @@ describe('Lexer - OnComment', () => {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       let token: any;
-      const parser = create(opts.source, function(type: any, value: any, start: number, end: number) {
+      const parser = create(opts.source, function(type: any, value: any, start: number | void, end: number | void) {
         token = {
           type,
           value,
@@ -26,7 +26,7 @@ describe('Lexer - OnComment', () => {
           end
         };
       });
-      scan(parser, Context.OptionsNext);
+      scan(parser, Context.OptionsNext | Context.OptionsRanges);
       t.deepEqual(
         {
           hasNext: hasNext(parser),

@@ -17,7 +17,7 @@ describe('Lexer - OnToken', () => {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       let token: any;
-      const parser = create(opts.source, undefined, function(t: Token, start: number, end: number) {
+      const parser = create(opts.source, undefined, function(t: Token, start: number | void, end: number | void) {
         token = {
           token: t,
           start,

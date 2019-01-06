@@ -44,8 +44,8 @@ export const enum Flags {
 /**
  * The type of the `onComment` option.
  */
-export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start: number, end: number) => any);
-export type OnToken = void | Token[] | ((token: Token, start: number, end: number) => any);
+export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
+export type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
 
 /**
  * The parser interface.
@@ -67,13 +67,11 @@ export interface ParserState {
   lastRegExpError: any;
   numCapturingParens: number;
   largestBackReference: number;
+  lastChar: number;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
   };
-
-  // For the scanner to work around lack of multiple return.
-  lastChar: number;
 }
 
 /**
@@ -87,9 +85,12 @@ export function unimplemented(): never {
 // runtime error.)
 export declare function unreachable(...values: never[]): never;
 
-export function pushComment(context: Context, array: any[]) {
+export function pushComment(
+  context: Context,
+  array: any[]
+): (type: string, value: string, start: number, end: number) => void {
   return function(type: string, value: string, start: number, end: number) {
-    let comment: any = {
+    const comment: any = {
       type,
       value
     };
@@ -102,10 +103,13 @@ export function pushComment(context: Context, array: any[]) {
   };
 }
 
-export function pushToken(context: Context, array: any[]) {
-  return function(type: string, value: string, start: number, end: number) {
-    let tokens: any = {
-      type,
+export function pushToken(
+  context: Context,
+  array: any[]
+): (token: string, value: string, start: number, end: number) => void {
+  return function(token: string, value: string, start: number, end: number) {
+    const tokens: any = {
+      token,
       value
     };
 
