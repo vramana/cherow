@@ -3,7 +3,7 @@ import { Token } from '../token';
 import { Chars } from '../chars';
 import { Errors, report } from '../errors';
 import { consumeOpt, advanceNewline, consumeLineFeed } from './common';
-import { skipBlockComment, skipSingleLineComment, CommentType } from './comments';
+import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
@@ -145,7 +145,7 @@ table[Chars.Comma] = scanChar;
 statics[Chars.Comma] = Token.Comma;
 
 // `-`, `--`, `-=`
-table[Chars.Hyphen] = state => {
+table[Chars.Hyphen] = (state, context) => {
   state.index++;
   state.column++;
   if (state.index < state.length) {
@@ -154,8 +154,12 @@ table[Chars.Hyphen] = state => {
     if (next === Chars.Hyphen) {
       state.index++;
       state.column++;
-      if (state.flags & Flags.NewLine && consumeOpt(state, Chars.GreaterThan)) {
-        return skipSingleLineComment(state, CommentType.HTMLClose);
+      if (
+        (context & Context.OptionsDisableWebCompat) === 0 &&
+        state.flags & Flags.NewLine &&
+        consumeOpt(state, Chars.GreaterThan)
+      ) {
+        return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
       }
       return Token.Decrement;
     } else if (next === Chars.EqualSign) {
@@ -258,10 +262,14 @@ table[Chars.LessThan] = (state, context) => {
       case Chars.Exclamation: {
         const index = state.index + 1;
         const next = state.source.charCodeAt(index);
-        if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
+        if (
+          (context & Context.OptionsDisableWebCompat) === 0 &&
+          next === Chars.Hyphen &&
+          state.source.charCodeAt(index + 1) === Chars.Hyphen
+        ) {
           state.index = index;
           state.column++;
-          return skipSingleLineComment(state, CommentType.HTMLOpen);
+          return skipSingleHTMLComment(state, context, CommentType.HTMLOpen);
         }
       }
 

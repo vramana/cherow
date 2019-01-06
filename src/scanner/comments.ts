@@ -35,6 +35,10 @@ export function skipHashBang(state: ParserState, context: Context) {
   }
 }
 
+export function skipSingleHTMLComment(state: ParserState, context: Context, type: CommentType): Token {
+  if (context & Context.Module) report(state, Errors.HtmlCommentInModule);
+  return skipSingleLineComment(state, type);
+}
 /**
  * Skips SingleLineComment, SingleLineHTMLCloseComment and SingleLineHTMLOpenComment
  *

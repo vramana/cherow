@@ -96,8 +96,8 @@ table[Chars.Zero] = table[Chars.One] = table[Chars.Two] = table[Chars.Three] = (
       // Strict mode code allows only \0, then a non-digit.
       if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
         if (context & Context.Strict) return Escape.StrictOctal;
-        // If not in strict mode, we mark the 'octal' as found and continue
-        // parsing until we parse out the literal AST node
+        // If not in strict mode, set the 'Octal' bitmask so we later on
+        // can use it to throw an error when parsing out a literal node
         state.flags = state.flags | Flags.Octal;
       }
     } else if (context & Context.Strict) {
@@ -176,7 +176,7 @@ table[Chars.LowerU] = state => {
     while (ch !== Chars.RightBrace) {
       const digit = toHex(ch);
       if (digit < 0) return Escape.InvalidHex;
-      code = (code << 4) | digit;
+      code = code * 16 + digit;
       if (code > 0x10fff) return Escape.OutOfRange;
       ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
     }
@@ -191,7 +191,7 @@ table[Chars.LowerU] = state => {
       ch = state.lastChar = scanNext(state, Errors.InvalidUnicodeEscape);
       const digit = toHex(ch);
       if (digit < 0) return Escape.InvalidHex;
-      code = (code << 4) | digit;
+      code = code * 16 + digit;
     }
 
     return code;

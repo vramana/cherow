@@ -35,10 +35,10 @@ function run(isModule: boolean) {
     });
   }
 
-  function fail(name: string, source: string) {
+  function fail(name: string, source: string, context: Context) {
     it(name, () => {
       const state = create(source, undefined);
-      t.throws(() => scan(state, Context.Empty));
+      t.throws(() => scan(state, context));
     });
   }
 
@@ -50,7 +50,9 @@ function run(isModule: boolean) {
     pass(name('paragraph separators'), opts('\u2029'));
   }
 
-  fail('fails on unclosed multiline comment', '/*');
+  fail('fails on unclosed multiline comment', '/*', Context.Empty);
+
+  fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Strict | Context.Module);
 
   pass('skips white space', {
     source: '\u0020',
