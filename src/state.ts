@@ -1,8 +1,9 @@
 import * as ESTree from './estree';
-import { Context, Flags, OnComment, OnToken, ParserState, unimplemented } from './common';
+import { Context, Flags, OnComment, OnToken, ParserState, unimplemented, consumeSemicolon } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { optional, expect } from './common';
+import { ScopeState } from './scope';
 
 /**
  * Create a new parser instance.
@@ -36,26 +37,52 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
 /**
  * Parse a module body, function body, script body, etc.
  */
-export function parseBody(state: ParserState, context: Context): ESTree.Statement[] {
+export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
   next(state, context);
   const statements: ESTree.Statement[] = [];
+
+  while (state.token === Token.StringLiteral) {
+    const tokenValue = state.tokenValue;
+    if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
+      context |= Context.Strict;
+    }
+    statements.push(parseDirective(state, context));
+  }
+
   while (state.token !== Token.EndOfSource) {
     if (context & Context.Module) statements.push(parseModuleItemList(state, context));
-    else statements.push(parseStatementList(state, context));
+    else statements.push(parseStatementList(state, context, scope));
   }
 
   return statements;
 }
 
-function parseModuleItemList(state: ParserState, context: Context): ESTree.Statement {
-  const p = state;
-  const c = context;
+/**
+ * Parse directive node
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive)
+ *
+ * @param parser Parser instance
+ * @param context Context masks
+ */
+export function parseDirective(state: ParserState, context: Context): any {
+  const directive = state.source.slice(state.startIndex + 1, state.index - 1);
+  const expr = parseExpression(state, context);
+  consumeSemicolon(state, context);
+  return {
+    type: 'ExpressionStatement',
+    expression: expr,
+    directive
+  };
+}
+
+function parseModuleItemList(_: ParserState, __: Context): ESTree.Statement {
   // TODO
   return unimplemented();
 }
 
-function parseStatementList(state: ParserState, context: Context): ESTree.Statement {
+function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   switch (state.token) {
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
@@ -63,7 +90,7 @@ function parseStatementList(state: ParserState, context: Context): ESTree.Statem
     case Token.LetKeyword:
     case Token.AsyncKeyword:
     default:
-      return parseStatement(state, context);
+      return parseStatement(state, context, scope);
   }
 }
 
@@ -76,7 +103,7 @@ function parseStatementList(state: ParserState, context: Context): ESTree.Statem
  * @param context Context masks
  * @param scope Scope instance
  */
-function parseStatement(state: ParserState, context: Context): ESTree.Statement {
+function parseStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   switch (state.token) {
     case Token.VarKeyword:
     case Token.TryKeyword:
@@ -96,7 +123,7 @@ function parseStatement(state: ParserState, context: Context): ESTree.Statement 
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
     default:
-      return parseExpressionOrLabelledStatement(state, context);
+      return parseExpressionOrLabelledStatement(state, context, scope);
   }
 }
 
@@ -109,19 +136,12 @@ function parseStatement(state: ParserState, context: Context): ESTree.Statement 
  * @param parser  Parser instance
  * @param context Context masks
  */
-export function parseExpressionOrLabelledStatement(state: ParserState, context: Context): any {
+export function parseExpressionOrLabelledStatement(state: ParserState, context: Context, scope: ScopeState): any {
   const token = state.token;
   const expr: ESTree.Expression = parseExpression(state, context);
-  if (token & Token.Keyword && state.token === Token.Colon) {
-    next(state, context);
-    return {
-      type: 'LabeledStatement',
-      label: expr as ESTree.Identifier,
-      body: parseStatement(state, context)
-    };
-  }
-
-  //  consumeSemicolon(state, context);
+  let s = scope;
+  console.log(expr);
+  // consumeSemicolon(state, context);
   return {
     type: 'ExpressionStatement',
     expression: expr

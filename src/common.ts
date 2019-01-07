@@ -138,3 +138,17 @@ export function expect(state: ParserState, context: Context, t: Token): boolean 
   next(state, context);
   return true;
 }
+
+/**
+ * Automatic Semicolon Insertion
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
+  return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.NewLine
+    ? optional(state, context, Token.Semicolon)
+    : report(state, Errors.Unexpected);
+}

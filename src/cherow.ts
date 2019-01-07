@@ -1,7 +1,8 @@
-import { parseBody, create } from './state';
+import { parseTopLevel, create } from './state';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
 import { skipHashBang } from './scanner';
+import { createScope, ScopeType } from './scope';
 
 /**
  * `ECMAScript version
@@ -120,7 +121,7 @@ function parseSource(source: string, options: Options | void, context: Context):
   const node: ESTree.Program = {
     type: 'Program',
     sourceType: context & Context.Module ? 'module' : 'script',
-    body: parseBody(state, context)
+    body: parseTopLevel(state, context, createScope(ScopeType.BlockStatement))
   };
 
   if (context & Context.OptionsRanges) {
