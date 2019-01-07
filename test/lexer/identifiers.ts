@@ -2,10 +2,9 @@ import * as t from 'assert';
 import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token, tokenDesc } from '../../src/token';
 
 describe('Lexer - Identifiers', () => {
-  describe('seek()', () => {
+  describe('Identifiers', () => {
     context('script', () => run(false));
     context('module', () => run(true));
   });
@@ -19,35 +18,122 @@ describe('Lexer - Identifiers', () => {
       column: number;
     }
 
-    const tokens: Array<[Context, Token, string, string]> = [
-      [Context.Empty, Token.Identifier, 'a', 'a'],
-      [Context.Empty, Token.Identifier, 'abc', 'abc']
-      //   [Context.Empty, Token.Identifier, 'a  a', 'a '],
-    ];
-
-    for (const [ctx, token, op, value] of tokens) {
-      it(`scans '${op}'`, () => {
-        const state = create(op, undefined);
-        const found = scan(state, ctx);
-
+    function pass(name: string, opts: Opts) {
+      it(name, () => {
+        const state = create(opts.source, undefined);
+        const found = scan(state, Context.Empty);
         t.deepEqual(
           {
-            token: tokenDesc(found),
-            hasNext: state.index < state.length,
             value: state.tokenValue,
-            line: state.line
-            // column: state.column
+            hasNext: state.index < state.length,
+            line: state.line,
+            column: state.column
           },
           {
-            token: tokenDesc(token),
-            hasNext: false,
-            value,
-            line: 1
-            //column: op.length
+            value: opts.value,
+            hasNext: opts.hasNext,
+            line: opts.line,
+            column: opts.column
           }
         );
       });
     }
+
+    pass('scan one char identifier', {
+      value: 'a',
+      source: 'a',
+      hasNext: false,
+      line: 1,
+      column: 1
+    });
+
+    pass('scan two char identifier', {
+      value: 'ab',
+      source: 'ab',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan two char identifier with underscore', {
+      value: 'a_b',
+      source: 'a_b',
+      hasNext: false,
+      line: 1,
+      column: 3
+    });
+
+    pass('scan double underscore', {
+      value: '__',
+      source: '__',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan dollar start', {
+      value: '$_',
+      source: '$_',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan double dollar', {
+      value: '$$',
+      source: '$$',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan uppercase', {
+      value: 'F',
+      source: 'F',
+      hasNext: false,
+      line: 1,
+      column: 1
+    });
+
+    pass('scan uppercase and ignore whitespace', {
+      value: 'A',
+      source: 'A ',
+      hasNext: true,
+      line: 1,
+      column: 1
+    });
+
+    pass('scan uppercase and skip whitespace at the begining', {
+      value: 'A',
+      source: ' A',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan upper and lower case letter', {
+      value: 'eF',
+      source: 'eF',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan dollar + char', {
+      value: '$d',
+      source: '$d',
+      hasNext: false,
+      line: 1,
+      column: 2
+    });
+
+    pass('scan one identifier and skip following identifiers and punctuators with space', {
+      value: 'Hello',
+      source: 'Hello, Fred Kleuver. Have you skipped any whitespace?',
+      hasNext: true,
+      line: 1,
+      column: 5
+    });
 
     if (isModule) {
     }

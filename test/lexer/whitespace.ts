@@ -79,7 +79,7 @@ function run(isModule: boolean) {
     source: 'foo \u2029',
     hasNext: true,
     line: 1,
-    column: 0
+    column: 3
   });
 
   pass('skips crlf', {
@@ -93,7 +93,7 @@ function run(isModule: boolean) {
     source: '\r\n foo',
     hasNext: false,
     line: 2,
-    column: 1
+    column: 4
   });
 
   pass('skips form feed', {
@@ -157,7 +157,7 @@ function run(isModule: boolean) {
     source: '\u0020var\u0020x\u0020=\u00201\u0020; result = x;',
     hasNext: true,
     line: 1,
-    column: 1
+    column: 4
   });
 
   pass('skips single line comment with horizontal tab', {
@@ -171,7 +171,7 @@ function run(isModule: boolean) {
     source: '//Single Line Comments\u2029 var =;',
     hasNext: true,
     line: 2,
-    column: 1
+    column: 4
   });
 
   pass('skips single line comment with horizontal tab', {

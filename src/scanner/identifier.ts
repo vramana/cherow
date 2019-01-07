@@ -46,11 +46,17 @@ export function scanMaybeIdentifier(state: ParserState, context: Context): Token
 }
 
 export function scanKnownIdentifier(state: ParserState): Token {
-  while (isIdentifierPart(state.source.charCodeAt(state.index))) state.index++;
-  state.tokenValue = state.source.slice(state.startIndex, state.index);
-  if (state.source.charCodeAt(state.index) === Chars.Backslash) {
+  let { index, column } = state;
+  while (isIdentifierPart(state.source.charCodeAt(index))) {
+    index++;
+    column++;
+  }
+  state.tokenValue = state.source.slice(state.startIndex, index);
+  if (state.source.charCodeAt(index) === Chars.Backslash) {
     state.tokenValue += fromCodePoint(scanIdentifierRest(state));
   }
+  state.index = index;
+  state.column = column;
   return descKeywordTable[state.tokenValue] || Token.Identifier;
 }
 
