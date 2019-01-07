@@ -1,7 +1,6 @@
 import * as t from 'assert';
-import { scan } from '../../src/scanner';
+import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
-import { Chars } from '../../src/chars';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 
@@ -24,7 +23,7 @@ describe('Lexer - OnToken', () => {
           end
         };
       });
-      scan(state, Context.Empty);
+      next(state, Context.Empty);
       t.deepEqual(
         {
           hasNext: state.index < state.length,

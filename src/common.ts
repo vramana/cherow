@@ -1,5 +1,7 @@
 import * as ESTree from './estree';
 import { Token } from './token';
+import { next } from './scanner';
+import { Errors, report } from './errors';
 
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
@@ -63,6 +65,9 @@ export interface ParserState {
   numCapturingParens: number;
   largestBackReference: number;
   lastChar: number;
+  inCatch: boolean;
+  exportedNames: any[];
+  exportedBindings: any[];
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -117,4 +122,33 @@ export function finishNode<T extends ESTree.Node>(context: Context, start: numbe
   }
 
   return node;
+}
+
+export function optional(state: ParserState, context: Context, token: Token): boolean {
+  if (state.token !== token) return false;
+  next(state, context);
+  return true;
+}
+
+export function expect(state: ParserState, context: Context, t: Token): boolean {
+  if (state.token !== t) {
+    report(state, Errors.Unexpected);
+    return false;
+  }
+  next(state, context);
+  return true;
+}
+
+/**
+ * Automatic Semicolon Insertion
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
+  return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.NewLine
+    ? optional(state, context, Token.Semicolon)
+    : report(state, Errors.Unexpected);
 }

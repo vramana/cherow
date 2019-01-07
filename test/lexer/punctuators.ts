@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { scan } from '../../src/scanner';
+import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
@@ -74,7 +74,7 @@ describe('Lexer - Punctuators', () => {
   for (const [ctx, token, op] of tokens) {
     it(`scans '${op}'`, () => {
       const state = create(op, undefined);
-      const found = scan(state, ctx);
+      const found = next(state, ctx);
 
       t.deepEqual(
         {
@@ -95,7 +95,7 @@ describe('Lexer - Punctuators', () => {
 
   it("scans '.' in '..'", () => {
     const state = create('..', undefined);
-    const found = scan(state, Context.Empty);
+    const found = next(state, Context.Empty);
     t.deepEqual(
       {
         token: tokenDesc(found),
