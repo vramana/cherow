@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { scan } from '../../src/scanner';
+import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 
@@ -19,7 +19,7 @@ function run(isModule: boolean) {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       const state = create(opts.source, undefined);
-      const found = scan(state, Context.Empty);
+      const found = next(state, Context.Empty);
       t.deepEqual(
         {
           hasNext: state.index < state.length,
@@ -38,7 +38,7 @@ function run(isModule: boolean) {
   function fail(name: string, source: string, context: Context) {
     it(name, () => {
       const state = create(source, undefined);
-      t.throws(() => scan(state, context));
+      t.throws(() => next(state, context));
     });
   }
 

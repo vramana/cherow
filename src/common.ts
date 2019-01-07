@@ -63,6 +63,9 @@ export interface ParserState {
   numCapturingParens: number;
   largestBackReference: number;
   lastChar: number;
+  inCatch: boolean;
+  exportedNames: any[];
+  exportedBindings: any[];
   tokenRegExp: void | {
     pattern: string;
     flags: string;

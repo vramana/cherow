@@ -1,6 +1,7 @@
 import * as ESTree from './estree';
 import { Context, Flags, OnComment, OnToken, ParserState, unimplemented } from './common';
 import { Token } from './token';
+import { next } from './scanner';
 
 /**
  * Create a new parser instance.
@@ -24,11 +25,21 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     largestBackReference: 0,
     length: source.length,
     currentChar: source.charCodeAt(0),
-    lastChar: 0
+    lastChar: 0,
+    inCatch: false,
+    exportedNames: [],
+    exportedBindings: []
   };
 }
 
-function parseStatementListItem(state: ParserState, context: Context): ESTree.Statement {
+function parseStatementList(state: ParserState, context: Context): ESTree.Statement {
+  const p = state;
+  const c = context;
+  // TODO
+  return unimplemented();
+}
+
+function parseModuleItem(state: ParserState, context: Context): ESTree.Statement {
   const p = state;
   const c = context;
   // TODO
@@ -39,10 +50,13 @@ function parseStatementListItem(state: ParserState, context: Context): ESTree.St
  * Parse a module body, function body, script body, etc.
  */
 export function parseBody(state: ParserState, context: Context): ESTree.Statement[] {
-  const p = state;
-  const c = context;
-
+  // Prime the scanner
+  next(state, context);
   const statements: ESTree.Statement[] = [];
+  while (state.token !== Token.EndOfSource) {
+    if (context & Context.Module) statements.push(parseModuleItem(state, context));
+    else statements.push(parseStatementList(state, context));
+  }
 
   return statements;
 }

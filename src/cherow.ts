@@ -1,4 +1,4 @@
-import * as State from './state';
+import { parseBody, create } from './state';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
 import { skipHashBang } from './scanner';
@@ -112,7 +112,7 @@ function parseSource(source: string, options: Options | void, context: Context):
     }
   }
 
-  const state = State.create(source, onComment, onToken);
+  const state = create(source, onComment, onToken);
 
   // Stage 3 - HashBang grammar
   skipHashBang(state, context);
@@ -120,7 +120,7 @@ function parseSource(source: string, options: Options | void, context: Context):
   const node: ESTree.Program = {
     type: 'Program',
     sourceType: context & Context.Module ? 'module' : 'script',
-    body: State.parseBody(state, context)
+    body: parseBody(state, context)
   };
 
   if (context & Context.OptionsRanges) {

@@ -1,2 +1,2 @@
 export { skipHashBang } from './comments';
-export { scan } from './scan';
+export { next } from './scan';
