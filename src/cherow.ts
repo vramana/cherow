@@ -1,8 +1,7 @@
-import { parseTopLevel, create } from './state';
+import * as State from './state';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
 import { skipHashBang } from './scanner';
-import { createScope, ScopeType } from './scope';
 
 /**
  * `ECMAScript version
@@ -113,7 +112,7 @@ function parseSource(source: string, options: Options | void, context: Context):
     }
   }
 
-  const state = create(source, onComment, onToken);
+  const state = State.create(source, onComment, onToken);
 
   // Stage 3 - HashBang grammar
   skipHashBang(state, context);
@@ -121,7 +120,7 @@ function parseSource(source: string, options: Options | void, context: Context):
   const node: ESTree.Program = {
     type: 'Program',
     sourceType: context & Context.Module ? 'module' : 'script',
-    body: parseTopLevel(state, context, createScope(ScopeType.BlockStatement))
+    body: State.parseBody(state, context)
   };
 
   if (context & Context.OptionsRanges) {

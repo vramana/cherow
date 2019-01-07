@@ -1,5 +1,5 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
@@ -23,7 +23,7 @@ describe('Lexer - Numbers', () => {
     function pass(name: string, opts: Opts) {
       it(name, () => {
         const state = create(opts.source, undefined);
-        const found = next(state, Context.Empty);
+        const found = scan(state, Context.Empty);
         t.deepEqual(
           {
             value: state.tokenValue,
@@ -46,7 +46,7 @@ describe('Lexer - Numbers', () => {
     function fail(name: string, source: string, context: Context) {
       it(name, () => {
         const state = create(source, undefined);
-        t.throws(() => next(state, context | Context.OptionsRaw));
+        t.throws(() => scan(state, context | Context.OptionsRaw));
       });
     }
 

@@ -1,7 +1,9 @@
 import * as t from 'assert';
-import { next } from '../../src/scanner';
+import { scan } from '../../src/scanner';
 import { Context } from '../../src/common';
+import { Chars } from '../../src/chars';
 import { create } from '../../src/state';
+import { Token, tokenDesc } from '../../src/token';
 
 describe('Lexer - OnComment', () => {
   interface Opts {
@@ -24,7 +26,7 @@ describe('Lexer - OnComment', () => {
           end
         };
       });
-      next(state, Context.OptionsNext | Context.OptionsRanges);
+      scan(state, Context.OptionsNext | Context.OptionsRanges);
       t.deepEqual(
         {
           hasNext: state.index < state.length,

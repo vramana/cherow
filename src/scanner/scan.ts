@@ -473,13 +473,7 @@ table[Chars.CarriageReturn] = state => {
   return Token.WhiteSpace;
 };
 
-/**
- * Scans and return the next token in the stream.
- *
- * @param state Parser object
- * @param context Context masks
- */
-export function next(state: ParserState, context: Context): Token {
+export function scan(state: ParserState, context: Context): Token {
   state.flags &= ~Flags.NewLine; // reset the 'NewLine' flag for each scan
   while (state.index < state.length) {
     state.startIndex = state.index;
@@ -490,5 +484,5 @@ export function next(state: ParserState, context: Context): Token {
     }
   }
 
-  return Token.EndOfSource;
+  return (state.token = Token.EndOfSource);
 }
