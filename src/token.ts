@@ -9,25 +9,25 @@ export const enum Token {
   Precedence = 15 << PrecStart, // 8-11
 
   /* Attribute names */
-  Keyword = 1 << 12,
-  Contextual = (1 << 13) | Keyword,
-  Reserved = (1 << 14) | Keyword,
-  FutureReserved = (1 << 15) | Keyword,
-  IsLogical = 1 << 16,
+  Keyword           = 1 << 12,
+  Contextual        = (1 << 13) | Keyword,
+  Reserved          = (1 << 14) | Keyword,
+  FutureReserved    = (1 << 15) | Keyword,
+  IsLogical         = 1 << 16,
   IsExpressionStart = 1 << 17,
-  IsIdentifier = (1 << 18) | Contextual | Keyword,
-  IsAwait = 1 << 19,
-  IsAsync = 1 << 20,
-  IsYield = 1 << 21,
-  IsGenerator = 1 << 22,
-  IsAssignOp = 1 << 23,
-  IsBinaryOp = (1 << 24) | IsExpressionStart,
-  IsUnaryOp = (1 << 25) | IsExpressionStart,
-  IsUpdateOp = (1 << 26) | IsExpressionStart,
-  IsLexical = 1 << 27,
-  IsVarDecl = 1 << 28,
-  ASI = 1 << 29,
-  WhiteSpace = 1 << 30,
+  IsIdentifier      = (1 << 18) | Contextual | Keyword,
+  IsAwait           = 1 << 19,
+  IsAsync           = 1 << 20,
+  IsYield           = 1 << 21,
+  IsGenerator       = 1 << 22,
+  IsAssignOp        = 1 << 23,
+  IsBinaryOp        = (1 << 24) | IsExpressionStart,
+  IsUnaryOp         = (1 << 25) | IsExpressionStart,
+  IsUpdateOp        = (1 << 26) | IsExpressionStart,
+  IsLexical         = 1 << 27,
+  IsVarDecl         = 1 << 28,
+  ASI               = 1 << 29,
+  WhiteSpace        = 1 << 30,
 
   /* Node types */
   EndOfSource = 0 | ASI, // Pseudo
@@ -65,8 +65,8 @@ export const enum Token {
   JSXAutoClose = 26, // />
 
   /* Update operators */
-  Increment = 27, // ++
-  Decrement = 28, // --
+  Increment = 27 | IsUpdateOp, // ++
+  Decrement = 28 | IsUpdateOp, // --
 
   /* Assign operators */
   Assign = 29 | IsAssignOp, // =
@@ -159,7 +159,7 @@ export const enum Token {
   /* Contextual keywords */
   AsKeyword = 107 | Contextual | IsBinaryOp | Contextual,
   AsyncKeyword = 108 | Contextual | IsAsync,
-  AwaitKeyword = 109 | Contextual | IsExpressionStart | IsAwait | IsIdentifier,
+  AwaitKeyword = 109 | Contextual | IsExpressionStart | IsAwait,
   ConstructorKeyword = 110 | Contextual,
   GetKeyword = 111 | Contextual,
   SetKeyword = 112 | Contextual,

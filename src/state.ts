@@ -41,7 +41,6 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
   // Prime the scanner
   next(state, context);
   const statements: ESTree.Statement[] = [];
-
   while (state.token === Token.StringLiteral) {
     const tokenValue = state.tokenValue;
     if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
