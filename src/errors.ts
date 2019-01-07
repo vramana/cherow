@@ -41,7 +41,8 @@ export const enum Errors {
   MissingExponent,
   IDStartAfterNumber,
   InvalidBigInt,
-  ExpectedNumberInRadix
+  ExpectedNumberInRadix,
+  LegacyOctalsInStrictMode
 }
 
 /*@internal*/
@@ -86,7 +87,8 @@ export const errorMessages: {
   [Errors.MissingExponent]: 'Missing exponent',
   [Errors.InvalidBigInt]: 'Invalid BigIntLiteral',
   [Errors.IDStartAfterNumber]: 'Identifier starts immediately after numeric literal',
-  [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0'
+  [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0',
+  [Errors.LegacyOctalsInStrictMode]: 'Legacy octal literals are not allowed in strict mode'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

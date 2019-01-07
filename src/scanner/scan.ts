@@ -278,9 +278,6 @@ table[Chars.LessThan] = (state, context) => {
         return Token.LessThanOrEqual;
 
       case Chars.Exclamation: {
-        // If the web compat mode is disabled, we break out of the switch statement rather than throwing, so we
-        // can report it as an unexpected token instead.
-        if (context & Context.OptionsDisableWebCompat) break;
         const index = state.index + 1;
         const next = state.source.charCodeAt(index);
         if (next === Chars.Hyphen && state.source.charCodeAt(index + 1) === Chars.Hyphen) {
@@ -468,7 +465,6 @@ table[Chars.LineFeed] = state => {
 
 // CarriageReturn
 table[Chars.CarriageReturn] = state => {
-  // If it's a \r\n sequence, consume it as a single EOL.
   state.flags |= Flags.NewLine | Flags.LastIsCR;
   state.index++;
   state.column = 0;
@@ -477,6 +473,7 @@ table[Chars.CarriageReturn] = state => {
 };
 
 export function scan(state: ParserState, context: Context): Token {
+  state.flags &= ~Flags.NewLine; // reset the 'NewLine' flag for each scan
   while (state.index < state.length) {
     state.startIndex = state.index;
     const first = state.source.charCodeAt(state.index);

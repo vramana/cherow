@@ -131,6 +131,10 @@ export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token 
   }
 
   if (numberOfDigits === 0) report(state, Errors.ExpectedNumberInRadix, '' + base);
+
+  // Set this flag here to avoid unnecessary 'cast' to numbers when
+  // checking for 'BigIntLiteral'
+  state.flags |= Flags.Binary;
   state.index = index;
   state.column = column;
   state.tokenValue = value;
@@ -146,10 +150,9 @@ export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token 
  * @param context Context masks
  */
 export function scanImplicitOctalDigits(state: ParserState, context: Context): number {
-  if (context & Context.Strict) report(state, Errors.Unexpected);
+  if (context & Context.Strict) report(state, Errors.LegacyOctalsInStrictMode);
   let { index, column } = state;
   let code = 0;
-  state.flags |= Flags.Octal;
   // Implicit octal, unless there is a non-octal digit.
   // (Annex B.1.1 on Numeric Literals)
   while (index < state.length) {
@@ -157,7 +160,7 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): n
     if (next < Chars.Zero || next > Chars.Seven) {
       // Note: Implicit octal digits should fail with BigInt so we add
       // the 'Float' mask to make sure that happen. Hackish??
-      state.flags = (state.flags & ~Flags.Octal) | Flags.Float;
+      state.flags |= Flags.Float;
       return scanNumeric(state, context);
     } else {
       code = code * 8 + (next - Chars.Zero);
@@ -165,6 +168,7 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): n
       column++;
     }
   }
+  state.flags |= Flags.Octal;
   state.index = index;
   state.column = column;
   state.tokenValue = code;

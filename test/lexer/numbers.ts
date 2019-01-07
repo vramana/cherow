@@ -5,12 +5,12 @@ import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 
 describe('Lexer - Numbers', () => {
-  describe('Identifiers', () => {
+  describe('Numbers', () => {
     context('script', () => run(false));
     context('module', () => run(true));
   });
 
-  function run(isModule: boolean) {
+  function run(isWebCompat: boolean) {
     interface Opts {
       source: string;
       value: any;
@@ -46,7 +46,7 @@ describe('Lexer - Numbers', () => {
     function fail(name: string, source: string, context: Context) {
       it(name, () => {
         const state = create(source, undefined);
-        t.throws(() => scan(state, context));
+        t.throws(() => scan(state, context | Context.OptionsRaw));
       });
     }
 
@@ -177,6 +177,62 @@ describe('Lexer - Numbers', () => {
       token: Token.NumericLiteral,
       line: 1,
       column: 4
+    });
+
+    pass(`Scans 42 // line comment`, {
+      source: '42 // line comment',
+      value: 42,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 2
+    });
+
+    pass(`Scans 42 /* The * cherow */`, {
+      source: '42 /* The * cherow */',
+      value: 42,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 2
+    });
+
+    pass(`Scans 42 + multiline comment to verify correct pos location`, {
+      source: `/*
+
+
+
+      a
+                          b
+
+                      */
+
+
+                 42`,
+      value: 42,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 11,
+      column: 19
+    });
+
+    pass(`Scans 42n /* The * cherow */`, {
+      source: '42n /* The * cherow */',
+      value: 42,
+      hasNext: true,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 42 /* The * cherow */`, {
+      source: `/*a
+      b*/ 42`,
+      value: 42,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 2,
+      column: 12
     });
 
     pass(`Scans ${'12n'}`, {
@@ -503,98 +559,73 @@ describe('Lexer - Numbers', () => {
       column: 5
     });
 
-    if (isModule) {
+    pass(`Scans 1 <!--x;`, {
+      source: '1 <!--x;',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(` Scans /** multiline */ 1`, {
+      source: '/** multiline */ 1',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 18
+    });
+
+    pass(` Scans 1/*\n*/-->`, {
+      source: '1/*\n*/-->',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans 1/*\n*/-->2`, {
+      source: '1/*\n*/-->2',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans digit at start with HTML comment`, {
+      source: `0/* optional FirstCommentLine
+      */-->the comment extends to these characters`,
+      value: 0,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans nested multiline comment with digit at start`, {
+      source: `0/*
+      */ /**/ /* second optional SingleLineDelimitedCommentSequence */-->the comment extends to these characters`,
+      value: 0,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans nested multiline comment followed by digit`, {
+      source: `/*
+      */ /**/ /* second optional SingleLineDelimitedCommentSequence */1`,
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 2,
+      column: 71
+    });
+
+    if (isWebCompat) {
     }
   }
-
-  /*
-  describe('seek()', () => {
-    context('script', () => run(false));
-    context('module', () => run(true));
-  });
-
-  function run(isModule: boolean) {
-    interface Opts {
-      source: string;
-      value: any;
-      hasNext: boolean;
-      line: number;
-      column: number;
-      index: number;
-    }
-
-    const tokens: Array<[Context, Token, string, number | string]> = [
-
-         [Context.Empty, Token.NumericLiteral, '00', 0],
-      [Context.Empty, Token.NumericLiteral, '043', 35],
-      [Context.Empty, Token.NumericLiteral, '065', 53],
-      [Context.Empty, Token.NumericLiteral, '09', 9],
-      [Context.Empty, Token.NumericLiteral, '09.7', 9.7],
-      [Context.Empty, Token.NumericLiteral, '09.E+100', 9e100],
-      [Context.Empty, Token.NumericLiteral, '08.7', 8.7],
-      [Context.Empty, Token.NumericLiteral, '08.E+100', 8e100],
-      [Context.Empty, Token.NumericLiteral, '06', 6],
-      [Context.Empty, Token.NumericLiteral, '09', 9],
-      [Context.Empty, Token.NumericLiteral, '087', 87],
-      [Context.Empty, Token.NumericLiteral, '000008', 8],
-      [Context.Empty, Token.NumericLiteral, '000008.4', 8.4],
-      [Context.Empty, Token.NumericLiteral, '000003.4', 3.4],
-      [Context.Empty, Token.NumericLiteral, '0', 0],
-      [Context.Empty, Token.NumericLiteral, '01', 1],
-      [Context.Empty, Token.NumericLiteral, '02', 2],
-      [Context.Empty, Token.NumericLiteral, '03', 3],
-      [Context.Empty, Token.NumericLiteral, '04', 4],
-      [Context.Empty, Token.NumericLiteral, '05', 5],
-      [Context.Empty, Token.NumericLiteral, '06', 6],
-      [Context.Empty, Token.NumericLiteral, '07', 7],
-      [Context.Empty, Token.NumericLiteral, '08', 8],
-      [Context.Empty, Token.NumericLiteral, '09', 9],
-      [Context.Empty, Token.NumericLiteral, '00', 0],
-      [Context.Empty, Token.NumericLiteral, '001', 1],
-      [Context.Empty, Token.NumericLiteral, '002', 2],
-      [Context.Empty, Token.NumericLiteral, '003', 3],
-      [Context.Empty, Token.NumericLiteral, '004', 4],
-      [Context.Empty, Token.NumericLiteral, '005', 5],
-      [Context.Empty, Token.NumericLiteral, '006', 6],
-      [Context.Empty, Token.NumericLiteral, '007', 7],
-      [Context.Empty, Token.NumericLiteral, '008', 8],
-      [Context.Empty, Token.NumericLiteral, '009', 9],
-      [Context.Empty, Token.NumericLiteral, '0000009', 9],
-      [Context.Empty, Token.NumericLiteral, '000008.4e+100', 8.4e100],
-
-      [Context.OptionsNext, Token.BigIntLiteral, '1n', '1'], // The 'raw' value have the BigInt value with the 'n' suffix (1n)
-      [Context.OptionsNext, Token.BigIntLiteral, '856n', '856'],
-      [Context.OptionsNext, Token.BigIntLiteral, '0b10n', 2],
-      [Context.OptionsNext, Token.BigIntLiteral, '0xFFFFn', 0xffff]
-    ];
-
-    for (const [ctx, token, op, value] of tokens) {
-      it(`scans '${op}'`, () => {
-        const state = create(op);
-        const found = scan(state, ctx);
-
-        t.deepEqual(
-          {
-            token: tokenDesc(found),
-            hasNext: state.index < state.length,
-            value: state.tokenValue,
-            line: state.line,
-            column: state.column,
-            index: state.index
-          },
-          {
-            token: tokenDesc(token),
-            hasNext: false,
-            value,
-            line: 1,
-            column: op.length,
-            index: op.length
-          }
-        );
-      });
-    }
-
-    if (isModule) {
-    }
-  } */
 });

@@ -50,6 +50,8 @@ function run(isModule: boolean) {
     pass(name('paragraph separators'), opts('\u2029'));
   }
 
+  fail('fails on Mongolian vowel separator', '\u180Ea', Context.Empty);
+  fail('fails on Mongolian vowel separator without webcompat', '\u180Ea', Context.OptionsDisableWebCompat);
   fail('fails on unclosed multiline comment', '/*', Context.Empty);
   fail('fails on unexpected character', '€', Context.Empty);
   fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Module);
@@ -100,6 +102,21 @@ function run(isModule: boolean) {
     source: '\u000C',
     hasNext: false,
     line: 1,
+    column: 1
+  });
+
+  pass('skips exotic whitespace', {
+    source:
+      '\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000',
+    hasNext: false,
+    line: 1,
+    column: 20
+  });
+
+  pass('skips exotic whitespace', {
+    source: '\x0A1\x0D2\u20283\u20294',
+    hasNext: true,
+    line: 2,
     column: 1
   });
 
@@ -285,6 +302,30 @@ function run(isModule: boolean) {
         hasNext: false,
         line: 2,
         column: 5
+      })
+    );
+
+    passAll(
+      lt => `0/* optional FirstCommentLine
+      */-->the comment extends to these characters ${lt}`,
+      lt => ({
+        source: `0/*
+        */-->the comment extends to these characters ${lt} `,
+        hasNext: true,
+        line: 1,
+        column: 1
+      })
+    );
+
+    passAll(
+      lt => `0/* optional FirstCommentLine
+      */-->the comment extends to these characters ${lt}`,
+      lt => ({
+        source: `0/*
+        */-->the comment extends to these characters ${lt} `,
+        hasNext: true,
+        line: 1,
+        column: 1
       })
     );
 
