@@ -1,14 +1,10 @@
-import { ParserState, Context, Flags, unimplemented } from '../common';
-import { toHex, fromCodePoint } from './common';
+import { ParserState, Context, Flags } from '../common';
 import { Token, descKeywordTable } from '../token';
-import { unicodeLookup } from '../unicode';
-import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
+import { Chars, isIdentifierPart } from '../chars';
 import { Errors, report } from '../errors';
 
-// WORK IN PROGRESS
-
-export function scanMaybeIdentifier(state: ParserState, context: Context): Token | void {
-  switch (state.source.charCodeAt(state.index)) {
+export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
+  switch (first) {
     case Chars.NonBreakingSpace:
     case Chars.Ogham:
     case Chars.EnQuad:
@@ -38,14 +34,11 @@ export function scanMaybeIdentifier(state: ParserState, context: Context): Token
       state.line++;
       return Token.WhiteSpace;
   }
-
-  const c = context;
-
   // TODO
-  report(state, Errors.IllegalCaracter, String.fromCharCode(c));
+  report(state, Errors.IllegalCaracter, String.fromCharCode(first));
 }
 
-export function scanKnownIdentifier(state: ParserState): Token {
+export function scanIdentifier(state: ParserState): Token {
   let { index, column } = state;
   while (isIdentifierPart(state.source.charCodeAt(index))) {
     index++;
@@ -53,75 +46,9 @@ export function scanKnownIdentifier(state: ParserState): Token {
   }
   state.tokenValue = state.source.slice(state.startIndex, index);
   if (state.source.charCodeAt(index) === Chars.Backslash) {
-    state.tokenValue += fromCodePoint(scanIdentifierRest(state));
+    //state.tokenValue += fromCodePoint(scanIdentifierRest(state));
   }
   state.index = index;
   state.column = column;
   return descKeywordTable[state.tokenValue] || Token.Identifier;
-}
-
-export function scanIdentifierRest(state: ParserState): Token {
-  const a = scanIdentifierUnicodeEscape(state);
-  // state.tokenValue += fromCodePoint(a);
-  //while (state.index < state.length) {}
-  // TODO
-  return a;
-}
-export const enum EscapeState {
-  UnterminatedEscape,
-  InvalidHex = 3
-}
-/**
- * Scans identifier unicode escape
- *
- * @param state ParserState instance
- */
-export function scanIdentifierUnicodeEscape(state: ParserState): any {
-  if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
-  let ch = state.source.charCodeAt(state.index++);
-  ch = state.source.charCodeAt(state.index++);
-  ch = state.source.charCodeAt(state.index++);
-  const value = 0;
-  if (ch === Chars.LeftBrace) {
-    if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
-    // \u{N}
-    // The first digit is required, so handle it *out* of the loop.
-    ch = state.source.charCodeAt((state.index += 1));
-    let code = toHex(ch);
-
-    if (code < 0) return EscapeState.InvalidHex;
-
-    if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
-
-    ch = state.source.charCodeAt((state.index += 1));
-    let digits = 1;
-    while (ch !== Chars.RightBrace) {
-      const digit = toHex(ch);
-
-      if (digit < 0) return EscapeState.InvalidHex;
-      code = (code << 4) | digit;
-      // Check this early to avoid `code` wrapping to a negative on overflow (which is
-      // reserved for abnormal conditions).
-      if (code > 0x10ffff) break;
-      if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
-      ch = state.source.charCodeAt(state.index++);
-      digits++;
-    }
-
-    return code;
-  } else {
-    // \uNNNN
-    let code = toHex(ch);
-    if (code < 0) return EscapeState.InvalidHex;
-
-    for (let i = 0; i < 3; i++) {
-      if (state.index === state.source.length) return EscapeState.UnterminatedEscape;
-      ch = state.source.charCodeAt(state.index++);
-      const digit = toHex(ch);
-      if (digit < 0) return EscapeState.InvalidHex;
-      code = (code << 4) | digit;
-    }
-
-    return code;
-  }
 }

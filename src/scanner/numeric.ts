@@ -1,5 +1,5 @@
 import { ParserState, Context, Flags } from '../common';
-import { toHex, isDigit, fromCodePoint } from './common';
+import { toHex, isDigit } from './common';
 import { Chars, isIdentifierStart } from '../chars';
 import { Token } from '../token';
 import { Errors, report } from '../errors';
@@ -56,17 +56,14 @@ export function scanNumeric(state: ParserState, context: Context): Token {
         column++;
       }
 
-      if (isDigit(state.source.charCodeAt(index))) {
+      if (!isDigit(state.source.charCodeAt(index))) report(state, Errors.MissingExponent); // must have at least one char after +-
+      index++;
+      column++;
+      while (isDigit(state.source.charCodeAt(index))) {
         index++;
         column++;
-        while (isDigit(state.source.charCodeAt(index))) {
-          index++;
-          column++;
-        }
-        end = index;
-      } else {
-        report(state, Errors.MissingExponent);
       }
+      end = index;
     }
     default: // ignore
   }

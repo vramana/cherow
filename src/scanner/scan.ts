@@ -7,7 +7,7 @@ import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexIntegerLiteral, scanBinaryOrOctalDigits, scanImplicitOctalDigits } from './numeric';
-import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
+import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
@@ -25,7 +25,7 @@ function scanChar(state: ParserState, _: Context, first: number): Token {
 }
 
 // `$var`
-table[Chars.Dollar] = scanKnownIdentifier;
+table[Chars.Dollar] = scanIdentifier;
 
 // `"string"`
 table[Chars.DoubleQuote] = scanStringLiteral;
@@ -61,6 +61,7 @@ table[Chars.Zero] = (state, context) => {
     // an octal number.
     const next = state.source.charCodeAt(index);
     if (next === Chars.UpperX || next === Chars.LowerX) {
+      // x or X
       state.index = index + 1;
       state.column += 2;
       return scanHexIntegerLiteral(state);
@@ -380,12 +381,12 @@ OneCharPunc[Chars.QuestionMark] = Token.QuestionMark;
 
 // `A`...`Z`
 for (let i = Chars.UpperA; i < Chars.UpperZ; i++) {
-  table[i] = scanKnownIdentifier;
+  table[i] = scanIdentifier;
 }
 
 // `a`...`z`
 for (let i = Chars.LowerA; i < Chars.LowerZ; i++) {
-  table[i] = scanKnownIdentifier;
+  table[i] = scanIdentifier;
 }
 
 // `[`
@@ -393,7 +394,7 @@ table[Chars.LeftBracket] = scanChar;
 OneCharPunc[Chars.LeftBracket] = Token.LeftBracket;
 
 // `\\u{N}var`
-table[Chars.Backslash] = scanKnownIdentifier;
+table[Chars.Backslash] = scanIdentifier;
 
 // `]`
 table[Chars.RightBracket] = scanChar;
@@ -411,7 +412,7 @@ table[Chars.Caret] = state => {
 };
 
 // `_var`
-table[Chars.Underscore] = scanKnownIdentifier;
+table[Chars.Underscore] = scanIdentifier;
 
 // ``string``
 table[Chars.Backtick] = scanTemplate;
