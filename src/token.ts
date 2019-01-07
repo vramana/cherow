@@ -51,9 +51,9 @@ export const enum Token {
   LeftBrace = 12 | IsExpressionStart, // {
   Period = 13, // .
   Ellipsis = 14, // ...
-  RightBrace = 15, // }
+  RightBrace = 15 | ASI, // }
   RightParen = 16, // )
-  Semicolon = 17, // ;
+  Semicolon = 17 | ASI, // ;
   Comma = 18, // ,
   LeftBracket = 19 | IsExpressionStart, // [
   RightBracket = 20, // ]

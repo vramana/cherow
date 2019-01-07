@@ -140,8 +140,7 @@ export function parseExpressionOrLabelledStatement(state: ParserState, context: 
   const token = state.token;
   const expr: ESTree.Expression = parseExpression(state, context);
   let s = scope;
-  console.log(expr);
-  // consumeSemicolon(state, context);
+  consumeSemicolon(state, context);
   return {
     type: 'ExpressionStatement',
     expression: expr
