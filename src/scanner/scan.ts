@@ -9,19 +9,20 @@ import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
 import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
 
-const statics = new Array(128).fill(0) as Token[];
-
-function scanChar(state: ParserState, _: Context, first: number) {
-  state.index++;
-  state.column++;
-  return statics[first];
-}
+// Table for one char punctuator lookup
+const OneCharPunc = new Array(128).fill(0) as Token[];
 
 const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
   context: Context,
   first: number
 ) => Token)[];
+
+function scanChar(state: ParserState, _: Context, first: number) {
+  state.index++;
+  state.column++;
+  return OneCharPunc[first];
+}
 
 // `!`, `!=`, `!==`
 table[Chars.Exclamation] = state => {
@@ -81,11 +82,11 @@ table[Chars.SingleQuote] = scanStringLiteral;
 
 // `(`
 table[Chars.LeftParen] = scanChar;
-statics[Chars.LeftParen] = Token.LeftParen;
+OneCharPunc[Chars.LeftParen] = Token.LeftParen;
 
 // `)`
 table[Chars.RightParen] = scanChar;
-statics[Chars.RightParen] = Token.RightParen;
+OneCharPunc[Chars.RightParen] = Token.RightParen;
 
 // `*`, `**`, `*=`, `**=`
 table[Chars.Asterisk] = state => {
@@ -135,7 +136,7 @@ table[Chars.Plus] = state => {
 
 // `,`
 table[Chars.Comma] = scanChar;
-statics[Chars.Comma] = Token.Comma;
+OneCharPunc[Chars.Comma] = Token.Comma;
 
 // `-`, `--`, `-=`
 table[Chars.Hyphen] = (state, context) => {
@@ -225,11 +226,11 @@ for (let i = Chars.One; i <= Chars.Nine; i++) {
 table[Chars.Zero] = scanHexBinOct;
 // `:`
 table[Chars.Colon] = scanChar;
-statics[Chars.Colon] = Token.Colon;
+OneCharPunc[Chars.Colon] = Token.Colon;
 
 // `;`
 table[Chars.Semicolon] = scanChar;
-statics[Chars.Semicolon] = Token.Semicolon;
+OneCharPunc[Chars.Semicolon] = Token.Semicolon;
 
 // `<`, `<=`, `<<`, `<<=`, `</`, `<!--`
 table[Chars.LessThan] = (state, context) => {
@@ -353,7 +354,7 @@ table[Chars.GreaterThan] = state => {
 
 // `?`
 table[Chars.QuestionMark] = scanChar;
-statics[Chars.QuestionMark] = Token.QuestionMark;
+OneCharPunc[Chars.QuestionMark] = Token.QuestionMark;
 
 // `A`...`Z`
 for (let i = Chars.UpperA; i < Chars.UpperZ; i++) {
@@ -367,14 +368,14 @@ for (let i = Chars.LowerA; i < Chars.LowerZ; i++) {
 
 // `[`
 table[Chars.LeftBracket] = scanChar;
-statics[Chars.LeftBracket] = Token.LeftBracket;
+OneCharPunc[Chars.LeftBracket] = Token.LeftBracket;
 
 // `\\u{N}var`
 table[Chars.Backslash] = scanKnownIdentifier;
 
 // `]`
 table[Chars.RightBracket] = scanChar;
-statics[Chars.RightBracket] = Token.RightBracket;
+OneCharPunc[Chars.RightBracket] = Token.RightBracket;
 
 // `^`, `^=`
 table[Chars.Caret] = state => {
@@ -395,7 +396,7 @@ table[Chars.Backtick] = scanTemplate;
 
 // `{`
 table[Chars.LeftBrace] = scanChar;
-statics[Chars.LeftBrace] = Token.LeftBrace;
+OneCharPunc[Chars.LeftBrace] = Token.LeftBrace;
 
 // `|`, `||`, `|=`
 table[Chars.VerticalBar] = state => {
@@ -420,11 +421,11 @@ table[Chars.VerticalBar] = state => {
 
 // `}`
 table[Chars.RightBrace] = scanChar;
-statics[Chars.RightBrace] = Token.RightBrace;
+OneCharPunc[Chars.RightBrace] = Token.RightBrace;
 
 // `~`
 table[Chars.Tilde] = scanChar;
-statics[Chars.Tilde] = Token.Complement;
+OneCharPunc[Chars.Tilde] = Token.Complement;
 
 // General whitespace
 table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {
