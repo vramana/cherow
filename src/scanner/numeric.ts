@@ -1,15 +1,14 @@
 import { ParserState, Context, Flags } from '../common';
 import { toHex, isDigit } from './common';
-import { Chars } from '../chars';
+import { Chars, isIdentifierStart } from '../chars';
 import { Token } from '../token';
 import { Errors, report } from '../errors';
-import { unicodeLookup } from '../unicode';
 
 /**
- * Adds BigInt suffix
+ * Returns eiter a BigInt or NumericLiteral token
  * @param state
  */
-export function addMaybeBigIntSuffix(state: ParserState): Token {
+export function returnBigIntOrNumericToken(state: ParserState): Token {
   if (state.source.charCodeAt(state.index) === Chars.LowerN) {
     state.index++;
     state.column++;
@@ -28,35 +27,54 @@ export function addMaybeBigIntSuffix(state: ParserState): Token {
  * @param state Parser object
  */
 export function scanNumeric(state: ParserState, context: Context): Token {
-  const start = state.index;
-  while (isDigit(state.source.charCodeAt(state.index))) state.index++;
-  if (state.source.charCodeAt(state.index) === Chars.Period) {
-    state.index++;
-    while (isDigit(state.source.charCodeAt(state.index))) state.index++;
+  let { index, column } = state;
+  while (isDigit(state.source.charCodeAt(index))) {
+    index++;
+    column++;
   }
-  let end = state.index;
-  if (state.source.charCodeAt(state.index) === Chars.UpperE || state.source.charCodeAt(state.index) === Chars.LowerE) {
-    state.index++;
-    state.flags = Flags.Scientific;
-    if (state.source.charCodeAt(state.index) === Chars.Plus || state.source.charCodeAt(state.index) === Chars.Hyphen)
-      state.index++;
-    if (isDigit(state.source.charCodeAt(state.index))) {
-      state.index++;
-      while (isDigit(state.source.charCodeAt(state.index))) state.index++;
-      end = state.index;
-    } else {
-      report(state, Errors.Unexpected);
+  if (state.source.charCodeAt(index) === Chars.Period) {
+    index++;
+    column++;
+    while (isDigit(state.source.charCodeAt(index))) {
+      index++;
+      column++;
     }
   }
+  let end = index;
 
-  const code = state.source.charCodeAt(state.index);
-  if (code !== Chars.LowerN && (isDigit(code) || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) !== 0)) {
-    report(state, Errors.Unexpected);
+  switch (state.source.charCodeAt(index)) {
+    case Chars.UpperE:
+    case Chars.LowerE: {
+      index++;
+      column++;
+      state.flags = Flags.Scientific;
+      if (state.source.charCodeAt(index) === Chars.Plus || state.source.charCodeAt(index) === Chars.Hyphen) {
+        index++;
+        column++;
+      }
+
+      if (isDigit(state.source.charCodeAt(index))) {
+        index++;
+        column++;
+        while (isDigit(state.source.charCodeAt(index))) {
+          index++;
+          column++;
+        }
+        end = index;
+      } else {
+        report(state, Errors.Unexpected);
+      }
+    }
+    default: // ignore
   }
 
-  state.tokenValue = state.source.substring(start, end);
+  const code = state.source.charCodeAt(index);
+  if (code !== Chars.LowerN && (isDigit(code) || isIdentifierStart(code))) report(state, Errors.Unexpected);
+  state.index = index;
+  state.column = column;
+  state.tokenValue = state.source.substring(state.startIndex, end);
   if (context & Context.OptionsRaw) state.tokenRaw = state.tokenValue;
-  return addMaybeBigIntSuffix(state);
+  return returnBigIntOrNumericToken(state);
 }
 
 /**
@@ -67,20 +85,23 @@ export function scanNumeric(state: ParserState, context: Context): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-function scanHexIntegerLiteral(state: ParserState): number {
-  let value = toHex(state.source.charCodeAt(state.index));
+export function scanHexIntegerLiteral(state: ParserState): number {
+  let { index, column } = state;
+  let value = toHex(state.source.charCodeAt(index));
   if (value < 0) report(state, Errors.Unexpected);
-  state.index++;
-  state.column++;
-  while (state.index < state.length) {
-    const digit = toHex(state.source.charCodeAt(state.index));
+  index++;
+  column++;
+  while (index < state.length) {
+    const digit = toHex(state.source.charCodeAt(index));
     if (digit < 0) break;
     value = value * 16 + digit;
-    state.index++;
-    state.column++;
+    index++;
+    column++;
   }
+  state.index = index;
+  state.column = column;
   state.tokenValue = value;
-  return addMaybeBigIntSuffix(state);
+  return returnBigIntOrNumericToken(state);
 }
 
 /**
@@ -92,18 +113,21 @@ function scanHexIntegerLiteral(state: ParserState): number {
  * @param parser Parser object
  * @param base Context masks
  */
-function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
+export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
   let value: any = '';
-  while (state.index < state.length) {
-    const ch = state.source.charCodeAt(state.index);
+  let { index, column } = state;
+  while (index < state.length) {
+    const ch = state.source.charCodeAt(index);
     const converted = ch - Chars.Zero;
     if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
     value = value * base + converted;
-    state.index++;
-    state.column++;
+    index++;
+    column++;
   }
+  state.index = index;
+  state.column = column;
   state.tokenValue = value;
-  return addMaybeBigIntSuffix(state);
+  return returnBigIntOrNumericToken(state);
 }
 
 /**
@@ -114,10 +138,9 @@ function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-function scanImplicitOctalDigits(state: ParserState, context: Context): number {
+export function scanImplicitOctalDigits(state: ParserState, context: Context): number {
   if (context & Context.Strict) report(state, Errors.Unexpected);
-  let index = state.index;
-  let column = state.column;
+  let { index, column } = state;
   let code = 0;
   state.flags |= Flags.Octal;
 
@@ -138,32 +161,4 @@ function scanImplicitOctalDigits(state: ParserState, context: Context): number {
   state.column = column;
   state.tokenValue = code;
   return Token.NumericLiteral;
-}
-
-export function scanHexBinOct(parser: ParserState, context: Context) {
-  if (parser.index + 2 < parser.length) {
-    if (
-      parser.source.charCodeAt(parser.index + 1) === Chars.UpperX ||
-      parser.source.charCodeAt(parser.index + 1) === Chars.LowerX
-    ) {
-      parser.index += 2;
-      parser.column += 2;
-      return scanHexIntegerLiteral(parser);
-    } else if (
-      parser.source.charCodeAt(parser.index + 1) === Chars.UpperB ||
-      parser.source.charCodeAt(parser.index + 1) === Chars.LowerB
-    ) {
-      parser.index += 2;
-      parser.column += 2;
-      return scanBinaryOrOctalDigits(parser, /* base */ 2);
-    } else if (
-      parser.source.charCodeAt(parser.index + 1) === Chars.UpperO ||
-      parser.source.charCodeAt(parser.index + 1) === Chars.LowerO
-    ) {
-      parser.index += 2;
-      parser.column += 2;
-      return scanBinaryOrOctalDigits(parser, /* base */ 8);
-    }
-  }
-  return scanImplicitOctalDigits(parser, context);
 }

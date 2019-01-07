@@ -6,7 +6,7 @@ import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, Comment
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
-import { scanNumeric, scanHexBinOct } from './numeric';
+import { scanNumeric, scanHexIntegerLiteral, scanBinaryOrOctalDigits, scanImplicitOctalDigits } from './numeric';
 import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
 
 // Table for one char punctuator lookup
@@ -18,11 +18,63 @@ const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   first: number
 ) => Token)[];
 
-function scanChar(state: ParserState, _: Context, first: number) {
+function scanChar(state: ParserState, _: Context, first: number): Token {
   state.index++;
   state.column++;
   return OneCharPunc[first];
 }
+
+// `$var`
+table[Chars.Dollar] = scanKnownIdentifier;
+
+// `"string"`
+table[Chars.DoubleQuote] = scanStringLiteral;
+
+// `'string'`
+table[Chars.SingleQuote] = scanStringLiteral;
+
+// `(`
+table[Chars.LeftParen] = scanChar;
+OneCharPunc[Chars.LeftParen] = Token.LeftParen;
+
+// `)`
+table[Chars.RightParen] = scanChar;
+OneCharPunc[Chars.RightParen] = Token.RightParen;
+
+// `1`...`9`
+for (let i = Chars.One; i <= Chars.Nine; i++) {
+  table[i] = scanNumeric;
+}
+
+// `:`
+table[Chars.Colon] = scanChar;
+OneCharPunc[Chars.Colon] = Token.Colon;
+
+// `;`
+table[Chars.Semicolon] = scanChar;
+OneCharPunc[Chars.Semicolon] = Token.Semicolon;
+
+table[Chars.Zero] = (state, context) => {
+  let index = state.index + 1;
+  if (index < state.length) {
+    const next = state.source.charCodeAt(index);
+    if (next === Chars.UpperX || next === Chars.LowerX) {
+      state.index = index + 1;
+      state.column += 2;
+      return scanHexIntegerLiteral(state);
+    } else if (next === Chars.UpperB || next === Chars.LowerB) {
+      state.index = index + 1;
+      state.column += 2;
+      return scanBinaryOrOctalDigits(state, /* base */ 2);
+    } else if (next === Chars.UpperO || next === Chars.LowerO) {
+      state.index = index + 1;
+      state.column += 2;
+      return scanBinaryOrOctalDigits(state, /* base */ 8);
+    } else return scanImplicitOctalDigits(state, context);
+  }
+
+  return scanNumeric(state, context);
+};
 
 // `!`, `!=`, `!==`
 table[Chars.Exclamation] = state => {
@@ -70,23 +122,6 @@ table[Chars.Ampersand] = state => {
 
   return Token.BitwiseAnd;
 };
-
-// `$var`
-table[Chars.Dollar] = scanKnownIdentifier;
-
-// `"string"`
-table[Chars.DoubleQuote] = scanStringLiteral;
-
-// `'string'`
-table[Chars.SingleQuote] = scanStringLiteral;
-
-// `(`
-table[Chars.LeftParen] = scanChar;
-OneCharPunc[Chars.LeftParen] = Token.LeftParen;
-
-// `)`
-table[Chars.RightParen] = scanChar;
-OneCharPunc[Chars.RightParen] = Token.RightParen;
 
 // `*`, `**`, `*=`, `**=`
 table[Chars.Asterisk] = state => {
@@ -218,19 +253,6 @@ table[Chars.Slash] = (state, context) => {
 
   return Token.Divide;
 };
-
-// `1`...`9`
-for (let i = Chars.One; i <= Chars.Nine; i++) {
-  table[i] = scanNumeric;
-}
-table[Chars.Zero] = scanHexBinOct;
-// `:`
-table[Chars.Colon] = scanChar;
-OneCharPunc[Chars.Colon] = Token.Colon;
-
-// `;`
-table[Chars.Semicolon] = scanChar;
-OneCharPunc[Chars.Semicolon] = Token.Semicolon;
 
 // `<`, `<=`, `<<`, `<<=`, `</`, `<!--`
 table[Chars.LessThan] = (state, context) => {

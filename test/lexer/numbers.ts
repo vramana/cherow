@@ -17,6 +17,7 @@ describe('Lexer - Numbers', () => {
       hasNext: boolean;
       line: number;
       column: number;
+      index: number;
     }
 
     const tokens: Array<[Context, Token, string, number | string]> = [
@@ -121,7 +122,7 @@ describe('Lexer - Numbers', () => {
 
     for (const [ctx, token, op, value] of tokens) {
       it(`scans '${op}'`, () => {
-        const state = create(op, undefined);
+        const state = create(op);
         const found = scan(state, ctx);
 
         t.deepEqual(
@@ -129,15 +130,17 @@ describe('Lexer - Numbers', () => {
             token: tokenDesc(found),
             hasNext: state.index < state.length,
             value: state.tokenValue,
-            line: state.line
-            // column: state.column
+            line: state.line,
+            column: state.column,
+            index: state.index
           },
           {
             token: tokenDesc(token),
             hasNext: false,
             value,
-            line: 1
-            //column: op.length
+            line: 1,
+            column: op.length,
+            index: op.length
           }
         );
       });
