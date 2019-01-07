@@ -1,5 +1,7 @@
 import * as ESTree from './estree';
 import { Token } from './token';
+import { next } from './scanner';
+import { Errors, report } from './errors';
 
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
@@ -120,4 +122,19 @@ export function finishNode<T extends ESTree.Node>(context: Context, start: numbe
   }
 
   return node;
+}
+
+export function optional(state: ParserState, context: Context, token: Token): boolean {
+  if (state.token !== token) return false;
+  next(state, context);
+  return true;
+}
+
+export function expect(state: ParserState, context: Context, t: Token): boolean {
+  if (state.token !== t) {
+    report(state, Errors.Unexpected);
+    return false;
+  }
+  next(state, context);
+  return true;
 }
