@@ -94,6 +94,12 @@ jobs:
       - run: npm ci
       - run: npm run bundle
       - run:
+          name: "Configure git"
+          command: |
+            git config --global user.email "<>"
+            git config --global user.name "Cherow"
+            git config --global core.mergeoptions --no-edit
+      - run:
           name: "Stash dist folder"
           command: |
             git add dist --force
