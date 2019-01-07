@@ -165,7 +165,6 @@ export function scanImplicitOctalDigits(state: ParserState, context: Context): n
       column++;
     }
   }
-  if (state.source.charCodeAt(index) === Chars.LowerN) report(state, Errors.Unexpected);
   state.index = index;
   state.column = column;
   state.tokenValue = code;
