@@ -1,7 +1,6 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { Errors, report } from '../errors';
 import { consumeOpt, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
@@ -9,9 +8,6 @@ import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexBinOct } from './numeric';
 import { scanKnownIdentifier, scanMaybeIdentifier } from './identifier';
-
-const unexpectedCharacter: (state: ParserState) => void = (state: ParserState) =>
-  report(state, Errors.IllegalCaracter, String.fromCharCode(state.currentChar));
 
 const statics = new Array(128).fill(0) as Token[];
 
@@ -21,7 +17,7 @@ function scanChar(state: ParserState, _: Context, first: number) {
   return statics[first];
 }
 
-const table = new Array(0xffff).fill(unexpectedCharacter, 0, 0x80).fill(scanMaybeIdentifier, 0x80) as ((
+const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
   context: Context,
   first: number
@@ -454,10 +450,6 @@ table[Chars.CarriageReturn] = state => {
   return Token.WhiteSpace;
 };
 
-/**
- * Scan for a single token. You must seek first, because this assumes the current pointer is
- * pointing to either the start of a token or the end of the source.
- */
 export function scan(state: ParserState, context: Context): Token {
   while (state.index < state.length) {
     state.startIndex = state.index;

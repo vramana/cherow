@@ -3,10 +3,11 @@ import { toHex, fromCodePoint } from './common';
 import { Token, descKeywordTable } from '../token';
 import { unicodeLookup } from '../unicode';
 import { Chars, AsciiLookup, CharType, isIdentifierPart } from '../chars';
+import { Errors, report } from '../errors';
 
 // WORK IN PROGRESS
 
-export function scanMaybeIdentifier(state: ParserState, context: Context): Token {
+export function scanMaybeIdentifier(state: ParserState, context: Context): Token | void {
   switch (state.source.charCodeAt(state.index)) {
     case Chars.NonBreakingSpace:
     case Chars.Ogham:
@@ -41,7 +42,7 @@ export function scanMaybeIdentifier(state: ParserState, context: Context): Token
   const c = context;
 
   // TODO
-  return unimplemented();
+  report(state, Errors.IllegalCaracter, String.fromCharCode(c));
 }
 
 export function scanKnownIdentifier(state: ParserState): Token {

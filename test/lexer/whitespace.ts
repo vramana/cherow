@@ -51,8 +51,8 @@ function run(isModule: boolean) {
   }
 
   fail('fails on unclosed multiline comment', '/*', Context.Empty);
-
-  fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Strict | Context.Module);
+  fail('fails on unexpected character', '€', Context.Empty);
+  fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Module);
 
   pass('skips white space', {
     source: '\u0020',

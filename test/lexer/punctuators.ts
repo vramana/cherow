@@ -29,6 +29,9 @@ describe('Lexer - Punctuators', () => {
     [Context.Empty, Token.LeftParen, '('],
     [Context.Empty, Token.LeftBrace, '{'],
     [Context.Empty, Token.Period, '.'],
+    [Context.Empty, Token.JSXAutoClose, '/>'],
+    [Context.OptionsJSX, Token.JSXClose, '</'],
+    [Context.Empty, Token.Divide, '/'],
     [Context.Empty, Token.Ellipsis, '...'],
     [Context.Empty, Token.RightBrace, '}'],
     [Context.Empty, Token.RightParen, ')'],
@@ -66,7 +69,6 @@ describe('Lexer - Punctuators', () => {
     [Context.Empty, Token.ShiftLeft, '<<'],
     [Context.Empty, Token.BitwiseXorAssign, '^='],
     [Context.Empty, Token.BitwiseXor, '^']
-    //  [Context.Empty, Token.Divide, '/']
   ];
 
   for (const [ctx, token, op] of tokens) {
