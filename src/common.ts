@@ -30,11 +30,10 @@ export const enum Context {
 export const enum Flags {
   Empty = 0,
   NewLine = 1 << 0,
-  SameLine = 1 << 1,
-  LastIsCR = 1 << 2,
-  Scientific = 1 << 4,
-  Octal = 1 << 5,
-  Binary = 1 << 7
+  LastIsCR = 1 << 1,
+  Float = 1 << 2,
+  Octal = 1 << 3,
+  Binary = 1 << 4
 }
 
 /**

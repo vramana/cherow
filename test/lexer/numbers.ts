@@ -5,6 +5,509 @@ import { create } from '../../src/state';
 import { Token, tokenDesc } from '../../src/token';
 
 describe('Lexer - Numbers', () => {
+  describe('Identifiers', () => {
+    context('script', () => run(false));
+    context('module', () => run(true));
+  });
+
+  function run(isModule: boolean) {
+    interface Opts {
+      source: string;
+      value: any;
+      hasNext: boolean;
+      token: Token;
+      line: number;
+      column: number;
+    }
+
+    function pass(name: string, opts: Opts) {
+      it(name, () => {
+        const state = create(opts.source, undefined);
+        const found = scan(state, Context.Empty);
+        t.deepEqual(
+          {
+            value: state.tokenValue,
+            hasNext: state.index < state.length,
+            token: found,
+            line: state.line,
+            column: state.column
+          },
+          {
+            value: opts.value,
+            hasNext: opts.hasNext,
+            token: opts.token,
+            line: opts.line,
+            column: opts.column
+          }
+        );
+      });
+    }
+
+    function fail(name: string, source: string, context: Context) {
+      it(name, () => {
+        const state = create(source, undefined);
+        t.throws(() => scan(state, context));
+      });
+    }
+
+    fail('fails on invalid BigInt literal', '0000133n', Context.Empty);
+    fail('fails on invalid BigInt literal', '0x', Context.Empty);
+    fail('fails on invalid BigInt literal', '0x-', Context.Empty);
+    fail('fails on invalid BigInt literal', '.0E-100n', Context.Empty);
+    fail('fails on invalid BigInt literal', '1E-100n', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '12adf00', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3in1', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3.e', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3.e+abc', Context.Empty);
+    fail('fails on non octal decimal integer literal in strict mode', '00', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '02', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '08', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '008', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '09', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence with a leading 0', '00b0;', Context.Empty);
+    fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0o8', Context.Strict);
+    fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0b3', Context.Strict);
+    fail('fails on Octal-integer-literal-like sequence without any digits', '0o', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence without any digits', '0b;', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence containing an invalid digit', '0b2;', Context.Strict);
+
+    pass('scan single digit', {
+      source: '1',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass('scan single digit with following whitespace', {
+      source: '1 ',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans ${7890}`, {
+      source: '7890',
+      value: 7890,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans ${1234567890.0987654321}`, {
+      source: '1234567890.0987654321',
+      value: 1234567890.0987654,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 21
+    });
+
+    pass(`Scans ${43.78}`, {
+      source: '43.78',
+      value: 43.78,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans ${6e7}`, {
+      source: '6e7',
+      value: 60000000,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans ${1e100}`, {
+      source: '1e+100',
+      value: 1e100,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans ${0o12345670}`, {
+      source: '0o12345670',
+      value: 2739128,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 10
+    });
+
+    pass(`Scans ${0x9a}`, {
+      source: '0x9a',
+      value: 154,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans ${0.0e-100}`, {
+      source: '.0E-100',
+      value: 0.0e-100,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 7
+    });
+
+    pass(`Scans ${0x12}`, {
+      source: '0x12',
+      value: 18,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans .123`, {
+      source: '.123',
+      value: 0.123,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans ${'12n'}`, {
+      source: '12n',
+      value: 12,
+      hasNext: false,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans ${'0x12n'}`, {
+      source: '0x12n',
+      value: 18,
+      hasNext: false,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 000001`, {
+      source: '000001',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 009.33`, {
+      source: '009.33',
+      value: 9.33,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 08.0E-100`, {
+      source: '08.0E-100',
+      value: 8e-100,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 9
+    });
+
+    pass(`Scans 0b1`, {
+      source: '0b1',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 0b00011100011111010101010101`, {
+      source: '0b00011100011111010101010101',
+      value: 7468373,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 28
+    });
+
+    pass(`Scans o0002`, {
+      source: '0O0022',
+      value: 18,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0123`, {
+      source: '0123',
+      value: 83,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0`, {
+      source: '0',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans 0000133`, {
+      source: '0000133',
+      value: 91,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 7
+    });
+
+    pass(`Scans 017890`, {
+      source: '017890',
+      value: 17890,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 01765345623456734569876`, {
+      source: '01765345623456734569876',
+      value: 1.7653456234567345e21,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 23
+    });
+    // should throw
+    /*  pass(`Scans 844.44.4`, {
+        source: '844.44.4',
+        value: 7890,
+        hasNext: false,
+        token: Token.NumericLiteral,
+        line: 1,
+        column: 4
+      }); */
+
+    pass(`Scans 0e-1`, {
+      source: '0e-1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0.6`, {
+      source: '0.6',
+      value: 0.6,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 0e+1`, {
+      source: '0e+1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 2E0`, {
+      source: '2E0',
+      value: 2,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 0.00`, {
+      source: '0.00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 5.00`, {
+      source: '5.00',
+      value: 5,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0.e1`, {
+      source: '0.e1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 6.e1`, {
+      source: '6.e1',
+      value: 60,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 3.e-1`, {
+      source: '3.e-1',
+      value: 0.3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0.0E+1`, {
+      source: '0.0E+1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0X00`, {
+      source: '0X00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0X0100 `, {
+      source: '0X0100',
+      value: 256,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0X010000000`, {
+      source: '0X010000000',
+      value: 268435456,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 11
+    });
+
+    pass(`Scans 0x010000 `, {
+      source: '0x010000',
+      value: 65536,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 8
+    });
+
+    pass(`Scans 1e00`, {
+      source: '1e00',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0o10`, {
+      source: '0o10',
+      value: 8,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0o011`, {
+      source: '0o011',
+      value: 9,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0O00`, {
+      source: '0O00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0O077`, {
+      source: '0O077',
+      value: 63,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0B01`, {
+      source: '0B01',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0b11`, {
+      source: '0b11',
+      value: 3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0B011`, {
+      source: '0B011',
+      value: 3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    if (isModule) {
+    }
+  }
+
+  /*
   describe('seek()', () => {
     context('script', () => run(false));
     context('module', () => run(true));
@@ -21,61 +524,8 @@ describe('Lexer - Numbers', () => {
     }
 
     const tokens: Array<[Context, Token, string, number | string]> = [
-      [Context.Empty, Token.NumericLiteral, '1', 1],
-      [Context.Empty, Token.NumericLiteral, '54', 54],
-      [Context.Empty, Token.NumericLiteral, '7890', 7890],
-      [Context.Empty, Token.NumericLiteral, '.54', 0.54],
-      [Context.Empty, Token.NumericLiteral, '1234567890.0987654321', 1234567890.0987654],
-      [Context.Empty, Token.NumericLiteral, '2e3', 2000],
-      [Context.Empty, Token.NumericLiteral, '43.78', 43.78],
-      [Context.Empty, Token.NumericLiteral, '54.98', 54.98],
-      [Context.Empty, Token.NumericLiteral, '9.10', 9.1],
-      [Context.Empty, Token.NumericLiteral, '6e7', 60000000],
-      [Context.Empty, Token.NumericLiteral, '.54E5', 54000],
-      [Context.Empty, Token.NumericLiteral, '.1E-100', 1e-101],
-      [Context.Empty, Token.NumericLiteral, '.0E-100', '0'],
-      [Context.Empty, Token.NumericLiteral, '0.E+100', '0'],
-      [Context.Empty, Token.NumericLiteral, '1e+100', 1e100],
-      [Context.Empty, Token.NumericLiteral, '.1E+100', 1e99],
 
-      /* Float */
-
-      [Context.Empty, Token.NumericLiteral, '1.1213', 1.1213],
-      [Context.Empty, Token.NumericLiteral, '09.1213', 9.1213],
-      [Context.Empty, Token.NumericLiteral, '1.1', 1.1],
-
-      /* Hex */
-
-      [Context.Empty, Token.NumericLiteral, '0x12', 18],
-      [Context.Empty, Token.NumericLiteral, '0x45', 69],
-      [Context.Empty, Token.NumericLiteral, '0x9a', 154],
-      [Context.Empty, Token.NumericLiteral, '0xAc', 172],
-      [Context.Empty, Token.NumericLiteral, '0xE4', 228],
-      [Context.Empty, Token.NumericLiteral, '0xf5', 245],
-      [Context.Empty, Token.NumericLiteral, '0xf5', 245],
-      [Context.Empty, Token.NumericLiteral, '0xf43fad5f43Fad5f43fad5', 1.845491295160757e25],
-
-      /* Octals */
-
-      [Context.Empty, Token.NumericLiteral, '0o12345670', 2739128],
-      [Context.Empty, Token.NumericLiteral, '0o5', 5],
-      [Context.Empty, Token.NumericLiteral, '0o34', 28],
-      [Context.Empty, Token.NumericLiteral, '0o1', 1],
-      [Context.Empty, Token.NumericLiteral, '0o12', 10],
-      [Context.Empty, Token.NumericLiteral, '0o45', 37],
-
-      /* Binary */
-
-      [Context.Empty, Token.NumericLiteral, '0b01', 1],
-      [Context.Empty, Token.NumericLiteral, '0b00', 0],
-      [Context.Empty, Token.NumericLiteral, '0b1', 1],
-      [Context.Empty, Token.NumericLiteral, '0b0', 0],
-      [Context.Empty, Token.NumericLiteral, '0b10', 2],
-      [Context.Empty, Token.NumericLiteral, '0o1', 1],
-
-      /* Legacy octal */
-
-      [Context.Empty, Token.NumericLiteral, '00', 0],
+         [Context.Empty, Token.NumericLiteral, '00', 0],
       [Context.Empty, Token.NumericLiteral, '043', 35],
       [Context.Empty, Token.NumericLiteral, '065', 53],
       [Context.Empty, Token.NumericLiteral, '09', 9],
@@ -112,8 +562,6 @@ describe('Lexer - Numbers', () => {
       [Context.Empty, Token.NumericLiteral, '0000009', 9],
       [Context.Empty, Token.NumericLiteral, '000008.4e+100', 8.4e100],
 
-      /* BigInt */
-
       [Context.OptionsNext, Token.BigIntLiteral, '1n', '1'], // The 'raw' value have the BigInt value with the 'n' suffix (1n)
       [Context.OptionsNext, Token.BigIntLiteral, '856n', '856'],
       [Context.OptionsNext, Token.BigIntLiteral, '0b10n', 2],
@@ -148,5 +596,5 @@ describe('Lexer - Numbers', () => {
 
     if (isModule) {
     }
-  }
+  } */
 });

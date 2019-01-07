@@ -57,6 +57,8 @@ OneCharPunc[Chars.Semicolon] = Token.Semicolon;
 table[Chars.Zero] = (state, context) => {
   let index = state.index + 1;
   if (index < state.length) {
+    // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
+    // an octal number.
     const next = state.source.charCodeAt(index);
     if (next === Chars.UpperX || next === Chars.LowerX) {
       state.index = index + 1;
@@ -70,9 +72,10 @@ table[Chars.Zero] = (state, context) => {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
-    } else return scanImplicitOctalDigits(state, context);
+    } else {
+      return scanImplicitOctalDigits(state, context);
+    }
   }
-
   return scanNumeric(state, context);
 };
 

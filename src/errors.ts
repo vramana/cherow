@@ -37,7 +37,11 @@ export const enum Errors {
   InvalidEightAndNine,
   StrictOctalEscape,
   UnterminatedString,
-  UnterminatedTemplate
+  UnterminatedTemplate,
+  MissingExponent,
+  IDStartAfterNumber,
+  InvalidBigInt,
+  ExpectedNumberInRadix
 }
 
 /*@internal*/
@@ -78,7 +82,11 @@ export const errorMessages: {
   [Errors.StrictOctalEscape]: 'Octal escapes are not allowed in strict mode',
   [Errors.InvalidEightAndNine]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
   [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
-  [Errors.UnicodeOverflow]: 'Unicode codepoint must not be greater than 0x10FFFF'
+  [Errors.UnicodeOverflow]: 'Unicode codepoint must not be greater than 0x10FFFF',
+  [Errors.MissingExponent]: 'Missing exponent',
+  [Errors.InvalidBigInt]: 'Invalid BigIntLiteral',
+  [Errors.IDStartAfterNumber]: 'Identifier starts immediately after numeric literal',
+  [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
