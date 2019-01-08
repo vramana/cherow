@@ -4,6 +4,13 @@ import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { optional, expect } from './common';
 import { ScopeState, ScopeType, createSubScope } from './scope';
+import { report, Errors } from './errors';
+
+export const enum LabelledState {
+  None = 0,
+  Allow = 1 << 0,
+  Disallow = 1 << 1
+}
 
 /**
  * Create a new parser instance.
@@ -90,7 +97,7 @@ function parseStatementListItem(state: ParserState, context: Context, scope: Sco
     case Token.LetKeyword:
     case Token.AsyncKeyword:
     default:
-      return parseStatement(state, context, scope);
+      return parseStatement(state, context, scope, LabelledState.Allow);
   }
 }
 
@@ -103,22 +110,37 @@ function parseStatementListItem(state: ParserState, context: Context, scope: Sco
  * @param context Context masks
  * @param scope Scope instance
  */
-function parseStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+function parseStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  label: LabelledState
+): ESTree.Statement {
   switch (state.token) {
     case Token.VarKeyword:
-    case Token.TryKeyword:
     case Token.SwitchKeyword:
+      return parseSwitchStatement(state, context, scope);
     case Token.DoKeyword:
+      return parseDoWhileStatement(state, context, scope);
     case Token.ReturnKeyword:
+      return parseReturnStatement(state, context);
     case Token.IfKeyword:
     case Token.WhileKeyword:
+      return parseWhileStatement(state, context, scope);
     case Token.WithKeyword:
+      return parseWithStatement(state, context, scope);
     case Token.BreakKeyword:
+      return parseBreakStatement(state, context);
     case Token.ContinueKeyword:
+      return parseContinueStatement(state, context);
     case Token.DebuggerKeyword:
+      return parseDebuggerStatement(state, context);
+    case Token.TryKeyword:
+      unimplemented();
     case Token.ThrowKeyword:
+      return parseThrowStatement(state, context);
     case Token.Semicolon:
-    case Token.LeftBrace:
+      return parseEmptyStatement(state, context);
     case Token.LeftBrace:
       return parseBlockStatement(
         state,
@@ -126,10 +148,12 @@ function parseStatement(state: ParserState, context: Context, scope: ScopeState)
         createSubScope(scope, ScopeType.BlockStatement)
       );
     case Token.ForKeyword:
+      unimplemented();
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
+      report(state, Errors.Unexpected);
     default:
-      return parseExpressionOrLabelledStatement(state, context, scope);
+      return parseExpressionOrLabelledStatement(state, context, scope, label);
   }
 }
 
@@ -158,6 +182,254 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
 }
 
 /**
+ * Parses empty statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-EmptyStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseEmptyStatement(state: ParserState, context: Context): ESTree.EmptyStatement {
+  next(state, context);
+  return {
+    type: 'EmptyStatement'
+  };
+}
+
+/**
+ * Parses throw statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ThrowStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseThrowStatement(state: ParserState, context: Context): ESTree.ThrowStatement {
+  next(state, context);
+  const argument: ESTree.Expression = parseExpression(state, context);
+  consumeSemicolon(state, context);
+  return {
+    type: 'ThrowStatement',
+    argument
+  };
+}
+/**
+ * Parses switch statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-SwitchStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+function parseSwitchStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.SwitchStatement {
+  next(state, context);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  const discriminant = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  expect(state, context, Token.LeftBrace);
+  const cases: ESTree.SwitchCase[] = [];
+  let seenDefault = false;
+  const switchScope = createSubScope(scope, ScopeType.SwitchStatement);
+  while (state.token !== Token.RightBrace) {
+    let test: ESTree.Expression | null = null;
+    if (optional(state, context, Token.CaseKeyword)) {
+      test = parseExpression(state, context);
+    } else {
+      expect(state, context, Token.DefaultKeyword);
+      if (seenDefault) report(state, Errors.Unexpected);
+      seenDefault = true;
+    }
+    cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope));
+  }
+
+  expect(state, context, Token.RightBrace);
+  return {
+    type: 'SwitchStatement',
+    discriminant,
+    cases
+  };
+}
+
+/**
+ * Parses return statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ReturnStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
+  next(state, context | Context.ExpressionStart);
+  const argument =
+    (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
+      ? parseExpression(state, context & ~Context.InFunctionBody)
+      : null;
+  consumeSemicolon(state, context);
+  return {
+    type: 'ReturnStatement',
+    argument
+  };
+}
+
+/**
+ * Parses while statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-grammar-notation-WhileStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseWhileStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WhileStatement {
+  next(state, context);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  const test = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  return {
+    type: 'WhileStatement',
+    test,
+    body
+  };
+}
+
+/**
+ * Parses the continue statement production
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ContinueStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseContinueStatement(state: ParserState, context: Context): ESTree.ContinueStatement {
+  next(state, context);
+  let label: ESTree.Identifier | undefined | null = null;
+  if (!(state.flags & Flags.NewLine) && state.token & Token.Keyword) {
+    label = parseIdentifier(state, context);
+  }
+  consumeSemicolon(state, context);
+
+  return {
+    type: 'ContinueStatement',
+    label
+  };
+}
+
+/**
+ * Parses the break statement production
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-BreakStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseBreakStatement(state: ParserState, context: Context): ESTree.BreakStatement {
+  next(state, context);
+  let label = null;
+  if (!(state.flags & Flags.NewLine) && state.token & Token.Keyword) {
+    label = parseIdentifier(state, context);
+  }
+  consumeSemicolon(state, context);
+  return {
+    type: 'BreakStatement',
+    label
+  };
+}
+
+/**
+ * Parses with statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-WithStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseWithStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WithStatement {
+  next(state, context);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  const object = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  return {
+    type: 'WithStatement',
+    object,
+    body
+  };
+}
+
+/**
+ * Parses the debugger statement production
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-DebuggerStatement)
+ *
+ * @param state  Parser instance
+ * @param context Context masks
+ */
+export function parseDebuggerStatement(state: ParserState, context: Context): ESTree.DebuggerStatement {
+  next(state, context);
+  consumeSemicolon(state, context);
+  return {
+    type: 'DebuggerStatement'
+  };
+}
+
+/**
+ * Parses do while statement
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseDoWhileStatement(state: ParserState, context: Context, scope: ScopeState): any {
+  expect(state, context, Token.DoKeyword);
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+  expect(state, context, Token.WhileKeyword);
+  expect(state, context, Token.LeftParen);
+  const test = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  optional(state, context, Token.Semicolon);
+  return {
+    type: 'DoWhileStatement',
+    body,
+    test
+  };
+}
+
+/**
+ * Parses either default clause or case clauses
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-CaseClauses)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-DefaultClause)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseCaseOrDefaultClauses(
+  state: ParserState,
+  context: Context,
+  test: ESTree.Expression | null,
+  scope: ScopeState
+): ESTree.SwitchCase {
+  expect(state, context, Token.Colon);
+  const consequent: ESTree.Statement[] = [];
+  while (
+    state.token !== Token.CaseKeyword &&
+    state.token !== Token.RightBrace &&
+    state.token !== Token.DefaultKeyword
+  ) {
+    consequent.push(parseStatementListItem(state, (context | Context.TopLevel) ^ Context.TopLevel, scope));
+  }
+  return {
+    type: 'SwitchCase',
+    test,
+    consequent
+  };
+}
+
+/**
  * Parses either expression or labelled statement
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
@@ -166,7 +438,12 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
  * @param parser  Parser instance
  * @param context Context masks
  */
-export function parseExpressionOrLabelledStatement(state: ParserState, context: Context, scope: ScopeState): any {
+export function parseExpressionOrLabelledStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  label: LabelledState
+): any {
   const token = state.token;
   const expr: ESTree.Expression = parseExpression(state, context);
   if (token & Token.Keyword && state.token === Token.Colon) {
@@ -174,7 +451,7 @@ export function parseExpressionOrLabelledStatement(state: ParserState, context: 
     return {
       type: 'LabeledStatement',
       label: expr as ESTree.Identifier,
-      body: parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope)
+      body: parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label)
     };
   }
   consumeSemicolon(state, context);
