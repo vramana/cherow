@@ -40,6 +40,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
 export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
   next(state, context);
+
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
     const tokenValue = state.tokenValue;

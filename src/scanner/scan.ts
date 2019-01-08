@@ -1,5 +1,5 @@
 import { ParserState, Context, Flags } from '../common';
-import { Token } from '../token';
+import { Token, KeywordDescTable } from '../token';
 import { Chars } from '../chars';
 import { consumeOpt, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';

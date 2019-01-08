@@ -42,8 +42,8 @@ pass('Expressions - Async function (pass)', [
             },
             operator: '=',
             right: {
-              name: 2,
-              type: 'Identifier'
+              value: 2,
+              type: 'Literal'
             },
             type: 'AssignmentExpression'
           },
