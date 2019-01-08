@@ -1,7 +1,7 @@
 import * as t from 'assert';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token, tokenDesc } from '../../src/token';
+import { Token, KeywordDescTable } from '../../src/token';
 import { scanRegularExpression } from '../../src/scanner/regexp';
 
 describe('Lexer - Regular expressions', () => {
@@ -4616,11 +4616,11 @@ describe('Lexer - Regular expressions', () => {
       const found = scanRegularExpression(state, ctx);
       t.deepEqual(
         {
-          token: tokenDesc(found),
+          token: KeywordDescTable[found & Token.Type],
           line: state.line
         },
         {
-          token: tokenDesc(token),
+          token: KeywordDescTable[token & Token.Type],
           line: 1
         }
       );
@@ -6479,11 +6479,11 @@ describe('Lexer - Regular expressions', () => {
 
         t.deepEqual(
           {
-            token: tokenDesc(found),
+            token: KeywordDescTable[found & Token.Type],
             line: state.line
           },
           {
-            token: tokenDesc(token),
+            token: KeywordDescTable[token & Token.Type],
             line: 1
           }
         );

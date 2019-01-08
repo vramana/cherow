@@ -19,7 +19,7 @@ function run(isModule: boolean) {
   function pass(name: string, opts: Opts) {
     it(name, () => {
       const state = create(opts.source, undefined);
-      const found = next(state, Context.Empty);
+      next(state, Context.Empty);
       t.deepEqual(
         {
           hasNext: state.index < state.length,

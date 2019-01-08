@@ -2,7 +2,7 @@ import * as t from 'assert';
 import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token, tokenDesc } from '../../src/token';
+import { Token, KeywordDescTable } from '../../src/token';
 
 describe('Lexer - Punctuators', () => {
   interface Opts {
@@ -78,13 +78,13 @@ describe('Lexer - Punctuators', () => {
 
       t.deepEqual(
         {
-          token: tokenDesc(found),
+          token: KeywordDescTable[found & Token.Type],
           hasNext: state.index < state.length,
           line: state.line,
           column: state.column
         },
         {
-          token: tokenDesc(token),
+          token: KeywordDescTable[token & Token.Type],
           hasNext: false,
           line: 1,
           column: op.length
@@ -98,13 +98,13 @@ describe('Lexer - Punctuators', () => {
     const found = next(state, Context.Empty);
     t.deepEqual(
       {
-        token: tokenDesc(found),
+        token: KeywordDescTable[found & Token.Type],
         hasNext: state.index < state.length,
         line: state.line,
         column: state.column
       },
       {
-        token: tokenDesc(Token.Period),
+        token: KeywordDescTable[Token.Period & Token.Type],
         hasNext: true,
         line: 1,
         column: 1
