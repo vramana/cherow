@@ -54,6 +54,32 @@ export const enum Flags {
 }
 
 /**
+ * The binding type masks, passed around as a simple immutable bit set
+ */
+export const enum Type {
+  None = 0,
+  Arguments = 1 << 0,
+  Variable = 1 << 1,
+  Let = 1 << 2, // Lexical
+  Const = 1 << 3, // Lexical
+  Class = 1 << 4
+}
+
+/**
+ * The binding origin masks, passed around as a simple immutable bit set
+ */
+export const enum Origin {
+  None = 0,
+  Statement = 1 << 0,
+  For = 1 << 1,
+  Export = 1 << 2,
+  Catch = 1 << 3,
+  AsyncArgs = 1 << 4,
+  FunctionArgs = 1 << 5,
+  Class = 1 << 6
+}
+
+/**
  * The type of the `onComment` option.
  */
 export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
@@ -70,6 +96,8 @@ export interface ParserState {
   index: number;
   line: number;
   startIndex: number;
+  startLine: number;
+  startColumn: number;
   column: number;
   token: Token;
   tokenValue: any;

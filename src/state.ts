@@ -25,6 +25,8 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     line: 1,
     column: 0,
     startIndex: 0,
+    startLine: 1,
+    startColumn: 0,
     token: Token.EndOfSource,
     tokenValue: undefined,
     tokenRaw: '',
@@ -58,7 +60,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
   }
 
   while (state.token !== Token.EndOfSource) {
-    if (context & Context.Module) statements.push(parseModuleItemList(state, context));
+    if (context & Context.Module) statements.push(parseModuleItem(state, context, scope));
     else statements.push(parseStatementListItem(state, context, scope));
   }
 
@@ -84,9 +86,14 @@ export function parseDirective(state: ParserState, context: Context): any {
   };
 }
 
-function parseModuleItemList(_: ParserState, __: Context): ESTree.Statement {
-  // TODO
-  return unimplemented();
+function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+  switch (state.token) {
+    case Token.ExportKeyword:
+    case Token.ImportKeyword:
+      unimplemented();
+    default:
+      return parseStatementListItem(state, context, scope);
+  }
 }
 
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
