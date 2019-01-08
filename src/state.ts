@@ -1,5 +1,15 @@
 import * as ESTree from './estree';
-import { Context, Flags, OnComment, OnToken, ParserState, unimplemented, consumeSemicolon } from './common';
+import {
+  Context,
+  Flags,
+  OnComment,
+  OnToken,
+  ParserState,
+  unimplemented,
+  consumeSemicolon,
+  Type,
+  Origin
+} from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { optional, expect } from './common';
@@ -433,13 +443,11 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   //   'finally' Block
 
   let param: any = null;
-  // NOTE: The 'second scope' is set to the scope we passed in as a try / catch binding workaround.
-  // It will only be overwritten if there exist a left parenthesis
   let secondScope: ScopeState = scope;
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
     if (state.token === Token.RightParen) report(state, Errors.Unexpected);
-    param = parseBindingIdentifierOrPattern(state, context);
+    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.Arguments, Origin.Catch, false);
     if (state.token === Token.Assign) report(state, Errors.Unexpected);
     expect(state, context, Token.RightParen);
     secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
@@ -546,14 +554,21 @@ export function parseExpressionOrLabelledStatement(
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifierOrPattern(state: ParserState, context: Context): ESTree.Pattern {
+export function parseBindingIdentifierOrPattern(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): ESTree.Pattern {
   switch (state.token) {
     case Token.LeftBrace:
-      return parserObjectAssignmentPattern(state, context);
+      return parserObjectAssignmentPattern(state, context, scope, type, origin, verifyDuplicates);
     case Token.LeftBracket:
-      return parseArrayAssignmentPattern(state, context);
+      return parseArrayAssignmentPattern(state, context, scope, type, origin, verifyDuplicates);
     default:
-      return parseBindingIdentifier(state, context);
+      return parseBindingIdentifier(state, context, scope, type, origin, verifyDuplicates);
   }
 }
 
@@ -565,7 +580,14 @@ export function parseBindingIdentifierOrPattern(state: ParserState, context: Con
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseBindingIdentifier(state: ParserState, context: Context): ESTree.Identifier {
+export function parseBindingIdentifier(
+  state: ParserState,
+  context: Context,
+  _: ScopeState,
+  __: Type,
+  ___: Origin,
+  ____: boolean
+): ESTree.Identifier {
   const name = state.tokenValue;
   next(state, context);
   return {
@@ -582,9 +604,16 @@ export function parseBindingIdentifier(state: ParserState, context: Context): ES
  * @param parser  Parser object
  * @param context Context masks
  */
-export function parseAssignmentRestElement(state: ParserState, context: Context): any {
+export function parseAssignmentRestElement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): any {
   expect(state, context, Token.Ellipsis);
-  const argument = parseBindingIdentifierOrPattern(state, context);
+  const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return {
     type: 'RestElement',
     argument
@@ -600,9 +629,16 @@ export function parseAssignmentRestElement(state: ParserState, context: Context)
  * @param context Context masks
  */
 // tslint:disable-next-line:function-name
-function AssignmentRestProperty(state: ParserState, context: Context): any {
+function AssignmentRestProperty(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): any {
   expect(state, context, Token.Ellipsis);
-  const argument = parseBindingIdentifierOrPattern(state, context);
+  const argument = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return {
     type: 'RestElement',
     argument
@@ -636,7 +672,14 @@ function AssignmentRestProperty(state: ParserState, context: Context): any {
  * @param Parser object
  * @param Context masks
  */
-export function parseArrayAssignmentPattern(state: ParserState, context: Context): ESTree.ArrayPattern {
+export function parseArrayAssignmentPattern(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): ESTree.ArrayPattern {
   expect(state, context, Token.LeftBracket);
 
   const elements: (ESTree.Node | null)[] = [];
@@ -646,10 +689,10 @@ export function parseArrayAssignmentPattern(state: ParserState, context: Context
       elements.push(null);
     } else {
       if (state.token === Token.Ellipsis) {
-        elements.push(parseAssignmentRestElement(state, context));
+        elements.push(parseAssignmentRestElement(state, context, scope, type, origin, verifyDuplicates));
         break;
       } else {
-        elements.push(parseBindingInitializer(state, context));
+        elements.push(parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates));
       }
       if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
     }
@@ -670,16 +713,23 @@ export function parseArrayAssignmentPattern(state: ParserState, context: Context
  * @param Parser Parser object
  * @param Context Context masks
  */
-export function parserObjectAssignmentPattern(state: ParserState, context: Context): ESTree.ObjectPattern {
+export function parserObjectAssignmentPattern(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): ESTree.ObjectPattern {
   const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
   expect(state, context, Token.LeftBrace);
 
   while (state.token !== Token.RightBrace) {
     if (state.token === Token.Ellipsis) {
-      properties.push(AssignmentRestProperty(state, context));
+      properties.push(AssignmentRestProperty(state, context, scope, type, origin, verifyDuplicates));
       break;
     }
-    properties.push(parseAssignmentProperty(state, context));
+    properties.push(parseAssignmentProperty(state, context, scope, type, origin, verifyDuplicates));
     if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
   }
 
@@ -720,9 +770,13 @@ export function parseAssignmentPattern(state: ParserState, context: Context, lef
  */
 export function parseBindingInitializer(
   state: ParserState,
-  context: Context
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
 ): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
-  const left: any = parseBindingIdentifierOrPattern(state, context);
+  const left: any = parseBindingIdentifierOrPattern(state, context, scope, type, origin, verifyDuplicates);
   return !optional(state, context, Token.Assign)
     ? left
     : {
@@ -756,7 +810,14 @@ export function parseComputedPropertyName(state: ParserState, context: Context):
  * @param parser Parser object
  * @param context Context masks
  */
-function parseAssignmentProperty(state: ParserState, context: Context): ESTree.AssignmentProperty {
+function parseAssignmentProperty(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  origin: Origin,
+  verifyDuplicates: boolean
+): ESTree.AssignmentProperty {
   const { token } = state;
   let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
   let value;
@@ -764,21 +825,21 @@ function parseAssignmentProperty(state: ParserState, context: Context): ESTree.A
   let shorthand = false;
   // single name binding
   if (token & Token.Keyword) {
-    key = parseBindingIdentifier(state, context);
+    key = parseBindingIdentifier(state, context, scope, type, origin, verifyDuplicates);
     shorthand = !optional(state, context, Token.Colon);
     if (shorthand) {
       const hasInitializer = optional(state, context, Token.Assign);
       value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
-    } else value = parseBindingInitializer(state, context);
+    } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   } else {
     if (state.token === Token.StringLiteral) {
       key = parseLiteral(state, context);
     } else if (state.token === Token.LeftBracket) {
       computed = true;
       key = parseComputedPropertyName(state, context);
-    } else key = parseBindingIdentifier(state, context);
+    } else key = parseBindingIdentifier(state, context, scope, type, origin, verifyDuplicates);
     expect(state, context, Token.Colon);
-    value = parseBindingInitializer(state, context);
+    value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   }
 
   return {
