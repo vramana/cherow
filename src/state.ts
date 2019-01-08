@@ -511,7 +511,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.StringLiteral:
       return parseLiteral(state, context);
     case Token.LeftBracket:
+      return parseArrayExpression(state, context);
     case Token.LeftParen:
+      return parseGroupExpression(state, context);
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
     case Token.TrueKeyword:
@@ -527,7 +529,26 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseIdentifier(state, context);
   }
 }
+export function parseArrayExpression(state: ParserState, context: Context): any {
+  expect(state, context, Token.LeftBracket);
+  let elements: any = [];
+  while (state.token !== Token.RightBracket) {
+    elements.push(parseAssignmentExpression(state, context));
+    if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
+  }
+  expect(state, context, Token.RightBracket);
+  return {
+    type: 'ArrayExpression',
+    elements
+  };
+}
 
+export function parseGroupExpression(state: ParserState, context: Context): any {
+  expect(state, context, Token.LeftParen);
+  const expr = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  return expr;
+}
 /**
  * Parses either null or boolean literal
  *

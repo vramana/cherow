@@ -1,5 +1,5 @@
 import { ParserState, Context, Flags } from '../common';
-import { Token, KeywordDescTable } from '../token';
+import { Token } from '../token';
 import { Chars } from '../chars';
 import { consumeOpt, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
@@ -73,9 +73,8 @@ table[Chars.Zero] = (state, context) => {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
-    } else {
-      return scanImplicitOctalDigits(state, context);
     }
+    return scanImplicitOctalDigits(state, context);
   }
   return scanNumeric(state, context);
 };
@@ -87,23 +86,17 @@ table[Chars.Exclamation] = state => {
   if (consumeOpt(state, Chars.EqualSign)) {
     if (consumeOpt(state, Chars.EqualSign)) {
       return Token.StrictNotEqual;
-    } else {
-      return Token.LooseNotEqual;
     }
-  } else {
-    return Token.Negate;
+    return Token.LooseNotEqual;
   }
+  return Token.Negate;
 };
 
 // `%`, `%=`
 table[Chars.Percent] = state => {
   state.index++;
   state.column++;
-  if (consumeOpt(state, Chars.EqualSign)) {
-    return Token.ModuloAssign;
-  } else {
-    return Token.Modulo;
-  }
+  return consumeOpt(state, Chars.EqualSign) ? Token.ModuloAssign : Token.Modulo;
 };
 
 // `&`, `&&`, `&=`
@@ -137,11 +130,7 @@ table[Chars.Asterisk] = state => {
     if (next === Chars.Asterisk) {
       state.index++;
       state.column++;
-      if (consumeOpt(state, Chars.EqualSign)) {
-        return Token.ExponentiateAssign;
-      } else {
-        return Token.Exponentiate;
-      }
+      return consumeOpt(state, Chars.EqualSign) ? Token.ExponentiateAssign : Token.Exponentiate;
     } else if (next === Chars.EqualSign) {
       state.index++;
       state.column++;
@@ -267,11 +256,7 @@ table[Chars.LessThan] = (state, context) => {
       case Chars.LessThan:
         state.index++;
         state.column++;
-        if (consumeOpt(state, Chars.EqualSign)) {
-          return Token.ShiftLeftAssign;
-        } else {
-          return Token.ShiftLeft;
-        }
+        return consumeOpt(state, Chars.EqualSign) ? Token.ShiftLeftAssign : Token.ShiftLeft;
 
       case Chars.EqualSign:
         state.index++;
@@ -320,11 +305,7 @@ table[Chars.EqualSign] = state => {
     if (next === Chars.EqualSign) {
       state.index++;
       state.column++;
-      if (consumeOpt(state, Chars.EqualSign)) {
-        return Token.StrictEqual;
-      } else {
-        return Token.LooseEqual;
-      }
+      return consumeOpt(state, Chars.EqualSign) ? Token.StrictEqual : Token.LooseEqual;
     } else if (next === Chars.GreaterThan) {
       state.index++;
       state.column++;
@@ -352,11 +333,7 @@ table[Chars.GreaterThan] = state => {
         if (next === Chars.GreaterThan) {
           state.index++;
           state.column++;
-          if (consumeOpt(state, Chars.EqualSign)) {
-            return Token.LogicalShiftRightAssign;
-          } else {
-            return Token.LogicalShiftRight;
-          }
+          return consumeOpt(state, Chars.EqualSign) ? Token.LogicalShiftRightAssign : Token.LogicalShiftRight;
         } else if (next === Chars.EqualSign) {
           state.index++;
           state.column++;
@@ -400,17 +377,6 @@ table[Chars.Backslash] = scanIdentifier;
 table[Chars.RightBracket] = scanChar;
 OneCharPunc[Chars.RightBracket] = Token.RightBracket;
 
-// `^`, `^=`
-table[Chars.Caret] = state => {
-  state.index++;
-  state.column++;
-  if (consumeOpt(state, Chars.EqualSign)) {
-    return Token.BitwiseXorAssign;
-  } else {
-    return Token.BitwiseXor;
-  }
-};
-
 // `_var`
 table[Chars.Underscore] = scanIdentifier;
 
@@ -420,6 +386,21 @@ table[Chars.Backtick] = scanTemplate;
 // `{`
 table[Chars.LeftBrace] = scanChar;
 OneCharPunc[Chars.LeftBrace] = Token.LeftBrace;
+
+// `}`
+table[Chars.RightBrace] = scanChar;
+OneCharPunc[Chars.RightBrace] = Token.RightBrace;
+
+// `~`
+table[Chars.Tilde] = scanChar;
+OneCharPunc[Chars.Tilde] = Token.Complement;
+
+// `^`, `^=`
+table[Chars.Caret] = state => {
+  state.index++;
+  state.column++;
+  return consumeOpt(state, Chars.EqualSign) ? Token.BitwiseXorAssign : Token.BitwiseXor;
+};
 
 // `|`, `||`, `|=`
 table[Chars.VerticalBar] = state => {
@@ -441,14 +422,6 @@ table[Chars.VerticalBar] = state => {
 
   return Token.BitwiseOr;
 };
-
-// `}`
-table[Chars.RightBrace] = scanChar;
-OneCharPunc[Chars.RightBrace] = Token.RightBrace;
-
-// `~`
-table[Chars.Tilde] = scanChar;
-OneCharPunc[Chars.Tilde] = Token.Complement;
 
 // General whitespace
 table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.VerticalTab] = state => {

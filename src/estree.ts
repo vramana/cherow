@@ -645,7 +645,7 @@ export interface TryStatement extends _Statement<'TryStatement'> {
 
 export type UnaryOperator = '-' | '+' | '!' | '~' | 'typeof' | 'void' | 'delete';
 export interface UnaryExpression extends _Expression<'UnaryExpression'> {
-  operator: UnaryOperator;
+  operator: UnaryOperator | string;
   argument: Expression;
   prefix: boolean;
 }
