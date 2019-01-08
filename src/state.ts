@@ -48,7 +48,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
  */
 export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
-  next(state, context);
+  next(state, context | Context.ExpressionStart);
 
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
@@ -831,6 +831,10 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.NumericLiteral:
     case Token.StringLiteral:
       return parseLiteral(state, context);
+    case Token.BigIntLiteral:
+      return parseBigIntLiteral(state, context);
+    case Token.RegularExpression:
+      return parseRegularExpressionLiteral(state, context);
     case Token.LeftBracket:
       return parseArrayExpression(state, context);
     case Token.LeftParen:
@@ -851,10 +855,10 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   }
 }
 export function parseArrayExpression(state: ParserState, context: Context): any {
-  expect(state, context, Token.LeftBracket);
+  expect(state, context | Context.ExpressionStart, Token.LeftBracket);
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
-    elements.push(parseAssignmentExpression(state, context));
+    elements.push(parseAssignmentExpression(state, context | Context.ExpressionStart));
     if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
   }
   expect(state, context, Token.RightBracket);
@@ -917,5 +921,43 @@ export function parseIdentifier(state: ParserState, context: Context): ESTree.Id
   return {
     type: 'Identifier',
     name: tokenValue
+  };
+}
+
+/**
+ * Parse regular expression literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseRegularExpressionLiteral(state: ParserState, context: Context): ESTree.RegExpLiteral {
+  const { tokenRegExp: regex, tokenValue: value } = state;
+  next(state, context);
+  return {
+    type: 'Literal',
+    value,
+    regex
+  };
+}
+
+/**
+ * Parses BigInt literal (stage 3 proposal)
+ *
+ * @see [Link](https://tc39.github.io/proposal-bigint/)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseBigIntLiteral(state: ParserState, context: Context): ESTree.BigIntLiteral {
+  const { tokenRaw: raw, tokenValue: value } = state;
+  next(state, context);
+  return {
+    type: 'Literal',
+    value,
+    bigint: raw,
+    raw
   };
 }

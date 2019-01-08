@@ -2,7 +2,7 @@ import * as ESTree from './estree';
 import { Token } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
-
+// prettier-ignore
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
  */
@@ -44,6 +44,7 @@ export const enum Context {
 /**
  * The mutable parser flags, in case any flags need passed by reference.
  */
+// prettier-ignore
 export const enum Flags {
   Empty = 0,
   NewLine = 1 << 0,
@@ -52,10 +53,11 @@ export const enum Flags {
   Octal = 1 << 3,
   Binary = 1 << 4
 }
-
+// prettier-ignore
 /**
  * The binding type masks, passed around as a simple immutable bit set
  */
+// prettier-ignore
 export const enum Type {
   None = 0,
   Arguments = 1 << 0,
@@ -68,6 +70,7 @@ export const enum Type {
 /**
  * The binding origin masks, passed around as a simple immutable bit set
  */
+// prettier-ignore
 export const enum Origin {
   None = 0,
   Statement = 1 << 0,

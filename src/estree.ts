@@ -581,8 +581,7 @@ export interface ObjectPattern extends _Pattern<'ObjectPattern'> {
 
 export interface RegExpLiteral extends _Expression<'Literal'> {
   value: RegExp | null;
-  raw?: string;
-  regex: { pattern: string; flags: string };
+  regex: { pattern: string; flags: string } | void;
 }
 
 export interface RestElement extends _Pattern<'RestElement'> {
