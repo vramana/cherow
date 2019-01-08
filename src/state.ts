@@ -143,7 +143,7 @@ function parseStatement(
     case Token.DebuggerKeyword:
       return parseDebuggerStatement(state, context);
     case Token.TryKeyword:
-      unimplemented();
+      return parseTryStatement(state, context, scope);
     case Token.ThrowKeyword:
       return parseThrowStatement(state, context);
     case Token.Semicolon:
@@ -383,6 +383,77 @@ export function parseDebuggerStatement(state: ParserState, context: Context): ES
 }
 
 /**
+ * Parses try statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TryStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseTryStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.TryStatement {
+  next(state, context);
+  const block = parseBlockStatement(state, context, createSubScope(scope, ScopeType.BlockStatement));
+  const handler = optional(state, context, Token.CatchKeyword) ? parseCatchBlock(state, context, scope) : null;
+  const finalizer = optional(state, context, Token.FinallyKeyword)
+    ? parseBlockStatement(
+        state,
+        (context | Context.TopLevel) ^ Context.TopLevel,
+        createSubScope(scope, ScopeType.BlockStatement)
+      )
+    : null;
+  if (!handler && !finalizer) report(state, Errors.Unexpected);
+  return {
+    type: 'TryStatement',
+    block,
+    handler,
+    finalizer
+  };
+}
+
+/**
+ * Parses catch block
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-Catch)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseCatchBlock(state: ParserState, context: Context, scope: ScopeState): ESTree.CatchClause {
+  // TryStatement ::
+  //   'try' Block Catch
+  //   'try' Block Finally
+  //   'try' Block Catch Finally
+  //
+  // Catch ::
+  //   'catch' '(' Identifier ')' Block
+  //
+  // Finally ::
+  //   'finally' Block
+
+  let param: any = null;
+  // NOTE: The 'second scope' is set to the scope we passed in as a try / catch binding workaround.
+  // It will only be overwritten if there exist a left parenthesis
+  let secondScope: ScopeState = scope;
+  if (optional(state, context, Token.LeftParen)) {
+    const catchScope = createSubScope(scope, ScopeType.CatchClause);
+    if (state.token === Token.RightParen) report(state, Errors.Unexpected);
+    param = parseBindingIdentifierOrPattern(state, context);
+    if (state.token === Token.Assign) report(state, Errors.Unexpected);
+    expect(state, context, Token.RightParen);
+    secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
+  }
+
+  const body = parseBlockStatement(state, context, secondScope);
+
+  return {
+    type: 'CatchClause',
+    param,
+    body
+  };
+}
+/**
  * Parses do while statement
  *
  * @param state Parser instance
@@ -465,6 +536,259 @@ export function parseExpressionOrLabelledStatement(
   return {
     type: 'ExpressionStatement',
     expression: expr
+  };
+}
+
+// 12.15.5 Destructuring Assignment
+/**
+ * Parses either a binding identifier or binding pattern
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseBindingIdentifierOrPattern(state: ParserState, context: Context): ESTree.Pattern {
+  switch (state.token) {
+    case Token.LeftBrace:
+      return parserObjectAssignmentPattern(state, context);
+    case Token.LeftBracket:
+      return parseArrayAssignmentPattern(state, context);
+    default:
+      return parseBindingIdentifier(state, context);
+  }
+}
+
+/**
+ * Parse binding identifier
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-BindingIdentifier)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseBindingIdentifier(state: ParserState, context: Context): ESTree.Identifier {
+  const name = state.tokenValue;
+  next(state, context);
+  return {
+    type: 'Identifier',
+    name
+  };
+}
+
+/**
+ * Parse assignment rest element
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestElement)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+export function parseAssignmentRestElement(state: ParserState, context: Context): any {
+  expect(state, context, Token.Ellipsis);
+  const argument = parseBindingIdentifierOrPattern(state, context);
+  return {
+    type: 'RestElement',
+    argument
+  };
+}
+
+/**
+ * Parse rest property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentRestProperty)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+// tslint:disable-next-line:function-name
+function AssignmentRestProperty(state: ParserState, context: Context): any {
+  expect(state, context, Token.Ellipsis);
+  const argument = parseBindingIdentifierOrPattern(state, context);
+  return {
+    type: 'RestElement',
+    argument
+  };
+}
+
+/**
+ * ArrayAssignmentPattern[Yield] :
+ *   [ Elisionopt AssignmentRestElement[?Yield]opt ]
+ *   [ AssignmentElementList[?Yield] ]
+ *   [ AssignmentElementList[?Yield] , Elisionopt AssignmentRestElement[?Yield]opt ]
+ *
+ * AssignmentRestElement[Yield] :
+ *   ... DestructuringAssignmentTarget[?Yield]
+ *
+ * AssignmentElementList[Yield] :
+ *   AssignmentElisionElement[?Yield]
+ *   AssignmentElementList[?Yield] , AssignmentElisionElement[?Yield]
+ *
+ * AssignmentElisionElement[Yield] :
+ *   Elisionopt AssignmentElement[?Yield]
+ *
+ * AssignmentElement[Yield] :
+ *   DestructuringAssignmentTarget[?Yield] Initializer[In,?Yield]opt
+ *
+ * DestructuringAssignmentTarget[Yield] :
+ *   LeftHandSideExpression[?Yield]
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
+ *
+ * @param Parser object
+ * @param Context masks
+ */
+export function parseArrayAssignmentPattern(state: ParserState, context: Context): ESTree.ArrayPattern {
+  expect(state, context, Token.LeftBracket);
+
+  const elements: (ESTree.Node | null)[] = [];
+
+  while (state.token !== Token.RightBracket) {
+    if (optional(state, context, Token.Comma)) {
+      elements.push(null);
+    } else {
+      if (state.token === Token.Ellipsis) {
+        elements.push(parseAssignmentRestElement(state, context));
+        break;
+      } else {
+        elements.push(parseBindingInitializer(state, context));
+      }
+      if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
+    }
+  }
+
+  expect(state, context, Token.RightBracket);
+
+  // tslint:disable-next-line:no-object-literal-type-assertion
+  return {
+    type: 'ArrayPattern',
+    elements
+  } as ESTree.ArrayPattern;
+}
+
+/**
+ * Parse object assignment pattern
+ *
+ * @param Parser Parser object
+ * @param Context Context masks
+ */
+export function parserObjectAssignmentPattern(state: ParserState, context: Context): ESTree.ObjectPattern {
+  const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+  expect(state, context, Token.LeftBrace);
+
+  while (state.token !== Token.RightBrace) {
+    if (state.token === Token.Ellipsis) {
+      properties.push(AssignmentRestProperty(state, context));
+      break;
+    }
+    properties.push(parseAssignmentProperty(state, context));
+    if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
+  }
+
+  expect(state, context, Token.RightBrace);
+
+  return {
+    type: 'ObjectPattern',
+    properties
+  };
+}
+
+/** Parse assignment pattern
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param left LHS of assignment pattern
+ * @param pos Location
+ */
+export function parseAssignmentPattern(state: ParserState, context: Context, left: ESTree.Pattern): any {
+  return {
+    type: 'AssignmentPattern',
+    left,
+    right: parseAssignmentExpression(state, context)
+  };
+}
+
+/**
+ * Parse binding initializer
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentPattern)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ArrayAssignmentPattern)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function parseBindingInitializer(
+  state: ParserState,
+  context: Context
+): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern {
+  const left: any = parseBindingIdentifierOrPattern(state, context);
+  return !optional(state, context, Token.Assign)
+    ? left
+    : {
+        type: 'AssignmentPattern',
+        left,
+        right: parseAssignmentExpression(state, context)
+      };
+}
+
+/**
+ * Parse computed property names
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ComputedPropertyName)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+export function parseComputedPropertyName(state: ParserState, context: Context): ESTree.Expression {
+  expect(state, context, Token.LeftBracket);
+  const key: ESTree.Expression = parseAssignmentExpression(state, context);
+  expect(state, context, Token.RightBracket);
+  return key;
+}
+
+/**
+ * Parse assignment property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentProperty)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseAssignmentProperty(state: ParserState, context: Context): ESTree.AssignmentProperty {
+  const { token } = state;
+  let key: ESTree.Literal | ESTree.Identifier | ESTree.Expression | null;
+  let value;
+  let computed = false;
+  let shorthand = false;
+  // single name binding
+  if (token & Token.Keyword) {
+    key = parseBindingIdentifier(state, context);
+    shorthand = !optional(state, context, Token.Colon);
+    if (shorthand) {
+      const hasInitializer = optional(state, context, Token.Assign);
+      value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
+    } else value = parseBindingInitializer(state, context);
+  } else {
+    if (state.token === Token.StringLiteral) {
+      key = parseLiteral(state, context);
+    } else if (state.token === Token.LeftBracket) {
+      computed = true;
+      key = parseComputedPropertyName(state, context);
+    } else key = parseBindingIdentifier(state, context);
+    expect(state, context, Token.Colon);
+    value = parseBindingInitializer(state, context);
+  }
+
+  return {
+    type: 'Property',
+    kind: 'init',
+    key,
+    computed,
+    value,
+    method: false,
+    shorthand
   };
 }
 

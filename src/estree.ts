@@ -195,7 +195,6 @@ export interface T_Pattern {
   Identifier: Identifier;
   ObjectPattern: ObjectPattern;
   ArrayPattern: ArrayPattern;
-  MemberExpression: MemberExpression;
   AssignmentPattern: AssignmentPattern;
   RestElement: RestElement;
 }
@@ -272,7 +271,7 @@ export interface ArrayExpression extends _Expression<'ArrayExpression'> {
 }
 
 export interface ArrayPattern extends _Pattern<'ArrayPattern'> {
-  elements: (Pattern | null)[];
+  elements?: (RestElement | PatternNoRest | null)[];
   typeAnnotation?: TypeAnnotation | null;
 }
 
@@ -566,7 +565,7 @@ export interface ObjectExpression extends _Expression<'ObjectExpression'> {
 }
 
 export interface AssignmentProperty extends _Node<'Property'> {
-  key: Expression;
+  key: any;
   value: PatternNoRest;
   computed: boolean;
   kind: 'init';
