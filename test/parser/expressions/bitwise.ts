@@ -1,11 +1,11 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
 
-describe('Expressions - Assignment', () => {});
+describe('Expressions - Bitwise', () => {});
 
-pass('Expressions - Assignment (pass)', [
+pass('Expressions - Bitwise (pass)', [
   [
-    'x <<= 42',
+    'a|b',
     Context.Empty,
     {
       type: 'Program',
@@ -14,181 +14,23 @@ pass('Expressions - Assignment (pass)', [
         {
           type: 'ExpressionStatement',
           expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            operator: '<<=',
-            right: {
-              type: 'Literal',
-              value: 42
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'x &= 42',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            operator: '&=',
-            right: {
-              type: 'Literal',
-              value: 42
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'x /= 42',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            operator: '/=',
-            right: {
-              type: 'Literal',
-              value: 42
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'x >>>= 42',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            operator: '>>>=',
-            right: {
-              type: 'Literal',
-              value: 42
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'x |= 42',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'Identifier',
-              name: 'x'
-            },
-            operator: '|=',
-            right: {
-              type: 'Literal',
-              value: 42
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'a=1',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
+            type: 'BinaryExpression',
             left: {
               type: 'Identifier',
               name: 'a'
             },
-            operator: '=',
             right: {
-              type: 'Literal',
-              value: 1
-            }
-          }
-        }
-      ]
-    }
-  ],
-  [
-    'x.x *= 1',
-    Context.Empty,
-    {
-      type: 'Program',
-      sourceType: 'script',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            left: {
-              type: 'MemberExpression',
-              object: {
-                type: 'Identifier',
-                name: 'x'
-              },
-              computed: false,
-              property: {
-                type: 'Identifier',
-                name: 'x'
-              }
+              type: 'Identifier',
+              name: 'b'
             },
-            operator: '*=',
-            right: {
-              type: 'Literal',
-              value: 1
-            }
+            operator: '|'
           }
         }
       ]
     }
   ],
   [
-    'x **= 1',
+    'a&b',
     Context.Empty,
     {
       type: 'Program',
@@ -197,16 +39,166 @@ pass('Expressions - Assignment (pass)', [
         {
           type: 'ExpressionStatement',
           expression: {
-            type: 'AssignmentExpression',
+            type: 'BinaryExpression',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            operator: '&'
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'a>>>b',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            operator: '>>>'
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '1+2',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'Literal',
+              value: 1
+            },
+            right: {
+              type: 'Literal',
+              value: 2
+            },
+            operator: '+'
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'x != y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
             left: {
               type: 'Identifier',
               name: 'x'
             },
-            operator: '**=',
             right: {
-              type: 'Literal',
-              value: 1
-            }
+              type: 'Identifier',
+              name: 'y'
+            },
+            operator: '!='
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'x === y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            },
+            operator: '==='
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'x <= y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            },
+            operator: '<='
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'x << y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            },
+            operator: '<<'
           }
         }
       ]

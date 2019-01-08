@@ -177,8 +177,7 @@ export function parseSequenceExpression(
 
 export function parseAssignmentExpression(state: ParserState, context: Context): any {
   const expr = parseConditionalExpression(state, context);
-
-  if (state.token & Token.IsAssignOp) {
+  if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     const operator = state.token;
     next(state, context | Context.ExpressionStart);
     const right = parseAssignmentExpression(state, context);
@@ -246,7 +245,7 @@ function parseBinaryExpression(
   minPrec: number,
   left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
-  while (state.token & Token.IsBinaryOp) {
+  while ((state.token & Token.IsBinaryOp) === Token.IsBinaryOp) {
     const t: Token = state.token;
     const prec = t & Token.Precedence;
     const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
@@ -273,7 +272,7 @@ function parseBinaryExpression(
  */
 function parseUnaryExpression(state: ParserState, context: Context): any {
   const t = state.token;
-  if (t & Token.IsUnaryOp) {
+  if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
     next(state, context | Context.ExpressionStart);
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
     return {
@@ -296,7 +295,7 @@ function parseUnaryExpression(state: ParserState, context: Context): any {
  */
 function parseUpdateExpression(state: ParserState, context: Context): any {
   const { token } = state;
-  if (state.token & Token.IsUpdateOp) {
+  if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
     next(state, context);
     const expr = parseLeftHandSideExpression(state, context);
     return {
@@ -309,7 +308,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
 
   const expression = parseLeftHandSideExpression(state, context);
 
-  if (state.token & Token.IsUpdateOp && (state.flags & Flags.NewLine) < 1) {
+  if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) === 0) {
     const operator = state.token;
     next(state, context);
     return {

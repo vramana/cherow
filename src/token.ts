@@ -322,16 +322,15 @@ export const KeywordDescTable = [
 ];
 
 /**
- * The conversion function between token and its string description/representation.
- */
+* The conversion function between token and its string description/representation.
+*/
 export function tokenDesc(token: Token): string {
   if ((token & Token.Type) < KeywordDescTable.length) {
-    return KeywordDescTable[token & Token.Type];
+      return KeywordDescTable[token & Token.Type];
   } else {
-    throw new Error('unreachable');
+      throw new Error("unreachable");
   }
 }
-
 // Normal object is much faster than Object.create(null), even with typeof check to avoid Object.prototype interference
 export const descKeywordTable: { [key: string]: Token } = Object.create(null, {
   this: { value: Token.ThisKeyword },
