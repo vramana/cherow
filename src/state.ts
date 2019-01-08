@@ -3,7 +3,7 @@ import { Context, Flags, OnComment, OnToken, ParserState, unimplemented, consume
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
 import { optional, expect } from './common';
-import { ScopeState } from './scope';
+import { ScopeState, ScopeType, createSubScope } from './scope';
 
 /**
  * Create a new parser instance.
@@ -52,7 +52,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
 
   while (state.token !== Token.EndOfSource) {
     if (context & Context.Module) statements.push(parseModuleItemList(state, context));
-    else statements.push(parseStatementList(state, context, scope));
+    else statements.push(parseStatementListItem(state, context, scope));
   }
 
   return statements;
@@ -82,7 +82,7 @@ function parseModuleItemList(_: ParserState, __: Context): ESTree.Statement {
   return unimplemented();
 }
 
-function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   switch (state.token) {
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
@@ -119,12 +119,42 @@ function parseStatement(state: ParserState, context: Context, scope: ScopeState)
     case Token.ThrowKeyword:
     case Token.Semicolon:
     case Token.LeftBrace:
+    case Token.LeftBrace:
+      return parseBlockStatement(
+        state,
+        (context | Context.TopLevel) ^ Context.TopLevel,
+        createSubScope(scope, ScopeType.BlockStatement)
+      );
     case Token.ForKeyword:
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
     default:
       return parseExpressionOrLabelledStatement(state, context, scope);
   }
+}
+
+/**
+ * Parses block statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-BlockStatement)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-Block)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseBlockStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.BlockStatement {
+  const body: ESTree.Statement[] = [];
+  next(state, context);
+  while (state.token !== Token.RightBrace) {
+    body.push(parseStatementListItem(state, context, scope));
+  }
+  expect(state, context | Context.ExpressionStart, Token.RightBrace);
+
+  return {
+    type: 'BlockStatement',
+    body
+  };
 }
 
 /**
@@ -139,7 +169,14 @@ function parseStatement(state: ParserState, context: Context, scope: ScopeState)
 export function parseExpressionOrLabelledStatement(state: ParserState, context: Context, scope: ScopeState): any {
   const token = state.token;
   const expr: ESTree.Expression = parseExpression(state, context);
-  let s = scope;
+  if (token & Token.Keyword && state.token === Token.Colon) {
+    next(state, context | Context.ExpressionStart);
+    return {
+      type: 'LabeledStatement',
+      label: expr as ESTree.Identifier,
+      body: parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope)
+    };
+  }
   consumeSemicolon(state, context);
   return {
     type: 'ExpressionStatement',

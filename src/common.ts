@@ -8,7 +8,6 @@ import { Errors, report } from './errors';
  */
 export const enum Context {
   Empty = 0,
-
   OptionsNext = 1 << 0,
   OptionsRanges = 1 << 1,
   OptionsJSX = 1 << 2,
@@ -19,11 +18,27 @@ export const enum Context {
   OptionsExperimental = 1 << 7,
   OptionsNative = 1 << 8,
 
-  Strict = 1 << 12,
-  Module = 1 << 14,
+  Strict = 1 << 10,
+  Module = 1 << 11,
 
+  TopLevel = 1 << 12,
+
+  DisallowIn = 1 << 13,
   ExpressionStart = 1 << 15,
-  TaggedTemplate = 1 << 16
+  TaggedTemplate = 1 << 16,
+  SuperProperty = 1 << 18,
+  SuperCall = 1 << 10,
+
+  InGlobal = 1 << 20,
+  InGenerator = 1 << 21,
+  InAsync = 1 << 22,
+  InArguments = 1 << 23,
+  InConstructor = 1 << 24,
+  InMethod = 1 << 25,
+
+  NewTarget = 1 << 26,
+  InFunctionBody = 1 << 27,
+  Statement = 1 << 30
 }
 
 /**
