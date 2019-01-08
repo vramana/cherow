@@ -2,7 +2,7 @@ import * as t from 'assert';
 import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
 import { create } from '../../src/state';
-import { Token, tokenDesc } from '../../src/token';
+import { Token } from '../../src/token';
 
 describe('Lexer - OnToken', () => {
   interface Opts {

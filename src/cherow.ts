@@ -64,7 +64,7 @@ export interface Options {
   onToken?: OnToken;
 }
 
-function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
+export function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
   let onComment: OnComment;
   let onToken: OnToken;
 
