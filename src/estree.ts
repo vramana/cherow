@@ -24,7 +24,6 @@ export interface T_Node extends T_Statement, T_Expression, T_Pattern, T_ModuleDe
   ClassBody: ClassBody;
   'FieldDefinition ': FieldDefinition;
   PrivateName: PrivateName;
-  Decorator: Decorator;
   MethodDefinition: MethodDefinition;
   VariableDeclarator: VariableDeclarator;
   JSXIdentifier: JSXIdentifier;
@@ -56,7 +55,6 @@ export type Node =
   | ClassBody
   | FieldDefinition
   | PrivateName
-  | Decorator
   | MethodDefinition
   | ModuleDeclaration
   | ModuleSpecifier
@@ -134,7 +132,6 @@ export interface T_Expression {
   Identifier: Identifier;
   Literal: Literal | RegExpLiteral | BigIntLiteral;
   BigIntLiteral: Literal;
-  PrivateMemberExpression: PrivateMemberExpression;
   ThisExpression: ThisExpression;
   ArrayExpression: ArrayExpression;
   ObjectExpression: ObjectExpression;
@@ -199,14 +196,12 @@ export interface T_Pattern {
   ObjectPattern: ObjectPattern;
   ArrayPattern: ArrayPattern;
   MemberExpression: MemberExpression;
-  PrivateMemberExpression: PrivateMemberExpression;
   AssignmentPattern: AssignmentPattern;
   RestElement: RestElement;
 }
 
-export type PatternTop = Identifier | ObjectPattern | ArrayPattern | MemberExpression;
-export type PatternNoRest = PatternTop | AssignmentPattern;
-export type Pattern = PatternTop | AssignmentPattern | RestElement;
+export type PatternNoRest = Identifier | ObjectPattern | ArrayPattern | AssignmentPattern;
+export type Pattern = Identifier | ObjectPattern | ArrayPattern | AssignmentPattern | RestElement;
 export interface _Declaration<T extends string> extends _Statement<T> {}
 export interface T_Declaration {
   FunctionDeclaration: FunctionDeclaration;
@@ -228,6 +223,7 @@ export type ModuleDeclaration =
   | ExportNamedDeclaration
   | ExportDefaultDeclaration
   | ExportAllDeclaration;
+
 export interface _ModuleSpecifier<T extends string> extends _Node<T> {
   local: Identifier;
 }
@@ -297,12 +293,12 @@ export type AssignmentOperator =
 
 export interface AssignmentExpression extends _Expression<'AssignmentExpression'> {
   operator: AssignmentOperator;
-  left: Expression | PatternTop;
+  left: Expression | Identifier | ObjectPattern | ArrayPattern;
   right: Expression;
 }
 
 export interface AssignmentPattern extends _Pattern<'AssignmentPattern'> {
-  left: PatternTop;
+  left: Identifier | ObjectPattern | ArrayPattern;
   right: Expression;
 }
 
@@ -312,7 +308,6 @@ export interface ArrowFunctionExpression extends _Expression<'ArrowFunctionExpre
   body: BlockStatement | Expression;
   expression: boolean;
   async: boolean;
-  generator: false;
 }
 
 export interface AwaitExpression extends _Expression<'AwaitExpression'> {
@@ -349,6 +344,10 @@ export interface BinaryExpression extends _Expression<'BinaryExpression'> {
   right: Expression;
 }
 
+export interface FunctionBody extends _Statement<'FunctionBody'> {
+  body: (Directive | Statement)[];
+}
+
 export interface BlockStatement extends _Statement<'BlockStatement'> {
   body: Statement[];
 }
@@ -362,18 +361,17 @@ export interface CallExpression extends _Expression<'CallExpression'> {
   arguments: (Expression | SpreadElement)[];
 }
 
+export interface Directive extends _Node<'ExpressionStatement'> {
+  directive: string;
+}
+
 export interface CatchClause extends _Node<'CatchClause'> {
-  param: PatternTop;
+  param: Identifier | ObjectPattern | ArrayPattern | null;
   body: BlockStatement;
 }
 
 export interface ClassBody extends _Node<'ClassBody'> {
   body: (MethodDefinition | FieldDefinition)[];
-}
-
-export interface PrivateMemberExpression extends _Node<'PrivateMemberExpression '> {
-  object: Expression;
-  property: PrivateName;
 }
 
 export interface FieldDefinition extends _Node<'FieldDefinition '> {
@@ -464,20 +462,18 @@ export interface ForStatement extends _Statement<'ForStatement'> {
 export interface FunctionDeclaration extends _Declaration<'FunctionDeclaration'> {
   id: Identifier | null;
   params: Pattern[];
-  body: BlockStatement;
+  body: FunctionBody;
   generator: boolean;
   async: boolean;
-  expression: false;
   typeAnnotation?: TypeAnnotation | null;
 }
 
 export interface FunctionExpression extends _Expression<'FunctionExpression'> {
   id: Identifier | null;
   params: Pattern[];
-  body: BlockStatement;
+  body: FunctionBody;
   generator: boolean;
   async: boolean;
-  expression: false;
   typeAnnotation?: TypeAnnotation | null;
 }
 
@@ -543,13 +539,9 @@ export interface PrivateName extends _Node<'PrivateName'> {
   name: string;
 }
 
-export interface Decorator extends _Node<'Decorator'> {
-  expression: Expression;
-}
-
 export interface MethodDefinition extends _Node<'MethodDefinition'> {
   key: Expression | PrivateName;
-  value: FunctionExpression | null;
+  value: FunctionExpression;
   kind: 'constructor' | 'method' | 'get' | 'set';
   computed: boolean;
   static: boolean;
@@ -563,7 +555,7 @@ export interface NewExpression extends _Expression<'NewExpression'> {
 export interface Property extends _Node<'Property'> {
   key: Expression;
   computed: boolean;
-  value: Expression | null;
+  value: FunctionExpression | null;
   kind: 'init' | 'get' | 'set';
   method: boolean;
   shorthand: boolean;
@@ -594,7 +586,7 @@ export interface RegExpLiteral extends _Expression<'Literal'> {
 }
 
 export interface RestElement extends _Pattern<'RestElement'> {
-  argument: PatternTop;
+  argument: Identifier | AssignmentPattern | ObjectPattern | ArrayPattern;
   typeAnnotation?: TypeAnnotation | null;
 }
 
@@ -651,7 +643,7 @@ export interface TryStatement extends _Statement<'TryStatement'> {
   finalizer: BlockStatement | null;
 }
 
-export type UnaryOperator = '-' | '+' | '!' | '~' | 'typeof' | 'void' | 'delete' | 'throw';
+export type UnaryOperator = '-' | '+' | '!' | '~' | 'typeof' | 'void' | 'delete';
 export interface UnaryExpression extends _Expression<'UnaryExpression'> {
   operator: UnaryOperator;
   argument: Expression;
@@ -661,7 +653,7 @@ export interface UnaryExpression extends _Expression<'UnaryExpression'> {
 export type UpdateOperator = '++' | '--';
 export interface UpdateExpression extends _Expression<'UpdateExpression'> {
   operator: UpdateOperator;
-  argument: Expression | Pattern;
+  argument: Expression;
   prefix: boolean;
 }
 
@@ -671,7 +663,7 @@ export interface VariableDeclaration extends _Declaration<'VariableDeclaration'>
 }
 
 export interface VariableDeclarator extends _Node<'VariableDeclarator'> {
-  id: PatternTop;
+  id: Identifier | ObjectPattern | ArrayPattern;
   init: Expression | null;
 }
 
