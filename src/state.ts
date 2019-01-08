@@ -869,7 +869,7 @@ export function parseArrayExpression(state: ParserState, context: Context): any 
 }
 
 export function parseGroupExpression(state: ParserState, context: Context): any {
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const expr = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   return expr;
