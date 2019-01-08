@@ -1,9 +1,9 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
-describe('Expressions - Assignment', () => {});
+describe('Literal - Regexp', () => {});
 
-pass('Expressions - Assignment (pass)', [
+pass('Literal - Regexp (pass)', [
   [
     '/foo/u',
     Context.Empty,
