@@ -487,6 +487,746 @@ describe('Statements - For', () => {
       }
     ],
     [
+      'for (let [foo, ...bar] = obj;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        body: [
+          {
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              declarations: [
+                {
+                  id: {
+                    elements: [
+                      {
+                        name: 'foo',
+                        type: 'Identifier'
+                      },
+                      {
+                        argument: {
+                          name: 'bar',
+                          type: 'Identifier'
+                        },
+                        type: 'RestElement'
+                      }
+                    ],
+                    type: 'ArrayPattern'
+                  },
+                  init: {
+                    name: 'obj',
+                    type: 'Identifier'
+                  },
+                  type: 'VariableDeclarator'
+                }
+              ],
+              kind: 'let',
+              type: 'VariableDeclaration'
+            },
+            test: null,
+            type: 'ForStatement',
+            update: null
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'for (let {x} = obj;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        kind: 'init',
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  }
+                }
+              ],
+              kind: 'let'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let [foo, bar=b] in arr);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForInStatement',
+            left: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'foo'
+                      },
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      }
+                    ]
+                  },
+                  init: null
+                }
+              ],
+              kind: 'let'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a,b,c;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  init: null
+                },
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  init: null
+                },
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'var'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let a;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'let'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let a,b,c;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  init: null
+                },
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  init: null
+                },
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'let'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (var a;;) { let a; }',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'var'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'VariableDeclaration',
+                  declarations: [
+                    {
+                      type: 'VariableDeclarator',
+                      id: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      init: null
+                    }
+                  ],
+                  kind: 'let'
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let foo in x);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForInStatement',
+            left: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  init: null
+                }
+              ],
+              kind: 'let'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let foo;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'let',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: null,
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (a;;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (;b;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: null,
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (;;c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: null,
+            test: null,
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            },
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (a;b;);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (a;;c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            test: null,
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            },
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (;b;c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: null,
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (let [foo=a, bar=b] in arr);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForInStatement',
+            left: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      },
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      }
+                    ]
+                  },
+                  init: null
+                }
+              ],
+              kind: 'let'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'arr'
+            },
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let [...foo] = obj;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        }
+                      }
+                    ]
+                  },
+                  init: {
+                    type: 'Identifier',
+                    name: 'obj'
+                  }
+                }
+              ],
+              kind: 'let'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for (let [foo=a, bar=b] = arr;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      },
+                      {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      }
+                    ]
+                  },
+                  init: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  }
+                }
+              ],
+              kind: 'let'
+            },
+            test: null,
+            update: null,
+            body: {
+              type: 'EmptyStatement'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
       'for (let [foo, bar=b] = arr;;);',
       Context.OptionsDisableWebCompat,
       {

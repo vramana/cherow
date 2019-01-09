@@ -404,7 +404,6 @@ export function reinterpret(ast: any) {
       const elements = ast.elements;
       for (let i = 0, n = elements.length; i < n; ++i) {
         const element = elements[i];
-        // note: children can be null (elided array destruct) but not undefined
         if (element) reinterpret(element);
       }
       break;
@@ -417,7 +416,7 @@ export function reinterpret(ast: any) {
       break;
     case 'AssignmentExpression':
       ast.type = 'AssignmentPattern';
-      delete ast.operator; // TODO: find a better way, this action probably causes a perf DEOPT
+      delete ast.operator;
       reinterpret(ast.left);
       break;
     case 'Property':
