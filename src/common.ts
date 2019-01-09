@@ -226,14 +226,12 @@ export function addVariable(
   if (bindingType & Type.Variable) {
     let lex = scope.lexicalScope;
     while (lex) {
-      const type = lex.type;
-      if (lex['@' + name] !== undefined) {
-        if (type === ScopeType.CatchClause) {
-          if (isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0) {
-            state.inCatch = true;
-          } else {
-            report(state, Errors.InvalidCatchVarBinding, name);
-          }
+      const { type } = lex;
+      if (lex['@' + name]) {
+        if (type & ScopeType.CatchClause) {
+          isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0
+            ? (state.inCatch = true)
+            : report(state, Errors.InvalidCatchVarBinding, name);
         } else if (type === ScopeType.ForStatement) {
           report(state, Errors.Unexpected);
         } else if (type !== ScopeType.ArgumentList) {
@@ -243,16 +241,14 @@ export function addVariable(
       lex = lex['@'];
     }
 
-    let x = scope.variableScope['@' + name];
-    if (x === undefined) x = 1;
-    else ++x;
-    scope.variableScope['@' + name] = x;
+    let { variableScope, lexicalVarScope } = scope;
 
-    let lexicalVarScope = scope.lexicalVarScope;
-    do {
+    variableScope['@' + name] = variableScope['@' + name] === undefined ? 1 : variableScope['@' + name]++;
+
+    while (lexicalVarScope) {
       lexicalVarScope['@' + name] = true;
       lexicalVarScope = lexicalVarScope['@'];
-    } while (lexicalVarScope);
+    }
   } else {
     const lex = scope.lexicalScope;
 
@@ -260,16 +256,12 @@ export function addVariable(
       checkIfExistInLexicalParentScope(state, context, scope, '@' + name);
 
       if (lex['@' + name] !== undefined) {
-        if (checkForDuplicateLexicals(scope, '@' + name, context) === true) {
-          report(state, Errors.AlreadyDeclared, name);
-        }
+        if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared, name);
       }
     }
 
     if (checkDuplicates) {
-      if (checkForDuplicateLexicals(scope, '@' + name, context) === true) {
-        report(state, Errors.AlreadyDeclared, name);
-      }
+      if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared, name);
     } else if (lex['@' + name] === undefined) {
       lex['@' + name] = 1;
     } else ++lex['@' + name];
@@ -308,9 +300,7 @@ export function checkIfExistInLexicalBindings(
   const lex = scope.lexicalScope;
   for (const key in lex) {
     if (key[0] === '@' && key.length > 1) {
-      if (lex[key] > 1) {
-        return true;
-      }
+      if (lex[key] > 1) return true;
       if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, key);
     }
   }
@@ -331,9 +321,9 @@ export function checkIfExistInLexicalParentScope(
   scope: ScopeState,
   key: string
 ): void {
-  const lex = scope.lexicalScope;
+  const { lexicalScope } = scope;
 
-  const lexParent = lex['@'];
+  const lexParent = lexicalScope['@'];
   if (lexParent !== undefined) {
     if (lexParent.type === ScopeType.ArgumentList && lexParent[key] !== undefined) {
       report(state, Errors.AlreadyDeclared, key.slice(1));
