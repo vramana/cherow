@@ -221,21 +221,21 @@ export function addVariable(
   bindingType: Type,
   checkDuplicates: boolean,
   isVariableDecl: boolean,
-  name: string
+  key: string
 ) {
   if (bindingType & Type.Variable) {
     let lex = scope.lexicalScope;
     while (lex) {
       const { type } = lex;
-      if (lex['@' + name]) {
+      if (lex['@' + key]) {
         if (type & ScopeType.CatchClause) {
           isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0
             ? (state.inCatch = true)
-            : report(state, Errors.InvalidCatchVarBinding, name);
+            : report(state, Errors.InvalidCatchVarBinding, key);
         } else if (type === ScopeType.ForStatement) {
           report(state, Errors.Unexpected);
         } else if (type !== ScopeType.ArgumentList) {
-          if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared);
+          if (checkForDuplicateLexicals(scope, '@' + key, context) === true) report(state, Errors.AlreadyDeclared);
         }
       }
       lex = lex['@'];
@@ -243,30 +243,30 @@ export function addVariable(
 
     let { variableScope, lexicalVarScope } = scope;
 
-    variableScope['@' + name] = variableScope['@' + name] === undefined ? 1 : variableScope['@' + name]++;
+    variableScope['@' + key] = variableScope['@' + key] === undefined ? 1 : variableScope['@' + key]++;
 
     while (lexicalVarScope) {
-      lexicalVarScope['@' + name] = true;
+      lexicalVarScope['@' + key] = true;
       lexicalVarScope = lexicalVarScope['@'];
     }
   } else {
     const lex = scope.lexicalScope;
 
     if (checkDuplicates) {
-      checkIfExistInLexicalParentScope(state, context, scope, '@' + name);
+      checkIfExistInLexicalParentScope(state, context, scope, '@' + key);
 
-      if (lex['@' + name] !== undefined) {
-        if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared, name);
+      if (lex['@' + key] !== undefined) {
+        if (checkForDuplicateLexicals(scope, '@' + key, context) === true) report(state, Errors.AlreadyDeclared, key);
       }
     }
 
     if (checkDuplicates) {
-      if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared, name);
-    } else if (lex['@' + name] === undefined) {
-      lex['@' + name] = 1;
-    } else ++lex['@' + name];
+      if (checkForDuplicateLexicals(scope, '@' + key, context) === true) report(state, Errors.AlreadyDeclared, key);
+    } else if (lex['@' + key] === undefined) {
+      lex['@' + key] = 1;
+    } else ++lex['@' + key];
 
-    lex['@' + name] = lex['@' + name];
+    lex['@' + key] = lex['@' + key];
   }
 }
 
@@ -274,18 +274,19 @@ export function addVariable(
  * Checks for duplicate lexicals
  *
  * @param scope Scope state
- * @param name
+ * @param key
  * @param context Context masks
  */
-export function checkForDuplicateLexicals(scope: ScopeState, name: string, context: Context): boolean {
+export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean {
   return context & (Context.OptionsDisableWebCompat | Context.Strict) ||
-    (scope.lexicalScope.funcs[name] === true) === false
+    (scope.lexicalScope.funcs[key] === true) === false
     ? true
     : false;
 }
 
 /**
- * Checks if a name already exist in a lexical binding
+ * Checks if a binding already exist in a lexical binding
+ *
  * @param state
  * @param context
  * @param scope
@@ -310,10 +311,10 @@ export function checkIfExistInLexicalBindings(
 /**
  * Check if a lexical binding exist in the parent scope
  *
- * @param state
- * @param context
- * @param scope
- * @param hashed
+ * @param state Parser state
+ * @param context Context masks
+ * @param scope Scope state
+ * @param key
  */
 export function checkIfExistInLexicalParentScope(
   state: ParserState,
@@ -394,4 +395,36 @@ export function isLexical(state: ParserState, context: Context): boolean {
     state.token === Token.LeftBrace ||
     state.token === Token.LeftBracket
   );
+}
+
+export function reinterpret(ast: any) {
+  switch (ast.type) {
+    case 'ArrayExpression':
+      ast.type = 'ArrayPattern';
+      const elements = ast.elements;
+      for (let i = 0, n = elements.length; i < n; ++i) {
+        const element = elements[i];
+        // note: children can be null (elided array destruct) but not undefined
+        if (element) reinterpret(element);
+      }
+      break;
+    case 'ObjectExpression':
+      ast.type = 'ObjectPattern';
+      const properties = ast.properties;
+      for (let i = 0, n = properties.length; i < n; ++i) {
+        reinterpret(properties[i]);
+      }
+      break;
+    case 'AssignmentExpression':
+      ast.type = 'AssignmentPattern';
+      delete ast.operator; // TODO: find a better way, this action probably causes a perf DEOPT
+      reinterpret(ast.left);
+      break;
+    case 'Property':
+      reinterpret(ast.value);
+      break;
+    case 'SpreadElement':
+      ast.type = 'RestElement';
+      reinterpret(ast.argument);
+  }
 }

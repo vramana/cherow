@@ -8,7 +8,8 @@ import {
   unimplemented,
   consumeSemicolon,
   Type,
-  Origin
+  Origin,
+  reinterpret
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -179,7 +180,7 @@ function parseStatement(
         createSubScope(scope, ScopeType.BlockStatement)
       );
     case Token.ForKeyword:
-      unimplemented();
+      return parseForStatement(state, context, scope);
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
       report(state, Errors.Unexpected);
@@ -531,6 +532,125 @@ export function parseCaseOrDefaultClauses(
     type: 'SwitchCase',
     test,
     consequent
+  };
+}
+
+/**
+ * Parses either For, ForIn or ForOf statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-for-statement)
+ * @see [Link](https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+
+function parseForStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
+  next(state, context);
+
+  const forAwait = optional(state, context, Token.AwaitKeyword);
+
+  scope = createSubScope(scope, ScopeType.ForStatement);
+
+  expect(state, context, Token.LeftParen);
+
+  let init: any = null;
+  let declarations: any = null;
+  let test: ESTree.Expression | null = null;
+  let update: ESTree.Expression | null = null;
+  let right;
+  let isPattern = false;
+
+  if (state.token !== Token.Semicolon) {
+    if (optional(state, context, Token.VarKeyword)) {
+      declarations = parseVariableDeclarationList(state, context, Type.Variable, Origin.For, false, scope);
+      init = { type: 'VariableDeclaration', kind: 'var', declarations };
+    } else if (state.token & Token.IsVarDecl) {
+      if (state.token === Token.LetKeyword) {
+        let tokenValue = state.tokenValue;
+        next(state, context);
+        if (state.token & Token.InKeyword) {
+          if (context & Context.Strict) report(state, Errors.Unexpected);
+          init = { type: 'Identifier', name: tokenValue };
+        } else {
+          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.For, true, scope);
+          init = { type: 'VariableDeclaration', kind: 'let', declarations };
+        }
+      } else if (optional(state, context, Token.ConstKeyword)) {
+        declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.For, false, scope);
+        init = { type: 'VariableDeclaration', kind: 'const', declarations };
+      }
+    } else {
+      isPattern = state.token === Token.LeftBracket || state.token === Token.LeftBrace;
+      init = parseExpression(state, context | Context.DisallowIn);
+    }
+  }
+
+  /**
+   * ForStatement
+   *
+   * https://tc39.github.io/ecma262/#sec-for-statement
+   */
+
+  if (forAwait ? expect(state, context, Token.OfKeyword) : optional(state, context, Token.OfKeyword)) {
+    if (state.inCatch) report(state, Errors.Unexpected);
+    if (isPattern) reinterpret(init);
+    right = parseAssignmentExpression(state, context);
+    expect(state, context, Token.RightParen);
+    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+    return {
+      type: 'ForOfStatement',
+      body,
+      left: init,
+      right,
+      await: forAwait
+    };
+  }
+
+  /**
+   * ForIn statement
+   *
+   * https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements
+   *
+   */
+
+  if (optional(state, context, Token.InKeyword)) {
+    if (isPattern) reinterpret(init);
+    right = parseExpression(state, context);
+    expect(state, context, Token.RightParen);
+    const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+    return {
+      type: 'ForInStatement',
+      body,
+      left: init,
+      right
+    };
+  }
+
+  expect(state, context, Token.Semicolon);
+
+  if (state.token !== Token.Semicolon) {
+    test = parseExpression(state, context);
+  }
+
+  expect(state, context, Token.Semicolon);
+
+  if (state.token !== Token.RightParen) update = parseExpression(state, context);
+
+  expect(state, context, Token.RightParen);
+
+  const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
+
+  return {
+    type: 'ForStatement',
+    body,
+    init,
+    test,
+    update
   };
 }
 
@@ -1046,6 +1166,7 @@ export function parseSequenceExpression(
 export function parseAssignmentExpression(state: ParserState, context: Context): any {
   const expr = parseConditionalExpression(state, context);
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
+    if (state.token === Token.Assign) reinterpret(expr);
     const operator = state.token;
     next(state, context | Context.ExpressionStart);
     const right = parseAssignmentExpression(state, context);
