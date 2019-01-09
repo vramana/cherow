@@ -694,7 +694,7 @@ export function parseArrayAssignmentPattern(
       } else {
         elements.push(parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates));
       }
-      if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
+      if (state.token !== <Token>Token.RightBracket) expect(state, context, Token.Comma);
     }
   }
 
@@ -730,7 +730,7 @@ export function parserObjectAssignmentPattern(
       break;
     }
     properties.push(parseAssignmentProperty(state, context, scope, type, origin, verifyDuplicates));
-    if (state.token !== Token.RightBrace) expect(state, context, Token.Comma);
+    if (state.token !== <Token>Token.RightBrace) expect(state, context, Token.Comma);
   }
 
   expect(state, context, Token.RightBrace);
@@ -1090,7 +1090,7 @@ export function parseNewOrMemberExpression(state: ParserState, context: Context)
   if (state.token === Token.NewKeyword) {
     let result: any;
     const id = parseIdentifier(state, context | Context.ExpressionStart);
-    if (state.token === Token.SuperKeyword) {
+    if (state.token === <Token>Token.SuperKeyword) {
       result = { type: 'Super' };
     } else if (optional(state, context, Token.Period)) {
       return parseNewTargetExpression(state, context, id);
@@ -1101,7 +1101,7 @@ export function parseNewOrMemberExpression(state: ParserState, context: Context)
     return {
       type: 'NewExpression',
       callee: result,
-      arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
+      arguments: state.token === <Token>Token.LeftParen ? parseArgumentList(state, context) : []
     };
   }
 
@@ -1195,7 +1195,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
     } else {
       expressions.push(parseAssignmentExpression(state, context));
     }
-    if (state.token !== Token.RightParen) expect(state, context, Token.Comma);
+    if (state.token !== <Token>Token.RightParen) expect(state, context, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);
@@ -1244,7 +1244,7 @@ export function parseArrayExpression(state: ParserState, context: Context): any 
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
     elements.push(parseAssignmentExpression(state, context | Context.ExpressionStart));
-    if (state.token !== Token.RightBracket) expect(state, context, Token.Comma);
+    if (state.token !== <Token>Token.RightBracket) expect(state, context, Token.Comma);
   }
   expect(state, context, Token.RightBracket);
   return {
