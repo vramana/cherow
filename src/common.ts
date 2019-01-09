@@ -2,6 +2,7 @@ import * as ESTree from './estree';
 import { Token } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
+import { ScopeType, ScopeState } from 'scope';
 // prettier-ignore
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
@@ -17,6 +18,8 @@ export const enum Context {
   OptionsGlobalReturn = 1 << 6,
   OptionsExperimental = 1 << 7,
   OptionsNative = 1 << 8,
+
+  AllowLetDecl = 1 << 9,
 
   Strict = 1 << 10,
   Module = 1 << 11,
@@ -188,7 +191,7 @@ export function expect(state: ParserState, context: Context, t: Token): boolean 
 /**
  * Automatic Semicolon Insertion
  *
- * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
+ * @see [Link](https://tc39.github.io/ecma262/@sec-automatic-semicolon-insertion)
  *
  * @param parser Parser object
  * @param context Context masks
@@ -197,4 +200,208 @@ export function consumeSemicolon(state: ParserState, context: Context): void | b
   return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.NewLine
     ? optional(state, context, Token.Semicolon)
     : report(state, Errors.Unexpected);
+}
+
+/**
+ * Insert scope bindings
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Parent scope
+ * @param name Binding name
+ * @param bindingType Binding type
+ * @param checkDuplicates
+ * @param isVariableDecl True if origin is a variable declaration
+ */
+
+export function addVariable(
+  state: ParserState,
+  context: Context,
+  scope: any,
+  bindingType: Type,
+  checkDuplicates: boolean,
+  isVariableDecl: boolean,
+  name: string
+) {
+  if (bindingType & Type.Variable) {
+    let lex = scope.lexicalScope;
+    while (lex) {
+      const type = lex.type;
+      if (lex['@' + name] !== undefined) {
+        if (type === ScopeType.CatchClause) {
+          if (isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0) {
+            state.inCatch = true;
+          } else {
+            report(state, Errors.InvalidCatchVarBinding, name);
+          }
+        } else if (type === ScopeType.ForStatement) {
+          report(state, Errors.Unexpected);
+        } else if (type !== ScopeType.ArgumentList) {
+          if (checkForDuplicateLexicals(scope, '@' + name, context) === true) report(state, Errors.AlreadyDeclared);
+        }
+      }
+      lex = lex['@'];
+    }
+
+    let x = scope.variableScope['@' + name];
+    if (x === undefined) x = 1;
+    else ++x;
+    scope.variableScope['@' + name] = x;
+
+    let lexicalVarScope = scope.lexicalVarScope;
+    do {
+      lexicalVarScope['@' + name] = true;
+      lexicalVarScope = lexicalVarScope['@'];
+    } while (lexicalVarScope);
+  } else {
+    const lex = scope.lexicalScope;
+
+    if (checkDuplicates) {
+      checkIfExistInLexicalParentScope(state, context, scope, '@' + name);
+
+      if (lex['@' + name] !== undefined) {
+        if (checkForDuplicateLexicals(scope, '@' + name, context) === true) {
+          report(state, Errors.AlreadyDeclared, name);
+        }
+      }
+    }
+
+    if (checkDuplicates) {
+      if (checkForDuplicateLexicals(scope, '@' + name, context) === true) {
+        report(state, Errors.AlreadyDeclared, name);
+      }
+    } else if (lex['@' + name] === undefined) {
+      lex['@' + name] = 1;
+    } else ++lex['@' + name];
+
+    lex['@' + name] = lex['@' + name];
+  }
+}
+
+/**
+ * Checks for duplicate lexicals
+ *
+ * @param scope Scope state
+ * @param name
+ * @param context Context masks
+ */
+export function checkForDuplicateLexicals(scope: ScopeState, name: string, context: Context): boolean {
+  return context & (Context.OptionsDisableWebCompat | Context.Strict) ||
+    (scope.lexicalScope.funcs[name] === true) === false
+    ? true
+    : false;
+}
+
+/**
+ * Checks if a name already exist in a lexical binding
+ * @param state
+ * @param context
+ * @param scope
+ * @param skipParent
+ */
+export function checkIfExistInLexicalBindings(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  skipParent: any = false
+) {
+  const lex = scope.lexicalScope;
+  for (const key in lex) {
+    if (key[0] === '@' && key.length > 1) {
+      if (lex[key] > 1) {
+        return true;
+      }
+      if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, key);
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if a lexical binding exist in the parent scope
+ *
+ * @param state
+ * @param context
+ * @param scope
+ * @param hashed
+ */
+export function checkIfExistInLexicalParentScope(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  key: string
+): void {
+  const lex = scope.lexicalScope;
+
+  const lexParent = lex['@'];
+  if (lexParent !== undefined) {
+    if (lexParent.type === ScopeType.ArgumentList && lexParent[key] !== undefined) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+
+    if (lexParent.type === ScopeType.CatchClause && lexParent[key] !== undefined) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+  }
+
+  if (scope.lexicalVarScope[key] !== undefined) {
+    if (checkForDuplicateLexicals(scope, key, context) === true) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+  }
+}
+
+/**
+ * Does a lookahead and if the 'isLookaHead' is set to false or the result is true it will continue parsing
+ * and never rewind the parser state
+ *
+ * @param state ParserState instance
+ * @param callback Callback function to be called
+ * @param isLookahead Boolean
+ */
+export function lookAheadOrScan<T>(
+  state: ParserState,
+  context: Context,
+  callback: (state: ParserState, context: Context) => T,
+  isLookahead: boolean
+): T {
+  const savedIndex = state.index;
+  const savedLine = state.line;
+  const savedColumn = state.column;
+  const startIndex = state.startIndex;
+  const savedFlags = state.flags;
+  const savedTokenValue = state.tokenValue;
+  const savedNextChar = state.currentChar;
+  const savedToken = state.token;
+  const savedTokenRegExp = state.tokenRegExp;
+  const result = callback(state, context);
+
+  if (!result || isLookahead) {
+    state.index = savedIndex;
+    state.line = savedLine;
+    state.column = savedColumn;
+    state.startIndex = startIndex;
+    state.flags = savedFlags;
+    state.tokenValue = savedTokenValue;
+    state.currentChar = savedNextChar;
+    state.token = savedToken;
+    state.tokenRegExp = savedTokenRegExp;
+  }
+
+  return result;
+}
+
+/**
+ * Returns true if this an valid lexical binding and not an identifier
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function isLexical(state: ParserState, context: Context): boolean {
+  next(state, context);
+  return (
+    (state.token & (Token.Identifier | Token.Contextual | Token.IsAwait | Token.IsYield)) > 0 ||
+    state.token === Token.LeftBrace ||
+    state.token === Token.LeftBracket
+  );
 }

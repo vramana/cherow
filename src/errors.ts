@@ -42,7 +42,15 @@ export const enum Errors {
   IDStartAfterNumber,
   InvalidBigInt,
   ExpectedNumberInRadix,
-  LegacyOctalsInStrictMode
+  LegacyOctalsInStrictMode,
+  AlreadyDeclared,
+  InvalidCatchVarBinding,
+  SloppyFunction,
+  StrictFunction,
+  InvalidDuplicateBinding,
+  InvalidLetInStrict,
+  UndeclaredExportedBinding,
+  InvalidDuplicateExportedBinding
 }
 
 /*@internal*/
@@ -88,7 +96,16 @@ export const errorMessages: {
   [Errors.InvalidBigInt]: 'Invalid BigIntLiteral',
   [Errors.IDStartAfterNumber]: 'Identifier starts immediately after numeric literal',
   [Errors.ExpectedNumberInRadix]: 'Expected number in radix %0',
-  [Errors.LegacyOctalsInStrictMode]: 'Legacy octal literals are not allowed in strict mode'
+  [Errors.LegacyOctalsInStrictMode]: 'Legacy octal literals are not allowed in strict mode',
+  [Errors.AlreadyDeclared]: "Identifier '%0' has already been declared",
+  [Errors.InvalidDuplicateBinding]: "Duplicate binding '%0'",
+  [Errors.InvalidCatchVarBinding]: "The `catch` var '%0' can't be redefined",
+  [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
+  [Errors.SloppyFunction]:
+    'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+  [Errors.InvalidLetInStrict]: "let can't be a variable name in strict mode",
+  [Errors.UndeclaredExportedBinding]: "Exported binding '%0' is not declared",
+  [Errors.InvalidDuplicateExportedBinding]: "Exported binding '%0' has already been declared"
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

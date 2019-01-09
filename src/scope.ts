@@ -1,16 +1,16 @@
 export const enum ScopeType {
   None = 0,
-  BlockStatement = 1 << 0,
-  ForStatement = 1 << 1,
-  SwitchStatement = 1 << 2,
-  CatchClause = 1 << 3,
-  ArgumentList = 1 << 4
+  BlockStatement = 1,
+  ForStatement = 2,
+  SwitchStatement = 3,
+  CatchClause = 4,
+  ArgumentList = 5
 }
 
 export interface ScopeState {
   variableScope: any;
   lexicalVarScope: any;
-  lexicalScope: LexicalScope;
+  lexicalScope: any;
 }
 
 export interface LexicalScope {
@@ -22,28 +22,31 @@ export interface LexicalScope {
   };
 }
 
-export function createScope(flags: ScopeType): ScopeState {
+/**
+ * Create a block scope
+ */
+export function createScope(type: ScopeType): ScopeState {
   return {
     variableScope: {},
     lexicalVarScope: {},
     lexicalScope: {
-      childScope: undefined,
-      flags: flags,
-      functions: {}
+      '@': undefined,
+      type,
+      funcs: {}
     }
   };
 }
 
-export function createSubScope(parentScope: ScopeState, flags: ScopeType): ScopeState {
+export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState {
   return {
-    variableScope: parentScope.variableScope,
+    variableScope: parent.variableScope,
     lexicalVarScope: {
-      childScope: parentScope.lexicalVarScope
+      '@': parent.lexicalVarScope
     },
     lexicalScope: {
-      childScope: parentScope.lexicalScope,
-      flags: flags,
-      functions: {}
+      '@': parent.lexicalScope,
+      type,
+      funcs: []
     }
   };
 }

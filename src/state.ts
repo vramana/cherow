@@ -12,13 +12,13 @@ import {
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
-import { optional, expect } from './common';
+import { optional, expect, addVariable, checkIfExistInLexicalBindings, isLexical, lookAheadOrScan } from './common';
 import { ScopeState, ScopeType, createSubScope } from './scope';
 import { report, Errors } from './errors';
 
 export const enum LabelledState {
   None = 0,
-  Allow = 1 << 0,
+  AllowAsLabelled = 1 << 0,
   Disallow = 1 << 1
 }
 
@@ -71,7 +71,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
 
   while (state.token !== Token.EndOfSource) {
     if (context & Context.Module) statements.push(parseModuleItem(state, context, scope));
-    else statements.push(parseStatementListItem(state, context, scope));
+    else statements.push(parseStatementListItem(state, context | Context.AllowLetDecl, scope));
   }
 
   return statements;
@@ -111,11 +111,24 @@ function parseStatementListItem(state: ParserState, context: Context, scope: Sco
     case Token.FunctionKeyword:
     case Token.ClassKeyword:
     case Token.ConstKeyword:
+      return parseLexicalDeclaration(state, context, Type.Const, Origin.Statement, scope);
     case Token.LetKeyword:
+      return parseLetOrExpressionStatement(state, context, scope);
     case Token.AsyncKeyword:
+    // unimplemented();
     default:
-      return parseStatement(state, context, scope, LabelledState.Allow);
+      return parseStatement(state, context, scope, LabelledState.AllowAsLabelled);
   }
+}
+
+function parseLetOrExpressionStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
+  return lookAheadOrScan(state, context, isLexical, true)
+    ? parseLexicalDeclaration(state, context, Type.Let, Origin.Statement, scope)
+    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
 }
 
 /**
@@ -135,6 +148,7 @@ function parseStatement(
 ): ESTree.Statement {
   switch (state.token) {
     case Token.VarKeyword:
+      return parseVariableStatement(state, context, Type.Variable, Origin.Statement, scope);
     case Token.SwitchKeyword:
       return parseSwitchStatement(state, context, scope);
     case Token.DoKeyword:
@@ -403,8 +417,11 @@ export function parseDebuggerStatement(state: ParserState, context: Context): ES
  */
 export function parseTryStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.TryStatement {
   next(state, context);
+
   const block = parseBlockStatement(state, context, createSubScope(scope, ScopeType.BlockStatement));
+
   const handler = optional(state, context, Token.CatchKeyword) ? parseCatchBlock(state, context, scope) : null;
+
   const finalizer = optional(state, context, Token.FinallyKeyword)
     ? parseBlockStatement(
         state,
@@ -449,11 +466,13 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
     if (state.token === Token.RightParen) report(state, Errors.Unexpected);
     param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.Arguments, Origin.Catch, false);
     if (state.token === Token.Assign) report(state, Errors.Unexpected);
+    if (checkIfExistInLexicalBindings(state, context, catchScope, true))
+      report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
     expect(state, context, Token.RightParen);
     secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
   }
 
-  const body = parseBlockStatement(state, context, secondScope);
+  const body = parseBlockStatement(state, context | Context.AllowLetDecl, secondScope);
 
   return {
     type: 'CatchClause',
@@ -583,12 +602,14 @@ export function parseBindingIdentifierOrPattern(
 export function parseBindingIdentifier(
   state: ParserState,
   context: Context,
-  _: ScopeState,
-  __: Type,
-  ___: Origin,
-  ____: boolean
+  scope: ScopeState,
+  type: Type,
+  _: Origin,
+  checkForDuplicates: boolean
 ): ESTree.Identifier {
   const name = state.tokenValue;
+
+  addVariable(state, context, scope, type, checkForDuplicates, true, name);
   next(state, context);
   return {
     type: 'Identifier',
@@ -850,6 +871,147 @@ function parseAssignmentProperty(
     value,
     method: false,
     shorthand
+  };
+}
+
+/**
+ * Parses variable statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param type Binding type
+ * @param origin Binding origin
+ * @param scope Scope instance
+ */
+export function parseVariableStatement(
+  state: ParserState,
+  context: Context,
+  type: Type,
+  origin: Origin,
+  scope: ScopeState
+): ESTree.VariableDeclaration {
+  const { token } = state;
+  next(state, context);
+  const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
+  consumeSemicolon(state, context);
+  return {
+    type: 'VariableDeclaration',
+    kind: KeywordDescTable[token & Token.Type],
+    declarations
+  } as any;
+}
+
+/**
+ * Parses lexical declaration
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param type Binding type
+ * @param origin Binding origin
+ * @param scope Scope instance
+ */
+export function parseLexicalDeclaration(
+  state: ParserState,
+  context: Context,
+  type: Type,
+  origin: Origin,
+  scope: ScopeState
+): ESTree.VariableDeclaration {
+  const { token } = state;
+  next(state, context);
+  const declarations = parseVariableDeclarationList(state, context, type, origin, false, scope);
+  if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+  consumeSemicolon(state, context);
+  return {
+    type: 'VariableDeclaration',
+    kind: KeywordDescTable[token & Token.Type],
+    declarations
+  } as any;
+}
+
+/*
+ * Parses variable declaration list
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclarationList)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ * @param type Binding type
+ * @param origin Binding origin
+ * @param checkForDuplicates True if need to check for duplicates in scope
+ * @param scope Scope instance
+ */
+export function parseVariableDeclarationList(
+  state: ParserState,
+  context: Context,
+  type: Type,
+  origin: Origin,
+  checkForDuplicates: boolean,
+  scope: ScopeState
+): any {
+  const elementCount = 1;
+  const list: any[] = [parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope)];
+  while (optional(state, context, Token.Comma)) {
+    list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
+  }
+  if (origin === Origin.For && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
+    if (
+      state.token === Token.OfKeyword ||
+      type === Type.Variable ||
+      (context & Context.OptionsDisableWebCompat) !== 0 ||
+      context & Context.Strict
+    ) {
+      if (elementCount > 1) {
+        report(state, Errors.Unexpected);
+      }
+    }
+  }
+  return list;
+}
+
+/**
+ * VariableDeclaration :
+ *   BindingIdentifier Initializeropt
+ *   BindingPattern Initializer
+ *
+ * VariableDeclarationNoIn :
+ *   BindingIdentifier InitializerNoInopt
+ *   BindingPattern InitializerNoIn
+ *
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-VariableDeclaration)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+
+function parseVariableDeclaration(
+  state: ParserState,
+  context: Context,
+  type: Type,
+  origin: Origin,
+  checkForDuplicates: boolean,
+  scope: ScopeState
+): any {
+  let id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
+  let init: any = null;
+  if (optional(state, context, Token.Assign)) {
+    init = parseAssignmentExpression(state, context);
+  } else if (
+    type & Type.Const &&
+    ((origin & Origin.For) === 0 || (state.token === Token.Semicolon || state.token === Token.Comma))
+  ) {
+    report(state, Errors.Unexpected);
+  }
+
+  return {
+    type: 'VariableDeclarator',
+    init,
+    id
   };
 }
 
