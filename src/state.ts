@@ -566,18 +566,18 @@ function parseForStatement(
   let isPattern = false;
 
   if (state.token !== Token.Semicolon) {
-    if (optional(state, context, Token.VarKeyword)) {
-      declarations = parseVariableDeclarationList(state, context, Type.Variable, Origin.For, false, scope);
-      init = { type: 'VariableDeclaration', kind: 'var', declarations };
-    } else if (state.token & Token.IsVarDecl) {
-      if (state.token === Token.LetKeyword) {
+    if ((state.token & Token.IsVarDecl) !== 0) {
+      if (optional(state, context, Token.VarKeyword)) {
+        declarations = parseVariableDeclarationList(state, context, Type.Variable, Origin.For, false, scope);
+        init = { type: 'VariableDeclaration', kind: 'var', declarations };
+      } else if (state.token === Token.LetKeyword) {
         let tokenValue = state.tokenValue;
         next(state, context);
-        if (state.token & Token.InKeyword) {
+        if (state.token === (Token.InKeyword as Token)) {
           if (context & Context.Strict) report(state, Errors.Unexpected);
           init = { type: 'Identifier', name: tokenValue };
         } else {
-          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.For, true, scope);
+          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.For, false, scope);
           init = { type: 'VariableDeclaration', kind: 'let', declarations };
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
@@ -728,8 +728,8 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const name = state.tokenValue;
-
   addVariable(state, context, scope, type, checkForDuplicates, true, name);
+
   next(state, context);
   return {
     type: 'Identifier',

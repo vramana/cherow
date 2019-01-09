@@ -233,7 +233,7 @@ export function addVariable(
             ? (state.inCatch = true)
             : report(state, Errors.InvalidCatchVarBinding, key);
         } else if (type === ScopeType.ForStatement) {
-          report(state, Errors.Unexpected);
+          report(state, Errors.AlreadyDeclared, key);
         } else if (type !== ScopeType.ArgumentList) {
           if (checkForDuplicateLexicals(scope, '@' + key, context) === true) report(state, Errors.AlreadyDeclared);
         }
