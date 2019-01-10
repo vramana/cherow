@@ -147,7 +147,7 @@ export function scanBinaryOrOctalDigits(state: ParserState, base: 2 | 8): Token 
  * @param context Context masks
  */
 export function scanImplicitOctalDigits(state: ParserState, context: Context): number {
-  if (context & Context.Strict) report(state, Errors.LegacyOctalsInStrictMode);
+  if ((context & Context.Strict) !== 0) report(state, Errors.LegacyOctalsInStrictMode);
   let { index, column } = state;
   let code = 0;
   // Implicit octal, unless there is a non-octal digit.
