@@ -53,7 +53,8 @@ export const enum Flags {
   LastIsCR = 1 << 1,
   Float = 1 << 2,
   Octal = 1 << 3,
-  Binary = 1 << 4
+  Binary = 1 << 4,
+  SeenPrototype = 1 << 5
 }
 // prettier-ignore
 /**
@@ -665,4 +666,26 @@ export function getLabel(
   }
 
   return LabelState.Empty;
+}
+
+/**
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ * @param type Binding type
+ * @param isVariableDecl True if variable decl
+ */
+export function addVariableAndDeduplicate(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  isVariableDecl: boolean,
+  name = state.tokenValue
+): void {
+  addVariable(state, context, scope, type, true, isVariableDecl, name);
+  if ((context & Context.OptionsDisableWebCompat) === 0) {
+    scope.lex.funcs['#' + state.tokenValue] = false;
+  }
 }
