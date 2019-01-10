@@ -8,9 +8,9 @@ export const enum ScopeType {
 }
 
 export interface ScopeState {
-  variableScope: any;
-  lexicalVarScope: any;
-  lexicalScope: any;
+  var: any;
+  lexvar: any;
+  lex: any;
 }
 
 export interface LexicalScope {
@@ -27,10 +27,10 @@ export interface LexicalScope {
  */
 export function createScope(type: ScopeType): ScopeState {
   return {
-    variableScope: {},
-    lexicalVarScope: {},
-    lexicalScope: {
-      '@': undefined,
+    var: {},
+    lexvar: {},
+    lex: {
+      '#': undefined,
       type,
       funcs: {}
     }
@@ -39,12 +39,12 @@ export function createScope(type: ScopeType): ScopeState {
 
 export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState {
   return {
-    variableScope: parent.variableScope,
-    lexicalVarScope: {
-      '@': parent.lexicalVarScope
+    var: parent.var,
+    lexvar: {
+      '#': parent.lexvar
     },
-    lexicalScope: {
-      '@': parent.lexicalScope,
+    lex: {
+      '#': parent.lex,
       type,
       funcs: []
     }
