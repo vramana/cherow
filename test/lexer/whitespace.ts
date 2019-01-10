@@ -54,6 +54,8 @@ function run(isModule: boolean) {
   fail('fails on Mongolian vowel separator without webcompat', '\u180Ea', Context.OptionsDisableWebCompat);
   fail('fails on unclosed multiline comment', '/*', Context.Empty);
   fail('fails on unexpected character', '€', Context.Empty);
+  // FIXME! script & module
+  // fail('fails on HTML comment in strict mode', '<!-- foo bar', Context.Strict | Context.Module);
 
   pass('skips white space', {
     source: '\u0020',

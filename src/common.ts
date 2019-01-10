@@ -29,7 +29,7 @@ export const enum Context {
   ExpressionStart = 1 << 15,
   TaggedTemplate = 1 << 16,
   SuperProperty = 1 << 18,
-  SuperCall = 1 << 10,
+  SuperCall = 1 << 19,
 
   InGlobal = 1 << 20,
   InGenerator = 1 << 21,
@@ -40,7 +40,7 @@ export const enum Context {
 
   NewTarget = 1 << 26,
   InFunctionBody = 1 << 27,
-  Statement = 1 << 30
+  Statement = 1 << 28
 }
 
 /**
