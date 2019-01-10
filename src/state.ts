@@ -9,7 +9,8 @@ import {
   consumeSemicolon,
   Type,
   Origin,
-  reinterpret
+  reinterpret,
+  validateBindingIdentifier
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -736,7 +737,7 @@ export function parseExpressionOrLabelledStatement(
   const expr: ESTree.Expression = parseExpression(state, context);
   if (token & Token.Keyword && state.token === Token.Colon) {
     next(state, context | Context.ExpressionStart);
-    // validateBindingIdentifier(state, context, Type.None, token);
+    validateBindingIdentifier(state, context, Type.None, token);
     let body: any = null;
     if (
       (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&

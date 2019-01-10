@@ -455,3 +455,76 @@ export function reinterpret(ast: any) {
       reinterpret(ast.argument);
   }
 }
+
+// TODO! Convert to bitmasks soon as we know it works as expected
+export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
+  switch (token) {
+    case Token.BreakKeyword:
+    case Token.CaseKeyword:
+    case Token.CatchKeyword:
+    case Token.ClassKeyword:
+    case Token.ConstKeyword:
+    case Token.ContinueKeyword:
+    case Token.DebuggerKeyword:
+    case Token.DefaultKeyword:
+    case Token.DeleteKeyword:
+    case Token.DoKeyword:
+    case Token.ElseKeyword:
+    case Token.ExportKeyword:
+    case Token.ExtendsKeyword:
+    case Token.FinallyKeyword:
+    case Token.ForKeyword:
+    case Token.FunctionKeyword:
+    case Token.IfKeyword:
+    case Token.ImportKeyword:
+    case Token.InKeyword:
+    case Token.InstanceofKeyword:
+    case Token.NewKeyword:
+    case Token.ReturnKeyword:
+    case Token.SuperKeyword:
+    case Token.SwitchKeyword:
+    case Token.ThisKeyword:
+    case Token.ThrowKeyword:
+    case Token.TryKeyword:
+    case Token.TypeofKeyword:
+    case Token.VarKeyword:
+    case Token.VoidKeyword:
+    case Token.WhileKeyword:
+    case Token.WithKeyword:
+    case Token.NullKeyword:
+    case Token.TrueKeyword:
+    case Token.FalseKeyword:
+    case Token.EnumKeyword:
+      report(state, Errors.Unexpected);
+    case Token.LetKeyword:
+      if (type === Type.Class) report(state, Errors.Unexpected);
+      if (type === Type.Let || type === Type.Const) report(state, Errors.Unexpected);
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.StaticKeyword:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+
+      // case Token.Eval:
+      // case Token.Arguments:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.ImplementsKeyword:
+    case Token.PackageKeyword:
+    case Token.ProtectedKeyword:
+    case Token.InterfaceKeyword:
+    case Token.PrivateKeyword:
+    case Token.PublicKeyword:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.AwaitKeyword:
+      if (context & (Context.InAsync | Context.Module)) report(state, Errors.Unexpected);
+      return true;
+    case Token.YieldKeyword:
+      if (context & (Context.InGenerator | Context.Strict)) report(state, Errors.Unexpected);
+      return true;
+    default:
+      // Valid binding name
+      return true;
+  }
+}
