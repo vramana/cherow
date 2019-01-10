@@ -82,8 +82,14 @@ describe('Expressions - Object', () => {
     ['({async set foo(value) { }})', Context.Empty],
     ['({async set foo(value) { }})', Context.Empty],
     ['({async foo: 1});', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
+
+    ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
     ['x = { async f: function() {} }', Context.Empty]
   ];
+
+  // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
 
   fail('Expressions - Object', inValids);
 
@@ -984,6 +990,48 @@ describe('Expressions - Object', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      '({foo: typeof /x/});',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'foo',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    argument: {
+                      regex: {
+                        flags: '',
+                        pattern: 'x'
+                      },
+                      type: 'Literal',
+                      value: /x/
+                    },
+                    operator: 'typeof',
+                    prefix: true,
+                    type: 'UnaryExpression'
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
@@ -9878,6 +9926,71 @@ describe('Expressions - Object', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      'function *f(){   s = {"foo": yield /x/g}   }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  expression: {
+                    left: {
+                      name: 's',
+                      type: 'Identifier'
+                    },
+                    operator: '=',
+                    right: {
+                      properties: [
+                        {
+                          computed: false,
+                          key: {
+                            type: 'Literal',
+                            value: 'foo'
+                          },
+                          kind: 'init',
+                          method: false,
+                          shorthand: false,
+                          type: 'Property',
+                          value: {
+                            argument: {
+                              regex: {
+                                flags: 'g',
+                                pattern: 'x'
+                              },
+                              type: 'Literal',
+                              value: /x/g
+                            },
+                            delegate: false,
+                            type: 'YieldExpression'
+                          }
+                        }
+                      ],
+                      type: 'ObjectExpression'
+                    },
+                    type: 'AssignmentExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            expression: false,
+            generator: true,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

@@ -10,6 +10,53 @@ describe('Expressions - Async Functions', () => {
 
   const valids: Array<[string, Context, any]> = [
     [
+      'async function f(){ await foo\n/foo/g }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: true,
+            body: {
+              body: [
+                {
+                  expression: {
+                    argument: {
+                      name: 'foo',
+                      type: 'Identifier'
+                    },
+                    type: 'AwaitExpression'
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  expression: {
+                    regex: {
+                      flags: 'g',
+                      pattern: 'foo'
+                    },
+                    type: 'Literal',
+                    value: /foo/g
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            expression: false,
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'x=async function f(){ var f }',
       Context.Empty,
       {

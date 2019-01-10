@@ -16,6 +16,63 @@ describe('Statements - Block', () => {
 
   pass('Statements - Block (pass)', [
     [
+      '{}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: []
+          }
+        ]
+      }
+    ],
+    [
+      '{\n  debugger;\n}',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [
+              {
+                type: 'DebuggerStatement'
+              }
+            ],
+            type: 'BlockStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '{}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [],
+            type: 'BlockStatement'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       '{ function a() {} ; function b() {} }',
       Context.Empty,
       {

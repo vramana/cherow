@@ -5170,6 +5170,128 @@ describe('Declarations - Function', () => {
           }
         ]
       }
+    ],
+    [
+      'function f(){}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            expression: false,
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'typeof function f(){}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              argument: {
+                async: false,
+                body: {
+                  body: [],
+                  type: 'BlockStatement'
+                },
+                generator: false,
+                id: {
+                  name: 'f',
+                  type: 'Identifier'
+                },
+                params: [],
+                type: 'FunctionExpression'
+              },
+              operator: 'typeof',
+              prefix: true,
+              type: 'UnaryExpression'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'typeof function f(){}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              argument: {
+                async: false,
+                body: {
+                  body: [],
+                  type: 'BlockStatement'
+                },
+                generator: false,
+                id: {
+                  name: 'f',
+                  type: 'Identifier'
+                },
+                params: [],
+                type: 'FunctionExpression'
+              },
+              operator: 'typeof',
+              prefix: true,
+              type: 'UnaryExpression'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            expression: {
+              regex: {
+                flags: 'g',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/g
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
     ]
   ]);
 });

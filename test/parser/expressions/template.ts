@@ -1,7 +1,16 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Template', () => {
+  const inValids: Array<[string, Context]> = [
+    ['`\\00`', Context.Empty],
+    ['`a\\00b`', Context.Empty],
+    ['`\\xg`;', Context.Empty],
+    ['`${x} \\xg ${x}`;', Context.Empty],
+    ['`\\xg ${x}`;', Context.Empty]
+  ];
+  fail('Expressions - Template', inValids);
+
   pass('Expressions - Template (pass)', [
     [
       '`foo`',
@@ -815,6 +824,231 @@ describe('Expressions - Template', () => {
       }
     ],
 
+    [
+      'function *f(){   x = `1 ${ yield } 2 ${ 3 } 4`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: null,
+                          delegate: false
+                        },
+                        {
+                          type: 'Literal',
+                          value: 3
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2 ',
+                            raw: ' 2 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 4',
+                            raw: ' 4'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   x = `1 ${ yield x } 2`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          delegate: false
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2',
+                            raw: ' 2'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   x = `1 ${ yield x } 2 ${ 3 } 4`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          delegate: false
+                        },
+                        {
+                          type: 'Literal',
+                          value: 3
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2 ',
+                            raw: ' 2 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 4',
+                            raw: ' 4'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
     [
       'f`${x} \\xg ${x}`;',
       Context.Empty,

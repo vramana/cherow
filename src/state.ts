@@ -2787,7 +2787,7 @@ function parseObjectLiteral(
             if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
             if (state.token & Token.IsIdentifier) {
               tokenValue = state.tokenValue;
-              value = parseAssignmentExpression(state, context);
+              value = parseAssignmentExpression(state, context | Context.ExpressionStart);
               addVariable(state, context, scope, type, false, false, tokenValue);
             } else {
               value = parseAssignmentExpression(state, context);
@@ -2851,7 +2851,7 @@ function parseObjectLiteral(
         key = parseLiteral(state, context);
         if (optional(state, context, Token.Colon)) {
           if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
-          value = parseAssignmentExpression(state, context);
+          value = parseAssignmentExpression(state, context | Context.ExpressionStart);
           addVariable(state, context, scope, type, false, false, tokenValue);
         } else {
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
@@ -2864,7 +2864,7 @@ function parseObjectLiteral(
         kind = 'init';
         if (state.token === <Token>Token.Colon) {
           next(state, context);
-          value = parseAssignmentExpression(state, context);
+          value = parseAssignmentExpression(state, context | Context.ExpressionStart);
         } else {
           objState |= ObjectState.Method;
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
