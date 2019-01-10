@@ -1098,7 +1098,7 @@ export function parseFunctionDeclaration(
   let firstRestricted: Token | null = null;
 
   if (state.token & Token.IsIdentifier) {
-    const nameBindingType =
+    const nameType =
       (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
       (context & Context.TopLevel) === Context.TopLevel
         ? Type.Variable
@@ -1118,11 +1118,11 @@ export function parseFunctionDeclaration(
           ? Context.InAsync
           : Context.InAsync
         : Context.Empty,
-      nameBindingType
+      nameType
     ); */
 
     if (isFuncDel) scope = createSubScope(scope, ScopeType.BlockStatement);
-    addFunctionName(state, context, scope, nameBindingType, true);
+    addFunctionName(state, context, scope, nameType, true);
     functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
     firstRestricted = state.token;
     id = parseIdentifier(state, context);
@@ -1226,7 +1226,7 @@ export function parseFunctionBody(
     //}
 
     if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
-      checkFunctionsArgForDuplicate(state, scope.lex['#'], true);
+      checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
     }
 
     while (state.token !== (Token.RightBrace as Token)) {
