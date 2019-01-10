@@ -1,14 +1,14 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
-describe('Statements - Block', () => {
+describe('Statements - if', () => {
   const inValids: Array<[string, Context]> = [
     // Bindings
     ['if (a) function(){}', Context.OptionsDisableWebCompat],
     ['if (a) class A {}', Context.OptionsDisableWebCompat]
   ];
 
-  fail('Statements - Switch (fail)', inValids);
+  fail('Statements - If (fail)', inValids);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
@@ -50,23 +50,23 @@ describe('Statements - Block', () => {
       'if (foo) bar;',
       Context.Empty,
       {
-        "type": "Program",
-        "sourceType": "script",
-        "body": [
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-            "type": "IfStatement",
-            "test": {
-              "type": "Identifier",
-              "name": "foo"
+            type: 'IfStatement',
+            test: {
+              type: 'Identifier',
+              name: 'foo'
             },
-            "consequent": {
-              "type": "ExpressionStatement",
-              "expression": {
-                "type": "Identifier",
-                "name": "bar"
+            consequent: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'bar'
               }
             },
-            "alternate": null
+            alternate: null
           }
         ]
       }
@@ -106,5 +106,4 @@ describe('Statements - Block', () => {
   ];
 
   pass('Statements - Block (pass)', valids);
-
 });

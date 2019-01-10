@@ -1,8 +1,415 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Statements - Block', () => {
+  const inValids: Array<[string, Context]> = [
+    // Bindings
+    ['{ if (x) function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
+    ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
+    ['{ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat]
+  ];
+
+  fail('Statements - Block (fail)', inValids);
+
   pass('Statements - Block (pass)', [
+    [
+      '{ function a() {} ; function b() {} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              },
+              {
+                type: 'EmptyStatement'
+              },
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'b'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{ function f() {} ; function f() {} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              },
+              {
+                type: 'EmptyStatement'
+              },
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{ if (x) function f() {} ; function f() {} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'IfStatement',
+                test: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                consequent: {
+                  type: 'FunctionDeclaration',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  expression: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  }
+                },
+                alternate: null
+              },
+              {
+                type: 'EmptyStatement'
+              },
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'function f() {} ; function f() {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function g(){ function f() {} ; function f() {} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'FunctionDeclaration',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  expression: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  }
+                },
+                {
+                  type: 'EmptyStatement'
+                },
+                {
+                  type: 'FunctionDeclaration',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  expression: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'g'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '{ var f = 123; if (true) function f(){} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: {
+                      type: 'Literal',
+                      value: 123
+                    },
+                    id: {
+                      type: 'Identifier',
+                      name: 'f'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'IfStatement',
+                test: {
+                  type: 'Literal',
+                  value: true
+                },
+                consequent: {
+                  type: 'FunctionDeclaration',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  expression: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  }
+                },
+                alternate: null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{debugger;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'DebuggerStatement'
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '{\n  debugger;\n}',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [
+              {
+                type: 'DebuggerStatement'
+              }
+            ],
+            type: 'BlockStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '{}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [],
+            type: 'BlockStatement'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '{}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [],
+            type: 'BlockStatement'
+          },
+          {
+            expression: {
+              regex: {
+                flags: 'g',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/g
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       '{}',
       Context.Empty,

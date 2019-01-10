@@ -17,11 +17,290 @@ describe('Expressions - Switch', () => {
     ['switch (x) { case 0: var foo = 1 } let foo = 1;', Context.OptionsDisableWebCompat],
     ['switch (x) {case a: const f = x; break; case b: function f(){}; break; }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.Empty],
-    ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat]
+    ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
+
+    ['switch(x) { default: default: }', Context.OptionsDisableWebCompat],
+    ['switch(x) { default: break; default: break; }', Context.OptionsDisableWebCompat],
+    ['switch(x) { case y: break; case z: break; default: default: }', Context.OptionsDisableWebCompat],
+    ['switch(x) { default: default: case y: break; case z: break; }', Context.OptionsDisableWebCompat],
+    ['switch(x) { default: break; case y: break; case z: break; default: break; }', Context.OptionsDisableWebCompat]
   ];
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'switch (A) {case B: C;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'B'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'C'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'switch (A) {default: B;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: null,
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'B'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'switch (A) {case B: C; default: D;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'B'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'C'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: null,
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'D'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'switch (A) {default: D; case B: C; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: null,
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'D'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'B'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'C'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'switch (A) {case B: C; case D: E;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'B'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'C'
+                    }
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'D'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'E'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'switch (A) {case B: C; break; case D: E; break;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'B'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'C'
+                    }
+                  },
+                  {
+                    type: 'BreakStatement',
+                    label: null
+                  }
+                ]
+              },
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Identifier',
+                  name: 'D'
+                },
+                consequent: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'Identifier',
+                      name: 'E'
+                    }
+                  },
+                  {
+                    type: 'BreakStatement',
+                    label: null
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
     [
       'switch (answer) { case a: let b = c; break; }',
       Context.Empty,

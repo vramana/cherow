@@ -21,7 +21,60 @@ describe('Statements - Do while', () => {
   fail('Statements - Do while (fail)', inValids);
 
   // valid tests
-  const valids: Array<[string, Context, any]> = [];
+  const valids: Array<[string, Context, any]> = [
+    [
+      'do async \n () \n while (y)',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                arguments: [],
+                callee: {
+                  name: 'async',
+                  type: 'Identifier'
+                },
+                type: 'CallExpression'
+              },
+              type: 'ExpressionStatement'
+            },
+            test: {
+              name: 'y',
+              type: 'Identifier'
+            },
+            type: 'DoWhileStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'do foo; while (bar);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'DoWhileStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            },
+            test: {
+              type: 'Identifier',
+              name: 'bar'
+            }
+          }
+        ]
+      }
+    ]
+  ];
 
   pass('Statements - Do while (pass)', valids);
 });
