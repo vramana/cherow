@@ -291,7 +291,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
  */
 
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
-  return context & Context.OptionsDisableWebCompat || context & Context.Strict || state.token !== Token.FunctionKeyword
+  return context & (Context.OptionsDisableWebCompat | Context.Strict) || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
     : parseFunctionDeclaration(state, context, scope, true, false);
 }
@@ -739,10 +739,8 @@ export function parseExpressionOrLabelledStatement(
     // validateBindingIdentifier(state, context, Type.None, token);
     let body: any = null;
     if (
-      (context & Context.OptionsDisableWebCompat) === 0 &&
-      ((state.token as Token) === Token.FunctionKeyword &&
-        !(context & Context.Strict) &&
-        label === LabelledState.AllowAsLabelled)
+      (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&
+      ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
     ) {
       body = parseFunctionDeclaration(state, context, scope, false, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
@@ -1100,7 +1098,7 @@ export function parseFunctionDeclaration(
 
   if (state.token & Token.IsIdentifier) {
     const nameBindingType =
-      ((context & Context.InGlobal) === 0 || (context & Context.Module) === 0) &&
+      (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
       (context & Context.TopLevel) === Context.TopLevel
         ? Type.Variable
         : Type.Let;
@@ -1330,8 +1328,7 @@ export function parseVariableDeclarationList(
     if (
       state.token === Token.OfKeyword ||
       type === Type.Variable ||
-      (context & Context.OptionsDisableWebCompat) !== 0 ||
-      context & Context.Strict
+      context & (Context.OptionsDisableWebCompat | Context.Strict)
     ) {
       if (elementCount > 1) {
         report(state, Errors.Unexpected);
