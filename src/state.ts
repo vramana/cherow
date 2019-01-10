@@ -1430,15 +1430,15 @@ function parseBinaryExpression(
   minPrec: number,
   left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
-  const bit = context & Context.DisallowIn;
+  const bit = -((context & Context.DisallowIn) > 0) & Token.InKeyword;
+  let t: Token;
+  let prec: number;
   while (state.token & Token.IsBinaryOp) {
-    const t: Token = state.token;
-    const prec = t & Token.Precedence;
-    const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
-    if (bit && t === Token.InKeyword) break;
+    t = state.token;
+    prec = t & Token.Precedence;
     // When the next token is no longer a binary operator, it's potentially the
     // start of an expression, so we break the loop
-    if (prec + delta <= minPrec) break;
+    if (prec + (((t === Token.Exponentiate) as any) << 8) - ((bit === t) as any << 12) <= minPrec) break;
     next(state, context | Context.ExpressionStart);
     left = {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
