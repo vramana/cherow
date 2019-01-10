@@ -121,7 +121,7 @@ export function parseSource(source: string, options: Options | void, context: Co
   const node: ESTree.Program = {
     type: 'Program',
     sourceType: context & Context.Module ? 'module' : 'script',
-    body: parseTopLevel(state, context, createScope(ScopeType.BlockStatement))
+    body: parseTopLevel(state, context | Context.TopLevel, createScope(ScopeType.BlockStatement))
   };
 
   if (context & Context.OptionsRanges) {

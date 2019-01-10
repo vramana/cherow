@@ -12,7 +12,7 @@ import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
 
-const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
+const table = new Array(0xffff).fill(scanMaybeIdentifier, 0, 0x80) as ((
   state: ParserState,
   context: Context,
   first: number
@@ -357,12 +357,12 @@ table[Chars.QuestionMark] = scanChar;
 OneCharPunc[Chars.QuestionMark] = Token.QuestionMark;
 
 // `A`...`Z`
-for (let i = Chars.UpperA; i < Chars.UpperZ; i++) {
+for (let i = Chars.UpperA; i <= Chars.UpperZ; i++) {
   table[i] = scanIdentifier;
 }
 
 // `a`...`z`
-for (let i = Chars.LowerA; i < Chars.LowerZ; i++) {
+for (let i = Chars.LowerA; i <= Chars.LowerZ; i++) {
   table[i] = scanIdentifier;
 }
 

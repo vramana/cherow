@@ -50,7 +50,8 @@ export const enum Errors {
   InvalidDuplicateBinding,
   InvalidLetInStrict,
   UndeclaredExportedBinding,
-  InvalidDuplicateExportedBinding
+  InvalidDuplicateExportedBinding,
+  MissingInitInConstDecl
 }
 
 /*@internal*/
@@ -105,7 +106,8 @@ export const errorMessages: {
     'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
   [Errors.InvalidLetInStrict]: "let can't be a variable name in strict mode",
   [Errors.UndeclaredExportedBinding]: "Exported binding '%0' is not declared",
-  [Errors.InvalidDuplicateExportedBinding]: "Exported binding '%0' has already been declared"
+  [Errors.InvalidDuplicateExportedBinding]: "Exported binding '%0' has already been declared",
+  [Errors.MissingInitInConstDecl]: 'Missing initializer in const declaration'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
