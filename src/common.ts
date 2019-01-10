@@ -525,3 +525,23 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
       return true;
   }
 }
+export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
+  if (state.exportedNames !== undefined && exportedName !== '') {
+    let hashed: any = '@' + exportedName;
+    if (state.exportedNames[hashed]) report(state, Errors.InvalidDuplicateExportedBinding, exportedName);
+    state.exportedNames[hashed] = 1;
+  }
+}
+
+export function addToExportedBindings(state: ParserState, exportedName: any) {
+  if (state.exportedBindings !== undefined && exportedName !== '') {
+    let hashed: any = '@' + exportedName;
+    state.exportedBindings[hashed] = 1;
+  }
+}
+
+export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean {
+  const line = state.line;
+  next(state, context);
+  return state.token === Token.FunctionKeyword && state.line === line;
+}

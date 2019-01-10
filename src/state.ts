@@ -5,12 +5,14 @@ import {
   OnComment,
   OnToken,
   ParserState,
-  unimplemented,
   consumeSemicolon,
   Type,
   Origin,
   reinterpret,
-  validateBindingIdentifier
+  validateBindingIdentifier,
+  addToExportedNamesAndCheckForDuplicates,
+  addToExportedBindings,
+  nextTokenIsFuncKeywordOnSameLine
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -110,11 +112,349 @@ export function parseDirective(state: ParserState, context: Context): any {
 function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   switch (state.token) {
     case Token.ExportKeyword:
+      return parseExportDeclaration(state, context, scope);
     case Token.ImportKeyword:
-      unimplemented();
+      return parseImportDeclaration(state, context, scope);
     default:
       return parseStatementListItem(state, context, scope);
   }
+}
+
+/**
+ * Parse export declaration
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExportDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ClassDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-HoistableDeclaration)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ */
+function parseExportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
+  expect(state, context, Token.ExportKeyword);
+
+  const specifiers: ESTree.ExportSpecifier[] = [];
+
+  let declaration: any = null;
+  let source: ESTree.Literal | null = null;
+
+  if (optional(state, context, Token.DefaultKeyword)) {
+    switch (state.token) {
+      // export default HoistableDeclaration[Default]
+      case Token.FunctionKeyword: {
+        declaration = parseHoistableFunctionDeclaration(state, context, scope, true, false);
+        break;
+      }
+
+      // export default ClassDeclaration[Default]
+      case Token.ClassKeyword:
+        // declaration = parseClassDeclaration(state, context | Context.RequireIdentifier);
+        break;
+
+      // export default HoistableDeclaration[Default]
+      case Token.AsyncKeyword:
+        declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope);
+        break;
+
+      default:
+        // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+        declaration = parseAssignmentExpression(state, context);
+        consumeSemicolon(state, context);
+    }
+
+    // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportednames
+    addToExportedNamesAndCheckForDuplicates(state, 'default');
+
+    // See: https://www.ecma-international.org/ecma-262/9.0/index.html#sec-exports-static-semantics-exportedbindings
+    addToExportedBindings(state, '*default*');
+    addVariable(state, context, scope, Type.None, true, false, '*default*');
+
+    return {
+      type: 'ExportDefaultDeclaration',
+      declaration
+    };
+  }
+
+  switch (state.token) {
+    case Token.Multiply: {
+      next(state, context);
+      expect(state, context, Token.FromKeyword);
+      if ((state.token as any) !== Token.StringLiteral) report(state, Errors.Unexpected);
+      source = parseLiteral(state, context);
+      consumeSemicolon(state, context);
+      return {
+        type: 'ExportAllDeclaration',
+        source
+      };
+    }
+    case Token.LeftBrace: {
+      let exportedNames: string[] = [];
+      let exportedBindings: string[] = [];
+
+      expect(state, context, Token.LeftBrace);
+      while ((state.token as any) !== Token.RightBrace) {
+        let tokenValue = state.tokenValue;
+        let token = state.token;
+        const local = parseIdentifier(state, context);
+        let exported: any;
+        if ((state.token as any) === Token.AsKeyword) {
+          next(state, context);
+          if (!(state.token & Token.IsIdentifier)) report(state, Errors.Unexpected);
+          exportedNames.push(state.tokenValue);
+          exportedBindings.push(tokenValue);
+          exported = parseIdentifier(state, context);
+        } else {
+          validateBindingIdentifier(state, context, Type.Const, token);
+          exportedNames.push(state.tokenValue);
+          exportedBindings.push(state.tokenValue);
+          exported = local;
+        }
+
+        specifiers.push({
+          type: 'ExportSpecifier',
+          local,
+          exported
+        });
+
+        if ((state.token as any) !== Token.RightBrace) expect(state, context, Token.Comma);
+      }
+
+      expect(state, context, Token.RightBrace);
+
+      if ((state.token as any) === Token.FromKeyword) {
+        next(state, context);
+        //  The left hand side can't be a keyword where there is no
+        // 'from' keyword since it references a local binding.
+        if ((state.token as any) !== Token.StringLiteral) report(state, Errors.Unexpected);
+        source = parseLiteral(state, context);
+      } else {
+        let i = 0;
+        let iMax = exportedNames.length;
+        for (; i < iMax; i++) {
+          addToExportedNamesAndCheckForDuplicates(state, exportedNames[i]);
+        }
+        i = 0;
+        iMax = exportedBindings.length;
+        for (; i < iMax; i++) {
+          addToExportedBindings(state, exportedBindings[i]);
+        }
+      }
+
+      consumeSemicolon(state, context);
+
+      break;
+    }
+
+    case Token.ClassKeyword:
+    // TODO!
+    case Token.LetKeyword:
+      declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
+      if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+      break;
+    case Token.ConstKeyword:
+      declaration = parseLexicalDeclaration(state, context, Type.Const, Origin.Export, scope);
+      if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
+      break;
+    case Token.VarKeyword:
+      declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
+      break;
+    case Token.FunctionKeyword:
+      declaration = parseHoistableFunctionDeclaration(state, context, scope, false, false);
+      break;
+    case Token.AsyncKeyword:
+    default:
+      report(state, Errors.Unexpected);
+  }
+
+  return {
+    type: 'ExportNamedDeclaration',
+    source,
+    specifiers,
+    declaration
+  };
+}
+
+/**
+ * Parse import declaration
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ImportDeclaration)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+export function parseImportDeclaration(state: ParserState, context: Context, scope: ScopeState): any {
+  expect(state, context, Token.ImportKeyword);
+
+  let source: ESTree.Literal;
+  const specifiers: ESTree.Specifiers[] = [];
+
+  // 'import' ModuleSpecifier ';'
+  if ((state.token & Token.IsIdentifier) === Token.IsIdentifier) {
+    // V8: 'VariableMode::kConst',
+    // Cherow: 'BindingType.Const'
+    validateBindingIdentifier(state, context, Type.Const);
+    addVariable(state, context, scope, Type.None, true, false, state.tokenValue);
+    specifiers.push({
+      type: 'ImportDefaultSpecifier',
+      local: parseIdentifier(state, context)
+    });
+
+    // NameSpaceImport
+    if (optional(state, context, Token.Comma)) {
+      if (state.token === Token.Multiply) {
+        parseImportNamespace(state, context, scope, specifiers);
+      } else if (state.token === Token.LeftBrace) {
+        parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+      } else report(state, Errors.Unexpected);
+    }
+
+    source = parseModuleSpecifier(state, context);
+
+    // 'import' ModuleSpecifier ';'
+  } else if (state.token === Token.StringLiteral) {
+    source = parseLiteral(state, context);
+  } else {
+    if (state.token === Token.Multiply) {
+      parseImportNamespace(state, context, scope, specifiers);
+    } else if (state.token === Token.LeftBrace) {
+      parseImportSpecifierOrNamedImports(state, context, scope, specifiers);
+    } else report(state, Errors.Unexpected);
+
+    source = parseModuleSpecifier(state, context);
+  }
+
+  consumeSemicolon(state, context);
+
+  return {
+    type: 'ImportDeclaration',
+    specifiers,
+    source
+  };
+}
+
+/**
+ * Parse named imports or import specifier
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-NamedImports)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ImportSpecifier)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+
+function parseImportSpecifierOrNamedImports(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  specifiers: ESTree.Specifiers[]
+): void {
+  // NamedImports :
+  //   '{' '}'
+  //   '{' ImportsList '}'
+  //   '{' ImportsList ',' '}'
+  //
+  // ImportsList :
+  //   ImportSpecifier
+  //   ImportsList ',' ImportSpecifier
+  //
+  // ImportSpecifier :
+  //   BindingIdentifier
+  //   IdentifierName 'as' BindingIdentifier
+  expect(state, context, Token.LeftBrace);
+
+  while (state.token !== Token.RightBrace) {
+    const tokenValue = state.tokenValue;
+    const token = state.token;
+    if (!(state.token & Token.IsIdentifier)) report(state, Errors.Unexpected);
+    const imported = parseIdentifier(state, context);
+    let local: ESTree.Identifier;
+    if (optional(state, context, Token.AsKeyword)) {
+      validateBindingIdentifier(state, context, Type.Const);
+      addVariable(state, context, scope, Type.Const, true, false, state.tokenValue);
+      local = parseIdentifier(state, context);
+    } else {
+      // An import name that is a keyword is a syntax error if it is not followed
+      // by the keyword 'as'.
+      validateBindingIdentifier(state, context, Type.Const, token);
+      addVariable(state, context, scope, Type.Const, true, false, tokenValue);
+      local = imported;
+    }
+
+    specifiers.push({
+      type: 'ImportSpecifier',
+      local,
+      imported
+    });
+
+    if ((state.token as any) !== Token.RightBrace) expect(state, context, Token.Comma);
+  }
+
+  expect(state, context, Token.RightBrace);
+}
+
+/**
+ * Parse binding identifier
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-NameSpaceImport)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+
+function parseImportNamespace(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  specifiers: ESTree.Specifiers[]
+): void {
+  // NameSpaceImport:
+  //  * as ImportedBinding
+  next(state, context);
+  expect(state, context, Token.AsKeyword);
+  validateBindingIdentifier(state, context, Type.Const);
+  addVariable(state, context, scope, Type.Const, true, false, state.tokenValue);
+  const local = parseIdentifier(state, context);
+  specifiers.push({
+    type: 'ImportNamespaceSpecifier',
+    local
+  });
+}
+
+/**
+ * Parse module specifier
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ModuleSpecifier)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Literal {
+  // ModuleSpecifier :
+  //   StringLiteral
+  expect(state, context, Token.FromKeyword);
+  if (state.token !== Token.StringLiteral) report(state, Errors.Unexpected);
+  return parseLiteral(state, context);
+}
+
+/**
+ * Parses either async function or assignment expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+function parseAsyncFunctionOrAssignmentExpression(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
+  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+    ? parseHoistableFunctionDeclaration(state, context, scope, false, true)
+    : (parseAssignmentExpression(state, context) as any);
 }
 
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
@@ -798,11 +1138,27 @@ export function parseBindingIdentifier(
   context: Context,
   scope: ScopeState,
   type: Type,
-  _: Origin,
+  origin: Origin,
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const name = state.tokenValue;
-  addVariable(state, context, scope, type, checkForDuplicates, true, name);
+  addVariable(
+    state,
+    context,
+    scope,
+    type,
+    checkForDuplicates,
+    (origin === Origin.Statement || origin === Origin.ForStatement || origin === Origin.Export) &&
+      type === Type.Variable
+      ? true
+      : false,
+    name
+  );
+
+  if (origin === Origin.Export) {
+    addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
+    addToExportedBindings(state, state.tokenValue);
+  }
 
   next(state, context);
   return {
@@ -1140,6 +1496,86 @@ export function parseFunctionDeclaration(
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
 
+  const body = parseFunctionBody(
+    state,
+    context | Context.NewTarget,
+    createSubScope(paramScoop, ScopeType.BlockStatement),
+    firstRestricted
+  );
+
+  return {
+    type: 'FunctionDeclaration',
+    params,
+    body,
+    async: (context & Context.InAsync) !== 0,
+    generator: isGenerator,
+    expression: false,
+    id
+  };
+}
+
+export function parseHoistableFunctionDeclaration(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  isNotDefault: boolean,
+  isAsync: boolean
+) {
+  next(state, context);
+
+  let isGenerator: boolean = false;
+
+  if (optional(state, context, Token.Multiply)) {
+    isGenerator = true;
+  }
+
+  // Create a new function scope
+  let functionScope = createScope(ScopeType.BlockStatement);
+
+  let id: ESTree.Identifier | null = null;
+  let firstRestricted: Token | null = null;
+  let name: string = '';
+  if (state.token & Token.Identifier) {
+    const nameBindingType =
+      ((context & Context.InGlobal) === 0 || (context & Context.Module) === 0) &&
+      (context & Context.TopLevel) === Context.TopLevel
+        ? Type.Variable
+        : Type.Let;
+    /*
+    validateBindingIdentifier(
+      state,
+      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
+        Context.InAsync |
+        (context & Context.Strict)
+        ? isGenerator
+          ? Context.InGenerator
+          : Context.InGenerator
+        : Context.Empty | (context & Context.Module)
+        ? isGenerator
+          ? Context.InAsync
+          : Context.InAsync
+        : Context.Empty,
+      nameBindingType
+    );*/
+
+    addFunctionName(state, context, scope, nameBindingType, true);
+    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
+    firstRestricted = state.token;
+    id = parseIdentifier(state, context);
+  }
+
+  if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
+  addToExportedBindings(state, name);
+
+  context =
+    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
+    (Context.InAsync | Context.InGenerator | Context.InArguments);
+
+  if (isAsync) context |= Context.InAsync;
+  if (isGenerator) context |= Context.InGenerator;
+  // Create a argument scope
+  const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
+  const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
   const body = parseFunctionBody(
     state,
     context | Context.NewTarget,

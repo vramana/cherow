@@ -3,6 +3,7 @@ import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
 import { skipHashBang } from './scanner';
 import { createScope, ScopeType } from './scope';
+import { report, Errors } from './errors';
 
 /**
  * `ECMAScript version
@@ -118,12 +119,21 @@ export function parseSource(source: string, options: Options | void, context: Co
   // Stage 3 - HashBang grammar
   skipHashBang(state, context);
 
+  const scope = createScope(ScopeType.BlockStatement);
+
   const node: ESTree.Program = {
     type: 'Program',
     sourceType: context & Context.Module ? 'module' : 'script',
-    body: parseTopLevel(state, context | Context.TopLevel, createScope(ScopeType.BlockStatement))
+    body: parseTopLevel(state, context | Context.TopLevel, scope)
   };
 
+  if (context & Context.Module) {
+    for (let key in state.exportedBindings) {
+      if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
+        report(state, Errors.UndeclaredExportedBinding, key.slice(1));
+      }
+    }
+  }
   if (context & Context.OptionsRanges) {
     node.start = 0;
     node.end = source.length;
