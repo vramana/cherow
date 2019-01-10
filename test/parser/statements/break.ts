@@ -2,13 +2,366 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Statements - Break', () => {
+  const invalids: Array<[string, Context]> = [
+    ['break', Context.Empty],
+    ['{ break }', Context.Empty],
+    ['if (x) break', Context.Empty],
+    ['function f(){    break    }', Context.Empty],
+    ['function f(){    if (x) break   }', Context.Empty],
+    ['function f(){    break y   }', Context.Empty],
+    ['switch (x){ case z:    break y   }', Context.Empty],
+    ['switch (x){ case z:    if (x) break y   }', Context.Empty],
+    ['function f(){ switch (x){ case z:       break y   }}', Context.Empty],
+    ['function f(){ switch (x){ case z:       if (x) break y   }}', Context.Empty],
+    ['for (;;)    if (x) break y   }', Context.Empty],
+    ['function f(){ for (;;)       break y   }', Context.Empty],
+    ['function f(){ while (true)       break y   }', Context.Empty],
+    ['do     break y   ; while(true);', Context.Empty],
+    ['do     if (x) break y   ; while(true);', Context.Empty],
+    ['function f(){ do        if (x) break y   ; while(true);}', Context.Empty],
+    ['x: foo; break x;', Context.Empty],
+    ['loop1: function a() {}  while (true) { continue loop1; }', Context.Empty],
+    ['{  break foo; var y=2; }', Context.Empty],
+    ['loop1: while (true) { loop2: function a() { break loop2; } }', Context.Empty],
+    [
+      `(function(){
+      OuterLabel : var x=0, y=0;
+      LABEL_DO_LOOP : do {
+          LABEL_IN : x++;
+          if(x===10)
+              return;
+          break LABEL_ANOTHER_LOOP;
+          LABEL_IN_2 : y++;
+          function IN_DO_FUNC(){}
+      } while(0);
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+      function OUT_FUNC(){}
+  })();`,
+      Context.Empty
+    ],
+    [
+      `LABEL1 : do {
+      x++;
+      (function(){break LABEL1;})();
+      y++;
+  } while(0);`,
+      Context.Empty
+    ],
+    [
+      `(function(){
+      OuterLabel : var x=0, y=0;
+      LABEL_DO_LOOP : do {
+          LABEL_IN : x++;
+          if(x===10)
+              return;
+          break IN_DO_FUNC;
+          LABEL_IN_2 : y++;
+          function IN_DO_FUNC(){}
+      } while(0);
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+      function OUT_FUNC(){}
+    })();`,
+      Context.Empty
+    ],
+    [
+      `(function(){
+      OuterLabel : var x=0, y=0;
+      LABEL_DO_LOOP : do {
+          LABEL_IN : x++;
+          if(x===10)
+              return;
+          break LABEL_IN;
+          LABEL_IN_2 : y++;
+          function IN_DO_FUNC(){}
+      } while(0);
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+      function OUT_FUNC(){}
+    })();`,
+      Context.Empty
+    ],
+    [
+      `(function(){
+      OuterLabel : var x=0, y=0;
+      LABEL_DO_LOOP : do {
+          LABEL_IN : x++;
+          if(x===10)
+              return;
+          break LABEL_IN;
+          LABEL_IN_2 : y++;
+          function IN_DO_FUNC(){}
+      } while(0);
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+      function OUT_FUNC(){}
+    })();`,
+      Context.Empty
+    ],
+    [
+      `var x=0,y=0;
+    try{
+      LABEL1 : do {
+        x++;
+        throw "gonna leave it";
+        y++;
+      } while(0);
+      $ERROR('#1: throw "gonna leave it" lead to throwing exception');
+    } catch(e){
+      break;
+      LABEL2 : do {
+        x++;
+        y++;
+      } while(0);
+    }`,
+      Context.Empty
+    ],
+    ['loop1: while (true) { loop2: function a() { break loop1; } }', Context.Empty],
+    ['loop; while (true) { break loop1; }', Context.Empty],
+    [
+      `(function(){
+      LABEL_OUT : var x=0, y=0;
+      LABEL_DO_LOOP : do {
+          LABEL_IN : x++;
+          if(x===10)
+              return;
+          break LABEL_IN;
+          LABEL_IN_2 : y++;
+          function IN_DO_FUNC(){}
+      } while(0);
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+      function OUT_FUNC(){}
+    })();`,
+      Context.Empty
+    ],
+    [
+      `var x=1;
+    break;
+    var y=2;`,
+      Context.Empty
+    ]
+  ];
+  fail('Statements - Block (failure)', invalids);
+
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
-      'while (true) { break }',
+      'ding: foo: bar: while (true) break foo;',
       Context.Empty,
       {
         type: 'Program',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'ding'
+            },
+            body: {
+              type: 'LabeledStatement',
+              label: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              body: {
+                type: 'LabeledStatement',
+                label: {
+                  type: 'Identifier',
+                  name: 'bar'
+                },
+                body: {
+                  type: 'WhileStatement',
+                  test: {
+                    type: 'Literal',
+                    value: true
+                  },
+                  body: {
+                    type: 'BreakStatement',
+                    label: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'foo: while (true) { if (x) break foo; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'foo'
+            },
+            body: {
+              type: 'WhileStatement',
+              test: {
+                type: 'Literal',
+                value: true
+              },
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'IfStatement',
+                    test: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    consequent: {
+                      type: 'BreakStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'foo'
+                      }
+                    },
+                    alternate: null
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'foo: while (true) if (x) break foo;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'foo'
+            },
+            body: {
+              type: 'WhileStatement',
+              test: {
+                type: 'Literal',
+                value: true
+              },
+              body: {
+                type: 'IfStatement',
+                test: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                consequent: {
+                  type: 'BreakStatement',
+                  label: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  }
+                },
+                alternate: null
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'foo: while(true)break foo;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'foo'
+            },
+            body: {
+              type: 'WhileStatement',
+              test: {
+                type: 'Literal',
+                value: true
+              },
+              body: {
+                type: 'BreakStatement',
+                label: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function f(){ while (true)       if (x) break   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'WhileStatement',
+                  test: {
+                    type: 'Literal',
+                    value: true
+                  },
+                  body: {
+                    type: 'IfStatement',
+                    test: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    consequent: {
+                      type: 'BreakStatement',
+                      label: null
+                    },
+                    alternate: null
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'while (true)    { break }   ',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
             type: 'WhileStatement',
@@ -26,8 +379,130 @@ describe('Statements - Break', () => {
               ]
             }
           }
+        ]
+      }
+    ],
+    [
+      'function f(){ for (;;)       if (x) break   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ForStatement',
+                  body: {
+                    type: 'IfStatement',
+                    test: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    consequent: {
+                      type: 'BreakStatement',
+                      label: null
+                    },
+                    alternate: null
+                  },
+                  init: null,
+                  test: null,
+                  update: null
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'L: let\nx',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                name: 'let',
+                type: 'Identifier'
+              },
+              type: 'ExpressionStatement'
+            },
+            label: {
+              name: 'L',
+              type: 'Identifier'
+            },
+            type: 'LabeledStatement'
+          },
+          {
+            expression: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          }
         ],
-        sourceType: 'script'
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'function f(){ switch (x){ case z:       break    }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'SwitchStatement',
+                  discriminant: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  cases: [
+                    {
+                      type: 'SwitchCase',
+                      test: {
+                        type: 'Identifier',
+                        name: 'z'
+                      },
+                      consequent: [
+                        {
+                          type: 'BreakStatement',
+                          label: null
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
       }
     ],
     [

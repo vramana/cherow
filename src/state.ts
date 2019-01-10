@@ -41,6 +41,10 @@ export const enum LabelledState {
   Disallow = 1 << 1
 }
 
+function addFoo(state: ParserState, parent: any, key = '#') {
+  let aa = key;
+  state.foo = { key: parent };
+}
 /**
  * Create a new parser instance.
  */
@@ -75,7 +79,8 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     labelDepth: 0,
     switchStatement: LabelState.Empty,
     iterationStatement: LabelState.Empty,
-    functionBoundaryStack: undefined
+    functionBoundaryStack: undefined,
+    foo: { _: 'labelSet' }
   };
 }
 
@@ -622,6 +627,8 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
  */
 export function parseIfStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.IfStatement {
   next(state, context);
+  //const previousSwitchStatement = state.switchStatement;
+  state.switchStatement = LabelState.Empty;
   expect(state, context | Context.ExpressionStart, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
@@ -669,8 +676,6 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   const cases: ESTree.SwitchCase[] = [];
   let seenDefault = false;
   const switchScope = createSubScope(scope, ScopeType.SwitchStatement);
-  const previousSwitchStatement = state.switchStatement;
-  state.switchStatement = LabelState.Iteration;
   while (state.token !== Token.RightBrace) {
     let test: ESTree.Expression | null = null;
     if (optional(state, context, Token.CaseKeyword)) {
@@ -682,7 +687,6 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
     }
     cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope));
   }
-  state.switchStatement = previousSwitchStatement;
   expect(state, context, Token.RightBrace);
   return {
     type: 'SwitchStatement',
@@ -950,7 +954,10 @@ export function parseCaseOrDefaultClauses(
     state.token !== Token.RightBrace &&
     state.token !== Token.DefaultKeyword
   ) {
+    const previousiterationStatement = state.iterationStatement;
+    state.switchStatement = LabelState.Iteration;
     consequent.push(parseStatementListItem(state, (context | Context.TopLevel) ^ Context.TopLevel, scope));
+    state.iterationStatement = previousiterationStatement;
   }
   return {
     type: 'SwitchCase',
