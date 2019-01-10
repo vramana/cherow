@@ -167,7 +167,6 @@ function parseStatement(
       return parseDoWhileStatement(state, context, scope);
     case Token.ReturnKeyword:
       return parseReturnStatement(state, context);
-    case Token.IfKeyword:
     case Token.WhileKeyword:
       return parseWhileStatement(state, context, scope);
     case Token.WithKeyword:
@@ -182,6 +181,8 @@ function parseStatement(
       return parseTryStatement(state, context, scope);
     case Token.ThrowKeyword:
       return parseThrowStatement(state, context);
+    case Token.IfKeyword:
+      return parseIfStatement(state, context, scope);
     case Token.Semicolon:
       return parseEmptyStatement(state, context);
     case Token.LeftBrace:
