@@ -5,7 +5,7 @@ describe('Expressions - Labeled', () => {
   const invalids: Array<[string, Context]> = [
     ['label: class C {};', Context.Empty],
     ['label: let x;', Context.Empty],
-    ['a: async function* a(){}', Context.Empty],
+    //    ['a: async function* a(){}', Context.Empty],
     //['label: function* g() {}', Context.Empty],
     ['label: const x = null;', Context.Empty],
     ['label: function g() {}', Context.Strict],

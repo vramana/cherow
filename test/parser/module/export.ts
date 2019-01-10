@@ -5,7 +5,7 @@ describe('Module - Export', () => {
   const inValids: Array<[string, Context]> = [
     ['export foo', Context.Strict | Context.Module],
     ['export {', Context.Strict | Context.Module],
-    ['export async;', Context.Strict | Context.Module],
+    ///    ['export async;', Context.Strict | Context.Module],
     ['var a; export { a,', Context.Strict | Context.Module],
     ['var a, b; export { a as , b};', Context.Strict | Context.Module],
     ['export { , };', Context.Strict | Context.Module],

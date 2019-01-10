@@ -25,17 +25,17 @@ describe('Declarations - Function', () => {
     // ['"use strict"; function eval(){}', Context.Strict],
     ['const x = a; function x(){};', Context.Empty],
 
-    // ['function f([b, a], b) {}', Context.Empty],
-    // ['function f([b, a], {b}) {}', Context.Empty],
-    // ['function f([b, a], b=x) {}', Context.Empty],
-    // ['function f([b, a, b, a]) {}', Context.Empty],
-    // ['function f([a, a, b]) {}', Context.Empty],
-    // ['function f([b, a, a]) {}', Context.Empty],
-    // ['function f([a, b, a]) {}', Context.Empty],
-    // ['function f([a, a]) {}', Context.Empty],
-    // ['function f([a, b, a]) {}', Context.Empty],
-    // ['function f([a, b, a]) {}', Context.Empty],
-    // ['function f([b, a], ...b) {}', Context.Empty],
+    ['function f([b, a], b) {}', Context.Strict],
+    ['function f([b, a], {b}) {}', Context.Strict],
+    ['function f([b, a], b=x) {}', Context.Strict],
+    ['function f([b, a, b, a]) {}', Context.Strict],
+    ['function f([a, a, b]) {}', Context.Strict],
+    ['function f([b, a, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([a, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([b, a], ...b) {}', Context.Strict],
 
     // Block scope
 

@@ -13,13 +13,13 @@ import {
   validateBindingIdentifier,
   addToExportedNamesAndCheckForDuplicates,
   addToExportedBindings,
-  addVariableAndDeduplicate,
   nextTokenIsFuncKeywordOnSameLine,
   getLabel,
   validateContinueLabel,
   validateBreakStatement,
   addCrossingBoundary,
-  addLabel
+  addLabel,
+  addVariableAndDeduplicate
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -177,7 +177,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
       // export default HoistableDeclaration[Default]
       case Token.AsyncKeyword:
-        declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope);
+        declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope, true);
         break;
 
       default:
@@ -286,6 +286,8 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseHoistableFunctionDeclaration(state, context, scope, false, false);
       break;
     case Token.AsyncKeyword:
+      declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope, false);
+      break;
     default:
       report(state, Errors.Unexpected);
   }
@@ -473,10 +475,11 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
 function parseAsyncFunctionOrAssignmentExpression(
   state: ParserState,
   context: Context,
-  scope: ScopeState
+  scope: ScopeState,
+  isDefault: boolean
 ): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseHoistableFunctionDeclaration(state, context, scope, false, true)
+    ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
     : (parseAssignmentExpression(state, context) as any);
 }
 
@@ -490,10 +493,29 @@ function parseStatementListItem(state: ParserState, context: Context, scope: Sco
     case Token.LetKeyword:
       return parseLetOrExpressionStatement(state, context, scope);
     case Token.AsyncKeyword:
-    // unimplemented();
+      return parseAsyncFunctionOrExpressionStatement(state, context, scope);
     default:
       return parseStatement(state, context, scope, LabelledState.AllowAsLabelled);
   }
+}
+
+/**
+ * Parses either an async function declaration or an expression statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+function parseAsyncFunctionOrExpressionStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
+  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+    ? parseFunctionDeclaration(state, context, scope, false, true)
+    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
 }
 
 function parseLetOrExpressionStatement(
@@ -1942,7 +1964,34 @@ export function parseSequenceExpression(
   };
 }
 
+/**
+ * Parse yield expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-YieldExpression)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseYieldExpression(state: ParserState, context: Context): ESTree.YieldExpression | ESTree.Identifier {
+  expect(state, context, Token.YieldKeyword);
+  let argument: ESTree.Expression | null = null;
+  let delegate = false;
+  if (!(state.flags & Flags.NewLine)) {
+    delegate = optional(state, context, Token.Multiply);
+    if (delegate || state.token & Token.IsExpressionStart) {
+      argument = parseAssignmentExpression(state, context);
+    }
+  }
+  return {
+    type: 'YieldExpression',
+    argument,
+    delegate
+  };
+}
+
 export function parseAssignmentExpression(state: ParserState, context: Context): any {
+  if (state.token & Token.IsYield && context & Context.InGenerator) return parseYieldExpression(state, context);
   const expr = parseConditionalExpression(state, context);
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     if (state.token === Token.Assign) reinterpret(expr);
@@ -2033,6 +2082,27 @@ function parseBinaryExpression(
 }
 
 /**
+ * Parse await expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AwaitExpression)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Location info
+ */
+
+function parseAwaitExpression(
+  state: ParserState,
+  context: Context
+): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
+  next(state, context | Context.ExpressionStart);
+  return {
+    type: 'AwaitExpression',
+    argument: parseUnaryExpression(state, context | Context.ExpressionStart)
+  };
+}
+
+/**
  * Parses unary expression
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-UnaryExpression)
@@ -2042,7 +2112,9 @@ function parseBinaryExpression(
  */
 function parseUnaryExpression(state: ParserState, context: Context): any {
   const t = state.token;
-  if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
+  if (context & Context.InAsync && t & Token.IsAwait) {
+    return parseAwaitExpression(state, context);
+  } else if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
     next(state, context | Context.ExpressionStart);
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
     return {
@@ -2302,7 +2374,37 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.ThisKeyword:
       return parseThisExpression(state, context);
     case Token.LeftBrace:
-    case Token.AsyncKeyword:
+    case Token.AsyncKeyword: {
+      const expr = parseIdentifier(state, context);
+
+      if (state.flags & Flags.NewLine) return expr;
+
+      if (state.token === <Token>Token.FunctionKeyword) {
+        return parseFunctionExpression(state, context, true);
+      }
+
+      // async Identifier => AsyncConciseBody
+      if (state.token & Token.IsIdentifier) {
+        if (state.token === <Token>Token.AwaitKeyword) report(state, Errors.Unexpected);
+        const expr = parseIdentifier(state, context);
+        if (optional(state, context, Token.Arrow)) {
+          if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+          if (context & (Context.InGenerator | Context.InAsync)) report(state, Errors.Unexpected);
+          let scope = createScope(ScopeType.ArgumentList);
+          addVariableAndDeduplicate(state, context, scope, Type.Arguments, true);
+          return parseArrowFunctionExpression(state, context, scope as any, [expr], true);
+        }
+      }
+
+      if (optional(state, context, Token.Arrow)) {
+        if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+        if (context & (Context.InGenerator | Context.InAsync)) report(state, Errors.Unexpected);
+        let scope = createScope(ScopeType.ArgumentList);
+        return parseArrowFunctionExpression(state, context, scope as any, [expr], false);
+      }
+
+      return expr;
+    }
     default:
       const currentToken = state.token;
       const id = parseIdentifier(state, context);
@@ -2436,7 +2538,7 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
   let scope = createScope(ScopeType.ArgumentList);
   if (state.token === Token.RightParen) {
     next(state, context);
-    if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+    if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
     return parseArrowFunctionExpression(state, context, scope, [], false);
   } else if (state.token === Token.Ellipsis) {
     const rest = [parseRestElement(state, context, scope, Type.Arguments, Origin.None)];
@@ -2468,7 +2570,7 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
     };
   }
   expect(state, context, Token.RightParen);
-  if (state.token === Token.Arrow) {
+  if (optional(state, context, Token.Arrow)) {
     return parseArrowFunctionExpression(
       state,
       context,
