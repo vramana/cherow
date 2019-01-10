@@ -19,8 +19,6 @@ export const enum Context {
   OptionsExperimental = 1 << 7,
   OptionsNative = 1 << 8,
 
-  AllowLetDecl = 1 << 9,
-
   Strict = 1 << 10,
   Module = 1 << 11,
 

@@ -483,7 +483,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
     secondScope = createSubScope(catchScope, ScopeType.BlockStatement);
   }
 
-  const body = parseBlockStatement(state, context | Context.AllowLetDecl, secondScope);
+  const body = parseBlockStatement(state, context, secondScope);
 
   return {
     type: 'CatchClause',
@@ -1436,8 +1436,6 @@ function parseBinaryExpression(
   while (state.token & Token.IsBinaryOp) {
     t = state.token;
     prec = t & Token.Precedence;
-    // When the next token is no longer a binary operator, it's potentially the
-    // start of an expression, so we break the loop
     if (prec + (((t === Token.Exponentiate) as any) << 8) - (((bit === t) as any) << 12) <= minPrec) break;
     next(state, context | Context.ExpressionStart);
     left = {
@@ -1726,8 +1724,12 @@ export function parseArrayExpression(state: ParserState, context: Context): any 
   expect(state, context | Context.ExpressionStart, Token.LeftBracket);
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
-    elements.push(parseAssignmentExpression(state, context | Context.ExpressionStart));
-    if (state.token !== <Token>Token.RightBracket) expect(state, context, Token.Comma);
+    if (optional(state, context, Token.Comma)) {
+      elements.push(null);
+    } else {
+      elements.push(parseAssignmentExpression(state, context));
+      if (state.token !== <Token>Token.RightBracket) expect(state, context, Token.Comma);
+    }
   }
   expect(state, context, Token.RightBracket);
   return {
