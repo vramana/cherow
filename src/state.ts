@@ -23,6 +23,7 @@ import {
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
+import { consumeTemplateBrace } from './scanner/template';
 import {
   optional,
   expect,
@@ -2207,6 +2208,20 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
           arguments: args
         };
         break;
+      case Token.TemplateTail:
+        expr = {
+          type: 'TaggedTemplateExpression',
+          tag: expr,
+          quasi: parseTemplateLiteral(state, context)
+        };
+        break;
+      case Token.TemplateCont:
+        expr = {
+          type: 'TaggedTemplateExpression',
+          tag: expr,
+          quasi: parseTemplate(state, context | Context.TaggedTemplate)
+        };
+        break;
       default:
         return expr;
     }
@@ -2308,10 +2323,129 @@ function parseMemberExpressionContinuation(state: ParserState, context: Context,
         };
         expect(state, context, Token.RightBracket);
         break;
+      case Token.TemplateTail:
+        expr = {
+          type: 'TaggedTemplateExpression',
+          tag: expr,
+          quasi: parseTemplateLiteral(state, context)
+        };
+        break;
+      case Token.TemplateCont:
+        expr = {
+          type: 'TaggedTemplateExpression',
+          tag: expr,
+          quasi: parseTemplate(state, context | Context.TaggedTemplate)
+        };
+        break;
       default:
         return expr;
     }
   }
+}
+
+/**
+ * Parse template literal
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateLiteral)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseTemplateLiteral(parser: ParserState, context: Context): ESTree.TemplateLiteral {
+  return {
+    type: 'TemplateLiteral',
+    expressions: [],
+    quasis: [parseTemplateSpans(parser, context)]
+  };
+}
+
+/**
+ * Parse template head
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param cooked Cooked template value
+ * @param raw Raw template value
+ * @param pos Current location
+ */
+
+function parseTemplateHead(
+  parser: ParserState,
+  context: Context,
+  cooked: string | null = null,
+  raw: string | null
+): ESTree.TemplateElement {
+  parser.token = consumeTemplateBrace(parser, context);
+
+  return {
+    type: 'TemplateElement',
+    value: {
+      cooked,
+      raw
+    },
+    tail: false
+  } as any;
+}
+
+/**
+ * Parse template
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param expression Expression AST node
+ * @param quasis Array of Template elements
+ */
+
+function parseTemplate(
+  parser: ParserState,
+  context: Context,
+  expressions: ESTree.Expression[] = [],
+  quasis: ESTree.TemplateElement[] = []
+): ESTree.TemplateLiteral {
+  const { tokenValue, tokenRaw } = parser;
+
+  expect(parser, context, Token.TemplateCont);
+
+  expressions.push(parseExpression(parser, context));
+  quasis.push(parseTemplateHead(parser, context, tokenValue, tokenRaw));
+
+  if (parser.token === Token.TemplateTail) {
+    quasis.push(parseTemplateSpans(parser, context));
+  } else {
+    parseTemplate(parser, context, expressions, quasis);
+  }
+
+  return {
+    type: 'TemplateLiteral',
+    expressions,
+    quasis
+  };
+}
+
+/**
+ * Parse template spans
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param loc Current AST node location
+ */
+
+function parseTemplateSpans(state: ParserState, context: Context): ESTree.TemplateElement {
+  const { tokenValue, tokenRaw } = state;
+
+  expect(state, context, Token.TemplateTail);
+
+  return {
+    type: 'TemplateElement',
+    value: {
+      cooked: tokenValue,
+      raw: tokenRaw
+    },
+    tail: true
+  };
 }
 
 /**
@@ -2361,11 +2495,14 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.LeftParen:
       return parseGroupExpression(state, context);
     case Token.LeftBrace:
-      // TODO: Need to pass down the 'scope' all the way down here
       return parseObjectLiteral(state, context, -1, Type.None);
     case Token.FunctionKeyword:
       return parseFunctionExpression(state, context, false);
     case Token.ClassKeyword:
+    case Token.TemplateTail:
+      return parseTemplateLiteral(state, context);
+    case Token.TemplateCont:
+      return parseTemplate(state, context);
     case Token.TrueKeyword:
     case Token.FalseKeyword:
       return parseBooleanLiteral(state, context);
@@ -2407,7 +2544,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     }
     default:
       const currentToken = state.token;
-      const id = parseIdentifier(state, context);
+      const id = parseIdentifier(state, context | Context.TaggedTemplate);
       if (optional(state, context, Token.Arrow)) {
         let scopes = createScope(ScopeType.ArgumentList);
         addVariableAndDeduplicate(state, context, scopes, Type.Arguments, true);
