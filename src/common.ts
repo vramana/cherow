@@ -237,6 +237,7 @@ export function addVariable(
   isVariableDecl: boolean,
   key: string
 ) {
+  if (scope === -1) return;
   if ((bindingType & Type.Variable) === Type.Variable) {
     let lex = scope.lex;
     while (lex) {

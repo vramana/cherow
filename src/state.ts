@@ -2420,10 +2420,13 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
 }
 export function parseArrayExpression(state: ParserState, context: Context): any {
   expect(state, context | Context.ExpressionStart, Token.LeftBracket);
+  context = (context | Context.DisallowIn) ^ Context.DisallowIn;
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
     if (optional(state, context, Token.Comma)) {
       elements.push(null);
+    } else if (state.token === Token.Ellipsis) {
+      elements.push(parseSpreadElement(state, context));
     } else {
       elements.push(parseAssignmentExpression(state, context));
       if (state.token !== <Token>Token.RightBracket) expect(state, context, Token.Comma);
@@ -2543,7 +2546,7 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
   } else if (state.token === Token.Ellipsis) {
     const rest = [parseRestElement(state, context, scope, Type.Arguments, Origin.None)];
     expect(state, context, Token.RightParen);
-    if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+    if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
     return parseArrowFunctionExpression(state, context, scope, rest, false);
   }
   let expr = parseAssignmentExpression(state, context);
@@ -2553,12 +2556,12 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
       if (state.token === <Token>Token.Ellipsis) {
         const restElement = parseRestElement(state, context, scope, Type.Arguments, Origin.None);
         expect(state, context, Token.RightParen);
-        if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
+        if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
         expressions.push(restElement);
-        return expressions;
+        return parseArrowFunctionExpression(state, context, scope, expressions, false);
       } else if (optional(state, context, Token.RightParen)) {
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
-        return expressions;
+        return parseArrowFunctionExpression(state, context, scope, expressions, false);
       } else {
         expressions.push(parseAssignmentExpression(state, context));
       }
@@ -2598,7 +2601,7 @@ function parseObjectLiteral(
   type: Type
 ): ESTree.Expression {
   next(state, context);
-
+  context = (context | Context.DisallowIn) ^ Context.DisallowIn;
   let key: ESTree.Expression | null = null;
   let token = state.token;
   let tokenValue = state.tokenValue;
