@@ -1438,7 +1438,7 @@ function parseBinaryExpression(
     prec = t & Token.Precedence;
     // When the next token is no longer a binary operator, it's potentially the
     // start of an expression, so we break the loop
-    if (prec + (((t === Token.Exponentiate) as any) << 8) - ((bit === t) as any << 12) <= minPrec) break;
+    if (prec + (((t === Token.Exponentiate) as any) << 8) - (((bit === t) as any) << 12) <= minPrec) break;
     next(state, context | Context.ExpressionStart);
     left = {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
