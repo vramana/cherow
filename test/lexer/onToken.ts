@@ -43,6 +43,7 @@ describe('Lexer - OnToken', () => {
     });
   }
 
+  // FIXME!
   pass('tokenize right brace', {
     source: '}',
     token: Token.RightBrace,
