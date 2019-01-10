@@ -12,7 +12,7 @@ import { scanIdentifier, scanMaybeIdentifier } from './identifier';
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
 
-const table = new Array(0xffff).fill(scanMaybeIdentifier, 0, 0x80) as ((
+const table = new Array(0xffff).fill(scanMaybeIdentifier, 0x80) as ((
   state: ParserState,
   context: Context,
   first: number
