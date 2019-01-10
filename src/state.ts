@@ -138,7 +138,6 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
   let declaration: any = null;
   let source: ESTree.Literal | null = null;
-
   if (optional(state, context, Token.DefaultKeyword)) {
     switch (state.token) {
       // export default HoistableDeclaration[Default]
@@ -1440,16 +1439,12 @@ export function parseFunctionDeclaration(
   isFuncDel: boolean,
   isAsync: boolean
 ) {
-  let isGenerator: boolean = false;
-
   next(state, context);
 
-  if (optional(state, context, Token.Multiply)) {
-    isGenerator = true;
-  }
+  const isGenerator: boolean = optional(state, context, Token.Multiply);
 
   // Create a new function scope
-  let functionScope = createScope(ScopeType.BlockStatement);
+  let funcScope = createScope(ScopeType.BlockStatement);
 
   let id: ESTree.Identifier | null = null;
   let firstRestricted: Token | null = null;
@@ -1480,7 +1475,7 @@ export function parseFunctionDeclaration(
 
     if (isFuncDel) scope = createSubScope(scope, ScopeType.BlockStatement);
     addFunctionName(state, context, scope, nameType, true);
-    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
+    funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     firstRestricted = state.token;
     id = parseIdentifier(state, context);
   }
@@ -1493,7 +1488,7 @@ export function parseFunctionDeclaration(
   if (isGenerator) context |= Context.InGenerator;
 
   // Create a argument scope
-  const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
+  const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
 
   const body = parseFunctionBody(
@@ -1523,25 +1518,22 @@ export function parseHoistableFunctionDeclaration(
 ) {
   next(state, context);
 
-  let isGenerator: boolean = false;
-
-  if (optional(state, context, Token.Multiply)) {
-    isGenerator = true;
-  }
+  const isGenerator: boolean = optional(state, context, Token.Multiply);
 
   // Create a new function scope
-  let functionScope = createScope(ScopeType.BlockStatement);
+  let funcScope = createScope(ScopeType.BlockStatement);
 
   let id: ESTree.Identifier | null = null;
   let firstRestricted: Token | null = null;
   let name: string = '';
-  if (state.token & Token.Identifier) {
-    const nameBindingType =
-      ((context & Context.InGlobal) === 0 || (context & Context.Module) === 0) &&
+
+  if (state.token & Token.IsIdentifier) {
+    const nameType =
+      (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
       (context & Context.TopLevel) === Context.TopLevel
         ? Type.Variable
         : Type.Let;
-    /*
+
     validateBindingIdentifier(
       state,
       ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
@@ -1555,11 +1547,11 @@ export function parseHoistableFunctionDeclaration(
           ? Context.InAsync
           : Context.InAsync
         : Context.Empty,
-      nameBindingType
-    );*/
+      nameType
+    );
 
-    addFunctionName(state, context, scope, nameBindingType, true);
-    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
+    addFunctionName(state, context, scope, nameType, true);
+    funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     firstRestricted = state.token;
     id = parseIdentifier(state, context);
   }
@@ -1573,9 +1565,11 @@ export function parseHoistableFunctionDeclaration(
 
   if (isAsync) context |= Context.InAsync;
   if (isGenerator) context |= Context.InGenerator;
+
   // Create a argument scope
-  const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
+  const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
+
   const body = parseFunctionBody(
     state,
     context | Context.NewTarget,
@@ -1604,7 +1598,7 @@ export function parseHoistableFunctionDeclaration(
  */
 
 export function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin) {
-  next(state, context); // '('
+  expect(state, context, Token.LeftParen);
   const params: any[] = [];
   while (state.token !== Token.RightParen) {
     if (optional(state, context, Token.Comma)) {
