@@ -21,7 +21,7 @@ pass('Literal - Numbers (pass)', [
       sourceType: 'script'
     }
   ],
-  [
+  /*  [
     '09876543',
     Context.Empty,
     {
@@ -37,7 +37,7 @@ pass('Literal - Numbers (pass)', [
       ],
       sourceType: 'script'
     }
-  ],
+  ],*/
   [
     '1e+32',
     Context.Empty,

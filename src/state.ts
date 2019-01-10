@@ -13,8 +13,17 @@ import {
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
-import { optional, expect, addVariable, checkIfExistInLexicalBindings, isLexical, lookAheadOrScan } from './common';
-import { ScopeState, ScopeType, createSubScope } from './scope';
+import {
+  optional,
+  expect,
+  addVariable,
+  checkIfExistInLexicalBindings,
+  checkFunctionsArgForDuplicate,
+  addFunctionName,
+  isLexical,
+  lookAheadOrScan
+} from './common';
+import { ScopeState, ScopeType, createSubScope, createScope } from './scope';
 import { report, Errors } from './errors';
 
 export const enum LabelledState {
@@ -72,7 +81,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
 
   while (state.token !== Token.EndOfSource) {
     if (context & Context.Module) statements.push(parseModuleItem(state, context, scope));
-    else statements.push(parseStatementListItem(state, context | Context.AllowLetDecl, scope));
+    else statements.push(parseStatementListItem(state, context, scope));
   }
 
   return statements;
@@ -107,9 +116,10 @@ function parseModuleItem(state: ParserState, context: Context, scope: ScopeState
   }
 }
 
-function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
   switch (state.token) {
     case Token.FunctionKeyword:
+      return parseFunctionDeclaration(state, context, scope, false, false);
     case Token.ClassKeyword:
     case Token.ConstKeyword:
       return parseLexicalDeclaration(state, context, Type.Const, Origin.Statement, scope);
@@ -465,7 +475,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
     if (state.token === Token.RightParen) report(state, Errors.Unexpected);
-    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.Arguments, Origin.Catch, false);
+    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.Arguments, Origin.CatchClause, false);
     if (state.token === Token.Assign) report(state, Errors.Unexpected);
     if (checkIfExistInLexicalBindings(state, context, catchScope, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
@@ -567,9 +577,17 @@ function parseForStatement(
 
   if (state.token !== Token.Semicolon) {
     if ((state.token & Token.IsVarDecl) !== 0) {
+      const kind = KeywordDescTable[state.token & Token.Type];
       if (optional(state, context, Token.VarKeyword)) {
-        declarations = parseVariableDeclarationList(state, context, Type.Variable, Origin.For, false, scope);
-        init = { type: 'VariableDeclaration', kind: 'var', declarations };
+        declarations = parseVariableDeclarationList(
+          state,
+          context | Context.DisallowIn,
+          Type.Variable,
+          Origin.ForStatement,
+          false,
+          scope
+        );
+        init = { type: 'VariableDeclaration', kind, declarations };
       } else if (state.token === Token.LetKeyword) {
         let tokenValue = state.tokenValue;
         next(state, context);
@@ -577,12 +595,16 @@ function parseForStatement(
           if (context & Context.Strict) report(state, Errors.Unexpected);
           init = { type: 'Identifier', name: tokenValue };
         } else {
-          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.For, false, scope);
-          init = { type: 'VariableDeclaration', kind: 'let', declarations };
+          declarations = parseVariableDeclarationList(state, context, Type.Let, Origin.ForStatement, true, scope);
+          if (checkIfExistInLexicalBindings(state, context, scope, true))
+            report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
+          init = { type: 'VariableDeclaration', kind, declarations };
         }
       } else if (optional(state, context, Token.ConstKeyword)) {
-        declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.For, false, scope);
-        init = { type: 'VariableDeclaration', kind: 'const', declarations };
+        declarations = parseVariableDeclarationList(state, context, Type.Const, Origin.ForStatement, false, scope);
+        if (checkIfExistInLexicalBindings(state, context, scope, true))
+          report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
+        init = { type: 'VariableDeclaration', kind, declarations };
       }
     } else {
       isPattern = state.token === Token.LeftBracket || state.token === Token.LeftBrace;
@@ -995,6 +1017,180 @@ function parseAssignmentProperty(
 }
 
 /**
+ * Parses function instance
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionDeclaration)
+ *
+ * @param parser  Parser object
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseFunctionDeclaration(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  isFuncDel: boolean,
+  isAsync: boolean
+) {
+  let isGenerator: boolean = false;
+
+  next(state, context);
+
+  if (optional(state, context, Token.Multiply)) {
+    isGenerator = true;
+  }
+
+  // Create a new function scope
+  let functionScope = createScope(ScopeType.BlockStatement);
+
+  let id: ESTree.Identifier | null = null;
+  let firstRestricted: Token | null = null;
+
+  if (state.token & Token.IsIdentifier) {
+    const nameBindingType =
+      ((context & Context.InGlobal) === 0 || (context & Context.Module) === 0) &&
+      (context & Context.TopLevel) === Context.TopLevel
+        ? Type.Variable
+        : Type.Let;
+
+    // Validate binding identifier
+    /*validateBindingIdentifier(
+      state,
+      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
+        Context.InAsync |
+        (context & Context.Strict)
+        ? isGenerator
+          ? Context.InGenerator
+          : Context.InGenerator
+        : Context.Empty | (context & Context.Module)
+        ? isGenerator
+          ? Context.InAsync
+          : Context.InAsync
+        : Context.Empty,
+      nameBindingType
+    ); */
+
+    if (isFuncDel) scope = createSubScope(scope, ScopeType.BlockStatement);
+    addFunctionName(state, context, scope, nameBindingType, true);
+    functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
+    firstRestricted = state.token;
+    id = parseIdentifier(state, context);
+  }
+
+  context =
+    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
+    (Context.InAsync | Context.InGenerator | Context.InArguments);
+
+  if (isAsync) context |= Context.InAsync;
+  if (isGenerator) context |= Context.InGenerator;
+
+  // Create a argument scope
+  const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
+  const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
+
+  const body = parseFunctionBody(
+    state,
+    context | Context.NewTarget,
+    createSubScope(paramScoop, ScopeType.BlockStatement),
+    firstRestricted
+  );
+
+  return {
+    type: 'FunctionDeclaration',
+    params,
+    body,
+    async: (context & Context.InAsync) !== 0,
+    generator: isGenerator,
+    expression: false,
+    id
+  };
+}
+
+/**
+ * Parse formal parameters
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ * @param origin Origin
+ */
+
+export function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin) {
+  next(state, context); // '('
+  const params: any[] = [];
+  while (state.token !== Token.RightParen) {
+    if (optional(state, context, Token.Comma)) {
+      if (state.token === Token.Comma) report(state, Errors.Unexpected);
+    } else {
+      let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.Arguments, origin, false);
+      if (optional(state, context, Token.Assign)) {
+        left = {
+          type: 'AssignmentPattern',
+          left,
+          right: parseAssignmentExpression(state, context)
+        };
+      }
+      params.push(left);
+    }
+  }
+
+  expect(state, context, Token.RightParen);
+
+  if ((context & (Context.Strict | Context.InMethod)) !== 0) checkFunctionsArgForDuplicate(state, scope.lex, true);
+
+  return params;
+}
+
+/**
+ * Parse function body
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+
+export function parseFunctionBody(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  firstRestricted: Token | null
+): ESTree.BlockStatement {
+  const body: any[] = [];
+  expect(state, context, Token.LeftBrace);
+
+  const isStrict = (context & Context.Strict) === Context.Strict;
+  context = (context | Context.TopLevel | Context.InFunctionBody | Context.InGlobal) ^ Context.InGlobal;
+  let ad = firstRestricted;
+  let adsf = scope;
+  if (state.token !== Token.RightBrace) {
+    while ((state.token & Token.StringLiteral) === Token.StringLiteral) {
+      if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
+        context |= Context.Strict;
+      }
+      body.push(parseStatementListItem(state, context, scope));
+    }
+
+    //if ((context & Context.Strict && firstRestricted === Token.Eval) || firstRestricted === Token.Arguments) {
+    //report(state, Errors.Unexpected);
+    //}
+
+    if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
+      checkFunctionsArgForDuplicate(state, scope.lex['#'], true);
+    }
+
+    while (state.token !== (Token.RightBrace as Token)) {
+      body.push(parseStatementListItem(state, context, scope));
+    }
+  }
+  expect(state, context | Context.ExpressionStart, Token.RightBrace);
+
+  return {
+    type: 'BlockStatement',
+    body
+  };
+}
+
+/**
  * Parses variable statement
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-VariableStatement)
@@ -1078,7 +1274,7 @@ export function parseVariableDeclarationList(
   while (optional(state, context, Token.Comma)) {
     list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
   }
-  if (origin === Origin.For && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
+  if (origin === Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
     if (
       state.token === Token.OfKeyword ||
       type === Type.Variable ||
@@ -1123,9 +1319,9 @@ function parseVariableDeclaration(
     init = parseAssignmentExpression(state, context);
   } else if (
     type & Type.Const &&
-    ((origin & Origin.For) === 0 || (state.token === Token.Semicolon || state.token === Token.Comma))
+    ((origin & Origin.ForStatement) === 0 || (state.token === Token.Semicolon || state.token === Token.Comma))
   ) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.MissingInitInConstDecl);
   }
 
   return {
@@ -1234,10 +1430,14 @@ function parseBinaryExpression(
   minPrec: number,
   left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
-  while ((state.token & Token.IsBinaryOp) === Token.IsBinaryOp) {
+  const bit = context & Context.DisallowIn;
+  while (state.token & Token.IsBinaryOp) {
     const t: Token = state.token;
     const prec = t & Token.Precedence;
     const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
+    if (bit && t === Token.InKeyword) break;
+    // When the next token is no longer a binary operator, it's potentially the
+    // start of an expression, so we break the loop
     if (prec + delta <= minPrec) break;
     next(state, context | Context.ExpressionStart);
     left = {
