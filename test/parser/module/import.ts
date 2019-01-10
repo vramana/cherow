@@ -79,7 +79,17 @@ describe('Module - Export', () => {
     ['import {a} from "c"; import a from "c"', Context.Strict | Context.Module],
     ['import {a} from "c"; import {b as a} from "c"', Context.Strict | Context.Module],
     ['import {a} from "c"; import {a as a} from "c"', Context.Strict | Context.Module],
-    ['import a from "c"; import * as a from "c"', Context.Strict | Context.Module]
+    ['import a from "c"; import * as a from "c"', Context.Strict | Context.Module],
+    ['import { foo, bar }', Context.Strict | Context.Module],
+    ['import foo { bar } from "bar";', Context.Strict | Context.Module],
+    ['export {foo} from bar', Context.Strict | Context.Module],
+    ['import * as foo, {bar} from "foo";', Context.Strict | Context.Module],
+    ['import * as foo, {bar} from "foo";', Context.Strict | Context.Module],
+    ['import {default as foo}', Context.Strict | Context.Module],
+    ['import {bar}, * as foo from "foo";', Context.Strict | Context.Module],
+    ['import * from "foo"', Context.Strict | Context.Module],
+    ['import { null } from "null"', Context.Strict | Context.Module],
+    ['import foo, from "bar";', Context.Strict | Context.Module]
   ];
 
   fail('Module - Export (fail)', inValids);

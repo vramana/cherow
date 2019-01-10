@@ -3,6 +3,7 @@ import { Token } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
 import { ScopeType, ScopeState } from 'scope';
+
 // prettier-ignore
 /**
  * The core context, passed around everywhere as a simple immutable bit set.
@@ -83,6 +84,13 @@ export const enum Origin {
   Class = 1 << 6
 }
 
+/*@internal*/
+export const enum LabelState {
+  Empty = 0, // Break statement
+  Iteration = 1 << 0, // Parsing iteration statement
+  CrossingBoundary = 1 << 1 // Crossing function boundary
+}
+
 /**
  * The type of the `onComment` option.
  */
@@ -115,6 +123,13 @@ export interface ParserState {
   inCatch: boolean;
   exportedNames: any[];
   exportedBindings: any[];
+  labelSet: any;
+  labelSetStack: { [key: string]: boolean }[];
+  iterationStack: (boolean | LabelState)[];
+  switchStatement: LabelState;
+  iterationStatement: LabelState;
+  labelDepth: number;
+  functionBoundaryStack: any;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -544,4 +559,110 @@ export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Co
   const line = state.line;
   next(state, context);
   return state.token === Token.FunctionKeyword && state.line === line;
+}
+
+/**
+ * Returns true if start of an iteration statement
+ *
+ * @param parser Parser object
+ */
+function isIterationStatement(state: ParserState): boolean {
+  return state.token === Token.WhileKeyword || state.token === Token.DoKeyword || state.token === Token.ForKeyword;
+}
+
+/**
+ * Add label to the stack
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
+export function addLabel(state: ParserState, label: string): void {
+  if (state.labelSet === undefined) state.labelSet = {};
+  state.labelSet[`@${label}`] = true;
+  state.labelSetStack[state.labelDepth] = state.labelSet;
+  state.iterationStack[state.labelDepth] = isIterationStatement(state);
+  state.labelSet = undefined;
+  state.labelDepth++;
+}
+
+/**
+ * Add function
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
+export function addCrossingBoundary(state: ParserState): void {
+  state.labelSetStack[state.labelDepth] = state.functionBoundaryStack;
+  state.iterationStack[state.labelDepth] = LabelState.Empty;
+  state.labelDepth++;
+}
+
+/**
+ * Validates continue statement
+ *
+ * @param parser Parser object
+ * @param label Label
+ */
+export function validateContinueLabel(state: ParserState, label: string): void {
+  const sstate = getLabel(state, `@${label}`, true);
+  if ((sstate & LabelState.Iteration) !== LabelState.Iteration) {
+    if (sstate & LabelState.CrossingBoundary) {
+      report(state, Errors.Unexpected);
+    } else {
+      report(state, Errors.Unexpected);
+    }
+  }
+}
+
+/**
+ * Validates break statement
+ *
+ * @param parser Parser object
+ * @param label Label
+ */
+export function validateBreakStatement(state: ParserState, label: any): void {
+  const lblstate = getLabel(state, `@${label}`);
+  if ((lblstate & LabelState.Iteration) !== LabelState.Iteration) report(state, Errors.Unexpected);
+}
+
+/**
+ * Add label
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
+export function getLabel(
+  state: ParserState,
+  label: string,
+  iterationStatement: boolean = false,
+  crossBoundary: boolean = false
+): LabelState {
+  if (!iterationStatement && state.labelSet && state.labelSet[label] === true) {
+    return LabelState.Iteration;
+  }
+
+  if (!state.labelSetStack) return LabelState.Empty;
+
+  let stopAtTheBorder = false;
+  for (let i = state.labelDepth - 1; i >= 0; i--) {
+    const labelSet = state.labelSetStack[i];
+    if (labelSet === state.functionBoundaryStack) {
+      if (crossBoundary) {
+        break;
+      } else {
+        stopAtTheBorder = true;
+        continue;
+      }
+    }
+
+    if (iterationStatement && state.iterationStack[i] === false) {
+      continue;
+    }
+
+    if (labelSet[label] === true) {
+      return stopAtTheBorder ? LabelState.CrossingBoundary : LabelState.Iteration;
+    }
+  }
+
+  return LabelState.Empty;
 }

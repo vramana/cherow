@@ -51,7 +51,13 @@ export const enum Errors {
   InvalidLetInStrict,
   UndeclaredExportedBinding,
   InvalidDuplicateExportedBinding,
-  MissingInitInConstDecl
+  MissingInitInConstDecl,
+  IllegalContinue,
+  IllegalBreak,
+  StrictModeWith,
+  LabelRedeclaration,
+  NewlineAfterThrow,
+  IllegalReturn
 }
 
 /*@internal*/
@@ -107,7 +113,13 @@ export const errorMessages: {
   [Errors.InvalidLetInStrict]: "let can't be a variable name in strict mode",
   [Errors.UndeclaredExportedBinding]: "Exported binding '%0' is not declared",
   [Errors.InvalidDuplicateExportedBinding]: "Exported binding '%0' has already been declared",
-  [Errors.MissingInitInConstDecl]: 'Missing initializer in const declaration'
+  [Errors.MissingInitInConstDecl]: 'Missing initializer in const declaration',
+  [Errors.NewlineAfterThrow]: 'Illegal newline after throw',
+  [Errors.IllegalReturn]: 'Illegal return statement',
+  [Errors.IllegalContinue]: 'Illegal continue statement: no surrounding iteration statement',
+  [Errors.IllegalBreak]: 'Illegal break statement',
+  [Errors.LabelRedeclaration]: "Label '%0' has already been declared",
+  [Errors.StrictModeWith]: 'Strict mode code may not include a with statement'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
