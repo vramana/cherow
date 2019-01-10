@@ -255,6 +255,47 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
     argument
   };
 }
+
+/**
+ * Parses the if statement production
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-if-statement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+export function parseIfStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.IfStatement {
+  next(state, context);
+  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  const test = parseExpression(state, context);
+  expect(state, context, Token.RightParen);
+  const consequent = parseConsequentOrAlternate(state, context, scope);
+  const alternate = optional(state, context, Token.ElseKeyword)
+    ? parseConsequentOrAlternate(state, context, scope)
+    : null;
+  return {
+    type: 'IfStatement',
+    test,
+    consequent,
+    alternate
+  };
+}
+
+/**
+ * Parse either consequent or alternate. Supports AnnexB.
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+
+function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
+  return context & Context.OptionsDisableWebCompat || context & Context.Strict || state.token !== Token.FunctionKeyword
+    ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
+    : parseFunctionDeclaration(state, context, scope, true, false);
+}
+
 /**
  * Parses switch statement
  *
@@ -695,10 +736,21 @@ export function parseExpressionOrLabelledStatement(
   const expr: ESTree.Expression = parseExpression(state, context);
   if (token & Token.Keyword && state.token === Token.Colon) {
     next(state, context | Context.ExpressionStart);
+    // validateBindingIdentifier(state, context, Type.None, token);
+    let body: any = null;
+    if (
+      (context & Context.OptionsDisableWebCompat) === 0 &&
+      ((state.token as Token) === Token.FunctionKeyword &&
+        !(context & Context.Strict) &&
+        label === LabelledState.AllowAsLabelled)
+    ) {
+      body = parseFunctionDeclaration(state, context, scope, false, false);
+    } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
+
     return {
       type: 'LabeledStatement',
       label: expr as ESTree.Identifier,
-      body: parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label)
+      body
     };
   }
   consumeSemicolon(state, context);
