@@ -130,7 +130,6 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
-  foo: any;
   tokenRegExp: void | {
     pattern: string;
     flags: string;

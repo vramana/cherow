@@ -41,10 +41,6 @@ export const enum LabelledState {
   Disallow = 1 << 1
 }
 
-function addFoo(state: ParserState, parent: any, key = '#') {
-  let aa = key;
-  state.foo = { key: parent };
-}
 /**
  * Create a new parser instance.
  */
@@ -79,8 +75,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     labelDepth: 0,
     switchStatement: LabelState.Empty,
     iterationStatement: LabelState.Empty,
-    functionBoundaryStack: undefined,
-    foo: { _: 'labelSet' }
+    functionBoundaryStack: undefined
   };
 }
 
