@@ -43,7 +43,16 @@ const tests = [
   { weight: 3, imports: [V1, V2, V2New], expr: `({})` },
   { weight: 3, imports: [V1, V2, V2New], expr: `({a})` },
   { weight: 3, imports: [V1, V2, V2New], expr: `({a})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({a = b})` }
+  { weight: 3, imports: [V1, V2, V2New], expr: `[x()[y]] = z` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `function f(){  x = {foo(a=yield){}}  }` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `({a = b})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `switch (A) {case B: C;}` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `foo: while (true) if (x) continue foo;` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `({get [foo](){}});` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `a|b` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `try {} catch ([a,b,c]) { }` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `try { } catch (a) { { const a = b; } }` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `for (var {x : y} in obj);` }
 ];
 
 function run(iterations) {
