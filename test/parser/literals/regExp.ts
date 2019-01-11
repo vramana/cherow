@@ -36,6 +36,331 @@ pass('Literal - Regexp (pass)', [
     }
   ],
   [
+    `chars.escapeRegex = {
+      '?': /\\?/g,
+      '@': /\\@/g,
+      '!': /\\!/g,
+      '+': /\\+/g,
+      '*': /\\*/g,
+      '(': /\\(/g,
+      ')': /\\)/g,
+      '[': /\\[/g,
+      ']': /\\]/g
+    };`,
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              computed: false,
+              object: {
+                name: 'chars',
+                type: 'Identifier'
+              },
+              property: {
+                name: 'escapeRegex',
+                type: 'Identifier'
+              },
+              type: 'MemberExpression'
+            },
+            operator: '=',
+            right: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '?'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\?'
+                    },
+                    type: 'Literal',
+                    value: /\?/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '@'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\?'
+                    },
+                    type: 'Literal',
+                    value: '@'
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '!'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\?'
+                    },
+                    type: 'Literal',
+                    value: '!'
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '+'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\+'
+                    },
+                    type: 'Literal',
+                    value: /\+/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '*'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\*'
+                    },
+                    type: 'Literal',
+                    value: /\*/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '('
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\('
+                    },
+                    type: 'Literal',
+                    value: /\(/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: ')'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\)'
+                    },
+                    type: 'Literal',
+                    value: /\)/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '['
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\['
+                    },
+                    type: 'Literal',
+                    value: /\[/g
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: ']'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\]'
+                    },
+                    type: 'Literal',
+                    value: /\]/g
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'AssignmentExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    `chars.escapeRegex = {
+        a: /\\]/g
+      };`,
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              computed: false,
+              object: {
+                name: 'chars',
+                type: 'Identifier'
+              },
+              property: {
+                name: 'escapeRegex',
+                type: 'Identifier'
+              },
+              type: 'MemberExpression'
+            },
+            operator: '=',
+            right: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\]'
+                    },
+                    type: 'Literal',
+                    value: /\]/g
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'AssignmentExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    `chars.escapeRegex = {
+          ']': /\\]/g
+        };`,
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              computed: false,
+              object: {
+                name: 'chars',
+                type: 'Identifier'
+              },
+              property: {
+                name: 'escapeRegex',
+                type: 'Identifier'
+              },
+              type: 'MemberExpression'
+            },
+            operator: '=',
+            right: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: ']'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    regex: {
+                      flags: 'g',
+                      pattern: '\\]'
+                    },
+                    type: 'Literal',
+                    value: /\]/g
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'AssignmentExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
     'str.replace(/^0*(.*)/, "$1") || "0";',
     Context.Empty,
     {

@@ -658,15 +658,17 @@ export function parseThrowStatement(state: ParserState, context: Context): ESTre
  */
 export function parseIfStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.IfStatement {
   next(state, context);
-  //const previousSwitchStatement = state.switchStatement;
-  state.switchStatement = LabelState.Empty;
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
+  const previousSwitchStatement = state.switchStatement;
+  state.switchStatement = LabelState.Empty;
   const consequent = parseConsequentOrAlternate(state, context, scope);
+  state.switchStatement = previousSwitchStatement;
   const alternate = optional(state, context, Token.ElseKeyword)
     ? parseConsequentOrAlternate(state, context, scope)
     : null;
+
   return {
     type: 'IfStatement',
     test,
@@ -707,6 +709,8 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
   const cases: ESTree.SwitchCase[] = [];
   let seenDefault = false;
   const switchScope = createSubScope(scope, ScopeType.SwitchStatement);
+  const previousSwitchStatement = state.switchStatement;
+  state.switchStatement = LabelState.Iteration;
   while (state.token !== Token.RightBrace) {
     let test: ESTree.Expression | null = null;
     if (optional(state, context, Token.CaseKeyword)) {
@@ -718,6 +722,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
     }
     cases.push(parseCaseOrDefaultClauses(state, context, test, switchScope));
   }
+  state.switchStatement = previousSwitchStatement;
   expect(state, context, Token.RightBrace);
   return {
     type: 'SwitchStatement',
@@ -985,10 +990,7 @@ export function parseCaseOrDefaultClauses(
     state.token !== Token.RightBrace &&
     state.token !== Token.DefaultKeyword
   ) {
-    const previousiterationStatement = state.iterationStatement;
-    state.switchStatement = LabelState.Iteration;
     consequent.push(parseStatementListItem(state, (context | Context.TopLevel) ^ Context.TopLevel, scope));
-    state.iterationStatement = previousiterationStatement;
   }
   return {
     type: 'SwitchCase',
@@ -2603,6 +2605,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     }
     default:
       const token = state.token;
+      validateBindingIdentifier(state, context, Type.None);
       const id = parseIdentifier(state, context | Context.TaggedTemplate);
       if (optional(state, context, Token.Arrow)) {
         let scopes = createScope(ScopeType.ArgumentList);
@@ -3124,7 +3127,7 @@ function parseObjectLiteral(
             } else {
               value = key;
             }
-          } else if (optional(state, context, Token.Colon)) {
+          } else if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
             if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
             if (state.token & Token.IsIdentifier) {
               tokenValue = state.tokenValue;
@@ -3190,7 +3193,7 @@ function parseObjectLiteral(
       } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
         tokenValue = state.tokenValue;
         key = parseLiteral(state, context);
-        if (optional(state, context, Token.Colon)) {
+        if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
           if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
           value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
           addVariable(state, context, scope, type, false, false, tokenValue);
