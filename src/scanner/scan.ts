@@ -73,7 +73,7 @@ table[Chars.Zero] = (state, context) => {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
-    } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Seven)) {
+    } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Nine)) {
       return scanImplicitOctalDigits(state, context);
     }
   }
