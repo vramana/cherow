@@ -251,6 +251,34 @@ describe('Expressions - Class', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['class foo {f(x) { let x }}', Context.Empty],
+    ['class foo {f(x) { const x = y }}', Context.Empty],
+    ['class foo {f(a, a) {}}', Context.Empty],
+    ['class foo {f(a, b, a) {}}', Context.Empty],
+    ['class foo {f(b, a, a) {}}', Context.Empty],
+    ['class foo {f(a, a, b) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a, [fine]) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a = x) {}}', Context.Empty],
+    ['class foo {f(b, a, b, ...a) {}}', Context.Empty],
+    ['class foo {f([a, a]) {}}', Context.Empty],
+    ['class foo {f([a, b, a]) {}}', Context.Empty],
+    ['class foo {f([b, a, a]) {}}', Context.Empty],
+    ['class foo {f([a, a, b]) {}}', Context.Empty],
+    ['class foo {f([b, a, b, a]) {}}', Context.Empty],
+    ['class foo {f([b, a], b) {}}', Context.Empty],
+    ['class foo {f([b, a], {b}) {}}', Context.Empty],
+    ['class foo {f([b, a], b=x) {}}', Context.Empty],
+    ['class foo {f([b, a], ...b) {}}', Context.Empty],
+    ['class foo {f(){ let x; var x; }}', Context.Empty],
+    ['class foo {f(){ var x; let x; }}', Context.Empty],
+    ['class foo {f(){ const x = y; var x; }}', Context.Empty],
+    ['class foo {f(){ var x; const x = y; }}', Context.Empty],
+    ['class foo {f(){ let x; function x(){} }}', Context.Empty],
+    ['class foo {f(){ function x(){} let x; }}', Context.Empty],
+    ['class foo {f(){ const x = y; function x(){} }}', Context.Empty],
+    ['class foo {f(){ function x(){} const x = y; }}', Context.Empty],
+    ['0, class { static method(...x = []) { } };', Context.Empty],
     ['(class { adf&/()})', Context.Empty],
     ['(class { adf &/()})', Context.Empty],
     ['(class b {)', Context.Empty],
@@ -301,6 +329,15 @@ describe('Expressions - Class', () => {
     ['class A {* get 8(){}}', Context.Empty],
     ['class A {async set 11(x){}}', Context.Empty],
     ['class A {* set 12(x){}}', Context.Empty],
+
+    ['var C = class let {};', Context.Empty],
+
+    ['var C = class let {};', Context.Empty],
+    ['var C = class let {};', Context.Empty],
+    ['var C = class let {};', Context.Empty],
+    ['var C = class let {};', Context.Empty],
+    ['var C = class let {};', Context.Empty],
+
     ['class A {* get [x](){}}', Context.Empty],
     ['class A {async get [x](){}}', Context.Empty],
     ['class A {* set [foo](x){}}', Context.Empty],
@@ -588,6 +625,1018 @@ describe('Expressions - Class', () => {
       }
     ],
     [
+      'var C = class { async *method(a, b = 39,) {}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'method'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [
+                            {
+                              type: 'Identifier',
+                              name: 'a'
+                            },
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: 'b'
+                              },
+                              right: {
+                                type: 'Literal',
+                                value: 39
+                              }
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: true,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var C = class { async *gen() {
+      callCount += 1;
+      yield {
+          ...yield,
+          y: 1,
+          ...yield yield,
+        };
+  }}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'gen'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'callCount'
+                                  },
+                                  operator: '+=',
+                                  right: {
+                                    type: 'Literal',
+                                    value: 1
+                                  }
+                                }
+                              },
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'YieldExpression',
+                                  argument: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: null,
+                                          delegate: false
+                                        }
+                                      },
+                                      {
+                                        type: 'Property',
+                                        key: {
+                                          type: 'Identifier',
+                                          name: 'y'
+                                        },
+                                        value: {
+                                          type: 'Literal',
+                                          value: 1
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false
+                                      },
+                                      {
+                                        type: 'SpreadElement',
+                                        argument: {
+                                          type: 'YieldExpression',
+                                          argument: {
+                                            type: 'YieldExpression',
+                                            argument: null,
+                                            delegate: false
+                                          },
+                                          delegate: false
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  delegate: false
+                                }
+                              }
+                            ]
+                          },
+                          async: true,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var C = 'outside';
+
+    var cls = class C extends (
+        probeHeritage = function() { return C; },
+        setHeritage = function() { C = null; }
+      ) {
+      method() {
+        return C;
+      }
+    };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 'outside'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: {
+                    type: 'Identifier',
+                    name: 'C'
+                  },
+                  superClass: {
+                    type: 'SequenceExpression',
+                    expressions: [
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'probeHeritage'
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ReturnStatement',
+                                argument: {
+                                  type: 'Identifier',
+                                  name: 'C'
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      },
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'setHeritage'
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'C'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    type: 'Literal',
+                                    value: null
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      }
+                    ]
+                  },
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'method'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ReturnStatement',
+                                argument: {
+                                  type: 'Identifier',
+                                  name: 'C'
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'cls'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var x = 'outside';
+    var probeParams, probeBody;
+
+    var C = class {
+      static m(_ = probeParams = function() { return x; }) {
+        var x = 'inside';
+        probeBody = function() { return x; };
+      }
+    };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 'outside'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'probeParams'
+                }
+              },
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'probeBody'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: true,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'm'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: '_'
+                              },
+                              right: {
+                                type: 'AssignmentExpression',
+                                left: {
+                                  type: 'Identifier',
+                                  name: 'probeParams'
+                                },
+                                operator: '=',
+                                right: {
+                                  type: 'FunctionExpression',
+                                  params: [],
+                                  body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                      {
+                                        type: 'ReturnStatement',
+                                        argument: {
+                                          type: 'Identifier',
+                                          name: 'x'
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  async: false,
+                                  generator: false,
+                                  id: null
+                                }
+                              }
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'VariableDeclaration',
+                                kind: 'var',
+                                declarations: [
+                                  {
+                                    type: 'VariableDeclarator',
+                                    init: {
+                                      type: 'Literal',
+                                      value: 'inside'
+                                    },
+                                    id: {
+                                      type: 'Identifier',
+                                      name: 'x'
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'probeBody'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                      type: 'BlockStatement',
+                                      body: [
+                                        {
+                                          type: 'ReturnStatement',
+                                          argument: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    id: null
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var probe;
+
+    var C = class {
+      // A parameter expression is necessary to trigger the creation of the scope
+      // under test.
+      *m(_ = null) {
+        var x = 'inside';
+        probe = function() { return x; };
+      }
+    };
+    C.prototype.m().next();
+
+    var x = 'outside';`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'probe'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'm'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: '_'
+                              },
+                              right: {
+                                type: 'Literal',
+                                value: null
+                              }
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'VariableDeclaration',
+                                kind: 'var',
+                                declarations: [
+                                  {
+                                    type: 'VariableDeclarator',
+                                    init: {
+                                      type: 'Literal',
+                                      value: 'inside'
+                                    },
+                                    id: {
+                                      type: 'Identifier',
+                                      name: 'x'
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'probe'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                      type: 'BlockStatement',
+                                      body: [
+                                        {
+                                          type: 'ReturnStatement',
+                                          argument: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    id: null
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'C'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'prototype'
+                      }
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'm'
+                    }
+                  },
+                  arguments: []
+                },
+                computed: false,
+                property: {
+                  type: 'Identifier',
+                  name: 'next'
+                }
+              },
+              arguments: []
+            }
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 'outside'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var x = 'outside';
+    var probeParams, probeBody;
+
+    var C = class{
+      *m(_ = probeParams = function() { return x; }) {
+        var x = 'inside';
+        probeBody = function() { return x; };
+      }
+    };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 'outside'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'probeParams'
+                }
+              },
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'probeBody'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'm'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: '_'
+                              },
+                              right: {
+                                type: 'AssignmentExpression',
+                                left: {
+                                  type: 'Identifier',
+                                  name: 'probeParams'
+                                },
+                                operator: '=',
+                                right: {
+                                  type: 'FunctionExpression',
+                                  params: [],
+                                  body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                      {
+                                        type: 'ReturnStatement',
+                                        argument: {
+                                          type: 'Identifier',
+                                          name: 'x'
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  async: false,
+                                  generator: false,
+                                  id: null
+                                }
+                              }
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'VariableDeclaration',
+                                kind: 'var',
+                                declarations: [
+                                  {
+                                    type: 'VariableDeclarator',
+                                    init: {
+                                      type: 'Literal',
+                                      value: 'inside'
+                                    },
+                                    id: {
+                                      type: 'Identifier',
+                                      name: 'x'
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                  type: 'AssignmentExpression',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'probeBody'
+                                  },
+                                  operator: '=',
+                                  right: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                      type: 'BlockStatement',
+                                      body: [
+                                        {
+                                          type: 'ReturnStatement',
+                                          argument: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    id: null
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: true,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var C = class {  method(x = arguments[2], y = arguments[3], z) {}};',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: [
+                      {
+                        type: 'MethodDefinition',
+                        kind: 'method',
+                        static: false,
+                        computed: false,
+                        key: {
+                          type: 'Identifier',
+                          name: 'method'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: 'x'
+                              },
+                              right: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'arguments'
+                                },
+                                computed: true,
+                                property: {
+                                  type: 'Literal',
+                                  value: 2
+                                }
+                              }
+                            },
+                            {
+                              type: 'AssignmentPattern',
+                              left: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              right: {
+                                type: 'MemberExpression',
+                                object: {
+                                  type: 'Identifier',
+                                  name: 'arguments'
+                                },
+                                computed: true,
+                                property: {
+                                  type: 'Literal',
+                                  value: 3
+                                }
+                              }
+                            },
+                            {
+                              type: 'Identifier',
+                              name: 'z'
+                            }
+                          ],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      }
+                    ]
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'C'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
       '(class J { static get foo() {} static set foo(x) {} get foo() {} set foo(x) {} })',
       Context.Empty,
       {
@@ -705,6 +1754,196 @@ describe('Expressions - Class', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      'class o {f(){ function x(){} var x = y; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'var',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              id: {
+                                type: 'Identifier',
+                                name: 'x'
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'class o {f(x) { function x() {} }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class o {f(f) { }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'f'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     [
