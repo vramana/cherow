@@ -19,6 +19,10 @@ describe('Module - Export', () => {
     ['export {try};', Context.Strict | Context.Module],
     ['export *', Context.Strict | Context.Module],
     ['export { default }', Context.Strict | Context.Module],
+    ['export default function f(){}; export function f(){};', Context.Strict | Context.Module],
+    ['export default class f {}; export function f(){};', Context.Strict | Context.Module],
+    ['export function f(){}; export default class f {}; ', Context.Strict | Context.Module],
+    ['export default class f {}; export default class f {}; ', Context.Strict | Context.Module],
     ['export B, * as A, { C, D } from "test";', Context.Strict | Context.Module],
     ['function foo() { }; export [ foo ];', Context.Strict | Context.Module],
     ['function foo() { }; () => { export { foo }; }', Context.Strict | Context.Module],
@@ -291,6 +295,59 @@ describe('Module - Export', () => {
             }
           }
         ]
+      }
+    ],
+
+    [
+      'export class a {}',
+      Context.Strict | Context.Module,
+      {
+        body: [
+          {
+            declaration: {
+              body: {
+                body: [],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            },
+            source: null,
+            specifiers: [],
+            type: 'ExportNamedDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    [
+      'export default class A {}',
+      Context.Strict | Context.Module,
+      {
+        body: [
+          {
+            declaration: {
+              body: {
+                body: [],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier'
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            },
+            type: 'ExportDefaultDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
       }
     ],
     [
@@ -1587,55 +1644,7 @@ describe('Module - Export', () => {
         ]
       }
     ],
-    [
-      'export default function f(){}; export {f};',
-      Context.Strict | Context.Module,
-      {
-        type: 'Program',
-        sourceType: 'module',
-        body: [
-          {
-            type: 'ExportDefaultDeclaration',
-            declaration: {
-              type: 'FunctionDeclaration',
-              params: [],
-              body: {
-                type: 'BlockStatement',
-                body: []
-              },
-              async: false,
-              generator: false,
 
-              id: {
-                type: 'Identifier',
-                name: 'f'
-              }
-            }
-          },
-          {
-            type: 'EmptyStatement'
-          },
-          {
-            type: 'ExportNamedDeclaration',
-            source: null,
-            specifiers: [
-              {
-                type: 'ExportSpecifier',
-                local: {
-                  type: 'Identifier',
-                  name: 'f'
-                },
-                exported: {
-                  type: 'Identifier',
-                  name: 'f'
-                }
-              }
-            ],
-            declaration: null
-          }
-        ]
-      }
-    ],
     [
       'export let a = 1;',
       Context.Strict | Context.Module,

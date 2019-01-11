@@ -173,7 +173,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
       // export default ClassDeclaration[Default]
       case Token.ClassKeyword:
-        // declaration = parseClassDeclaration(state, context | Context.RequireIdentifier);
+        declaration = parseHostedClassDeclaration(state, context, scope, true);
         break;
 
       // export default HoistableDeclaration[Default]
@@ -271,7 +271,8 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
     }
 
     case Token.ClassKeyword:
-    // TODO!
+      declaration = parseHostedClassDeclaration(state, context, scope, false);
+      break;
     case Token.LetKeyword:
       declaration = parseLexicalDeclaration(state, context, Type.Let, Origin.Export, scope);
       if (checkIfExistInLexicalBindings(state, context, scope)) report(state, Errors.Unexpected);
@@ -284,7 +285,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
       declaration = parseVariableStatement(state, context, Type.Variable, Origin.Export, scope);
       break;
     case Token.FunctionKeyword:
-      declaration = parseHoistableFunctionDeclaration(state, context, scope, false, false);
+      declaration = parseHoistableFunctionDeclaration(state, context, scope, true, false);
       break;
     case Token.AsyncKeyword:
       declaration = parseAsyncFunctionOrAssignmentExpression(state, context, scope, false);
@@ -1591,6 +1592,45 @@ export function parseFunctionDeclaration(
   };
 }
 
+function parseHostedClassDeclaration(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  isNotDefault: boolean
+): ESTree.ClassDeclaration {
+  next(state, context);
+  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
+
+  let id: ESTree.Expression | null = null;
+  let superClass: ESTree.Expression | null = null;
+  let name = '';
+  if (state.token & Token.IsIdentifier && state.token !== Token.ExtendsKeyword) {
+    name = state.tokenValue;
+    validateBindingIdentifier(state, context, Type.ClassExprDecl);
+    addVariable(state, context, scope, Type.Let, false, false, name);
+    id = parseIdentifier(state, context);
+  }
+
+  if (isNotDefault) addToExportedNamesAndCheckForDuplicates(state, name);
+  addToExportedBindings(state, name);
+
+  if (optional(state, context, Token.ExtendsKeyword)) {
+    superClass = parseLeftHandSideExpression(state, context);
+    context |= Context.SuperCall;
+  } else context = (context | Context.SuperCall) ^ Context.SuperCall;
+
+  context |= Context.SuperProperty;
+
+  const body = parseClassBodyAndElementList(state, context, scope, Type.None);
+
+  return {
+    type: 'ClassDeclaration',
+    id,
+    superClass,
+    body
+  };
+}
+
 export function parseHoistableFunctionDeclaration(
   state: ParserState,
   context: Context,
@@ -1610,6 +1650,7 @@ export function parseHoistableFunctionDeclaration(
   let name: string = '';
 
   if (state.token & Token.IsIdentifier) {
+    name = state.tokenValue;
     const nameType =
       (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
       (context & Context.TopLevel) === Context.TopLevel

@@ -175,3 +175,9 @@ others "*behind the scenes*" that contributes with their knowledge whenever it's
 
 
 ![](./media/benchmark.png)
+
+---
+
+Cross-browser testing provided by:
+
+<a href="http://browserstack.com"><img height="70" src="https://i.imgur.com/O9USsNQ.png" alt="BrowserStack"></a>
