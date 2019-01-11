@@ -96,7 +96,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
  */
 export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
-  next(state, context | Context.ExpressionStart);
+  next(state, context | Context.AllowPossibleRegEx);
 
   const statements: ESTree.Statement[] = [];
   while (state.token === Token.StringLiteral) {
@@ -603,7 +603,7 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
   while (state.token !== Token.RightBrace) {
     body.push(parseStatementListItem(state, context, scope));
   }
-  expect(state, context | Context.ExpressionStart, Token.RightBrace);
+  expect(state, context | Context.AllowPossibleRegEx, Token.RightBrace);
 
   return {
     type: 'BlockStatement',
@@ -658,7 +658,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   next(state, context);
   //const previousSwitchStatement = state.switchStatement;
   state.switchStatement = LabelState.Empty;
-  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const consequent = parseConsequentOrAlternate(state, context, scope);
@@ -698,7 +698,7 @@ function parseConsequentOrAlternate(state: ParserState, context: Context, scope:
  */
 function parseSwitchStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.SwitchStatement {
   next(state, context);
-  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const discriminant = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   expect(state, context, Token.LeftBrace);
@@ -734,7 +734,7 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
  */
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
   if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(state, Errors.IllegalReturn);
-  next(state, context | Context.ExpressionStart);
+  next(state, context | Context.AllowPossibleRegEx);
   const argument =
     (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
       ? parseExpression(state, context & ~Context.InFunctionBody)
@@ -757,7 +757,7 @@ export function parseReturnStatement(state: ParserState, context: Context): ESTr
  */
 export function parseWhileStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WhileStatement {
   next(state, context);
-  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const previousIterationStatement = state.iterationStatement;
@@ -834,7 +834,7 @@ export function parseBreakStatement(state: ParserState, context: Context): ESTre
 export function parseWithStatement(state: ParserState, context: Context, scope: ScopeState): ESTree.WithStatement {
   if (context & Context.Strict) report(state, Errors.StrictModeWith);
   next(state, context);
-  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const object = parseExpression(state, context);
   expect(state, context, Token.RightParen);
   const body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow);
@@ -919,7 +919,7 @@ export function parseCatchBlock(state: ParserState, context: Context, scope: Sco
   if (optional(state, context, Token.LeftParen)) {
     const catchScope = createSubScope(scope, ScopeType.CatchClause);
     if (state.token === Token.RightParen) report(state, Errors.Unexpected);
-    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.Arguments, Origin.CatchClause, false);
+    param = parseBindingIdentifierOrPattern(state, context, catchScope, Type.ArgList, Origin.CatchClause, false);
     if (state.token === Token.Assign) report(state, Errors.Unexpected);
     if (checkIfExistInLexicalBindings(state, context, catchScope, true))
       report(state, Errors.InvalidDuplicateBinding, state.tokenValue);
@@ -1154,7 +1154,7 @@ export function parseExpressionOrLabelledStatement(
   const tokenValue = state.tokenValue;
   const expr: ESTree.Expression = parseExpression(state, context);
   if (token & Token.Keyword && state.token === Token.Colon) {
-    next(state, context | Context.ExpressionStart);
+    next(state, context | Context.AllowPossibleRegEx);
     validateBindingIdentifier(state, context, Type.None, token);
     if (getLabel(state, `@${tokenValue}`, false, true)) {
       report(state, Errors.LabelRedeclaration, tokenValue);
@@ -1563,19 +1563,19 @@ export function parseFunctionDeclaration(
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
-    (Context.InAsync | Context.InGenerator | Context.InArguments);
+    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
+    (Context.InAsync | Context.InGenerator | Context.InArgList);
 
   if (isAsync) context |= Context.InAsync;
   if (isGenerator) context |= Context.InGenerator;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
+  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
 
   const body = parseFunctionBody(
     state,
-    context | Context.NewTarget,
+    context | Context.AllowNewTarget,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted
   );
@@ -1641,19 +1641,19 @@ export function parseHoistableFunctionDeclaration(
   addToExportedBindings(state, name);
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
-    (Context.InAsync | Context.InGenerator | Context.InArguments);
+    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
+    (Context.InAsync | Context.InGenerator | Context.InArgList);
 
   if (isAsync) context |= Context.InAsync;
   if (isGenerator) context |= Context.InGenerator;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
-  const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
+  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
 
   const body = parseFunctionBody(
     state,
-    context | Context.NewTarget,
+    context | Context.AllowNewTarget,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted
   );
@@ -1682,13 +1682,13 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
   const params: any[] = [];
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
-      params.push(parseRestElement(state, context, scope, Type.Arguments, Origin.None));
+      params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     } else {
       if (optional(state, context, Token.Comma)) {
         if (state.token === Token.Comma) report(state, Errors.Unexpected);
       } else {
-        let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.Arguments, origin, false);
+        let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
         if (optional(state, context, Token.Assign)) {
           left = parseAssignmentPattern(state, context, left);
         }
@@ -1787,7 +1787,7 @@ export function parseFunctionBody(
     state.switchStatement = previousSwitchStatement;
     state.iterationStatement = previousIterationStatement;
   }
-  expect(state, context | Context.ExpressionStart, Token.RightBrace);
+  expect(state, context | Context.AllowPossibleRegEx, Token.RightBrace);
 
   return {
     type: 'BlockStatement',
@@ -1995,7 +1995,7 @@ export function parseAssignmentExpression(state: ParserState, context: Context):
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     if (state.token === Token.Assign) reinterpret(expr);
     const operator = state.token;
-    next(state, context | Context.ExpressionStart);
+    next(state, context | Context.AllowPossibleRegEx);
     const right = parseAssignmentExpression(state, context);
     return {
       type: 'AssignmentExpression',
@@ -2025,9 +2025,9 @@ function parseConditionalExpression(
   // LogicalOrExpression
   // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
   const test = parseBinaryExpression(state, context, 0);
-  if (!optional(state, context | Context.ExpressionStart, Token.QuestionMark)) return test;
+  if (!optional(state, context | Context.AllowPossibleRegEx, Token.QuestionMark)) return test;
   const consequent = parseAssignmentExpression(state, context);
-  expect(state, context | Context.ExpressionStart, Token.Colon);
+  expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
   const alternate = parseAssignmentExpression(state, context);
   return {
     type: 'ConditionalExpression',
@@ -2068,7 +2068,7 @@ function parseBinaryExpression(
     t = state.token;
     prec = t & Token.Precedence;
     if (prec + (((t === Token.Exponentiate) as any) << 8) - (((bit === t) as any) << 12) <= minPrec) break;
-    next(state, context | Context.ExpressionStart);
+    next(state, context | Context.AllowPossibleRegEx);
     left = {
       type: t & Token.IsLogical ? 'LogicalExpression' : 'BinaryExpression',
       left,
@@ -2094,10 +2094,10 @@ function parseAwaitExpression(
   state: ParserState,
   context: Context
 ): ESTree.AwaitExpression | ESTree.Identifier | ESTree.ArrowFunctionExpression {
-  next(state, context | Context.ExpressionStart);
+  next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'AwaitExpression',
-    argument: parseUnaryExpression(state, context | Context.ExpressionStart)
+    argument: parseUnaryExpression(state, context | Context.AllowPossibleRegEx)
   };
 }
 
@@ -2115,7 +2115,7 @@ function parseUnaryExpression(state: ParserState, context: Context): any {
     return parseAwaitExpression(state, context);
   } else if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const { token } = state;
-    next(state, context | Context.ExpressionStart);
+    next(state, context | Context.AllowPossibleRegEx);
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
     if (state.token === Token.Exponentiate) {
       report(state, Errors.InvalidLOExponentation);
@@ -2232,20 +2232,31 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
     }
   }
 }
+
+/**
+ * Parse meta property
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param meta Identifier
+ * @param pos Location
+ */
+
 export function parseNewTargetExpression(state: ParserState, context: Context, id: ESTree.Identifier): any {
-  if (state.tokenValue === 'target') {
-    return {
-      meta: id,
-      type: 'MetaProperty',
-      property: parseIdentifier(state, context)
-    };
-  }
+  if ((context & Context.AllowNewTarget) === 0 || state.tokenValue !== 'target') report(state, Errors.Unexpected);
+  return {
+    meta: id,
+    type: 'MetaProperty',
+    property: parseIdentifier(state, context)
+  };
 }
 
 export function parseNewOrMemberExpression(state: ParserState, context: Context): any {
   if (state.token === Token.NewKeyword) {
     let result: any;
-    const id = parseIdentifier(state, context | Context.ExpressionStart);
+    const id = parseIdentifier(state, context | Context.AllowPossibleRegEx);
     if (state.token === <Token>Token.SuperKeyword) {
       result = { type: 'Super' };
     } else if (optional(state, context, Token.Period)) {
@@ -2533,7 +2544,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
           if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
           if (context & (Context.InGenerator | Context.InAsync)) report(state, Errors.Unexpected);
           let scope = createScope(ScopeType.ArgumentList);
-          addVariableAndDeduplicate(state, context, scope, Type.Arguments, true);
+          addVariableAndDeduplicate(state, context, scope, Type.ArgList, true);
           return parseArrowFunctionExpression(state, context, scope as any, [expr], true);
         }
       }
@@ -2552,7 +2563,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       const id = parseIdentifier(state, context | Context.TaggedTemplate);
       if (optional(state, context, Token.Arrow)) {
         let scopes = createScope(ScopeType.ArgumentList);
-        addVariableAndDeduplicate(state, context, scopes, Type.Arguments, true);
+        addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true);
         if (context & Context.InAsync && currentToken === Token.AwaitKeyword) report(state, Errors.Unexpected);
         return parseArrowFunctionExpression(state, context, scopes as any, [id], false);
       }
@@ -2561,7 +2572,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   }
 }
 export function parseArrayExpression(state: ParserState, context: Context): any {
-  expect(state, context | Context.ExpressionStart, Token.LeftBracket);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   context = (context | Context.DisallowIn) ^ Context.DisallowIn;
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
@@ -2620,8 +2631,8 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
-    (Context.InAsync | Context.InGenerator | Context.InArguments);
+    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
+    (Context.InAsync | Context.InGenerator | Context.InArgList);
 
   if (isAsync) context |= Context.InAsync;
   if (isGenerator) context |= Context.InGenerator;
@@ -2629,10 +2640,10 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
-  const params = parseFormalParameters(state, context | Context.NewTarget, paramScoop, Origin.FunctionArgs);
+  const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
   const body: any = parseFunctionBody(
     state,
-    context | Context.NewTarget,
+    context | Context.AllowNewTarget,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted
   );
@@ -2659,8 +2670,8 @@ function parseArrowFunctionExpression(
   if (checkIfExistInLexicalBindings(state, context, scope, true)) report(state, Errors.AlreadyDeclared);
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
-    (Context.InAsync | Context.InGenerator | Context.InArguments);
+    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
+    (Context.InAsync | Context.InGenerator | Context.InArgList);
 
   if (isAsync) context |= Context.InAsync;
 
@@ -2679,14 +2690,14 @@ function parseArrowFunctionExpression(
 }
 
 export function parseGroupExpression(state: ParserState, context: Context): any {
-  expect(state, context | Context.ExpressionStart, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   let scope = createScope(ScopeType.ArgumentList);
   if (state.token === Token.RightParen) {
     next(state, context);
     if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
     return parseArrowFunctionExpression(state, context, scope, [], false);
   } else if (state.token === Token.Ellipsis) {
-    const rest = [parseRestElement(state, context, scope, Type.Arguments, Origin.None)];
+    const rest = [parseRestElement(state, context, scope, Type.ArgList, Origin.None)];
     expect(state, context, Token.RightParen);
     if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
     return parseArrowFunctionExpression(state, context, scope, rest, false);
@@ -2694,9 +2705,9 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
   let expr = parseAssignmentExpression(state, context);
   if (state.token === Token.Comma) {
     const expressions: (ESTree.Expression | ESTree.RestElement)[] = [expr];
-    while (optional(state, context | Context.ExpressionStart, Token.Comma)) {
+    while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
       if (state.token === <Token>Token.Ellipsis) {
-        const restElement = parseRestElement(state, context, scope, Type.Arguments, Origin.None);
+        const restElement = parseRestElement(state, context, scope, Type.ArgList, Origin.None);
         expect(state, context, Token.RightParen);
         if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
         expressions.push(restElement);
@@ -2792,7 +2803,7 @@ function parseObjectLiteral(
             if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
             if (state.token & Token.IsIdentifier) {
               tokenValue = state.tokenValue;
-              value = parseAssignmentExpression(state, context | Context.ExpressionStart);
+              value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
               addVariable(state, context, scope, type, false, false, tokenValue);
             } else {
               value = parseAssignmentExpression(state, context);
@@ -2856,7 +2867,7 @@ function parseObjectLiteral(
         key = parseLiteral(state, context);
         if (optional(state, context, Token.Colon)) {
           if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
-          value = parseAssignmentExpression(state, context | Context.ExpressionStart);
+          value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
           addVariable(state, context, scope, type, false, false, tokenValue);
         } else {
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
@@ -2869,7 +2880,7 @@ function parseObjectLiteral(
         kind = 'init';
         if (state.token === <Token>Token.Colon) {
           next(state, context);
-          value = parseAssignmentExpression(state, context | Context.ExpressionStart);
+          value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
         } else {
           objState |= ObjectState.Method;
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
@@ -2961,8 +2972,8 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArguments) ^
-    (Context.InAsync | Context.InGenerator | Context.InArguments);
+    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
+    (Context.InAsync | Context.InGenerator | Context.InArgList);
 
   if (objState & ObjectState.Async) context |= Context.InAsync;
   if (objState & ObjectState.Generator) context |= Context.InGenerator;
@@ -2972,13 +2983,13 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
 
   const params = parseFormalParameters(
     state,
-    context | Context.NewTarget | Context.InMethod,
+    context | Context.AllowNewTarget | Context.InMethod,
     paramScoop,
-    Origin.FunctionArgs
+    Origin.ArgList
   );
   const body = parseFunctionBody(
     state,
-    context | Context.NewTarget | Context.Strict,
+    context | Context.AllowNewTarget | Context.Strict,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted
   );

@@ -26,7 +26,7 @@ export const enum Context {
   TopLevel = 1 << 12,
 
   DisallowIn = 1 << 13,
-  ExpressionStart = 1 << 15,
+  AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   SuperProperty = 1 << 18,
   SuperCall = 1 << 19,
@@ -34,13 +34,11 @@ export const enum Context {
   InGlobal = 1 << 20,
   InGenerator = 1 << 21,
   InAsync = 1 << 22,
-  InArguments = 1 << 23,
+  InArgList = 1 << 23,
   InConstructor = 1 << 24,
   InMethod = 1 << 25,
-
-  NewTarget = 1 << 26,
+  AllowNewTarget = 1 << 26,
   InFunctionBody = 1 << 27,
-  Statement = 1 << 28
 }
 
 /**
@@ -63,11 +61,11 @@ export const enum Flags {
 // prettier-ignore
 export const enum Type {
   None = 0,
-  Arguments = 1 << 0,
+  ArgList = 1 << 0,
   Variable = 1 << 1,
   Let = 1 << 2, // Lexical
   Const = 1 << 3, // Lexical
-  Class = 1 << 4
+  ClassExprDecl = 1 << 4
 }
 
 /**
@@ -81,8 +79,8 @@ export const enum Origin {
   Export = 1 << 2,
   CatchClause = 1 << 3,
   AsyncArgs = 1 << 4,
-  FunctionArgs = 1 << 5,
-  Class = 1 << 6
+  ArgList = 1 << 5,
+  ClassExprDecl = 1 << 6
 }
 
 /*@internal*/
@@ -511,7 +509,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
     case Token.EnumKeyword:
       report(state, Errors.Unexpected);
     case Token.LetKeyword:
-      if (type === Type.Class) report(state, Errors.Unexpected);
+      if (type === Type.ClassExprDecl) report(state, Errors.Unexpected);
       if (type === Type.Let || type === Type.Const) report(state, Errors.Unexpected);
       if (context & Context.Strict) report(state, Errors.Unexpected);
       return true;
