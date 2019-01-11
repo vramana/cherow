@@ -175,6 +175,8 @@ describe('Module - Export', () => {
     'export default x;',
     'export function func() { };',
     'export class C { };',
+    'export class A extends B {};',
+    'export default class A extends B {};',
     'export { };',
     'export {get}; function get() {};',
     'function f() {}; f(); export { f };',

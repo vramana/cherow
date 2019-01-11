@@ -1648,36 +1648,13 @@ export function parseHoistableFunctionDeclaration(
   let funcScope = createScope(ScopeType.BlockStatement);
 
   let id: ESTree.Identifier | null = null;
-  let firstRestricted: Token | null = null;
   let name: string = '';
 
   if (state.token & Token.IsIdentifier) {
     name = state.tokenValue;
-    const nameType =
-      (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
-      (context & Context.TopLevel) === Context.TopLevel
-        ? Type.Variable
-        : Type.Let;
-
-    validateBindingIdentifier(
-      state,
-      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
-        Context.AwaitContext |
-        (context & Context.Strict)
-        ? isGenerator
-          ? Context.YieldContext
-          : Context.YieldContext
-        : Context.Empty | (context & Context.Module)
-        ? isGenerator
-          ? Context.AwaitContext
-          : Context.AwaitContext
-        : Context.Empty,
-      nameType
-    );
-
-    addFunctionName(state, context, scope, nameType, true);
+    validateBindingIdentifier(state, context, Type.Let);
+    addFunctionName(state, context, scope, Type.Let, true);
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
-    firstRestricted = state.token;
     id = parseIdentifier(state, context);
   }
 
@@ -1699,7 +1676,7 @@ export function parseHoistableFunctionDeclaration(
     state,
     context | Context.AllowNewTarget,
     createSubScope(paramScoop, ScopeType.BlockStatement),
-    firstRestricted
+    null
   );
 
   return {
@@ -1814,10 +1791,6 @@ export function parseFunctionBody(
 
     const previousSwitchStatement = state.switchStatement;
     const previousIterationStatement = state.iterationStatement;
-
-    if ((state.switchStatement & LabelState.Iteration) === LabelState.Iteration) {
-      state.switchStatement = LabelState.CrossingBoundary;
-    }
 
     if ((state.iterationStatement & LabelState.Iteration) === LabelState.Iteration) {
       state.iterationStatement = LabelState.CrossingBoundary;
