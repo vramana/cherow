@@ -1,5 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Const', () => {
   const inValids: Array<[string, Context]> = [
@@ -28,7 +30,58 @@ describe('Declarations - Const', () => {
     ['const break = foo', Context.Empty]
   ];
 
+  const validSyntax = [
+    'const a = Infinity;',
+    'const b = -Infinity;',
+    'const c = +Infinity;',
+    'const d = /abc/;',
+    'const e = /abc/g;',
+    'const f = /abc/gi;'
+  ];
+
+  for (const arg of validSyntax) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
   pass('Declarations - Const (pass)', [
+    // Babylon issue: https://github.com/babel/babel/issues/6687
+    [
+      'const await = foo;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'const',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Identifier',
+                  name: 'foo'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'await'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+
     [
       'const foo = bar;',
       Context.Empty,

@@ -1,5 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Let', () => {
   const inValids: Array<[string, Context]> = [
@@ -34,6 +36,42 @@ describe('Declarations - Let', () => {
   ];
 
   fail('Declarations - Let (fail)', inValids);
+
+  const validSyntax = [
+    'let { w = a(), x = b(), y = c(), z = d() } = { w: null, x: 0, y: false, z: "" };',
+    'let { fn = function () {}, xFn = function x() {} } = {};',
+    'let { x, } = { x: 23 };',
+    'let { w: [x, y, z] = [4, 5, 6] } = {};',
+    'let { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };',
+    'let { x: y = 33 } = { };',
+    'let { x: y, } = { x: 23 };',
+    'let xCls = class x {};',
+    'let cls = class {};',
+    'let xCls2 = class { static name() {} };',
+    'let { s: t = a(), u: v = b(), w: x = c(), y: z = d() } = { s: null, u: 0, w: false, y: "" };',
+    'let {} = obj;',
+    'let {} = undefined;',
+    'let [, , ...x] = [1, 2];',
+    'let [ , , ...x] = [1, 2, 3, 4, 5];',
+    'let [[x]] = [null];',
+    'let test262id8;',
+    'for (let i = 0; i < 5; a.push(function () { return i; }), ++i) { }',
+    'switch (true) { default: let x = 1; }'
+  ];
+
+  for (const arg of validSyntax) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
 
   pass('Statements - Block (pass)', [
     [

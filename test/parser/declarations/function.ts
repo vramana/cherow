@@ -1,5 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Function', () => {
   const inValids: Array<[string, Context]> = [
@@ -79,6 +81,165 @@ describe('Declarations - Function', () => {
   ];
 
   fail('Declarations - Functions (fail)', inValids);
+
+  const programs = [
+    'if (true) function foo() {}',
+    'if (false) {} else function f() { };',
+    'label: function f() { }',
+    'label: if (true) function f() { }',
+    'label: if (true) {} else function f() { }',
+    'label: label2: function f() { }',
+    'function f() { ++(yield); }',
+    'function f(a, a) {}',
+    'function f(a, a) { function f(a, a) {} }',
+    'function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(...arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}',
+    'function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); arg = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arg = 42; g(arg)}',
+    'function f(arg) {g(arg); g(() => arg = 42); g(arg)}',
+    'function f(arg) {g(arg); h(arguments); g(arg)}',
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}',
+    'function foo() { label: function bar() { } }',
+    'function foo () {"use strict";}',
+    'function __func(){};',
+    '"use strict"; (function(){}).hasOwnProperty("icefapper");',
+    'function __func(){ delete arguments; return arguments; }',
+    'function hello() { say_hi_to_ariya(); }',
+    'function arguments() { }',
+    'function hello(a, b) { sayHi(); }',
+    'var hi = function eval() { };',
+    'var hi = function arguments() { };',
+    '(function(){})',
+    'function test() { "use strict" + 42; }',
+    'function test(t, t) { }',
+    'function hello() { z(); }',
+    'function hello(a) { z(); }',
+    'function eval() { function inner() { "use strict" } }',
+    'function hello(a, b) { z(); }',
+    'function test() { "use strict"\n + 0; }',
+    'function a() {} function a() {}',
+    'function a() { function a() {} function a() {} }',
+    'function arguments() { }',
+    'function arguments() { function foo() { "use strict"; } }',
+    'function arguments(eval) { function foo() { "use strict"; } }',
+    'function arguments(eval) { function foo() { "use strict"; } function eval() {} }',
+    'function arguments() { eval = arguments; function foo() { "use strict"; } }',
+    'function arguments(eval) { eval = arguments; function foo() { "use strict"; } }',
+    'function arguments(eval) { eval = arguments; function foo() { "use strict"; } "use strict"; }',
+    'function arguments(eval) { function foo() { "use strict"; } eval = arguments;  }',
+    'function f([x]) {}',
+    'function f([[,] = g()]) {}',
+    'function f([[...x] = function() {}()]) {}',
+    'function f([x = 23]) {}',
+    'function f([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {}',
+    'function f([...x]) {}',
+    'function f([x = 23] = []) {}',
+    'function f([{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]) {}',
+    'function f([...[]] = function*() {}) {}',
+    'function f({ x, } = { x: 23 }) {}',
+    'function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } }) {}',
+    'function f({ x, }) {}',
+    'function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } }) {}',
+    `function
+    x
+    (
+    )
+    {
+    }
+    ;`,
+    `function                                                    y                                   (                                          )                                              {};
+    y();
+    `,
+    `function
+    z
+    (
+    )
+    {
+    }
+    ;
+    `,
+    `function x(...{ a }){}`,
+    `function santa() { function package() {} function evdal() { "use strict"; }}`,
+    `function foo(bar, eval) { function bar() { "use strict"; } }`,
+    `function a() {
+      return 'hello \
+          world';
+    }`,
+    `function bar() {foo = 42}; ext(bar); ext(foo)`,
+    `function bar() { }`,
+    `function a(b, c) { }`,
+    `function makeArrayLength(x) { if(x < 1 || x > 4294967295 || x != x || isNaN(x) || !isFinite(x)) return 1; else return Math.floor(x); };`,
+    `function foo () {"use strict";}`,
+    `function __decl(){return 1;}`,
+    `function __func__2(){b};`,
+    `function __func__3(){1};`,
+    `function __func__4(){1+c};`,
+    `function __func__5(){inc(d)};`,
+    `function foo (a, b, c) { }`,
+    `function __gunc(){return true};`,
+    `function f(x = x) {}`,
+    `function f([x] = []) {}`,
+    `function f([{ x }] = [null]) {}`,
+    `function f({ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }) {}`,
+    `function test(t, t) { }`,
+    `function arguments() { }`,
+    `function a() { function a() {} function a() {} }`,
+    `a: function a(){}`,
+    `if (0) function a(){}`,
+    `function f(a, b, c) {
+      return null;
+    }
+    var g = function (a, b, c) {
+      return null;
+    };
+    function h(a, b = 1, c = 2) {
+      return null;
+    }
+    function i(a = 1, b, c) {
+      return null;
+    }
+    function j(...a) {}
+    function k() {}
+    var l = function () {};
+    var m = function (a = 1, b, c) {};
+    function* o() {
+      yield 42;
+    }
+    function* p() {
+      yield 42;
+      yield 7;
+      return "answer";
+    }
+    let q = function* () {};
+    let r = a => a;
+    let s = (a, b) => a + b;
+    let t = (a, b = 0) => a + b;
+    let u = (a, b) => {};
+    let v = () => {};
+    let w = () => ({});
+    let x = () => {
+      let a = 42;
+      return a;
+    };
+    let y = () => ({
+      a: 1,
+      b: 2
+    });`,
+    'function ref(a,) {}',
+    'function universe(__proto__) { }'
+  ];
+
+  for (const arg of programs) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
 
   pass('Declarations - Function (pass)', [
     [

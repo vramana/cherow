@@ -2786,7 +2786,7 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
 
 function parseClassDeclaration(state: ParserState, context: Context, scope: ScopeState): ESTree.ClassDeclaration {
   next(state, context);
-  context = (context | Context.Strict | Context.InConstructor) ^ (Context.Strict | Context.InConstructor);
+  context = (context | Context.Strict | Context.InConstructor) ^ Context.InConstructor;
 
   let id: ESTree.Expression | null = null;
   let superClass: ESTree.Expression | null = null;
@@ -2905,6 +2905,8 @@ export function parseClassBodyAndElementList(
             }
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
+          } else if (state.token === Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
             key = parseLiteral(state, context);
             kind = 'method';
@@ -2956,7 +2958,7 @@ export function parseClassBodyAndElementList(
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.LeftParen) {
-            if (tokenValue === 'prototype') report(state, Errors.Unexpected);
+            //if (tokenValue === 'prototype') report(state, Errors.Unexpected);
             if (tokenValue === 'constructor') kind = 'constructor';
             else kind = 'method';
             objState = objState & ~ObjectState.Computed;

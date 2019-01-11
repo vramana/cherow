@@ -3,7 +3,12 @@ import { pass, fail } from '../../test-utils';
 
 describe('Statements - Block', () => {
   const inValids: Array<[string, Context]> = [
-    // Bindings
+    ['y={x;};', Context.OptionsDisableWebCompat],
+    ['do{};while()', Context.OptionsDisableWebCompat],
+    ['if{};else{}', Context.OptionsDisableWebCompat],
+    ['try{};catch{};finally{}', Context.OptionsDisableWebCompat],
+    ['try{};catch(){}', Context.OptionsDisableWebCompat],
+
     ['{ if (x) function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
     ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
     ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
@@ -25,6 +30,168 @@ describe('Statements - Block', () => {
           {
             type: 'BlockStatement',
             body: []
+          }
+        ]
+      }
+    ],
+    [
+      '{ a(); bt(); }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  arguments: []
+                }
+              },
+              {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'Identifier',
+                    name: 'bt'
+                  },
+                  arguments: []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{ var {foo=3} = {}; };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: {
+                      type: 'ObjectExpression',
+                      properties: []
+                    },
+                    id: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          kind: 'init',
+                          key: {
+                            type: 'Identifier',
+                            name: 'foo'
+                          },
+                          computed: false,
+                          value: {
+                            type: 'AssignmentPattern',
+                            left: {
+                              type: 'Identifier',
+                              name: 'foo'
+                            },
+                            right: {
+                              type: 'Literal',
+                              value: 3
+                            }
+                          },
+                          method: false,
+                          shorthand: true
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            type: 'EmptyStatement'
+          }
+        ]
+      }
+    ],
+    [
+      '{ var foo = 0; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'var',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: {
+                      type: 'Literal',
+                      value: 0
+                    },
+                    id: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{ async function foo() {}; };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: true,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              {
+                type: 'EmptyStatement'
+              }
+            ]
+          },
+          {
+            type: 'EmptyStatement'
           }
         ]
       }

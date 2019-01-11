@@ -1,5 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Statements - For in', () => {
   const inValids: Array<[string, Context]> = [
@@ -15,7 +17,110 @@ describe('Statements - For in', () => {
     ['for (const a,b,c;;);', Context.OptionsDisableWebCompat],
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat]
   ];
+
   fail('Statements - For (fail)', inValids);
+
+  const programs: any = [
+    'for(x in {}, {}) {}',
+    'for(var x in {}, {}) {}',
+    'for(let x in {}, {}) {}',
+    'for(const x in {}, {}) {}',
+    'for(const x in [1,2,3]) {}',
+    'for(const x = 1; ; ) {}',
+    'for([{a=0}] in b);',
+    'for({a: a} in []){}',
+    "for({'a': a} in []){}",
+    'for({"a": a} in []){}',
+    'for({a=0} in b);',
+    'for({[Symbol.iterator]: a} in []){}',
+    'for({0: a} in []){}',
+    'for({a = 1} in []){}',
+    'for ({j} in x) { foo = j }',
+    'for ({j} in x) { var [foo] = [j] }',
+    'for ({j} in x) { const foo = j }',
+    'for (var j in x) { const foo = j }',
+    'for (var {j} in x) { let [foo] = [j] }',
+    'for (var {j} in x) { function foo() {return j} }',
+    'for (let {j} in x) { var foo = j }',
+    'for (let {j} in x) { let foo = j }',
+    'for (const j in x) { let [foo] = [j] }',
+    'for (const {j} in x) { let [foo] = [j] }',
+    'for (const {j} in x) { function foo() {return j} }',
+    'for([{a=0}] in b);',
+    'for({0: a = 1} in []) {}',
+    'for(let [a] in []) {}',
+    'for(let [a = 1] in []) {}',
+    'for(let [a = 1, ...b] in []) {}',
+    'for(let {a} in []) {}',
+    'for(const {a} in []){}',
+    'for(const {[Symbol.iterator]: a} in []){}',
+    ` if (a) {
+                for(f(); false;) {}
+              } else
+                for(x in y) {
+                  g()
+                }`,
+    `for (x in null, { key: 0 }) {}`,
+    `2; for (var b in { x: 0 }) { 3; }`,
+    `for (var p in obj) {
+                  if (obj.hasOwnProperty(p)) {
+                      if (p === "prop1") {
+                          countProp1++;
+                      }
+                      if (p === "prop2") {
+                          countProp2++;
+                      }
+                      if (p === "prop3") {
+                          countProp3++;
+                      }
+                  }
+              }`
+  ];
+
+  for (const arg of programs) {
+    it(`"use strict"; ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function foo(){ 'use strict'; ${arg} }`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`function foo(){ 'use strict'; ${arg} }`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg} ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg} ${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`async(); ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`async(); ${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function foo() { ${arg} }`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`function foo() { ${arg} }`, undefined, Context.Empty);
+      });
+    });
+
+    it(`if (true) { ${arg} } else ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`if (true) { ${arg} } else ${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
+
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
