@@ -2605,6 +2605,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     }
     default:
       const token = state.token;
+      validateBindingIdentifier(state, context, Type.None);
       const id = parseIdentifier(state, context | Context.TaggedTemplate);
       if (optional(state, context, Token.Arrow)) {
         let scopes = createScope(ScopeType.ArgumentList);
@@ -3126,7 +3127,7 @@ function parseObjectLiteral(
             } else {
               value = key;
             }
-          } else if (optional(state, context, Token.Colon)) {
+          } else if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
             if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
             if (state.token & Token.IsIdentifier) {
               tokenValue = state.tokenValue;
@@ -3192,7 +3193,7 @@ function parseObjectLiteral(
       } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
         tokenValue = state.tokenValue;
         key = parseLiteral(state, context);
-        if (optional(state, context, Token.Colon)) {
+        if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
           if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
           value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
           addVariable(state, context, scope, type, false, false, tokenValue);
