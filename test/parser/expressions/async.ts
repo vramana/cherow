@@ -3,7 +3,7 @@ import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Arrows', () => {
   const inValids: Array<[string, Context]> = [
-    ['await => { let x; }', Context.InAsync],
+    ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],

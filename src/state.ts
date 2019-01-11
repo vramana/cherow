@@ -733,11 +733,11 @@ function parseSwitchStatement(state: ParserState, context: Context, scope: Scope
  * @param context Context masks
  */
 export function parseReturnStatement(state: ParserState, context: Context): ESTree.ReturnStatement {
-  if (!(context & (Context.OptionsGlobalReturn | Context.InFunctionBody))) report(state, Errors.IllegalReturn);
+  if (!(context & (Context.OptionsGlobalReturn | Context.AllowReturn))) report(state, Errors.IllegalReturn);
   next(state, context | Context.AllowPossibleRegEx);
   const argument =
     (state.token & Token.ASI) < 1 && (state.flags & Flags.NewLine) < 1
-      ? parseExpression(state, context & ~Context.InFunctionBody)
+      ? parseExpression(state, context & ~Context.AllowReturn)
       : null;
   consumeSemicolon(state, context);
   return {
@@ -1031,7 +1031,7 @@ function parseForStatement(
       if (optional(state, context, Token.VarKeyword)) {
         declarations = parseVariableDeclarationList(
           state,
-          context | Context.DisallowIn,
+          context | Context.DisallowInContext,
           Type.Variable,
           Origin.ForStatement,
           false,
@@ -1058,7 +1058,7 @@ function parseForStatement(
       }
     } else {
       isPattern = state.token === Token.LeftBracket || state.token === Token.LeftBrace;
-      init = parseExpression(state, context | Context.DisallowIn);
+      init = parseExpression(state, context | Context.DisallowInContext);
     }
   }
 
@@ -1541,16 +1541,16 @@ export function parseFunctionDeclaration(
     // Validate binding identifier
     /*validateBindingIdentifier(
       state,
-      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
-        Context.InAsync |
+      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
+        Context.AwaitContext |
         (context & Context.Strict)
         ? isGenerator
-          ? Context.InGenerator
-          : Context.InGenerator
+          ? Context.YieldContext
+          : Context.YieldContext
         : Context.Empty | (context & Context.Module)
         ? isGenerator
-          ? Context.InAsync
-          : Context.InAsync
+          ? Context.AwaitContext
+          : Context.AwaitContext
         : Context.Empty,
       nameType
     ); */
@@ -1563,11 +1563,11 @@ export function parseFunctionDeclaration(
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
-    (Context.InAsync | Context.InGenerator | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
-  if (isAsync) context |= Context.InAsync;
-  if (isGenerator) context |= Context.InGenerator;
+  if (isAsync) context |= Context.AwaitContext;
+  if (isGenerator) context |= Context.YieldContext;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -1584,7 +1584,7 @@ export function parseFunctionDeclaration(
     type: 'FunctionDeclaration',
     params,
     body,
-    async: (context & Context.InAsync) !== 0,
+    async: (context & Context.AwaitContext) !== 0,
     generator: isGenerator,
     id
   };
@@ -1617,16 +1617,16 @@ export function parseHoistableFunctionDeclaration(
 
     validateBindingIdentifier(
       state,
-      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
-        Context.InAsync |
+      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
+        Context.AwaitContext |
         (context & Context.Strict)
         ? isGenerator
-          ? Context.InGenerator
-          : Context.InGenerator
+          ? Context.YieldContext
+          : Context.YieldContext
         : Context.Empty | (context & Context.Module)
         ? isGenerator
-          ? Context.InAsync
-          : Context.InAsync
+          ? Context.AwaitContext
+          : Context.AwaitContext
         : Context.Empty,
       nameType
     );
@@ -1641,11 +1641,11 @@ export function parseHoistableFunctionDeclaration(
   addToExportedBindings(state, name);
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
-    (Context.InAsync | Context.InGenerator | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
-  if (isAsync) context |= Context.InAsync;
-  if (isGenerator) context |= Context.InGenerator;
+  if (isAsync) context |= Context.AwaitContext;
+  if (isGenerator) context |= Context.YieldContext;
 
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
@@ -1662,7 +1662,7 @@ export function parseHoistableFunctionDeclaration(
     type: 'FunctionDeclaration',
     params,
     body,
-    async: (context & Context.InAsync) !== 0,
+    async: (context & Context.AwaitContext) !== 0,
     generator: isGenerator,
     id
   };
@@ -1749,7 +1749,7 @@ export function parseFunctionBody(
   expect(state, context, Token.LeftBrace);
 
   const isStrict = (context & Context.Strict) === Context.Strict;
-  context = (context | Context.TopLevel | Context.InFunctionBody | Context.InGlobal) ^ Context.InGlobal;
+  context = (context | Context.TopLevel | Context.AllowReturn | Context.InGlobal) ^ Context.InGlobal;
   let ad = firstRestricted;
   let adsf = scope;
   if (state.token !== Token.RightBrace) {
@@ -1990,7 +1990,7 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
 }
 
 export function parseAssignmentExpression(state: ParserState, context: Context): any {
-  if (state.token & Token.IsYield && context & Context.InGenerator) return parseYieldExpression(state, context);
+  if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
   const expr = parseConditionalExpression(state, context);
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     if (state.token === Token.Assign) reinterpret(expr);
@@ -2061,7 +2061,7 @@ function parseBinaryExpression(
   minPrec: number,
   left: any = parseUnaryExpression(state, context)
 ): ESTree.Expression {
-  const bit = -((context & Context.DisallowIn) > 0) & Token.InKeyword;
+  const bit = -((context & Context.DisallowInContext) > 0) & Token.InKeyword;
   let t: Token;
   let prec: number;
   while (state.token & Token.IsBinaryOp) {
@@ -2111,7 +2111,7 @@ function parseAwaitExpression(
  */
 function parseUnaryExpression(state: ParserState, context: Context): any {
   const t = state.token;
-  if (context & Context.InAsync && t & Token.IsAwait) {
+  if (context & Context.AwaitContext && t & Token.IsAwait) {
     return parseAwaitExpression(state, context);
   } else if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const { token } = state;
@@ -2507,11 +2507,11 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.RegularExpression:
       return parseRegularExpressionLiteral(state, context);
     case Token.LeftBracket:
-      return parseArrayExpression(state, context);
+      return parseArrayExpression(state, context & ~Context.DisallowInContext);
     case Token.LeftParen:
       return parseGroupExpression(state, context);
     case Token.LeftBrace:
-      return parseObjectLiteral(state, context, -1, Type.None);
+      return parseObjectLiteral(state, context & ~Context.DisallowInContext, -1, Type.None);
     case Token.FunctionKeyword:
       return parseFunctionExpression(state, context, false);
     case Token.ClassKeyword:
@@ -2542,7 +2542,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
         const expr = parseIdentifier(state, context);
         if (optional(state, context, Token.Arrow)) {
           if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-          if (context & (Context.InGenerator | Context.InAsync)) report(state, Errors.Unexpected);
+          if (context & (Context.YieldContext | Context.AwaitContext)) report(state, Errors.Unexpected);
           let scope = createScope(ScopeType.ArgumentList);
           addVariableAndDeduplicate(state, context, scope, Type.ArgList, true);
           return parseArrowFunctionExpression(state, context, scope as any, [expr], true);
@@ -2551,7 +2551,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
 
       if (optional(state, context, Token.Arrow)) {
         if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-        if (context & (Context.InGenerator | Context.InAsync)) report(state, Errors.Unexpected);
+        if (context & (Context.YieldContext | Context.AwaitContext)) report(state, Errors.Unexpected);
         let scope = createScope(ScopeType.ArgumentList);
         return parseArrowFunctionExpression(state, context, scope as any, [expr], false);
       }
@@ -2564,7 +2564,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       if (optional(state, context, Token.Arrow)) {
         let scopes = createScope(ScopeType.ArgumentList);
         addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true);
-        if (context & Context.InAsync && currentToken === Token.AwaitKeyword) report(state, Errors.Unexpected);
+        if (context & Context.AwaitContext && currentToken === Token.AwaitKeyword) report(state, Errors.Unexpected);
         return parseArrowFunctionExpression(state, context, scopes as any, [id], false);
       }
 
@@ -2573,7 +2573,6 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
 }
 export function parseArrayExpression(state: ParserState, context: Context): any {
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
-  context = (context | Context.DisallowIn) ^ Context.DisallowIn;
   let elements: any = [];
   while (state.token !== Token.RightBracket) {
     if (optional(state, context, Token.Comma)) {
@@ -2611,16 +2610,16 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
     // Validate binding identifier
     validateBindingIdentifier(
       state,
-      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
-        Context.InAsync |
+      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
+        Context.AwaitContext |
         (context & Context.Strict)
         ? isGenerator
-          ? Context.InGenerator
-          : Context.InGenerator
+          ? Context.YieldContext
+          : Context.YieldContext
         : Context.Empty | (context & Context.Module)
         ? isGenerator
-          ? Context.InAsync
-          : Context.InAsync
+          ? Context.AwaitContext
+          : Context.AwaitContext
         : Context.Empty,
       Type.Variable
     );
@@ -2631,11 +2630,11 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
-    (Context.InAsync | Context.InGenerator | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
-  if (isAsync) context |= Context.InAsync;
-  if (isGenerator) context |= Context.InGenerator;
+  if (isAsync) context |= Context.AwaitContext;
+  if (isGenerator) context |= Context.YieldContext;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
@@ -2670,10 +2669,10 @@ function parseArrowFunctionExpression(
   if (checkIfExistInLexicalBindings(state, context, scope, true)) report(state, Errors.AlreadyDeclared);
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
-    (Context.InAsync | Context.InGenerator | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
-  if (isAsync) context |= Context.InAsync;
+  if (isAsync) context |= Context.AwaitContext;
 
   const expression = state.token !== Token.LeftBrace;
   const body = expression
@@ -2754,7 +2753,6 @@ function parseObjectLiteral(
   type: Type
 ): ESTree.Expression {
   next(state, context);
-  context = (context | Context.DisallowIn) ^ Context.DisallowIn;
   let key: ESTree.Expression | null = null;
   let token = state.token;
   let tokenValue = state.tokenValue;
@@ -2952,16 +2950,16 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
     // Validate binding identifier
     validateBindingIdentifier(
       state,
-      ((context | Context.InGenerator | Context.InAsync) ^ Context.InGenerator) |
-        Context.InAsync |
+      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
+        Context.AwaitContext |
         (context & Context.Strict)
         ? (objState & ObjectState.Generator) !== 0
-          ? Context.InGenerator
-          : Context.InGenerator
+          ? Context.YieldContext
+          : Context.YieldContext
         : Context.Empty | (context & Context.Module)
         ? (objState & ObjectState.Generator) !== 0
-          ? Context.InAsync
-          : Context.InAsync
+          ? Context.AwaitContext
+          : Context.AwaitContext
         : Context.Empty,
       Type.Variable
     );
@@ -2972,11 +2970,11 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   }
 
   context =
-    (context | Context.InAsync | Context.InGenerator | Context.InArgList) ^
-    (Context.InAsync | Context.InGenerator | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
-  if (objState & ObjectState.Async) context |= Context.InAsync;
-  if (objState & ObjectState.Generator) context |= Context.InGenerator;
+  if (objState & ObjectState.Async) context |= Context.AwaitContext;
+  if (objState & ObjectState.Generator) context |= Context.YieldContext;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);

@@ -25,20 +25,20 @@ export const enum Context {
 
   TopLevel = 1 << 12,
 
-  DisallowIn = 1 << 13,
+  DisallowInContext = 1 << 13,
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   SuperProperty = 1 << 18,
   SuperCall = 1 << 19,
 
   InGlobal = 1 << 20,
-  InGenerator = 1 << 21,
-  InAsync = 1 << 22,
+  YieldContext = 1 << 21,
+  AwaitContext = 1 << 22,
   InArgList = 1 << 23,
   InConstructor = 1 << 24,
   InMethod = 1 << 25,
   AllowNewTarget = 1 << 26,
-  InFunctionBody = 1 << 27,
+  AllowReturn = 1 << 27,
 }
 
 /**
@@ -530,10 +530,10 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
       if (context & Context.Strict) report(state, Errors.Unexpected);
       return true;
     case Token.AwaitKeyword:
-      if (context & (Context.InAsync | Context.Module)) report(state, Errors.Unexpected);
+      if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.Unexpected);
       return true;
     case Token.YieldKeyword:
-      if (context & (Context.InGenerator | Context.Strict)) report(state, Errors.Unexpected);
+      if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.Unexpected);
       return true;
     default:
       // Valid binding name
