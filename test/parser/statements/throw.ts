@@ -2,6 +2,16 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Statements - Throw', () => {
+  const inValids: Array<[string, Context]> = [
+    [
+      `throw
+    x;`,
+      Context.Empty
+    ]
+  ];
+
+  fail('Statements - Throw', inValids);
+
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [

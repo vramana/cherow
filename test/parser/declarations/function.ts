@@ -127,7 +127,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -173,7 +173,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -226,7 +226,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -279,7 +279,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -339,7 +339,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -389,7 +389,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -439,7 +439,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -496,7 +496,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -542,7 +542,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -593,7 +593,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -648,7 +648,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -720,7 +720,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -768,7 +768,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -806,7 +806,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -851,7 +851,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -893,7 +893,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -942,7 +942,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -989,7 +989,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1043,7 +1043,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1094,7 +1094,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1152,7 +1152,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1185,7 +1185,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1220,7 +1220,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1259,7 +1259,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1305,7 +1305,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1352,7 +1352,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1405,7 +1405,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1444,7 +1444,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1490,7 +1490,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1539,7 +1539,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1575,7 +1575,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1611,7 +1611,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1664,7 +1664,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1704,7 +1704,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1755,7 +1755,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1792,7 +1792,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1829,7 +1829,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1877,7 +1877,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -1948,7 +1948,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2020,7 +2020,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2105,7 +2105,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2150,7 +2150,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2195,7 +2195,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2240,7 +2240,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2270,7 +2270,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2307,7 +2307,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2344,7 +2344,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2389,7 +2389,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2422,7 +2422,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2462,7 +2462,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2508,7 +2508,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2548,7 +2548,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2593,7 +2593,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2629,7 +2629,7 @@ describe('Declarations - Function', () => {
                     body: []
                   },
                   generator: false,
-                  expression: false,
+
                   async: false
                 },
                 {
@@ -2652,7 +2652,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2693,7 +2693,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'x'
@@ -2751,13 +2751,13 @@ describe('Declarations - Function', () => {
                     body: []
                   },
                   generator: false,
-                  expression: false,
+
                   async: false
                 }
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2791,7 +2791,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2829,7 +2829,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2867,7 +2867,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -2912,7 +2912,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -2954,7 +2954,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3007,7 +3007,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3044,7 +3044,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3089,7 +3089,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3142,7 +3142,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3217,7 +3217,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3299,7 +3299,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3381,7 +3381,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3418,7 +3418,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3461,7 +3461,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3507,7 +3507,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3546,7 +3546,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3599,7 +3599,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3641,7 +3641,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3690,7 +3690,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3743,7 +3743,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3780,7 +3780,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3825,7 +3825,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3864,7 +3864,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3910,7 +3910,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -3957,7 +3957,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -4001,7 +4001,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -4059,7 +4059,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -4105,7 +4105,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -4130,7 +4130,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'yield'
@@ -4160,7 +4160,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -4211,7 +4211,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4295,13 +4295,13 @@ describe('Declarations - Function', () => {
                     body: []
                   },
                   generator: false,
-                  expression: false,
+
                   async: false
                 }
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4346,7 +4346,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4386,7 +4386,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4426,7 +4426,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4466,7 +4466,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4506,7 +4506,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4546,7 +4546,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4571,7 +4571,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           },
           {
@@ -4586,7 +4586,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4621,7 +4621,7 @@ describe('Declarations - Function', () => {
                     body: []
                   },
                   generator: false,
-                  expression: false,
+
                   async: false
                 },
                 {
@@ -4636,13 +4636,13 @@ describe('Declarations - Function', () => {
                     body: []
                   },
                   generator: false,
-                  expression: false,
+
                   async: false
                 }
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4696,7 +4696,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4746,7 +4746,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4786,7 +4786,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4826,7 +4826,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4874,7 +4874,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4922,7 +4922,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -4970,7 +4970,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -5014,7 +5014,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -5044,7 +5044,7 @@ describe('Declarations - Function', () => {
               body: []
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -5089,7 +5089,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -5139,7 +5139,7 @@ describe('Declarations - Function', () => {
               ]
             },
             generator: false,
-            expression: false,
+
             async: false
           }
         ],
@@ -5162,7 +5162,7 @@ describe('Declarations - Function', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'foo'
@@ -5182,7 +5182,7 @@ describe('Declarations - Function', () => {
               body: [],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: false,
             id: {
               name: 'f',

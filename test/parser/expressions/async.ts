@@ -527,7 +527,7 @@ describe('Expressions - Arrows', () => {
               body: [],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: false,
             id: {
               name: 'f',
@@ -818,7 +818,7 @@ describe('Expressions - Arrows', () => {
               body: [],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: false,
             id: {
               name: 'g',
@@ -1364,7 +1364,7 @@ describe('Expressions - Arrows', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1384,7 +1384,7 @@ describe('Expressions - Arrows', () => {
               body: [],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: false,
             id: {
               name: 'f',
@@ -1492,7 +1492,7 @@ describe('Expressions - Arrows', () => {
                     },
                     async: true,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -1551,7 +1551,7 @@ describe('Expressions - Arrows', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'

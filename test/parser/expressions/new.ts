@@ -786,7 +786,7 @@ describe('Expressions - New', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -895,7 +895,6 @@ describe('Expressions - New', () => {
                 },
                 async: false,
                 generator: false,
-                expression: false,
                 id: null
               },
               arguments: []

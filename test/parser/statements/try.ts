@@ -1,5 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Statements - Try', () => {
   fail('Statements - Try (fail)', [
@@ -30,6 +32,49 @@ describe('Statements - Try', () => {
     ['try {} catch(e) { var e; }', Context.OptionsDisableWebCompat],
     ['try {} catch (e) { let e = x; }', Context.Empty]
   ]);
+
+  const invalidSyntax: any = [
+    'try { }',
+    'try { } foo();',
+    'try { } catch (e) foo();',
+    'try { } finally foo();',
+    `try{}
+    catch(){`,
+    `try{}
+    catch(){
+    finally{}`,
+    `catch(){}
+        finally{}`,
+    `try{
+    }
+    finally(e){}`,
+    `try{
+        {
+        }
+        catch(e){}
+        finally{}
+      }`,
+    `try{}
+      catch(){}
+      finally{}`,
+    `try { throw []; } catch ([...x = []]) {}`,
+    `try { throw [1, 2, 3]; } catch ([...{ x }, y]) {}`,
+    `try { throw [1, 2, 3]; } catch ([...[x], y]) { }`
+  ];
+
+  for (const arg of invalidSyntax) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
 
   pass('Statements - Try (pass)', [
     [

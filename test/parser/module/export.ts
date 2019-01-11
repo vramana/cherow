@@ -25,12 +25,18 @@ describe('Module - Export', () => {
     ['function foo() { }; export { foo as 100 };', Context.Strict | Context.Module],
     ['export { if as foo }', Context.Strict | Context.Module],
     ['export default function(){}; export default function(){};', Context.Strict | Context.Module],
+    ['export default async function(){}; export default function(){};', Context.Strict | Context.Module],
+    ['export default function(){}; export default async function(){};', Context.Strict | Context.Module],
     ['export let a = 1, a = 2;', Context.Strict | Context.Module],
     ['export const a = 1, a = 2;', Context.Strict | Context.Module],
     ['export let ...x = y', Context.Strict | Context.Module],
     ['export ...x = y', Context.Strict | Context.Module],
     ['export default ...x = y', Context.Strict | Context.Module],
     ['export var foo = x foo', Context.Strict | Context.Module],
+    ['export const a = 1, a = 2;', Context.Strict | Context.Module],
+    ['export let a = 1, a = 2;', Context.Strict | Context.Module],
+    ['export default const a = 1, a = 2;', Context.Strict | Context.Module],
+    ['export default let a = 1, a = 2;', Context.Strict | Context.Module],
     ['export const a = 1, a = 2;', Context.Strict | Context.Module],
     ['export const foo = x foo', Context.Strict | Context.Module],
     ['export {x, y} foo', Context.Strict | Context.Module],
@@ -179,7 +185,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: false,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'foo'
@@ -255,7 +261,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: false,
-              expression: false,
+
               id: null
             }
           }
@@ -323,7 +329,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: false,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'foo'
@@ -351,7 +357,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: true,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'foo'
@@ -521,7 +527,7 @@ describe('Module - Export', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'foo'
@@ -751,7 +757,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: true,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'f'
@@ -1482,6 +1488,106 @@ describe('Module - Export', () => {
       }
     ],
     [
+      'export async function f(){}; export {f};',
+      Context.Strict | Context.Module,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExportNamedDeclaration',
+            source: null,
+            specifiers: [],
+            declaration: {
+              type: 'FunctionDeclaration',
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: false,
+              id: {
+                type: 'Identifier',
+                name: 'f'
+              }
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'ExportNamedDeclaration',
+            source: null,
+            specifiers: [
+              {
+                type: 'ExportSpecifier',
+                local: {
+                  type: 'Identifier',
+                  name: 'f'
+                },
+                exported: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ],
+            declaration: null
+          }
+        ]
+      }
+    ],
+    [
+      'export async function *f(){}; export {f};',
+      Context.Strict | Context.Module,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExportNamedDeclaration',
+            source: null,
+            specifiers: [],
+            declaration: {
+              type: 'FunctionDeclaration',
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: {
+                type: 'Identifier',
+                name: 'f'
+              }
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'ExportNamedDeclaration',
+            source: null,
+            specifiers: [
+              {
+                type: 'ExportSpecifier',
+                local: {
+                  type: 'Identifier',
+                  name: 'f'
+                },
+                exported: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            ],
+            declaration: null
+          }
+        ]
+      }
+    ],
+    [
       'export default function f(){}; export {f};',
       Context.Strict | Context.Module,
       {
@@ -1499,7 +1605,7 @@ describe('Module - Export', () => {
               },
               async: false,
               generator: false,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'f'

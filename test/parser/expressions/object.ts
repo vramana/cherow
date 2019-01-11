@@ -394,7 +394,7 @@ describe('Expressions - Object', () => {
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: true
                     },
                     kind: 'init',
@@ -459,7 +459,7 @@ describe('Expressions - Object', () => {
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -523,7 +523,7 @@ describe('Expressions - Object', () => {
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: true
                     },
                     kind: 'init',
@@ -587,7 +587,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -701,7 +701,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -756,7 +756,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -820,13 +820,13 @@ describe('Expressions - Object', () => {
                               body: []
                             },
                             generator: false,
-                            expression: false,
+
                             async: false
                           }
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -895,7 +895,7 @@ describe('Expressions - Object', () => {
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -1310,7 +1310,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -1374,7 +1374,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -1397,7 +1397,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -1446,7 +1446,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -1469,7 +1469,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -2514,7 +2514,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -2578,7 +2578,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -2601,7 +2601,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -2650,7 +2650,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: true
                     },
                     kind: 'init',
@@ -2673,7 +2673,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: true,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -2768,7 +2768,7 @@ describe('Expressions - Object', () => {
                       ]
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -2821,7 +2821,7 @@ describe('Expressions - Object', () => {
                         body: []
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -2885,13 +2885,13 @@ describe('Expressions - Object', () => {
                               body: []
                             },
                             generator: false,
-                            expression: false,
+
                             async: false
                           }
                         ]
                       },
                       generator: false,
-                      expression: false,
+
                       async: false
                     },
                     kind: 'init',
@@ -3007,7 +3007,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -3093,7 +3093,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -4250,7 +4250,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -4411,7 +4411,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4452,7 +4452,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: true,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4498,7 +4498,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -4539,7 +4539,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -4580,7 +4580,7 @@ describe('Expressions - Object', () => {
                     },
                     async: true,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4621,7 +4621,7 @@ describe('Expressions - Object', () => {
                     },
                     async: true,
                     generator: true,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4669,7 +4669,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -4711,7 +4711,7 @@ describe('Expressions - Object', () => {
                     },
                     async: true,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4752,7 +4752,7 @@ describe('Expressions - Object', () => {
                     },
                     async: true,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -4793,7 +4793,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -4834,7 +4834,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -4880,7 +4880,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -4926,7 +4926,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -4974,7 +4974,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5023,7 +5023,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5046,7 +5046,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5108,7 +5108,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5157,7 +5157,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5206,7 +5206,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5255,7 +5255,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5304,7 +5304,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5353,7 +5353,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5402,7 +5402,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5451,7 +5451,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5545,7 +5545,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5568,7 +5568,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5617,7 +5617,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5640,7 +5640,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5689,7 +5689,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5712,7 +5712,7 @@ describe('Expressions - Object', () => {
                       },
                       async: true,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5761,7 +5761,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5810,7 +5810,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5859,7 +5859,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5908,7 +5908,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -5957,7 +5957,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6006,7 +6006,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6055,7 +6055,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6078,7 +6078,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6127,7 +6127,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6150,7 +6150,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6199,7 +6199,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: false,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6222,7 +6222,7 @@ describe('Expressions - Object', () => {
                       },
                       async: false,
                       generator: true,
-                      expression: false,
+
                       id: null
                     },
                     kind: 'init',
@@ -6264,7 +6264,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6305,7 +6305,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6346,7 +6346,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6369,7 +6369,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6410,7 +6410,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6433,7 +6433,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -6474,7 +6474,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -6497,7 +6497,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6538,7 +6538,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'get',
@@ -6579,7 +6579,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'get',
@@ -6602,7 +6602,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'get',
@@ -6643,7 +6643,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'get',
@@ -6666,7 +6666,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -6707,7 +6707,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -6730,7 +6730,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'get',
@@ -6771,7 +6771,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6812,7 +6812,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6853,7 +6853,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'get',
@@ -6899,7 +6899,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -6945,7 +6945,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -6991,7 +6991,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -7019,7 +7019,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -7065,7 +7065,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -7088,7 +7088,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -7129,7 +7129,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -7157,7 +7157,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -7203,7 +7203,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'set',
@@ -7249,7 +7249,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'set',
@@ -7277,7 +7277,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'set',
@@ -7323,7 +7323,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'set',
@@ -7346,7 +7346,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -7387,7 +7387,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -7415,7 +7415,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'set',
@@ -7461,7 +7461,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -7507,7 +7507,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'set',
@@ -9461,7 +9461,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: false,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -9542,7 +9542,7 @@ describe('Expressions - Object', () => {
                           body: []
                         },
                         generator: false,
-                        expression: false,
+
                         async: false
                       },
                       kind: 'get',
@@ -9593,7 +9593,7 @@ describe('Expressions - Object', () => {
                           body: []
                         },
                         generator: false,
-                        expression: false,
+
                         async: true
                       },
                       kind: 'init',
@@ -9637,7 +9637,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: true,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -9678,7 +9678,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: true,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -9719,7 +9719,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: true,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -9765,7 +9765,7 @@ describe('Expressions - Object', () => {
                       body: []
                     },
                     generator: true,
-                    expression: false,
+
                     async: false
                   },
                   kind: 'init',
@@ -9832,7 +9832,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -9873,7 +9873,7 @@ describe('Expressions - Object', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: null
                   },
                   kind: 'init',
@@ -9979,7 +9979,7 @@ describe('Expressions - Object', () => {
               ],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: true,
             id: {
               name: 'f',

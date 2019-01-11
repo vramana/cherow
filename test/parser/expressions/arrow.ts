@@ -532,7 +532,7 @@ describe('Expressions - Arrows', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
+
                     id: {
                       type: 'Identifier',
                       name: 'x'
@@ -798,7 +798,6 @@ describe('Expressions - Arrows', () => {
                     },
                     async: false,
                     generator: false,
-                    expression: false,
                     id: {
                       type: 'Identifier',
                       name: 'x'

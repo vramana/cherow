@@ -35,7 +35,7 @@ describe('Statements - if', () => {
               },
               async: false,
               generator: false,
-              expression: false,
+
               id: {
                 type: 'Identifier',
                 name: 'a'

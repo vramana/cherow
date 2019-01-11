@@ -57,7 +57,9 @@ export const enum Errors {
   StrictModeWith,
   LabelRedeclaration,
   NewlineAfterThrow,
-  IllegalReturn
+  IllegalReturn,
+  StrictDelete,
+  InvalidLOExponentation
 }
 
 /*@internal*/
@@ -119,7 +121,10 @@ export const errorMessages: {
   [Errors.IllegalContinue]: 'Illegal continue statement: no surrounding iteration statement',
   [Errors.IllegalBreak]: 'Illegal break statement',
   [Errors.LabelRedeclaration]: "Label '%0' has already been declared",
-  [Errors.StrictModeWith]: 'Strict mode code may not include a with statement'
+  [Errors.StrictModeWith]: 'Strict mode code may not include a with statement',
+  [Errors.StrictDelete]: 'Delete of an unqualified identifier in strict mode',
+  [Errors.InvalidLOExponentation]:
+    'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

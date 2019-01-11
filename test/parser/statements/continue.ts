@@ -261,7 +261,7 @@ describe('Statements - Continue', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -305,7 +305,7 @@ describe('Statements - Continue', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'

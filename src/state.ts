@@ -1484,7 +1484,7 @@ function parseAssignmentProperty(
       value = hasInitializer ? parseAssignmentPattern(state, context, key) : key;
     } else value = parseBindingInitializer(state, context, scope, type, origin, verifyDuplicates);
   } else {
-    if (state.token === Token.StringLiteral) {
+    if (state.token === Token.StringLiteral || state.token === Token.NumericLiteral) {
       key = parseLiteral(state, context);
     } else if (state.token === Token.LeftBracket) {
       computed = true;
@@ -1586,7 +1586,6 @@ export function parseFunctionDeclaration(
     body,
     async: (context & Context.InAsync) !== 0,
     generator: isGenerator,
-    expression: false,
     id
   };
 }
@@ -1665,7 +1664,6 @@ export function parseHoistableFunctionDeclaration(
     body,
     async: (context & Context.InAsync) !== 0,
     generator: isGenerator,
-    expression: false,
     id
   };
 }
@@ -2116,8 +2114,15 @@ function parseUnaryExpression(state: ParserState, context: Context): any {
   if (context & Context.InAsync && t & Token.IsAwait) {
     return parseAwaitExpression(state, context);
   } else if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
+    const { token } = state;
     next(state, context | Context.ExpressionStart);
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
+    if (state.token === Token.Exponentiate) {
+      report(state, Errors.InvalidLOExponentation);
+    }
+    if (context & Context.Strict && token === Token.DeleteKeyword) {
+      if (argument.type === 'Identifier') report(state, Errors.StrictDelete);
+    }
     return {
       type: 'UnaryExpression',
       operator: KeywordDescTable[t & Token.Type],
@@ -2984,7 +2989,6 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
     body,
     async: (objState & ObjectState.Async) !== 0,
     generator: (objState & ObjectState.Generator) !== 0,
-    expression: false,
     id
   };
 }

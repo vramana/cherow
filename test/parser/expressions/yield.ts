@@ -50,7 +50,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'g'
@@ -60,7 +60,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -108,7 +108,7 @@ pass('Expressions - Yield (pass)', [
                               },
                               async: false,
                               generator: true,
-                              expression: false,
+
                               id: null
                             },
                             kind: 'init',
@@ -123,7 +123,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'a'
@@ -133,7 +133,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -181,7 +181,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'a'
@@ -191,7 +191,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -241,7 +241,7 @@ pass('Expressions - Yield (pass)', [
                         },
                         async: false,
                         generator: false,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'get',
@@ -256,7 +256,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -294,7 +294,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -330,7 +330,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'foo'
@@ -340,7 +340,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -388,7 +388,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -428,7 +428,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -559,7 +559,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'a'
@@ -569,7 +569,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -612,7 +612,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'a'
@@ -622,7 +622,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -675,7 +675,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'gen'
@@ -685,7 +685,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -766,7 +766,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -813,7 +813,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'gen'
@@ -823,7 +823,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -870,7 +870,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'gen'
@@ -880,7 +880,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -911,7 +911,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'b'
@@ -926,7 +926,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'b'
@@ -936,7 +936,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -981,7 +981,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'fn'
@@ -1021,7 +1021,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -1052,7 +1052,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'b'
@@ -1062,7 +1062,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'foo'
@@ -1150,7 +1150,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'gen'
@@ -1194,7 +1194,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'gen'
@@ -1241,7 +1241,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'gen'
@@ -1278,7 +1278,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'a'
@@ -1312,7 +1312,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'gen'
@@ -1427,7 +1427,7 @@ pass('Expressions - Yield (pass)', [
             ]
           },
           generator: false,
-          expression: false,
+
           async: true
         }
       ],
@@ -1456,7 +1456,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'await'
@@ -1466,7 +1466,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1502,7 +1502,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'f'
@@ -1512,7 +1512,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1548,7 +1548,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: true,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'f'
@@ -1558,7 +1558,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1594,7 +1594,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: false,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'f'
@@ -1604,7 +1604,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1662,7 +1662,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1716,7 +1716,7 @@ pass('Expressions - Yield (pass)', [
                           },
                           async: true,
                           generator: false,
-                          expression: false,
+
                           id: null
                         },
                         kind: 'init',
@@ -1732,7 +1732,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1786,7 +1786,7 @@ pass('Expressions - Yield (pass)', [
                           },
                           async: false,
                           generator: false,
-                          expression: false,
+
                           id: null
                         },
                         kind: 'init',
@@ -1802,7 +1802,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1845,7 +1845,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: false,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'f'
@@ -1855,7 +1855,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1898,7 +1898,7 @@ pass('Expressions - Yield (pass)', [
                 },
                 async: true,
                 generator: true,
-                expression: false,
+
                 id: {
                   type: 'Identifier',
                   name: 'f'
@@ -1908,7 +1908,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -1973,7 +1973,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -2038,7 +2038,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -2099,7 +2099,7 @@ pass('Expressions - Yield (pass)', [
                           },
                           async: false,
                           generator: true,
-                          expression: false,
+
                           id: null
                         },
                         kind: 'init',
@@ -2115,7 +2115,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -2176,7 +2176,7 @@ pass('Expressions - Yield (pass)', [
                           },
                           async: true,
                           generator: true,
-                          expression: false,
+
                           id: null
                         },
                         kind: 'init',
@@ -2192,7 +2192,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'as'
@@ -2277,7 +2277,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2314,7 +2314,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2359,7 +2359,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2402,7 +2402,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2448,7 +2448,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2502,7 +2502,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2535,7 +2535,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2576,7 +2576,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2618,7 +2618,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -2665,7 +2665,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -2715,7 +2715,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -2769,7 +2769,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -2822,7 +2822,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -2864,7 +2864,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -2975,7 +2975,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3029,7 +3029,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3074,7 +3074,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3126,7 +3126,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -3178,7 +3178,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -3239,7 +3239,7 @@ pass('Expressions - Yield (pass)', [
                           },
                           async: false,
                           generator: false,
-                          expression: false,
+
                           id: null
                         },
                         kind: 'init',
@@ -3255,7 +3255,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: false,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -3297,7 +3297,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3353,7 +3353,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -3401,7 +3401,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'f'
@@ -3446,7 +3446,7 @@ pass('Expressions - Yield (pass)', [
                   },
                   async: false,
                   generator: true,
-                  expression: false,
+
                   id: null
                 },
                 kind: 'init',
@@ -3499,7 +3499,7 @@ pass('Expressions - Yield (pass)', [
                   },
                   async: false,
                   generator: true,
-                  expression: false,
+
                   id: null
                 },
                 kind: 'init',
@@ -3554,7 +3554,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3608,7 +3608,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3658,7 +3658,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3711,7 +3711,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3765,7 +3765,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3815,7 +3815,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'
@@ -3869,7 +3869,7 @@ pass('Expressions - Yield (pass)', [
           },
           async: false,
           generator: true,
-          expression: false,
+
           id: {
             type: 'Identifier',
             name: 'g'

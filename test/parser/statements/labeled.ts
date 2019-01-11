@@ -71,7 +71,6 @@ describe('Expressions - Labeled', () => {
               },
               async: false,
               generator: false,
-              expression: false,
               id: {
                 type: 'Identifier',
                 name: 'foo'

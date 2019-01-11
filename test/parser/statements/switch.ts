@@ -18,12 +18,38 @@ describe('Expressions - Switch', () => {
     ['switch (x) {case a: const f = x; break; case b: function f(){}; break; }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.Empty],
     ['switch (x) {case a: function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
-
+    ['switch (x) {case a: async function f(){}; break; case b: let f; break; }', Context.OptionsDisableWebCompat],
+    ['switch (x) {case a: function f(){}; break; case b: async function f(){} }', Context.OptionsDisableWebCompat],
+    [
+      'switch (x) {case a: async function f(){}; break; case b: async function f(){} }',
+      Context.OptionsDisableWebCompat
+    ],
+    ['switch (x) {case a: async function *f(){}; break; case b: function f(){} }', Context.OptionsDisableWebCompat],
+    ['switch (x) {case a: function *f(){}; break; case b: async function f(){} }', Context.OptionsDisableWebCompat],
+    ['()?c:d=>{}=>{}', Context.OptionsDisableWebCompat],
     ['switch(x) { default: default: }', Context.OptionsDisableWebCompat],
     ['switch(x) { default: break; default: break; }', Context.OptionsDisableWebCompat],
     ['switch(x) { case y: break; case z: break; default: default: }', Context.OptionsDisableWebCompat],
     ['switch(x) { default: default: case y: break; case z: break; }', Context.OptionsDisableWebCompat],
-    ['switch(x) { default: break; case y: break; case z: break; default: break; }', Context.OptionsDisableWebCompat]
+    ['switch(x) { default: break; case y: break; case z: break; default: break; }', Context.OptionsDisableWebCompat],
+
+    [
+      `function SwitchTest(value){
+      var result = 0;
+      switch(value) {
+        case 0:
+          result += 2;
+        default:
+          result += 32;
+          break;
+        default:
+          result += 32;
+          break;
+      }
+      return result;
+    }`,
+      Context.OptionsDisableWebCompat
+    ]
   ];
 
   // valid tests

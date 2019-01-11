@@ -30,7 +30,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -69,7 +69,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -336,7 +336,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'call'
@@ -373,7 +373,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'call'
@@ -444,7 +444,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -490,7 +490,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'await'
@@ -515,7 +515,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'await'
@@ -540,7 +540,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'await'
@@ -617,7 +617,7 @@ describe('Expressions - Await', () => {
                         },
                         async: true,
                         generator: false,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'init',
@@ -668,7 +668,7 @@ describe('Expressions - Await', () => {
                         },
                         async: false,
                         generator: true,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'init',
@@ -719,7 +719,7 @@ describe('Expressions - Await', () => {
                         },
                         async: true,
                         generator: true,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'init',
@@ -760,7 +760,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -790,7 +790,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -835,7 +835,7 @@ describe('Expressions - Await', () => {
                         },
                         async: false,
                         generator: true,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'init',
@@ -946,7 +946,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -988,7 +988,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1025,7 +1025,7 @@ describe('Expressions - Await', () => {
             },
             async: false,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1045,7 +1045,7 @@ describe('Expressions - Await', () => {
               body: [],
               type: 'BlockStatement'
             },
-            expression: false,
+
             generator: true,
             id: {
               name: 'f',
@@ -1212,7 +1212,7 @@ describe('Expressions - Await', () => {
                         },
                         async: false,
                         generator: false,
-                        expression: false,
+
                         id: null
                       },
                       kind: 'init',
@@ -1262,7 +1262,7 @@ describe('Expressions - Await', () => {
                           body: [],
                           type: 'BlockStatement'
                         },
-                        expression: false,
+
                         generator: true,
                         id: null,
                         params: [
@@ -1344,7 +1344,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'a'
@@ -1435,7 +1435,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'a'
@@ -1542,7 +1542,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'a'
@@ -1638,7 +1638,7 @@ describe('Expressions - Await', () => {
             },
             async: true,
             generator: false,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'a'

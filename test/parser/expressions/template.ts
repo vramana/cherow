@@ -892,7 +892,7 @@ describe('Expressions - Template', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -960,7 +960,7 @@ describe('Expressions - Template', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1040,7 +1040,7 @@ describe('Expressions - Template', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
@@ -1164,7 +1164,7 @@ describe('Expressions - Template', () => {
             },
             async: false,
             generator: true,
-            expression: false,
+
             id: {
               type: 'Identifier',
               name: 'f'
