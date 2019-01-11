@@ -251,6 +251,33 @@ describe('Expressions - Class', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['class foo {f(x) { let x }}', Context.Empty],
+    ['class foo {f(x) { const x = y }}', Context.Empty],
+    ['class foo {f(a, a) {}}', Context.Empty],
+    ['class foo {f(a, b, a) {}}', Context.Empty],
+    ['class foo {f(b, a, a) {}}', Context.Empty],
+    ['class foo {f(a, a, b) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a, [fine]) {}}', Context.Empty],
+    ['class foo {f(b, a, b, a = x) {}}', Context.Empty],
+    ['class foo {f(b, a, b, ...a) {}}', Context.Empty],
+    ['class foo {f([a, a]) {}}', Context.Empty],
+    ['class foo {f([a, b, a]) {}}', Context.Empty],
+    ['class foo {f([b, a, a]) {}}', Context.Empty],
+    ['class foo {f([a, a, b]) {}}', Context.Empty],
+    ['class foo {f([b, a, b, a]) {}}', Context.Empty],
+    ['class foo {f([b, a], b) {}}', Context.Empty],
+    ['class foo {f([b, a], {b}) {}}', Context.Empty],
+    ['class foo {f([b, a], b=x) {}}', Context.Empty],
+    ['class foo {f([b, a], ...b) {}}', Context.Empty],
+    ['class foo {f(){ let x; var x; }}', Context.Empty],
+    ['class foo {f(){ var x; let x; }}', Context.Empty],
+    ['class foo {f(){ const x = y; var x; }}', Context.Empty],
+    ['class foo {f(){ var x; const x = y; }}', Context.Empty],
+    ['class foo {f(){ let x; function x(){} }}', Context.Empty],
+    ['class foo {f(){ function x(){} let x; }}', Context.Empty],
+    ['class foo {f(){ const x = y; function x(){} }}', Context.Empty],
+    ['class foo {f(){ function x(){} const x = y; }}', Context.Empty],
     ['(class { adf&/()})', Context.Empty],
     ['(class { adf &/()})', Context.Empty],
     ['(class b {)', Context.Empty],
@@ -705,6 +732,196 @@ describe('Expressions - Class', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      'class o {f(){ function x(){} var x = y; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        },
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'var',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              id: {
+                                type: 'Identifier',
+                                name: 'x'
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'class o {f(x) { function x() {} }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class o {f(f) { }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'o'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'f'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     [
