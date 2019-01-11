@@ -153,6 +153,56 @@ describe('Statements - Break', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      'switch (a) { case 123: { if (a) {} break } }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 123
+                },
+                consequent: [
+                  {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'IfStatement',
+                        test: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        consequent: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        alternate: null
+                      },
+                      {
+                        type: 'BreakStatement',
+                        label: null
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+
+    [
       'ding: foo: bar: while (true) break foo;',
       Context.Empty,
       {
