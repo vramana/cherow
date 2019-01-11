@@ -50,7 +50,8 @@ export const enum ObjectState {
   Shorthand = 1 << 2,
   Generator = 1 << 3,
   Async = 1 << 4,
-  Static = 1 << 5
+  Static = 1 << 5,
+  Constructor = 1 << 6
 }
 
 /**
@@ -1572,7 +1573,7 @@ export function parseFunctionDeclaration(
 
   if (isAsync) context |= Context.AwaitContext;
   if (isGenerator) context |= Context.YieldContext;
-
+  context = (context | Context.SuperProperty) ^ Context.SuperProperty;
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
@@ -1667,7 +1668,7 @@ export function parseHoistableFunctionDeclaration(
 
   if (isAsync) context |= Context.AwaitContext;
   if (isGenerator) context |= Context.YieldContext;
-
+  context = (context | Context.SuperProperty) ^ Context.SuperProperty;
   // Create a argument scope
   const paramScoop = createSubScope(funcScope, ScopeType.ArgumentList);
   const params = parseFormalParameters(state, context | Context.AllowNewTarget, paramScoop, Origin.ArgList);
@@ -2274,8 +2275,8 @@ export function parseNewOrMemberExpression(state: ParserState, context: Context)
   if (state.token === Token.NewKeyword) {
     let result: any;
     const id = parseIdentifier(state, context | Context.AllowPossibleRegEx);
-    if (state.token === <Token>Token.SuperKeyword) {
-      result = { type: 'Super' };
+    if (optional(state, context, Token.SuperKeyword)) {
+      return parseSuperKeyword(state, context);
     } else if (optional(state, context, Token.Period)) {
       return parseNewTargetExpression(state, context, id);
     } else {
@@ -2315,10 +2316,21 @@ function parseImportExpressions(state: ParserState, context: Context): ESTree.Ex
   return expr;
 }
 
+function parseSuperKeyword(state: ParserState, context: Context): ESTree.Super {
+  if ((context & Context.SuperCall) === 0 && state.token === Token.LeftParen) {
+    report(state, Errors.SuperNoConstructor);
+  }
+
+  if ((context & Context.SuperProperty) === 0 && (state.token === Token.LeftBracket || state.token === Token.Period)) {
+    report(state, Errors.InvalidSuperProperty);
+  }
+  return { type: 'Super' };
+}
+
 function parseMemberExpression(state: ParserState, context: Context): ESTree.Expression {
   let result: any;
-  if (state.token === Token.SuperKeyword) {
-    result = { type: 'Super' };
+  if (optional(state, context, Token.SuperKeyword)) {
+    result = parseSuperKeyword(state, context);
   } else if (state.token === Token.ImportKeyword) {
     result = parseImportExpressions(state, context);
   } else {
@@ -2655,6 +2667,8 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   if (isAsync) context |= Context.AwaitContext;
   if (isGenerator) context |= Context.YieldContext;
 
+  context = (context | Context.SuperProperty) ^ Context.SuperProperty;
+
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);
 
@@ -2934,8 +2948,10 @@ export function parseClassBodyAndElementList(
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.LeftParen) {
-            if (tokenValue === 'constructor') kind = 'constructor';
-            else kind = 'method';
+            if (tokenValue === 'constructor') {
+              objState |= ObjectState.Constructor;
+              kind = 'constructor';
+            } else kind = 'method';
             objState = objState & ~ObjectState.Computed;
             value = parseMethodDeclaration(state, context, objState);
           } else if (optional(state, context, Token.Multiply)) {
@@ -2964,8 +2980,10 @@ export function parseClassBodyAndElementList(
             if (token & Token.IsAsync) {
               kind = 'method';
               objState |= ObjectState.Async;
-            } else if (tokenValue === 'constructor') kind = 'constructor';
-            else if (token === Token.GetKeyword) kind = 'get';
+            } else if (tokenValue === 'constructor') {
+              objState |= ObjectState.Constructor;
+              kind = 'constructor';
+            } else if (token === Token.GetKeyword) kind = 'get';
             else if (token === Token.SetKeyword) kind = 'set';
             value = parseMethodDeclaration(state, context, objState);
             objState |= ObjectState.Method;
@@ -2991,8 +3009,10 @@ export function parseClassBodyAndElementList(
         if (optional(state, context, Token.Colon)) {
           report(state, Errors.Unexpected);
         } else {
-          if (tokenValue === 'constructor') kind = 'constructor';
-          else kind = 'method';
+          if (tokenValue === 'constructor') {
+            objState |= ObjectState.Constructor;
+            kind = 'constructor';
+          } else kind = 'method';
           value = parseMethodDeclaration(state, context, objState);
           objState |= ObjectState.Method;
         }
@@ -3285,6 +3305,14 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
 
   if (objState & ObjectState.Async) context |= Context.AwaitContext;
   if (objState & ObjectState.Generator) context |= Context.YieldContext;
+
+  if (objState & ObjectState.Constructor) {
+    context |= Context.InConstructor;
+  } else {
+    context = (context | (Context.InConstructor | Context.SuperCall)) ^ (Context.InConstructor | Context.SuperCall);
+  }
+
+  context |= Context.SuperProperty;
 
   // Create a argument scope
   const paramScoop = createSubScope(functionScope, ScopeType.ArgumentList);

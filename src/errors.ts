@@ -59,7 +59,9 @@ export const enum Errors {
   NewlineAfterThrow,
   IllegalReturn,
   StrictDelete,
-  InvalidLOExponentation
+  InvalidLOExponentation,
+  SuperNoConstructor,
+  InvalidSuperProperty
 }
 
 /*@internal*/
@@ -124,7 +126,10 @@ export const errorMessages: {
   [Errors.StrictModeWith]: 'Strict mode code may not include a with statement',
   [Errors.StrictDelete]: 'Delete of an unqualified identifier in strict mode',
   [Errors.InvalidLOExponentation]:
-    'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses'
+    'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses',
+  [Errors.SuperNoConstructor]:
+    'Calls to super must be in the "constructor" method of a class expression or class declaration that has a superclass',
+  [Errors.InvalidSuperProperty]: 'Member access on super must be in a method'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
