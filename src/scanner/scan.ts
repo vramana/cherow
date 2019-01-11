@@ -223,7 +223,7 @@ table[Chars.Slash] = (state, context) => {
   state.column++;
   if (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
-    if (context & Context.ExpressionStart && (next !== Chars.Asterisk && next !== Chars.Slash)) {
+    if (context & Context.AllowPossibleRegEx && (next !== Chars.Asterisk && next !== Chars.Slash)) {
       return scanRegularExpression(state, context);
     } else if (next === Chars.Slash) {
       state.index++;
