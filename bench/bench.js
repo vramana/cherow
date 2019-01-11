@@ -23,36 +23,15 @@ const iterations = process.argv[2] || 1;
 const rotations = process.argv[3] || 1;
 
 const tests = [
-  { weight: 10, imports: [V1, V2, V2New], expr: `var foobar;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var $foobar;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var _foobar;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var Foobar;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var a;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var a = 'asdfasdf897ySHDFGUJsd';` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var a = 1234567;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var a,b,c,d=e;` },
-  { weight: 10, imports: [V1, V2, V2New], expr: `function bar() {\n    console.log('hello!')\n}` },
-  { weight: 10, imports: [V1, V2, V2New], expr: `const bar = () => {\n    console.log('hello!')\n}` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `var baz = a*b/c+d-e;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `foo.bar.baz.qux;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `function fkleuver(a) {}` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `function fkleuver(a, b, c) {}` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `x=async function *f(){ var f }` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `(...a) => 0` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `([])` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({a})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({a})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `[x()[y]] = z` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `function f(){  x = {foo(a=yield){}}  }` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({a = b})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `switch (A) {case B: C;}` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `foo: while (true) if (x) continue foo;` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `({get [foo](){}});` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `a|b` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `try {} catch ([a,b,c]) { }` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `try { } catch (a) { { const a = b; } }` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `for (var {x : y} in obj);` }
+  { weight: 10, imports: [V1, V2, V2New], expr: `(class A {} < 1);` },
+  {
+    weight: 3,
+    imports: [V1, V2, V2New],
+    expr: `(class J { static get foo() {} static set foo(x) {} get foo() {} set foo(x) {} })`
+  },
+  { weight: 3, imports: [V1, V2, V2New], expr: `x = class A {};` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {set foo(x){}})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {"set"(){} "get"(){} "async"(){}})` }
 ];
 
 function run(iterations) {

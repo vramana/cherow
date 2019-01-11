@@ -251,6 +251,17 @@ describe('Expressions - Class', () => {
   }
 
   const inValids: Array<[string, Context]> = [
+    ['(class { adf&/()})', Context.Empty],
+    ['(class { adf &/()})', Context.Empty],
+    ['(class b {)', Context.Empty],
+    ['(class b )', Context.Empty],
+    ['(class b {-})', Context.Empty],
+    ['(class b {a:})', Context.Empty],
+    ['(class b {#a:})', Context.Empty],
+    ['(class extends a,b {)', Context.Empty],
+    ['(class extends a,b {)', Context.Empty],
+    ['(class extends a,b {)', Context.Empty],
+    ['(class extends a,b {)', Context.Empty],
     ['(class extends a,b {)', Context.Empty],
     ['var C = class let {};', Context.Empty],
     ['(class {a:0})', Context.Empty],
