@@ -1,7 +1,7 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
-describe('Expressions - Arrows', () => {
+describe('Expressions - Async', () => {
   const inValids: Array<[string, Context]> = [
     ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],
@@ -10,7 +10,7 @@ describe('Expressions - Arrows', () => {
     ['x => { let x; }', Context.Empty],
     ['x => { const x; }', Context.Empty]
   ];
-  fail('Expressions - Functions', inValids);
+  fail('Expressions - Async', inValids);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [

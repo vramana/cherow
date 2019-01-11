@@ -2860,6 +2860,7 @@ export function parseClassBodyAndElementList(
               if (token === Token.GetKeyword) kind = 'get';
               else if (token === Token.SetKeyword) kind = 'set';
               else kind = 'method';
+              if (state.tokenValue === 'prototype') report(state, Errors.Unexpected);
               key = parseIdentifier(state, context);
             } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
               if (token === Token.GetKeyword) kind = 'get';
@@ -2879,6 +2880,7 @@ export function parseClassBodyAndElementList(
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.LeftParen) {
+            kind = 'method';
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
             key = parseLiteral(state, context);
@@ -2925,13 +2927,13 @@ export function parseClassBodyAndElementList(
               kind = 'method';
             } else {
               objState |= ObjectState.Computed;
+
               if (token === Token.GetKeyword) kind = 'get';
               else if (token === Token.SetKeyword) kind = 'set';
             }
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.LeftParen) {
-            //if (tokenValue === 'prototype') report(state, Errors.Unexpected);
             if (tokenValue === 'constructor') kind = 'constructor';
             else kind = 'method';
             objState = objState & ~ObjectState.Computed;
@@ -2968,15 +2970,18 @@ export function parseClassBodyAndElementList(
             value = parseMethodDeclaration(state, context, objState);
             objState |= ObjectState.Method;
           } else if (state.token & Token.IsIdentifier) {
-            if (token & Token.IsAsync && (state.token === Token.GetKeyword || state.token === Token.SetKeyword))
-              report(state, Errors.Unexpected);
             objState = (objState & ~ObjectState.Computed) | ObjectState.Method;
-
             if (token == Token.AsyncKeyword) objState |= ObjectState.Async;
-            if (token === Token.GetKeyword) kind = 'get';
-            else if (token === Token.SetKeyword) kind = 'set';
-            else kind = 'method';
+            if (token === Token.GetKeyword) {
+              if (state.token & Token.IsAsync) report(state, Errors.Unexpected);
+              kind = 'get';
+            } else if (token === Token.SetKeyword) {
+              if (state.token & Token.IsAsync) report(state, Errors.Unexpected);
+              kind = 'set';
+            } else kind = 'method';
+
             key = parseIdentifier(state, context);
+            if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             value = parseMethodDeclaration(state, context, objState);
           }
         }
@@ -3006,11 +3011,11 @@ export function parseClassBodyAndElementList(
           objState &= ~ObjectState.Async;
 
           key = parseIdentifier(state, context);
+          //if (state.token !== Token.RightParen &&)
           if (state.token === Token.LeftParen) {
             value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
             objState |= ObjectState.Method | ObjectState.Generator;
-          }
-          if (token === Token.GetKeyword || token === Token.SetKeyword) report(state, Errors.Unexpected);
+          } else report(state, Errors.Unexpected);
         } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
           key = parseLiteral(state, context);
           value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
