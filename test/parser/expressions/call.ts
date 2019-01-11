@@ -1,7 +1,101 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Call', () => {
+  const asyncCallEdgeCases = [
+    'async', // Async identifier
+    'async()',
+    'async(async(async(async(async(async())))))', // Nested
+    'async(a)(b)',
+    'async(a)(s)(y)(n)(c)',
+    'async()()'
+  ];
+
+  for (const arg of asyncCallEdgeCases) {
+    it(`function fn() { 'use strict';} fn(${arg});`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  const spreadCall = [
+    `a()(a)`,
+    `async()()`,
+    `async(a)()`,
+    `async()(b)`,
+    `async(a)(b)`,
+    '...([1, 2, 3])',
+    "...'123', ...'456'",
+    '...new Set([1, 2, 3]), 4',
+    '1, ...[2, 3], 4',
+    '...Array(...[1,2,3,4])',
+    '...NaN',
+    "0, 1, ...[2, 3, 4], 5, 6, 7, ...'89'",
+    "0, 1, ...[2, 3, 4], 5, 6, 7, ...'89', 10",
+    "...[0, 1, 2], 3, 4, 5, 6, ...'7', 8, 9",
+    "...[0, 1, 2], 3, 4, 5, 6, ...'7', 8, 9, ...[10]"
+  ];
+
+  for (const arg of spreadCall) {
+    it(`function fn() { 'use strict';} fn(${arg});`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`function fn() { 'use strict';} fn(${arg});`, undefined, Context.Empty);
+      });
+    });
+
+    it(`function fn() { } fn(${arg});`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`function fn() { } fn(${arg});`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  const validSyntax = [
+    'foo(...[],);',
+    '(function(obj) {}(1, 2, 3, ...[]));',
+    'foo(x=1,y=x,x+y)',
+    'foo(x,x=1);',
+    'a.b( o.bar );',
+    'a.b( o["bar"] );',
+    'a.b( foo() );',
+    'a.b.c( foo() );',
+    'a.b( o.bar );',
+    'a.b( o["bar"] );',
+    'a.b( foo() );',
+    'a.b.c( foo() );',
+    'a.b( foo() );',
+    'a.b( c() ).d;',
+    'eval(...{}, "x = 0;");',
+    'foo()(1, 2, 3, ...{})',
+    'foo(...[],)',
+    '(function(obj) {}({a: 1, b: 2, ...{c: 3, d: 4}}));',
+    'a.b( c() ).d.e;',
+    'f();',
+    'a.b( o.bar );',
+    'a.b( o["bar"] );',
+    'a.b( foo() );',
+    'a.b.c( foo() );',
+    'a.b( foo() );',
+    'a.b( c() ).d;',
+    'eval(...{}, "x = 0;");',
+    'foo()(1, 2, 3, ...{})',
+    'foo(...[],)',
+    '(function(obj) {}({a: 1, b: 2, ...{c: 3, d: 4}}));',
+    'a.b( c() ).d.e;',
+    'f();'
+  ];
+
+  for (const arg of validSyntax) {
+    it(`"use strict"; ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
+
   const valids: Array<[string, Context, any]> = [
     [
       'foo(x,y,);',

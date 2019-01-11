@@ -1,7 +1,117 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Arrows', () => {
+  const fuckingsIcefapper = [
+    `const a = () => {return (3, 4);};`,
+    `"use strict";
+((one, two) => {});`,
+    `([])=>0;`,
+    `([])=>0;`,
+    `([a,...b])=>0;`,
+    `([a,b])=>0;`,
+    `([a]) => [0];`,
+    `({a,b=b,a:c,[a]:[d]})=>0;`,
+    `(() => {}) || true;
+(() => {}) ? a : b;`,
+    '(() => {}) + 2',
+    'new (() => {});',
+    'bar ? ( (x) => x ) : baz;',
+    'bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;',
+    'bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;',
+    'bar ? ( (a, (a, (b, c) => 0)) ) : baz;',
+    'bar ? ( foo ? bar : baz => {} ) : baz;',
+    'bar ? ( (a, {}) => {} ) : baz;',
+    'bar ? ( (x, y = 9) => {} ) : baz;',
+    'bar ? ( (...a) => {} ) : baz;',
+    'bar ? ( ([x] = []) => {} ) : baz;',
+    'bar ? ( (x = 9, ...a) => {} ) : baz;',
+    '(x, y = 9, {b}, z = 8, ...a) => {}',
+    '(x = 9) => {}',
+    '([x = 0]) => {}',
+    '(a, (a, (b, c) => 0))',
+    `a => 0`,
+    `() => () => 0`,
+    '() => 0, 1',
+    '() => 0 + 1',
+    '(a,b) => 0 + 1',
+    `(a,b,...c) => 0 + 1`,
+    '() => (a) = 0',
+    'a => b => c => 0',
+    '(e) => "test"',
+    '(a, ...[]) => 1',
+    "(x)=>{'use strict';}",
+    '(() => 5)() === 5;',
+    '() => a + b - yield / 1',
+    '(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
+    'var f = (function() { return z => arguments[0]; }(5));',
+    '({y}) => x;',
+    '([x = 10]) => x',
+    '({x = 10, y: { z = 10 }}) => [x, z]',
+    '({x = 10}) => x',
+    `([y]) => x;`,
+    '(x=1) => x * x;',
+    '(eval = 10) => 42;',
+    '(a, b=(c)=>{}) => {}',
+    '(async function foo(a) { await a });',
+    '(a,b) =>{}',
+    'var x = (a,b) =>{}',
+    '(a,...b) =>{}',
+    'var x = (a,...b) =>{}',
+    'foo((x, y) => {});',
+    'e => { 42; };',
+    'e => ({ property: 42 });',
+    '(a, b) => { 42; };',
+    '(x) => ((y, z) => (x, y, z));',
+    '(a) => 00;',
+    'e => "test";',
+    'a =>{}',
+    '(...a) =>{}',
+    'var x = a =>{}',
+    '(a,b) => [a]',
+    '() => { value: b}',
+    '(x, y) => { x.a = y; }',
+    '(x, y) => x.a = y',
+    'x => (y, z) => z * (x + y)',
+    '(a = b, c) => {}',
+    '(x, ...a) => {}',
+    '({a} = {}) => {}',
+    '({a} = {}) => {}',
+    '(interface, eval) => {}',
+    'yield => {}',
+    'arguments => {}',
+    '(...[]) => 0',
+    '(()=>0)',
+    '(()=>0)',
+    '() => 0',
+    '(...a) => 0',
+    '([a]) => 0',
+    '(() => null)();',
+    '(() => {})()',
+    '(...args) => console.log( args );',
+    'var double = (x) => x * 2',
+    'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
+    'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
+    'a => (a + 1)',
+    `var foo = ({ name }) => \`\${name}! Hello \${name}!\`.toUpperCase();`,
+    'const sum = ( ...nums ) => nums.reduce( ( t, n ) => t + n, 0 );',
+    `'use strict';
+ setTimeout( () => console.log( this ) );
+  function foo () {
+  'use strict';
+  setTimeout( () => console.log( this ) );
+}`
+  ];
+  for (const arg of fuckingsIcefapper) {
+    it(`${arg};`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg};`, undefined, Context.Empty);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     ['await => { let x; }', Context.AwaitContext],
     ['async await => {}', Context.Empty],

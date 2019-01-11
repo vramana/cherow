@@ -1,10 +1,73 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Async Generator Functions', () => {
   const inValids: Array<[string, Context]> = [['(async function *f(a, a) {})', Context.Strict]];
 
   fail('Expressions - Async Generator Functions', inValids);
+
+  const validFormalparams = [
+    '(async function *foo() { }.prototype)',
+    '(async function *foo(x, y = x, z = y) { })',
+    '(async function *foo(x = y, y) { })',
+    '(async function *foo(a, b = 39,) { })',
+    '(async function *foo(a, b,) { })',
+    '(async function *foo(_ = (function() {}())) { })',
+    '(async function *([{ x }]) { })',
+    '(async function *(x = x) { })',
+    '(async function*([...[...x]]) { })',
+    '(async function *foo([...x] = 123) { })',
+    '(async function *foo({ cls = class {}, xCls = class X {}, xCls2 = class { static name() {} } } = {}) {})',
+    '(async function*({ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }) { })',
+    '(async function*({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: undefined }) { })',
+    '(async function* h([[,] = g()]) { })',
+    '(async function* g([[x]]) { })',
+    '(async function* h([cls = class {}, xCls = class X {}, xCls2 = class { static name() {} }]) { })',
+    '(async function* h([fn = function () {}, xFn = function x() {}]) { })',
+    '(async function* h([{ x, y, z } = { x: 44, y: 55, z: 66 }]) { })',
+    '(async function* h([]) { })',
+    '(async function* h([...[,]]) { })',
+    '(async function* g([...x]) { })',
+    '(async function* h([fn = function () {}, xFn = function x() {}] = []) { })',
+    '(async function* h([x] = []) { })',
+    '(async function* h({} = null) { })',
+    '(async function* h({a, b, ...rest} = {x: 1, y: 2, a: 5, b: 3}) { })',
+    '(async function* h({ x, }) { })',
+    '(async function* h({ w: [x, y, z] = [4, 5, 6] }) { })',
+    '(async function*({}) { })',
+    '(async function*({ x, }) { })',
+    '(async function*({ x: y = 33 }) { })',
+    `var gen = async function *g() {
+        yield [...yield];
+      };`,
+    `var gen = async function *() {
+        yield {
+             ...yield yield,
+             ...(function(arg) {
+                var yield = arg;
+                return {...yield};
+             }(yield)),
+             ...yield,
+          }
+      };`,
+    `var gen = async function *g() {
+        return (function(arg) {
+            var yield = arg + 1;
+            return yield;
+          }(yield))
+      };
+      `
+  ];
+
+  for (const arg of validFormalparams) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
 
   // valid tests
 

@@ -1,7 +1,56 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Module - Export', () => {
+  const failures = [
+    'export {',
+    'var a; export { a',
+    'var a; export { a',
+    'var a; export { a,',
+    'var a; export { a, ;',
+    'var a; export { a as };',
+    'var a, b; export { a as , b};',
+    'class C { method() { export default null; } }',
+    '{ export default null; }',
+    'class C { *method() { export default null; } }',
+    `for (const x = 0; false;)
+    export default null;`,
+    'switch(0) { case 1: export default null; default: }',
+    'switch(0) { case 1: export default null; default: }',
+    'export }',
+    'var foo, bar; export { foo bar };',
+    'export { , };',
+    'export default let x = 7;',
+    'export default const x = 7;',
+    'export *;',
+    'export * from;',
+    'export { Q } from;',
+    "export default from 'module.js';",
+    'export { for }',
+    'export { for as foo }',
+    'export * as z from "c";',
+    'export const const1;',
+    'function foo() { }; export foo;',
+    'export B, * as A, { C, D } from "test";',
+    'function foo() { export default function() { } }',
+    'function foo() { }; export { , foo };',
+    'function foo() { }; () => { export { foo }; }',
+    'function foo() { }; try { export { foo }; } catch(e) { }',
+    // 'Syntax error if export is followed by non-identifier'
+    'export 12;',
+    'function foo() { }; export { foo as 100 };'
+  ];
+
+  for (const arg of failures) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     ['export foo', Context.Strict | Context.Module],
     ['export {', Context.Strict | Context.Module],
@@ -118,6 +167,59 @@ describe('Module - Export', () => {
   ];
 
   fail('Declarations - Functions (fail)', inValids);
+
+  const programs = [
+    'export let x = 0;',
+    'export var y = 0;',
+    'export const z = 0;',
+    'export default x;',
+    'export function func() { };',
+    'export class C { };',
+    'export { };',
+    'export {get}; function get() {};',
+    'function f() {}; f(); export { f };',
+    'var a, b, c; export { a, b as baz, c };',
+    'var d, e; export { d as dreary, e, };',
+    'export default function f() {}',
+    'export default function() {}',
+    'export default function *a() {}',
+    'export var document',
+    'export var document = {}',
+    'export var document',
+    'export class Class {}',
+    'export default 42',
+    'export default class A {}',
+    'export default (class{});',
+    'export default /foo/',
+    'export var namedOther = null;',
+    'export var starAsVarDecl;',
+    'export let starAsLetDecl;',
+    'export const starAsConstDecl = null;',
+    'export function starAsFuncDecl() {}',
+    'export function* starAsGenDecl() {}',
+    'export class starAsClassDecl {}',
+    'export default class Foo {}++x',
+    "export { x as y } from './y.js';\nexport { x as z } from './z.js';",
+    "export { default as y } from './y.js';\nexport default 42;",
+    'export default function(x) {};',
+    'export default function () { };',
+    'export default function _fn2 () { }',
+    'var a; export default a = 10;',
+    'export default () => 3',
+    'function _default() { }; export default _default',
+    // Named generator function statement
+    'function* g() { }; export default g',
+    'class c { }; export default c',
+    "var _ = { method: function() { return 'method_result'; }, method2: function() { return 'method2_result'; } }; export default _"
+  ];
+
+  for (const arg of programs) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
 
   // valid tests
   const valids: Array<[string, Context, any]> = [

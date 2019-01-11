@@ -86,7 +86,19 @@ describe('Expressions - Object', () => {
 
     ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
     ['x = { async f: function() {} }', Context.Empty],
-    ['x = { async f: function() {} }', Context.Empty]
+    ['x = { async f: function() {} }', Context.Empty],
+
+    ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
+
+    ['s = {"foo": yield /x/g}', Context.Strict],
+    ['s = {"foo": yield /x/}', Context.Empty],
+    ['s = {"foo": yield}', Context.Strict],
+    ['function *f(){   s = {foo: yield / x}   }', Context.Empty],
+    ['s = {foo: yield /x/g}', Context.Strict],
+    ['s = {foo: yield /x/}', Context.Empty],
+
+    ['s = {foo: yield / x}', Context.Strict],
+    ['s = {foo: yield}', Context.Strict]
   ];
 
   // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
@@ -769,6 +781,2550 @@ describe('Expressions - Object', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      '({foo: typeof /x/});',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'foo',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    argument: {
+                      regex: {
+                        flags: '',
+                        pattern: 'x'
+                      },
+                      type: 'Literal',
+                      value: /x/
+                    },
+                    operator: 'typeof',
+                    prefix: true,
+                    type: 'UnaryExpression'
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '({foo: typeof /x/g});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
+                    argument: {
+                      type: 'Literal',
+                      value: {},
+                      regex: {
+                        pattern: 'x',
+                        flags: 'g'
+                      }
+                    },
+                    prefix: true
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   s = {foo: yield /x/g}   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'foo'
+                          },
+                          value: {
+                            type: 'YieldExpression',
+                            argument: {
+                              type: 'Literal',
+                              value: {},
+                              regex: {
+                                pattern: 'x',
+                                flags: 'g'
+                              }
+                            },
+                            delegate: false
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   s = {"foo": yield /x/g}   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Literal',
+                            value: 'foo'
+                          },
+                          value: {
+                            type: 'YieldExpression',
+                            argument: {
+                              type: 'Literal',
+                              value: {},
+                              regex: {
+                                pattern: 'x',
+                                flags: 'g'
+                              }
+                            },
+                            delegate: false
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   s = {"foo": yield /x/}   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Literal',
+                            value: 'foo'
+                          },
+                          value: {
+                            type: 'YieldExpression',
+                            argument: {
+                              type: 'Literal',
+                              value: {},
+                              regex: {
+                                pattern: 'x',
+                                flags: ''
+                              }
+                            },
+                            delegate: false
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   s = {"foo": yield}   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Literal',
+                            value: 'foo'
+                          },
+                          value: {
+                            type: 'YieldExpression',
+                            argument: null,
+                            delegate: false
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   s = {foo: yield}   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'foo'
+                          },
+                          value: {
+                            type: 'YieldExpression',
+                            argument: null,
+                            delegate: false
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({[foo]: x} = x) => y',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'y'
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        kind: 'init',
+                        computed: true,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {__proto__: a, __proto__: b} = y',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'AssignmentExpression',
+                left: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: '__proto__'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: '__proto__'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                operator: '=',
+                right: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({__proto__: a, __proto__: b} = x)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class x {static __proto__(){}; get __proto__(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: true,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: '__proto__'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                },
+                {
+                  type: 'MethodDefinition',
+                  kind: 'get',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: '__proto__'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...a}) => x',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...{a, b}} = x)',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                properties: [
+                  {
+                    argument: {
+                      properties: [
+                        {
+                          computed: false,
+                          key: {
+                            name: 'a',
+                            type: 'Identifier'
+                          },
+                          kind: 'init',
+                          method: false,
+                          shorthand: true,
+                          type: 'Property',
+                          value: {
+                            name: 'a',
+                            type: 'Identifier'
+                          }
+                        },
+                        {
+                          computed: false,
+                          key: {
+                            name: 'b',
+                            type: 'Identifier'
+                          },
+                          kind: 'init',
+                          method: false,
+                          shorthand: true,
+                          type: 'Property',
+                          value: {
+                            name: 'b',
+                            type: 'Identifier'
+                          }
+                        }
+                      ],
+                      type: 'ObjectPattern'
+                    },
+                    type: 'RestElement'
+                  }
+                ],
+                type: 'ObjectPattern'
+              },
+              operator: '=',
+              right: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              type: 'AssignmentExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '({x:a["x"]} = {x:20});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      computed: true,
+                      property: {
+                        type: 'Literal',
+                        value: 'x'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'Literal',
+                      value: 20
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({y:y2} = {y:y2-2})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'y2'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'y2'
+                      },
+                      right: {
+                        type: 'Literal',
+                        value: 2
+                      },
+                      operator: '-'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var o = { __proto__: { pp: 123 } };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: '__proto__'
+                      },
+                      value: {
+                        type: 'ObjectExpression',
+                        properties: [
+                          {
+                            type: 'Property',
+                            key: {
+                              type: 'Identifier',
+                              name: 'pp'
+                            },
+                            value: {
+                              type: 'Literal',
+                              value: 123
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: false
+                          }
+                        ]
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'o'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var o = { yield: 10 }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'yield'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 10
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'o'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'var x1; ({[zee +"foo"]:x1} = {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x1'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'zee'
+                      },
+                      right: {
+                        type: 'Literal',
+                        value: 'foo'
+                      },
+                      operator: '+'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'x1'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: []
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var z, y; ({x:z = 1, x1:y = 20} = {});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'z'
+                }
+              },
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'z'
+                      },
+                      right: {
+                        type: 'Literal',
+                        value: 1
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x1'
+                    },
+                    value: {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      right: {
+                        type: 'Literal',
+                        value: 20
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: []
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var {x:z = 1, x1:y = 20} = {};',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        right: {
+                          type: 'Literal',
+                          value: 1
+                        }
+                      },
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'x1'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'AssignmentPattern',
+                        left: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        right: {
+                          type: 'Literal',
+                          value: 20
+                        }
+                      },
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '({x:y} = {});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: []
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 1
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 2
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'get'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 3
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'set'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 4
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'get'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'get'
+                      },
+                      method: false,
+                      shorthand: true
+                    },
+                    {
+                      type: 'Property',
+                      kind: 'init',
+                      key: {
+                        type: 'Identifier',
+                        name: 'set'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'set'
+                      },
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'async function wrap() { ({a = await b} = obj) };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'a'
+                          },
+                          value: {
+                            type: 'AssignmentPattern',
+                            left: {
+                              type: 'Identifier',
+                              name: 'a'
+                            },
+                            right: {
+                              type: 'AwaitExpression',
+                              argument: {
+                                type: 'Identifier',
+                                name: 'b'
+                              }
+                            }
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: true
+                        }
+                      ]
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'Identifier',
+                      name: 'obj'
+                    }
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'wrap'
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          }
+        ]
+      }
+    ],
+    [
+      'async function wrap() { (a = await b) };',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'AwaitExpression',
+                      argument: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'wrap'
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          }
+        ]
+      }
+    ],
+    [
+      'async function foo(a = {async bar() { await b }}) {};',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [
+              {
+                type: 'AssignmentPattern',
+                left: {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                right: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'bar'
+                      },
+                      value: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: [
+                            {
+                              type: 'ExpressionStatement',
+                              expression: {
+                                type: 'AwaitExpression',
+                                argument: {
+                                  type: 'Identifier',
+                                  name: 'b'
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        async: true,
+                        generator: false,
+                        id: null
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: true,
+                      shorthand: false
+                    }
+                  ]
+                }
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'foo'
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          }
+        ]
+      }
+    ],
+    [
+      '({async foo(a) { await a }});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AwaitExpression',
+                            argument: {
+                              type: 'Identifier',
+                              name: 'a'
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async() { }});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async, foo})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'o({async await() { }})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'o'
+              },
+              arguments: [
+                {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'await'
+                      },
+                      value: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        async: true,
+                        generator: false,
+                        id: null
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: true,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async ({a: b = c})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'async'
+              },
+              arguments: [
+                {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'b'
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async foo() { }})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var o = {x: x, y: y}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'o'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '({x, y} = o)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'o'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var method = { method() {} }.method;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'method'
+                        },
+                        value: {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: true,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'method'
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'method'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '({ async *foo() {} })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: true,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({ enum: 0 })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'enum'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({ async: 0 })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({yield})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'yield'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'yield'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(b,c){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set a(eval){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'eval'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({ set a([{b = 0}]){}, })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'ObjectPattern',
+                            properties: [
+                              {
+                                type: 'Property',
+                                kind: 'init',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'b'
+                                },
+                                computed: false,
+                                value: {
+                                  type: 'AssignmentPattern',
+                                  left: {
+                                    type: 'Identifier',
+                                    name: 'b'
+                                  },
+                                  right: {
+                                    type: 'Literal',
+                                    value: 0
+                                  }
+                                },
+                                method: false,
+                                shorthand: true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, b})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(b){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(b,...c){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     [

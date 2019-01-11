@@ -1,7 +1,98 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe('Module - Export', () => {
+describe('Module - Import', () => {
+  const failures = [
+    'import',
+    'import;',
+    'import {};',
+    'import {} from;',
+    "import {,} from 'a';",
+    'import from;',
+    "import {function} from 'a';",
+    "import {a as function} from 'a';",
+    "import {b,,c} from 'a';",
+    "import {b,c,,} from 'a';",
+    "import * As a from 'a'",
+    "import / as a from 'a'",
+    "import * as b, a from 'a'",
+    "import a as b from 'a'",
+    "import a, b from 'a'",
+    "import from 'foo';",
+    "import 'a',",
+    'import { };',
+    'import {;',
+    'import };',
+    'import { , };',
+    "import { , } from 'foo';",
+    'import { a } from;',
+    "import { a } 'foo';",
+    "import , from 'foo';",
+    "import a , from 'foo';",
+    "import a { b, c } from 'foo';",
+    'import { null } from "null',
+    'import foo, from "bar";',
+    'import default from "foo"',
+    'import {bar}, {foo} from "foo";',
+    'import {bar}, foo from "foo"',
+    "{import a from 'b';}",
+    "import { {} } from 'foo';",
+    "import { !d } from 'foo';",
+    "import { 123 } from 'foo';",
+    "import { [123] } from 'foo';",
+    "import { foo as {a: b = 2} } from 'foo';",
+    "import { foo as !d } from 'foo';",
+    "import { foo as [123] } from 'foo';",
+    "import { foo as {a: b = 2} } from 'foo';",
+    "import { for } from 'foo';",
+    "import { y as yield } from 'foo'",
+    "import { s as static } from 'foo'",
+    "import { l as let } from 'foo'",
+    "while (false) import v from 'foo'",
+    "try { } finally { import v from 'foo'; }",
+    "({ set m(x) { import v from 'foo'; } });",
+    "class C { method() { import v from 'foo'; } }",
+    "import { a as await } from 'foo';",
+    "import { x }, def from 'foo';",
+    "import def, def2 from 'foo';",
+    "import * as x, def from 'foo';",
+    "import * as x, * as y from 'foo';",
+    "import {x}, {y} from 'foo';",
+    "import * as x, {y} from 'foo';",
+    'import default from "foo"',
+    'import { class } from "foo"',
+    'iimport { class, var } from "foo"',
+    'import { a as class } from "foo"',
+    'import * as class from "foo"',
+    'import { foo, bar }',
+    'import foo from bar',
+    'import * 12',
+    "import a, 12 from 'foo'",
+    'import * as a from 12',
+    'import {a as b, e as l 12',
+    'import icefapper from ;',
+    '{ import in_block from ""; }',
+    'import {',
+    'import { foo',
+    'import { foo as ',
+    'import { foo as bar ',
+    'import { foo as bar, ',
+    'import { foo as switch } from "module";',
+    'import { foo, , } from "module";',
+    `for (const y in [])
+          import v from './foo`
+  ];
+
+  for (const arg of failures) {
+    it(`${arg}`, () => {
+      t.throws(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
   const inValids: Array<[string, Context]> = [
     ['import foo', Context.Strict | Context.Module],
     ['import', Context.Strict | Context.Module],
@@ -93,6 +184,62 @@ describe('Module - Export', () => {
   ];
 
   fail('Module - Export (fail)', inValids);
+
+  const programs = [
+    "import 'foo';",
+    "import { a } from 'foo';",
+    "import { a, b as d, c, } from 'baz';",
+    "import * as thing from 'baz';",
+    "import * as thing from 'baz';",
+    "import thing from 'foo';",
+    "import thing, * as rest from 'foo';",
+    "import thing, { a, b, c } from 'foo';",
+    "import { arguments as a } from 'baz';",
+    "import { for as f } from 'foo';",
+    "import { yield as y } from 'foo';",
+    "import { static as s } from 'foo';",
+    "import { let as l } from 'foo';",
+    "import { q as z } from 'foo';",
+    'import { null as nil } from "bar"',
+    'import {bar, baz} from "foo";',
+    'import {bar as baz, xyz} from "foo";',
+    'import foo, {bar} from "foo";',
+    'import a, { b, c as d } from "foo"',
+    "import foo, * as bar from 'baz';",
+    'import $ from "foo"',
+    'import {} from "foo";',
+    "import n from 'n.js';",
+    'import a from "module";',
+    'import b, * as c from "module";',
+    'import * as d from "module";',
+    'import e, {f as g, h as i, j} from "module";',
+    'import {k as l, m} from "module";',
+    'import {n, o as p} from "module";',
+    "import 'q.js';",
+    "import a, {b,c,} from 'd'",
+    "import a, {b,} from 'foo'",
+    "import {as as as} from 'as'",
+    "import a, {as} from 'foo'",
+    "import a, {function as c} from 'baz'",
+    "import a, {b as c} from 'foo'",
+    "import a, * as b from 'a'",
+    "import a, {} from 'foo'",
+    "import a from 'foo'",
+    "import * as a from 'a'",
+    "import {m as mm} from 'foo';",
+    "import {aa} from 'foo';",
+    "import * as foob from 'bar.js';",
+    'import { as, get, set, from } from "baz"',
+    'import icefapper from "await"'
+  ];
+
+  for (const arg of programs) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
 
   // valid tests
   const valids: Array<[string, Context, any]> = [

@@ -1,12 +1,59 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Async Functions', () => {
   const inValids: Array<[string, Context]> = [['(async function f(a, a) {})', Context.Strict]];
 
   fail('Expressions - Async Functions', inValids);
 
-  // valid tests
+  const validFormalparams = [
+    '(async function foo() { }.prototype)',
+    '(async function foo(x, y = x, z = y) { })',
+    '(async function foo(x = y, y) { })',
+    '(async function foo(a, b = 39,) { })',
+    '(async function foo(a, b,) { })',
+    '(async function foo(_ = (function() {}())) { })',
+    '(async function foo(x = x) { })',
+    'var O = { async method(eval) {} }',
+    "var O = { async ['meth' + 'od'](eval) {} }",
+    "var O = { async 'method'(eval) {} }",
+    'var O = { async 0(eval) {} }',
+    'var O = { async method(arguments) {} }',
+    "var O = { async ['meth' + 'od'](arguments) {} }",
+    "var O = { async 'method'(arguments) {} }",
+    'var O = { async 0(arguments) {} }',
+    'async function await() {}',
+    'class X { static async await(){} }',
+    `(async function ref(a, b = 39,) {});`,
+    `x = async function(a) { await a }`,
+    'f(async function(x) { await x })',
+    'f(b, async function(b) { await b }, c)',
+    'async function foo(a = async () => await b) {}',
+    'async function foo(a = {async bar() { await b }}) {}',
+    'async function foo(a = class {async bar() { await b }}) {}',
+    '(function f() { async function yield() {} })',
+    '(function f() { ({ async yield() {} }); })',
+    '({ async [yield]() {} });',
+    'f(async function(x) { await x })',
+    'f(b, async function(b) { await b }, c)',
+    'async function foo(a = {async bar() { await b }}) {}',
+    'async function foo(a = class {async bar() { await b }}) {}',
+    'async function foo(a, b) { await a }',
+    '"use strict"; ({ async yield() {} });',
+    '(function f() { ({ async [yield]() {} }); })',
+    `a = async
+            function f(){}`
+  ];
+
+  for (const arg of validFormalparams) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
 
   const valids: Array<[string, Context, any]> = [
     [

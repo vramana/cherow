@@ -1,8 +1,148 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - New', () => {
+  const validSyntax = [
+    'new foo',
+    'new foo();',
+    'new foo(1);',
+    'new foo(1, 2);',
+    'new foo()();',
+    'new new foo()();',
+    'new foo.bar;',
+    'new foo.bar();',
+    'new foo.bar.baz;',
+    'new foo.bar().baz;',
+    'new foo[bar];',
+    'new foo[bar]();',
+    'new foo[bar][baz];',
+    'new foo[bar]()[baz];',
+    'new foo[bar].baz(baz)()[bar].baz;',
+    'new "foo"',
+    'new 1',
+    'new a(b,c)',
+    'new Button',
+    'new Button(a)',
+    '(new new Function("this.x = 1")).x;',
+    'new function() {}(...[3, 4, 5]);',
+    'new function() {}(...[]);',
+    'new function() {}(...target = [2, 3, 4]);',
+    'new function() {}({...{c: 3, d: 4}});',
+    'new function() {}({...null});',
+    'new function() {}({...{a: 2, b: 3}, get c() { icefapper = false; }});',
+    'new function() {}({...{get a() {}}, c: 4, d: 5, a: 42, ...{get a() {}}});',
+    'new function() {}({a: 1, b: 2, ...undefined});',
+    'new function() {}({a: 1, b: 2, ...null});',
+    'new function() {}(1, 2, 3, ...[]);',
+    `new f(...a)`,
+    `new f(...a, ...b)`,
+    'new(a in b)',
+    'new f(...a, b, ...c)',
+    'function f(a = new.target){}',
+    '(function f(a = new.target){})',
+    'function f() { new new.target; }',
+    'function f() { new.target(); }',
+    'function f() { new["target"]; }'
+  ];
+
+  for (const arg of validSyntax) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(` var f = ${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(` var f = ${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
+
   const valids: Array<[string, Context, any]> = [
+    [
+      'new(a in b)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'NewExpression',
+              callee: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                operator: 'in'
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'new Button(a)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'NewExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'Button'
+              },
+              arguments: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'new new foo',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'NewExpression',
+              callee: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'Identifier',
+                  name: 'foo'
+                },
+                arguments: []
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+
     [
       'new Foo.Bar',
       Context.Empty,

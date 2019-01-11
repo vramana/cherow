@@ -163,7 +163,7 @@ function parseExportDeclaration(state: ParserState, context: Context, scope: Sco
 
   let declaration: any = null;
   let source: ESTree.Literal | null = null;
-  if (optional(state, context, Token.DefaultKeyword)) {
+  if (optional(state, context | Context.AllowPossibleRegEx, Token.DefaultKeyword)) {
     switch (state.token) {
       // export default HoistableDeclaration[Default]
       case Token.FunctionKeyword: {
