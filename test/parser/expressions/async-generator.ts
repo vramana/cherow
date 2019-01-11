@@ -1,749 +1,1021 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
-describe('Expressions - Async generator function', () => {
+describe('Expressions - Async Generator Functions', () => {
+  const inValids: Array<[string, Context]> = [['(async function *f(a, a) {})', Context.Strict]];
+
+  fail('Expressions - Async Generator Functions', inValids);
 
   // valid tests
-const valids: Array < [string, string, Context, any] > = [
-  ['(async function* h([...[,]]) { })', '(async function* h([...[,]]) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ArrayPattern',
-                        'elements': [
-                            {
-                                'type': 'RestElement',
-                                'argument': {
-                                    'type': 'ArrayPattern',
-                                    'elements': [
-                                        null
-                                    ],
-                                    'start': 23,
-                                    'end': 26
-                                },
-                                'start': 20,
-                                'end': 26
-                            }
-                        ],
-                        'start': 19,
-                        'end': 27
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 29,
-                    'end': 32
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 32
-            },
-            'start': 0,
-            'end': 33
-        }
-    ],
-    'start': 0,
-    'end': 33
-}],
-  ['(async function* h([fn = function () {}, xFn = function x() {}] = []) { })', '(async function* h([fn = function () {}, xFn = function x() {}] = []) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'AssignmentPattern',
-                        'left': {
-                            'type': 'ArrayPattern',
-                            'elements': [
-                                {
-                                    'type': 'AssignmentPattern',
-                                    'left': {
-                                        'type': 'Identifier',
-                                        'name': 'fn',
-                                        'start': 20,
-                                        'end': 22
-                                    },
-                                    'right': {
-                                        'type': 'FunctionExpression',
-                                        'params': [],
-                                        'body': {
-                                            'type': 'BlockStatement',
-                                            'body': [],
-                                            'start': 37,
-                                            'end': 39
-                                        },
-                                        'async': false,
-                                        'generator': false,
-                                        'expression': false,
-                                        'id': null,
-                                        'start': 25,
-                                        'end': 39
-                                    },
-                                    'start': 20,
-                                    'end': 39
-                                },
-                                {
-                                    'type': 'AssignmentPattern',
-                                    'left': {
-                                        'type': 'Identifier',
-                                        'name': 'xFn',
-                                        'start': 41,
-                                        'end': 44
-                                    },
-                                    'right': {
-                                        'type': 'FunctionExpression',
-                                        'params': [],
-                                        'body': {
-                                            'type': 'BlockStatement',
-                                            'body': [],
-                                            'start': 60,
-                                            'end': 62
-                                        },
-                                        'async': false,
-                                        'generator': false,
-                                        'expression': false,
-                                        'id': {
-                                            'type': 'Identifier',
-                                            'name': 'x',
-                                            'start': 56,
-                                            'end': 57
-                                        },
-                                        'start': 47,
-                                        'end': 62
-                                    },
-                                    'start': 41,
-                                    'end': 62
-                                }
-                            ],
-                            'start': 19,
-                            'end': 63
-                        },
-                        'right': {
-                            'type': 'ArrayExpression',
-                            'elements': [],
-                            'start': 66,
-                            'end': 68
-                        },
-                        'start': 19,
-                        'end': 68
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 70,
-                    'end': 73
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 73
-            },
-            'start': 0,
-            'end': 74
-        }
-    ],
-    'start': 0,
-    'end': 74
-}],
-  ['(async function* h([x] = []) { })', '(async function* h([x] = []) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'AssignmentPattern',
-                        'left': {
-                            'type': 'ArrayPattern',
-                            'elements': [
-                                {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 20,
-                                    'end': 21
-                                }
-                            ],
-                            'start': 19,
-                            'end': 22
-                        },
-                        'right': {
-                            'type': 'ArrayExpression',
-                            'elements': [],
-                            'start': 25,
-                            'end': 27
-                        },
-                        'start': 19,
-                        'end': 27
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 29,
-                    'end': 32
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 32
-            },
-            'start': 0,
-            'end': 33
-        }
-    ],
-    'start': 0,
-    'end': 33
-}],
-  ['(async function* h({} = null) { })', '(async function* h({} = null) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'AssignmentPattern',
-                        'left': {
-                            'type': 'ObjectPattern',
-                            'properties': [],
-                            'start': 19,
-                            'end': 21
-                        },
-                        'right': {
-                            'type': 'Literal',
-                            'value': null,
-                            'start': 24,
-                            'end': 28
-                        },
-                        'start': 19,
-                        'end': 28
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 30,
-                    'end': 33
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 33
-            },
-            'start': 0,
-            'end': 34
-        }
-    ],
-    'start': 0,
-    'end': 34
-}],
-  ['(async function* h({ x, }) { })', '(async function* h({ x, }) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ObjectPattern',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'kind': 'init',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 21,
-                                    'end': 22
-                                },
-                                'computed': false,
-                                'value': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 21,
-                                    'end': 22
-                                },
-                                'method': false,
-                                'shorthand': true,
-                                'start': 21,
-                                'end': 22
-                            }
-                        ],
-                        'start': 19,
-                        'end': 25
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 27,
-                    'end': 30
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 30
-            },
-            'start': 0,
-            'end': 31
-        }
-    ],
-    'start': 0,
-    'end': 31
-}],
-  ['(async function* h({ w: [x, y, z] = [4, 5, 6] }) { })', '(async function* h({ w: [x, y, z] = [4, 5, 6] }) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ObjectPattern',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'kind': 'init',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'w',
-                                    'start': 21,
-                                    'end': 22
-                                },
-                                'computed': false,
-                                'value': {
-                                    'type': 'AssignmentPattern',
-                                    'left': {
-                                        'type': 'ArrayPattern',
-                                        'elements': [
-                                            {
-                                                'type': 'Identifier',
-                                                'name': 'x',
-                                                'start': 25,
-                                                'end': 26
-                                            },
-                                            {
-                                                'type': 'Identifier',
-                                                'name': 'y',
-                                                'start': 28,
-                                                'end': 29
-                                            },
-                                            {
-                                                'type': 'Identifier',
-                                                'name': 'z',
-                                                'start': 31,
-                                                'end': 32
-                                            }
-                                        ],
-                                        'start': 24,
-                                        'end': 33
-                                    },
-                                    'right': {
-                                        'type': 'ArrayExpression',
-                                        'elements': [
-                                            {
-                                                'type': 'Literal',
-                                                raw: null,
-                                                'value': 4,
-                                                'start': 37,
-                                                'end': 38
-                                            },
-                                            {
-                                                'type': 'Literal',
-                                                raw: null,
-                                                'value': 5,
-                                                'start': 40,
-                                                'end': 41
-                                            },
-                                            {
-                                                'type': 'Literal',
-                                                raw: null,
-                                                'value': 6,
-                                                'start': 43,
-                                                'end': 44
-                                            }
-                                        ],
-                                        'start': 36,
-                                        'end': 45
-                                    },
-                                    'start': 24,
-                                    'end': 45
-                                },
-                                'method': false,
-                                'shorthand': false,
-                                'start': 21,
-                                'end': 45
-                            }
-                        ],
-                        'start': 19,
-                        'end': 47
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 49,
-                    'end': 52
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'h',
-                    'start': 17,
-                    'end': 18
-                },
-                'start': 1,
-                'end': 52
-            },
-            'start': 0,
-            'end': 53
-        }
-    ],
-    'start': 0,
-    'end': 53
-}],
-  ['(async function*([...[...x]]) {})', '(async function*([...[...x]]) {})', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ArrayPattern',
-                        'elements': [
-                            {
-                                'type': 'RestElement',
-                                'argument': {
-                                    'type': 'ArrayPattern',
-                                    'elements': [
-                                        {
-                                            'type': 'RestElement',
-                                            'argument': {
-                                                'type': 'Identifier',
-                                                'name': 'x',
-                                                'start': 25,
-                                                'end': 26
-                                            },
-                                            'start': 22,
-                                            'end': 26
-                                        }
-                                    ],
-                                    'start': 21,
-                                    'end': 27
-                                },
-                                'start': 18,
-                                'end': 27
-                            }
-                        ],
-                        'start': 17,
-                        'end': 28
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 30,
-                    'end': 32
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': null,
-                'start': 1,
-                'end': 32
-            },
-            'start': 0,
-            'end': 33
-        }
-    ],
-    'start': 0,
-    'end': 33
-}],
-  ['(async function*({ x, }) { })', '(async function*({ x, }) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ObjectPattern',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'kind': 'init',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 19,
-                                    'end': 20
-                                },
-                                'computed': false,
-                                'value': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 19,
-                                    'end': 20
-                                },
-                                'method': false,
-                                'shorthand': true,
-                                'start': 19,
-                                'end': 20
-                            }
-                        ],
-                        'start': 17,
-                        'end': 23
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 25,
-                    'end': 28
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': null,
-                'start': 1,
-                'end': 28
-            },
-            'start': 0,
-            'end': 29
-        }
-    ],
-    'start': 0,
-    'end': 29
-}],
-  ['(async function*({ x: y = 33 }) { })', '(async function*({ x: y = 33 }) { })', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'ObjectPattern',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'kind': 'init',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 19,
-                                    'end': 20
-                                },
-                                'computed': false,
-                                'value': {
-                                    'type': 'AssignmentPattern',
-                                    'left': {
-                                        'type': 'Identifier',
-                                        'name': 'y',
-                                        'start': 22,
-                                        'end': 23
-                                    },
-                                    'right': {
-                                        'type': 'Literal',
-                                        raw: null,
-                                        'value': 33,
-                                        'start': 26,
-                                        'end': 28
-                                    },
-                                    'start': 22,
-                                    'end': 28
-                                },
-                                'method': false,
-                                'shorthand': false,
-                                'start': 19,
-                                'end': 28
-                            }
-                        ],
-                        'start': 17,
-                        'end': 30
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 32,
-                    'end': 35
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': null,
-                'start': 1,
-                'end': 35
-            },
-            'start': 0,
-            'end': 36
-        }
-    ],
-    'start': 0,
-    'end': 36
-}],
-  ['(async function *foo() { }.prototype)', '(async function *foo() { }.prototype)', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'MemberExpression',
-                'object': {
-                    'type': 'FunctionExpression',
-                    'params': [],
-                    'body': {
-                        'type': 'BlockStatement',
-                        'body': [],
-                        'start': 23,
-                        'end': 26
-                    },
-                    'async': true,
-                    'generator': true,
-                    'expression': false,
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'foo',
-                        'start': 17,
-                        'end': 20
-                    },
-                    'start': 1,
-                    'end': 26
-                },
-                'computed': false,
-                'property': {
-                    'type': 'Identifier',
-                    'name': 'prototype',
-                    'start': 27,
-                    'end': 36
-                },
-                'start': 1,
-                'end': 36
-            },
-            'start': 0,
-            'end': 37
-        }
-    ],
-    'start': 0,
-    'end': 37
-}],
-  ['(async function *gpig(a, b) {})', '(async function *gpig(a, b) {})', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'Identifier',
-                        'name': 'a',
-                        'start': 22,
-                        'end': 23
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'b',
-                        'start': 25,
-                        'end': 26
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 28,
-                    'end': 30
-                },
-                'async': true,
-                'generator': true,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'gpig',
-                    'start': 17,
-                    'end': 21
-                },
-                'start': 1,
-                'end': 30
-            },
-            'start': 0,
-            'end': 31
-        }
-    ],
-    'start': 0,
-    'end': 31
-}]
-];
 
-pass('Expressions - Async generator function (pass)', valids);
+  const valids: Array<[string, Context, any]> = [
+    [
+      '(async function *foo(_ = (function() {}())) { })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: '_'
+                  },
+                  right: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    },
+                    arguments: []
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*({ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }) { })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'w'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'ArrayPattern',
+                            elements: [
+                              {
+                                type: 'Identifier',
+                                name: 'x'
+                              },
+                              {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              {
+                                type: 'Identifier',
+                                name: 'z'
+                              }
+                            ]
+                          },
+                          right: {
+                            type: 'ArrayExpression',
+                            elements: [
+                              {
+                                type: 'Literal',
+                                value: 4
+                              },
+                              {
+                                type: 'Literal',
+                                value: 5
+                              },
+                              {
+                                type: 'Literal',
+                                value: 6
+                              }
+                            ]
+                          }
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'w'
+                        },
+                        value: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'Literal',
+                              value: 7
+                            },
+                            {
+                              type: 'Identifier',
+                              name: 'undefined'
+                            }
+                          ]
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function* h([]) { })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: []
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: {
+                type: 'Identifier',
+                name: 'h'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `var gen = async function *g() {
+      yield [...yield];
+    };`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'FunctionExpression',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'YieldExpression',
+                          argument: {
+                            type: 'ArrayExpression',
+                            elements: [
+                              {
+                                type: 'SpreadElement',
+                                argument: {
+                                  type: 'YieldExpression',
+                                  argument: null,
+                                  delegate: false
+                                }
+                              }
+                            ]
+                          },
+                          delegate: false
+                        }
+                      }
+                    ]
+                  },
+                  async: true,
+                  generator: true,
+                  id: {
+                    type: 'Identifier',
+                    name: 'g'
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'gen'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      `var gen = async function *g() {
+      return (function(arg) {
+          var yield = arg + 1;
+          return yield;
+        }(yield))
+    };
+    `,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'FunctionExpression',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ReturnStatement',
+                        argument: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'FunctionExpression',
+                            params: [
+                              {
+                                type: 'Identifier',
+                                name: 'arg'
+                              }
+                            ],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'VariableDeclaration',
+                                  kind: 'var',
+                                  declarations: [
+                                    {
+                                      type: 'VariableDeclarator',
+                                      init: {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                          type: 'Identifier',
+                                          name: 'arg'
+                                        },
+                                        right: {
+                                          type: 'Literal',
+                                          value: 1
+                                        },
+                                        operator: '+'
+                                      },
+                                      id: {
+                                        type: 'Identifier',
+                                        name: 'yield'
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Identifier',
+                                    name: 'yield'
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: null
+                          },
+                          arguments: [
+                            {
+                              type: 'YieldExpression',
+                              argument: null,
+                              delegate: false
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  async: true,
+                  generator: true,
 
+                  id: {
+                    type: 'Identifier',
+                    name: 'g'
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'gen'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*([...[...x]]) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'RestElement',
+                            argument: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*([{ x }]) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          kind: 'init',
+                          key: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          computed: false,
+                          value: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          method: false,
+                          shorthand: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*([...{ 0: v, 1: w, 2: x, 3: y, length: z }]) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'ObjectPattern',
+                        properties: [
+                          {
+                            type: 'Property',
+                            kind: 'init',
+                            key: {
+                              type: 'Literal',
+                              value: 0
+                            },
+                            computed: false,
+                            value: {
+                              type: 'Identifier',
+                              name: 'v'
+                            },
+                            method: false,
+                            shorthand: false
+                          },
+                          {
+                            type: 'Property',
+                            kind: 'init',
+                            key: {
+                              type: 'Literal',
+                              value: 1
+                            },
+                            computed: false,
+                            value: {
+                              type: 'Identifier',
+                              name: 'w'
+                            },
+                            method: false,
+                            shorthand: false
+                          },
+                          {
+                            type: 'Property',
+                            kind: 'init',
+                            key: {
+                              type: 'Literal',
+                              value: 2
+                            },
+                            computed: false,
+                            value: {
+                              type: 'Identifier',
+                              name: 'x'
+                            },
+                            method: false,
+                            shorthand: false
+                          },
+                          {
+                            type: 'Property',
+                            kind: 'init',
+                            key: {
+                              type: 'Literal',
+                              value: 3
+                            },
+                            computed: false,
+                            value: {
+                              type: 'Identifier',
+                              name: 'y'
+                            },
+                            method: false,
+                            shorthand: false
+                          },
+                          {
+                            type: 'Property',
+                            kind: 'init',
+                            key: {
+                              type: 'Identifier',
+                              name: 'length'
+                            },
+                            computed: false,
+                            value: {
+                              type: 'Identifier',
+                              name: 'z'
+                            },
+                            method: false,
+                            shorthand: false
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*([...[...x]]) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'RestElement',
+                            argument: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function *icefapper([_, x] = []) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: '_'
+                      },
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ArrayExpression',
+                    elements: []
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: {
+                type: 'Identifier',
+                name: 'icefapper'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*({} = null) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: []
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: null
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } }) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        kind: 'init',
+                        key: {
+                          type: 'Identifier',
+                          name: 'w'
+                        },
+                        computed: false,
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'ObjectPattern',
+                            properties: [
+                              {
+                                type: 'Property',
+                                kind: 'init',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'x'
+                                },
+                                computed: false,
+                                value: {
+                                  type: 'Identifier',
+                                  name: 'x'
+                                },
+                                method: false,
+                                shorthand: true
+                              },
+                              {
+                                type: 'Property',
+                                kind: 'init',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'y'
+                                },
+                                computed: false,
+                                value: {
+                                  type: 'Identifier',
+                                  name: 'y'
+                                },
+                                method: false,
+                                shorthand: true
+                              },
+                              {
+                                type: 'Property',
+                                kind: 'init',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'z'
+                                },
+                                computed: false,
+                                value: {
+                                  type: 'Identifier',
+                                  name: 'z'
+                                },
+                                method: false,
+                                shorthand: true
+                              }
+                            ]
+                          },
+                          right: {
+                            type: 'ObjectExpression',
+                            properties: [
+                              {
+                                type: 'Property',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'x'
+                                },
+                                value: {
+                                  type: 'Literal',
+                                  value: 4
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: false
+                              },
+                              {
+                                type: 'Property',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'y'
+                                },
+                                value: {
+                                  type: 'Literal',
+                                  value: 5
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: false
+                              },
+                              {
+                                type: 'Property',
+                                key: {
+                                  type: 'Identifier',
+                                  name: 'z'
+                                },
+                                value: {
+                                  type: 'Literal',
+                                  value: 6
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: false
+                              }
+                            ]
+                          }
+                        },
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'w'
+                        },
+                        value: {
+                          type: 'ObjectExpression',
+                          properties: [
+                            {
+                              type: 'Property',
+                              key: {
+                                type: 'Identifier',
+                                name: 'x'
+                              },
+                              value: {
+                                type: 'Identifier',
+                                name: 'undefined'
+                              },
+                              kind: 'init',
+                              computed: false,
+                              method: false,
+                              shorthand: false
+                            },
+                            {
+                              type: 'Property',
+                              key: {
+                                type: 'Identifier',
+                                name: 'z'
+                              },
+                              value: {
+                                type: 'Literal',
+                                value: 7
+                              },
+                              kind: 'init',
+                              computed: false,
+                              method: false,
+                              shorthand: false
+                            }
+                          ]
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function*([[...x] = [a, b, c]]) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'RestElement',
+                            argument: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          }
+                        ]
+                      },
+                      right: {
+                        type: 'ArrayExpression',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'a'
+                          },
+                          {
+                            type: 'Identifier',
+                            name: 'b'
+                          },
+                          {
+                            type: 'Identifier',
+                            name: 'c'
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x=async function *f(){ var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: true,
+                generator: true,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  ];
+
+  pass('Expressions - Async Generator Functions (pass)', valids);
 });

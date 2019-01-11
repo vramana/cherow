@@ -2,650 +2,1264 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Template', () => {
+  const inValids: Array<[string, Context]> = [
+    //  ['`\\00`', Context.Empty],
+    //  ['`a\\00b`', Context.Empty],
+    ['`\\xg`;', Context.Empty],
+    ['`${x} \\xg ${x}`;', Context.Empty],
+    ['`\\xg ${x}`;', Context.Empty]
+  ];
+  fail('Expressions - Template', inValids);
 
-  // valid tests
-const valids: Array < [string, string, Context, any] > = [
-
-  ['foo`\\\r\\\n${0}`', 'foo`\\\r\\\n${0}`', Context.OptionsRanges, {
-      'body': [
-        {
-          'end': 13,
-          'expression': {
-            'end': 13,
-            'quasi': {
-              'end': 13,
-              'expressions': [
+  pass('Expressions - Template (pass)', [
+    [
+      '`foo`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [],
+              quasis: [
                 {
-                  'end': 11,
-                  'raw': '\\\r\\\n',
-                  'start': 10,
-                  'type': 'Literal',
-                  'value': 0,
-                },
-              ],
-              'quasis': [
-                {
-                  'end': 11,
-                  'start': 3,
-                  'tail': false,
-                  'type': 'TemplateElement',
-                  'value': {
-                    'cooked': '',
-                    'raw': '\\\r\\\n',
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
                   },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`foo ${a} and ${b} and ${c} baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  'end': 13,
-                  'start': 11,
-                  'tail': true,
-                  'type': 'TemplateElement',
-                  'value': {
-                    'cooked': '',
-                    'raw': '',
-                  }
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'c'
                 }
               ],
-              'start': 3,
-              'type': 'TemplateLiteral',
-            },
-            'start': 0,
-            'tag': {
-              'end': 3,
-              'name': 'foo',
-              'start': 0,
-              'type': 'Identifier',
-           },
-            'type': 'TaggedTemplateExpression'
-          },
-          'start': 0,
-          'type': 'ExpressionStatement'
-        }
-      ],
-      'end': 13,
-      'sourceType': 'script',
-      'start': 0,
-      'type': 'Program'
-    }],
-  ['function z() {}; `z`;', 'function z() {}; `z`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'FunctionDeclaration',
-            'params': [],
-            'body': {
-                'type': 'BlockStatement',
-                'body': [],
-                'start': 13,
-                'end': 15
-            },
-            'async': false,
-            'generator': false,
-            'expression': false,
-            'id': {
-                'type': 'Identifier',
-                'name': 'z',
-                'start': 9,
-                'end': 10
-            },
-            'start': 0,
-            'end': 15
-        },
-        {
-            'type': 'EmptyStatement',
-            'start': 15,
-            'end': 16
-        },
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'TemplateLiteral',
-                'expressions': [],
-                'quasis': [
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': 'z',
-                            'raw': 'z'
-                        },
-                        'tail': true,
-                        'start': 17,
-                        'end': 20
-                    }
-                ],
-                'start': 17,
-                'end': 20
-            },
-            'start': 17,
-            'end': 21
-        }
-    ],
-    'start': 0,
-    'end': 21
-}],
-  ['function z() {}; `${z}${z}${z}`;', 'function z() {}; `${z}${z}${z}`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'FunctionDeclaration',
-            'params': [],
-            'body': {
-                'type': 'BlockStatement',
-                'body': [],
-                'start': 13,
-                'end': 15
-            },
-            'async': false,
-            'generator': false,
-            'expression': false,
-            'id': {
-                'type': 'Identifier',
-                'name': 'z',
-                'start': 9,
-                'end': 10
-            },
-            'start': 0,
-            'end': 15
-        },
-        {
-            'type': 'EmptyStatement',
-            'start': 15,
-            'end': 16
-        },
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'TemplateLiteral',
-                'expressions': [
-                    {
-                        'type': 'Identifier',
-                        'name': 'z',
-                        'start': 20,
-                        'end': 21
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'z',
-                        'start': 24,
-                        'end': 25
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'z',
-                        'start': 28,
-                        'end': 29
-                    }
-                ],
-                'quasis': [
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': '',
-                            'raw': ''
-                        },
-                        'tail': false,
-                        'start': 17,
-                        'end': 21
-                    },
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': '',
-                            'raw': ''
-                        },
-                        'tail': false,
-                        'start': 21,
-                        'end': 25
-                    },
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': '',
-                            'raw': ''
-                        },
-                        'tail': false,
-                        'start': 25,
-                        'end': 29
-                    },
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': '',
-                            'raw': ''
-                        },
-                        'tail': true,
-                        'start': 29,
-                        'end': 31
-                    }
-                ],
-                'start': 17,
-                'end': 31
-            },
-            'start': 17,
-            'end': 32
-        }
-    ],
-    'start': 0,
-    'end': 32
-}],
-  ['function z() {}; ``;', 'function z() {}; ``;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'FunctionDeclaration',
-            'params': [],
-            'body': {
-                'type': 'BlockStatement',
-                'body': [],
-                'start': 13,
-                'end': 15
-            },
-            'async': false,
-            'generator': false,
-            'expression': false,
-            'id': {
-                'type': 'Identifier',
-                'name': 'z',
-                'start': 9,
-                'end': 10
-            },
-            'start': 0,
-            'end': 15
-        },
-        {
-            'type': 'EmptyStatement',
-            'start': 15,
-            'end': 16
-        },
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'TemplateLiteral',
-                'expressions': [],
-                'quasis': [
-                    {
-                        'type': 'TemplateElement',
-                        'value': {
-                            'cooked': '',
-                            'raw': ''
-                        },
-                        'tail': true,
-                        'start': 17,
-                        'end': 19
-                    }
-                ],
-                'start': 17,
-                'end': 19
-            },
-            'start': 17,
-            'end': 20
-        }
-    ],
-    'start': 0,
-    'end': 20
-}],
-  ['var foo = `simple template`;', 'var foo = `simple template`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'VariableDeclaration',
-            'kind': 'var',
-            'declarations': [
+              quasis: [
                 {
-                    'type': 'VariableDeclarator',
-                    'init': {
-                        'type': 'TemplateLiteral',
-                        'expressions': [],
-                        'quasis': [
-                            {
-                                'type': 'TemplateElement',
-                                'value': {
-                                    'cooked': 'simple template',
-                                    'raw': 'simple template'
-                                },
-                                'tail': true,
-                                'start': 10,
-                                'end': 27
-                            }
-                        ],
-                        'start': 10,
-                        'end': 27
-                    },
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'foo',
-                        'start': 4,
-                        'end': 7
-                    },
-                    'start': 4,
-                    'end': 27
-                }
-            ],
-            'start': 0,
-            'end': 28
-        }
-    ],
-    'start': 0,
-    'end': 28
-}],
-  ['let foo = f`template with function`;', 'let foo = f`template with function`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'VariableDeclaration',
-            'kind': 'let',
-            'declarations': [
-                {
-                    'type': 'VariableDeclarator',
-                    'init': {
-                        'type': 'TaggedTemplateExpression',
-                        'tag': {
-                            'type': 'Identifier',
-                            'name': 'f',
-                            'start': 10,
-                            'end': 11
-                        },
-                        'quasi': {
-                            'type': 'TemplateLiteral',
-                            'expressions': [],
-                            'quasis': [
-                                {
-                                    'type': 'TemplateElement',
-                                    'value': {
-                                        'cooked': 'template with function',
-                                        'raw': 'template with function'
-                                    },
-                                    'tail': true,
-                                    'start': 11,
-                                    'end': 35
-                                }
-                            ],
-                            'start': 11,
-                            'end': 35
-                        },
-                        'start': 10,
-                        'end': 35
-                    },
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'foo',
-                        'start': 4,
-                        'end': 7
-                    },
-                    'start': 4,
-                    'end': 35
-                }
-            ],
-            'start': 0,
-            'end': 36
-        }
-    ],
-    'start': 0,
-    'end': 36
-}],
-  ['let foo = f()`template with function call before`;', 'let foo = f()`template with function call before`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'VariableDeclaration',
-            'kind': 'let',
-            'declarations': [
-                {
-                    'type': 'VariableDeclarator',
-                    'init': {
-                        'type': 'TaggedTemplateExpression',
-                        'tag': {
-                            'type': 'CallExpression',
-                            'callee': {
-                                'type': 'Identifier',
-                                'name': 'f',
-                                'start': 10,
-                                'end': 11
-                            },
-                            'arguments': [],
-                            'start': 10,
-                            'end': 13
-                        },
-                        'quasi': {
-                            'type': 'TemplateLiteral',
-                            'expressions': [],
-                            'quasis': [
-                                {
-                                    'type': 'TemplateElement',
-                                    'value': {
-                                        'cooked': 'template with function call before',
-                                        'raw': 'template with function call before'
-                                    },
-                                    'tail': true,
-                                    'start': 13,
-                                    'end': 49
-                                }
-                            ],
-                            'start': 13,
-                            'end': 49
-                        },
-                        'start': 10,
-                        'end': 49
-                    },
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'foo',
-                        'start': 4,
-                        'end': 7
-                    },
-                    'start': 4,
-                    'end': 49
-                }
-            ],
-            'start': 0,
-            'end': 50
-        }
-    ],
-    'start': 0,
-    'end': 50
-}],
-  ['const foo = f().g`template with more complex function call`;', 'const foo = f().g`template with more complex function call`;', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'VariableDeclaration',
-            'kind': 'const',
-            'declarations': [
-                {
-                    'type': 'VariableDeclarator',
-                    'init': {
-                        'type': 'TaggedTemplateExpression',
-                        'tag': {
-                            'type': 'MemberExpression',
-                            'object': {
-                                'type': 'CallExpression',
-                                'callee': {
-                                    'type': 'Identifier',
-                                    'name': 'f',
-                                    'start': 12,
-                                    'end': 13
-                                },
-                                'arguments': [],
-                                'start': 12,
-                                'end': 15
-                            },
-                            'computed': false,
-                            'property': {
-                                'type': 'Identifier',
-                                'name': 'g',
-                                'start': 16,
-                                'end': 17
-                            },
-                            'start': 12,
-                            'end': 17
-                        },
-                        'quasi': {
-                            'type': 'TemplateLiteral',
-                            'expressions': [],
-                            'quasis': [
-                                {
-                                    'type': 'TemplateElement',
-                                    'value': {
-                                        'cooked': 'template with more complex function call',
-                                        'raw': 'template with more complex function call'
-                                    },
-                                    'tail': true,
-                                    'start': 17,
-                                    'end': 59
-                                }
-                            ],
-                            'start': 17,
-                            'end': 59
-                        },
-                        'start': 12,
-                        'end': 59
-                    },
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'foo',
-                        'start': 6,
-                        'end': 9
-                    },
-                    'start': 6,
-                    'end': 59
-                }
-            ],
-            'start': 0,
-            'end': 60
-        }
-    ],
-    'start': 0,
-    'end': 60
-}],
-  ['a``', 'a``', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'TaggedTemplateExpression',
-                'tag': {
-                    'type': 'Identifier',
-                    'name': 'a',
-                    'start': 0,
-                    'end': 1
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo ',
+                    raw: 'foo '
+                  },
+                  tail: false
                 },
-                'quasi': {
-                    'type': 'TemplateLiteral',
-                    'expressions': [],
-                    'quasis': [
-                        {
-                            'type': 'TemplateElement',
-                            'value': {
-                                'cooked': '',
-                                'raw': ''
-                            },
-                            'tail': true,
-                            'start': 1,
-                            'end': 3
-                        }
-                    ],
-                    'start': 1,
-                    'end': 3
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' and ',
+                    raw: ' and '
+                  },
+                  tail: false
                 },
-                'start': 0,
-                'end': 3
-            },
-            'start': 0,
-            'end': 3
-        }
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' and ',
+                    raw: ' and '
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' baz',
+                    raw: ' baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
     ],
-    'start': 0,
-    'end': 3
-}],
-  ['`abc`', '`abc`', Context.OptionsRanges, {
-      'body': [
-        {
-          'end': 5,
-          'expression': {
-            'end': 5,
-            'expressions': [],
-            'quasis': [
+    [
+      '{`foo baz`}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
               {
-                'end': 5,
-                'start': 0,
-                'tail': true,
-                'type': 'TemplateElement',
-                'value': {
-                  'cooked': 'abc',
-                  'raw': 'abc',
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'TemplateLiteral',
+                  expressions: [],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo baz',
+                        raw: 'foo baz'
+                      },
+                      tail: true
+                    }
+                  ]
                 }
               }
-            ],
-            'start': 0,
-            'type': 'TemplateLiteral',
-          },
-          'start': 0,
-          'type': 'ExpressionStatement',
-       },
-      ],
-     'end': 5,
-      'sourceType': 'script',
-      'start': 0,
-      'type': 'Program',
-    }],
-    ['`${abc}`', '`${abc}`', Context.OptionsRanges, {
-        'body': [
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{`foo ${a} baz`}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-            'end': 8,
-            'expression': {
-              'end': 8,
-              'expressions': [
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'TemplateLiteral',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  ],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo ',
+                        raw: 'foo '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' baz',
+                        raw: ' baz'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{`foo ${a} and ${b} and ${c} baz`}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'TemplateLiteral',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'c'
+                    }
+                  ],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo ',
+                        raw: 'foo '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' and ',
+                        raw: ' and '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' and ',
+                        raw: ' and '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' baz',
+                        raw: ' baz'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '`foo${{}}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
                 {
-                  'end': 6,
-                  'name': 'abc',
-                  'start': 3,
-                  'type': 'Identifier',
-                },
+                  type: 'ObjectExpression',
+                  properties: []
+                }
               ],
-              'quasis': [
+              quasis: [
                 {
-                  'end': 6,
-                  'start': 0,
-                  'tail': false,
-                  'type': 'TemplateElement',
-                  'value': {
-                    'cooked': '',
-                    'raw': '',
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
                   },
+                  tail: false
                 },
                 {
-                 'end': 8,
-                  'start': 6,
-                  'tail': true,
-                  'type': 'TemplateElement',
-                  'value': {
-                    'cooked': '',
-                    'raw': '',
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`foo${{a,b}}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`foo${{a,b} = x}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'b'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'b'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ],
-              'start': 0,
-              'type': 'TemplateLiteral',
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`foo${`foo`}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'TemplateLiteral',
+                  expressions: [],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo',
+                        raw: 'foo'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`foo${`foo${bar}baz`}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'TemplateLiteral',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'bar'
+                    }
+                  ],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo',
+                        raw: 'foo'
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'baz',
+                        raw: 'baz'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '{`foo ${a} and ${b} and ${`w ${d} x ${e} y ${f} z`} baz`}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'TemplateLiteral',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'Identifier',
+                          name: 'd'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'e'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: 'w ',
+                            raw: 'w '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' x ',
+                            raw: ' x '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' y ',
+                            raw: ' y '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' z',
+                            raw: ' z'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  ],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'foo ',
+                        raw: 'foo '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' and ',
+                        raw: ' and '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' and ',
+                        raw: ' and '
+                      },
+                      tail: false
+                    },
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: ' baz',
+                        raw: ' baz'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '`a ${function(){}} b`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'FunctionExpression',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  id: null
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'a ',
+                    raw: 'a '
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' b',
+                    raw: ' b'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      '`a ${(k)=>{x}} b`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'k'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'a ',
+                    raw: 'a '
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' b',
+                    raw: ' b'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'f`\\xg ${x}`;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TaggedTemplateExpression',
+              tag: {
+                type: 'Identifier',
+                name: 'f'
+              },
+              quasi: {
+                type: 'TemplateLiteral',
+                expressions: [
+                  {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                ],
+                quasis: [
+                  {
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: null,
+                      raw: '\\xg '
+                    },
+                    tail: false
+                  },
+                  {
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: '',
+                      raw: ''
+                    },
+                    tail: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'function *f(){   x = `1 ${ yield } 2 ${ 3 } 4`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: null,
+                          delegate: false
+                        },
+                        {
+                          type: 'Literal',
+                          value: 3
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2 ',
+                            raw: ' 2 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 4',
+                            raw: ' 4'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
             },
-            'start': 0,
-            'type': 'ExpressionStatement',
-          },
+            async: false,
+            generator: true,
+
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   x = `1 ${ yield x } 2`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          delegate: false
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2',
+                            raw: ' 2'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *f(){   x = `1 ${ yield x } 2 ${ 3 } 4`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          delegate: false
+                        },
+                        {
+                          type: 'Literal',
+                          value: 3
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2 ',
+                            raw: ' 2 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 4',
+                            raw: ' 4'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'f`${x} \\xg ${x}`;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              quasi: {
+                expressions: [
+                  {
+                    name: 'x',
+                    type: 'Identifier'
+                  },
+                  {
+                    name: 'x',
+                    type: 'Identifier'
+                  }
+                ],
+                quasis: [
+                  {
+                    tail: false,
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: '',
+                      raw: ''
+                    }
+                  },
+                  {
+                    tail: false,
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: null,
+                      raw: ' \\xg '
+                    }
+                  },
+                  {
+                    tail: true,
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: '',
+                      raw: ''
+                    }
+                  }
+                ],
+                type: 'TemplateLiteral'
+              },
+              tag: {
+                name: 'f',
+                type: 'Identifier'
+              },
+              type: 'TaggedTemplateExpression'
+            },
+            type: 'ExpressionStatement'
+          }
         ],
-        'end': 8,
-        'sourceType': 'script',
-       'start': 0,
-        'type': 'Program',
-      }]
-];
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'function *f(){   x = `1 ${ yield } 2`   }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'TemplateLiteral',
+                      expressions: [
+                        {
+                          type: 'YieldExpression',
+                          argument: null,
+                          delegate: false
+                        }
+                      ],
+                      quasis: [
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '1 ',
+                            raw: '1 '
+                          },
+                          tail: false
+                        },
+                        {
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: ' 2',
+                            raw: ' 2'
+                          },
+                          tail: true
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
 
-pass('Expressions - Template (pass)', valids);
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`a ${()=>{}} b`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  params: [],
+                  id: null,
+                  async: false,
+                  expression: false
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'a ',
+                    raw: 'a '
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: ' b',
+                    raw: ' b'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
 
+    [
+      '`foo${bar}baz`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'bar'
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'foo',
+                    raw: 'foo'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'baz',
+                    raw: 'baz'
+                  },
+                  tail: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  ]);
 });

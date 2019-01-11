@@ -1,165 +1,425 @@
 import * as ESTree from './estree';
-import { Token, KeywordDescTable } from './token';
-import { nextToken } from './lexer/scan';
-import { ParserState, Location } from './types';
-import { report, Errors } from './errors';
-import { parseIdentifier } from './parser/expressions';
+import { Token } from './token';
+import { next } from './scanner';
+import { Errors, report } from './errors';
+import { ScopeType, ScopeState } from 'scope';
 
+// prettier-ignore
+/**
+ * The core context, passed around everywhere as a simple immutable bit set.
+ */
 export const enum Context {
-  Empty                 = 0,
-  OptionsRaw            = 1 << 0,
-  OptionsNext           = 1 << 1,
-  OptionsLoc            = 1 << 2,
-  OptionsRanges         = 1 << 3,
-  OptionsJSX            = 1 << 4,
-  OptionsRawidentifiers = 1 << 5,
-  OptionsGlobalReturn   = 1 << 6,
-  OptionsShebang        = 1 << 7,
-  OptionsComments       = 1 << 8,
-  OptionsExperimental   = 1 << 9,
-  ExpressionStart       = 1 << 10,
-  InGenerator           = 1 << 11,
-  InAsync               = 1 << 12,
-  InParam               = 1 << 13,
-  Strict                = 1 << 14,
-  Module                = 1 << 15,
-  TaggedTemplate        = 1 << 16,
-  Tokenize              = 1 << 17,
-  InClass               = 1 << 18,
-  NewTarget             = 1 << 19,
-  InFunctionBody        = 1 << 20,
-  DisallowIn            = 1 << 21,
-  RequireIdentifier     = 1 << 22,
-  DisallowGenerator     = 1 << 23,
-  InJSXChild   = 1 << 24,
+  Empty = 0,
+  OptionsNext = 1 << 0,
+  OptionsRanges = 1 << 1,
+  OptionsJSX = 1 << 2,
+  OptionsRaw = 1 << 3,
+  OptionsDisableWebCompat = 1 << 4,
+  OptionsLoc = 1 << 5,
+  OptionsGlobalReturn = 1 << 6,
+  OptionsExperimental = 1 << 7,
+  OptionsNative = 1 << 8,
+
+  Strict = 1 << 10,
+  Module = 1 << 11,
+
+  TopLevel = 1 << 12,
+
+  DisallowInContext = 1 << 13,
+  AllowPossibleRegEx = 1 << 15,
+  TaggedTemplate = 1 << 16,
+  SuperProperty = 1 << 18,
+  SuperCall = 1 << 19,
+
+  InGlobal = 1 << 20,
+  YieldContext = 1 << 21,
+  AwaitContext = 1 << 22,
+  InArgList = 1 << 23,
+  InConstructor = 1 << 24,
+  InMethod = 1 << 25,
+  AllowNewTarget = 1 << 26,
+  AllowReturn = 1 << 27,
 }
 
+/**
+ * The mutable parser flags, in case any flags need passed by reference.
+ */
+// prettier-ignore
 export const enum Flags {
-  Empty               = 0,
-  LineTerminator      = 1 << 0,
-  HasOctal            = 1 << 1,
-  EdgeCase            = 1 << 2,
-  SimpleParameterList = 1 << 3,
+  Empty = 0,
+  NewLine = 1 << 0,
+  LastIsCR = 1 << 1,
+  Float = 1 << 2,
+  Octal = 1 << 3,
+  Binary = 1 << 4,
+  SeenPrototype = 1 << 5
+}
+// prettier-ignore
+/**
+ * The binding type masks, passed around as a simple immutable bit set
+ */
+// prettier-ignore
+export const enum Type {
+  None = 0,
+  ArgList = 1 << 0,
+  Variable = 1 << 1,
+  Let = 1 << 2, // Lexical
+  Const = 1 << 3, // Lexical
+  ClassExprDecl = 1 << 4
+}
+
+/**
+ * The binding origin masks, passed around as a simple immutable bit set
+ */
+// prettier-ignore
+export const enum Origin {
+  None = 0,
+  Statement = 1 << 0,
+  ForStatement = 1 << 1,
+  Export = 1 << 2,
+  CatchClause = 1 << 3,
+  AsyncArgs = 1 << 4,
+  ArgList = 1 << 5,
+  ClassExprDecl = 1 << 6
 }
 
 /*@internal*/
 export const enum LabelState {
-  Empty            = 0,      // Break statement
-  Iteration        = 1 << 0, // Parsing iteration statement
-  CrossingBoundary = 1 << 1, // Crossing function boundary
-}
-
-/* Binding origin */
-export const enum BindingOrigin {
-  Empty           = 0,
-  ForStatement    = 1 << 0,
-  FunctionArgs    = 1 << 1,
-  CatchClause     = 1 << 2,
-  Export          = 1 << 3,
-  Import          = 1 << 4,
-  Statement       = 1 << 5,
-}
-
-/* Binding state */
-export const enum BindingType {
-  Empty       = 0,
-  Args        = 1 << 0,
-  Var         = 1 << 1,
-  Let         = 1 << 2,
-  Const       = 1 << 3,
-  Class       = 1 << 4,
-  Variable    = Var | Let | Const
-}
-
-export const enum LabelledFunctionState {
-  Allow,
-  Disallow
+  Empty = 0, // Break statement
+  Iteration = 1 << 0, // Parsing iteration statement
+  CrossingBoundary = 1 << 1 // Crossing function boundary
 }
 
 /**
- * Finish each the node for each parse. Set line / and column on the node if the
- * options are set for it
- *
- * @param parser Parser object
- * @param context Context masks
- * @param meta Line / column
- * @param node AST node
+ * The type of the `onComment` option.
  */
-export function finishNode < T extends ESTree.Node > (
-  state: ParserState,
-  context: Context,
-  meta: Location,
-  node: any): T {
-
-  if (context & Context.OptionsRanges) {
-      node.start = meta.index;
-      node.end = state.lastIndex;
-  }
-
-  if (context & Context.OptionsLoc) {
-      node.loc = {
-          start: {
-              line: meta.line,
-              column: meta.column
-          },
-          end: {
-              line: state.lastLine,
-              column: state.lastColumn
-          }
-      };
-  }
-
-  return node as T;
-}
+export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
+export type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
 
 /**
- * Get current node location
- *
- * @param parser Parser object
- * @param context  Context masks
+ * The parser interface.
  */
-export function getLocation(state: ParserState): Location {
-  return {
-    line: state.startLine,
-    column: state.startColumn,
-    index: state.startIndex
+export interface ParserState {
+  source: string;
+  onComment: any;
+  onToken: any;
+  flags: Flags;
+  index: number;
+  line: number;
+  startIndex: number;
+  startLine: number;
+  startColumn: number;
+  column: number;
+  token: Token;
+  tokenValue: any;
+  tokenRaw: string;
+  currentChar: any;
+  length: number;
+  lastRegExpError: any;
+  numCapturingParens: number;
+  largestBackReference: number;
+  lastChar: number;
+  inCatch: boolean;
+  exportedNames: any[];
+  exportedBindings: any[];
+  labelSet: any;
+  labelSetStack: { [key: string]: boolean }[];
+  iterationStack: (boolean | LabelState)[];
+  switchStatement: LabelState;
+  iterationStatement: LabelState;
+  labelDepth: number;
+  functionBoundaryStack: any;
+  tokenRegExp: void | {
+    pattern: string;
+    flags: string;
   };
+}
+
+/**
+ * A simple `unimplemented` helper.
+ */
+export function unimplemented(): never {
+  throw new Error('unimplemented');
+}
+
+// Note: this is intentionally ambient, since it should never be called. (It should be a guaranteed
+// runtime error.)
+export declare function unreachable(...values: never[]): never;
+
+export function pushComment(context: Context, array: any[]): any {
+  return function(type: string, value: string, start: number, end: number) {
+    const comment: any = {
+      type,
+      value
+    };
+
+    if (context & Context.OptionsLoc) {
+      comment.start = start;
+      comment.end = end;
+    }
+    array.push(comment);
+  };
+}
+
+export function pushToken(context: Context, array: any[]): any {
+  return function(token: string, value: string, start: number, end: number) {
+    const tokens: any = {
+      token,
+      value
+    };
+
+    if (context & Context.OptionsLoc) {
+      tokens.start = start;
+      tokens.end = end;
+    }
+    array.push(tokens);
+  };
+}
+
+export function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T {
+  if (context & Context.OptionsRanges) {
+    node.start = start;
+    node.end = end;
+  }
+
+  return node;
 }
 
 export function optional(state: ParserState, context: Context, token: Token): boolean {
   if (state.token !== token) return false;
-  nextToken(state, context);
+  next(state, context);
   return true;
 }
 
 export function expect(state: ParserState, context: Context, t: Token): boolean {
   if (state.token !== t) {
-      report(state, Errors.UnexpectedToken, KeywordDescTable[t & Token.Type]);
-      return false;
+    report(state, Errors.Unexpected);
+    return false;
   }
-  nextToken(state, context);
+  next(state, context);
   return true;
 }
- /**
- * Validates if the next token in the stream is a left paren or a period
+
+/**
+ * Automatic Semicolon Insertion
+ *
+ * @see [Link](https://tc39.github.io/ecma262/@sec-automatic-semicolon-insertion)
  *
  * @param parser Parser object
- * @param context  Context masks
+ * @param context Context masks
  */
-export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean {
-  nextToken(state, context);
-  return state.token === Token.LeftParen || state.token === Token.Period;
+export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
+  return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.NewLine
+    ? optional(state, context, Token.Semicolon)
+    : report(state, Errors.Unexpected);
 }
 
-export function nextTokenIsIdentifierOrLeftParen(state: ParserState, context: Context) {
-  nextToken(state, context);
-  return state.token & Token.IdentifierOrContextual || state.token === Token.LeftParen;
+/**
+ * Insert scope bindings
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Parent scope
+ * @param name Binding name
+ * @param bindingType Binding type
+ * @param checkDuplicates
+ * @param isVariableDecl True if origin is a variable declaration
+ */
+
+export function addVariable(
+  state: ParserState,
+  context: Context,
+  scope: any,
+  bindingType: Type,
+  checkDuplicates: boolean,
+  isVariableDecl: boolean,
+  key: string
+) {
+  if (scope === -1) return;
+  if ((bindingType & Type.Variable) === Type.Variable) {
+    let lex = scope.lex;
+    while (lex) {
+      const type = lex.type;
+      if (lex['@' + key] !== undefined) {
+        if (type === ScopeType.CatchClause) {
+          if (isVariableDecl && (context & Context.OptionsDisableWebCompat) === 0) {
+            state.inCatch = true;
+          } else {
+            report(state, Errors.InvalidCatchVarBinding, key);
+          }
+        } else if (type === ScopeType.ForStatement) {
+          report(state, Errors.AlreadyDeclared);
+        } else if (type !== ScopeType.ArgumentList) {
+          if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+            report(state, Errors.AlreadyDeclared);
+          }
+        }
+      }
+      lex = lex['@'];
+    }
+
+    let x = scope.var['@' + key];
+    if (x === undefined) x = 1;
+    else ++x;
+    scope.var['@' + key] = x;
+    let lexVars = scope.lexVars;
+    while (lexVars) {
+      lexVars['@' + key] = true;
+      lexVars = lexVars['@'];
+    }
+  } else {
+    const lex = scope.lex;
+
+    if (checkDuplicates) {
+      checkIfExistInLexicalParentScope(state, context, scope, '@' + key);
+
+      if (lex['@' + key] !== undefined) {
+        if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+          report(state, Errors.AlreadyDeclared, key);
+        }
+      }
+    }
+
+    let x = lex['@' + key];
+
+    if (x === undefined) x = 1;
+    else if (checkDuplicates) {
+      if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
+        report(state, Errors.AlreadyDeclared, key);
+      }
+    } else ++x;
+
+    lex['@' + key] = x;
+  }
 }
 
-export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean {
-  const line = state.line;
-  nextToken(state, context);
-  return state.token === Token.FunctionKeyword && state.line === line;
+/**
+ *
+ * @param scope
+ * @param key
+ * @param context
+ */
+
+export function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean {
+  if (context & Context.OptionsDisableWebCompat) return true;
+  if ((scope.lex.funcs[key] === true) === false) return true;
+  if (context & Context.Strict) return true;
+  return false;
+}
+
+/**
+ *
+ * @param state
+ * @param context
+ * @param scope
+ * @param skipParent
+ */
+export function checkIfExistInLexicalBindings(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  skipParent: any = false
+) {
+  const lex = scope.lex;
+  for (const key in lex) {
+    if (key[0] === '@' && key.length > 1) {
+      if (lex[key] > 1) {
+        return true;
+      }
+      if (!skipParent) checkIfExistInLexicalParentScope(state, context, scope, key);
+    }
+  }
+  return false;
+}
+
+/**
+ *
+ * @param state
+ * @param context
+ * @param scope
+ * @param key
+ */
+export function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, key: any) {
+  const lex = scope.lex;
+
+  const lexParent = lex['@'];
+  if (lexParent !== undefined) {
+    if (lexParent.type === ScopeType.ArgumentList && lexParent[key] !== undefined) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+
+    if (lexParent.type === ScopeType.CatchClause && lexParent[key] !== undefined) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+  }
+
+  if (scope.lexVars[key] !== undefined) {
+    if (checkForDuplicateLexicals(scope, key, context) === true) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+  }
+}
+
+export function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVariableDecl: boolean) {
+  addVariable(state, context, scope, bindingType, true, isVariableDecl, state.tokenValue);
+  if ((context & Context.OptionsDisableWebCompat) === 0 && !scope.lex.funcs['@' + state.tokenValue]) {
+    scope.lex.funcs['@' + state.tokenValue] = true;
+  }
+}
+
+/**
+ *
+ * @param state
+ * @param lex
+ * @param wereSimpleArgs
+ */
+export function checkFunctionsArgForDuplicate(state: ParserState, lex: any, wereSimpleArgs: boolean) {
+  const w = wereSimpleArgs;
+  for (const key in lex) {
+    if (key[0] === '@' && key.length > 1 && lex[key] > 1) {
+      report(state, Errors.AlreadyDeclared, key.slice(1));
+    }
+  }
+}
+
+/**
+ * Does a lookahead and if the 'isLookaHead' is set to false or the result is true it will continue parsing
+ * and never rewind the parser state
+ *
+ * @param state ParserState instance
+ * @param callback Callback function to be called
+ * @param isLookahead Boolean
+ */
+export function lookAheadOrScan<T>(
+  state: ParserState,
+  context: Context,
+  callback: (state: ParserState, context: Context) => T,
+  isLookahead: boolean
+): T {
+  const savedIndex = state.index;
+  const savedLine = state.line;
+  const savedColumn = state.column;
+  const startIndex = state.startIndex;
+  const savedFlags = state.flags;
+  const savedTokenValue = state.tokenValue;
+  const savedNextChar = state.currentChar;
+  const savedToken = state.token;
+  const savedTokenRegExp = state.tokenRegExp;
+  const result = callback(state, context);
+
+  if (!result || isLookahead) {
+    state.index = savedIndex;
+    state.line = savedLine;
+    state.column = savedColumn;
+    state.startIndex = startIndex;
+    state.flags = savedFlags;
+    state.tokenValue = savedTokenValue;
+    state.currentChar = savedNextChar;
+    state.token = savedToken;
+    state.tokenRegExp = savedTokenRegExp;
+  }
+
+  return result;
 }
 
 /**
@@ -169,60 +429,136 @@ export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Co
  * @param context  Context masks
  */
 export function isLexical(state: ParserState, context: Context): boolean {
-  nextToken(state, context);
-  return (state.token & Token.IdentifierOrContextual) > 0 || state.token === Token.LeftBrace || state.token === Token.LeftBracket || state.token === Token.YieldKeyword || state.token === Token.AwaitKeyword;
+  next(state, context);
+  return (
+    (state.token & (Token.Identifier | Token.Contextual | Token.IsAwait | Token.IsYield)) > 0 ||
+    state.token === Token.LeftBrace ||
+    state.token === Token.LeftBracket
+  );
 }
 
-/**
- * Automatic Semicolon Insertion
- *
- * @see [Link](https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion)
- *
- * @param parser Parser object
- * @param context Context masks
- */
-export function consumeSemicolon(state: ParserState, context: Context): void | boolean {
-  return (state.token & Token.ASI) === Token.ASI || state.flags & Flags.LineTerminator
-    ? optional(state, context, Token.Semicolon)
-    : report(state, Errors.Unexpected);
-}
-
-export function isStartOfExpression(t: Token): boolean {
-  if (t & (Token.IsUnaryOp | Token.IsUpdateOp)) return true;
-  switch (t) {
-      case Token.Identifier:
-      case Token.NumericLiteral:
-      case Token.StringLiteral:
-      case Token.RegularExpression:
-      case Token.FalseKeyword:
-      case Token.TrueKeyword:
-      case Token.NullKeyword:
-      case Token.Template:
-      case Token.LeftParen:
-      case Token.LeftBrace:
-      case Token.LeftBracket:
-      case Token.DivideAssign:
-      case Token.Divide:
-      case Token.LessThan:
-      case Token.VarKeyword:
-      case Token.LetKeyword:
-      case Token.ConstKeyword:
-      case Token.FunctionKeyword:
-      case Token.IfKeyword:
-      case Token.ImportKeyword:
-      case Token.SuperKeyword:
-      case Token.SwitchKeyword:
-      case Token.ThisKeyword:
-      case Token.ThrowKeyword:
-      case Token.YieldKeyword:
-      case Token.AwaitKeyword:
-      case Token.Eval:
-      case Token.Arguments:
-      case Token.BigInt:
-          return true;
-      default:
-          return false;
+export function reinterpret(ast: any) {
+  switch (ast.type) {
+    case 'ArrayExpression':
+      ast.type = 'ArrayPattern';
+      const elements = ast.elements;
+      for (let i = 0, n = elements.length; i < n; ++i) {
+        const element = elements[i];
+        if (element) reinterpret(element);
+      }
+      break;
+    case 'ObjectExpression':
+      ast.type = 'ObjectPattern';
+      const properties = ast.properties;
+      for (let i = 0, n = properties.length; i < n; ++i) {
+        reinterpret(properties[i]);
+      }
+      break;
+    case 'AssignmentExpression':
+      ast.type = 'AssignmentPattern';
+      delete ast.operator;
+      reinterpret(ast.left);
+      break;
+    case 'Property':
+      reinterpret(ast.value);
+      break;
+    case 'SpreadElement':
+      ast.type = 'RestElement';
+      reinterpret(ast.argument);
   }
+}
+
+// TODO! Convert to bitmasks soon as we know it works as expected
+export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
+  switch (token) {
+    case Token.BreakKeyword:
+    case Token.CaseKeyword:
+    case Token.CatchKeyword:
+    case Token.ClassKeyword:
+    case Token.ConstKeyword:
+    case Token.ContinueKeyword:
+    case Token.DebuggerKeyword:
+    case Token.DefaultKeyword:
+    case Token.DeleteKeyword:
+    case Token.DoKeyword:
+    case Token.ElseKeyword:
+    case Token.ExportKeyword:
+    case Token.ExtendsKeyword:
+    case Token.FinallyKeyword:
+    case Token.ForKeyword:
+    case Token.FunctionKeyword:
+    case Token.IfKeyword:
+    case Token.ImportKeyword:
+    case Token.InKeyword:
+    case Token.InstanceofKeyword:
+    case Token.NewKeyword:
+    case Token.ReturnKeyword:
+    case Token.SuperKeyword:
+    case Token.SwitchKeyword:
+    case Token.ThisKeyword:
+    case Token.ThrowKeyword:
+    case Token.TryKeyword:
+    case Token.TypeofKeyword:
+    case Token.VarKeyword:
+    case Token.VoidKeyword:
+    case Token.WhileKeyword:
+    case Token.WithKeyword:
+    case Token.NullKeyword:
+    case Token.TrueKeyword:
+    case Token.FalseKeyword:
+    case Token.EnumKeyword:
+      report(state, Errors.Unexpected);
+    case Token.LetKeyword:
+      if (type === Type.ClassExprDecl) report(state, Errors.Unexpected);
+      if (type === Type.Let || type === Type.Const) report(state, Errors.Unexpected);
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.StaticKeyword:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+
+      // case Token.Eval:
+      // case Token.Arguments:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.ImplementsKeyword:
+    case Token.PackageKeyword:
+    case Token.ProtectedKeyword:
+    case Token.InterfaceKeyword:
+    case Token.PrivateKeyword:
+    case Token.PublicKeyword:
+      if (context & Context.Strict) report(state, Errors.Unexpected);
+      return true;
+    case Token.AwaitKeyword:
+      if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.Unexpected);
+      return true;
+    case Token.YieldKeyword:
+      if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.Unexpected);
+      return true;
+    default:
+      // Valid binding name
+      return true;
+  }
+}
+export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
+  if (state.exportedNames !== undefined && exportedName !== '') {
+    let hashed: any = '@' + exportedName;
+    if (state.exportedNames[hashed]) report(state, Errors.InvalidDuplicateExportedBinding, exportedName);
+    state.exportedNames[hashed] = 1;
+  }
+}
+
+export function addToExportedBindings(state: ParserState, exportedName: any) {
+  if (state.exportedBindings !== undefined && exportedName !== '') {
+    let hashed: any = '@' + exportedName;
+    state.exportedBindings[hashed] = 1;
+  }
+}
+
+export function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean {
+  const line = state.line;
+  next(state, context);
+  return state.token === Token.FunctionKeyword && state.line === line;
 }
 
 /**
@@ -235,11 +571,11 @@ function isIterationStatement(state: ParserState): boolean {
 }
 
 /**
-* Add label to the stack
-*
-* @param parser Parser object
-* @param label Label to be added
-*/
+ * Add label to the stack
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
 export function addLabel(state: ParserState, label: string): void {
   if (state.labelSet === undefined) state.labelSet = {};
   state.labelSet[`@${label}`] = true;
@@ -250,11 +586,11 @@ export function addLabel(state: ParserState, label: string): void {
 }
 
 /**
-* Add function
-*
-* @param parser Parser object
-* @param label Label to be added
-*/
+ * Add function
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
 export function addCrossingBoundary(state: ParserState): void {
   state.labelSetStack[state.labelDepth] = state.functionBoundaryStack;
   state.iterationStack[state.labelDepth] = LabelState.Empty;
@@ -262,39 +598,39 @@ export function addCrossingBoundary(state: ParserState): void {
 }
 
 /**
-* Validates continue statement
-*
-* @param parser Parser object
-* @param label Label
-*/
+ * Validates continue statement
+ *
+ * @param parser Parser object
+ * @param label Label
+ */
 export function validateContinueLabel(state: ParserState, label: string): void {
   const sstate = getLabel(state, `@${label}`, true);
   if ((sstate & LabelState.Iteration) !== LabelState.Iteration) {
-      if (sstate & LabelState.CrossingBoundary) {
-          report(state, Errors.Unexpected);
-      } else {
-        report(state, Errors.Unexpected);
-      }
+    if (sstate & LabelState.CrossingBoundary) {
+      report(state, Errors.Unexpected);
+    } else {
+      report(state, Errors.Unexpected);
+    }
   }
 }
 
 /**
-* Validates break statement
-*
-* @param parser Parser object
-* @param label Label
-*/
+ * Validates break statement
+ *
+ * @param parser Parser object
+ * @param label Label
+ */
 export function validateBreakStatement(state: ParserState, label: any): void {
   const lblstate = getLabel(state, `@${label}`);
   if ((lblstate & LabelState.Iteration) !== LabelState.Iteration) report(state, Errors.Unexpected);
 }
 
 /**
-* Add label
-*
-* @param parser Parser object
-* @param label Label to be added
-*/
+ * Add label
+ *
+ * @param parser Parser object
+ * @param label Label to be added
+ */
 export function getLabel(
   state: ParserState,
   label: string,
@@ -302,107 +638,53 @@ export function getLabel(
   crossBoundary: boolean = false
 ): LabelState {
   if (!iterationStatement && state.labelSet && state.labelSet[label] === true) {
-      return LabelState.Iteration;
+    return LabelState.Iteration;
   }
 
   if (!state.labelSetStack) return LabelState.Empty;
 
   let stopAtTheBorder = false;
   for (let i = state.labelDepth - 1; i >= 0; i--) {
-      const labelSet = state.labelSetStack[i];
-      if (labelSet === state.functionBoundaryStack) {
-          if (crossBoundary) {
-              break;
-          } else {
-              stopAtTheBorder = true;
-              continue;
-          }
+    const labelSet = state.labelSetStack[i];
+    if (labelSet === state.functionBoundaryStack) {
+      if (crossBoundary) {
+        break;
+      } else {
+        stopAtTheBorder = true;
+        continue;
       }
+    }
 
-      if (iterationStatement && state.iterationStack[i] === false) {
-          continue;
-      }
+    if (iterationStatement && state.iterationStack[i] === false) {
+      continue;
+    }
 
-      if (labelSet[label] === true) {
-          return stopAtTheBorder ? LabelState.CrossingBoundary : LabelState.Iteration;
-      }
+    if (labelSet[label] === true) {
+      return stopAtTheBorder ? LabelState.CrossingBoundary : LabelState.Iteration;
+    }
   }
 
   return LabelState.Empty;
 }
 
 /**
- * Reinterpret various expressions as pattern
- * This is only used for assignment and arrow parameter list
  *
- * @param parser  Parser object
+ * @param state Parser instance
  * @param context Context masks
- * @param node AST node
+ * @param scope Scope instance
+ * @param type Binding type
+ * @param isVariableDecl True if variable decl
  */
-export function reinterpret(state: ParserState, context: Context, node: any): void {
-  switch (node.type) {
-      case 'Identifier':
-      case 'ArrayPattern':
-      case 'AssignmentPattern':
-      case 'ObjectPattern':
-      case 'RestElement':
-      case 'MetaProperty':
-          return;
-      case 'ArrayExpression':
-          node.type = 'ArrayPattern';
-          for (let i = 0; i < node.elements.length; ++i) {
-              // skip holes in pattern
-              if (node.elements[i] !== null) {
-                  reinterpret(state, context, node.elements[i]);
-              }
-          }
-          return;
-      case 'ObjectExpression':
-          node.type = 'ObjectPattern';
-
-          for (let i = 0; i < node.properties.length; i++) {
-              reinterpret(state, context, node.properties[i]);
-          }
-
-          return;
-
-      case 'Property':
-          reinterpret(state, context, node.value);
-          return;
-
-      case 'SpreadElement':
-          node.type = 'RestElement';
-          reinterpret(state, context, node.argument);
-          break;
-      case 'AssignmentExpression':
-          node.type = 'AssignmentPattern';
-          delete node.operator; // operator is not relevant for assignment pattern
-          reinterpret(state, context, node.left); // recursive descent
-          return;
-
-      case 'MemberExpression':
-          if (!(context & Context.InParam)) return;
-          // falls through
-      default:
-          report(state, Errors.Unexpected);
-  }
-}
-
-/**
- * Returns tagName for JSX element
- *
- * @param elementName JSX Element name
- */
-export function isEqualTagNames(
-  elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression
-): string {
-  // tslint:disable-next-line:switch-default | this switch is exhaustive
-  switch (elementName.type) {
-    case 'JSXIdentifier':
-      return elementName.name;
-    case 'JSXNamespacedName':
-      return `${isEqualTagNames(elementName.namespace)}:${isEqualTagNames(elementName.name)}`;
-    case 'JSXMemberExpression':
-      return `${isEqualTagNames(elementName.object)}.${isEqualTagNames(elementName.property)}`;
+export function addVariableAndDeduplicate(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  type: Type,
+  isVariableDecl: boolean,
+  name = state.tokenValue
+): void {
+  addVariable(state, context, scope, type, true, isVariableDecl, name);
+  if ((context & Context.OptionsDisableWebCompat) === 0) {
+    scope.lex.funcs['#' + state.tokenValue] = false;
   }
 }

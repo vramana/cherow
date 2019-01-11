@@ -1,545 +1,631 @@
 import * as t from 'assert';
-import { nextToken } from '../../src/lexer/scan';
-import { State } from '../../src/state';
+import { next } from '../../src/scanner';
 import { Context } from '../../src/common';
-import { Token,  } from '../../src/token';
+import { create } from '../../src/state';
+import { Token } from '../../src/token';
 
-describe('Lexer - Nuasdfmbers', () => {
+describe('Lexer - Numbers', () => {
+  describe('Numbers', () => {
+    context('script', () => run(false));
+    context('module', () => run(true));
+  });
 
-  describe('Pass', () => {
-
-    function pass(name: string, opts: any): any {
-      function test(name: string, context: Context): any {
-        it(name, () => {
-            const state = new State(opts.source, undefined, undefined);
-
-            t.deepEqual({
-              token: nextToken(state, context),
-              value: state.tokenValue,
-              line: state.line,
-              raw: state.tokenRaw,
-              column: state.column,
-            },          {
-                token: opts.token,
-                value: opts.value,
-                line: opts.line,
-                raw: opts.raw,
-                column: opts.column,
-              });
-        });
-      }
-      test(`${name}`, Context.OptionsRaw);
-    }
-    function fail(name: string, context: Context, opts: any): any {
-        it(name, () => {
-          const state = new State(opts.source, undefined, undefined);
-          t.throws(() => {
-            nextToken(state, context);
-          });
-        });
+  function run(isWebCompat: boolean) {
+    interface Opts {
+      source: string;
+      value: any;
+      hasNext: boolean;
+      token: Token;
+      line: number;
+      column: number;
     }
 
-    fail('should fail on keyword immediately after numeric literal', Context.Empty, {
-      source: '3in'
-    });
+    function pass(name: string, opts: Opts) {
+      it(name, () => {
+        const state = create(opts.source, undefined);
+        const found = next(state, Context.Empty);
+        t.deepEqual(
+          {
+            value: state.tokenValue,
+            hasNext: state.index < state.length,
+            token: found,
+            line: state.line,
+            column: state.column
+          },
+          {
+            value: opts.value,
+            hasNext: opts.hasNext,
+            token: opts.token,
+            line: opts.line,
+            column: opts.column
+          }
+        );
+      });
+    }
 
-    fail('should fail on chinese immediately after numeric literal', Context.Empty, {
-      source: '123中国'
-    });
-    fail('should fail on IDStart immediately after numeric literal', Context.Empty, {
-      source: '123a'
-    });
+    function fail(name: string, source: string, context: Context) {
+      it(name, () => {
+        const state = create(source, undefined);
+        t.throws(() => next(state, context | Context.OptionsRaw));
+      });
+    }
 
-    fail('should fail on BigInt and decimal', Context.Empty, {
-      source: '.333n'
-    });
+    fail('fails on invalid BigInt literal', '0000133n', Context.Empty);
+    fail('fails on invalid BigInt literal', '0x', Context.Empty);
+    fail('fails on invalid BigInt literal', '0x-', Context.Empty);
+    fail('fails on invalid BigInt literal', '.0E-100n', Context.Empty);
+    fail('fails on invalid BigInt literal', '1E-100n', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '12adf00', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3in1', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3.e', Context.Empty);
+    fail('fails on decimal integer followed by identifier', '3.e+abc', Context.Empty);
+    fail('fails on non octal decimal integer literal in strict mode', '00', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '02', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '08', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '008', Context.Strict);
+    fail('fails on non octal decimal integer literal in strict mode', '09', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence with a leading 0', '00b0;', Context.Empty);
+    fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0o8', Context.Strict);
+    fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0b3', Context.Strict);
+    fail('fails on Octal-integer-literal-like sequence without any digits', '0o', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence without any digits', '0b;', Context.Strict);
+    fail('fails on Binary-integer-literal-like sequence containing an invalid digit', '0b2;', Context.Strict);
 
-    fail('should fail on private name followed by space', Context.Empty, {
-      source: '0b'
-    });
-
-    fail('should fail on private name followed by space', Context.Empty, {
-      source: '0ba'
-    });
-
-    fail('should fail "00o0"', Context.Empty, {
-      source: '0o8'
-    });
-
-    fail('should fail legacy octals in strict mode', Context.Strict | Context.Module, {
-      source: '0063'
-    });
-
-    fail('should fail "00o0"', Context.Strict | Context.Module, {
-      source: '09'
-    });
-
-    fail('should fail "00o0"', Context.Strict | Context.Module, {
-      source: '09.1'
-    });
-
-    fail('should fail "0o2424bb"', Context.Empty, {
-      source: '0o2424bb'
-    });
-
-    pass('scans \'\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u30001234\'', {
-      source: '\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u30001234',
-      value: 1234,
-      raw: '1234',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 19,
-    });
-
-    pass('scans \'\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF123\'', {
-      source: '\x20\x09\x0B\x0C\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF123',
-      value: 123,
-      raw: '123',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 24,
-    });
-
-    pass('scans \'09.44\'', {
-      source: '09.44',
-      value: 9,
-      raw: '09',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'074449\'', {
-      source: '074449',
-      value: 74449,
-      raw: '074449',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 6,
-    });
-
-    pass('scans \'0000000003938\'', {
-      source: '0000000003938',
-      value: 3,
-      raw: '0000000003',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 10,
-    });
-
-    pass('scans \'7890', {
-      source: '7890',
-      value: 7890,
-      raw: '7890',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'2.3', {
-      source: '2.3',
-      value: 2.3,
-      raw: '2.3',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 3,
-    });
-
-    pass('scans \'1e234', {
-      source: '1e234',
-      value: 1e+234,
-      raw: '1e234',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5,
-    });
-
-    pass('scans \'1234567890.0987654321', {
-      source: '1234567890.0987654321',
-      value: 1234567890.0987654321,
-      raw: '1234567890.0987654321',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 21,
-    });
-
-    pass('scans \'32e32', {
-      source: '32e32',
-      raw: '32e32',
-      'value': 3.2e+33,
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5,
-    });
-    pass('scans \'1E-100', {
-      source: '1E-100',
-      value: 1e-100,
-      raw: '1E-100',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 6,
-    });
-
-    pass('scans \'.1e+100', {
-      source: '.1e+100',
-      value: 1e+99,
-      raw: '.1e+100',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 7,
-    });
-
-    pass('scans \'0.1E+100', {
-      source: '0.1E+100',
-      value: 1e+99,
-      raw: '0.1E+100',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 8,
-    });
-
-    pass('scans \'0O12345670', {
-      source: '0O12345670',
-      value: 2739128,
-      raw: '0O12345670',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 10,
-    });
-
-    pass('scans \'1', {
+    pass('scan single digit', {
       source: '1',
       value: 1,
-      raw: '1',
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 1,
+      column: 1
     });
 
-    pass('scans \'0xAn', {
-      source: '0xAn',
-      value: 10,
-      raw: '0xAn',
-      token: Token.BigInt,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'00', {
-      source: '00',
-      value: 0,
-      raw: '00',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'0123', {
-      source: '0123',
-      value: 83,
-      raw: '0123',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0123789', {
-      source: '0123789',
-      value: 123789,
-      raw: '0123789',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 7,
-    });
-
-    pass('scans \'0xD', {
-      source: '0xD',
-      value: 13,
-      raw: '0xD',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 3,
-    });
-
-    pass('scans \'.1234567890', {
-      source: '.1234567890',
-      value: 0.123456789,
-      raw: '.1234567890',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 11,
-    });
-
-    pass('scans \'.0000', {
-      source: '.0000',
-      value: 0,
-      raw: '.0000',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5,
-    });
-
-    pass('scans \'0o4', {
-      source: '0o4',
-      value: 4,
-      raw: '0o4',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 3,
-    });
-
-    pass('scans \'0o4', {
-      source: '0o4',
-      value: 4,
-      raw: '0o4',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 3,
-    });
-
-    pass('scans \'87.04', {
-      source: '87.04',
-      value: 87.04,
-      raw: '87.04',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5,
-    });
-
-    pass('scans \'0.1e-100', {
-      source: '0.1e-100',
-      value: 1e-101,
-      raw: '0.1e-100',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 8,
-    });
-
-    pass('scans \'0x34', {
-      source: '0x34',
-      value: 52,
-      raw: '0x34',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0xf5', {
-      source: '0xf5',
-      value: 245,
-      raw: '0xf5',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0x01', {
-      source: '0x01',
+    pass('scan single digit with following whitespace', {
+      source: '1 ',
       value: 1,
-      raw: '0x01',
+      hasNext: true,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 1
     });
 
-    pass('scans \'0x45', {
-      source: '0x45',
-      value: 69,
-      raw: '0x45',
+    pass(`Scans ${7890}`, {
+      source: '7890',
+      value: 7890,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 4
     });
 
-    pass('scans \'0x89', {
-      source: '0x89',
-      value: 137,
-      raw: '0x89',
+    pass(`Scans ${1234567890.0987654321}`, {
+      source: '1234567890.0987654321',
+      value: 1234567890.0987654,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 21
     });
 
-    pass('scans \'0b11', {
-      source: '0b11',
-      value: 3,
-      raw: '0b11',
+    pass(`Scans ${43.78}`, {
+      source: '43.78',
+      value: 43.78,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 5
     });
 
-    pass('scans \'0b00', {
-      source: '0b00',
-      value: 0,
-      raw: '0b00',
+    pass(`Scans ${6e7}`, {
+      source: '6e7',
+      value: 60000000,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 3
     });
 
-    pass('scans \'0o23', {
-      source: '0o23',
-      value: 19,
-      raw: '0o23',
+    pass(`Scans ${1e100}`, {
+      source: '1e+100',
+      value: 1e100,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 6
     });
 
-    pass('scans \'07', {
-      source: '07',
-      value: 7,
-      raw: '07',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'0o23', {
-      source: '0o23',
-      value: 19,
-      raw: '0o23',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0o23', {
-      source: '0o23',
-      value: 19,
-      raw: '0o23',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0o23', {
-      source: '0o23',
-      value: 19,
-      raw: '0o23',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'.32E3\'', {
-      source: '.32E3',
-      value: 320,
-      raw: '.32E3',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 5,
-    });
-
-    pass('scans \'19\'', {
-      source: '19',
-      value: 19,
-      raw: '19',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'.7\'', {
-      source: '.7',
-      value: 0.7,
-      raw: '.7',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'09\'', {
-      source: '09',
-      value: 9,
-      raw: '09',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 2,
-    });
-
-    pass('scans \'0x67\'', {
-      source: '0x67',
-      value: 103,
-      raw: '0x67',
-      token: Token.NumericLiteral,
-      line: 1,
-      column: 4,
-    });
-
-    pass('scans \'0o12345670\'', {
+    pass(`Scans ${0o12345670}`, {
       source: '0o12345670',
       value: 2739128,
-      raw: '0o12345670',
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
       column: 10
     });
 
-    pass('scans \'0x34\'', {
-      source: '0x34',
-      value: 52,
-      raw: '0x34',
+    pass(`Scans ${0x9a}`, {
+      source: '0x9a',
+      value: 154,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 4
     });
 
-    pass('scans \'0b01\'', {
-      source: '0b01',
+    pass(`Scans ${0.0e-100}`, {
+      source: '.0E-100',
+      value: 0.0e-100,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 7
+    });
+
+    pass(`Scans ${0x12}`, {
+      source: '0x12',
+      value: 18,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans .123`, {
+      source: '.123',
+      value: 0.123,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 42 // line comment`, {
+      source: '42 // line comment',
+      value: 42,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 2
+    });
+
+    pass(`Scans 42 /* The * cherow */`, {
+      source: '42 /* The * cherow */',
+      value: 42,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 2
+    });
+
+    pass(`Scans 42 + multiline comment to verify correct pos location`, {
+      source: `/*
+
+
+
+      a
+                          b
+
+                      */
+
+
+                 42`,
+      value: 42,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 11,
+      column: 19
+    });
+
+    pass(`Scans 42n /* The * cherow */`, {
+      source: '42n /* The * cherow */',
+      value: 42,
+      hasNext: true,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 42 /* The * cherow */`, {
+      source: `/*a
+      b*/ 42`,
+      value: 42,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 2,
+      column: 12
+    });
+
+    pass(`Scans ${'12n'}`, {
+      source: '12n',
+      value: 12,
+      hasNext: false,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans ${'0x12n'}`, {
+      source: '0x12n',
+      value: 18,
+      hasNext: false,
+      token: Token.BigIntLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 000001`, {
+      source: '000001',
       value: 1,
-      raw: '0b01',
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 6
     });
 
-    pass('scans \'0009\'', {
-      source: '0009',
-      value: 9,
-      raw: '0009',
+    pass(`Scans 009.33`, {
+      source: '009.33',
+      value: 9.33,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 4,
+      column: 6
     });
 
-    pass('scans \'0009.444\'', {
-      source: '0009.444',
-      value: 9.444,
-      raw: '0009.444',
+    pass(`Scans 08.0E-100`, {
+      source: '08.0E-100',
+      value: 8e-100,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 8,
+      column: 9
     });
 
-    pass('scans \'043\'', {
-      source: '043',
-      'value': 35,
-      raw: '043',
+    pass(`Scans 0b1`, {
+      source: '0b1',
+      value: 1,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 3,
+      column: 3
     });
 
-    pass('scans \'087\'', {
-      source: '087',
-      value: 87,
-      raw: '087',
+    pass(`Scans 0b00011100011111010101010101`, {
+      source: '0b00011100011111010101010101',
+      value: 7468373,
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 3,
+      column: 28
     });
 
-    pass('scans \'000\'', {
-      source: '000',
+    pass(`Scans o0002`, {
+      source: '0O0022',
+      value: 18,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0123`, {
+      source: '0123',
+      value: 83,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0`, {
+      source: '0',
       value: 0,
-      raw: '000',
+      hasNext: false,
       token: Token.NumericLiteral,
       line: 1,
-      column: 3,
+      column: 1
     });
 
-  });
+    pass(`Scans 0000133`, {
+      source: '0000133',
+      value: 91,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 7
+    });
 
+    pass(`Scans 017890`, {
+      source: '017890',
+      value: 17890,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 01765345623456734569876`, {
+      source: '01765345623456734569876',
+      value: 1.7653456234567345e21,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 23
+    });
+    // should throw
+    /*  pass(`Scans 844.44.4`, {
+        source: '844.44.4',
+        value: 7890,
+        hasNext: false,
+        token: Token.NumericLiteral,
+        line: 1,
+        column: 4
+      }); */
+
+    pass(`Scans 0e-1`, {
+      source: '0e-1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0.6`, {
+      source: '0.6',
+      value: 0.6,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 0e+1`, {
+      source: '0e+1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 2E0`, {
+      source: '2E0',
+      value: 2,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 3
+    });
+
+    pass(`Scans 0.00`, {
+      source: '0.00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 5.00`, {
+      source: '5.00',
+      value: 5,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0.e1`, {
+      source: '0.e1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 6.e1`, {
+      source: '6.e1',
+      value: 60,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 3.e-1`, {
+      source: '3.e-1',
+      value: 0.3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0.0E+1`, {
+      source: '0.0E+1',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0X00`, {
+      source: '0X00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0X0100 `, {
+      source: '0X0100',
+      value: 256,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 6
+    });
+
+    pass(`Scans 0X010000000`, {
+      source: '0X010000000',
+      value: 268435456,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 11
+    });
+
+    pass(`Scans 0x010000 `, {
+      source: '0x010000',
+      value: 65536,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 8
+    });
+
+    pass(`Scans 1e00`, {
+      source: '1e00',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0o10`, {
+      source: '0o10',
+      value: 8,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0o011`, {
+      source: '0o011',
+      value: 9,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0O00`, {
+      source: '0O00',
+      value: 0,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0O077`, {
+      source: '0O077',
+      value: 63,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 0B01`, {
+      source: '0B01',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0b11`, {
+      source: '0b11',
+      value: 3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 4
+    });
+
+    pass(`Scans 0B011`, {
+      source: '0B011',
+      value: 3,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 5
+    });
+
+    pass(`Scans 1 <!--x;`, {
+      source: '1 <!--x;',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(` Scans /** multiline */ 1`, {
+      source: '/** multiline */ 1',
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 18
+    });
+
+    pass(` Scans 1/*\n*/-->`, {
+      source: '1/*\n*/-->',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans 1/*\n*/-->2`, {
+      source: '1/*\n*/-->2',
+      value: 1,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans digit at start with HTML comment`, {
+      source: `0/* optional FirstCommentLine
+      */-->the comment extends to these characters`,
+      value: 0,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans nested multiline comment with digit at start`, {
+      source: `0/*
+      */ /**/ /* second optional SingleLineDelimitedCommentSequence */-->the comment extends to these characters`,
+      value: 0,
+      hasNext: true,
+      token: Token.NumericLiteral,
+      line: 1,
+      column: 1
+    });
+
+    pass(`Scans nested multiline comment followed by digit`, {
+      source: `/*
+      */ /**/ /* second optional SingleLineDelimitedCommentSequence */1`,
+      value: 1,
+      hasNext: false,
+      token: Token.NumericLiteral,
+      line: 2,
+      column: 71
+    });
+
+    if (isWebCompat) {
+    }
+  }
 });

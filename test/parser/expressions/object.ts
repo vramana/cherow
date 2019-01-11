@@ -1,4318 +1,10064 @@
+import * as t from 'assert';
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import { parseSource } from '../../../src/cherow';
 
-describe('Expressions - Object literal', () => {
+describe('Expressions - Object', () => {
+  const inValids: Array<[string, Context]> = [
+    ['({a(b, b){}})', Context.Strict],
+    ['({a(b, b){ "use strict"; }})', Context.Empty],
+    ['"use strict"; ({a(b, b){}})', Context.Empty],
+
+    ['o = {f(x) { let x }}', Context.Empty],
+    ['o = {f(x) { const x = y }}', Context.Empty],
+
+    // Duplicate arguments
+    ['({f(a, a) {}})', Context.Strict],
+    ['({f(a, b, a) {}})', Context.Empty],
+    ['({f(b, a, a) {}})', Context.Empty],
+    ['({f(a, a, b) {}})', Context.Empty],
+    ['({f(b, a, b, a) {}})', Context.Empty],
+    ['({f(b, a, b, a = x) {}})', Context.Empty],
+
+    // General
+
+    ['({f(){ let x; var x; }})', Context.Empty],
+    ['({f(){ var x; let x; }})', Context.Empty],
+    ['({f(){ const x = y; var x; }})', Context.Empty],
+    ['({f(){ var x; const x = y; }})', Context.Empty],
+    ['({f(){ let x; function x(){} }})', Context.Empty],
+    ['({f(){ function x(){} let x; }})', Context.Empty],
+    ['({f(){ const x = y; function x(){} }})', Context.Empty],
+    ['({f(){ function x(){} const x = y; }})', Context.Empty],
+    ['x = {f(){ function x(){} let x; }}', Context.Empty],
+    ['x = {f(){ const x = y; function x(){} }}', Context.Empty],
+    ['x = {f(){ function x(){} const x = y; }}', Context.Empty],
+    ['x = {f(){ const x = y; var x; }}', Context.Empty],
+    ['x = {f(){ var x; const x = y; }}', Context.Empty],
+    ['x = {f(){ var x; let x; }}', Context.Empty],
+    ['x = {f(){ let x; var x; }}', Context.Empty],
+    ['x = {f([b, a], {b}) {}}', Context.Empty],
+    ['x = {f([b, a], b=x) {}}', Context.Empty],
+    ['x = {f([b, a, a]) {}}', Context.Empty],
+    ['x = {f([a, b, a]) {}}', Context.Empty],
+    ['x = {f(b, a, b, a, [fine]) {}}', Context.Empty],
+    ['x = {f(b, a, b, a = x) {}}', Context.Empty],
+    ['x = {f(b, a, b, a) {}}', Context.Empty],
+    ['x = {f(a, a, b) {}}', Context.Empty],
+    ['x = {f(b, a, a) {}}', Context.Empty],
+    ['x = {f(a, b, a) {}}', Context.Empty],
+    ['x = {f(a, a) {}}', Context.Empty],
+    ['x = {f(x) { const x = y }}', Context.Empty],
+    ['x = {f(x) { let x }}', Context.Empty],
+    ['x = {f([a, b, a]) {}}', Context.Empty],
+    ['({*get x(){}})', Context.Empty],
+    ['({*set x(){}})', Context.Empty],
+    ['({*ident: x})', Context.Empty],
+    ['({*ident x(){}})', Context.Empty],
+    ['({*async x(){}})', Context.Empty],
+    ['({[fkleuver] 1(){}})', Context.Empty],
+
+    // Misc
+    ['({get +:3})', Context.Empty],
+    ['({get bar(x) {})', Context.Empty],
+    ['({  async 0 : 0 })', Context.Empty],
+    ['({  async get x(){} })', Context.Empty],
+    ['({ async get *x(){} })', Context.Empty],
+    ['({ async set x(y){} })', Context.Empty],
+    ['({ async get : 0 })', Context.Empty],
+    ['({ *set x(y){} })', Context.Empty],
+    ['({ get *x(){} })', Context.Empty],
+    ['({ *x: 0 })', Context.Empty],
+    ['({ ... })', Context.Empty],
+    ['({ , })', Context.Empty],
+    ['({ * *x(){} })', Context.Empty],
+    ['({ x*(){} })', Context.Empty],
+    ['({ "async foo (arguments) { "use strict"; } })', Context.Empty],
+    ['({ a: () {}a })', Context.Empty],
+    ['({ a: ()a })', Context.Empty],
+    ['({)', Context.Empty],
+    ['({async async});', Context.Empty],
+    ['({async get foo() { }})', Context.Empty],
+    ['({async set foo(value) { }})', Context.Empty],
+    ['({async set foo(value) { }})', Context.Empty],
+    ['({async foo: 1});', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
+
+    ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty]
+  ];
+
+  // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
+
+  fail('Expressions - Object', inValids);
+
+  const methodDefinition = ['m() {}', 'm(x) { return x; }', 'm(x, y) {}, n() {}', 'set(x, y) {}', 'get(x, y) {}'];
+
+  for (const arg of methodDefinition) {
+    it(`({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({ ${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+
+    it(`({ *${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({ *${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+
+    it(`"use strict"; ({ *${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ({ *${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+
+    it(`"use strict"; ({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ({ ${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+  }
+
+  const methodDefinitionNames = [
+    'm',
+    "'m'",
+    '"m"',
+    '"m n"',
+    'true',
+    'false',
+    'null',
+    '1.2',
+    '1e1',
+    '1E1',
+    '.12e3',
+
+    // Keywords
+    'async',
+    'await',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'debugger',
+    'default',
+    'delete',
+    'do',
+    'else',
+    'enum',
+    'export',
+    'extends',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'implements',
+    'import',
+    'in',
+    'instanceof',
+    'interface',
+    'let',
+    'new',
+    'package',
+    'private',
+    'protected',
+    'public',
+    'return',
+    'static',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'try',
+    'typeof',
+    'var',
+    'void',
+    'while',
+    'with',
+    'yield'
+  ];
+  for (const arg of methodDefinitionNames) {
+    it(`({ ${arg}(x, y) {}});`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({ ${arg}(x, y) {}});`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  const methodDefinitionDuplicateProperty = [
+    'x: 1, x() {}',
+    'x() {}, x: 1',
+    'x() {}, get x() {}',
+    'x() {}, set x(_) {}',
+    'x() {}, x() {}',
+    'x() {}, y() {}, x() {}',
+    'x() {}, "x"() {}',
+    "x() {}, 'x'() {}",
+    '1.0() {}, 1: 1',
+    'x: 1, *x() {}',
+    '*x() {}, x: 1',
+    '*x() {}, get x() {}',
+    '*x() {}, set x(_) {}',
+    '*x() {}, *x() {}',
+    '*x() {}, y() {}, *x() {}',
+    '*x() {}, *"x"() {}',
+    "*x() {}, *'x'() {}",
+    '*1.0() {}, 1: 1'
+  ];
+  for (const arg of methodDefinitionDuplicateProperty) {
+    it(`"use strict"; ({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict";  ({ ${arg} });`, undefined, Context.OptionsNext);
+      });
+    });
+  }
+
+  const validGetterAndSetterShorthand = [
+    'var get = 1;',
+    'var set = 2;',
+    'var z = 3;',
+    'var o = { get };',
+    'var p = { set };',
+    'var q = { get, set };',
+    'var r = { set, get };',
+    'var s = { get, z };',
+    'var t = { a, set };',
+    'var u = { a, get, z };',
+    // concise method shorthand
+    'var o = { get() { return "g"; } }',
+    'var o = { set() { return "s"; } }'
+  ];
+  for (const arg of validGetterAndSetterShorthand) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.OptionsNext);
+      });
+    });
+  }
+
+  const validSyntax = [
+    '*method(a,) {}',
+    '*[anonSym]() {}',
+    '*id() {}',
+    'async method(a,) {}',
+    'async method(x, y = x, z = y) {}',
+    'async() {}',
+    '*async() {}',
+    '*await() {}',
+    'async get(){}',
+    'async set(){}',
+    'async static(){}',
+    'method(a, b, c) {}',
+    'method(a,) {}',
+    'method(a, b,) {}',
+    'method(x = y, y) {}',
+    'async *method(...a) {}',
+    'async',
+    'await',
+    'async *method(a, b,) {}',
+    'async *method(x, y = x, z = y) {}',
+    'async *method(x = y, y) {}',
+    'prop: 12',
+    'get foo(){return 1;}',
+    'get foo(){return 1;}',
+    'set foo(arg){return 1;}',
+    'set foo(arg){}',
+    '1 : true',
+    'prop : true',
+    'true : 1',
+    "get ['unicod\\u{000065}Escape']() { return 'get string'; }",
+    '[++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter',
+    'async: foo',
+    'await: foo',
+    '*method([[x, y, z] = [4, 5, 6]]) {}',
+    'async *method([[,] = g()]) {}',
+    'async *method([x = 23]) {}',
+    'async *method([x]) {}',
+    'async *method([_, x]) {}',
+    'async *method([...[x, y, z]]) {}',
+    'async *method([...x]) {}',
+    'async *method([[x, y, z] = [4, 5, 6]] = [[7, 8, 9]]) {}',
+    'async *method([[...x] = function() {}()] = [[2, 1, 3]]) {}',
+    'async *method([[x]] = [null]) {}',
+    'async *method([x = 23] = [undefined]) {}',
+    'async *method([x] = g[Symbol.iterator] = function() {}) {}',
+    'async *method([...x] = {}) {}',
+    'async *method({ w: [x, y, z] = [4, 5, 6] } = {}) {}',
+    'async *method({ [function foo() {}]: x } = {}) {}',
+    'async *method({ x: y = thrower() } = {}) {}',
+    'foo: 1, get foo() {}',
+    'foo: 1, set foo(v) {}',
+    '"foo": 1, get "foo"() {}',
+    '"foo": 1, set "foo"(v) {}',
+    '1: 1, get 1() {}',
+    '1: 1, set 1(v) {}',
+    'get foo() {}, get foo() {}',
+    'set foo(_) {}, set foo(v) {}',
+    'foo: 1, get "foo"() {}',
+    'foo: 1, set "foo"(v) {}',
+    'get width() { return m_width }, set width(width) { m_width = width; }',
+    'method({ arrow = () => {} }) {}',
+    'method({ x: y, }) {}',
+    'id: function*() {}',
+    'null: 42',
+    '"answer": 42',
+    'get if() {}',
+    '__proto__: 2 ',
+    'set i(x) {}, i: 42 ',
+    '[a]:()=>{}',
+    'async',
+    'async: true',
+    'async() { }',
+    'async foo() { }',
+    'foo() { }',
+    'x, y, z () {}',
+    '[x]: "x"',
+    'async delete() {}',
+    'async [foo](){}',
+    'async 100(){}',
+    "async 'foo'(){}",
+    'async "foo"(){}',
+    'async, foo'
+  ];
+  for (const arg of validSyntax) {
+    it(`({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({ ${arg} })`, undefined, Context.OptionsNext);
+      });
+    });
+
+    it(`({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`({ ${arg}, })`, undefined, Context.OptionsNext);
+      });
+    });
+
+    it(`"use strict"; ({ ${arg} })`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
+      });
+    });
+  }
 
   // valid tests
-const valids: Array < [string, string, Context, any] > = [
-
-  ['const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', 'const descKeywordTable = { implements: 16484 /* ImplementsKeyword */, }', Context.OptionsRanges | Context.OptionsLoc, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'VariableDeclaration',
-            'kind': 'const',
-            'declarations': [
-                {
-                    'type': 'VariableDeclarator',
-                    'init': {
-                        'type': 'ObjectExpression',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'implements',
-                                    'start': 27,
-                                    'end': 37,
-                                    'loc': {
-                                        'start': {
-                                            'line': 1,
-                                            'column': 27
-                                        },
-                                        'end': {
-                                            'line': 1,
-                                            'column': 37
-                                        }
-                                    }
-                                },
-                                'value': {
-                                    'type': 'Literal',
-                                    raw: null,
-                                    'value': 16484,
-                                    'start': 39,
-                                    'end': 44,
-                                    'loc': {
-                                        'start': {
-                                            'line': 1,
-                                            'column': 39
-                                        },
-                                        'end': {
-                                            'line': 1,
-                                            'column': 44
-                                        }
-                                    }
-                                },
-                                'kind': 'init',
-                                'computed': false,
-                                'method': false,
-                                'shorthand': false,
-                                'start': 27,
-                                'end': 44,
-                                'loc': {
-                                    'start': {
-                                        'line': 1,
-                                        'column': 27
-                                    },
-                                    'end': {
-                                        'line': 1,
-                                        'column': 44
-                                    }
-                                }
-                            }
-                        ],
-                        'start': 25,
-                        'end': 71,
-                        'loc': {
-                            'start': {
-                                'line': 1,
-                                'column': 25
-                            },
-                            'end': {
-                                'line': 1,
-                                'column': 71
-                            }
-                        }
-                    },
-                    'id': {
-                        'type': 'Identifier',
-                        'name': 'descKeywordTable',
-                        'start': 6,
-                        'end': 22,
-                        'loc': {
-                            'start': {
-                                'line': 1,
-                                'column': 6
-                            },
-                            'end': {
-                                'line': 1,
-                                'column': 22
-                            }
-                        }
-                    },
-                    'start': 6,
-                    'end': 71,
-                    'loc': {
-                        'start': {
-                            'line': 1,
-                            'column': 6
-                        },
-                        'end': {
-                            'line': 1,
-                            'column': 71
-                        }
-                    }
-                }
-            ],
-            'start': 0,
-            'end': 71,
-            'loc': {
-                'start': {
-                    'line': 1,
-                    'column': 0
-                },
-                'end': {
-                    'line': 1,
-                    'column': 71
-                }
-            }
-        }
-    ],
-    'start': 0,
-    'end': 71,
-    'loc': {
-        'start': {
-            'line': 1,
-            'column': 0
-        },
-        'end': {
-            'line': 1,
-            'column': 71
-        }
-    }
-}],
-  ['({ default: obj })', '({ default: obj })', Context.OptionsRanges | Context.OptionsLoc, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'default',
-                            'start': 3,
-                            'end': 10,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 3
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 10
-                                }
-                            }
-                        },
-                        'value': {
-                            'type': 'Identifier',
-                            'name': 'obj',
-                            'start': 12,
-                            'end': 15,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 12
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 15
-                                }
-                            }
-                        },
-                        'kind': 'init',
-                        'computed': false,
-                        'method': false,
-                        'shorthand': false,
-                        'start': 3,
-                        'end': 15,
-                        'loc': {
-                            'start': {
-                                'line': 1,
-                                'column': 3
-                            },
-                            'end': {
-                                'line': 1,
-                                'column': 15
-                            }
-                        }
-                    }
-                ],
-                'start': 1,
-                'end': 17,
-                'loc': {
-                    'start': {
-                        'line': 1,
-                        'column': 1
-                    },
-                    'end': {
-                        'line': 1,
-                        'column': 17
-                    }
-                }
-            },
-            'start': 0,
-            'end': 18,
-            'loc': {
-                'start': {
-                    'line': 1,
-                    'column': 0
-                },
-                'end': {
-                    'line': 1,
-                    'column': 18
-                }
-            }
-        }
-    ],
-    'start': 0,
-    'end': 18,
-    'loc': {
-        'start': {
-            'line': 1,
-            'column': 0
-        },
-        'end': {
-            'line': 1,
-            'column': 18
-        }
-    }
-}],
-  ['({*[a](){}})', '({*[a](){}})', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'a',
-                            'start': 4,
-                            'end': 5
-                        },
-                        'value': {
-                            'type': 'FunctionExpression',
-                            'params': [],
-                            'body': {
-                                'type': 'BlockStatement',
-                                'body': [],
-                                'start': 8,
-                                'end': 10
-                            },
-                            'async': false,
-                            'generator': true,
-                            'expression': false,
-                            'id': null,
-                            'start': 6,
-                            'end': 10
-                        },
-                        'kind': 'init',
-                        'computed': true,
-                        'method': true,
-                        'shorthand': false,
-                        'start': 2,
-                        'end': 10
-                    }
-                ],
-                'start': 1,
-                'end': 11
-            },
-            'start': 0,
-            'end': 12
-        }
-    ],
-    'start': 0,
-    'end': 12
-}],
-  ['({foo: typeof /x/});', '({foo: typeof /x/});', Context.OptionsRanges, {
-      'body': [
-        {
-          'end': 20,
-          'expression': {
-            'end': 18,
-            'properties': [
-              {
-               'computed': false,
-                'end': 17,
-                'key': {
-                  'end': 5,
-                  'name': 'foo',
-                  'start': 2,
-                  'type': 'Identifier',
-                },
-                'kind': 'init',
-                'method': false,
-                'shorthand': false,
-                'start': 2,
-                'type': 'Property',
-                'value': {
-                  'argument': {
-                    'end': 17,
-                    'regex': {
-                      'flags': '',
-                     'pattern': 'x',
-                    },
-                    'start': 14,
-                    'type': 'Literal',
-                    'value': /x/,
-                  },
-                  'end': 17,
-                  'operator': 'typeof',
-                  'prefix': true,
-                  'start': 7,
-                  'type': 'UnaryExpression',
-                },
-              },
-            ],
-            'start': 1,
-            'type': 'ObjectExpression',
-          },
-          'start': 0,
-          'type': 'ExpressionStatement',
-        },
-      ],
-      'end': 20,
-      'sourceType': 'script',
-      'start': 0,
-      'type': 'Program',
-    }],
-  ['foo = {[a]:b=x}', 'foo = {[a]:b=x}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 8,
-                                'end': 9
-                            },
-                            'value': {
-                                'type': 'AssignmentExpression',
-                                'left': {
-                                    'type': 'Identifier',
-                                    'name': 'b',
-                                    'start': 11,
-                                    'end': 12
-                                },
-                                'operator': '=',
-                                'right': {
-                                    'type': 'Identifier',
-                                    'name': 'x',
-                                    'start': 13,
-                                    'end': 14
-                                },
-                                'start': 11,
-                                'end': 14
-                            },
-                            'kind': 'init',
-                            'computed': true,
-                            'method': false,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 14
-                        }
-                    ],
-                    'start': 6,
-                    'end': 15
-                },
-                'start': 0,
-                'end': 15
-            },
-            'start': 0,
-            'end': 15
-        }
-    ],
-    'start': 0,
-    'end': 15
-}],
-  ['foo = {set [a](x){}}', 'foo = {set [a](x){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 12,
-                                'end': 13
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [
-                                    {
-                                        'type': 'Identifier',
-                                        'name': 'x',
-                                        'start': 15,
-                                        'end': 16
-                                    }
-                                ],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 17,
-                                    'end': 19
-                                },
-                                'async': false,
-                                'generator': false,
-                                'expression': false,
-                                'id': null,
-                                'start': 14,
-                                'end': 19
-                            },
-                            'kind': 'set',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 19
-                        }
-                    ],
-                    'start': 6,
-                    'end': 20
-                },
-                'start': 0,
-                'end': 20
-            },
-            'start': 0,
-            'end': 20
-        }
-    ],
-    'start': 0,
-    'end': 20
-}],
-  ['foo = {async a(){}}', 'foo = {async a(){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 13,
-                                'end': 14
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 16,
-                                    'end': 18
-                                },
-                                'async': true,
-                                'generator': false,
-                                'expression': false,
-                                'id': null,
-                                'start': 14,
-                                'end': 18
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': true,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 18
-                        }
-                    ],
-                    'start': 6,
-                    'end': 19
-                },
-                'start': 0,
-                'end': 19
-            },
-            'start': 0,
-            'end': 19
-        }
-    ],
-    'start': 0,
-    'end': 19
-}],
-  ['foo = {async *a(){}}', 'foo = {async *a(){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 14,
-                                'end': 15
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 17,
-                                    'end': 19
-                                },
-                                'async': true,
-                                'generator': true,
-                                'expression': false,
-                                'id': null,
-                                'start': 15,
-                                'end': 19
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': true,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 19
-                        }
-                    ],
-                    'start': 6,
-                    'end': 20
-                },
-                'start': 0,
-                'end': 20
-            },
-            'start': 0,
-            'end': 20
-        }
-    ],
-    'start': 0,
-    'end': 20
-}],
-  ['foo = {get [a](){}}', 'foo = {get [a](){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 12,
-                                'end': 13
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 16,
-                                    'end': 18
-                                },
-                                'async': false,
-                                'generator': false,
-                                'expression': false,
-                                'id': null,
-                                'start': 14,
-                                'end': 18
-                            },
-                            'kind': 'get',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 18
-                        }
-                    ],
-                    'start': 6,
-                    'end': 19
-                },
-                'start': 0,
-                'end': 19
-            },
-            'start': 0,
-            'end': 19
-        }
-    ],
-    'start': 0,
-    'end': 19
-}],
-  ['foo = {get a(){}}', 'foo = {get a(){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 11,
-                                'end': 12
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 14,
-                                    'end': 16
-                                },
-                                'async': false,
-                                'generator': false,
-                                'expression': false,
-                                'id': null,
-                                'start': 12,
-                                'end': 16
-                            },
-                            'kind': 'get',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 16
-                        }
-                    ],
-                    'start': 6,
-                    'end': 17
-                },
-                'start': 0,
-                'end': 17
-            },
-            'start': 0,
-            'end': 17
-        }
-    ],
-    'start': 0,
-    'end': 17
-}],
-  ['foo = {async [a](){}}', 'foo = {async [a](){}}', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 14,
-                                'end': 15
-                            },
-                            'value': {
-                                'type': 'FunctionExpression',
-                                'params': [],
-                                'body': {
-                                    'type': 'BlockStatement',
-                                    'body': [],
-                                    'start': 18,
-                                    'end': 20
-                                },
-                                'async': true,
-                                'generator': false,
-                                'expression': false,
-                                'id': null,
-                                'start': 16,
-                                'end': 20
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': true,
-                            'shorthand': false,
-                            'start': 7,
-                            'end': 20
-                        }
-                    ],
-                    'start': 6,
-                    'end': 21
-                },
-                'start': 0,
-                'end': 21
-            },
-            'start': 0,
-            'end': 21
-        }
-    ],
-    'start': 0,
-    'end': 21
-}],
-  ['foo = { async }', 'foo = { async }', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'async',
-                                'start': 8,
-                                'end': 13
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'async',
-                                'start': 8,
-                                'end': 13
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 8,
-                            'end': 13
-                        }
-                    ],
-                    'start': 6,
-                    'end': 15
-                },
-                'start': 0,
-                'end': 15
-            },
-            'start': 0,
-            'end': 15
-        }
-    ],
-    'start': 0,
-    'end': 15
-}],
-  ['foo = { async: bar }', 'foo = { async: bar }', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'async',
-                                'start': 8,
-                                'end': 13
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'bar',
-                                'start': 15,
-                                'end': 18
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': false,
-                            'start': 8,
-                            'end': 18
-                        }
-                    ],
-                    'start': 6,
-                    'end': 20
-                },
-                'start': 0,
-                'end': 20
-            },
-            'start': 0,
-            'end': 20
-        }
-    ],
-    'start': 0,
-    'end': 20
-}],
-  ['foo = { aync, get, set }', 'foo = { aync, get, set }', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'aync',
-                                'start': 8,
-                                'end': 12
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'aync',
-                                'start': 8,
-                                'end': 12
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 8,
-                            'end': 12
-                        },
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'get',
-                                'start': 14,
-                                'end': 17
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'get',
-                                'start': 14,
-                                'end': 17
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 14,
-                            'end': 17
-                        },
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'set',
-                                'start': 19,
-                                'end': 22
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'set',
-                                'start': 19,
-                                'end': 22
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 19,
-                            'end': 22
-                        }
-                    ],
-                    'start': 6,
-                    'end': 24
-                },
-                'start': 0,
-                'end': 24
-            },
-            'start': 0,
-            'end': 24
-        }
-    ],
-    'start': 0,
-    'end': 24
-}],
-  ['foo = { a, b, c }', 'foo = { a, b, c }', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'AssignmentExpression',
-                'left': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'operator': '=',
-                'right': {
-                    'type': 'ObjectExpression',
-                    'properties': [
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 8,
-                                'end': 9
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 8,
-                                'end': 9
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 8,
-                            'end': 9
-                        },
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'b',
-                                'start': 11,
-                                'end': 12
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'b',
-                                'start': 11,
-                                'end': 12
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 11,
-                            'end': 12
-                        },
-                        {
-                            'type': 'Property',
-                            'key': {
-                                'type': 'Identifier',
-                                'name': 'c',
-                                'start': 14,
-                                'end': 15
-                            },
-                            'value': {
-                                'type': 'Identifier',
-                                'name': 'c',
-                                'start': 14,
-                                'end': 15
-                            },
-                            'kind': 'init',
-                            'computed': false,
-                            'method': false,
-                            'shorthand': true,
-                            'start': 14,
-                            'end': 15
-                        }
-                    ],
-                    'start': 6,
-                    'end': 17
-                },
-                'start': 0,
-                'end': 17
-            },
-            'start': 0,
-            'end': 17
-        }
-    ],
-    'start': 0,
-    'end': 17
-}],
-  ['({*a() {}});', '({*a() {}});', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'a',
-                            'start': 3,
-                            'end': 4
-                        },
-                        'value': {
-                            'type': 'FunctionExpression',
-                            'params': [],
-                            'body': {
-                                'type': 'BlockStatement',
-                                'body': [],
-                                'start': 7,
-                                'end': 9
-                            },
-                            'async': false,
-                            'generator': true,
-                            'expression': false,
-                            'id': null,
-                            'start': 4,
-                            'end': 9
-                        },
-                        'kind': 'init',
-                        'computed': false,
-                        'method': true,
-                        'shorthand': false,
-                        'start': 2,
-                        'end': 9
-                    }
-                ],
-                'start': 1,
-                'end': 10
-            },
-            'start': 0,
-            'end': 12
-        }
-    ],
-    'start': 0,
-    'end': 12
-}],
-  ['foo({a});', 'foo({a});', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'CallExpression',
-                'callee': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'arguments': [
-                    {
-                        'type': 'ObjectExpression',
-                        'properties': [
-                            {
-                                'type': 'Property',
-                                'key': {
-                                    'type': 'Identifier',
-                                    'name': 'a',
-                                    'start': 5,
-                                    'end': 6
-                                },
-                                'value': {
-                                    'type': 'Identifier',
-                                    'name': 'a',
-                                    'start': 5,
-                                    'end': 6
-                                },
-                                'kind': 'init',
-                                'computed': false,
-                                'method': false,
-                                'shorthand': true,
-                                'start': 5,
-                                'end': 6
-                            }
-                        ],
-                        'start': 4,
-                        'end': 7
-                    }
-                ],
-                'start': 0,
-                'end': 8
-            },
-            'start': 0,
-            'end': 9
-        }
-    ],
-    'start': 0,
-    'end': 9
-}],
-['foo({async});', 'foo({async});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+  const valids: Array<[string, Context, any]> = [
+    [
+      'x={async f(){ let f }}',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
               },
-              'arguments': [
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'ObjectExpression',
-                      'properties': [
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
                           {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'async',
-                                  'start': 5,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'async',
-                                  'start': 5,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': true,
-                              'start': 5,
-                              'end': 10
-                          }
-                      ],
-                      'start': 4,
-                      'end': 11
-                  }
-              ],
-              'start': 0,
-              'end': 12
-          },
-          'start': 0,
-          'end': 13
-      }
-  ],
-  'start': 0,
-  'end': 13
-}],
-['foo({get} = x);', 'foo({get} = x);', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'AssignmentExpression',
-                      'left': {
-                          'type': 'ObjectPattern',
-                          'properties': [
+                            type: 'VariableDeclaration',
+                            declarations: [
                               {
-                                  'type': 'Property',
-                                  'key': {
-                                      'type': 'Identifier',
-                                      'name': 'get',
-                                      'start': 5,
-                                      'end': 8
-                                  },
-                                  'value': {
-                                      'type': 'Identifier',
-                                      'name': 'get',
-                                      'start': 5,
-                                      'end': 8
-                                  },
-                                  'kind': 'init',
-                                  'computed': false,
-                                  'method': false,
-                                  'shorthand': true,
-                                  'start': 5,
-                                  'end': 8
+                                type: 'VariableDeclarator',
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'f'
+                                },
+                                init: null
                               }
-                          ],
-                          'start': 4,
-                          'end': 9
-                      },
-                      'operator': '=',
-                      'right': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 12,
-                          'end': 13
-                      },
-                      'start': 4,
-                      'end': 13
-                  }
-              ],
-              'start': 0,
-              'end': 14
-          },
-          'start': 0,
-          'end': 15
-      }
-  ],
-  'start': 0,
-  'end': 15
-}],
-['foo({async} = x);', 'foo({async} = x);', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'CallExpression',
-                'callee': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 0,
-                    'end': 3
-                },
-                'arguments': [
-                    {
-                        'type': 'AssignmentExpression',
-                        'left': {
-                            'type': 'ObjectPattern',
-                            'properties': [
-                                {
-                                    'type': 'Property',
-                                    'key': {
-                                        'type': 'Identifier',
-                                        'name': 'async',
-                                        'start': 5,
-                                        'end': 10
-                                    },
-                                    'value': {
-                                        'type': 'Identifier',
-                                        'name': 'async',
-                                        'start': 5,
-                                        'end': 10
-                                    },
-                                    'kind': 'init',
-                                    'computed': false,
-                                    'method': false,
-                                    'shorthand': true,
-                                    'start': 5,
-                                    'end': 10
-                                }
                             ],
-                            'start': 4,
-                            'end': 11
-                        },
-                        'operator': '=',
-                        'right': {
-                            'type': 'Identifier',
-                            'name': 'x',
-                            'start': 14,
-                            'end': 15
-                        },
-                        'start': 4,
-                        'end': 15
-                    }
-                ],
-                'start': 0,
-                'end': 16
-            },
-            'start': 0,
-            'end': 17
-        }
+                            kind: 'let'
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: true
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
     ],
-    'start': 0,
-    'end': 17
-}],
-['foo({a:b});', 'foo({a:b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+
+    [
+      'x={f(){ var f }}',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
               },
-              'arguments': [
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'ObjectExpression',
-                      'properties': [
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
                           {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'a',
-                                  'start': 5,
-                                  'end': 6
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 7,
-                                  'end': 8
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 8
-                          }
-                      ],
-                      'start': 4,
-                      'end': 9
-                  }
-              ],
-              'start': 0,
-              'end': 10
-          },
-          'start': 0,
-          'end': 11
-      }
-  ],
-  'start': 0,
-  'end': 11
-}],
-['foo({get:b});', 'foo({get:b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'get',
-                                  'start': 5,
-                                  'end': 8
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 9,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 10
-                          }
-                      ],
-                      'start': 4,
-                      'end': 11
-                  }
-              ],
-              'start': 0,
-              'end': 12
-          },
-          'start': 0,
-          'end': 13
-      }
-  ],
-  'start': 0,
-  'end': 13
-}],
-['foo({async:b});', 'foo({async:b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'async',
-                                  'start': 5,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 11,
-                                  'end': 12
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 12
-                          }
-                      ],
-                      'start': 4,
-                      'end': 13
-                  }
-              ],
-              'start': 0,
-              'end': 14
-          },
-          'start': 0,
-          'end': 15
-      }
-  ],
-  'start': 0,
-  'end': 15
-}],
-['foo({a, b} = x);', 'foo({a, b} = x);', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'AssignmentExpression',
-                      'left': {
-                          'type': 'ObjectPattern',
-                          'properties': [
+                            type: 'VariableDeclaration',
+                            declarations: [
                               {
-                                  'type': 'Property',
-                                  'key': {
-                                      'type': 'Identifier',
-                                      'name': 'a',
-                                      'start': 5,
-                                      'end': 6
-                                  },
-                                  'value': {
-                                      'type': 'Identifier',
-                                      'name': 'a',
-                                      'start': 5,
-                                      'end': 6
-                                  },
-                                  'kind': 'init',
-                                  'computed': false,
-                                  'method': false,
-                                  'shorthand': true,
-                                  'start': 5,
-                                  'end': 6
-                              },
-                              {
-                                  'type': 'Property',
-                                  'key': {
-                                      'type': 'Identifier',
-                                      'name': 'b',
-                                      'start': 8,
-                                      'end': 9
-                                  },
-                                  'value': {
-                                      'type': 'Identifier',
-                                      'name': 'b',
-                                      'start': 8,
-                                      'end': 9
-                                  },
-                                  'kind': 'init',
-                                  'computed': false,
-                                  'method': false,
-                                  'shorthand': true,
-                                  'start': 8,
-                                  'end': 9
+                                type: 'VariableDeclarator',
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'f'
+                                },
+                                init: null
                               }
+                            ],
+                            kind: 'var'
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x={async f(){ var f }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                              {
+                                type: 'VariableDeclarator',
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'f'
+                                },
+                                init: null
+                              }
+                            ],
+                            kind: 'var'
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: true
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x={async *f(){ var f }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'VariableDeclaration',
+                            kind: 'var',
+                            declarations: [
+                              {
+                                type: 'VariableDeclarator',
+                                init: null,
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'f'
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      async: true,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x=async function *f(){ let f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'let',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: true,
+                generator: true,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x={async *f(){ let f }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'VariableDeclaration',
+                            kind: 'let',
+                            declarations: [
+                              {
+                                type: 'VariableDeclarator',
+                                init: null,
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'f'
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      async: true,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'o = {f(f) { }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'o'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'o = {f(x) { function x() {} }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'o'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'FunctionDeclaration',
+                            id: {
+                              type: 'Identifier',
+                              name: 'x'
+                            },
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: []
+                            },
+                            generator: false,
+
+                            async: false
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'o = {f(x) { var x; }}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'o'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                              {
+                                type: 'VariableDeclarator',
+                                id: {
+                                  type: 'Identifier',
+                                  name: 'x'
+                                },
+                                init: null
+                              }
+                            ],
+                            kind: 'var'
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(a, {b}) => {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({foo: typeof /x/});',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'foo',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    argument: {
+                      regex: {
+                        flags: '',
+                        pattern: 'x'
+                      },
+                      type: 'Literal',
+                      value: /x/
+                    },
+                    operator: 'typeof',
+                    prefix: true,
+                    type: 'UnaryExpression'
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '({async: await})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({await})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({eval} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'eval'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'eval'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({eval});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'eval'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'Identifier',
+                    name: 'eval'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({eval}) => x;',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              id: null,
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'eval'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'eval'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              expression: true,
+              async: false
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+
+    [
+      'x = {__proto__: 1, __proto__}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = {__proto__(){}, __proto__: 2}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'Literal',
+                      value: 2
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {__proto__(){}, __proto__(){}}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {async __proto__(){}, *__proto__(){}}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...y}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {x, ...y}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {a, ...y, b}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...y, b}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...a,}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...a=b}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...a + b}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      operator: '+'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...[a, b]}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'ArrayExpression',
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...{a, b}}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'ObjectExpression',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'a'
+                          },
+                          value: {
+                            type: 'Identifier',
+                            name: 'a'
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: true
+                        },
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'b'
+                          },
+                          value: {
+                            type: 'Identifier',
+                            name: 'b'
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: true
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...a, ...b}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  },
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...a} = x)',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'RestElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...[a, b]} = x)',
+      Context.OptionsDisableWebCompat,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                properties: [
+                  {
+                    argument: {
+                      elements: [
+                        {
+                          name: 'a',
+                          type: 'Identifier'
+                        },
+                        {
+                          name: 'b',
+                          type: 'Identifier'
+                        }
+                      ],
+                      type: 'ArrayPattern'
+                    },
+                    type: 'RestElement'
+                  }
+                ],
+                type: 'ObjectPattern'
+              },
+              operator: '=',
+              right: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              type: 'AssignmentExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '({...[a, b]}) => x',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'a'
+                          },
+                          {
+                            type: 'Identifier',
+                            name: 'b'
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...{a, b}}) => x',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'RestElement',
+                      argument: {
+                        type: 'ObjectPattern',
+                        properties: [
+                          {
+                            type: 'Property',
+                            key: {
+                              type: 'Identifier',
+                              name: 'a'
+                            },
+                            value: {
+                              type: 'Identifier',
+                              name: 'a'
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: true
+                          },
+                          {
+                            type: 'Property',
+                            key: {
+                              type: 'Identifier',
+                              name: 'b'
+                            },
+                            value: {
+                              type: 'Identifier',
+                              name: 'b'
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: true
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(z = {...x.y} = z) => z',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'z'
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'RestElement',
+                          argument: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Identifier',
+                              name: 'x'
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'y'
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'Identifier',
+                      name: 'z'
+                    }
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...x=y});',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'SpreadElement',
+                  argument: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...x+=y});',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'SpreadElement',
+                  argument: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...x, ...y});',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'SpreadElement',
+                  argument: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                },
+                {
+                  type: 'SpreadElement',
+                  argument: {
+                    type: 'Identifier',
+                    name: 'y'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({...x.y} = z)',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'RestElement',
+                    argument: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'y'
+                      }
+                    }
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'z'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({[foo]: x} = y)',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              right: {
+                type: 'Identifier',
+                name: 'y'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({[foo]: bar} = baz)',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    computed: true,
+                    value: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              right: {
+                type: 'Identifier',
+                name: 'baz'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({...x});',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'SpreadElement',
+                  argument: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({ __proto__: b, "__proto__": c})',
+      Context.OptionsDisableWebCompat,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: '__proto__',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    name: 'b',
+                    type: 'Identifier'
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: '__proto__'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    name: 'c',
+                    type: 'Identifier'
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'x = {__proto__(){}, __proto__: 2}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Literal',
+                      value: 2
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = {__proto__(){}, __proto__(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = {async __proto__(){}, *__proto__(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: true
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: '__proto__'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: true,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({ "__proto__": "__proto__"})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: '__proto__'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'Literal',
+                    value: '__proto__'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({f(x) { var x; }})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'VariableDeclaration',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              id: {
+                                type: 'Identifier',
+                                name: 'x'
+                              },
+                              init: null
+                            }
                           ],
-                          'start': 4,
-                          'end': 10
-                      },
-                      'operator': '=',
-                      'right': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 13,
-                          'end': 14
-                      },
-                      'start': 4,
-                      'end': 14
-                  }
-              ],
-              'start': 0,
-              'end': 15
-          },
-          'start': 0,
-          'end': 16
-      }
-  ],
-  'start': 0,
-  'end': 16
-}],
-['foo({a:b, c:d});', 'foo({a:b, c:d});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'a',
-                                  'start': 5,
-                                  'end': 6
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 7,
-                                  'end': 8
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 8
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'c',
-                                  'start': 10,
-                                  'end': 11
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'd',
-                                  'start': 12,
-                                  'end': 13
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 10,
-                              'end': 13
-                          }
-                      ],
-                      'start': 4,
-                      'end': 14
-                  }
-              ],
-              'start': 0,
-              'end': 15
-          },
-          'start': 0,
-          'end': 16
-      }
-  ],
-  'start': 0,
-  'end': 16
-}],
-['foo({15:b});', 'foo({15:b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 15,
-                                  'start': 5,
-                                  'end': 7
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 8,
-                                  'end': 9
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 9
-                          }
-                      ],
-                      'start': 4,
-                      'end': 10
-                  }
-              ],
-              'start': 0,
-              'end': 11
-          },
-          'start': 0,
-          'end': 12
-      }
-  ],
-  'start': 0,
-  'end': 12
-}],
-// ['foo({.9:a, 0x84:b, 0b1:c, 0o27:d, 1e234:e});', 'foo({.9:a, 0x84:b, 0b1:c, 0o27:d, 1e234:e});', Context.OptionsRanges, {}],
-['foo({[a]:b});', 'foo({[a]:b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'a',
-                                  'start': 6,
-                                  'end': 7
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 9,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 10
-                          }
-                      ],
-                      'start': 4,
-                      'end': 11
-                  }
-              ],
-              'start': 0,
-              'end': 12
-          },
-          'start': 0,
-          'end': 13
-      }
-  ],
-  'start': 0,
-  'end': 13
-}],
+                          kind: 'var'
+                        }
+                      ]
+                    },
+                    generator: false,
 
-['foo({[a]:b, [15]:d});', 'foo({[a]:b, [15]:d});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'a',
-                                  'start': 6,
-                                  'end': 7
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 9,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 10
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 15,
-                                  'start': 13,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'd',
-                                  'start': 17,
-                                  'end': 18
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 12,
-                              'end': 18
-                          }
-                      ],
-                      'start': 4,
-                      'end': 19
-                  }
-              ],
-              'start': 0,
-              'end': 20
-          },
-          'start': 0,
-          'end': 21
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
       }
-  ],
-  'start': 0,
-  'end': 21
-}],
- ['foo({foo(){}});', 'foo({foo(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+    ],
+    [
+      'x = {f(f) { }}',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
               },
-              'arguments': [
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 5,
-                                  'end': 8
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 10,
-                                      'end': 12
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 8,
-                                  'end': 12
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 12
-                          }
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'f'
+                        }
                       ],
-                      'start': 4,
-                      'end': 13
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
                   }
-              ],
-              'start': 0,
-              'end': 14
-          },
-          'start': 0,
-          'end': 15
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
       }
-  ],
-  'start': 0,
-  'end': 15
-}],
- ['foo({"foo"(){}});', 'foo({"foo"(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+    ],
+    [
+      'o = {f(x) { function x() {} }}',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'o'
               },
-              'arguments': [
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'foo',
-                                  'start': 5,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 12,
-                                      'end': 14
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 10,
-                                  'end': 14
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 14
-                          }
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
                       ],
-                      'start': 4,
-                      'end': 15
-                  }
-              ],
-              'start': 0,
-              'end': 16
-          },
-          'start': 0,
-          'end': 17
-      }
-  ],
-  'start': 0,
-  'end': 17
-}],
- ['foo({async get(){}});', 'foo({async get(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
                           {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'get',
-                                  'start': 11,
-                                  'end': 14
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 16,
-                                      'end': 18
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 14,
-                                  'end': 18
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 18
-                          }
-                      ],
-                      'start': 4,
-                      'end': 19
-                  }
-              ],
-              'start': 0,
-              'end': 20
-          },
-          'start': 0,
-          'end': 21
-      }
-  ],
-  'start': 0,
-  'end': 21
-}],
- ['foo({async async(){}});', 'foo({async async(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'async',
-                                  'start': 11,
-                                  'end': 16
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 18,
-                                      'end': 20
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 16,
-                                  'end': 20
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 20
-                          }
-                      ],
-                      'start': 4,
-                      'end': 21
-                  }
-              ],
-              'start': 0,
-              'end': 22
-          },
-          'start': 0,
-          'end': 23
-      }
-  ],
-  'start': 0,
-  'end': 23
-}],
- ['wrap({async "foo"(){}});', 'wrap({async "foo"(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'foo',
-                                  'start': 12,
-                                  'end': 17
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 19,
-                                      'end': 21
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 17,
-                                  'end': 21
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 21
-                          }
-                      ],
-                      'start': 5,
-                      'end': 22
-                  }
-              ],
-              'start': 0,
-              'end': 23
-          },
-          'start': 0,
-          'end': 24
-      }
-  ],
-  'start': 0,
-  'end': 24
-}],
- ['wrap({async 100(){}});', 'wrap({async 100(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 100,
-                                  'start': 12,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 17,
-                                      'end': 19
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 19
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 19
-                          }
-                      ],
-                      'start': 5,
-                      'end': 20
-                  }
-              ],
-              'start': 0,
-              'end': 21
-          },
-          'start': 0,
-          'end': 22
-      }
-  ],
-  'start': 0,
-  'end': 22
-}],
- ['wrap({async [foo](){}});', 'wrap({async [foo](){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 13,
-                                  'end': 16
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 19,
-                                      'end': 21
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 17,
-                                  'end': 21
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 21
-                          }
-                      ],
-                      'start': 5,
-                      'end': 22
-                  }
-              ],
-              'start': 0,
-              'end': 23
-          },
-          'start': 0,
-          'end': 24
-      }
-  ],
-  'start': 0,
-  'end': 24
-}],
- ['wrap({async foo(){}, async bar(){}});', 'wrap({async foo(){}, async bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 12,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 17,
-                                      'end': 19
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 19
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 19
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 27,
-                                  'end': 30
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 32,
-                                      'end': 34
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 30,
-                                  'end': 34
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 21,
-                              'end': 34
-                          }
-                      ],
-                      'start': 5,
-                      'end': 35
-                  }
-              ],
-              'start': 0,
-              'end': 36
-          },
-          'start': 0,
-          'end': 37
-      }
-  ],
-  'start': 0,
-  'end': 37
-}],
- ['wrap({async foo(){}, bar(){}});', 'wrap({async foo(){}, bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 12,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 17,
-                                      'end': 19
-                                  },
-                                  'async': true,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 19
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 19
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 21,
-                                  'end': 24
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 26,
-                                      'end': 28
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 24,
-                                  'end': 28
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 21,
-                              'end': 28
-                          }
-                      ],
-                      'start': 5,
-                      'end': 29
-                  }
-              ],
-              'start': 0,
-              'end': 30
-          },
-          'start': 0,
-          'end': 31
-      }
-  ],
-  'start': 0,
-  'end': 31
-}],
- ['wrap({*foo(){}});', 'wrap({*foo(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 7,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 12,
-                                      'end': 14
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 10,
-                                  'end': 14
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 14
-                          }
-                      ],
-                      'start': 5,
-                      'end': 15
-                  }
-              ],
-              'start': 0,
-              'end': 16
-          },
-          'start': 0,
-          'end': 17
-      }
-  ],
-  'start': 0,
-  'end': 17
-}],
- ['wrap({*get(){}});', 'wrap({*get(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'get',
-                                  'start': 7,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 12,
-                                      'end': 14
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 10,
-                                  'end': 14
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 14
-                          }
-                      ],
-                      'start': 5,
-                      'end': 15
-                  }
-              ],
-              'start': 0,
-              'end': 16
-          },
-          'start': 0,
-          'end': 17
-      }
-  ],
-  'start': 0,
-  'end': 17
-}],
- ['wrap({*async(){}});', 'wrap({*async(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'async',
-                                  'start': 7,
-                                  'end': 12
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 14,
-                                      'end': 16
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 12,
-                                  'end': 16
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 16
-                          }
-                      ],
-                      'start': 5,
-                      'end': 17
-                  }
-              ],
-              'start': 0,
-              'end': 18
-          },
-          'start': 0,
-          'end': 19
-      }
-  ],
-  'start': 0,
-  'end': 19
-}],
- ['wrap({*"foo"(){}});', 'wrap({*"foo"(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'foo',
-                                  'start': 7,
-                                  'end': 12
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 14,
-                                      'end': 16
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 12,
-                                  'end': 16
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 16
-                          }
-                      ],
-                      'start': 5,
-                      'end': 17
-                  }
-              ],
-              'start': 0,
-              'end': 18
-          },
-          'start': 0,
-          'end': 19
-      }
-  ],
-  'start': 0,
-  'end': 19
-}],
-['wrap({*123(){}});', 'wrap({*123(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 123,
-                                  'start': 7,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 12,
-                                      'end': 14
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 10,
-                                  'end': 14
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 14
-                          }
-                      ],
-                      'start': 5,
-                      'end': 15
-                  }
-              ],
-              'start': 0,
-              'end': 16
-          },
-          'start': 0,
-          'end': 17
-      }
-  ],
-  'start': 0,
-  'end': 17
-}],
- ['fkleuver({*[foo](){}});', 'fkleuver({*[foo](){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'fkleuver',
-                  'start': 0,
-                  'end': 8
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 12,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 18,
-                                      'end': 20
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 16,
-                                  'end': 20
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 10,
-                              'end': 20
-                          }
-                      ],
-                      'start': 9,
-                      'end': 21
-                  }
-              ],
-              'start': 0,
-              'end': 22
-          },
-          'start': 0,
-          'end': 23
-      }
-  ],
-  'start': 0,
-  'end': 23
-}],
- ['wrap({* foo(){},*bar(){}});', 'wrap({* foo(){},*bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 8,
-                                  'end': 11
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 13,
-                                      'end': 15
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 11,
-                                  'end': 15
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 15
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 17,
-                                  'end': 20
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 22,
-                                      'end': 24
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 20,
-                                  'end': 24
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 16,
-                              'end': 24
-                          }
-                      ],
-                      'start': 5,
-                      'end': 25
-                  }
-              ],
-              'start': 0,
-              'end': 26
-          },
-          'start': 0,
-          'end': 27
-      }
-  ],
-  'start': 0,
-  'end': 27
-}],
-['wrap({1:b, 0:d});', 'wrap({1:b, 0:d});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 1,
-                                  'start': 6,
-                                  'end': 7
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 8,
-                                  'end': 9
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 9
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 0,
-                                  'start': 11,
-                                  'end': 12
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'd',
-                                  'start': 13,
-                                  'end': 14
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 11,
-                              'end': 14
-                          }
-                      ],
-                      'start': 5,
-                      'end': 15
-                  }
-              ],
-              'start': 0,
-              'end': 16
-          },
-          'start': 0,
-          'end': 17
-      }
-  ],
-  'start': 0,
-  'end': 17
-}],
-['wrap({* foo(){}, bar(){}});', 'wrap({* foo(){}, bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 8,
-                                  'end': 11
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 13,
-                                      'end': 15
-                                  },
-                                  'async': false,
-                                  'generator': true,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 11,
-                                  'end': 15
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 15
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 17,
-                                  'end': 20
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 22,
-                                      'end': 24
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 20,
-                                  'end': 24
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 17,
-                              'end': 24
-                          }
-                      ],
-                      'start': 5,
-                      'end': 25
-                  }
-              ],
-              'start': 0,
-              'end': 26
-          },
-          'start': 0,
-          'end': 27
-      }
-  ],
-  'start': 0,
-  'end': 27
-}],
-['wrap({get foo(){}});', 'wrap({get foo(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 10,
-                                  'end': 13
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 15,
-                                      'end': 17
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 13,
-                                  'end': 17
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 17
-                          }
-                      ],
-                      'start': 5,
-                      'end': 18
-                  }
-              ],
-              'start': 0,
-              'end': 19
-          },
-          'start': 0,
-          'end': 20
-      }
-  ],
-  'start': 0,
-  'end': 20
-}],
-['wrap({get get(){}});', 'wrap({get get(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'get',
-                                  'start': 10,
-                                  'end': 13
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 15,
-                                      'end': 17
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 13,
-                                  'end': 17
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 17
-                          }
-                      ],
-                      'start': 5,
-                      'end': 18
-                  }
-              ],
-              'start': 0,
-              'end': 19
-          },
-          'start': 0,
-          'end': 20
-      }
-  ],
-  'start': 0,
-  'end': 20
-}],
-['wrap({get foo(){}, get bar(){}});', 'wrap({get foo(){}, get bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 10,
-                                  'end': 13
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 15,
-                                      'end': 17
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 13,
-                                  'end': 17
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 17
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 23,
-                                  'end': 26
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 28,
-                                      'end': 30
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 26,
-                                  'end': 30
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 19,
-                              'end': 30
-                          }
-                      ],
-                      'start': 5,
-                      'end': 31
-                  }
-              ],
-              'start': 0,
-              'end': 32
-          },
-          'start': 0,
-          'end': 33
-      }
-  ],
-  'start': 0,
-  'end': 33
-}],
-['wrap({get foo(){}, bar(){}});', 'wrap({get foo(){}, bar(){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 10,
-                                  'end': 13
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 15,
-                                      'end': 17
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 13,
-                                  'end': 17
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 17
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 19,
-                                  'end': 22
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 24,
-                                      'end': 26
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 22,
-                                  'end': 26
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 19,
-                              'end': 26
-                          }
-                      ],
-                      'start': 5,
-                      'end': 27
-                  }
-              ],
-              'start': 0,
-              'end': 28
-          },
-          'start': 0,
-          'end': 29
-      }
-  ],
-  'start': 0,
-  'end': 29
-}],
-['wrap({get [foo](){}});', 'wrap({get [foo](){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 11,
-                                  'end': 14
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 17,
-                                      'end': 19
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 19
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 19
-                          }
-                      ],
-                      'start': 5,
-                      'end': 20
-                  }
-              ],
-              'start': 0,
-              'end': 21
-          },
-          'start': 0,
-          'end': 22
-      }
-  ],
-  'start': 0,
-  'end': 22
-}],
-['wrap({get [foo](){}, get [bar](){}});', 'wrap({get [foo](){}, get [bar](){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 11,
-                                  'end': 14
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 17,
-                                      'end': 19
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 19
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 19
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 26,
-                                  'end': 29
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 32,
-                                      'end': 34
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 30,
-                                  'end': 34
-                              },
-                              'kind': 'get',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 21,
-                              'end': 34
-                          }
-                      ],
-                      'start': 5,
-                      'end': 35
-                  }
-              ],
-              'start': 0,
-              'end': 36
-          },
-          'start': 0,
-          'end': 37
-      }
-  ],
-  'start': 0,
-  'end': 37
-}],
- ['wrap({set [foo](c){}, [bar](){}});', 'wrap({set [foo](c){}, [bar](){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 11,
-                                  'end': 14
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [
-                                      {
-                                          'type': 'Identifier',
-                                          'name': 'c',
-                                          'start': 16,
-                                          'end': 17
-                                      }
-                                  ],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 18,
-                                      'end': 20
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 15,
-                                  'end': 20
-                              },
-                              'kind': 'set',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 20
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 23,
-                                  'end': 26
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 29,
-                                      'end': 31
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 27,
-                                  'end': 31
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 22,
-                              'end': 31
-                          }
-                      ],
-                      'start': 5,
-                      'end': 32
-                  }
-              ],
-              'start': 0,
-              'end': 33
-          },
-          'start': 0,
-          'end': 34
-      }
-  ],
-  'start': 0,
-  'end': 34
-}],
- ['wrap({[foo](){}, set [bar](e){}});', 'wrap({[foo](){}, set [bar](e){}});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'wrap',
-                  'start': 0,
-                  'end': 4
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'foo',
-                                  'start': 7,
-                                  'end': 10
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 13,
-                                      'end': 15
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 11,
-                                  'end': 15
-                              },
-                              'kind': 'init',
-                              'computed': true,
-                              'method': true,
-                              'shorthand': false,
-                              'start': 6,
-                              'end': 15
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Identifier',
-                                  'name': 'bar',
-                                  'start': 22,
-                                  'end': 25
-                              },
-                              'value': {
-                                  'type': 'FunctionExpression',
-                                  'params': [
-                                      {
-                                          'type': 'Identifier',
-                                          'name': 'e',
-                                          'start': 27,
-                                          'end': 28
-                                      }
-                                  ],
-                                  'body': {
-                                      'type': 'BlockStatement',
-                                      'body': [],
-                                      'start': 29,
-                                      'end': 31
-                                  },
-                                  'async': false,
-                                  'generator': false,
-                                  'expression': false,
-                                  'id': null,
-                                  'start': 26,
-                                  'end': 31
-                              },
-                              'kind': 'set',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 17,
-                              'end': 31
-                          }
-                      ],
-                      'start': 5,
-                      'end': 32
-                  }
-              ],
-              'start': 0,
-              'end': 33
-          },
-          'start': 0,
-          'end': 34
-      }
-  ],
-  'start': 0,
-  'end': 34
-}],
-['foo({"a":b});', 'foo({"a":b});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'a',
-                                  'start': 5,
-                                  'end': 8
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 9,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 10
-                          }
-                      ],
-                      'start': 4,
-                      'end': 11
-                  }
-              ],
-              'start': 0,
-              'end': 12
-          },
-          'start': 0,
-          'end': 13
-      }
-  ],
-  'start': 0,
-  'end': 13
-}],
-['foo({"a":b, "c":d});', 'foo({"a":b, "c":d});', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'CallExpression',
-              'callee': {
-                  'type': 'Identifier',
-                  'name': 'foo',
-                  'start': 0,
-                  'end': 3
-              },
-              'arguments': [
-                  {
-                      'type': 'ObjectExpression',
-                      'properties': [
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'a',
-                                  'start': 5,
-                                  'end': 8
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'b',
-                                  'start': 9,
-                                  'end': 10
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 5,
-                              'end': 10
-                          },
-                          {
-                              'type': 'Property',
-                              'key': {
-                                  'type': 'Literal',
-                                  raw: null,
-                                  'value': 'c',
-                                  'start': 12,
-                                  'end': 15
-                              },
-                              'value': {
-                                  'type': 'Identifier',
-                                  'name': 'd',
-                                  'start': 16,
-                                  'end': 17
-                              },
-                              'kind': 'init',
-                              'computed': false,
-                              'method': false,
-                              'shorthand': false,
-                              'start': 12,
-                              'end': 17
-                          }
-                      ],
-                      'start': 4,
-                      'end': 18
-                  }
-              ],
-              'start': 0,
-              'end': 19
-          },
-          'start': 0,
-          'end': 20
-      }
-  ],
-  'start': 0,
-  'end': 20
-}],
-/*['foo({a});', 'foo({a});', Context.OptionsRanges, {}],
-['foo({a});', 'foo({a});', Context.OptionsRanges, {}],
-['foo({a});', 'foo({a});', Context.OptionsRanges, {}],*/
-  ['({ get foo() {} })', '({ get foo() {} })', Context.Empty, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'foo'
-                        },
-                        'value': {
-                            'type': 'FunctionExpression',
-                            'params': [],
-                            'body': {
-                                'type': 'BlockStatement',
-                                'body': []
+                            type: 'FunctionDeclaration',
+                            id: {
+                              type: 'Identifier',
+                              name: 'x'
                             },
-                            'async': false,
-                            'generator': false,
-                            'expression': false,
-                            'id': null
-                        },
-                        'kind': 'get',
-                        'computed': false,
-                        'method': false,
-                        'shorthand': false
-                    }
-                ]
-            }
-        }
-    ]
-}],
-  ['({ async foo() {} })', '({ async foo() {} })', Context.Empty, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'foo'
-                        },
-                        'value': {
-                            'type': 'FunctionExpression',
-                            'params': [],
-                            'body': {
-                                'type': 'BlockStatement',
-                                'body': []
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: []
                             },
-                            'async': true,
-                            'generator': false,
-                            'expression': false,
-                            'id': null
-                        },
-                        'kind': 'init',
-                        'computed': false,
-                        'method': true,
-                        'shorthand': false
-                    }
-                ]
-            }
-        }
-    ]
-}],
-  ['({ foo() {} })', '({ foo() {} })', Context.Empty, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'foo'
-                        },
-                        'value': {
-                            'type': 'FunctionExpression',
-                            'params': [],
-                            'body': {
-                                'type': 'BlockStatement',
-                                'body': []
-                            },
-                            'async': false,
-                            'generator': false,
-                            'expression': false,
-                            'id': null
-                        },
-                        'kind': 'init',
-                        'computed': false,
-                        'method': true,
-                        'shorthand': false
-                    }
-                ]
-            }
-        }
-    ]
-}],
-  ['({a: b})', '({a: b})', Context.Empty, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'ObjectExpression',
-                'properties': [
-                    {
-                        'type': 'Property',
-                        'key': {
-                            'type': 'Identifier',
-                            'name': 'a'
-                        },
-                        'value': {
-                            'type': 'Identifier',
-                            'name': 'b'
-                        },
-                        'kind': 'init',
-                        'computed': false,
-                        'method': false,
-                        'shorthand': false
-                    }
-                ]
-            }
-        }
-    ]
-}],
-['({"foo":bar})', '({"foo":bar})', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'ObjectExpression',
-              'properties': [
-                  {
-                      'type': 'Property',
-                      'key': {
-                          'type': 'Literal',
-                          raw: null,
-                          'value': 'foo',
-                          'start': 2,
-                          'end': 7
+                            generator: false,
+
+                            async: false
+                          }
+                        ]
                       },
-                      'value': {
-                          'type': 'Identifier',
-                          'name': 'bar',
-                          'start': 8,
-                          'end': 11
-                      },
-                      'kind': 'init',
-                      'computed': false,
-                      'method': false,
-                      'shorthand': false,
-                      'start': 2,
-                      'end': 11
+                      generator: false,
+
+                      async: false
+                    },
+                    kind: 'init',
+                    method: true,
+                    shorthand: false
                   }
-              ],
-              'start': 1,
-              'end': 12
-          },
-          'start': 0,
-          'end': 13
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
       }
-  ],
-  'start': 0,
-  'end': 13
-}],
-['({1:b})', '({1:b})', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+    ],
+    [
+      '({15: bar});',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'ObjectExpression',
-              'properties': [
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 15
+                  },
+                  computed: false,
+                  value: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({9:a=b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 9
+                  },
+                  computed: false,
+                  value: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({15(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 15
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({15: bar}) => x',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              id: null,
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Literal',
+                        value: 15
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'bar'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ],
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              expression: true,
+              async: false
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({"a b c"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'a b c'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({ident: yield})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'ident'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'Identifier',
+                    name: 'yield'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({get});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'Property',
-                      'key': {
-                          'type': 'Literal',
-                          raw: null,
-                          'value': 1,
-                          'start': 2,
-                          'end': 3
-                      },
-                      'value': {
-                          'type': 'Identifier',
-                          'name': 'b',
-                          'start': 4,
-                          'end': 5
-                      },
-                      'kind': 'init',
-                      'computed': false,
-                      'method': false,
-                      'shorthand': false,
-                      'start': 2,
-                      'end': 5
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
                   }
-              ],
-              'start': 1,
-              'end': 6
-          },
-          'start': 0,
-          'end': 7
+                ]
+              }
+            }
+          }
+        ]
       }
-  ],
-  'start': 0,
-  'end': 7
-}],
-['({a, b, c})', '({a, b, c})', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
+    ],
+
+    [
+      'x = ({async});',
+      Context.Empty,
       {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'ObjectExpression',
-              'properties': [
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
                   {
-                      'type': 'Property',
-                      'key': {
-                          'type': 'Identifier',
-                          'name': 'a',
-                          'start': 2,
-                          'end': 3
-                      },
-                      'value': {
-                          'type': 'Identifier',
-                          'name': 'a',
-                          'start': 2,
-                          'end': 3
-                      },
-                      'kind': 'init',
-                      'computed': false,
-                      'method': false,
-                      'shorthand': true,
-                      'start': 2,
-                      'end': 3
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'wrap({get} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'wrap'
+              },
+              arguments: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'get'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'get'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'wrap({async} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'wrap'
+              },
+              arguments: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'async'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'async'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({get:b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({a, b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: true
                   },
                   {
-                      'type': 'Property',
-                      'key': {
-                          'type': 'Identifier',
-                          'name': 'b',
-                          'start': 5,
-                          'end': 6
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({a, b} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      'value': {
-                          'type': 'Identifier',
-                          'name': 'b',
-                          'start': 5,
-                          'end': 6
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      'kind': 'init',
-                      'computed': false,
-                      'method': false,
-                      'shorthand': true,
-                      'start': 5,
-                      'end': 6
+                      kind: 'init',
+                      method: false,
+                      shorthand: true
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({a:b, c:d});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
                   },
                   {
-                      'type': 'Property',
-                      'key': {
-                          'type': 'Identifier',
-                          'name': 'c',
-                          'start': 8,
-                          'end': 9
-                      },
-                      'value': {
-                          'type': 'Identifier',
-                          'name': 'c',
-                          'start': 8,
-                          'end': 9
-                      },
-                      'kind': 'init',
-                      'computed': false,
-                      'method': false,
-                      'shorthand': true,
-                      'start': 8,
-                      'end': 9
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
                   }
-              ],
-              'start': 1,
-              'end': 10
-          },
-          'start': 0,
-          'end': 11
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
       }
-  ],
-  'start': 0,
-  'end': 11
-}],
-];
+    ],
+    [
+      'x = ({a, c:d});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({a:b, c});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({a, c:d} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: true
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'd'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({a:b, c} = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      computed: false,
+                      value: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      kind: 'init',
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for ({x=y} in a) b',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForInStatement',
+            left: {
+              type: 'ObjectPattern',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'AssignmentPattern',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'b'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'for ({x=y} of a) b',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ForOfStatement',
+            await: false,
+            left: {
+              type: 'ObjectPattern',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'AssignmentPattern',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'b'
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x = ({15:b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 15
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    //['wrap({1:b, 2:d});', Context.Empty, {}],
+    [
+      'x = ({"a":b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({"a":b, "c":d});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({"a":b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({"a":b, "c":d});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({[a]:b});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({[a]:b, [15]:d});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 15
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({foo(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
 
-pass('Expressions - Group (pass)', valids);
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({typeof: x});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({typeof: x} = y);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'typeof'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'y'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({typeof: x}) => x;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'typeof'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({typeof(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
 
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({*typeof(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set typeof(x){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get typeof(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async typeof(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async * typeof(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'typeof'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: true,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = { async *[y](){} }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async "a b c"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'a b c'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({async 15(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 15
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get "a b c"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'a b c'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get 15(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 15
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set "a b c"(x){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'a b c'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set 15(x){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 15
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({foo(){}, bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({foo(a,b,c){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'b'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      ],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({1(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({"foo"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async foo(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async get(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async async(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async "foo"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async 100(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 100
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ] /*
+   ['wrap({async [foo](){}});', Context.Empty, {
+    "type": "Program",
+    "sourceType": "script",
+    "body": [
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "left": {
+            "type": "Identifier",
+            "name": "x"
+          },
+          "operator": "=",
+          "right": {
+            "type": "ObjectExpression",
+            "properties": [
+              {
+                "type": "Property",
+                "key": {
+                  "type": "Identifier",
+                  "name": "foo"
+                },
+                "value": {
+                  "type": "FunctionExpression",
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "body": []
+                  },
+                  "async": true,
+                  "generator": false,
+                  "expression": false,
+                  "id": null
+                },
+                "kind": "init",
+                "computed": false,
+                "method": true,
+                "shorthand": false
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }],*/,
+    [
+      'x = ({async foo(){}, async bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({async foo(){}, bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({foo(){}, async bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*foo(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*get(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'get'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*async(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*"foo"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*123(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 123
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({*[foo](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({* foo(){},*bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({* foo(){}, bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = ({foo(){}, *bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: true,
+
+                      id: null
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: true,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get foo(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get get(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get foo(){}, get bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get foo(){}, bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({foo(){}, get bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get [foo](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({get [foo](){}, get [bar](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({get [foo](){}, [bar](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({[foo](){}, get [bar](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({get "foo"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get "foo"(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({get 123(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 123
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'get',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set foo(a){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set get(a){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set foo(b){}, set bar(d){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'd'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set foo(c){}, bar(){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({foo(){}, set bar(e){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'e'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set [foo](a){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({set [foo](b){}, set [bar](d){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'd'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({set [foo](c){}, [bar](){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({[foo](){}, set [bar](e){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'e'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({set "foo"(a){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({set 123(a){}});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 123
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'set',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({foo: typeof x});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    prefix: true
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: []
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:b}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, b}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:b, c:d}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, c:d}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:b, c}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({}=x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: []
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a=b}=c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:v=b}=c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'v'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({x:let} = a)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'let'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({x:let})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'let'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:b=x}=y);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'y'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"a":b}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"a":b, "c":d}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": y+z})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'z'
+                    },
+                    operator: '+'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y]})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'ArrayExpression',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'y'
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y]}) => x',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Literal',
+                        value: 'x'
+                      },
+                      value: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y + x]})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'ArrayExpression',
+                    elements: [
+                      {
+                        type: 'BinaryExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        operator: '+'
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {y: z}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'z'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {y: z}} = x)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'x'
+                    },
+                    value: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          value: {
+                            type: 'Identifier',
+                            name: 'z'
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {y: z}}) => x',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Literal',
+                        value: 'x'
+                      },
+                      value: {
+                        type: 'ObjectPattern',
+                        properties: [
+                          {
+                            type: 'Property',
+                            key: {
+                              type: 'Identifier',
+                              name: 'y'
+                            },
+                            value: {
+                              type: 'Identifier',
+                              name: 'z'
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: false
+                          }
+                        ]
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {a: y + x}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        value: {
+                          type: 'BinaryExpression',
+                          left: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'x'
+                          },
+                          operator: '+'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": 600})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 600
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({[a]:b}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({[a]:b, [15]:d}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 15
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: true,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {y}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x, {foo, bar} = doo',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'doo'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x, {foo = y, bar} = doo',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        value: {
+                          type: 'AssignmentPattern',
+                          left: {
+                            type: 'Identifier',
+                            name: 'foo'
+                          },
+                          right: {
+                            type: 'Identifier',
+                            name: 'y'
+                          }
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      },
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'bar'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'doo'
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {a, b} = y',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'AssignmentExpression',
+                left: {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                },
+                operator: '=',
+                right: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, b} = c = d)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'AssignmentExpression',
+                left: {
+                  type: 'Identifier',
+                  name: 'c'
+                },
+                operator: '=',
+                right: {
+                  type: 'Identifier',
+                  name: 'd'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({ x: x[Y] } = x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    value: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      computed: true,
+                      property: {
+                        type: 'Identifier',
+                        name: 'Y'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'a={"b":c=d}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'b'
+                    },
+                    value: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'Identifier',
+                        name: 'd'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a: 1, a: 2})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 2
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a: 1, b: 3, a: 2})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 3
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 2
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a: 1, a: 2, b: 3})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 2
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 3
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, a})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, a: 1})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                },
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      '({[foo](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({[foo]: x})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: true,
+                  value: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'const foo = { get ["bar"] () { }, };',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                },
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Literal',
+                        value: 'bar'
+                      },
+                      computed: true,
+                      value: {
+                        type: 'FunctionExpression',
+                        id: null,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        generator: false,
+
+                        async: false
+                      },
+                      kind: 'get',
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              }
+            ],
+            kind: 'const'
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'const foo = { async [key] () { } };',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                },
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'key'
+                      },
+                      computed: true,
+                      value: {
+                        type: 'FunctionExpression',
+                        id: null,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        generator: false,
+
+                        async: true
+                      },
+                      kind: 'init',
+                      method: true,
+                      shorthand: false
+                    }
+                  ]
+                }
+              }
+            ],
+            kind: 'const'
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({*[expr](){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'expr'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: true,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({*"cherow"(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'cherow'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: true,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({*99(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 99
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: true,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({*ident(d){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'ident'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'd'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: true,
+
+                    async: false
+                  },
+                  kind: 'init',
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(b, c){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a(){}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a: a={}})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      properties: []
+                    }
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'function *f(){   s = {"foo": yield /x/g}   }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  expression: {
+                    left: {
+                      name: 's',
+                      type: 'Identifier'
+                    },
+                    operator: '=',
+                    right: {
+                      properties: [
+                        {
+                          computed: false,
+                          key: {
+                            type: 'Literal',
+                            value: 'foo'
+                          },
+                          kind: 'init',
+                          method: false,
+                          shorthand: false,
+                          type: 'Property',
+                          value: {
+                            argument: {
+                              regex: {
+                                flags: 'g',
+                                pattern: 'x'
+                              },
+                              type: 'Literal',
+                              value: /x/g
+                            },
+                            delegate: false,
+                            type: 'YieldExpression'
+                          }
+                        }
+                      ],
+                      type: 'ObjectExpression'
+                    },
+                    type: 'AssignmentExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+
+            generator: true,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '({a:b})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '({a})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  ];
+  pass('Expressions - Object (pass)', valids);
 });
