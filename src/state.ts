@@ -1961,7 +1961,7 @@ function parseVariableDeclaration(
 ): any {
   let id = parseBindingIdentifierOrPattern(state, context, scope, type, origin, checkForDuplicates);
   let init: any = null;
-  if (optional(state, context, Token.Assign)) {
+  if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
     init = parseAssignmentExpression(state, context);
   } else if (
     type & Type.Const &&
@@ -2515,7 +2515,7 @@ function parseTemplateSpans(state: ParserState, context: Context): ESTree.Templa
  * @param Context Context masks
  */
 function parseArgumentList(state: ParserState, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
-  expect(state, context, Token.LeftParen);
+  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {

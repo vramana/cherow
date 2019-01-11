@@ -5,6 +5,87 @@ describe('Literal - Regexp', () => {});
 
 pass('Literal - Regexp (pass)', [
   [
+    'var UUID_REGEXP = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/;',
+    Context.Empty,
+    {
+      body: [
+        {
+          declarations: [
+            {
+              id: {
+                name: 'UUID_REGEXP',
+                type: 'Identifier'
+              },
+              init: {
+                regex: {
+                  flags: '',
+                  pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
+                },
+                type: 'Literal',
+                value: /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+              },
+              type: 'VariableDeclarator'
+            }
+          ],
+          kind: 'var',
+          type: 'VariableDeclaration'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    'str.replace(/^0*(.*)/, "$1") || "0";',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            left: {
+              arguments: [
+                {
+                  regex: {
+                    flags: '',
+                    pattern: '^0*(.*)'
+                  },
+                  type: 'Literal',
+                  value: /^0*(.*)/
+                },
+                {
+                  type: 'Literal',
+                  value: '$1'
+                }
+              ],
+              callee: {
+                computed: false,
+                object: {
+                  name: 'str',
+                  type: 'Identifier'
+                },
+                property: {
+                  name: 'replace',
+                  type: 'Identifier'
+                },
+                type: 'MemberExpression'
+              },
+              type: 'CallExpression'
+            },
+            operator: '||',
+            right: {
+              type: 'Literal',
+              value: '0'
+            },
+            type: 'LogicalExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
     '/foo/u',
     Context.Empty,
     {
