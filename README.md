@@ -20,9 +20,8 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 * JSX support via option.
 * Experimental feature support via option.
 * Optionally track syntactic node locations
-* Modular
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Very well tested (~46 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Very well tested (~26 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Supports all module loaders
 * Lightweight - ~70 KB minified (*18 kb smaller than Acorn*)
 
@@ -31,18 +30,10 @@ A very fast and lightweight, standards-compliant, self-hosted javascript parser 
 `Stage 3` features support. These need to be enabled with the `next` option.
 
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
-* [Class field declarations for JavaScript](https://github.com/tc39/proposal-class-fields)
-* ~~[Numeric Separators](https://github.com/tc39/proposal-numeric-separator)~~ (removed in 2.0, since it was back down to stage 2)
+* [Hashbang Grammar](https://github.com/tc39/proposal-hashbang)
 * [Private methods and getter/setters for JavaScript classes](https://github.com/tc39/proposal-private-methods)
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
-
-## Experimental features
-
-Experimental features support as in `NodeJS`. These need to be enabled with the `experimental` option.
-
-* [Decorators](https://github.com/tc39/proposal-decorators)
-* [Do-expressions](https://github.com/tc39/proposal-do-expressions)
 
 ## API
 
@@ -55,7 +46,7 @@ Here is a quick example to parse a script:
 
 ```js
 
-cherow.parseScript('x = async() => { for await (x of xs); }');
+cherow.parseScript('g_plane = chinese');
 
 // or
 
@@ -119,26 +110,16 @@ The second argument allows you to specify various options:
 | `loc`             | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `globalReturn`    | Allow return in the global scope |
-| `skipShebang`     | Allow to skip shebang - '#' |
+| `disableWebCompat` | Allows parsing without AnnexB |
 | `impliedStrict`   | Enable strict mode initial enforcement |
 | `next`            | Enable stage 3 support (*ESNext*)  |
 | `jsx`             | Enable React JSX parsing  |
-| `tolerant`        | Create a top-level error array containing all "skipped" errors |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `experimental`    | Enable experimental features
-| `raw`             | Attach raw property to each literal node    |
-| `rawIdentifier`   | Attach raw property to each identifier node    |
-| `node`            | Allow to bypass scoping when run in a NodejS environment |
-
-## Builds
-
-Cherow contains 3 different builds:
-
-| Name        | Description |
-| ----------- | ------------------------------------------------------------ |
-| `Stable`    | Stable release |
-| `Next`      | Has the `next` option enabled by default, and support all latest ECMAScript proposals. |
-| `Bleeding`  | The active development branch. You can and will expect bugs with this branch because it's not stable |
+| `raw`             | Attach raw property to each literal node and identifier node |
+| `native`          | Enable "native" NodeJS / V8 features |
+| `onComment`       | Accept either callback or array to collect comment |
+| `onToken`         | Accept either callback or array and returns each found token |
 
 ## Contributing
 
@@ -170,11 +151,6 @@ None of these parsers would fare any chance against the official Test262 suite, 
 
 We figured we could *try* do better. *We* are used in plural form because Cherow is developed by a main developer and two
 others "*behind the scenes*" that contributes with their knowledge whenever it's necessary.
-
-## Benchmark
-
-
-![](./media/benchmark.png)
 
 ---
 
