@@ -1,7 +1,7 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed } from './common';
+import { consumeOpt, consumeLineFeed, fromCodePoint } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
@@ -73,8 +73,9 @@ table[Chars.Zero] = (state, context) => {
       state.index = index + 1;
       state.column += 2;
       return scanBinaryOrOctalDigits(state, /* base */ 8);
+    } else if (index < state.length && (next >= Chars.Zero && next <= Chars.Seven)) {
+      return scanImplicitOctalDigits(state, context);
     }
-    return scanImplicitOctalDigits(state, context);
   }
   return scanNumeric(state, context);
 };

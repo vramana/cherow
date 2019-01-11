@@ -5,6 +5,60 @@ describe('Literal - Numbers', () => {});
 
 pass('Literal - Numbers (pass)', [
   [
+    '"use strict"; colNumber = Math.max(colNumber, 0);',
+    Context.Empty,
+    {
+      body: [
+        {
+          directive: 'use strict',
+          expression: {
+            type: 'Literal',
+            value: 'use strict'
+          },
+          type: 'ExpressionStatement'
+        },
+        {
+          expression: {
+            left: {
+              name: 'colNumber',
+              type: 'Identifier'
+            },
+            operator: '=',
+            right: {
+              arguments: [
+                {
+                  name: 'colNumber',
+                  type: 'Identifier'
+                },
+                {
+                  type: 'Literal',
+                  value: 0
+                }
+              ],
+              callee: {
+                computed: false,
+                object: {
+                  name: 'Math',
+                  type: 'Identifier'
+                },
+                property: {
+                  name: 'max',
+                  type: 'Identifier'
+                },
+                type: 'MemberExpression'
+              },
+              type: 'CallExpression'
+            },
+            type: 'AssignmentExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
     '123.22',
     Context.Empty,
     {

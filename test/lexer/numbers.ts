@@ -59,11 +59,6 @@ describe('Lexer - Numbers', () => {
     fail('fails on decimal integer followed by identifier', '3in1', Context.Empty);
     fail('fails on decimal integer followed by identifier', '3.e', Context.Empty);
     fail('fails on decimal integer followed by identifier', '3.e+abc', Context.Empty);
-    fail('fails on non octal decimal integer literal in strict mode', '00', Context.Strict);
-    fail('fails on non octal decimal integer literal in strict mode', '02', Context.Strict);
-    fail('fails on non octal decimal integer literal in strict mode', '08', Context.Strict);
-    fail('fails on non octal decimal integer literal in strict mode', '008', Context.Strict);
-    fail('fails on non octal decimal integer literal in strict mode', '09', Context.Strict);
     fail('fails on Binary-integer-literal-like sequence with a leading 0', '00b0;', Context.Empty);
     fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0o8', Context.Strict);
     fail('fails on Octal-integer-literal-like sequence containing an invalid digit', '0b3', Context.Strict);
