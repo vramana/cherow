@@ -8,6 +8,10 @@ describe('Expressions - Super', () => {});
 const inValids: Array<[string, Context]> = [
   // Esprima issue: https://github.com/jquery/esprima/issues/1784
   ['!{ a() { !function* (a = super.b()){} } };', Context.Empty],
+  ['async(foo) => { super.prop };', Context.Empty],
+  ['async (foo = super.foo) => { }', Context.Empty],
+  ['async(foo) => { super() };', Context.Empty],
+  ['(async function*() { super(); });', Context.Empty],
   ['super.property;', Context.Empty],
   ['class a extends b { c() { function* d(c = super.e()){} } }', Context.Empty],
   ['function* a(b){ super.c }', Context.Empty],
@@ -94,7 +98,122 @@ for (const arg of invalidSuperCall) {
   });
 }
 
+const SuperNewNoErrors = ['new super.x;', 'new super.x();', '() => new super.x;', '() => new super.x();'];
+
+for (const arg of SuperNewNoErrors) {
+  it(`class C { constructor() { ${arg} } }`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`class C { constructor() { ${arg} } }`, undefined, Context.Empty);
+    });
+  });
+
+  it(`class C { *method() { ${arg} } }`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`class C { *method() { ${arg} } }`, undefined, Context.Empty);
+    });
+  });
+
+  it(`class C { get x() { ${arg} } }`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`class C { get x() { ${arg} } }`, undefined, Context.Empty);
+    });
+  });
+
+  it(`class C { set x(_) { ${arg} } }`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`class C { set x(_) { ${arg} } }`, undefined, Context.Empty);
+    });
+  });
+
+  it(`({ method() { ${arg} } })`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`({ method() { ${arg} } })`, undefined, Context.Empty);
+    });
+  });
+
+  it(`({ *method() { ${arg} } })`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`({ *method() { ${arg} } })`, undefined, Context.Empty);
+    });
+  });
+
+  it(`(class C { get x() { ${arg} } })`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`(class C { get x() { ${arg} } })`, undefined, Context.Empty);
+    });
+  });
+
+  it(`(class C { set x(_) { ${arg} } })`, () => {
+    t.doesNotThrow(() => {
+      parseSource(`(class C { set x(_) { ${arg} } })`, undefined, Context.Empty);
+    });
+  });
+}
+
 pass('Expressions - Super (pass)', [
+  [
+    'class C { constructor() {new super.x; } }',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ClassDeclaration',
+          id: {
+            type: 'Identifier',
+            name: 'C'
+          },
+          superClass: null,
+          body: {
+            type: 'ClassBody',
+            body: [
+              {
+                type: 'MethodDefinition',
+                kind: 'constructor',
+                static: false,
+                computed: false,
+                key: {
+                  type: 'Identifier',
+                  name: 'constructor'
+                },
+                value: {
+                  type: 'FunctionExpression',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'NewExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Super'
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          },
+                          arguments: []
+                        }
+                      }
+                    ]
+                  },
+                  async: false,
+                  generator: false,
+                  id: null
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
   [
     'class x extends y { constructor() { } }',
     Context.Empty,
