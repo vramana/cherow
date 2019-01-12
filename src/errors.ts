@@ -65,7 +65,8 @@ export const enum Errors {
   InvalidSuperProperty,
   DuplicateConstructor,
   StrictFunctionName,
-  StaticPrototype
+  StaticPrototype,
+  InvalidConstructor
 }
 
 /*@internal*/
@@ -137,7 +138,8 @@ export const errorMessages: {
   [Errors.UnexpectedToken]: "Unexpected token '%0'",
   [Errors.DuplicateConstructor]: 'Duplicate constructor method in class',
   [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode',
-  [Errors.StaticPrototype]: "Classes may not have a static property named 'prototype'"
+  [Errors.StaticPrototype]: "Classes may not have a static property named 'prototype'",
+  [Errors.InvalidConstructor]: 'Class constructor may not be a %0'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

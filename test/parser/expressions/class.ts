@@ -23,10 +23,16 @@ describe('Expressions - Class', () => {
     '*method([...x = []] = []) {}',
     '*method([...{ x }, y]) {}',
     '*method([...[x], y]) {}',
-    'class a{ "constructor"() {} constructor() {} }',
-    'class a{ constructor() {} constructor() {} }',
-    'class a{ "constructor"() {} "constructor"() {} }',
-    'class a{ "constructor"() {} foo() {} bar() {} constructor() {} }',
+    '"constructor"() {} constructor() {}',
+    'constructor() {} constructor() {}',
+    '"constructor"() {} "constructor"() {}',
+    '"constructor"(){}; constructor(){};',
+    '\'constructor\'(){}; "constructor"(){};',
+    '`constructor`(){} }',
+    '"constructor"(){}; constructor(){}; }',
+    '"constructor"() {} foo() {} bar() {} constructor() {} }',
+    '*"constructor"(){}',
+    'async "constructor"(){}',
     'static async *method([...{ x }, y] = [1, 2, 3]) {}',
     'static async *method([...x, y] = [1, 2, 3]) {}',
     'static async *method([...[x], y] = [1, 2, 3]) {}',
@@ -318,7 +324,7 @@ describe('Expressions - Class', () => {
     ['class x {foo = x}', Context.Empty],
     ['class x {foo: x}', Context.Empty],
     ['class x { async [x]s){}}', Context.Empty],
-    // ['class X extends function(){ with(obj); } {}', Context.Empty],
+    ['class X extends function(){ with(obj); } {}', Context.Empty],
     ['class let {}`;', Context.Empty],
     ['class A {async get foo(){}}', Context.Empty],
     ['class A {* get foo(){}}', Context.Empty],
@@ -332,6 +338,7 @@ describe('Expressions - Class', () => {
     ['class A {* get 8(){}}', Context.Empty],
     ['class A {async set 11(x){}}', Context.Empty],
     ['class A {* set 12(x){}}', Context.Empty],
+    //    ['typeof class{}\n/foo/', Context.Empty],
     [
       `class C extends (function B() {
       with ({});
@@ -429,6 +436,53 @@ describe('Expressions - Class', () => {
         ],
         sourceType: 'script',
         type: 'Program'
+      }
+    ],
+    [
+      `class A {static static(){};};`,
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                }
+              ]
+            }
+          },
+          {
+            type: 'EmptyStatement'
+          }
+        ],
+        sourceType: 'script'
       }
     ],
     [
@@ -6094,6 +6148,174 @@ describe('Expressions - Class', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    /* [
+      'typeof class{}\n/foo/g',
+      Context.Empty,
+      {}],
+      [
+        'typeof class{}\n/foo/g',
+        Context.Empty,
+        {}],
+        [
+          'typeof class{}\n/foo/g',
+          Context.Empty,
+          {}],
+          [
+            'typeof class{}\n/foo/g',
+            Context.Empty,
+            {}],
+            [
+              'typeof class{}\n/foo/g',
+              Context.Empty,
+              {}],*/
+    [
+      'typeof class{}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  argument: {
+                    body: {
+                      body: [],
+                      type: 'ClassBody'
+                    },
+                    id: null,
+                    superClass: null,
+                    type: 'ClassExpression'
+                  },
+                  operator: 'typeof',
+                  prefix: true,
+                  type: 'UnaryExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'g',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      '(class{} \n / foo / g)',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  body: {
+                    body: [],
+                    type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'g',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'class x{}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          },
+          {
+            expression: {
+              regex: {
+                flags: 'g',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/g
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'class x{}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          },
+          {
+            expression: {
+              regex: {
+                flags: '',
+                pattern: 'foo'
+              },
+              type: 'Literal',
+              value: /foo/
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

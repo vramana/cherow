@@ -84,7 +84,8 @@ export const enum Origin {
   CatchClause = 1 << 3,
   AsyncArgs = 1 << 4,
   ArgList = 1 << 5,
-  ClassExprDecl = 1 << 6
+  ClassExprDecl = 1 << 6,
+  Declaration = 1 << 7
 }
 
 /*@internal*/

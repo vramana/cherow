@@ -5371,32 +5371,25 @@ describe('Declarations - Function', () => {
         type: 'Program'
       }
     ],
+
     [
-      'typeof function f(){}\n/foo/',
+      'function f(){}\n/foo/',
       Context.Empty,
       {
         body: [
           {
-            expression: {
-              argument: {
-                async: false,
-                body: {
-                  body: [],
-                  type: 'BlockStatement'
-                },
-                generator: false,
-                id: {
-                  name: 'f',
-                  type: 'Identifier'
-                },
-                params: [],
-                type: 'FunctionExpression'
-              },
-              operator: 'typeof',
-              prefix: true,
-              type: 'UnaryExpression'
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
             },
-            type: 'ExpressionStatement'
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
           },
           {
             expression: {
@@ -5415,31 +5408,23 @@ describe('Declarations - Function', () => {
       }
     ],
     [
-      'typeof function f(){}\n/foo/g',
+      'function f(){}\n/foo/g',
       Context.Empty,
       {
         body: [
           {
-            expression: {
-              argument: {
-                async: false,
-                body: {
-                  body: [],
-                  type: 'BlockStatement'
-                },
-                generator: false,
-                id: {
-                  name: 'f',
-                  type: 'Identifier'
-                },
-                params: [],
-                type: 'FunctionExpression'
-              },
-              operator: 'typeof',
-              prefix: true,
-              type: 'UnaryExpression'
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
             },
-            type: 'ExpressionStatement'
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
           },
           {
             expression: {
@@ -5449,6 +5434,102 @@ describe('Declarations - Function', () => {
               },
               type: 'Literal',
               value: /foo/g
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'typeof function f(){}\n/foo/',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  argument: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: {
+                      name: 'f',
+                      type: 'Identifier'
+                    },
+                    params: [],
+                    type: 'FunctionExpression'
+                  },
+                  operator: 'typeof',
+                  prefix: true,
+                  type: 'UnaryExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'foo',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'typeof function f(){}\n/foo/g',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                left: {
+                  argument: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: {
+                      name: 'f',
+                      type: 'Identifier'
+                    },
+                    params: [],
+                    type: 'FunctionExpression'
+                  },
+                  operator: 'typeof',
+                  prefix: true,
+                  type: 'UnaryExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              operator: '/',
+              right: {
+                name: 'g',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
             },
             type: 'ExpressionStatement'
           }
