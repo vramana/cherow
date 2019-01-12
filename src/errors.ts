@@ -64,7 +64,8 @@ export const enum Errors {
   SuperNoConstructor,
   InvalidSuperProperty,
   DuplicateConstructor,
-  StrictFunctionName
+  StrictFunctionName,
+  StaticPrototype
 }
 
 /*@internal*/
@@ -135,7 +136,8 @@ export const errorMessages: {
   [Errors.InvalidSuperProperty]: 'Member access on super must be in a method',
   [Errors.UnexpectedToken]: "Unexpected token '%0'",
   [Errors.DuplicateConstructor]: 'Duplicate constructor method in class',
-  [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode'
+  [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode',
+  [Errors.StaticPrototype]: "Classes may not have a static property named 'prototype'"
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

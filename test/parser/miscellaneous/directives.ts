@@ -186,6 +186,351 @@ describe('Miscellaneous - Directives', () => {
       }
     ],
     [
+      '"foo"\nx',
+      Context.OptionsDirectives | Context.OptionsRaw,
+
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            expression: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"foo";"bar";',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '\'foo\';\n"bar";',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"foo";\n\'bar\';',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"foo";/*abc\nxyz*/"bar";',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"ignore me" + x',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'ignore me',
+            expression: {
+              left: {
+                type: 'Literal',
+                value: 'ignore me'
+              },
+              operator: '+',
+              right: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `function f(){\n'foo';\n}`,
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  directive: 'foo',
+                  expression: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'function f(){\n"foo"\n}',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  directive: 'foo',
+                  expression: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'function f(){\n"foo"\n// stuff here\n"bar";\n}',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  directive: 'foo',
+                  expression: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  directive: 'bar',
+                  expression: {
+                    type: 'Literal',
+                    value: 'bar'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"foo";\n"bar";',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '\'foo\';\n"bar";',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'foo',
+            expression: {
+              type: 'Literal',
+              value: 'foo'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            directive: 'bar',
+            expression: {
+              type: 'Literal',
+              value: 'bar'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '"ignore me"\n++x',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            directive: 'ignore me',
+            expression: {
+              type: 'Literal',
+              value: 'ignore me'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            expression: {
+              argument: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              operator: '++',
+              prefix: true,
+              type: 'UpdateExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       '("use strict"); foo = 42;',
       Context.OptionsDirectives | Context.OptionsRaw,
       {
@@ -282,6 +627,72 @@ describe('Miscellaneous - Directives', () => {
             ]
           }
         ]
+      }
+    ],
+    [
+      "function f(){\n'foo';\n}",
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  directive: 'foo',
+                  expression: {
+                    type: 'Literal',
+                    value: 'foo'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '() => { "use strict"; }',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            expression: {
+              async: false,
+              body: {
+                body: [
+                  {
+                    directive: 'use strict',
+                    expression: {
+                      type: 'Literal',
+                      value: 'use strict'
+                    },
+                    type: 'ExpressionStatement'
+                  }
+                ],
+                type: 'BlockStatement'
+              },
+              expression: false,
+              id: null,
+              params: [],
+              type: 'ArrowFunctionExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

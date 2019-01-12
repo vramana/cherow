@@ -333,6 +333,13 @@ describe('Expressions - Class', () => {
     ['class A {async set 11(x){}}', Context.Empty],
     ['class A {* set 12(x){}}', Context.Empty],
     [
+      `class C extends (function B() {
+      with ({});
+      return B;
+    }()) {}`,
+      Context.Empty
+    ],
+    [
       `
     class A { b() {
       const A = 3;
@@ -376,12 +383,186 @@ describe('Expressions - Class', () => {
     ['class x{static set *"foo"(a){}}', Context.Empty],
     ['class x{static set *555(a){}}', Context.Empty],
     ['class x{static set *%x(a){}}', Context.Empty],
-    ['class x{static async *%x(a){}}', Context.Empty]
+    ['class x{static async *%x(a){}}', Context.Empty],
+    ['class A { ["async"] a() {} }', Context.Empty],
+    ['class A { ["get"] a() {} }', Context.Empty],
+    ['class A { static *prototype() {} }', Context.Empty],
+    ['class A { static prototype() {} }', Context.Empty]
   ];
 
   fail('Expressions - Class', inValids);
 
   pass('Expressions - Class (pass)', [
+    [
+      `x = class{} / foo`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                name: 'x',
+                type: 'Identifier'
+              },
+              operator: '=',
+              right: {
+                left: {
+                  body: {
+                    body: [],
+                    type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              },
+              type: 'AssignmentExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `x = class{}
+          / foo / g`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'ClassExpression',
+                    id: null,
+                    superClass: null,
+                    body: {
+                      type: 'ClassBody',
+                      body: []
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  operator: '/'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'g'
+                },
+                operator: '/'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(x = class{} / foo)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'ClassExpression',
+                  id: null,
+                  superClass: null,
+                  body: {
+                    type: 'ClassBody',
+                    body: []
+                  }
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'foo'
+                },
+                operator: '/'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x = class{}
+                / foo / g)`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'ClassExpression',
+                    id: null,
+                    superClass: null,
+                    body: {
+                      type: 'ClassBody',
+                      body: []
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  operator: '/'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'g'
+                },
+                operator: '/'
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       'class A extends B { *get() {} }',
       Context.Empty,
@@ -6889,6 +7070,377 @@ describe('Expressions - Class', () => {
             }
           }
         ]
+      }
+    ],
+    [
+      `class A {
+        get
+        () {}
+
+        set
+        () {}
+
+        static
+        () {}
+
+        async
+        () {}
+
+
+        'get'
+        () {}
+
+        'set'
+        () {}
+
+        'async'
+        () {}
+
+
+        static
+        get
+        () {}
+
+        static
+        set
+        () {}
+
+        static
+        static
+        () {}
+
+        static
+        async
+        () {}
+
+        static
+        a
+        () {}
+
+
+        get
+        async
+        () {}
+
+
+        static
+        get
+        static
+        () {}
+      }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'set'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Literal',
+                    value: 'get'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Literal',
+                    value: 'set'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Literal',
+                    value: 'async'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'set'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'method',
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'get',
+                  static: false
+                },
+                {
+                  type: 'MethodDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'static'
+                  },
+                  computed: false,
+                  value: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    generator: false,
+                    async: false
+                  },
+                  kind: 'get',
+                  static: true
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
       }
     ],
     [
