@@ -135,6 +135,56 @@ describe('Miscellaneous - Directives', () => {
   }
 
   pass('Miscellaneous - Directives', [
+    // Acorn issue: https://github.com/acornjs/acorn/issues/775
+    [
+      `function foo() {
+        ; 'use strict';
+        with (a) {}
+      }`,
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [
+                {
+                  type: 'EmptyStatement'
+                },
+                {
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict'
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  body: {
+                    body: [],
+                    type: 'BlockStatement'
+                  },
+                  object: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  type: 'WithStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'foo',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       '("use strict"); foo = 42;',
       Context.OptionsDirectives | Context.OptionsRaw,
