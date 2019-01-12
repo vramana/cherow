@@ -4,6 +4,7 @@ import { RegexpState } from './scanner/common';
 /*@internal*/
 export const enum Errors {
   Unexpected,
+  UnexpectedToken,
   NothingToRepat,
   AtEndOfPattern,
   InvalidPropertyName,
@@ -129,7 +130,8 @@ export const errorMessages: {
     'Unary expressions as the left operand of an exponentation expression must be disambiguated with parentheses',
   [Errors.SuperNoConstructor]:
     'Calls to super must be in the "constructor" method of a class expression or class declaration that has a superclass',
-  [Errors.InvalidSuperProperty]: 'Member access on super must be in a method'
+  [Errors.InvalidSuperProperty]: 'Member access on super must be in a method',
+  [Errors.UnexpectedToken]: "Unexpected token '%0'"
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

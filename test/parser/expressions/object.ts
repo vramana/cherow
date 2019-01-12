@@ -358,6 +358,89 @@ describe('Expressions - Object', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      "({a:0, get 'b'(){}, set 3(d){}})",
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              properties: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  kind: 'init',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: 'b'
+                  },
+                  kind: 'get',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    type: 'Literal',
+                    value: 3
+                  },
+                  kind: 'set',
+                  method: false,
+                  shorthand: false,
+                  type: 'Property',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [
+                      {
+                        name: 'd',
+                        type: 'Identifier'
+                      }
+                    ],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ObjectExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
       'x={async f(){ let f }}',
       Context.Empty,
       {
