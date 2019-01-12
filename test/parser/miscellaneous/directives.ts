@@ -42,8 +42,7 @@ describe('Miscellaneous - Directives', () => {
     '"use strict"; function hello() { "\\0123"; }',
     'function hello() { "use strict"; "\\000"; }',
     'function hello() { "use strict"; "\\00"; }',
-    'function hello() { "use strict"; "\\0123"; }',
-    'function hello("\\000008") { "use strict"; }'
+    'function hello() { "use strict"; "\\0123"; }'
   ];
 
   for (const arg of InvalidSyntax) {

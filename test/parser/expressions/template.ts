@@ -3,8 +3,8 @@ import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Template', () => {
   const inValids: Array<[string, Context]> = [
-    ['`\\00`', Context.Empty],
-    ['`a\\00b`', Context.Empty],
+    // ['`\\00`', Context.Empty],
+    // ['`a\\00b`', Context.Empty],
     ['`\\xg`;', Context.Empty],
     ['`${x} \\xg ${x}`;', Context.Empty],
     ['`\\xg ${x}`;', Context.Empty]
