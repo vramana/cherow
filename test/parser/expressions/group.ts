@@ -1,600 +1,971 @@
 import { Context } from '../../../src/common';
 import { pass } from '../../test-utils';
 
-describe('Expressions - Group', () => {
+describe('Expressions - Array', () => {});
 
-  // valid tests
-const valids: Array < [string, string, Context, any] > = [
-
-  ['(0, a)', '(0, a)', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
+pass('Expressions - Array (pass)', [
+  [
+    '(a)',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
         {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'SequenceExpression',
-                'expressions': [
-                    {
-                        'type': 'Literal',
-                        raw: null,
-                        'value': 0,
-                        'start': 1,
-                        'end': 2
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'a',
-                        'start': 4,
-                        'end': 5
-                    }
-                ],
-                'start': 1,
-                'end': 5
-            },
-            'start': 0,
-            'end': 6
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'Identifier',
+            name: 'a'
+          }
         }
-    ],
-    'start': 0,
-    'end': 6
-}],
-  ['(a, 0)', '(a, 0)', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'SequenceExpression',
-                'expressions': [
-                    {
-                        'type': 'Identifier',
-                        'name': 'a',
-                        'start': 1,
-                        'end': 2
-                    },
-                    {
-                        'type': 'Literal',
-                        raw: null,
-                        'value': 0,
-                        'start': 4,
-                        'end': 5
-                    }
-                ],
-                'start': 1,
-                'end': 5
-            },
-            'start': 0,
-            'end': 6
-        }
-    ],
-    'start': 0,
-    'end': 6
-}],
-  ['((a,a),(a,a))', '((a,a),(a,a))', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'SequenceExpression',
-                'expressions': [
-                    {
-                        'type': 'SequenceExpression',
-                        'expressions': [
-                            {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 2,
-                                'end': 3
-                            },
-                            {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 4,
-                                'end': 5
-                            }
-                        ],
-                        'start': 2,
-                        'end': 5
-                    },
-                    {
-                        'type': 'SequenceExpression',
-                        'expressions': [
-                            {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 8,
-                                'end': 9
-                            },
-                            {
-                                'type': 'Identifier',
-                                'name': 'a',
-                                'start': 10,
-                                'end': 11
-                            }
-                        ],
-                        'start': 8,
-                        'end': 11
-                    }
-                ],
-                'start': 1,
-                'end': 12
-            },
-            'start': 0,
-            'end': 13
-        }
-    ],
-    'start': 0,
-    'end': 13
-}],
-  ['(a)', '(a)', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'Identifier',
-                'name': 'a',
-                'start': 1,
-                'end': 2
-            },
-            'start': 0,
-            'end': 3
-        }
-    ],
-    'start': 0,
-    'end': 3
-}],
-  ['(a, b, c)', '(a, b, c)', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'SequenceExpression',
-                'expressions': [
-                    {
-                        'type': 'Identifier',
-                        'name': 'a',
-                        'start': 1,
-                        'end': 2
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'b',
-                        'start': 4,
-                        'end': 5
-                    },
-                    {
-                        'type': 'Identifier',
-                        'name': 'c',
-                        'start': 7,
-                        'end': 8
-                    }
-                ],
-                'start': 1,
-                'end': 8
-            },
-            'start': 0,
-            'end': 9
-        }
-    ],
-    'start': 0,
-    'end': 9
-}],
-['(1, a, 2)', '(1, a, 2)', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'SequenceExpression',
-              'expressions': [
-                  {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 1,
-                      'start': 1,
-                      'end': 2
-                  },
-                  {
-                      'type': 'Identifier',
-                      'name': 'a',
-                      'start': 4,
-                      'end': 5
-                  },
-                  {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 2,
-                      'start': 7,
-                      'end': 8
-                  }
-              ],
-              'start': 1,
-              'end': 8
-          },
-          'start': 0,
-          'end': 9
-      }
+      ]
+    }
   ],
-  'start': 0,
-  'end': 9
-}],
-['(/x/)', '(/x/)', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'Literal',
-              'value': {},
-              'regex': {
-                  'pattern': 'x',
-                  'flags': ''
+  [
+    '(x.foo)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'MemberExpression',
+            computed: false,
+            object: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            property: {
+              type: 'Identifier',
+              name: 'foo'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(x + foo)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            operator: '+',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'foo'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(x.foo = y)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'MemberExpression',
+              computed: false,
+              object: {
+                type: 'Identifier',
+                name: 'x'
               },
-              'start': 1,
-              'end': 4
-          },
-          'start': 0,
-          'end': 5
-      }
-  ],
-  'start': 0,
-  'end': 5
-}],
-['(x, /x/)', '(x, /x/)', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'SequenceExpression',
-              'expressions': [
-                  {
-                      'type': 'Identifier',
-                      'name': 'x',
-                      'start': 1,
-                      'end': 2
-                  },
-                  {
-                      'type': 'Literal',
-                      'value': {},
-                      'regex': {
-                          'pattern': 'x',
-                          'flags': ''
-                      },
-                      'start': 4,
-                      'end': 7
-                  }
-              ],
-              'start': 1,
-              'end': 7
-          },
-          'start': 0,
-          'end': 8
-      }
-  ],
-  'start': 0,
-  'end': 8
-}],
-['(x, /x/g)', '(x, /x/g)', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'SequenceExpression',
-              'expressions': [
-                  {
-                      'type': 'Identifier',
-                      'name': 'x',
-                      'start': 1,
-                      'end': 2
-                  },
-                  {
-                      'type': 'Literal',
-                      'value': {},
-                      'regex': {
-                          'pattern': 'x',
-                          'flags': 'g'
-                      },
-                      'start': 4,
-                      'end': 8
-                  }
-              ],
-              'start': 1,
-              'end': 8
-          },
-          'start': 0,
-          'end': 9
-      }
-  ],
-  'start': 0,
-  'end': 9
-}],
-['(x) / y', '(x) / y', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'BinaryExpression',
-              'left': {
-                  'type': 'Identifier',
-                  'name': 'x',
-                  'start': 1,
-                  'end': 2
-              },
-              'right': {
-                  'type': 'Identifier',
-                  'name': 'y',
-                  'start': 6,
-                  'end': 7
-              },
-              'operator': '/',
-              'start': 0,
-              'end': 7
-          },
-          'start': 0,
-          'end': 7
-      }
-  ],
-  'start': 0,
-  'end': 7
-}],
-['a, (1, b, 2)', 'a, (1, b, 2)', Context.OptionsRanges, {
-  'type': 'Program',
-  'sourceType': 'script',
-  'body': [
-      {
-          'type': 'ExpressionStatement',
-          'expression': {
-              'type': 'SequenceExpression',
-              'expressions': [
-                  {
-                      'type': 'Identifier',
-                      'name': 'a',
-                      'start': 0,
-                      'end': 1
-                  },
-                  {
-                      'type': 'SequenceExpression',
-                      'expressions': [
-                          {
-                              'type': 'Literal',
-                              raw: null,
-                              'value': 1,
-                              'start': 4,
-                              'end': 5
-                          },
-                          {
-                              'type': 'Identifier',
-                              'name': 'b',
-                              'start': 7,
-                              'end': 8
-                          },
-                          {
-                              'type': 'Literal',
-                              raw: null,
-                              'value': 2,
-                              'start': 10,
-                              'end': 11
-                          }
-                      ],
-                      'start': 4,
-                      'end': 11
-                  }
-              ],
-              'start': 0,
-              'end': 12
-          },
-          'start': 0,
-          'end': 12
-      }
-  ],
-  'start': 0,
-  'end': 12
-}],
-['(void /=/g/m.x);', '(void /=/g/m.x);', Context.OptionsRanges, {
-    'body': [
-      {
-        'end': 16,
-        'expression': {
-          'end': 14,
-          'left': {
-            'argument': {
-              'end': 10,
-              'regex': {
-                'flags': 'g',
-                'pattern': '=',
-              },
-              'start': 6,
-              'type': 'Literal',
-              'value': /=/g,
+              property: {
+                type: 'Identifier',
+                name: 'foo'
+              }
             },
-            'end': 10,
-            'operator': 'void',
-            'prefix': true,
-            'start': 1,
-            'type': 'UnaryExpression',
-          },
-          'operator': '/',
-          'right': {
-            'computed': false,
-            'end': 14,
-            'object': {
-              'end': 12,
-              'name': 'm',
-              'start': 11,
-              'type': 'Identifier',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(typeof x)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'UnaryExpression',
+            operator: 'typeof',
+            argument: {
+              type: 'Identifier',
+              name: 'x'
             },
-            'property': {
-              'end': 14,
-              'name': 'x',
-              'start': 13,
-              'type': 'Identifier',
-            },
-            'start': 11,
-            'type': 'MemberExpression',
-          },
-          'start': 1,
-          'type': 'BinaryExpression',
-        },
-        'start': 0,
-        'type': 'ExpressionStatement',
-      },
-    ],
-    'end': 16,
-    'sourceType': 'script',
-    'start': 0,
-    'type': 'Program',
-  }],
-['([delete /a/.x]);', '([delete /a/.x]);', Context.OptionsRanges, {
-    'body': [
-      {
-        'end': 17,
-        'expression': {
-          'elements': [
-            {
-              'argument': {
-                'computed': false,
-                'end': 14,
-                'object': {
-                  'end': 12,
-                  'regex': {
-                    'flags': '',
-                    'pattern': 'a',
-                  },
-                  'start': 9,
-                  'type': 'Literal',
-                  'value': /a/,
+            prefix: true
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  // ['((x));', Context.Empty, {}],
+  [
+    '(a = 1, b = 2);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'SequenceExpression',
+            expressions: [
+              {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'Identifier',
+                  name: 'a'
                 },
-                'property': {
-                  'end': 14,
-                  'name': 'x',
-                  'start': 13,
-                  'type': 'Identifier',
+                right: {
+                  type: 'Literal',
+                  value: 1
+                }
+              },
+              {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'Identifier',
+                  name: 'b'
                 },
-                'start': 9,
-                'type': 'MemberExpression',
+                right: {
+                  type: 'Literal',
+                  value: 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a) = 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a.b) = 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'MemberExpression',
+              computed: false,
+              object: {
+                type: 'Identifier',
+                name: 'a'
               },
-              'end': 14,
-              'operator': 'delete',
-              'prefix': true,
-              'start': 2,
-              'type': 'UnaryExpression',
+              property: {
+                type: 'Identifier',
+                name: 'b'
+              }
             },
-          ],
-          'end': 15,
-          'start': 1,
-          'type': 'ArrayExpression',
-        },
-        'start': 0,
-        'type': 'ExpressionStatement',
-      },
-    ],
-    'end': 17,
-    'sourceType': 'script',
-    'start': 0,
-    'type': 'Program',
-  }],
-['(delete /a/g.x);', '(delete /a/g.x);', Context.OptionsRanges, {
-    'body': [
-      {
-       'end': 16,
-        'expression': {
-          'argument': {
-            'computed': false,
-            'end': 14,
-            'object': {
-              'end': 12,
-              'regex': {
-                'flags': 'g',
-                'pattern': 'a',
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a[b]) = 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'MemberExpression',
+              computed: true,
+              object: {
+                type: 'Identifier',
+                name: 'a'
               },
-              'start': 8,
-              'type': 'Literal',
-              'value': /a/g,
+              property: {
+                type: 'Identifier',
+                name: 'b'
+              }
             },
-            'property': {
-              'end': 14,
-              'name': 'x',
-              'start': 13,
-              'type': 'Identifier',
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  //['(a.b().c().d) = 1;', Context.Empty, {}],
+  [
+    '(a[b]) = 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'MemberExpression',
+              computed: true,
+              object: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'b'
+              }
             },
-            'start': 8,
-            'type': 'MemberExpression',
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a) += 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a.b) += 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'MemberExpression',
+              computed: false,
+              object: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'b'
+              }
+            },
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a[b]) += 1;',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'MemberExpression',
+              computed: true,
+              object: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'b'
+              }
+            },
+            right: {
+              type: 'Literal',
+              value: 1
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  // ['(a.b().c().d) += 1;', Context.Empty, {}],
+  [
+    '(delete foo.bar);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'UnaryExpression',
+            operator: 'delete',
+            argument: {
+              type: 'MemberExpression',
+              computed: false,
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'bar'
+              }
+            },
+            prefix: true
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '([delete foo.bar]);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'UnaryExpression',
+                operator: 'delete',
+                argument: {
+                  type: 'MemberExpression',
+                  computed: false,
+                  object: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  }
+                },
+                prefix: true
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '([target()[targetKey(a=b)]] = x);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  computed: true,
+                  object: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'target'
+                    },
+                    arguments: []
+                  },
+                  property: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'targetKey'
+                    },
+                    arguments: [
+                      {
+                        type: 'AssignmentExpression',
+                        operator: '=',
+                        left: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'b'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '([a.b] = x);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  computed: false,
+                  object: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(void x)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'UnaryExpression',
+            operator: 'void',
+            argument: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            prefix: true
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '[].length',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'MemberExpression',
+            computed: false,
+            object: {
+              type: 'ArrayExpression',
+              elements: []
+            },
+            property: {
+              type: 'Identifier',
+              name: 'length'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(x = y)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(a, b)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'SequenceExpression',
+            expressions: [
+              {
+                type: 'Identifier',
+                name: 'a'
+              },
+              {
+                type: 'Identifier',
+                name: 'b'
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '([a / b]);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'BinaryExpression',
+                operator: '/',
+                left: {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'b'
+                }
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '([a \n/b/g]);',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            elements: [
+              {
+                left: {
+                  left: {
+                    name: 'a',
+                    type: 'Identifier'
+                  },
+                  operator: '/',
+                  right: {
+                    name: 'b',
+                    type: 'Identifier'
+                  },
+                  type: 'BinaryExpression'
+                },
+                operator: '/',
+                right: {
+                  name: 'g',
+                  type: 'Identifier'
+                },
+                type: 'BinaryExpression'
+              }
+            ],
+            type: 'ArrayExpression'
           },
-          'end': 14,
-          'operator': 'delete',
-          'prefix': true,
-         'start': 1,
-          'type': 'UnaryExpression',
-        },
-        'start': 0,
-        'type': 'ExpressionStatement'
-      }
-    ],
-    'end': 16,
-    'sourceType': 'script',
-    'start': 0,
-    'type': 'Program'
-  }],
-['(delete /a/.x);', '(delete /a/.x);', Context.OptionsRanges, {
-    'body': [
-      {
-        'end': 15,
-        'expression': {
-          'argument': {
-            'computed': false,
-            'end': 13,
-            'object': {
-              'end': 11,
-              'regex': {
-                'flags': '',
-                'pattern': 'a',
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
+    '(++x);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'UpdateExpression',
+            operator: '++',
+            argument: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            prefix: true
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    'delete (foo)',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'UnaryExpression',
+            operator: 'delete',
+            argument: {
+              type: 'Identifier',
+              name: 'foo'
+            },
+            prefix: true
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(++x, y);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'SequenceExpression',
+            expressions: [
+              {
+                type: 'UpdateExpression',
+                operator: '++',
+                argument: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                prefix: true
               },
-              'start': 8,
-              'type': 'Literal',
-              'value': /a/,
-            },
-            'property': {
-              'end': 13,
-              'name': 'x',
-              'start': 12,
-              'type': 'Identifier',
-            },
-           'start': 8,
-            'type': 'MemberExpression',
-          },
-          'end': 13,
-          'operator': 'delete',
-         'prefix': true,
-          'start': 1,
-          'type': 'UnaryExpression',
-        },
-       'start': 0,
-        'type': 'ExpressionStatement'
+              {
+                type: 'Identifier',
+                name: 'y'
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  /* ['(x--);', Context.Empty, {
+  "type": "Program",
+  "body": [
+      {
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "UpdateExpression",
+              "operator": "--",
+              "argument": {
+                  "type": "Identifier",
+                  "name": "x"
+              },
+              "prefix": false
+          }
       }
-    ],
-    'end': 15,
-    'sourceType': 'script',
-    'start': 0,
-    'type': 'Program'
-  }],
-];
-
-pass('Expressions - Group (pass)', valids);
-
-});
+  ],
+  "sourceType": "script"
+}],*/
+  /* ['(x--, y);', Context.Empty, {
+  "type": "Program",
+  "body": [
+      {
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "SequenceExpression",
+              "expressions": [
+                  {
+                      "type": "UpdateExpression",
+                      "operator": "--",
+                      "argument": {
+                          "type": "Identifier",
+                          "name": "x"
+                      },
+                      "prefix": false
+                  },
+                  {
+                      "type": "Identifier",
+                      "name": "y"
+                  }
+              ]
+          }
+      }
+  ],
+  "sourceType": "script"
+}],
+['(a=1)=2', Context.Empty, {
+  "type": "Program",
+  "body": [
+      {
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                  "type": "AssignmentPattern",
+                  "left": {
+                      "type": "Identifier",
+                      "name": "a"
+                  },
+                  "right": {
+                      "type": "Literal",
+                      "value": 1,
+                  }
+              },
+              "right": {
+                  "type": "Literal",
+                  "value": 2,
+                  "raw": "2"
+              }
+          }
+      }
+  ],
+  "sourceType": "script"
+}],*/
+  [
+    '([].x);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'MemberExpression',
+            computed: false,
+            object: {
+              type: 'ArrayExpression',
+              elements: []
+            },
+            property: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(x + y) >= z',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'BinaryExpression',
+            operator: '>=',
+            left: {
+              type: 'BinaryExpression',
+              operator: '+',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'Identifier',
+                name: 'y'
+              }
+            },
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
+  [
+    '(x &= 42)',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            operator: '&=',
+            right: {
+              type: 'Literal',
+              value: 42
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '([a])',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'a'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+]);

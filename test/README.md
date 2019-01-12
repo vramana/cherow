@@ -1,3 +1,3 @@
 ## Cherow test suite
 
-Runs ~45 000 tests
+Runs ~18 000 tests

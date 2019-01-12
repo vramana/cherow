@@ -1,459 +1,618 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import { parseSource } from '../../../src/cherow';
+import * as t from 'assert';
 
 describe('Expressions - Exponentiation', () => {
+  const inValids: Array<[string, Context]> = [
+    ['(async function f() { (await x ** y) }', Context.Empty],
+    ['(-x ** 2)', Context.Empty],
+    ['(+x ** 2)', Context.Empty],
+    ['(~3 ** 2)', Context.Empty],
+    ['(typeof 3 ** 2)', Context.Empty],
+    ['(delete 3 ** 2)', Context.Empty],
+    ['(!3 ** 2)', Context.Empty],
+    ['-x ** 2;', Context.Empty],
+    ['+x ** 2;', Context.Empty],
+    ['delete 3 ** 2;', Context.Empty],
+    ['!3 ** 2;', Context.Empty],
+    ['typeof 3 ** 2;', Context.Empty],
+    ['~3 ** 2;', Context.Empty]
+  ];
+  fail('Expressions - Template', inValids);
 
-  // valid tests
-const valids: Array < [string, string, Context, any] > = [
+  const validSyntax = [
+    '(delete O.p) ** 10',
+    '(delete x) ** 10',
+    '(~O.p) ** 10',
+    '(~x) ** 10',
+    '(!O.p) ** 10',
+    '(!x) ** 10',
+    '(+O.p) ** 10',
+    '(+x) ** 10',
+    '(-O.p) ** 10',
+    'x ** y ** z',
+    '++x ** y',
+    '(-x) ** y',
+    '-(x ** y)',
+    '(-x) ** 10',
+    '(typeof O.p) ** 10',
+    '(typeof x) ** 10',
+    '(void 0) ** 10',
+    '(void O.p) ** 10',
+    '(void x) ** 10',
+    '++O.p ** 10',
+    '++x ** 10',
+    '--O.p ** 10',
+    '--x ** 10',
+    'O.p++ ** 10',
+    'x++ ** 10',
+    'O.p-- ** 10',
+    'x-- ** 10'
+  ];
+  for (const arg of validSyntax) {
+    it(`var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`, () => {
+      t.doesNotThrow(() => {
+        parseSource(
+          `var O = { p: 1 }, x = 10; ; if (${arg}) { foo(); }`,
+          undefined,
+          Context.OptionsNext | Context.Module
+        );
+      });
+    });
 
-  ['(+x) ** 10', '(+x) ** 10', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'BinaryExpression',
-                'left': {
-                    'type': 'UnaryExpression',
-                    'operator': '+',
-                    'argument': {
-                        'type': 'Identifier',
-                        'name': 'x',
-                        'start': 2,
-                        'end': 3
-                    },
-                    'prefix': true,
-                    'start': 1,
-                    'end': 3
-                },
-                'right': {
-                    'type': 'Literal',
-                    raw: null,
-                    'value': 10,
-                    'start': 8,
-                    'end': 10
-                },
-                'operator': '**',
-                'start': 0,
-                'end': 10
-            },
-            'start': 0,
-            'end': 10
-        }
+    it(`var O = { p: 1 }, x = 10; ; (${arg})`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`var O = { p: 1 }, x = 10; ; (${arg})`, undefined, Context.OptionsNext | Context.Module);
+      });
+    });
+
+    it(`var O = { p: 1 }, x = 10; foo(${arg})`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`var O = { p: 1 }, x = 10; foo(${arg})`, undefined, Context.OptionsNext | Context.Module);
+      });
+    });
+  }
+  pass('Expressions - Exponentiation (pass)', [
+    [
+      '2 ** 4',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Literal',
+                value: 2
+              },
+              right: {
+                type: 'Literal',
+                value: 4
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
     ],
-    'start': 0,
-    'end': 10
-}],
-    ['x ** y ** z', 'x ** y ** z', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+    [
+      'new x ** 2;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'Identifier',
-                      'name': 'x',
-                      'start': 0,
-                      'end': 1
-                  },
-                  'right': {
-                      'type': 'BinaryExpression',
-                      'left': {
-                          'type': 'Identifier',
-                          'name': 'y',
-                          'start': 5,
-                          'end': 6
-                      },
-                      'right': {
-                          'type': 'Identifier',
-                          'name': 'z',
-                          'start': 10,
-                          'end': 11
-                      },
-                      'operator': '**',
-                      'start': 5,
-                      'end': 11
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 11
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                arguments: []
               },
-              'start': 0,
-              'end': 11
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              operator: '**'
+            }
           }
-      ],
-      'start': 0,
-      'end': 11
-  }],
-    ['(typeof x) ** 10', '(typeof x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      'new x() ** 2;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': 'typeof',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 8,
-                          'end': 9
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 9
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 14,
-                      'end': 16
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 16
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                arguments: []
               },
-              'start': 0,
-              'end': 16
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              operator: '**'
+            }
           }
-      ],
-      'start': 0,
-      'end': 16
-  }],
-    ['(void 0) ** 10', '(void 0) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      'a?b:c',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': 'void',
-                      'argument': {
-                          'type': 'Literal',
-                          raw: null,
-                          'value': 0,
-                          'start': 6,
-                          'end': 7
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 7
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 12,
-                      'end': 14
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 14
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ConditionalExpression',
+              test: {
+                type: 'Identifier',
+                name: 'a'
               },
-              'start': 0,
-              'end': 14
+              consequent: {
+                type: 'Identifier',
+                name: 'b'
+              },
+              alternate: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            }
           }
-      ],
-      'start': 0,
-      'end': 14
-  }],
-    ['(-x) ** 10', '(-x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      'true ** a',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': '-',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 2,
-                          'end': 3
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 3
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 8,
-                      'end': 10
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 10
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Literal',
+                value: true
               },
-              'start': 0,
-              'end': 10
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
           }
-      ],
-      'start': 0,
-      'end': 10
-  }],
-    ['(+x) ** 10', '(+x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      'a=b?c:d',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': '+',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 2,
-                          'end': 3
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 3
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 8,
-                      'end': 10
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 10
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'a'
               },
-              'start': 0,
-              'end': 10
+              operator: '=',
+              right: {
+                type: 'ConditionalExpression',
+                test: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                consequent: {
+                  type: 'Identifier',
+                  name: 'c'
+                },
+                alternate: {
+                  type: 'Identifier',
+                  name: 'd'
+                }
+              }
+            }
           }
-      ],
-      'start': 0,
-      'end': 10
-  }],
-    ['(~x) ** 10', '(~x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      '++x ** a',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': '~',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 2,
-                          'end': 3
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 3
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 8,
-                      'end': 10
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 10
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'UpdateExpression',
+                argument: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                operator: '++',
+                prefix: true
               },
-              'start': 0,
-              'end': 10
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
           }
-      ],
-      'start': 0,
-      'end': 10
-  }],
-    ['(delete x) ** 10', '(delete x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      '+a * b ** c ** 3',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': 'delete',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 8,
-                          'end': 9
-                      },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 9
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 14,
-                      'end': 16
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 16
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'UnaryExpression',
+                operator: '+',
+                argument: {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                prefix: true
               },
-              'start': 0,
-              'end': 16
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                right: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: 3
+                  },
+                  operator: '**'
+                },
+                operator: '**'
+              },
+              operator: '*'
+            }
           }
-      ],
-      'start': 0,
-      'end': 16
-  }],
-    ['(!x) ** 10', '(!x) ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ]
+      }
+    ],
+    [
+      'function *f() { yield x ** y }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UnaryExpression',
-                      'operator': '!',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 2,
-                          'end': 3
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'YieldExpression',
+                    argument: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'x'
                       },
-                      'prefix': true,
-                      'start': 1,
-                      'end': 3
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 8,
-                      'end': 10
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 10
-              },
-              'start': 0,
-              'end': 10
-          }
-      ],
-      'start': 0,
-      'end': 10
-  }],
-    ['++O.p ** 10', '++O.p ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
-          {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UpdateExpression',
-                      'argument': {
-                          'type': 'MemberExpression',
-                          'object': {
-                              'type': 'Identifier',
-                              'name': 'O',
-                              'start': 2,
-                              'end': 3
-                          },
-                          'computed': false,
-                          'property': {
-                              'type': 'Identifier',
-                              'name': 'p',
-                              'start': 4,
-                              'end': 5
-                          },
-                          'start': 2,
-                          'end': 5
+                      right: {
+                        type: 'Identifier',
+                        name: 'y'
                       },
-                      'operator': '++',
-                      'prefix': true,
-                      'start': 0,
-                      'end': 5
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 9,
-                      'end': 11
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 11
-              },
-              'start': 0,
-              'end': 11
-          }
-      ],
-      'start': 0,
-      'end': 11
-  }],
-    ['x-- ** 10', 'x-- ** 10', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
-          {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'BinaryExpression',
-                  'left': {
-                      'type': 'UpdateExpression',
-                      'argument': {
-                          'type': 'Identifier',
-                          'name': 'x',
-                          'start': 0,
-                          'end': 1
-                      },
-                      'operator': '--',
-                      'prefix': false,
-                      'start': 0,
-                      'end': 3
-                  },
-                  'right': {
-                      'type': 'Literal',
-                      raw: null,
-                      'value': 10,
-                      'start': 7,
-                      'end': 9
-                  },
-                  'operator': '**',
-                  'start': 0,
-                  'end': 9
-              },
-              'start': 0,
-              'end': 9
-          }
-      ],
-      'start': 0,
-      'end': 9
-  }]
-];
+                      operator: '**'
+                    },
+                    delegate: false
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
 
-pass('Expressions - Exponentiation (pass)', valids);
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(2 ** 4)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Literal',
+                value: 2
+              },
+              right: {
+                type: 'Literal',
+                value: 4
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(new x ** 2)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                arguments: []
+              },
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(new x() ** 2)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                arguments: []
+              },
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
 
+    [
+      '(true ** a)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Literal',
+                value: true
+              },
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      '(++x ** a)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'UpdateExpression',
+                argument: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                operator: '++',
+                prefix: true
+              },
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      '(x-- ** a)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'UpdateExpression',
+                argument: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                operator: '--',
+                prefix: false
+              },
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'function *f() { (yield x ** y) }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'YieldExpression',
+                    argument: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'y'
+                      },
+                      operator: '**'
+                    },
+                    delegate: false
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: true,
+
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x++ ** a',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'UpdateExpression',
+                argument: {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                operator: '++',
+                prefix: false
+              },
+              right: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              operator: '**'
+            }
+          }
+        ]
+      }
+    ]
+  ]);
 });

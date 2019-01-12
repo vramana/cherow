@@ -1,587 +1,600 @@
 import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe('Expressions - Function', () => {
+describe('Expressions - Functions', () => {
+  const inValids: Array<[string, Context]> = [
+    // Duplicate function args in strct mode
 
+    ['(function f(a, a) {})', Context.Strict],
+    ['(function f(a, b, a) {})', Context.Strict],
+    ['(function f(b, a, a) {})', Context.Strict],
+    ['(function f(a, a, b) {})', Context.Strict],
+    ['(function f(b, a, b, a) {})', Context.Strict],
+    ['(function f(b, a, b, a = x) {})', Context.Strict],
+
+    // Duplicate function args with explicit directive
+
+    ['(function f(a, a) {"use strict";})', Context.Empty],
+    ['(function f(a, b, a) {"use strict";})', Context.Empty],
+    ['(function f(b, a, a) {"use strict";})', Context.Empty],
+    ['(function f(a, a, b) {"use strict";})', Context.Empty],
+    ['(function f(b, a, b, a) {"use strict";})', Context.Empty],
+    ['(function f(b, a, b, a = x) {"use strict";})', Context.Empty]
+
+    //    ['(function eval() {"use strict";})', Context.Empty],
+
+    // General
+    // ['"use strict"; (function eval(){})', Context.Empty],
+    // ['"use strict"; (function eval(){})', Context.Empty],
+
+    //['(function arguments(){ "use strict"; })', Context.Empty],
+    //['(function arguments(){ "use strict"; })', Context.Empty]
+    // ['(function f(x) { let x })', Context.Empty],
+
+    // Future reserved words
+    //['(function package() {})', Context.Strict],
+    //['(function package() {})', Context.Strict | Context.Module],
+    // ['(function package() {"use strict";})', Context.Empty],
+  ];
+
+  fail('Expressions - Functions', inValids);
+
+  for (const arg of [
+    '{ x: y }',
+    '{ x, }',
+    '{ x: y = 33 }',
+    '{ fn = function () {}, xFn = function x() {} }',
+    '{ cover = (function () {}), xCover = (1, function() {})  }',
+    '{ arrow = () => {} }',
+    '{}',
+    '{ x: y } = { x: 23 }',
+    '{ poisoned: x = ++initEvalCount } = poisonedProperty',
+    '{ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }',
+    '{ x, } = { x: 23 }',
+    '[,] = g()',
+    '[{ u: v, w: x, y: z } = { u: 444, w: 555, y: 666 }] = []',
+    '[{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]',
+    '[{ x, y, z } = { x: 44, y: 55, z: 66 }] = []',
+    '[x = 23] = [,]',
+    '[[...x] = [2, 1, 3]] = []',
+    '[[x, y, z] = [4, 5, 6]] = []',
+    '[ , , ...x]',
+    '[, ...x]',
+    '[,]',
+    '[{ x }]',
+    '[{ x }]',
+    '[{ u: v, w: x, y: z } = { u: 444, w: 555, y: 666 }]',
+    '[ a = b ]',
+    '[x = 23]',
+    '[[] = function() { a += 1; }()]',
+    'x = args = arguments'
+  ]) {
+    it(`(function(${arg}) {})`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`(function(${arg}) {})`, undefined, Context.Empty);
+      });
+    });
+  }
+
+  for (const arg of [
+    '(function([[,] = function* g() {}]) {})',
+    '(function([cover = (function () {}), xCover = (1, function() {})]) {})',
+    '(function([fn = function () {}, xFn = function x() {}]) {})',
+    '(function([x = 23]) {})',
+    '(function([...[x, y, z]]) {})',
+    '(function([...[,]]) {})',
+    '(function([...x]) {})',
+    '(function([...{ length }]) {})',
+    '(function([x = 23] = [undefined]) {})',
+    '(function([{ u: v, w: x, y: z } = { u: 444, w: 555, y: 666 }] = [{ u: 777, w: 888, y: 999 }]) {})',
+    '(function({} = null) {})'
+  ]) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Strict | Context.Module);
+      });
+    });
+  }
   // valid tests
-const valids: Array < [string, string, Context, any] > = [
 
-  ['(function foo() {})', '(function foo() {})', Context.OptionsRanges, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 16,
-                    'end': 18
-                },
-                'async': false,
-                'generator': false,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 10,
-                    'end': 13
-                },
-                'start': 1,
-                'end': 18
-            },
-            'start': 0,
-            'end': 19
-        }
-    ],
-    'start': 0,
-    'end': 19
-}],
-    ['(function foo(a) {})', '(function foo(a) {})', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+  const valids: Array<[string, Context, any]> = [
+    [
+      '(function package() { (function gave_away_the_package() { "use strict"; }) })',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'FunctionExpression',
-                  'params': [
-                      {
-                          'type': 'Identifier',
-                          'name': 'a',
-                          'start': 14,
-                          'end': 15
-                      }
-                  ],
-                  'body': {
-                      'type': 'BlockStatement',
-                      'body': [],
-                      'start': 17,
-                      'end': 19
-                  },
-                  'async': false,
-                  'generator': false,
-                  'expression': false,
-                  'id': {
-                      'type': 'Identifier',
-                      'name': 'foo',
-                      'start': 10,
-                      'end': 13
-                  },
-                  'start': 1,
-                  'end': 19
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              id: {
+                type: 'Identifier',
+                name: 'package'
               },
-              'start': 0,
-              'end': 20
-          }
-      ],
-      'start': 0,
-      'end': 20
-  }],
-    ['(function foo(a, b, c) {})', '(function foo(a, b, c) {})', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
-          {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'FunctionExpression',
-                  'params': [
-                      {
-                          'type': 'Identifier',
-                          'name': 'a',
-                          'start': 14,
-                          'end': 15
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'FunctionExpression',
+                      id: {
+                        type: 'Identifier',
+                        name: 'gave_away_the_package'
                       },
-                      {
-                          'type': 'Identifier',
-                          'name': 'b',
-                          'start': 17,
-                          'end': 18
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            expression: {
+                              type: 'Literal',
+                              value: 'use strict'
+                            }
+                          }
+                        ]
                       },
-                      {
-                          'type': 'Identifier',
-                          'name': 'c',
-                          'start': 20,
-                          'end': 21
-                      }
-                  ],
-                  'body': {
-                      'type': 'BlockStatement',
-                      'body': [],
-                      'start': 23,
-                      'end': 25
-                  },
-                  'async': false,
-                  'generator': false,
-                  'expression': false,
-                  'id': {
-                      'type': 'Identifier',
-                      'name': 'foo',
-                      'start': 10,
-                      'end': 13
-                  },
-                  'start': 1,
-                  'end': 25
+                      generator: false,
+
+                      async: false
+                    }
+                  }
+                ]
               },
-              'start': 0,
-              'end': 26
+              generator: false,
+
+              async: false
+            }
           }
-      ],
-      'start': 0,
-      'end': 26
-  }],
-    ['(function () {})', '(function () {})', Context.OptionsRanges, {
-      'type': 'Program',
-      'sourceType': 'script',
-      'body': [
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(function (eval) { (function () { "use strict"; })})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
           {
-              'type': 'ExpressionStatement',
-              'expression': {
-                  'type': 'FunctionExpression',
-                  'params': [],
-                  'body': {
-                      'type': 'BlockStatement',
-                      'body': [],
-                      'start': 13,
-                      'end': 15
-                  },
-                  'async': false,
-                  'generator': false,
-                  'expression': false,
-                  'id': null,
-                  'start': 1,
-                  'end': 15
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              id: null,
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'eval'
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'FunctionExpression',
+                      id: null,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            expression: {
+                              type: 'Literal',
+                              value: 'use strict'
+                            }
+                          }
+                        ]
+                      },
+                      generator: false,
+
+                      async: false
+                    }
+                  }
+                ]
               },
-              'start': 0,
-              'end': 16
+              generator: false,
+
+              async: false
+            }
           }
-      ],
-      'start': 0,
-      'end': 16
-  }],
-  ['(function foo(a = []) {})', '(function foo(a = []) {})', Context.OptionsRanges | Context.OptionsLoc, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'AssignmentPattern',
-                        'left': {
-                            'type': 'Identifier',
-                            'name': 'a',
-                            'start': 14,
-                            'end': 15,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 14
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 15
-                                }
-                            }
-                        },
-                        'right': {
-                            'type': 'ArrayExpression',
-                            'elements': [],
-                            'start': 18,
-                            'end': 20,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 18
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 20
-                                }
-                            }
-                        },
-                        'start': 14,
-                        'end': 20,
-                        'loc': {
-                            'start': {
-                                'line': 1,
-                                'column': 14
-                            },
-                            'end': {
-                                'line': 1,
-                                'column': 20
-                            }
-                        }
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 22,
-                    'end': 24,
-                    'loc': {
-                        'start': {
-                            'line': 1,
-                            'column': 22
-                        },
-                        'end': {
-                            'line': 1,
-                            'column': 24
-                        }
-                    }
-                },
-                'async': false,
-                'generator': false,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 10,
-                    'end': 13,
-                    'loc': {
-                        'start': {
-                            'line': 1,
-                            'column': 10
-                        },
-                        'end': {
-                            'line': 1,
-                            'column': 13
-                        }
-                    }
-                },
-                'start': 1,
-                'end': 24,
-                'loc': {
-                    'start': {
-                        'line': 1,
-                        'column': 1
-                    },
-                    'end': {
-                        'line': 1,
-                        'column': 24
-                    }
-                }
-            },
-            'start': 0,
-            'end': 25,
-            'loc': {
-                'start': {
-                    'line': 1,
-                    'column': 0
-                },
-                'end': {
-                    'line': 1,
-                    'column': 25
-                }
-            }
-        }
+        ],
+        sourceType: 'script'
+      }
     ],
-    'start': 0,
-    'end': 25,
-    'loc': {
-        'start': {
-            'line': 1,
-            'column': 0
-        },
-        'end': {
-            'line': 1,
-            'column': 25
-        }
-    }
-}],
-/*  ['(function foo({}) {})', '(function foo({}) {})', Context.OptionsRanges | Context.OptionsLoc, {
-    "type": "Program",
-    "sourceType": "script",
-    "body": [
-        {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "FunctionExpression",
-                "params": [
+    [
+      'x=function f(){ var f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'FunctionExpression',
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                },
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
                     {
-                        "type": "ObjectPattern",
-                        "properties": [],
-                        "start": 14,
-                        "end": 16,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 14
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 16
-                            }
+                      type: 'VariableDeclaration',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          },
+                          init: null
                         }
+                      ],
+                      kind: 'var'
                     }
-                ],
-                "body": {
-                    "type": "BlockStatement",
-                    "body": [],
-                    "start": 18,
-                    "end": 20,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 18
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 20
-                        }
-                    }
+                  ]
                 },
-                "async": false,
-                "generator": false,
-                "expression": false,
-                "id": {
-                    "type": "Identifier",
-                    "name": "foo",
-                    "start": 10,
-                    "end": 13,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 10
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 13
-                        }
-                    }
-                },
-                "start": 1,
-                "end": 20,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 1
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 20
-                    }
-                }
-            },
-            "start": 0,
-            "end": 21,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
-                },
-                "end": {
-                    "line": 1,
-                    "column": 21
-                }
-            }
-        }
-    ],
-    "start": 0,
-    "end": 21,
-    "loc": {
-        "start": {
-            "line": 1,
-            "column": 0
-        },
-        "end": {
-            "line": 1,
-            "column": 21
-        }
-    }
-}],*/
-  ['(function foo(foo = {a: b}) {})', '(function foo(foo = {a: b}) {})', Context.OptionsRanges | Context.OptionsLoc, {
-    'type': 'Program',
-    'sourceType': 'script',
-    'body': [
-        {
-            'type': 'ExpressionStatement',
-            'expression': {
-                'type': 'FunctionExpression',
-                'params': [
-                    {
-                        'type': 'AssignmentPattern',
-                        'left': {
-                            'type': 'Identifier',
-                            'name': 'foo',
-                            'start': 14,
-                            'end': 17,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 14
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 17
-                                }
-                            }
-                        },
-                        'right': {
-                            'type': 'ObjectExpression',
-                            'properties': [
-                                {
-                                    'type': 'Property',
-                                    'key': {
-                                        'type': 'Identifier',
-                                        'name': 'a',
-                                        'start': 21,
-                                        'end': 22,
-                                        'loc': {
-                                            'start': {
-                                                'line': 1,
-                                                'column': 21
-                                            },
-                                            'end': {
-                                                'line': 1,
-                                                'column': 22
-                                            }
-                                        }
-                                    },
-                                    'value': {
-                                        'type': 'Identifier',
-                                        'name': 'b',
-                                        'start': 24,
-                                        'end': 25,
-                                        'loc': {
-                                            'start': {
-                                                'line': 1,
-                                                'column': 24
-                                            },
-                                            'end': {
-                                                'line': 1,
-                                                'column': 25
-                                            }
-                                        }
-                                    },
-                                    'kind': 'init',
-                                    'computed': false,
-                                    'method': false,
-                                    'shorthand': false,
-                                    'start': 21,
-                                    'end': 25,
-                                    'loc': {
-                                        'start': {
-                                            'line': 1,
-                                            'column': 21
-                                        },
-                                        'end': {
-                                            'line': 1,
-                                            'column': 25
-                                        }
-                                    }
-                                }
-                            ],
-                            'start': 20,
-                            'end': 26,
-                            'loc': {
-                                'start': {
-                                    'line': 1,
-                                    'column': 20
-                                },
-                                'end': {
-                                    'line': 1,
-                                    'column': 26
-                                }
-                            }
-                        },
-                        'start': 14,
-                        'end': 26,
-                        'loc': {
-                            'start': {
-                                'line': 1,
-                                'column': 14
-                            },
-                            'end': {
-                                'line': 1,
-                                'column': 26
-                            }
-                        }
-                    }
-                ],
-                'body': {
-                    'type': 'BlockStatement',
-                    'body': [],
-                    'start': 28,
-                    'end': 30,
-                    'loc': {
-                        'start': {
-                            'line': 1,
-                            'column': 28
-                        },
-                        'end': {
-                            'line': 1,
-                            'column': 30
-                        }
-                    }
-                },
-                'async': false,
-                'generator': false,
-                'expression': false,
-                'id': {
-                    'type': 'Identifier',
-                    'name': 'foo',
-                    'start': 10,
-                    'end': 13,
-                    'loc': {
-                        'start': {
-                            'line': 1,
-                            'column': 10
-                        },
-                        'end': {
-                            'line': 1,
-                            'column': 13
-                        }
-                    }
-                },
-                'start': 1,
-                'end': 30,
-                'loc': {
-                    'start': {
-                        'line': 1,
-                        'column': 1
-                    },
-                    'end': {
-                        'line': 1,
-                        'column': 30
-                    }
-                }
-            },
-            'start': 0,
-            'end': 31,
-            'loc': {
-                'start': {
-                    'line': 1,
-                    'column': 0
-                },
-                'end': {
-                    'line': 1,
-                    'column': 31
-                }
-            }
-        }
-    ],
-    'start': 0,
-    'end': 31,
-    'loc': {
-        'start': {
-            'line': 1,
-            'column': 0
-        },
-        'end': {
-            'line': 1,
-            'column': 31
-        }
-    }
-}],
-];
+                generator: false,
 
-pass('Expressions - Group (pass)', valids);
+                async: false
+              }
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'x=function f(){ let f }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'let',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
 
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'foo(function f(){})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              arguments: [
+                {
+                  type: 'FunctionExpression',
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  generator: false,
+
+                  async: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'foo(function f(){})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              arguments: [
+                {
+                  type: 'FunctionExpression',
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  generator: false,
+
+                  async: false
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'let f = function await() {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                },
+                init: {
+                  type: 'FunctionExpression',
+                  id: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  generator: false,
+
+                  async: false
+                }
+              }
+            ],
+            kind: 'let'
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'function f(yield) {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            },
+            params: [
+              {
+                type: 'Identifier',
+                name: 'yield'
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            generator: false,
+
+            async: false
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'function f(await) {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            },
+            params: [
+              {
+                type: 'Identifier',
+                name: 'await'
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            generator: false,
+
+            async: false
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'let f = function f(yield) {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                },
+                init: {
+                  type: 'FunctionExpression',
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'yield'
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  generator: false,
+
+                  async: false
+                }
+              }
+            ],
+            kind: 'let'
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(function(a, a) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              id: null,
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              generator: false,
+
+              async: false
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      '(function eval() {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              id: {
+                type: 'Identifier',
+                name: 'eval'
+              },
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              generator: false,
+              async: false
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+    ]
+    //['function(a, a) {"use strict"}', Context.Empty, {}]
+  ];
+
+  pass('Expressions - Functions (pass)', valids);
 });
