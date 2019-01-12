@@ -78,7 +78,9 @@ describe('Declarations - Function', () => {
     ['{ if (x) function f() {} ; function f() {} }', Context.Strict], // throws if no AnnexB and in strict mode only
     ['switch (x) {case a: function f(){}; break; case b: function f(){}; break; }', Context.Strict | Context.Module], // throws if no AnnexB and in strict mode only
     ['function a(,,) {}', Context.Empty],
-    ['function a(,,,,a) {}', Context.Empty]
+    ['function a(,,,,a) {}', Context.Empty],
+    ['function (){}', Context.Empty],
+    ['class {}', Context.Empty]
   ];
 
   fail('Declarations - Functions (fail)', inValids);

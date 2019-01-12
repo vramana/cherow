@@ -62,7 +62,9 @@ export const enum Errors {
   StrictDelete,
   InvalidLOExponentation,
   SuperNoConstructor,
-  InvalidSuperProperty
+  InvalidSuperProperty,
+  DuplicateConstructor,
+  StrictFunctionName
 }
 
 /*@internal*/
@@ -131,7 +133,9 @@ export const errorMessages: {
   [Errors.SuperNoConstructor]:
     'Calls to super must be in the "constructor" method of a class expression or class declaration that has a superclass',
   [Errors.InvalidSuperProperty]: 'Member access on super must be in a method',
-  [Errors.UnexpectedToken]: "Unexpected token '%0'"
+  [Errors.UnexpectedToken]: "Unexpected token '%0'",
+  [Errors.DuplicateConstructor]: 'Duplicate constructor method in class',
+  [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

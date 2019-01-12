@@ -23,7 +23,10 @@ describe('Expressions - Class', () => {
     '*method([...x = []] = []) {}',
     '*method([...{ x }, y]) {}',
     '*method([...[x], y]) {}',
-    'class a {static "prototype"(){}}',
+    'class a{ "constructor"() {} constructor() {} }',
+    'class a{ constructor() {} constructor() {} }',
+    'class a{ "constructor"() {} "constructor"() {} }',
+    'class a{ "constructor"() {} foo() {} bar() {} constructor() {} }',
     'static async *method([...{ x }, y] = [1, 2, 3]) {}',
     'static async *method([...x, y] = [1, 2, 3]) {}',
     'static async *method([...[x], y] = [1, 2, 3]) {}',
@@ -329,7 +332,18 @@ describe('Expressions - Class', () => {
     ['class A {* get 8(){}}', Context.Empty],
     ['class A {async set 11(x){}}', Context.Empty],
     ['class A {* set 12(x){}}', Context.Empty],
+    [
+      `
+    class A { b() {
+      const A = 3;
+      } }
 
+      class A { b() {
+      const A = 3;
+      } }
+    `,
+      Context.Empty
+    ],
     ['var C = class let {};', Context.Empty],
 
     ['var C = class let {};', Context.Empty],
@@ -612,7 +626,6 @@ describe('Expressions - Class', () => {
         ]
       }
     ],
-
     [
       'class A extends B { async set(){} }',
       Context.Empty,

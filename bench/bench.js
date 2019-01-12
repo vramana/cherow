@@ -31,7 +31,12 @@ const tests = [
   },
   { weight: 3, imports: [V1, V2, V2New], expr: `x = class A {};` },
   { weight: 3, imports: [V1, V2, V2New], expr: `(class A {set foo(x){}})` },
-  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {"set"(){} "get"(){} "async"(){}})` }
+  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {"set"(){} "get"(){} "async"(){}})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `({ foo: bar})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `({ foo}= bar)` },
+  { weight: 1, imports: [V1, V2, V2New], expr: `({a:0, get 'b'(){}, set 3(d){}})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `x={async f(){ let f }}` },
+  { weight: 1, imports: [V1, V2, V2New], expr: `function *f(){   s = {"foo": yield}   }` }
 ];
 
 function run(iterations) {
