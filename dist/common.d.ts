@@ -1,78 +1,125 @@
 import * as ESTree from './estree';
 import { Token } from './token';
-import { ParserState, Location } from './types';
+import { ScopeState } from 'scope';
 export declare const enum Context {
     Empty = 0,
-    OptionsRaw = 1,
-    OptionsNext = 2,
-    OptionsLoc = 4,
-    OptionsRanges = 8,
-    OptionsJSX = 16,
-    OptionsRawidentifiers = 32,
+    OptionsNext = 1,
+    OptionsRanges = 2,
+    OptionsJSX = 4,
+    OptionsRaw = 8,
+    OptionsDisableWebCompat = 16,
+    OptionsLoc = 32,
     OptionsGlobalReturn = 64,
-    OptionsShebang = 128,
-    OptionsComments = 256,
-    OptionsExperimental = 512,
-    ExpressionStart = 1024,
-    InGenerator = 2048,
-    InAsync = 4096,
-    InParam = 8192,
-    Strict = 16384,
-    Module = 32768,
+    OptionsExperimental = 128,
+    OptionsNative = 256,
+    Strict = 1024,
+    Module = 2048,
+    TopLevel = 4096,
+    DisallowInContext = 8192,
+    AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
-    Tokenize = 131072,
-    InClass = 262144,
-    NewTarget = 524288,
-    InFunctionBody = 1048576,
-    DisallowIn = 2097152,
-    RequireIdentifier = 4194304,
-    DisallowGenerator = 8388608,
-    InJSXChild = 16777216
+    SuperProperty = 262144,
+    SuperCall = 524288,
+    InGlobal = 1048576,
+    YieldContext = 2097152,
+    AwaitContext = 4194304,
+    InArgList = 8388608,
+    InConstructor = 16777216,
+    InMethod = 33554432,
+    AllowNewTarget = 67108864,
+    AllowReturn = 134217728
 }
 export declare const enum Flags {
     Empty = 0,
-    LineTerminator = 1,
-    HasOctal = 2,
-    EdgeCase = 4,
-    SimpleParameterList = 8
+    NewLine = 1,
+    LastIsCR = 2,
+    Float = 4,
+    Octal = 8,
+    Binary = 16,
+    SeenPrototype = 32
 }
-export declare const enum BindingOrigin {
-    Empty = 0,
-    ForStatement = 1,
-    FunctionArgs = 2,
-    CatchClause = 4,
-    Export = 8,
-    Import = 16,
-    Statement = 32
-}
-export declare const enum BindingType {
-    Empty = 0,
-    Args = 1,
-    Var = 2,
+export declare const enum Type {
+    None = 0,
+    ArgList = 1,
+    Variable = 2,
     Let = 4,
     Const = 8,
-    Class = 16,
-    Variable = 14
+    ClassExprDecl = 16
 }
-export declare const enum LabelledFunctionState {
-    Allow = 0,
-    Disallow = 1
+export declare const enum Origin {
+    None = 0,
+    Statement = 1,
+    ForStatement = 2,
+    Export = 4,
+    CatchClause = 8,
+    AsyncArgs = 16,
+    ArgList = 32,
+    ClassExprDecl = 64
 }
-export declare function finishNode<T extends ESTree.Node>(state: ParserState, context: Context, meta: Location, node: any): T;
-export declare function getLocation(state: ParserState): Location;
+export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
+export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
+export interface ParserState {
+    source: string;
+    onComment: any;
+    onToken: any;
+    flags: Flags;
+    index: number;
+    line: number;
+    startIndex: number;
+    startLine: number;
+    startColumn: number;
+    column: number;
+    token: Token;
+    tokenValue: any;
+    tokenRaw: string;
+    currentChar: any;
+    length: number;
+    lastRegExpError: any;
+    numCapturingParens: number;
+    largestBackReference: number;
+    lastChar: number;
+    inCatch: boolean;
+    exportedNames: any[];
+    exportedBindings: any[];
+    labelSet: any;
+    labelSetStack: {
+        [key: string]: boolean;
+    }[];
+    iterationStack: (boolean | LabelState)[];
+    switchStatement: LabelState;
+    iterationStatement: LabelState;
+    labelDepth: number;
+    functionBoundaryStack: any;
+    tokenRegExp: void | {
+        pattern: string;
+        flags: string;
+    };
+}
+export declare function unimplemented(): never;
+export declare function unreachable(...values: never[]): never;
+export declare function pushComment(context: Context, array: any[]): any;
+export declare function pushToken(context: Context, array: any[]): any;
+export declare function finishNode<T extends ESTree.Node>(context: Context, start: number, end: number, node: T): T;
 export declare function optional(state: ParserState, context: Context, token: Token): boolean;
 export declare function expect(state: ParserState, context: Context, t: Token): boolean;
-export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean;
-export declare function nextTokenIsIdentifierOrLeftParen(state: ParserState, context: Context): number | boolean;
-export declare function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean;
-export declare function isLexical(state: ParserState, context: Context): boolean;
 export declare function consumeSemicolon(state: ParserState, context: Context): void | boolean;
-export declare function isStartOfExpression(t: Token): boolean;
+export declare function addVariable(state: ParserState, context: Context, scope: any, bindingType: Type, checkDuplicates: boolean, isVariableDecl: boolean, key: string): void;
+export declare function checkForDuplicateLexicals(scope: ScopeState, key: string, context: Context): boolean;
+export declare function checkIfExistInLexicalBindings(state: ParserState, context: Context, scope: ScopeState, skipParent?: any): boolean;
+export declare function checkIfExistInLexicalParentScope(state: ParserState, context: Context, scope: ScopeState, key: any): void;
+export declare function addFunctionName(state: any, context: Context, scope: any, bindingType: Type, isVariableDecl: boolean): void;
+export declare function checkFunctionsArgForDuplicate(state: ParserState, lex: any, wereSimpleArgs: boolean): void;
+export declare function lookAheadOrScan<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T;
+export declare function isLexical(state: ParserState, context: Context): boolean;
+export declare function reinterpret(ast: any): void;
+export declare function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token?: Token): boolean;
+export declare function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any): void;
+export declare function addToExportedBindings(state: ParserState, exportedName: any): void;
+export declare function nextTokenIsFuncKeywordOnSameLine(state: ParserState, context: Context): boolean;
 export declare function addLabel(state: ParserState, label: string): void;
 export declare function addCrossingBoundary(state: ParserState): void;
 export declare function validateContinueLabel(state: ParserState, label: string): void;
 export declare function validateBreakStatement(state: ParserState, label: any): void;
 export declare function getLabel(state: ParserState, label: string, iterationStatement?: boolean, crossBoundary?: boolean): LabelState;
-export declare function reinterpret(state: ParserState, context: Context, node: any): void;
-export declare function isEqualTagNames(elementName: ESTree.JSXNamespacedName | ESTree.JSXIdentifier | ESTree.JSXMemberExpression): string;
+export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name?: any): void;
 //# sourceMappingURL=common.d.ts.map
