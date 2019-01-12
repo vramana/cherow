@@ -63,6 +63,9 @@ export interface Options {
   onComment?: OnComment;
 
   onToken?: OnToken;
+
+  // Enabled directives
+  directives?: boolean;
 }
 
 export function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
@@ -102,6 +105,8 @@ export function parseSource(source: string, options: Options | void, context: Co
     if (options.jsx) context |= Context.OptionsJSX;
     // The flag to enable start and end offsets to each node
     if (options.ranges) context |= Context.OptionsRanges;
+    // The flag to enable start and end offsets to each node
+    if (options.directives) context |= Context.OptionsDirectives | Context.OptionsRaw;
     // The flag to attach raw property to each literal and identifier node
     if (options.raw) context |= Context.OptionsRaw;
     if (options.onComment != null) {

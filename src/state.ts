@@ -108,7 +108,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
     if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
       context |= Context.Strict;
     }
-    statements.push(parseDirective(state, context));
+    statements.push(parseDirective(state, context, scope));
   }
 
   while (state.token !== Token.EndOfSource) {
@@ -127,13 +127,14 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
  * @param parser Parser instance
  * @param context Context masks
  */
-export function parseDirective(state: ParserState, context: Context): any {
-  const directive = state.source.slice(state.startIndex + 1, state.index - 1);
-  const expr = parseExpression(state, context);
+export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
+  if ((context & Context.OptionsDirectives) === 0) return parseStatementListItem(state, context, scope);
+  const directive = state.tokenRaw.slice(1, -1);
+  const expression = parseExpression(state, context);
   consumeSemicolon(state, context);
   return {
     type: 'ExpressionStatement',
-    expression: expr,
+    expression,
     directive
   };
 }
@@ -323,7 +324,7 @@ export function parseImportDeclaration(state: ParserState, context: Context, sco
   // 'import' ModuleSpecifier ';'
   if ((state.token & Token.IsIdentifier) === Token.IsIdentifier) {
     // V8: 'VariableMode::kConst',
-    // Cherow: 'BindingType.Const'
+    // Cherow: 'Type.Const'
     validateBindingIdentifier(state, context, Type.Const);
     addVariable(state, context, scope, Type.None, true, false, state.tokenValue);
     specifiers.push({
@@ -1781,7 +1782,7 @@ export function parseFunctionBody(
       if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
         context |= Context.Strict;
       }
-      body.push(parseStatementListItem(state, context, scope));
+      body.push(parseDirective(state, context, scope));
     }
     if (context & Context.Strict) {
       if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')

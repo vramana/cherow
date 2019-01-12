@@ -10,7 +10,6 @@ pass('Literal - Numbers (pass)', [
     {
       body: [
         {
-          directive: 'use strict',
           expression: {
             type: 'Literal',
             value: 'use strict'

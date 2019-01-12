@@ -29,7 +29,9 @@ export const enum Context {
   DisallowInContext = 1 << 13,
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
+  OptionsDirectives = 1 << 17,
   SuperProperty = 1 << 18,
+
   SuperCall = 1 << 19,
 
   InGlobal = 1 << 20,
