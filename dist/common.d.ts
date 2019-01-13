@@ -12,12 +12,14 @@ export declare const enum Context {
     OptionsGlobalReturn = 64,
     OptionsExperimental = 128,
     OptionsNative = 256,
+    RequireIdentifier = 512,
     Strict = 1024,
     Module = 2048,
     TopLevel = 4096,
     DisallowInContext = 8192,
     AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
+    OptionsDirectives = 131072,
     SuperProperty = 262144,
     SuperCall = 524288,
     InGlobal = 1048576,
@@ -36,7 +38,8 @@ export declare const enum Flags {
     Float = 4,
     Octal = 8,
     Binary = 16,
-    SeenPrototype = 32
+    SeenPrototype = 32,
+    SimpleParameterList = 64
 }
 export declare const enum Type {
     None = 0,
@@ -54,7 +57,8 @@ export declare const enum Origin {
     CatchClause = 8,
     AsyncArgs = 16,
     ArgList = 32,
-    ClassExprDecl = 64
+    ClassExprDecl = 64,
+    Declaration = 128
 }
 export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
@@ -121,5 +125,5 @@ export declare function addCrossingBoundary(state: ParserState): void;
 export declare function validateContinueLabel(state: ParserState, label: string): void;
 export declare function validateBreakStatement(state: ParserState, label: any): void;
 export declare function getLabel(state: ParserState, label: string, iterationStatement?: boolean, crossBoundary?: boolean): LabelState;
-export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name?: any): void;
+export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name: string): void;
 //# sourceMappingURL=common.d.ts.map

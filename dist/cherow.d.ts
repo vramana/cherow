@@ -19,6 +19,7 @@ export interface Options {
     disableWebCompat?: boolean;
     onComment?: OnComment;
     onToken?: OnToken;
+    directives?: boolean;
 }
 export declare function parseSource(source: string, options: Options | void, context: Context): ESTree.Program;
 export declare function parse(source: string, options?: Options): ESTree.Program;
