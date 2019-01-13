@@ -19,7 +19,8 @@ import {
   validateBreakStatement,
   addCrossingBoundary,
   addLabel,
-  addVariableAndDeduplicate
+  addVariableAndDeduplicate,
+  isValidIdentifier
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -1246,7 +1247,7 @@ export function parseBindingIdentifier(
     addToExportedBindings(state, state.tokenValue);
   }
 
-  next(state, context);
+  next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'Identifier',
     name
@@ -1708,8 +1709,10 @@ export function parseHoistableFunctionDeclaration(
 export function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin): any {
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
+  state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
+      // state.flags |=  Flags.SimpleParameterList;
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     } else {
@@ -1717,7 +1720,7 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
         if (state.token === Token.Comma) report(state, Errors.Unexpected);
       } else {
         let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
-        if (optional(state, context, Token.Assign)) {
+        if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
           if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
           left = parseAssignmentPattern(state, context, left);
         }
@@ -1792,6 +1795,7 @@ export function parseFunctionBody(
       if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
         report(state, Errors.StrictFunctionName);
     }
+    if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
 
     if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
       checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
@@ -2560,23 +2564,29 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
 
       return expr;
     }
+    case Token.YieldKeyword:
+      if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
+    // falls through
     default:
-      const token = state.token;
-      validateBindingIdentifier(state, context, Type.None);
-      const id = parseIdentifier(state, context | Context.TaggedTemplate);
-      if (optional(state, context, Token.Arrow)) {
-        // Yield in generator is keyword'
-        if (token & Token.IsYield && context & (Context.AwaitContext | Context.YieldContext))
-          report(state, Errors.YieldReservedKeyword);
-        const scopes = createScope(ScopeType.ArgumentList);
-        addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true, state.tokenValue);
-        if (context & Context.AwaitContext && token === Token.AwaitKeyword) report(state, Errors.Unexpected);
-        return parseArrowFunctionExpression(state, context, scopes as any, [id], false);
-      }
+      if (isValidIdentifier(context, state.token)) {
+        const token = state.token;
+        const id = parseIdentifier(state, context | Context.TaggedTemplate);
+        if (optional(state, context, Token.Arrow)) {
+          // Yield in generator is keyword'
+          if (token & Token.IsYield && context & (Context.AwaitContext | Context.YieldContext))
+            report(state, Errors.YieldReservedKeyword);
+          const scopes = createScope(ScopeType.ArgumentList);
+          addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true, state.tokenValue);
+          if (context & Context.AwaitContext && token === Token.AwaitKeyword) report(state, Errors.Unexpected);
+          return parseArrowFunctionExpression(state, context, scopes as any, [id], false);
+        }
 
-      return id;
+        return id;
+      }
+      report(state, Errors.Unexpected);
   }
 }
+
 export function parseArrayExpression(state: ParserState, context: Context): any {
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   const elements: any = [];

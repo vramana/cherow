@@ -1281,43 +1281,7 @@ describe('Expressions - New', () => {
         type: 'Program'
       }
     ],
-    [
-      'new x\n/y/',
-      Context.Empty,
-      {
-        body: [
-          {
-            expression: {
-              left: {
-                left: {
-                  arguments: [],
-                  callee: {
-                    name: 'x',
-                    type: 'Identifier'
-                  },
-                  type: 'NewExpression'
-                },
-                operator: '/',
-                right: {
-                  name: 'y',
-                  type: 'Identifier'
-                },
-                type: 'BinaryExpression'
-              },
-              operator: '/',
-              right: {
-                name: 'y',
-                type: 'Identifier'
-              },
-              type: 'BinaryExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
+
     [
       'new x()\n/y',
       Context.Empty,

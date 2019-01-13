@@ -298,7 +298,6 @@ describe('Miscellaneous - Passing tests', () => {
           c()  // This should not removed and translation should not occur.
       }
   }`,
-    '-->',
     'a(....0)',
     'delete (1, a, 2)',
     '1 instanceof 2',

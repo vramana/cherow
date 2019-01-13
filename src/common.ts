@@ -476,6 +476,26 @@ export function reinterpret(ast: any) {
   }
 }
 
+/**
+ * Returns true if this is an valid identifier
+ *
+ * @param context  Context masks
+ * @param t  Token
+ */
+export function isValidIdentifier(context: Context, t: Token): boolean {
+  if (context & Context.Strict) {
+    if (context & Context.Module && t & Token.IsAwait) return false;
+    if (t & Token.IsYield) return false;
+
+    return (t & Token.IsIdentifier) === Token.IsIdentifier || (t & Token.Contextual) === Token.Contextual;
+  }
+  return (
+    (t & Token.IsIdentifier) === Token.IsIdentifier ||
+    (t & Token.Contextual) === Token.Contextual ||
+    (t & Token.FutureReserved) === Token.FutureReserved
+  );
+}
+
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
   if (context & Context.Strict) {
     if ((token & Token.FutureReserved) === Token.FutureReserved) {

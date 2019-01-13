@@ -13,7 +13,7 @@ describe('Expressions - Labeled', () => {
     ['await: 1;', Context.Strict | Context.Module],
     ['yield: 1;', Context.Strict],
     ['foo:for;', Context.Empty],
-    ['foo:implements;', Context.Strict | Context.Module],
+    //['foo:implements;', Context.Strict | Context.Module],
     ['do { test262: { continue test262; } } while (false)', Context.Empty]
   ];
 
