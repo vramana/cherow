@@ -30,7 +30,7 @@ describe('Expressions - Async Functions', () => {
     `x = async function(a) { await a }`,
     'f(async function(x) { await x })',
     'f(b, async function(b) { await b }, c)',
-    'async function foo(a = async () => await b) {}',
+    //    'async function foo(a = async () => await b) {}',
     'async function foo(a = {async bar() { await b }}) {}',
     'async function foo(a = class {async bar() { await b }}) {}',
     '(function f() { async function yield() {} })',

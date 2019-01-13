@@ -1232,6 +1232,7 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const name = state.tokenValue;
+  validateBindingIdentifier(state, context, type);
   addVariable(
     state,
     context,

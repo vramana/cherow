@@ -435,10 +435,12 @@ export function lookAheadOrScan<T>(
  */
 export function isLexical(state: ParserState, context: Context): boolean {
   next(state, context);
-  return (
-    (state.token & (Token.Identifier | Token.Contextual | Token.IsAwait | Token.IsYield)) > 0 ||
-    state.token === Token.LeftBrace ||
-    state.token === Token.LeftBracket
+  const { token } = state;
+  return !!(
+    token & (Token.IsIdentifier | Token.IsYield | Token.IsAwait) ||
+    token === Token.LeftBrace ||
+    token === Token.LeftBracket ||
+    token === Token.LetKeyword
   );
 }
 
