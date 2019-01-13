@@ -688,7 +688,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
   return context & (Context.OptionsDisableWebCompat | Context.Strict) || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
-    : parseFunctionDeclaration(state, context, scope, true, false);
+    : parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, true, false);
 }
 
 /**
@@ -1169,7 +1169,7 @@ export function parseExpressionOrLabelledStatement(
       (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&
       ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
     ) {
-      body = parseFunctionDeclaration(state, context, scope, false, false);
+      body = parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, false, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
     state.labelDepth--;
     return {
@@ -1528,7 +1528,7 @@ export function parseFunctionDeclaration(
 ) {
   next(state, context);
 
-  const isGenerator: boolean = optional(state, context, Token.Multiply);
+  const isGenerator: boolean = (context & Context.DisallowGenerators) === 0 && optional(state, context, Token.Multiply);
 
   // Create a new function scope
   let funcScope = createScope(ScopeType.BlockStatement);
@@ -1537,39 +1537,43 @@ export function parseFunctionDeclaration(
   let firstRestricted: string | undefined;
 
   if (state.token !== Token.LeftParen && state.token & Token.IsIdentifier) {
-    const nameType =
-      (context & (Context.InGlobal | Context.Module)) !== (Context.InGlobal | Context.Module) &&
-      (context & Context.TopLevel) === Context.TopLevel
-        ? Type.Variable
-        : Type.Let;
-
     // Validate binding identifier
-    /*validateBindingIdentifier(
+
+    validateBindingIdentifier(
       state,
-      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
-        Context.AwaitContext |
-        (context & Context.Strict)
-        ? isGenerator
+      ((context | (Context.YieldContext | Context.AwaitContext)) ^ (Context.YieldContext | Context.AwaitContext)) |
+        (context & Context.Strict
           ? Context.YieldContext
-          : Context.YieldContext
-        : Context.Empty | (context & Context.Module)
-        ? isGenerator
+          : context & Context.YieldContext
+          ? Context.YieldContext
+          : 0 | (context & Context.Module)
           ? Context.AwaitContext
-          : Context.AwaitContext
-        : Context.Empty,
-      nameType
-    ); */
+          : context & Context.AwaitContext
+          ? Context.AwaitContext
+          : 0),
+      (context & Context.Module) !== Context.Module && (context & Context.TopLevel) === Context.TopLevel
+        ? Type.Variable
+        : Type.Let
+    );
 
     if (isFuncDel) scope = createSubScope(scope, ScopeType.BlockStatement);
-    addFunctionName(state, context, scope, nameType, true);
+    addFunctionName(
+      state,
+      context,
+      scope,
+      (context & Context.Module) !== Context.Module && (context & Context.TopLevel) === Context.TopLevel
+        ? Type.Variable
+        : Type.Let,
+      true
+    );
     funcScope = createSubScope(funcScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;
     id = parseIdentifier(state, context);
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
 
   context =
-    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
-    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
+    (context | Context.AwaitContext | Context.DisallowGenerators | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.DisallowGenerators | Context.YieldContext | Context.InArgList);
 
   if (isAsync) context |= Context.AwaitContext;
   if (isGenerator) context |= Context.YieldContext;
@@ -2605,20 +2609,15 @@ function parseFunctionExpression(state: ParserState, context: Context, isAsync: 
   let firstRestricted: string | undefined;
 
   if (state.token & Token.IsIdentifier) {
-    // Validate binding identifier
     validateBindingIdentifier(
       state,
-      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
-        Context.AwaitContext |
-        (context & Context.Strict)
-        ? isGenerator
-          ? Context.YieldContext
-          : Context.YieldContext
-        : Context.Empty | (context & Context.Module)
-        ? isGenerator
-          ? Context.AwaitContext
-          : Context.AwaitContext
-        : Context.Empty,
+      context & Context.Strict
+        ? Context.YieldContext
+        : isGenerator
+        ? Context.YieldContext
+        : 0 | (context & Context.Module) || isGenerator
+        ? Context.AwaitContext
+        : 0,
       Type.Variable
     );
     addVariableAndDeduplicate(state, context, functionScope, Type.Variable, true, state.tokenValue);
@@ -3254,22 +3253,18 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
   let firstRestricted: string | undefined;
 
   if (state.token & Token.IsIdentifier) {
-    // Validate binding identifier
     validateBindingIdentifier(
       state,
-      ((context | Context.YieldContext | Context.AwaitContext) ^ Context.YieldContext) |
-        Context.AwaitContext |
-        (context & Context.Strict)
-        ? (objState & ObjectState.Generator) !== 0
-          ? Context.YieldContext
-          : Context.YieldContext
-        : Context.Empty | (context & Context.Module)
-        ? (objState & ObjectState.Generator) !== 0
-          ? Context.AwaitContext
-          : Context.AwaitContext
-        : Context.Empty,
+      context & Context.Strict
+        ? Context.YieldContext
+        : (objState & ObjectState.Generator) !== 0
+        ? Context.YieldContext
+        : 0 | (context & Context.Module) || (objState & ObjectState.Generator) !== 0
+        ? Context.AwaitContext
+        : 0,
       Type.Variable
     );
+
     addVariableAndDeduplicate(state, context, functionScope, Type.Variable, true, state.tokenValue);
     functionScope = createSubScope(functionScope, ScopeType.BlockStatement);
     firstRestricted = state.tokenValue;

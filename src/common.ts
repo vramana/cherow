@@ -27,6 +27,7 @@ export const enum Context {
   TopLevel = 1 << 12,
 
   DisallowInContext = 1 << 13,
+  DisallowGenerators = 1 << 14,
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   OptionsDirectives = 1 << 17,
@@ -475,78 +476,31 @@ export function reinterpret(ast: any) {
   }
 }
 
-// TODO! Convert to bitmasks soon as we know it works as expected
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
-  switch (token) {
-    case Token.BreakKeyword:
-    case Token.CaseKeyword:
-    case Token.CatchKeyword:
-    case Token.ClassKeyword:
-    case Token.ConstKeyword:
-    case Token.ContinueKeyword:
-    case Token.DebuggerKeyword:
-    case Token.DefaultKeyword:
-    case Token.DeleteKeyword:
-    case Token.DoKeyword:
-    case Token.ElseKeyword:
-    case Token.ExportKeyword:
-    case Token.ExtendsKeyword:
-    case Token.FinallyKeyword:
-    case Token.ForKeyword:
-    case Token.FunctionKeyword:
-    case Token.IfKeyword:
-    case Token.ImportKeyword:
-    case Token.InKeyword:
-    case Token.InstanceofKeyword:
-    case Token.NewKeyword:
-    case Token.ReturnKeyword:
-    case Token.SuperKeyword:
-    case Token.SwitchKeyword:
-    case Token.ThisKeyword:
-    case Token.ThrowKeyword:
-    case Token.TryKeyword:
-    case Token.TypeofKeyword:
-    case Token.VarKeyword:
-    case Token.VoidKeyword:
-    case Token.WhileKeyword:
-    case Token.WithKeyword:
-    case Token.NullKeyword:
-    case Token.TrueKeyword:
-    case Token.FalseKeyword:
-    case Token.EnumKeyword:
-      report(state, Errors.Unexpected);
-    case Token.LetKeyword:
-      if (type === Type.ClassExprDecl) report(state, Errors.Unexpected);
-      if (type === Type.Let || type === Type.Const) report(state, Errors.Unexpected);
-      if (context & Context.Strict) report(state, Errors.Unexpected);
-      return true;
-    case Token.StaticKeyword:
-      if (context & Context.Strict) report(state, Errors.Unexpected);
-      return true;
-
-      // case Token.Eval:
-      // case Token.Arguments:
-      if (context & Context.Strict) report(state, Errors.Unexpected);
-      return true;
-    case Token.ImplementsKeyword:
-    case Token.PackageKeyword:
-    case Token.ProtectedKeyword:
-    case Token.InterfaceKeyword:
-    case Token.PrivateKeyword:
-    case Token.PublicKeyword:
-      if (context & Context.Strict) report(state, Errors.Unexpected);
-      return true;
-    case Token.AwaitKeyword:
-      if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.Unexpected);
-      return true;
-    case Token.YieldKeyword:
-      if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.Unexpected);
-      return true;
-    default:
-      // Valid binding name
-      return true;
+  if ((token & Token.FutureReserved) === Token.FutureReserved) {
+    if (context & Context.Strict) report(state, Errors.Unexpected);
   }
+  if ((token & Token.Reserved) === Token.Reserved) {
+    report(state, Errors.Unexpected);
+  }
+  if (token & Token.IsAwait) {
+    if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.Unexpected);
+    return true;
+  }
+  if (token & Token.IsYield) {
+    if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.Unexpected);
+  }
+  if (token === Token.StaticKeyword && context & Context.Strict) report(state, Errors.Unexpected);
+
+  if (token === Token.LetKeyword) {
+    if (type & Type.ClassExprDecl) report(state, Errors.Unexpected);
+    if (type & (Type.Let | Type.Const)) report(state, Errors.Unexpected);
+    if (context & Context.Strict) report(state, Errors.Unexpected);
+  }
+
+  return true;
 }
+
 export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
   if (state.exportedNames !== undefined && exportedName !== '') {
     const hashed: any = '@' + exportedName;

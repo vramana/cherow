@@ -5,15 +5,15 @@ describe('Expressions - Labeled', () => {
   const invalids: Array<[string, Context]> = [
     ['label: class C {};', Context.Empty],
     ['label: let x;', Context.Empty],
-    //    ['a: async function* a(){}', Context.Empty],
-    //['label: function* g() {}', Context.Empty],
+    //['a: async function* a(){}', Context.Empty],
+    ['label: function* g() {}', Context.Empty],
     ['label: const x = null;', Context.Empty],
     ['label: function g() {}', Context.Strict],
     ['label: let x;', Context.Empty],
     ['await: 1;', Context.Strict | Context.Module],
     ['yield: 1;', Context.Strict],
     ['foo:for;', Context.Empty],
-    // ['foo:implements;', Context.Strict | Context.Module],
+    ['foo:implements;', Context.Strict | Context.Module],
     ['do { test262: { continue test262; } } while (false)', Context.Empty]
   ];
 
