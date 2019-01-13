@@ -66,7 +66,9 @@ export const enum Errors {
   DuplicateConstructor,
   StrictFunctionName,
   StaticPrototype,
-  InvalidConstructor
+  InvalidConstructor,
+  UnterminatedRegExp,
+  UnexpectedTokenRegExpFlag
 }
 
 /*@internal*/
@@ -139,7 +141,9 @@ export const errorMessages: {
   [Errors.DuplicateConstructor]: 'Duplicate constructor method in class',
   [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode',
   [Errors.StaticPrototype]: "Classes may not have a static property named 'prototype'",
-  [Errors.InvalidConstructor]: 'Class constructor may not be a %0'
+  [Errors.InvalidConstructor]: 'Class constructor may not be a %0',
+  [Errors.UnterminatedRegExp]: 'Unterminated regular expression',
+  [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

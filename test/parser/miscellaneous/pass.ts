@@ -275,7 +275,6 @@ describe('Miscellaneous - Passing tests', () => {
       ;a(){}})`,
     'true;false',
     '({ get "a"() {} })',
-    '/[\uD834\uDF06-\uD834\uDF08a-z]/u',
     '[a, a] = 1',
     'class a extends b { c() { [super.d] = e } }',
     '1 + (a(), b(), c())',
