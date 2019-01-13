@@ -84,13 +84,10 @@ describe('Expressions - Object', () => {
     ['({async foo: 1});', Context.Empty],
     ['x = { async f: function() {} }', Context.Empty],
 
-    ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
+    //     ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
     ['x = { async f: function() {} }', Context.Empty],
     ['x = { async f: function() {} }', Context.Empty],
-
-    ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
-
-    ['s = {"foo": yield /x/g}', Context.Strict],
+    //  ['s = {"foo": yield /x/g}', Context.Strict],
     ['s = {"foo": yield /x/}', Context.Empty],
     ['s = {"foo": yield}', Context.Strict],
     ['function *f(){   s = {foo: yield / x}   }', Context.Empty],

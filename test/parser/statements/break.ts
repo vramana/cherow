@@ -153,6 +153,119 @@ describe('Statements - Break', () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
+      `switch (a) { case 10 /* StringLiteral */:
+        if (lookAhead(function () { return nextToken() !== 57 /* ColonToken */; })) {
+            statement.expression = parseLiteralNode();
+            break;
+        }
+}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 10
+                },
+                consequent: [
+                  {
+                    type: 'IfStatement',
+                    test: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'lookAhead'
+                      },
+                      arguments: [
+                        {
+                          type: 'FunctionExpression',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: [
+                              {
+                                type: 'ReturnStatement',
+                                argument: {
+                                  type: 'BinaryExpression',
+                                  left: {
+                                    type: 'CallExpression',
+                                    callee: {
+                                      type: 'Identifier',
+                                      name: 'nextToken'
+                                    },
+                                    arguments: []
+                                  },
+                                  right: {
+                                    type: 'Literal',
+                                    value: 57
+                                  },
+                                  operator: '!=='
+                                }
+                              }
+                            ]
+                          },
+                          async: false,
+                          generator: false,
+                          id: null
+                        }
+                      ]
+                    },
+                    consequent: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AssignmentExpression',
+                            left: {
+                              type: 'MemberExpression',
+                              object: {
+                                type: 'Identifier',
+                                name: 'statement'
+                              },
+                              computed: false,
+                              property: {
+                                type: 'Identifier',
+                                name: 'expression'
+                              }
+                            },
+                            operator: '=',
+                            right: {
+                              type: 'CallExpression',
+                              callee: {
+                                type: 'Identifier',
+                                name: 'parseLiteralNode'
+                              },
+                              arguments: []
+                            }
+                          }
+                        },
+                        {
+                          type: 'BreakStatement',
+                          label: null
+                        }
+                      ]
+                    },
+                    alternate: null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
       'switch (a) { case 123: { if (a) {} break } }',
       Context.Empty,
       {

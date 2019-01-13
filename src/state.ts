@@ -665,14 +665,10 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
   const test = parseExpression(state, context);
   expect(state, context, Token.RightParen);
-  const previousSwitchStatement = state.switchStatement;
-  state.switchStatement = LabelState.Empty;
   const consequent = parseConsequentOrAlternate(state, context, scope);
-  state.switchStatement = previousSwitchStatement;
   const alternate = optional(state, context, Token.ElseKeyword)
     ? parseConsequentOrAlternate(state, context, scope)
     : null;
-
   return {
     type: 'IfStatement',
     test,
@@ -1998,7 +1994,7 @@ export function parseSequenceExpression(
  */
 
 function parseYieldExpression(state: ParserState, context: Context): ESTree.YieldExpression | ESTree.Identifier {
-  expect(state, context, Token.YieldKeyword);
+  expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
   let argument: ESTree.Expression | null = null;
   let delegate = false;
   if (!(state.flags & Flags.NewLine)) {
@@ -3106,7 +3102,7 @@ function parseObjectLiteral(
             if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
             if (state.token & Token.IsIdentifier) {
               tokenValue = state.tokenValue;
-              value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
+              value = parseAssignmentExpression(state, context);
               addVariable(state, context, scope, type, false, false, tokenValue);
             } else {
               value = parseAssignmentExpression(state, context);
@@ -3175,7 +3171,7 @@ function parseObjectLiteral(
         key = parseLiteral(state, context);
         if (optional(state, context | Context.AllowPossibleRegEx, Token.Colon)) {
           if (tokenValue === '__proto__') state.flags |= Flags.SeenPrototype;
-          value = parseAssignmentExpression(state, context | Context.AllowPossibleRegEx);
+          value = parseAssignmentExpression(state, context);
           addVariable(state, context, scope, type, false, false, tokenValue);
         } else {
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);

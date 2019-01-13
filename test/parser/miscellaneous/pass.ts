@@ -276,6 +276,14 @@ describe('Miscellaneous - Passing tests', () => {
     'true;false',
     '({ get "a"() {} })',
     '[a, a] = 1',
+    /*   `stream.end = function (data) {
+      if(ended) return
+      ended = true
+      if(arguments.length) stream.write(data)
+      _end() // will emit or queue
+      return stream
+    }
+  `,*/
     'class a extends b { c() { [super.d] = e } }',
     '1 + (a(), b(), c())',
     '(a) => a * yield;',
