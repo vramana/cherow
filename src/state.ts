@@ -1718,6 +1718,7 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
       } else {
         let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
         if (optional(state, context, Token.Assign)) {
+          if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
           left = parseAssignmentPattern(state, context, left);
         }
         params.push(left);
@@ -2564,6 +2565,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       validateBindingIdentifier(state, context, Type.None);
       const id = parseIdentifier(state, context | Context.TaggedTemplate);
       if (optional(state, context, Token.Arrow)) {
+        // Yield in generator is keyword'
+        if (token & Token.IsYield && context & (Context.AwaitContext | Context.YieldContext))
+          report(state, Errors.YieldReservedKeyword);
         const scopes = createScope(ScopeType.ArgumentList);
         addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true, state.tokenValue);
         if (context & Context.AwaitContext && token === Token.AwaitKeyword) report(state, Errors.Unexpected);

@@ -481,22 +481,22 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
     if ((token & Token.FutureReserved) === Token.FutureReserved) {
       report(state, Errors.Unexpected);
     }
-    if (token === Token.StaticKeyword) report(state, Errors.Unexpected);
+    if (token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
   }
   if ((token & Token.Reserved) === Token.Reserved) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.InvalidStrictReservedWord);
   }
   if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.AwaitOutsideAsync);
   }
   if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
-    report(state, Errors.Unexpected);
+    report(state, Errors.DisallowedInContext);
   }
 
   if (token === Token.LetKeyword) {
-    if (type & Type.ClassExprDecl) report(state, Errors.Unexpected);
-    if (type & (Type.Let | Type.Const)) report(state, Errors.Unexpected);
-    if (context & Context.Strict) report(state, Errors.Unexpected);
+    if (type & Type.ClassExprDecl) report(state, Errors.InvalidLetClassName);
+    if (type & (Type.Let | Type.Const)) report(state, Errors.InvalidLetConstBinding);
+    if (context & Context.Strict) report(state, Errors.InvalidStrictLet);
   }
 
   return true;
