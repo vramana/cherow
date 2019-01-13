@@ -63,6 +63,84 @@ describe('Expressions - New', () => {
 
   const valids: Array<[string, Context, any]> = [
     [
+      'new foo.bar().baz',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  }
+                },
+                arguments: []
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'baz'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'new new foo().bar().baz',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'NewExpression',
+                callee: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'NewExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    arguments: []
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'bar'
+                  }
+                },
+                arguments: []
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'baz'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
       'new(a in b)',
       Context.Empty,
       {

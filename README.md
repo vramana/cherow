@@ -118,6 +118,7 @@ The second argument allows you to specify various options:
 | `experimental`    | Enable experimental features
 | `raw`             | Attach raw property to each literal node and identifier node |
 | `native`          | Enable "native" NodeJS / V8 features |
+| `directives`      | Enable [directive prologue](https://github.com/danez/estree/blob/directive/es5.md#directive) to each literal node |
 | `onComment`       | Accept either callback or array to collect comment |
 | `onToken`         | Accept either callback or array and returns each found token |
 

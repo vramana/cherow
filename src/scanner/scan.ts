@@ -55,7 +55,7 @@ table[Chars.Semicolon] = scanChar;
 OneCharPunc[Chars.Semicolon] = Token.Semicolon;
 
 table[Chars.Zero] = (state, context) => {
-  let index = state.index + 1;
+  const index = state.index + 1;
   if (index < state.length) {
     // either 0, 0exxx, 0Exxx, 0.xxx, a hex number, a binary number or
     // an octal number.

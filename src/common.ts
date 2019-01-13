@@ -19,6 +19,7 @@ export const enum Context {
   OptionsGlobalReturn = 1 << 6,
   OptionsExperimental = 1 << 7,
   OptionsNative = 1 << 8,
+  RequireIdentifier = 1 << 9,
 
   Strict = 1 << 10,
   Module = 1 << 11,
@@ -28,7 +29,9 @@ export const enum Context {
   DisallowInContext = 1 << 13,
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
+  OptionsDirectives = 1 << 17,
   SuperProperty = 1 << 18,
+
   SuperCall = 1 << 19,
 
   InGlobal = 1 << 20,
@@ -52,7 +55,8 @@ export const enum Flags {
   Float = 1 << 2,
   Octal = 1 << 3,
   Binary = 1 << 4,
-  SeenPrototype = 1 << 5
+  SeenPrototype = 1 << 5,
+  SimpleParameterList  = 1 << 6
 }
 // prettier-ignore
 /**
@@ -80,7 +84,8 @@ export const enum Origin {
   CatchClause = 1 << 3,
   AsyncArgs = 1 << 4,
   ArgList = 1 << 5,
-  ClassExprDecl = 1 << 6
+  ClassExprDecl = 1 << 6,
+  Declaration = 1 << 7
 }
 
 /*@internal*/
@@ -542,7 +547,7 @@ export function validateBindingIdentifier(state: ParserState, context: Context, 
 }
 export function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any) {
   if (state.exportedNames !== undefined && exportedName !== '') {
-    let hashed: any = '@' + exportedName;
+    const hashed: any = '@' + exportedName;
     if (state.exportedNames[hashed]) report(state, Errors.InvalidDuplicateExportedBinding, exportedName);
     state.exportedNames[hashed] = 1;
   }
@@ -550,7 +555,7 @@ export function addToExportedNamesAndCheckForDuplicates(state: ParserState, expo
 
 export function addToExportedBindings(state: ParserState, exportedName: any) {
   if (state.exportedBindings !== undefined && exportedName !== '') {
-    let hashed: any = '@' + exportedName;
+    const hashed: any = '@' + exportedName;
     state.exportedBindings[hashed] = 1;
   }
 }
@@ -681,7 +686,7 @@ export function addVariableAndDeduplicate(
   scope: ScopeState,
   type: Type,
   isVariableDecl: boolean,
-  name = state.tokenValue
+  name: string
 ): void {
   addVariable(state, context, scope, type, true, isVariableDecl, name);
   if ((context & Context.OptionsDisableWebCompat) === 0) {

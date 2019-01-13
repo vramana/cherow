@@ -15,8 +15,7 @@ pass('Literal - String (pass)', [
           expression: {
             type: 'Literal',
             value: 'hello'
-          },
-          directive: 'hello'
+          }
         }
       ],
       sourceType: 'script'
