@@ -2596,11 +2596,7 @@ export function parseArrayExpression(state: ParserState, context: Context): any 
 function parseFunctionExpression(state: ParserState, context: Context, isAsync: boolean): ESTree.FunctionExpression {
   expect(state, context, Token.FunctionKeyword);
 
-  let isGenerator: boolean = false;
-
-  if (optional(state, context, Token.Multiply)) {
-    isGenerator = true;
-  }
+  const isGenerator = optional(state, context, Token.Multiply);
 
   // Create a new function scope
   let functionScope = createScope(ScopeType.BlockStatement);

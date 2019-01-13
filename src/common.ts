@@ -477,20 +477,21 @@ export function reinterpret(ast: any) {
 }
 
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
-  if ((token & Token.FutureReserved) === Token.FutureReserved) {
-    if (context & Context.Strict) report(state, Errors.Unexpected);
+  if (context & Context.Strict) {
+    if ((token & Token.FutureReserved) === Token.FutureReserved) {
+      report(state, Errors.Unexpected);
+    }
+    if (token === Token.StaticKeyword) report(state, Errors.Unexpected);
   }
   if ((token & Token.Reserved) === Token.Reserved) {
     report(state, Errors.Unexpected);
   }
-  if (token & Token.IsAwait) {
-    if (context & (Context.AwaitContext | Context.Module)) report(state, Errors.Unexpected);
-    return true;
+  if (context & (Context.AwaitContext | Context.Module) && token & Token.IsAwait) {
+    report(state, Errors.Unexpected);
   }
-  if (token & Token.IsYield) {
-    if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.Unexpected);
+  if (context & (Context.YieldContext | Context.Strict) && token & Token.IsYield) {
+    report(state, Errors.Unexpected);
   }
-  if (token === Token.StaticKeyword && context & Context.Strict) report(state, Errors.Unexpected);
 
   if (token === Token.LetKeyword) {
     if (type & Type.ClassExprDecl) report(state, Errors.Unexpected);
