@@ -68,6 +68,16 @@ export interface Options {
   directives?: boolean;
 }
 
+export const version = '2.0';
+
+/**
+ * Parse a module body, function body, script body, etc.
+ *
+ * @param source The source coode to parser
+ * @param options The parser options
+ * @param context Context masks
+ */
+
 export function parseSource(source: string, options: Options | void, context: Context): ESTree.Program {
   let onComment: OnComment;
   let onToken: OnToken;

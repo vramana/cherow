@@ -1235,14 +1235,11 @@ export function parseBindingIdentifier(
     scope,
     type,
     checkForDuplicates,
-    (origin === Origin.Statement || origin === Origin.ForStatement || origin === Origin.Export) &&
-      type === Type.Variable
-      ? true
-      : false,
+    origin & (Origin.Statement | Origin.ForStatement | Origin.Export) && type === Type.Variable ? true : false,
     name
   );
 
-  if (origin === Origin.Export) {
+  if (origin & Origin.Export) {
     addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
     addToExportedBindings(state, state.tokenValue);
   }
@@ -1909,7 +1906,7 @@ export function parseVariableDeclarationList(
   while (optional(state, context, Token.Comma)) {
     list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
   }
-  if (origin === Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
+  if (origin & Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
     if (
       state.token === Token.OfKeyword ||
       type === Type.Variable ||
