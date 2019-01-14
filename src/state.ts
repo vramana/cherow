@@ -493,7 +493,7 @@ function parseAsyncFunctionOrAssignmentExpression(
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
   switch (state.token) {
     case Token.FunctionKeyword:
-      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false, false);
+      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
     case Token.ClassKeyword:
       return parseClassDeclaration(state, context, scope);
     case Token.ConstKeyword:
@@ -522,7 +522,7 @@ function parseAsyncFunctionOrExpressionStatement(
   scope: ScopeState
 ): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseFunctionDeclaration(state, context, scope, Origin.None, false, true)
+    ? parseFunctionDeclaration(state, context, scope, Origin.None, true)
     : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
 }
 
@@ -689,7 +689,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
   return context & (Context.OptionsDisableWebCompat | Context.Strict) || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
-    : parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, Origin.Declaration, true, false);
+    : parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
 }
 
 /**
@@ -1170,14 +1170,7 @@ export function parseExpressionOrLabelledStatement(
       (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&
       ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
     ) {
-      body = parseFunctionDeclaration(
-        state,
-        context | Context.DisallowGenerators,
-        scope,
-        Origin.Declaration,
-        false,
-        false
-      );
+      body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
     state.labelDepth--;
     return {
@@ -1532,12 +1525,11 @@ export function parseFunctionDeclaration(
   context: Context,
   scope: ScopeState,
   origin: Origin,
-  isFuncDel: boolean,
   isAsync: boolean
 ) {
   next(state, context);
 
-  const isGenerator: boolean = (context & Context.DisallowGenerators) === 0 && optional(state, context, Token.Multiply);
+  const isGenerator: boolean = (origin & Origin.Statement) === 0 && optional(state, context, Token.Multiply);
 
   // Create a new function scope
   let funcScope = createScope(ScopeType.BlockStatement);
@@ -1565,7 +1557,7 @@ export function parseFunctionDeclaration(
         : Type.Let
     );
 
-    if (isFuncDel) scope = createSubScope(scope, ScopeType.BlockStatement);
+    if (origin & Origin.Statement) scope = createSubScope(scope, ScopeType.BlockStatement);
     addFunctionName(
       state,
       context,
@@ -1581,8 +1573,8 @@ export function parseFunctionDeclaration(
   } else if (!(context & Context.RequireIdentifier)) report(state, Errors.Unexpected);
 
   context =
-    (context | Context.AwaitContext | Context.DisallowGenerators | Context.YieldContext | Context.InArgList) ^
-    (Context.AwaitContext | Context.DisallowGenerators | Context.YieldContext | Context.InArgList);
+    (context | Context.AwaitContext | Context.YieldContext | Context.InArgList) ^
+    (Context.AwaitContext | Context.YieldContext | Context.InArgList);
 
   if (isAsync) context |= Context.AwaitContext;
   if (isGenerator) context |= Context.YieldContext;
