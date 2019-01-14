@@ -3,6 +3,7 @@ import {
   Context,
   Flags,
   LabelState,
+  LabelledState,
   OnComment,
   OnToken,
   ParserState,
@@ -20,7 +21,12 @@ import {
   addCrossingBoundary,
   addLabel,
   addVariableAndDeduplicate,
-  isValidIdentifier
+  isValidIdentifier,
+  ScopeState,
+  ScopeType,
+  createSubScope,
+  createScope,
+  ObjectState
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -35,28 +41,7 @@ import {
   isLexical,
   lookAheadOrScan
 } from './common';
-import { ScopeState, ScopeType, createSubScope, createScope } from './scope';
 import { report, Errors } from './errors';
-
-export const enum LabelledState {
-  None = 0,
-  AllowAsLabelled = 1 << 0,
-  Disallow = 1 << 1
-}
-
-export const enum ObjectState {
-  None = 0,
-  Method = 1 << 0,
-  Computed = 1 << 1,
-  Shorthand = 1 << 2,
-  Generator = 1 << 3,
-  Async = 1 << 4,
-  Static = 1 << 5,
-  Constructor = 1 << 6,
-  Getter = 1 << 7,
-  Setter = 1 << 8,
-  GetSet = Getter | Setter
-}
 
 /**
  * Create a new parser instance.
