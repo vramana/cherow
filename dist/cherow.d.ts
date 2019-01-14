@@ -21,6 +21,7 @@ export interface Options {
     onToken?: OnToken;
     directives?: boolean;
 }
+export declare const version = "2.0";
 export declare function parseSource(source: string, options: Options | void, context: Context): ESTree.Program;
 export declare function parse(source: string, options?: Options): ESTree.Program;
 export declare function parseScript(source: string, options?: Options): ESTree.Program;

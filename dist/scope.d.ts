@@ -2,9 +2,9 @@ export declare const enum ScopeType {
     None = 0,
     BlockStatement = 1,
     ForStatement = 2,
-    SwitchStatement = 3,
-    CatchClause = 4,
-    ArgumentList = 5
+    SwitchStatement = 4,
+    CatchClause = 8,
+    ArgumentList = 16
 }
 export interface ScopeState {
     var: any;

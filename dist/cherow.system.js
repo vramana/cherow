@@ -74,7 +74,18 @@ System.register('cherow', [], function (exports, module) {
           [60]: 'Duplicate constructor method in class',
           [61]: 'Function name may not be eval or arguments in strict mode',
           [62]: "Classes may not have a static property named 'prototype'",
-          [63]: 'Class constructor may not be a %0'
+          [63]: 'Class constructor may not be a %0',
+          [64]: 'Unterminated regular expression',
+          [65]: 'Unexpected regular expression flag',
+          [66]: "'yield' is a reserved keyword within generator function bodies",
+          [67]: "'%0' may not be used as an identifier in this context",
+          [68]: "Can not use 'let' as a class name",
+          [69]: 'Can not use `let` when binding through `let` or `const`',
+          [70]: 'Can not use `let` as variable name in strict mode',
+          [71]: 'Await is only valid in async functions',
+          [72]: 'Invalid use of reserved word as variable name',
+          [73]: '`Static` is a reserved word in strict mode',
+          [74]: ' Invalid use of reserved word as a variable name in strict mode'
       };
       function constructError(index, line, column, description) {
           const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -84,10 +95,6 @@ System.register('cherow', [], function (exports, module) {
           error.description = description;
           return error;
       }
-      function reportRegExp(state, type, ...params) {
-          state.lastRegExpError = errorMessages[type].replace(/%(\d+)/g, (_, i) => params[i]);
-          return 4;
-      }
       function report(parser, type, ...params) {
           const { index, line, column } = parser;
           const message = errorMessages[type].replace(/%(\d+)/g, (_, i) => params[i]);
@@ -95,9 +102,6 @@ System.register('cherow', [], function (exports, module) {
           throw error;
       }
 
-      function isIDContinue(code) {
-          return ((unicodeLookup[(code >>> 5) + 0] >>> code) & 31 & 1) !== 0;
-      }
       const unicodeLookup = ((compressed, lookup) => {
           const result = new Uint32Array(104448);
           let index = 0;
@@ -3723,28 +3727,8 @@ System.register('cherow', [], function (exports, module) {
               report(state, err);
           return state.source.charCodeAt(state.index);
       }
-      function isFlagStart(code) {
-          return (isIDContinue(code) ||
-              code === 92 ||
-              code === 36 ||
-              code === 95 ||
-              code === 8204 ||
-              code === 8205);
-      }
       function nextChar(parser) {
           return parser.source.charCodeAt(parser.index);
-      }
-      function nextUnicodeChar(state) {
-          let { index } = state;
-          const hi = state.source.charCodeAt(index++);
-          if (hi < 0xd800 || hi > 0xdbff)
-              return hi;
-          if (index === state.source.length)
-              return hi;
-          const lo = state.source.charCodeAt(index);
-          if (lo < 0xdc00 || lo > 0xdfff)
-              return hi;
-          return ((hi & 0x3ff) << 10) | (lo & 0x3ff) | 0x10000;
       }
       function consumeAny(state) {
           const hi = state.source.charCodeAt(state.index++);
@@ -3798,86 +3782,6 @@ System.register('cherow', [], function (exports, module) {
       }
       function isDigit(ch) {
           return ch >= 48 && ch <= 57;
-      }
-      function scanIntervalQuantifier(state) {
-          let hasLow = false;
-          let hasHi = false;
-          let minValue = 0;
-          let maxValue = 0;
-          let next = state.source.charCodeAt(state.index);
-          let start = true;
-          let isInvalid = false;
-          while (next >= 48 && next <= 57) {
-              ++state.index;
-              hasLow = true;
-              if (start) {
-                  start = false;
-                  if (next === 48) {
-                      next = state.source.charCodeAt(state.index);
-                      if (!(next >= 48 && next <= 57))
-                          break;
-                      isInvalid = true;
-                      ++state.index;
-                  }
-              }
-              minValue = minValue * 10 + (next - 48);
-              next = state.source.charCodeAt(state.index);
-          }
-          if (consumeOpt(state, 44)) {
-              start = true;
-              while (state.index < state.length) {
-                  next = state.source.charCodeAt(state.index);
-                  if (!(next >= 48 && next <= 57))
-                      break;
-                  ++state.index;
-                  hasHi = true;
-                  if (start) {
-                      start = false;
-                      if (next === 48) {
-                          next = state.source.charCodeAt(state.index);
-                          if (!(next >= 48 && next <= 57))
-                              break;
-                          isInvalid = true;
-                          ++state.index;
-                      }
-                  }
-                  maxValue = maxValue * 10 + (next - 48);
-              }
-          }
-          return consumeOpt(state, 125)
-              ? !isInvalid && (hasLow !== hasHi || (hasLow && hasHi && minValue <= maxValue))
-              : false;
-      }
-      function setState(state, currentState, newState, error) {
-          if (currentState & (newState & 16 ? 32 : 16))
-              return reportRegExp(state, error);
-          return currentState === 1 ? newState : currentState;
-      }
-      function updateState(state, currentState, updatedState) {
-          if (updatedState === 4) {
-              return 4;
-          }
-          else if (updatedState & (32 | 16)) {
-              return setState(state, currentState, updatedState & 32 ? 32 : 16, 12);
-          }
-          return currentState;
-      }
-      function parseRegexCapturingGroupNameRemainder(state, context, firstCharOrd, namedGroups) {
-          if (nextChar(state) === 62) {
-              state.tokenValue = String.fromCodePoint(firstCharOrd);
-          }
-          const name = state.tokenValue;
-          if (namedGroups.has(name)) {
-              return reportRegExp(state, 22, name);
-          }
-          namedGroups.add(name);
-          ++state.numCapturingParens;
-          if (!consumeOpt(state, 62)) {
-              if (context & 16) {
-                  return reportRegExp(state, 2);
-              }
-          }
-          return 1;
       }
 
       const CommentTypes = ['SingleLine', 'MultiLine', 'HTMLOpen', 'HTMLClose', 'HashbangComment'];
@@ -4257,787 +4161,124 @@ System.register('cherow', [], function (exports, module) {
           return (AsciiLookup[code] & 2) > 0 || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) > 0;
       }
 
-      function scanRegexFlags(state) {
-          let mask = 0;
-          loop: while (state.index < state.length) {
-              let code = state.source.charCodeAt(state.index);
-              switch (code) {
-                  case 103:
-                      if (mask & 1)
-                          return reportRegExp(state, 26, 'g');
-                      mask |= 1;
-                      break;
-                  case 105:
-                      if (mask & 2)
-                          return reportRegExp(state, 26, 'i');
-                      mask |= 2;
-                      break;
-                  case 109:
-                      if (mask & 4)
-                          return reportRegExp(state, 26, 'm');
-                      mask |= 4;
-                      break;
-                  case 117:
-                      if (mask & 8)
-                          return reportRegExp(state, 26, 'u');
-                      mask |= 8;
-                      break;
-                  case 121:
-                      if (mask & 16)
-                          return reportRegExp(state, 26, 'y');
-                      mask |= 16;
-                      break;
-                  case 115:
-                      if (mask & 32)
-                          return reportRegExp(state, 26, 's');
-                      mask |= 32;
-                      break;
-                  default:
-                      if (code >= 0xd800 && code <= 0xdc00)
-                          code = nextUnicodeChar(state);
-                      if (!isFlagStart(code))
-                          break loop;
-                      return 4;
-              }
-              state.index++;
-          }
-          return mask & 8 ? 16 : 32;
-      }
+      var RegexState;
+      (function (RegexState) {
+          RegexState[RegexState["Empty"] = 0] = "Empty";
+          RegexState[RegexState["Escape"] = 1] = "Escape";
+          RegexState[RegexState["Class"] = 2] = "Class";
+      })(RegexState || (RegexState = {}));
+      var RegexFlags;
+      (function (RegexFlags) {
+          RegexFlags[RegexFlags["Empty"] = 0] = "Empty";
+          RegexFlags[RegexFlags["IgnoreCase"] = 1] = "IgnoreCase";
+          RegexFlags[RegexFlags["Global"] = 2] = "Global";
+          RegexFlags[RegexFlags["Multiline"] = 4] = "Multiline";
+          RegexFlags[RegexFlags["Unicode"] = 8] = "Unicode";
+          RegexFlags[RegexFlags["Sticky"] = 16] = "Sticky";
+          RegexFlags[RegexFlags["DotAll"] = 32] = "DotAll";
+      })(RegexFlags || (RegexFlags = {}));
       function scanRegularExpression(state, context) {
           const bodyStart = state.index;
-          const regExpState = 1;
-          let regexpBody = validateRegularExpression(state, context, 0, regExpState, 0);
+          let preparseState = RegexState.Empty;
+          loop: while (true) {
+              const ch = state.source.charCodeAt(state.index);
+              state.index++;
+              state.column++;
+              if (preparseState & RegexState.Escape) {
+                  preparseState &= ~RegexState.Escape;
+              }
+              else {
+                  switch (ch) {
+                      case 47:
+                          if (!preparseState)
+                              break loop;
+                          else
+                              break;
+                      case 92:
+                          preparseState |= RegexState.Escape;
+                          break;
+                      case 91:
+                          preparseState |= RegexState.Class;
+                          break;
+                      case 93:
+                          preparseState &= RegexState.Escape;
+                          break;
+                      case 13:
+                      case 10:
+                      case 8232:
+                      case 8233:
+                          report(state, 64);
+                      default:
+                  }
+              }
+              if (state.index >= state.source.length) {
+                  report(state, 64);
+              }
+          }
           const bodyEnd = state.index - 1;
+          let mask = RegexFlags.Empty;
           const { index: flagStart } = state;
-          const regexpFlags = scanRegexFlags(state);
-          if (state.numCapturingParens < state.largestBackReference) {
-              regexpBody =
-                  (context & 16) === 0
-                      ? setState(state, regexpBody, 32, 8)
-                      : reportRegExp(state, 0);
-          }
-          if (regexpBody & 4 || regexpFlags & 4)
-              throw state.lastRegExpError;
-          if (regexpBody & 16) {
-              if (regexpFlags & 16)
-                  return 131076;
-              reportRegExp(state, 11);
-              throw state.lastRegExpError;
-          }
-          else if (regexpBody & 32) {
-              if (regexpFlags !== 16)
-                  return 131076;
-              reportRegExp(state, 12);
-              throw state.lastRegExpError;
+          loop: while (state.index < state.source.length) {
+              const code = state.source.charCodeAt(state.index);
+              switch (code) {
+                  case 103:
+                      if (mask & RegexFlags.Global)
+                          report(state, 26, 'g');
+                      mask |= RegexFlags.Global;
+                      break;
+                  case 105:
+                      if (mask & RegexFlags.IgnoreCase)
+                          report(state, 26, 'i');
+                      mask |= RegexFlags.IgnoreCase;
+                      break;
+                  case 109:
+                      if (mask & RegexFlags.Multiline)
+                          report(state, 26, 'm');
+                      mask |= RegexFlags.Multiline;
+                      break;
+                  case 117:
+                      if (mask & RegexFlags.Unicode)
+                          report(state, 26, 'u');
+                      mask |= RegexFlags.Unicode;
+                      break;
+                  case 121:
+                      if (mask & RegexFlags.Sticky)
+                          report(state, 26, 'y');
+                      mask |= RegexFlags.Sticky;
+                      break;
+                  case 115:
+                      if (mask & RegexFlags.DotAll)
+                          report(state, 26, 's');
+                      mask |= RegexFlags.DotAll;
+                      break;
+                  default:
+                      if (!isIdentifierPart(code))
+                          break loop;
+                      report(state, 65, fromCodePoint(code));
+              }
+              state.index++;
+              state.column++;
           }
           const flags = state.source.slice(flagStart, state.index);
           const pattern = state.source.slice(bodyStart, bodyEnd);
           state.tokenRegExp = { pattern, flags };
           if (context & 8)
               state.tokenRaw = state.source.slice(state.startIndex, state.index);
-          try {
-              state.tokenValue = new RegExp(pattern, flags);
-          }
-          catch (e) {
-              state.tokenValue = null;
-          }
+          state.tokenValue = validate(state, pattern, flags);
           return 131076;
       }
-      function validateRegularExpression(state, context, depth, regExpState, type) {
-          const groupNames = new Set();
-          const backreferenceNames = [];
-          while (state.index !== state.length) {
-              switch (state.source.charCodeAt(state.index++)) {
-                  case 94:
-                  case 36:
-                  case 124:
-                      type &= ~1;
-                      break;
-                  case 47: {
-                      if (depth !== 0)
-                          return reportRegExp(state, 23);
-                      if (context & 16) {
-                          for (const i in backreferenceNames) {
-                              if (!groupNames.has(backreferenceNames[i])) {
-                                  report(state, 24, backreferenceNames[i]);
-                              }
-                          }
-                      }
-                      return regExpState;
-                  }
-                  case 46:
-                      type |= 1;
-                      break;
-                  case 92: {
-                      if (state.index === state.length)
-                          return reportRegExp(state, 3);
-                      type |= 1;
-                      if (consumeOpt(state, 98) || consumeOpt(state, 66)) {
-                          type &= ~1;
-                      }
-                      else {
-                          regExpState = updateState(state, regExpState, validateAtomEscape(state, context, backreferenceNames, state.source.charCodeAt(state.index)));
-                      }
-                      break;
-                  }
-                  case 40:
-                      {
-                          type &= ~(1 | 4 | 2);
-                          if (consumeOpt(state, 63)) {
-                              let next = state.source.charCodeAt(state.index);
-                              if (next === 58 ||
-                                  next === 61 ||
-                                  next === 33 ||
-                                  next === 60) {
-                                  if (consumeOpt(state, 60)) {
-                                      next = state.source.charCodeAt(state.index);
-                                      if (consumeOpt(state, 61) || consumeOpt(state, 33)) {
-                                          type |= 4;
-                                      }
-                                      else if (consumeOpt(state, 92)) {
-                                          if (!consumeOpt(state, 117))
-                                              return reportRegExp(state, 10);
-                                          next = parseRegexUnicodeEscape(state);
-                                          if (next === 1114112) {
-                                              regExpState = reportRegExp(state, 10);
-                                              break;
-                                          }
-                                          if (next & 8388608) {
-                                              regExpState =
-                                                  setState(state, regExpState, 16, 21);
-                                              next = next ^ 8388608;
-                                          }
-                                          const subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
-                                          if ((subState & 1) === 0) {
-                                              regExpState = subState;
-                                              break;
-                                          }
-                                      }
-                                      else {
-                                          if ((AsciiLookup[next] & 2) > 0 ||
-                                              ((unicodeLookup[(next >>> 5) + 34816] >>> next) & 31 & 1) > 0) {
-                                              ++state.index;
-                                          }
-                                          else {
-                                              if ((context & 16) === 0)
-                                                  break;
-                                              return reportRegExp(state, 20);
-                                          }
-                                          const subState = parseRegexCapturingGroupNameRemainder(state, context, next, groupNames);
-                                          if ((subState & 1) === 0) {
-                                              regExpState = subState;
-                                              break;
-                                          }
-                                          next = 62;
-                                      }
-                                  }
-                                  else if (consumeOpt(state, 61) || consumeOpt(state, 33)) {
-                                      type |= 2;
-                                  }
-                                  if (state.index === state.length) {
-                                      regExpState = reportRegExp(state, 3);
-                                      break;
-                                  }
-                                  next = state.source.charCodeAt(state.index);
-                              }
-                              else {
-                                  regExpState = reportRegExp(state, 19);
-                              }
-                          }
-                          else {
-                              ++state.numCapturingParens;
-                          }
-                          const subState = validateRegularExpression(state, context, depth + 1, 1, 0);
-                          switch (state.source.charCodeAt(state.index)) {
-                              case 63:
-                              case 123:
-                              case 42:
-                              case 43: {
-                                  if (type & (2 | 4)) {
-                                      regExpState =
-                                          (context & 16) === 0
-                                              ? setState(state, regExpState, 32, 2)
-                                              : reportRegExp(state, 2);
-                                  }
-                              }
-                              default:
-                                  type |= 1;
-                                  regExpState = updateState(state, regExpState, subState);
-                          }
-                      }
-                      break;
-                  case 41: {
-                      if (depth > 0)
-                          return regExpState;
-                      regExpState = reportRegExp(state, 23);
-                      type |= 1;
-                      break;
-                  }
-                  case 91: {
-                      regExpState = updateState(state, regExpState, parseCharacterClass(state, context));
-                      type |= 1;
-                      break;
-                  }
-                  case 93: {
-                      regExpState =
-                          (context & 16) === 0
-                              ? setState(state, regExpState, 32, 25)
-                              : (regExpState = reportRegExp(state, 2));
-                      type |= 1;
-                  }
-                  case 42:
-                  case 43:
-                  case 63: {
-                      if (type & 1) {
-                          type &= ~1;
-                          if (state.index < state.length)
-                              consumeOpt(state, 63);
-                      }
-                      else {
-                          regExpState = reportRegExp(state, 2);
-                      }
-                      break;
-                  }
-                  case 123: {
-                      if (type & 1) {
-                          if (!scanIntervalQuantifier(state) && context & 16) {
-                              regExpState = reportRegExp(state, 2);
-                          }
-                          if (state.index < state.length && consumeOpt(state, 63)) ;
-                          type &= ~1;
-                      }
-                      else {
-                          if ((context & 16) === 0) {
-                              regExpState = setState(state, regExpState, 32, 8);
-                          }
-                          else {
-                              regExpState = reportRegExp(state, 16);
-                          }
-                      }
-                      break;
-                  }
-                  case 125: {
-                      regExpState =
-                          context & 16
-                              ? reportRegExp(state, 16)
-                              : setState(state, regExpState, 32, 17);
-                      type &= ~1;
-                      break;
-                  }
-                  case 13:
-                  case 10:
-                  case 8232:
-                  case 8233:
-                      return reportRegExp(state, 3);
-                  default:
-                      type |= 1;
-              }
+      function validate(state, pattern, flags) {
+          try {
           }
-          return reportRegExp(state, 3);
-      }
-      function parseRegexUnicodeEscape(state) {
-          if (consumeOpt(state, 123)) {
-              let ch2 = state.source.charCodeAt(state.index);
-              let code = toHex(ch2);
-              if (code < 0)
-                  return 1114112;
-              state.index++;
-              ch2 = state.source.charCodeAt(state.index);
-              while (ch2 !== 125) {
-                  const digit = toHex(ch2);
-                  if (digit < 0)
-                      return 1114112;
-                  code = code * 16 + digit;
-                  if (code > 0x10ffff)
-                      return 1114112;
-                  state.index++;
-                  ch2 = state.source.charCodeAt(state.index);
-              }
-              state.index++;
-              return code | 8388608;
+          catch (e) {
+              report(state, 64);
           }
-          let codePoint = toHex(state.source.charCodeAt(state.index));
-          if (codePoint < 0)
-              return 1114112;
-          for (let i = 0; i < 3; i++) {
-              state.index++;
-              const digit = toHex(state.source.charCodeAt(state.index));
-              if (digit < 0)
-                  return 1114112;
-              codePoint = codePoint * 16 + digit;
+          try {
+              return new RegExp(pattern, flags);
           }
-          state.index++;
-          return codePoint;
-      }
-      function parseOctalFromSecondDigit(state, firstChar) {
-          if (firstChar >= 48 && firstChar <= 51) {
-              const secondChar = state.source.charCodeAt(state.index);
-              if (secondChar >= 48 && secondChar <= 55) {
-                  ++state.index;
-                  const thirdChar = state.source.charCodeAt(state.index);
-                  if (thirdChar >= 48 && thirdChar <= 55) {
-                      ++state.index;
-                      return (firstChar - 48) * 8 * 8 + (secondChar - 48) * 8 + (thirdChar - 48);
-                  }
-                  else {
-                      return (firstChar - 48) * 8 + (thirdChar - 48);
-                  }
-              }
-              else {
-                  return firstChar - 48;
-              }
+          catch (e) {
+              return null;
           }
-          else {
-              const secondChar = state.source.charCodeAt(state.index);
-              if (secondChar >= 48 && secondChar <= 55) {
-                  ++state.index;
-                  const thirdChar = state.source.charCodeAt(state.index);
-                  if (thirdChar >= 48 && thirdChar <= 51) {
-                      ++state.index;
-                      return (firstChar - 48) * 8 * 8 + (secondChar - 48) * 8 + (thirdChar - 48);
-                  }
-                  else {
-                      return (firstChar - 48) * 8 + (thirdChar - 48);
-                  }
-              }
-              else {
-                  return firstChar - 48;
-              }
-          }
-      }
-      function parseRegexPropertyEscape(state, context) {
-          if (!consumeOpt(state, 123)) {
-              return (context & 16) === 0
-                  ? 32
-                  : reportRegExp(state, 4);
-          }
-          if (consumeOpt(state, 125))
-              return reportRegExp(state, 4);
-          while (state.source.charCodeAt(state.index) !== 125) {
-              if (state.index === state.length) {
-                  if ((context & 16) === 0)
-                      return 32;
-                  return reportRegExp(state, 3);
-              }
-              state.index++;
-          }
-          state.index++;
-          return 16;
-      }
-      function validateClassCharacterEscape(state, context) {
-          let next = state.source.charCodeAt(state.index++);
-          switch (next) {
-              case 98:
-                  return 8;
-              case 66:
-                  return 1114113;
-              case 94:
-              case 36:
-              case 92:
-              case 46:
-              case 42:
-              case 43:
-              case 63:
-              case 40:
-              case 41:
-              case 91:
-              case 93:
-              case 123:
-              case 125:
-              case 124:
-                  return next;
-              case 102:
-                  return 0x000c;
-              case 110:
-                  return 0x000a;
-              case 114:
-                  return 0x000d;
-              case 116:
-                  return 0x0009;
-              case 118:
-                  return 0x000b;
-              case 100:
-              case 68:
-              case 115:
-              case 83:
-              case 87:
-              case 119:
-                  return 33554432;
-              case 117:
-                  return parseRegexUnicodeEscape(state);
-              case 120: {
-                  if (state.index >= state.length - 1)
-                      return 1114112;
-                  const ch1 = state.source.charCodeAt(state.index);
-                  const hi = toHex(ch1);
-                  if (hi < 0)
-                      return 1114112;
-                  state.index++;
-                  const ch2 = state.source.charCodeAt(state.index);
-                  const lo = toHex(ch2);
-                  if (lo < 0)
-                      return 1114112;
-                  state.index++;
-                  return (hi << 4) | lo;
-              }
-              case 99:
-                  if (state.index < state.length) {
-                      const letter = state.source.charCodeAt(state.index) | 32;
-                      if (letter >= 97 && letter <= 122) {
-                          ++state.index;
-                          return letter & 0x1f;
-                      }
-                      if ((context & 16) === 0) {
-                          return 16777216;
-                      }
-                  }
-                  return 1114112;
-              case 112:
-              case 80:
-                  const regexPropState = parseRegexPropertyEscape(state, context);
-                  if (regexPropState & 4)
-                      return 1114112;
-                  if (regexPropState & 32) {
-                      return (context & 16) === 0
-                          ? 16777216
-                          : 1114112;
-                  }
-                  return (context & 16) === 0 ? 33554432 : 8388608;
-              case 48:
-                  if ((context & 16) === 0) {
-                      return parseOctalFromSecondDigit(state, next) | 16777216;
-                  }
-                  next = state.source.charCodeAt(state.index);
-                  return state.index < state.length && next >= 48 && next <= 57
-                      ? 1114112
-                      : 0;
-              case 49:
-              case 50:
-              case 51:
-              case 52:
-              case 53:
-              case 54:
-              case 55:
-                  return (context & 16) === 0
-                      ? parseOctalFromSecondDigit(state, next) | 16777216
-                      : 1114112;
-              case 56:
-              case 57:
-                  return next === 99 || next === 107
-                      ? 4
-                      : next | 16777216;
-              case 47:
-                  return 47;
-              case 45:
-                  if ((context & 16) === 0) {
-                      return 45;
-                  }
-                  else {
-                      return 45 | 8388608;
-                  }
-              default:
-                  return (AsciiLookup[next] & 1) > 0 || ((unicodeLookup[(next >>> 5) + 0] >>> next) & 31 & 1) > 0
-                      ? 1114112
-                      : next | 16777216;
-          }
-      }
-      function validateAtomEscape(state, context, backreferenceNames, prev) {
-          let next = state.source.charCodeAt(state.index++);
-          switch (next) {
-              case 102:
-              case 110:
-              case 114:
-              case 116:
-              case 118:
-              case 100:
-              case 68:
-              case 115:
-              case 83:
-              case 87:
-              case 119:
-              case 94:
-              case 36:
-              case 92:
-              case 46:
-              case 42:
-              case 43:
-              case 63:
-              case 40:
-              case 41:
-              case 91:
-              case 93:
-              case 123:
-              case 125:
-              case 124:
-              case 47:
-                  return 1;
-              case 99:
-                  const letter = state.source.charCodeAt(state.index) | 32;
-                  if (letter >= 97 && letter <= 122) {
-                      state.index++;
-                      return 1;
-                  }
-                  return (context & 16) === 0
-                      ? 32
-                      : reportRegExp(state, 10);
-              case 117:
-                  if (state.index === state.length)
-                      return 4;
-                  if (consumeOpt(state, 123)) {
-                      let ch2 = state.source.charCodeAt(state.index);
-                      let code = toHex(ch2);
-                      if (code < 0)
-                          return reportRegExp(state, 9);
-                      state.index++;
-                      ch2 = state.source.charCodeAt(state.index);
-                      while (ch2 !== 125) {
-                          const digit = toHex(ch2);
-                          if (digit < 0)
-                              return reportRegExp(state, 9);
-                          code = code * 16 + digit;
-                          if (code > 0x10ffff)
-                              return reportRegExp(state, 9);
-                          state.index++;
-                          ch2 = state.source.charCodeAt(state.index);
-                      }
-                      state.index++;
-                      return 16;
-                  }
-                  let codePoint = toHex(state.source.charCodeAt(state.index));
-                  if (codePoint < 0)
-                      return (context & 16) === 0
-                          ? 32
-                          : reportRegExp(state, 10);
-                  for (let i = 0; i < 3; i++) {
-                      state.index++;
-                      const digit = toHex(state.source.charCodeAt(state.index));
-                      if (digit < 0)
-                          return (context & 16) === 0
-                              ? 32
-                              : reportRegExp(state, 10);
-                      codePoint = codePoint * 16 + digit;
-                  }
-                  state.index++;
-                  return 1;
-              case 120:
-                  if (state.index === state.length || toHex(state.source.charCodeAt(state.index)) < 0) {
-                      return (context & 16) === 0
-                          ? 32
-                          : reportRegExp(state, 9);
-                  }
-                  if (state.index === state.length || toHex(state.source.charCodeAt(state.index + 1)) < 0) {
-                      return (context & 16) === 0
-                          ? 32
-                          : reportRegExp(state, 9);
-                  }
-                  return 1;
-              case 112:
-              case 80:
-                  const regexPropState = parseRegexPropertyEscape(state, context);
-                  if (regexPropState === 4) {
-                      return 4;
-                  }
-                  else if (regexPropState === 32) {
-                      if ((context & 16) === 0)
-                          return 32;
-                      return 4;
-                  }
-                  else {
-                      if ((context & 16) === 0)
-                          return 1;
-                      return 16;
-                  }
-              case 48: {
-                  const next = state.source.charCodeAt(state.index);
-                  if (next >= 48 && next <= 57) {
-                      return (context & 16) === 0
-                          ? 32
-                          : reportRegExp(state, 6);
-                  }
-                  return 1;
-              }
-              case 49:
-              case 50:
-              case 51:
-              case 52:
-              case 53:
-              case 54:
-              case 55:
-              case 56:
-              case 57: {
-                  const first = state.source.charCodeAt(state.index);
-                  if (first >= 48 && first <= 57) {
-                      ++state.index;
-                      const second = state.source.charCodeAt(state.index);
-                      if (second >= 48 && second <= 57) {
-                          return (context & 16) === 0
-                              ? 32
-                              : reportRegExp(state, 5);
-                      }
-                      state.largestBackReference = Math.max((prev - 48) * 10 + (first - 48));
-                  }
-                  else {
-                      state.largestBackReference = Math.max(state.largestBackReference, prev - 48);
-                  }
-                  return 1;
-              }
-              case 107: {
-                  const c = state.source.charCodeAt(state.index);
-                  if (!consumeOpt(state, 60)) {
-                      return context & 16
-                          ? reportRegExp(state, 7)
-                          : 32;
-                  }
-                  next = state.source.charCodeAt(state.index);
-                  if ((AsciiLookup[next] & 2) !== 0 && ((unicodeLookup[(next >>> 5) + 0] >>> next) & 31 & 1) === 0) {
-                      return context & 16
-                          ? reportRegExp(state, 7)
-                          : 32;
-                  }
-                  state.index++;
-                  if (next > 0xffff)
-                      state.index++;
-                  if (state.source.charCodeAt(state.index) === 62) {
-                      state.tokenValue = next > 0xffff ? state.source.slice(state.index - 2, state.index) : fromCodePoint(next);
-                  }
-                  else {
-                      state.tokenValue = fromCodePoint(next);
-                      while (isIdentifierPart(state.source.charCodeAt(state.index)))
-                          state.tokenValue += fromCodePoint(state.source.charCodeAt(state.index++));
-                  }
-                  backreferenceNames.push(state.tokenValue);
-                  if (!consumeOpt(state, 62)) {
-                      if (context & 16) {
-                          return reportRegExp(state, 7);
-                      }
-                      return 32;
-                  }
-                  return 1;
-              }
-              case 13:
-              case 10:
-              case 8233:
-              case 8232:
-                  return reportRegExp(state, 8);
-              default:
-                  if ((AsciiLookup[prev] & 1) > 0 || ((unicodeLookup[(prev >>> 5) + 0] >>> prev) & 31 & 1) > 0) {
-                      if ((context & 16) === 0)
-                          return reportRegExp(state, 9);
-                  }
-                  return 32;
-          }
-      }
-      function parseCharacterClass(state, context) {
-          let prev = 0;
-          let surrogate = 0;
-          let isSurrogate = false;
-          let isSurrogateHead = false;
-          let wasSurrogate = true;
-          let wasSurrogateHead = false;
-          let urangeOpen = false;
-          let urangeLeft = 0;
-          let nrangeOpen = false;
-          let nrangeLeft = 0;
-          let flagState = 1;
-          let next = state.source.charCodeAt(state.index);
-          if (next === 94) {
-              ++state.index;
-              next = state.source.charCodeAt(state.index);
-          }
-          let n = 0;
-          while (true) {
-              if (consumeOpt(state, 93)) {
-                  return flagState;
-              }
-              else if (consumeOpt(state, 92)) {
-                  next = state.index === state.length ? -1 : validateClassCharacterEscape(state, context);
-                  if (next === 1114112) {
-                      flagState = reportRegExp(state, 15);
-                  }
-                  else if (next & 16777216) {
-                      next = next ^ 16777216;
-                      flagState =
-                          next === 1114112
-                              ? reportRegExp(state, 14)
-                              : setState(state, flagState, 32, 14);
-                  }
-                  else if (next & 8388608) {
-                      flagState = setState(state, flagState, 16, 14);
-                  }
-              }
-              else if (next === 13 ||
-                  next === 10 ||
-                  next === 8233 ||
-                  next === 8232) {
-                  return reportRegExp(state, 3);
-              }
-              else {
-                  ++state.index;
-              }
-              if (next === 33554432) {
-                  isSurrogate = false;
-                  isSurrogateHead = false;
-              }
-              else if (wasSurrogateHead && (next & 0xfc00) == 0xdc00) {
-                  isSurrogate = true;
-                  isSurrogateHead = false;
-                  surrogate = ((prev - 0xd800) << 10) + (next - 0xdc00) + 0x0010000;
-              }
-              else if (!wasSurrogate && !wasSurrogateHead && (next & 0x1fffff) > 0xffff) {
-                  isSurrogate = true;
-                  isSurrogateHead = false;
-                  surrogate = next;
-              }
-              else {
-                  isSurrogate = false;
-                  isSurrogateHead = next >= 0xd800 && next <= 0xdbff;
-              }
-              if (urangeOpen) {
-                  const urangeRight = isSurrogate ? surrogate : wasSurrogateHead ? prev : next;
-                  if (!isSurrogateHead || wasSurrogateHead) {
-                      urangeOpen = false;
-                      if (urangeLeft === 1114113 ||
-                          urangeRight === 1114113 ||
-                          urangeLeft > urangeRight) {
-                          flagState = setState(state, flagState, 32, 13);
-                      }
-                  }
-              }
-              else if (next === 45 && n > 0) {
-                  urangeOpen = true;
-              }
-              else {
-                  urangeLeft = isSurrogate ? surrogate : next;
-              }
-              if (nrangeOpen) {
-                  nrangeOpen = false;
-                  if (nrangeLeft === 33554432 || next === 33554432) {
-                      flagState =
-                          context & 16
-                              ? reportRegExp(state, 14)
-                              : (flagState = setState(state, flagState, 32, 13));
-                  }
-                  else if (nrangeLeft === 1114113 ||
-                      next === 1114113 ||
-                      nrangeLeft > next) {
-                      flagState = setState(state, flagState, 16, 12);
-                  }
-              }
-              else if (next === 45 && n > 0) {
-                  nrangeOpen = true;
-              }
-              else {
-                  nrangeLeft = next;
-              }
-              wasSurrogate = isSurrogate;
-              wasSurrogateHead = isSurrogateHead;
-              prev = next;
-              ++n;
-              if (state.index === state.length)
-                  break;
-              next = state.source.charCodeAt(state.index);
-          }
-          return reportRegExp(state, 3);
       }
 
       function returnBigIntOrNumericToken(state) {
@@ -5799,7 +5040,7 @@ System.register('cherow', [], function (exports, module) {
               while (lex) {
                   const type = lex.type;
                   if (lex['@' + key] !== undefined) {
-                      if (type === 4) {
+                      if (type === 8) {
                           if (isVariableDecl && (context & 16) === 0) {
                               state.inCatch = true;
                           }
@@ -5810,7 +5051,7 @@ System.register('cherow', [], function (exports, module) {
                       else if (type === 2) {
                           report(state, 41);
                       }
-                      else if (type !== 5) {
+                      else if (type !== 16) {
                           if (checkForDuplicateLexicals(scope, '@' + key, context) === true) {
                               report(state, 41);
                           }
@@ -5879,10 +5120,10 @@ System.register('cherow', [], function (exports, module) {
           const lex = scope.lex;
           const lexParent = lex['@'];
           if (lexParent !== undefined) {
-              if (lexParent.type === 5 && lexParent[key] !== undefined) {
+              if (lexParent.type === 16 && lexParent[key] !== undefined) {
                   report(state, 41, key.slice(1));
               }
-              if (lexParent.type === 4 && lexParent[key] !== undefined) {
+              if (lexParent.type === 8 && lexParent[key] !== undefined) {
                   report(state, 41, key.slice(1));
               }
           }
@@ -5931,9 +5172,11 @@ System.register('cherow', [], function (exports, module) {
       }
       function isLexical(state, context) {
           next(state, context);
-          return ((state.token & (405505 | 12288 | 524288 | 2097152)) > 0 ||
-              state.token === 131084 ||
-              state.token === 131091);
+          const { token } = state;
+          return !!(token & (274432 | 2097152 | 524288) ||
+              token === 131084 ||
+              token === 131091 ||
+              token === 402821192);
       }
       function reinterpret(ast) {
           switch (ast.type) {
@@ -5966,80 +5209,44 @@ System.register('cherow', [], function (exports, module) {
                   reinterpret(ast.argument);
           }
       }
-      function validateBindingIdentifier(state, context, type, token = state.token) {
-          switch (token) {
-              case 20554:
-              case 20555:
-              case 20556:
-              case 151629:
-              case 402804809:
-              case 20558:
-              case 20559:
-              case 20560:
-              case 33706027:
-              case 20561:
-              case 20562:
-              case 20563:
-              case 20564:
-              case 20565:
-              case 20566:
-              case 151639:
-              case 20568:
-              case 151641:
-              case 33707825:
-              case 16930610:
-              case 151642:
-              case 20571:
-              case 151644:
-              case 151645:
-              case 151646:
-              case 151647:
-              case 20576:
-              case 33706026:
-              case 268587079:
-              case 33706028:
-              case 20577:
-              case 20578:
-              case 151559:
-              case 151558:
-              case 151557:
-              case 20595:
-                  report(state, 0);
-              case 402821192:
-                  if (type === 16)
-                      report(state, 0);
-                  if (type === 4 || type === 8)
-                      report(state, 0);
-                  if (context & 1024)
-                      report(state, 0);
-                  return true;
-              case 36969:
-                  if (context & 1024)
-                      report(state, 0);
-                  return true;
-                  if (context & 1024)
-                      report(state, 0);
-                  return true;
-              case 36963:
-              case 36965:
-              case 36967:
-              case 36964:
-              case 36966:
-              case 36968:
-                  if (context & 1024)
-                      report(state, 0);
-                  return true;
-              case 667757:
-                  if (context & (4194304 | 2048))
-                      report(state, 0);
-                  return true;
-              case 2265194:
-                  if (context & (2097152 | 1024))
-                      report(state, 0);
-                  return true;
-              default:
-                  return true;
+      function isValidIdentifier(context, t) {
+          if (context & 1024) {
+              if (context & 2048 && t & 524288)
+                  return false;
+              if (t & 2097152)
+                  return false;
+              return (t & 274432) === 274432 || (t & 12288) === 12288;
           }
+          return ((t & 274432) === 274432 ||
+              (t & 12288) === 12288 ||
+              (t & 36864) === 36864);
+      }
+      function validateBindingIdentifier(state, context, type, token = state.token) {
+          if (context & 1024) {
+              if ((token & 36864) === 36864) {
+                  report(state, 0);
+              }
+              if (token === 36969)
+                  report(state, 73);
+          }
+          if ((token & 20480) === 20480) {
+              report(state, 72);
+          }
+          if (context & (4194304 | 2048) && token & 524288) {
+              report(state, 71);
+          }
+          if (context & (2097152 | 1024) && token & 2097152) {
+              report(state, 67);
+          }
+          if (token === 402821192) {
+              if (type & 16)
+                  report(state, 68);
+              if (type & (4 | 8))
+                  report(state, 69);
+              if (context & 1024)
+                  report(state, 70);
+          }
+          return true;
       }
       function addToExportedNamesAndCheckForDuplicates(state, exportedName) {
           if (state.exportedNames !== undefined && exportedName !== '') {
@@ -6547,10 +5754,7 @@ System.register('cherow', [], function (exports, module) {
           expect(state, context | 32768, 131083);
           const test = parseExpression(state, context);
           expect(state, context, 16);
-          const previousSwitchStatement = state.switchStatement;
-          state.switchStatement = 0;
           const consequent = parseConsequentOrAlternate(state, context, scope);
-          state.switchStatement = previousSwitchStatement;
           const alternate = optional(state, context, 20562)
               ? parseConsequentOrAlternate(state, context, scope)
               : null;
@@ -6564,7 +5768,7 @@ System.register('cherow', [], function (exports, module) {
       function parseConsequentOrAlternate(state, context, scope) {
           return context & (16 | 1024) || state.token !== 151639
               ? parseStatement(state, (context | 4096) ^ 4096, scope, 2)
-              : parseFunctionDeclaration(state, context, scope, true, false);
+              : parseFunctionDeclaration(state, context | 16384, scope, true, false);
       }
       function parseSwitchStatement(state, context, scope) {
           next(state, context);
@@ -6574,7 +5778,7 @@ System.register('cherow', [], function (exports, module) {
           expect(state, context, 131084);
           const cases = [];
           let seenDefault = false;
-          const switchScope = createSubScope(scope, 3);
+          const switchScope = createSubScope(scope, 4);
           const previousSwitchStatement = state.switchStatement;
           state.switchStatement = 1;
           while (state.token !== 536870927) {
@@ -6701,7 +5905,7 @@ System.register('cherow', [], function (exports, module) {
           let param = null;
           let secondScope = scope;
           if (optional(state, context, 131083)) {
-              const catchScope = createSubScope(scope, 4);
+              const catchScope = createSubScope(scope, 8);
               if (state.token === 16)
                   report(state, 0);
               param = parseBindingIdentifierOrPattern(state, context, catchScope, 1, 8, false);
@@ -6864,7 +6068,7 @@ System.register('cherow', [], function (exports, module) {
               let body = null;
               if ((context & (16 | 1024)) === 0 &&
                   (state.token === 151639 && label === 1)) {
-                  body = parseFunctionDeclaration(state, context, scope, false, false);
+                  body = parseFunctionDeclaration(state, context | 16384, scope, false, false);
               }
               else
                   body = parseStatement(state, (context | 4096) ^ 4096, scope, label);
@@ -6893,15 +6097,13 @@ System.register('cherow', [], function (exports, module) {
       }
       function parseBindingIdentifier(state, context, scope, type, origin, checkForDuplicates) {
           const name = state.tokenValue;
-          addVariable(state, context, scope, type, checkForDuplicates, (origin === 1 || origin === 2 || origin === 4) &&
-              type === 2
-              ? true
-              : false, name);
-          if (origin === 4) {
+          validateBindingIdentifier(state, context, type);
+          addVariable(state, context, scope, type, checkForDuplicates, origin & (1 | 2 | 4) && type === 2 ? true : false, name);
+          if (origin & 4) {
               addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
               addToExportedBindings(state, state.tokenValue);
           }
-          next(state, context);
+          next(state, context | 32768);
           return {
               type: 'Identifier',
               name
@@ -7030,18 +6232,28 @@ System.register('cherow', [], function (exports, module) {
       }
       function parseFunctionDeclaration(state, context, scope, isFuncDel, isAsync) {
           next(state, context);
-          const isGenerator = optional(state, context, 21105203);
+          const isGenerator = (context & 16384) === 0 && optional(state, context, 21105203);
           let funcScope = createScope(1);
           let id = null;
           let firstRestricted;
           if (state.token !== 131083 && state.token & 274432) {
-              const nameType = (context & (1048576 | 2048)) !== (1048576 | 2048) &&
-                  (context & 4096) === 4096
+              validateBindingIdentifier(state, ((context | (2097152 | 4194304)) ^ (2097152 | 4194304)) |
+                  (context & 1024
+                      ? 2097152
+                      : context & 2097152
+                          ? 2097152
+                          : 0 | (context & 2048)
+                              ? 4194304
+                              : context & 4194304
+                                  ? 4194304
+                                  : 0), (context & 2048) !== 2048 && (context & 4096) === 4096
                   ? 2
-                  : 4;
+                  : 4);
               if (isFuncDel)
                   scope = createSubScope(scope, 1);
-              addFunctionName(state, context, scope, nameType, true);
+              addFunctionName(state, context, scope, (context & 2048) !== 2048 && (context & 4096) === 4096
+                  ? 2
+                  : 4, true);
               funcScope = createSubScope(funcScope, 1);
               firstRestricted = state.tokenValue;
               id = parseIdentifier(state, context);
@@ -7049,14 +6261,14 @@ System.register('cherow', [], function (exports, module) {
           else if (!(context & 512))
               report(state, 0);
           context =
-              (context | 4194304 | 2097152 | 8388608) ^
-                  (4194304 | 2097152 | 8388608);
+              (context | 4194304 | 16384 | 2097152 | 8388608) ^
+                  (4194304 | 16384 | 2097152 | 8388608);
           if (isAsync)
               context |= 4194304;
           if (isGenerator)
               context |= 2097152;
           context = (context | 262144) ^ 262144;
-          const paramScoop = createSubScope(funcScope, 5);
+          const paramScoop = createSubScope(funcScope, 16);
           const params = parseFormalParameters(state, context | 67108864, paramScoop, 32);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 128);
           return {
@@ -7122,7 +6334,7 @@ System.register('cherow', [], function (exports, module) {
           if (isGenerator)
               context |= 2097152;
           context = (context | 262144) ^ 262144;
-          const paramScoop = createSubScope(funcScope, 5);
+          const paramScoop = createSubScope(funcScope, 16);
           const params = parseFormalParameters(state, context | 67108864, paramScoop, 32);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), undefined, 0);
           return {
@@ -7137,6 +6349,7 @@ System.register('cherow', [], function (exports, module) {
       function parseFormalParameters(state, context, scope, origin) {
           expect(state, context, 131083);
           const params = [];
+          state.flags = (state.flags | 64) ^ 64;
           while (state.token !== 16) {
               if (state.token === 14) {
                   params.push(parseRestElement(state, context, scope, 1, 0));
@@ -7149,7 +6362,9 @@ System.register('cherow', [], function (exports, module) {
                   }
                   else {
                       let left = parseBindingIdentifierOrPattern(state, context, scope, 1, origin, false);
-                      if (optional(state, context, 8388637)) {
+                      if (optional(state, context | 32768, 8388637)) {
+                          if (state.token & 2097152 && context & 2097152)
+                              report(state, 0);
                           left = parseAssignmentPattern(state, context, left);
                       }
                       params.push(left);
@@ -7185,6 +6400,8 @@ System.register('cherow', [], function (exports, module) {
                   if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
                       report(state, 61);
               }
+              if (state.flags & 64)
+                  report(state, 61);
               if (!isStrict && (context & 1024) !== 0 && (context & 1048576) === 0) {
                   checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
               }
@@ -7236,7 +6453,7 @@ System.register('cherow', [], function (exports, module) {
           while (optional(state, context, 18)) {
               list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
           }
-          if (origin === 2 && (state.token === 33707825 || state.token === 12402)) {
+          if (origin & 2 && (state.token === 33707825 || state.token === 12402)) {
               if (state.token === 12402 ||
                   type === 2 ||
                   context & (16 | 1024)) ;
@@ -7276,7 +6493,7 @@ System.register('cherow', [], function (exports, module) {
           };
       }
       function parseYieldExpression(state, context) {
-          expect(state, context, 2265194);
+          expect(state, context | 32768, 2265194);
           let argument = null;
           let delegate = false;
           if (!(state.flags & 1)) {
@@ -7612,7 +6829,7 @@ System.register('cherow', [], function (exports, module) {
                               report(state, 0);
                           if (context & (2097152 | 4194304))
                               report(state, 0);
-                          const scope = createScope(5);
+                          const scope = createScope(16);
                           addVariableAndDeduplicate(state, context, scope, 1, true, state.tokenValue);
                           return parseArrowFunctionExpression(state, context, scope, [expr], true);
                       }
@@ -7622,23 +6839,30 @@ System.register('cherow', [], function (exports, module) {
                           report(state, 0);
                       if (context & (2097152 | 4194304))
                           report(state, 0);
-                      const scope = createScope(5);
+                      const scope = createScope(16);
                       return parseArrowFunctionExpression(state, context, scope, [expr], false);
                   }
                   return expr;
               }
+              case 2265194:
+                  if (context & (2097152 | 1024))
+                      report(state, 67);
               default:
-                  const token = state.token;
-                  validateBindingIdentifier(state, context, 0);
-                  const id = parseIdentifier(state, context | 65536);
-                  if (optional(state, context, 131082)) {
-                      const scopes = createScope(5);
-                      addVariableAndDeduplicate(state, context, scopes, 1, true, state.tokenValue);
-                      if (context & 4194304 && token === 667757)
-                          report(state, 0);
-                      return parseArrowFunctionExpression(state, context, scopes, [id], false);
+                  if (isValidIdentifier(context, state.token)) {
+                      const token = state.token;
+                      const id = parseIdentifier(state, context | 65536);
+                      if (optional(state, context, 131082)) {
+                          if (token & 2097152 && context & (4194304 | 2097152))
+                              report(state, 66);
+                          const scopes = createScope(16);
+                          addVariableAndDeduplicate(state, context, scopes, 1, true, state.tokenValue);
+                          if (context & 4194304 && token === 667757)
+                              report(state, 0);
+                          return parseArrowFunctionExpression(state, context, scopes, [id], false);
+                      }
+                      return id;
                   }
-                  return id;
+                  report(state, 0);
           }
       }
       function parseArrayExpression(state, context) {
@@ -7665,25 +6889,18 @@ System.register('cherow', [], function (exports, module) {
       }
       function parseFunctionExpression(state, context, isAsync) {
           expect(state, context, 151639);
-          let isGenerator = false;
-          if (optional(state, context, 21105203)) {
-              isGenerator = true;
-          }
+          const isGenerator = optional(state, context, 21105203);
           let functionScope = createScope(1);
           let id = null;
           let firstRestricted;
           if (state.token & 274432) {
-              validateBindingIdentifier(state, ((context | 2097152 | 4194304) ^ 2097152) |
-                  4194304 |
-                  (context & 1024)
-                  ? isGenerator
+              validateBindingIdentifier(state, context & 1024
+                  ? 2097152
+                  : isGenerator
                       ? 2097152
-                      : 2097152
-                  : 0 | (context & 2048)
-                      ? isGenerator
+                      : 0 | (context & 2048) || isGenerator
                           ? 4194304
-                          : 4194304
-                      : 0, 2);
+                          : 0, 2);
               addVariableAndDeduplicate(state, context, functionScope, 2, true, state.tokenValue);
               functionScope = createSubScope(functionScope, 1);
               firstRestricted = state.tokenValue;
@@ -7697,7 +6914,7 @@ System.register('cherow', [], function (exports, module) {
           if (isGenerator)
               context |= 2097152;
           context = (context | 262144) ^ 262144;
-          const paramScoop = createSubScope(functionScope, 5);
+          const paramScoop = createSubScope(functionScope, 16);
           const params = parseFormalParameters(state, context | 67108864, paramScoop, 32);
           const body = parseFunctionBody(state, context | 67108864, createSubScope(paramScoop, 1), firstRestricted, 0);
           return {
@@ -7734,7 +6951,7 @@ System.register('cherow', [], function (exports, module) {
       }
       function parseGroupExpression(state, context) {
           expect(state, context | 32768, 131083);
-          const scope = createScope(5);
+          const scope = createScope(16);
           if (state.token === 16) {
               next(state, context);
               if (!optional(state, context, 131082))
@@ -8139,7 +7356,7 @@ System.register('cherow', [], function (exports, module) {
                                   state.flags |= 32;
                               if (state.token & 274432) {
                                   tokenValue = state.tokenValue;
-                                  value = parseAssignmentExpression(state, context | 32768);
+                                  value = parseAssignmentExpression(state, context);
                                   addVariable(state, context, scope, type, false, false, tokenValue);
                               }
                               else {
@@ -8224,7 +7441,7 @@ System.register('cherow', [], function (exports, module) {
                       if (optional(state, context | 32768, 21)) {
                           if (tokenValue === '__proto__')
                               state.flags |= 32;
-                          value = parseAssignmentExpression(state, context | 32768);
+                          value = parseAssignmentExpression(state, context);
                           addVariable(state, context, scope, type, false, false, tokenValue);
                       }
                       else {
@@ -8313,17 +7530,13 @@ System.register('cherow', [], function (exports, module) {
           let id = null;
           let firstRestricted;
           if (state.token & 274432) {
-              validateBindingIdentifier(state, ((context | 2097152 | 4194304) ^ 2097152) |
-                  4194304 |
-                  (context & 1024)
-                  ? (objState & 8) !== 0
+              validateBindingIdentifier(state, context & 1024
+                  ? 2097152
+                  : (objState & 8) !== 0
                       ? 2097152
-                      : 2097152
-                  : 0 | (context & 2048)
-                      ? (objState & 8) !== 0
+                      : 0 | (context & 2048) || (objState & 8) !== 0
                           ? 4194304
-                          : 4194304
-                      : 0, 2);
+                          : 0, 2);
               addVariableAndDeduplicate(state, context, functionScope, 2, true, state.tokenValue);
               functionScope = createSubScope(functionScope, 1);
               firstRestricted = state.tokenValue;
@@ -8343,7 +7556,7 @@ System.register('cherow', [], function (exports, module) {
               context = (context | (16777216 | 524288)) ^ (16777216 | 524288);
           }
           context |= 262144;
-          const paramScoop = createSubScope(functionScope, 5);
+          const paramScoop = createSubScope(functionScope, 16);
           const params = parseFormalParameters(state, context | 67108864 | 33554432, paramScoop, 32);
           const body = parseFunctionBody(state, context | 67108864 | 1024, createSubScope(paramScoop, 1), firstRestricted, 0);
           return {
@@ -8412,6 +7625,7 @@ System.register('cherow', [], function (exports, module) {
           };
       }
 
+      const version = exports('version', '2.0');
       function parseSource(source, options, context) {
           let onComment;
           let onToken;

@@ -17,6 +17,7 @@ export declare const enum Context {
     Module = 2048,
     TopLevel = 4096,
     DisallowInContext = 8192,
+    DisallowGenerators = 16384,
     AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
     OptionsDirectives = 131072,
@@ -116,6 +117,7 @@ export declare function checkFunctionsArgForDuplicate(state: ParserState, lex: a
 export declare function lookAheadOrScan<T>(state: ParserState, context: Context, callback: (state: ParserState, context: Context) => T, isLookahead: boolean): T;
 export declare function isLexical(state: ParserState, context: Context): boolean;
 export declare function reinterpret(ast: any): void;
+export declare function isValidIdentifier(context: Context, t: Token): boolean;
 export declare function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token?: Token): boolean;
 export declare function addToExportedNamesAndCheckForDuplicates(state: ParserState, exportedName: any): void;
 export declare function addToExportedBindings(state: ParserState, exportedName: any): void;
