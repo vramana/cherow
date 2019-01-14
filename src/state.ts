@@ -1988,12 +1988,14 @@ export function parseSequenceExpression(
  */
 
 function parseYieldExpression(state: ParserState, context: Context): ESTree.YieldExpression | ESTree.Identifier {
+  // YieldExpression ::
+  //   'yield' ([no line terminator] '*'? AssignmentExpression)?
   expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
   let argument: ESTree.Expression | null = null;
-  let delegate = false;
-  if (!(state.flags & Flags.NewLine)) {
+  let delegate = false; // yield*
+  if ((state.flags & Flags.NewLine) === 0) {
     delegate = optional(state, context, Token.Multiply);
-    if (delegate || state.token & Token.IsExpressionStart) {
+    if (state.token & Token.IsExpressionStart || delegate) {
       argument = parseAssignmentExpression(state, context);
     }
   }
@@ -2004,7 +2006,12 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
   };
 }
 
-export function parseAssignmentExpression(state: ParserState, context: Context): any {
+function parseAssignmentExpression(state: ParserState, context: Context): any {
+  // AssignmentExpression ::
+  //   ConditionalExpression
+  //   ArrowFunction
+  //   YieldExpression
+  //   LeftHandSideExpression AssignmentOperator AssignmentExpression
   if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
   const expr = parseConditionalExpression(state, context);
   if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
@@ -2125,6 +2132,18 @@ function parseAwaitExpression(
  * @param context Context masks
  */
 function parseUnaryExpression(state: ParserState, context: Context): any {
+  // UnaryExpression ::
+  //   PostfixExpression
+  //   'delete' UnaryExpression
+  //   'void' UnaryExpression
+  //   'typeof' UnaryExpression
+  //   '++' UnaryExpression
+  //   '--' UnaryExpression
+  //   '+' UnaryExpression
+  //   '-' UnaryExpression
+  //   '~' UnaryExpression
+  //   '!' UnaryExpression
+  //   [+Await] AwaitExpression[?Yield]
   const t = state.token;
   if (context & Context.AwaitContext && t & Token.IsAwait) {
     return parseAwaitExpression(state, context);
@@ -2485,6 +2504,21 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
 }
 
 export function parsePrimaryExpression(state: ParserState, context: Context): any {
+  // PrimaryExpression ::
+  //   'this'
+  //   'null'
+  //   'true'
+  //   'false'
+  //   Identifier
+  //   Number
+  //   String
+  //   ArrayLiteral
+  //   ObjectLiteral
+  //   RegExpLiteral
+  //   ClassLiteral
+  //   '(' Expression ')'
+  //   TemplateLiteral
+  //   AsyncFunctionLiteral
   switch (state.token) {
     case Token.NumericLiteral:
     case Token.StringLiteral:
@@ -2493,8 +2527,15 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseBigIntLiteral(state, context);
     case Token.RegularExpression:
       return parseRegularExpressionLiteral(state, context);
+    case Token.TrueKeyword:
+    case Token.FalseKeyword:
+      return parseBooleanLiteral(state, context);
+    case Token.NullKeyword:
+      return parseNullLiteral(state, context);
+    case Token.ThisKeyword:
+      return parseThisExpression(state, context);
     case Token.LeftBracket:
-      return parseArrayExpression(state, context & ~Context.DisallowInContext);
+      return parseArrayLiteral(state, context & ~Context.DisallowInContext);
     case Token.LeftParen:
       return parseGroupExpression(state, context);
     case Token.LeftBrace:
@@ -2511,14 +2552,6 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseNewExpression(state, context);
     case Token.SuperKeyword:
       return parseSuperExpression(state, context);
-    case Token.TrueKeyword:
-    case Token.FalseKeyword:
-      return parseBooleanLiteral(state, context);
-    case Token.NullKeyword:
-      return parseNullLiteral(state, context);
-    case Token.ThisKeyword:
-      return parseThisExpression(state, context);
-    case Token.LeftBrace:
     case Token.AsyncKeyword: {
       const expr: any = parseIdentifier(state, context);
 
@@ -2572,7 +2605,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   }
 }
 
-export function parseArrayExpression(state: ParserState, context: Context): any {
+export function parseArrayLiteral(state: ParserState, context: Context): any {
+  // ArrayLiteral ::
+  //   '[' Expression? (',' Expression?)* ']'
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBracket);
   const elements: any = [];
   while (state.token !== Token.RightBracket) {

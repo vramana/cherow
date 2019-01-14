@@ -119,7 +119,7 @@ describe('Expressions - Yield', () => {
     '"use strict"; function * gen() { function not_gen() { function foo(yield) { } }',
     '"use strict"; function * gen() { function not_gen() {  yield = 1;}',
     '"use strict"; function * gen() { function not_gen() { try { } catch (yield) { } }',
-    //'function *a(){yield*}',
+    'function *a(){yield*}',
     '(a = yield 3) {}',
     '(a=yield) {}',
     '(yield 3) {}',
