@@ -2078,18 +2078,17 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
   let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
 
   if (state.flags & Flags.NewLine) {
-    if (state.token === Token.LeftParen) return parseCallExpression(state, context, expr);
-    return expr;
+    return state.token === Token.LeftParen ? parseCallExpression(state, context, expr) : expr;
   }
 
   const scope = createScope(ScopeType.ArgumentList);
 
   // async + Identifier => AsyncConciseBody
   if (state.token & (Token.IsIdentifier | Token.Keyword)) {
-    const idd = parseIdentifier(state, context);
+    const maybeConciseBody = parseIdentifier(state, context);
     if (state.flags & Flags.NewLine) return expr;
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
-    return parseArrowFunctionExpression(state, context, scope, [idd], true);
+    return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
   }
 
   // async () => {}
@@ -2106,6 +2105,13 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
       arguments: args
     };
   }
+
+  // Calling 'MemberExpression' here fixes cases like:
+  //
+  // `async().foo`
+  // `async()[foo]`
+  //
+  // Note: This cases breaks in 1.6.x
   return parseMemberExpression(state, context, expr);
 }
 
