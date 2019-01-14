@@ -8,7 +8,19 @@ describe('Expressions - Async', () => {
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     ['x => { let x; }', Context.Empty],
-    ['x => { const x; }', Context.Empty]
+    ['x => { const x; }', Context.Empty],
+
+    ['async \n function(){}', Context.Empty],
+    ['(async \n function(){})', Context.Empty],
+    ['async function(){}', Context.Empty],
+    ['if (async \n () => x) x', Context.Empty],
+    ['export async \n function(){}', Context.Module],
+    // ['export async \n a => b', Context.Module],
+    // ['async \n => async', Context.Empty],
+    //  ['(async \n => async)', Context.Empty],
+    ['let async => async', Context.Empty],
+    ['let async \n => async', Context.Empty],
+    ['let f = async \n (g) => g', Context.Empty]
   ];
   fail('Expressions - Async', inValids);
 
@@ -539,6 +551,72 @@ describe('Expressions - Async', () => {
         ],
         sourceType: 'script',
         type: 'Program'
+      }
+    ],
+    [
+      'class async {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'async'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class x {async foo(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     [

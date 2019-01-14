@@ -1777,23 +1777,22 @@ export function parseFunctionBody(
   const isStrict = (context & Context.Strict) === Context.Strict;
   context = (context | Context.TopLevel | Context.AllowReturn | Context.InGlobal) ^ Context.InGlobal;
 
+  while ((state.token & Token.StringLiteral) === Token.StringLiteral) {
+    if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
+      context |= Context.Strict;
+    }
+    body.push(parseDirective(state, context, scope));
+  }
+  if (context & Context.Strict) {
+    if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
+      report(state, Errors.StrictFunctionName);
+  }
+  if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
+
+  if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
+    checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
+  }
   if (state.token !== Token.RightBrace) {
-    while ((state.token & Token.StringLiteral) === Token.StringLiteral) {
-      if (state.tokenValue.length === 10 && state.tokenValue === 'use strict') {
-        context |= Context.Strict;
-      }
-      body.push(parseDirective(state, context, scope));
-    }
-    if (context & Context.Strict) {
-      if ((firstRestricted && firstRestricted === 'eval') || firstRestricted === 'arguments')
-        report(state, Errors.StrictFunctionName);
-    }
-    if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
-
-    if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
-      checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
-    }
-
     const previousSwitchStatement = state.switchStatement;
     const previousIterationStatement = state.iterationStatement;
 
@@ -2126,7 +2125,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
   // `(async (x) => {} + 2;)` - Invalid
   //
   // Note: This cases breaks in 1.6.x
-  return parseMemberExpression(state, context, isArrow ? expr : parseBinaryExpression(state, context, 0, expr));
+  return isArrow ? expr : parseMemberExpression(state, context, parseBinaryExpression(state, context, 0, expr));
 }
 
 function parseAsyncArgumentList(
