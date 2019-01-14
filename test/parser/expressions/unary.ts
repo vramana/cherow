@@ -2,7 +2,7 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Unary', () => {});
-
+/**
 fail('Expressions - Unary (fail)', [
   ['typeof async () => x', Context.Empty],
   ['typeof async \n () => x', Context.Empty],
@@ -12,7 +12,7 @@ fail('Expressions - Unary (fail)', [
   ['delete async () \n => x', Context.Empty],
   ['let x = delete async \n (x) => x', Context.Empty],
   ['let x = delete async (x) \n => x', Context.Empty]
-]);
+]);  */
 
 pass('Expressions - Unary (pass)', [
   [

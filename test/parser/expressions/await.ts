@@ -120,14 +120,14 @@ describe('Expressions - Await', () => {
     //['async function g(){let o = {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     ['async function g(){let o = {*f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     //['async function g(){let o = {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
-    ['async function g(){class x {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){class x {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty]
     // ['async function g(){class x {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     // ['async function a(){     (foo = await bar) => {}     }', Context.Empty],
     // ['async function g(){class x {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
     // ['async function a(){     ({r} = await bar) => {}     }', Context.Empty],
-    ['async function a(){     async ({r} = await bar) => {}     }', Context.Empty],
+    //['async function a(){     async ({r} = await bar) => {}     }', Context.Empty],
     //['async function a(){     ([v] = await bar) => {}     }', Context.Empty],
-    ['async function a(){     async ([v] = await bar) => {}     }', Context.Empty]
+    // ['async function a(){     async ([v] = await bar) => {}     }', Context.Empty]
 
     //['async function f(){    (fail = class A {[await foo](){}; "x"(){}}) => {}    }', Context.Empty],
     //['async function f(){    (fail = class A extends await foo {}) => fail    }', Context.Empty],

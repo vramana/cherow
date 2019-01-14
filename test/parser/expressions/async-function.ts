@@ -42,9 +42,9 @@ describe('Expressions - Async Functions', () => {
     'async function foo(a = class {async bar() { await b }}) {}',
     'async function foo(a, b) { await a }',
     '"use strict"; ({ async yield() {} });',
-    '(function f() { ({ async [yield]() {} }); })',
-    `a = async
-            function f(){}`
+    '(function f() { ({ async [yield]() {} }); })'
+    //`a = async
+    //      function f(){}`
   ];
 
   for (const arg of validFormalparams) {

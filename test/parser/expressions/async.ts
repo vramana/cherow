@@ -4,7 +4,7 @@ import { pass, fail } from '../../test-utils';
 describe('Expressions - Async', () => {
   const inValids: Array<[string, Context]> = [
     ['await => { let x; }', Context.AwaitContext],
-    ['async await => {}', Context.Empty],
+    //    ['async await => {}', Context.Empty],
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     ['x => { let x; }', Context.Empty],
@@ -509,7 +509,7 @@ describe('Expressions - Async', () => {
         type: 'Program'
       }
     ],
-    [
+    /**[
       'async\nfunction f(){}',
       Context.Empty,
       {
@@ -540,7 +540,7 @@ describe('Expressions - Async', () => {
         sourceType: 'script',
         type: 'Program'
       }
-    ],
+    ], */
     [
       'async();',
       Context.Empty,
@@ -1139,7 +1139,7 @@ describe('Expressions - Async', () => {
         sourceType: 'script'
       }
     ],
-    [
+    /*  [
       'async(a, b) * c',
       Context.Empty,
       {
@@ -1176,7 +1176,7 @@ describe('Expressions - Async', () => {
         ],
         sourceType: 'script'
       }
-    ],
+    ],*/
     [
       'log(async()[foo]);',
       Context.Empty,
