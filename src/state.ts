@@ -2036,9 +2036,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   let { token } = state;
   if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
   let expr: ESTree.Expression | ESTree.Expression[] =
-    state.token & Token.IsAsync &&
-    !(state.flags & Flags.NewLine) &&
-    lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
+    state.token & Token.IsAsync && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
       ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
       : parseConditionalExpression(state, context);
 
@@ -2076,8 +2074,13 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
  * @param context Context masks
  */
 
-function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context: Context): ESTree.Expression {
+function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context: Context): any {
   let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
+
+  if (state.flags & Flags.NewLine) {
+    if (state.token === Token.LeftParen) return parseCallExpression(state, context, expr);
+    return expr;
+  }
 
   const scope = createScope(ScopeType.ArgumentList);
 
