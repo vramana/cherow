@@ -493,7 +493,7 @@ function parseAsyncFunctionOrAssignmentExpression(
 function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
   switch (state.token) {
     case Token.FunctionKeyword:
-      return parseFunctionDeclaration(state, context, scope, false, false);
+      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false, false);
     case Token.ClassKeyword:
       return parseClassDeclaration(state, context, scope);
     case Token.ConstKeyword:
@@ -522,7 +522,7 @@ function parseAsyncFunctionOrExpressionStatement(
   scope: ScopeState
 ): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
   return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseFunctionDeclaration(state, context, scope, false, true)
+    ? parseFunctionDeclaration(state, context, scope, Origin.None, false, true)
     : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
 }
 
@@ -689,7 +689,7 @@ export function parseIfStatement(state: ParserState, context: Context, scope: Sc
 function parseConsequentOrAlternate(state: ParserState, context: Context, scope: ScopeState): any {
   return context & (Context.OptionsDisableWebCompat | Context.Strict) || state.token !== Token.FunctionKeyword
     ? parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, LabelledState.Disallow)
-    : parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, true, false);
+    : parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, Origin.Declaration, true, false);
 }
 
 /**
@@ -1170,7 +1170,14 @@ export function parseExpressionOrLabelledStatement(
       (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&
       ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
     ) {
-      body = parseFunctionDeclaration(state, context | Context.DisallowGenerators, scope, false, false);
+      body = parseFunctionDeclaration(
+        state,
+        context | Context.DisallowGenerators,
+        scope,
+        Origin.Declaration,
+        false,
+        false
+      );
     } else body = parseStatement(state, (context | Context.TopLevel) ^ Context.TopLevel, scope, label);
     state.labelDepth--;
     return {
@@ -1235,11 +1242,14 @@ export function parseBindingIdentifier(
     scope,
     type,
     checkForDuplicates,
-    origin & (Origin.Statement | Origin.ForStatement | Origin.Export) && type === Type.Variable ? true : false,
+    (origin === Origin.Statement || origin === Origin.ForStatement || origin === Origin.Export) &&
+      type === Type.Variable
+      ? true
+      : false,
     name
   );
 
-  if (origin & Origin.Export) {
+  if (origin === Origin.Export) {
     addToExportedNamesAndCheckForDuplicates(state, state.tokenValue);
     addToExportedBindings(state, state.tokenValue);
   }
@@ -1521,6 +1531,7 @@ export function parseFunctionDeclaration(
   state: ParserState,
   context: Context,
   scope: ScopeState,
+  origin: Origin,
   isFuncDel: boolean,
   isAsync: boolean
 ) {
@@ -1585,7 +1596,7 @@ export function parseFunctionDeclaration(
     context | Context.AllowNewTarget,
     createSubScope(paramScoop, ScopeType.BlockStatement),
     firstRestricted,
-    Origin.Declaration
+    origin
   );
 
   return {
@@ -1906,7 +1917,7 @@ export function parseVariableDeclarationList(
   while (optional(state, context, Token.Comma)) {
     list.push(parseVariableDeclaration(state, context, type, origin, checkForDuplicates, scope));
   }
-  if (origin & Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
+  if (origin === Origin.ForStatement && (state.token === Token.InKeyword || state.token === Token.OfKeyword)) {
     if (
       state.token === Token.OfKeyword ||
       type === Type.Variable ||
@@ -2124,7 +2135,7 @@ function parseAwaitExpression(
   next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'AwaitExpression',
-    argument: parseUnaryExpression(state, context | Context.AllowPossibleRegEx)
+    argument: parseUnaryExpression(state, context)
   };
 }
 

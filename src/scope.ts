@@ -1,10 +1,10 @@
 export const enum ScopeType {
   None = 0,
-  BlockStatement = 1 << 0,
-  ForStatement = 1 << 1,
-  SwitchStatement = 1 << 2,
-  CatchClause = 1 << 3,
-  ArgumentList = 1 << 4
+  BlockStatement = 1,
+  ForStatement = 2,
+  SwitchStatement = 3,
+  CatchClause = 4,
+  ArgumentList = 5
 }
 
 export interface ScopeState {
