@@ -924,7 +924,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    /*[
+    [
       'async instanceof {}',
       Context.Empty,
       {
@@ -948,7 +948,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ],*/
+    ],
     [
       'f(async in {})',
       Context.Empty,
@@ -983,7 +983,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    /**[
+    [
       'f(async instanceof {})',
       Context.Empty,
       {
@@ -1016,7 +1016,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ], */
+    ],
     [
       'f(a + async in b)',
       Context.Empty,

@@ -2079,18 +2079,15 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
 
   const { token, flags } = state;
   // async + Identifier => AsyncConciseBody
-  if (token & (Token.IsIdentifier | Token.Keyword)) {
-    if (state.flags & Flags.NewLine) {
-      return expr;
-    }
-
-    if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+  if (token & Token.IsIdentifier) {
+    if (state.flags & Flags.NewLine) return expr;
+    if ((state.token & Token.IsBinaryOp) === Token.IsBinaryOp || (state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
       return parseBinaryExpression(state, context, 0, expr);
     }
 
     const maybeConciseBody = parseIdentifier(state, context);
 
-    if (state.token === Token.Arrow) {
+    if ((state.token & Token.Arrow) === Token.Arrow) {
       if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
       if (token & Token.IsAwait) report(state, Errors.Unexpected);
       if (state.flags & Flags.NewLine) return expr;
