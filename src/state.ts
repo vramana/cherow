@@ -571,9 +571,16 @@ function parseStatement(
       );
     case Token.ForKeyword:
       return parseForStatement(state, context, scope);
+    case Token.AsyncKeyword:
+      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+        report(state, Errors.AsyncFunctionInSingleStatementContext);
+      }
+      return parseExpressionOrLabelledStatement(state, context, scope, label);
     case Token.FunctionKeyword:
+      // V8
+      report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
     case Token.ClassKeyword:
-      report(state, Errors.Unexpected);
+      report(state, Errors.ForbiddenAsStatement, KeywordDescTable[state.token & Token.Type]);
     default:
       return parseExpressionOrLabelledStatement(state, context, scope, label);
   }

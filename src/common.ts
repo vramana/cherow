@@ -26,6 +26,7 @@ export const enum Context {
   TopLevel = 1 << 12,
 
   DisallowInContext = 1 << 13,
+
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   OptionsDirectives = 1 << 17,

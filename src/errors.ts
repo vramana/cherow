@@ -77,7 +77,9 @@ export const enum Errors {
   AwaitOutsideAsync,
   InvalidStrictReservedWord,
   InvalidStrictStatic,
-  InvalidReservedWordStrict
+  InvalidReservedWordStrict,
+  ForbiddenAsStatement,
+  AsyncFunctionInSingleStatementContext
 }
 
 /*@internal*/
@@ -161,7 +163,10 @@ export const errorMessages: {
   [Errors.AwaitOutsideAsync]: 'Await is only valid in async functions',
   [Errors.InvalidStrictReservedWord]: 'Invalid use of reserved word as variable name',
   [Errors.InvalidStrictStatic]: '`Static` is a reserved word in strict mode',
-  [Errors.InvalidReservedWordStrict]: ' Invalid use of reserved word as a variable name in strict mode'
+  [Errors.InvalidReservedWordStrict]: ' Invalid use of reserved word as a variable name in strict mode',
+  [Errors.ForbiddenAsStatement]: "%0 can't appear in single-statement context",
+  [Errors.AsyncFunctionInSingleStatementContext]:
+    'Async functions can only be declared at the top level or inside a block'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
