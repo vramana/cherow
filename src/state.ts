@@ -2036,7 +2036,9 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   let { token } = state;
   if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
   let expr: ESTree.Expression | ESTree.Expression[] =
-    state.token & Token.IsAsync && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
+    state.token & Token.IsAsync &&
+    !(state.flags & Flags.NewLine) &&
+    lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
       ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
       : parseConditionalExpression(state, context);
 
@@ -2044,10 +2046,8 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     const scope = createScope(ScopeType.ArgumentList);
     if (token & (Token.IsIdentifier | Token.Keyword)) {
       addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, value);
-      optional(state, context, Token.Arrow);
       return parseArrowFunctionExpression(state, context, scope, [expr], false);
     }
-    optional(state, context, Token.Arrow);
     return parseArrowFunctionExpression(state, context, scope, expr, false);
   }
 
@@ -2084,7 +2084,6 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
   // async + Identifier => AsyncConciseBody
   if (state.token & (Token.IsIdentifier | Token.Keyword)) {
     const idd = parseIdentifier(state, context);
-    optional(state, context, Token.Arrow);
     if (state.flags & Flags.NewLine) return expr;
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
     return parseArrowFunctionExpression(state, context, scope, [idd], true);
@@ -2095,7 +2094,6 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
     expr = parseMemberExpression(state, context, expr);
     const args = parseAsyncArgumentList(state, context, scope);
     if (state.token === <Token>Token.Arrow) {
-      optional(state, context, Token.Arrow);
       expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true);
       break;
     }
@@ -2652,14 +2650,9 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.SuperKeyword:
       return parseSuperExpression(state, context);
     case Token.AsyncKeyword: {
-      let expr: any = parseIdentifier(state, context);
-
-      if (state.flags & Flags.NewLine) return expr;
-
-      // `async function foo(...) {}`
-      if (state.token === <Token>Token.FunctionKeyword) return parseFunctionExpression(state, context, true);
-
-      return expr;
+      return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+        ? parseFunctionExpression(state, context, true)
+        : parseIdentifier(state, context);
     }
 
     case Token.YieldKeyword:
@@ -2763,6 +2756,8 @@ function parseArrowFunctionExpression(
   params: any,
   isAsync: boolean
 ): ESTree.ArrowFunctionExpression {
+  expect(state, context, Token.Arrow);
+  if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
   for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
 
   if (checkIfExistInLexicalBindings(state, context, scope, true)) report(state, Errors.AlreadyDeclared);
@@ -2809,7 +2804,7 @@ export function parseGroupExpression(state: ParserState, context: Context): any 
       if (state.token === <Token>Token.Ellipsis) {
         const restElement = parseRestElement(state, context, scope, Type.ArgList, Origin.None);
         expect(state, context, Token.RightParen);
-        if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
+        if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
         expressions.push(restElement);
         return parseArrowFunctionExpression(state, context, scope, expressions, false);
       } else if (optional(state, context, Token.RightParen)) {
