@@ -2076,19 +2076,25 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
 
 function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context: Context): any {
   let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-
-  if (state.flags & Flags.NewLine) {
-    return state.token === Token.LeftParen ? parseCallExpression(state, context, expr) : expr;
-  }
+  //let t = state.flags;
 
   const scope = createScope(ScopeType.ArgumentList);
-
+  const { token, flags } = state;
   // async + Identifier => AsyncConciseBody
-  if (state.token & (Token.IsIdentifier | Token.Keyword)) {
+  if (token & (Token.IsIdentifier | Token.Keyword)) {
+    if (state.flags & Flags.NewLine) {
+      return expr;
+    }
+
     const maybeConciseBody = parseIdentifier(state, context);
-    if (state.flags & Flags.NewLine) return expr;
-    addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
-    return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
+    if (state.token === Token.Arrow) {
+      if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+      if (token & Token.IsAwait) report(state, Errors.Unexpected);
+      if (state.flags & Flags.NewLine) return expr;
+      addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
+      return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
+    }
+    return expr;
   }
 
   // async () => {}
@@ -2096,6 +2102,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
     expr = parseMemberExpression(state, context, expr);
     const args = parseAsyncArgumentList(state, context, scope);
     if (state.token === <Token>Token.Arrow) {
+      if (flags & Flags.NewLine || state.flags & Flags.NewLine) report(state, Errors.Unexpected);
       expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true);
       break;
     }
