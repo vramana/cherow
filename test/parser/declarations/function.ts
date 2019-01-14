@@ -398,6 +398,46 @@ describe('Declarations - Function', () => {
       }
     ],
     [
+      'function x(foo=/bar/){}',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            params: [
+              {
+                left: {
+                  name: 'foo',
+                  type: 'Identifier'
+                },
+                right: {
+                  regex: {
+                    flags: '',
+                    pattern: 'bar'
+                  },
+                  type: 'Literal',
+                  value: /bar/
+                },
+                type: 'AssignmentPattern'
+              }
+            ],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'function f([foo=a,bar=b]){}',
       Context.Empty,
       {
@@ -5442,54 +5482,7 @@ describe('Declarations - Function', () => {
         type: 'Program'
       }
     ],
-    [
-      'typeof function f(){}\n/foo/',
-      Context.Empty,
-      {
-        body: [
-          {
-            expression: {
-              left: {
-                left: {
-                  argument: {
-                    async: false,
-                    body: {
-                      body: [],
-                      type: 'BlockStatement'
-                    },
-                    generator: false,
-                    id: {
-                      name: 'f',
-                      type: 'Identifier'
-                    },
-                    params: [],
-                    type: 'FunctionExpression'
-                  },
-                  operator: 'typeof',
-                  prefix: true,
-                  type: 'UnaryExpression'
-                },
-                operator: '/',
-                right: {
-                  name: 'foo',
-                  type: 'Identifier'
-                },
-                type: 'BinaryExpression'
-              },
-              operator: '/',
-              right: {
-                name: 'foo',
-                type: 'Identifier'
-              },
-              type: 'BinaryExpression'
-            },
-            type: 'ExpressionStatement'
-          }
-        ],
-        sourceType: 'script',
-        type: 'Program'
-      }
-    ],
+
     [
       'typeof function f(){}\n/foo/g',
       Context.Empty,

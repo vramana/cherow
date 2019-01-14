@@ -73,7 +73,32 @@ describe('Declarations - Let', () => {
     });
   }
 
-  pass('Statements - Block (pass)', [
+  pass('Statements - Let (pass)', [
+    [
+      'let = b',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                name: 'let',
+                type: 'Identifier'
+              },
+              operator: '=',
+              right: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              type: 'AssignmentExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       'let foo, bar',
       Context.Empty,

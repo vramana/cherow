@@ -14,7 +14,6 @@ describe('Statements - Continue', () => {
     ['function f(){    if (x) continue   }', Context.Empty],
     ['function f(){    continue y   }', Context.Empty],
     ['function f(){    if (x) continue y   }', Context.Empty],
-    ['switch (x) { case x: if (foo) continue; }', Context.Empty],
     ['switch (x) { case x: continue foo; }', Context.Empty],
     ['switch (x) { default: continue foo; }', Context.Empty],
     ['switch (x) { case x: if (foo) {continue foo;} }', Context.Empty],
@@ -79,7 +78,7 @@ describe('Statements - Continue', () => {
       Context.Empty
     ]
   ];
-  fail('Statements - Block (failure)', invalids);
+  fail('Statements - Continue (failure)', invalids);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [

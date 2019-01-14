@@ -21,25 +21,66 @@ describe('Expressions - Functions', () => {
     ['(function f(b, a, a) {"use strict";})', Context.Empty],
     ['(function f(a, a, b) {"use strict";})', Context.Empty],
     ['(function f(b, a, b, a) {"use strict";})', Context.Empty],
-    ['(function f(b, a, b, a = x) {"use strict";})', Context.Empty]
+    ['(function f(b, a, b, a = x) {"use strict";})', Context.Empty],
 
-    //    ['(function eval() {"use strict";})', Context.Empty],
+    ['(function eval() {"use strict";})', Context.Empty],
 
     // General
     // ['"use strict"; (function eval(){})', Context.Empty],
     // ['"use strict"; (function eval(){})', Context.Empty],
 
-    //['(function arguments(){ "use strict"; })', Context.Empty],
-    //['(function arguments(){ "use strict"; })', Context.Empty]
-    // ['(function f(x) { let x })', Context.Empty],
+    ['(function arguments(){ "use strict"; })', Context.Empty],
+    ['(function arguments(){ "use strict"; })', Context.Empty],
+    ['(function f(x) { let x })', Context.Empty]
 
     // Future reserved words
     //['(function package() {})', Context.Strict],
-    //['(function package() {})', Context.Strict | Context.Module],
+    //['(function implements() {})', Context.Strict | Context.Module],
     // ['(function package() {"use strict";})', Context.Empty],
   ];
 
   fail('Expressions - Functions', inValids);
+
+  const validSyntax = [
+    `(function foo(y, z) {{ function x() {} } })(1);`,
+    // Complex parameter shouldn't be shadowed
+    `(function foo(x = 0) { var x; { function x() {} } })(1);`,
+    // Nested complex parameter shouldn't be shadowed
+    `(function foo([[x]]) {var x; {function x() {} } })([[1]]);`,
+    // Complex parameter shouldn't be shadowed
+    `(function foo(x = 0) { var x; { function x() {}} })(1);`,
+    // Nested complex parameter shouldn't be shadowed
+    `(function foo([[x]]) { var x;{ function x() {} }  })([[1]]);`,
+    // Rest parameter shouldn't be shadowed
+    `(function foo(...x) { var x; {  function x() {}  } })(1);`,
+    // Don't shadow complex rest parameter
+    `(function foo(...[x]) { var x; { function x() {} } })(1);`,
+    // Hoisting is not affected by other simple parameters
+    `(function foo(y, z) {{function x() {}} })(1);`,
+    // Hoisting is not affected by other complex parameters
+    ` (function foo([y] = [], z) {{function x() {} } })();`,
+    // Should allow shadowing function names
+    `{(function foo() { { function foo() { return 0; } } })();}`,
+    `{(function foo(...r) { { function foo() { return 0; } } })(); }`,
+    `(function foo() { { let f = 0; (function () { { function f() { return 1; } } })(); } })();`,
+    `(function foo() { var y = 1; (function bar(x = y) { { function y() {} } })();  })();`,
+    `(function foo() { { function f() { return 4; } { function f() { return 5; } } }})()`,
+    '(function foo(a = 0) { { let y = 3; function f(b = 0) { y = 2; } f(); } })();',
+    '(function conditional() {  if (true) { function f() { return 1; } } else {  function f() { return 2; }} if (false) { function g() { return 1; }}  L: {break L;function f() { return 3; } }})();',
+    '(function foo() {function outer() { return f; } { f = 1; function f () {} f = ""; } })();',
+    '(function foo(x) { {  function x() {} } })(1);',
+    '(function foo([[x]]) { { function x() {}}})([[1]]);',
+    // rest parameter shouldn't be shadowed
+    '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);'
+  ];
+
+  for (const arg of validSyntax) {
+    it(`${arg}`, () => {
+      t.doesNotThrow(() => {
+        parseSource(`${arg}`, undefined, Context.Empty);
+      });
+    });
+  }
 
   for (const arg of [
     '{ x: y }',
@@ -317,6 +358,648 @@ describe('Expressions - Functions', () => {
         ]
       }
     ],
+    [
+      '(function foo(y, z) {{ function x() {} } })(1);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  {
+                    type: 'Identifier',
+                    name: 'z'
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function foo([[x]]) {var x; {function x() {} } })([[1]]);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              arguments: [
+                {
+                  type: 'ArrayExpression',
+                  elements: [
+                    {
+                      type: 'ArrayExpression',
+                      elements: [
+                        {
+                          type: 'Literal',
+                          value: 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function foo(...[x]) { var x; { function x() {} } })(1);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'RestElement',
+                    argument: {
+                      type: 'ArrayPattern',
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ]
+                    }
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'VariableDeclaration',
+                      kind: 'var',
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          init: null,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function conditional() {  if (true) { function f() { return 1; } } else {  function f() { return 2; }} if (false) { function g() { return 1; }}  L: {break L;function f() { return 3; } }})();',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'IfStatement',
+                      test: {
+                        type: 'Literal',
+                        value: true
+                      },
+                      consequent: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'FunctionDeclaration',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Literal',
+                                    value: 1
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: {
+                              type: 'Identifier',
+                              name: 'f'
+                            }
+                          }
+                        ]
+                      },
+                      alternate: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'FunctionDeclaration',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Literal',
+                                    value: 2
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: {
+                              type: 'Identifier',
+                              name: 'f'
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      type: 'IfStatement',
+                      test: {
+                        type: 'Literal',
+                        value: false
+                      },
+                      consequent: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'FunctionDeclaration',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Literal',
+                                    value: 1
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: {
+                              type: 'Identifier',
+                              name: 'g'
+                            }
+                          }
+                        ]
+                      },
+                      alternate: null
+                    },
+                    {
+                      type: 'LabeledStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'L'
+                      },
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'BreakStatement',
+                            label: {
+                              type: 'Identifier',
+                              name: 'L'
+                            }
+                          },
+                          {
+                            type: 'FunctionDeclaration',
+                            params: [],
+                            body: {
+                              type: 'BlockStatement',
+                              body: [
+                                {
+                                  type: 'ReturnStatement',
+                                  argument: {
+                                    type: 'Literal',
+                                    value: 3
+                                  }
+                                }
+                              ]
+                            },
+                            async: false,
+                            generator: false,
+                            id: {
+                              type: 'Identifier',
+                              name: 'f'
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'conditional'
+                }
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function shadowingRestParameterDoesntBind(...x) { {  function x() {} } })(1);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'RestElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'shadowingRestParameterDoesntBind'
+                }
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function foo() { { let f = 0; (function () { { function f() { return 1; } } })(); } })();',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'let',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: {
+                                type: 'Literal',
+                                value: 0
+                              },
+                              id: {
+                                type: 'Identifier',
+                                name: 'f'
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'CallExpression',
+                            callee: {
+                              type: 'FunctionExpression',
+                              params: [],
+                              body: {
+                                type: 'BlockStatement',
+                                body: [
+                                  {
+                                    type: 'BlockStatement',
+                                    body: [
+                                      {
+                                        type: 'FunctionDeclaration',
+                                        params: [],
+                                        body: {
+                                          type: 'BlockStatement',
+                                          body: [
+                                            {
+                                              type: 'ReturnStatement',
+                                              argument: {
+                                                type: 'Literal',
+                                                value: 1
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        id: {
+                                          type: 'Identifier',
+                                          name: 'f'
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              async: false,
+                              generator: false,
+                              id: null
+                            },
+                            arguments: []
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function foo(y, z) {{function x() {}} })(1);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  {
+                    type: 'Identifier',
+                    name: 'z'
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+
     [
       'foo(function f(){})',
       Context.Empty,

@@ -66,7 +66,18 @@ export const enum Errors {
   DuplicateConstructor,
   StrictFunctionName,
   StaticPrototype,
-  InvalidConstructor
+  InvalidConstructor,
+  UnterminatedRegExp,
+  UnexpectedTokenRegExpFlag,
+  YieldReservedKeyword,
+  DisallowedInContext,
+  InvalidLetClassName,
+  InvalidLetConstBinding,
+  InvalidStrictLet,
+  AwaitOutsideAsync,
+  InvalidStrictReservedWord,
+  InvalidStrictStatic,
+  InvalidReservedWordStrict
 }
 
 /*@internal*/
@@ -139,7 +150,18 @@ export const errorMessages: {
   [Errors.DuplicateConstructor]: 'Duplicate constructor method in class',
   [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode',
   [Errors.StaticPrototype]: "Classes may not have a static property named 'prototype'",
-  [Errors.InvalidConstructor]: 'Class constructor may not be a %0'
+  [Errors.InvalidConstructor]: 'Class constructor may not be a %0',
+  [Errors.UnterminatedRegExp]: 'Unterminated regular expression',
+  [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
+  [Errors.YieldReservedKeyword]: "'yield' is a reserved keyword within generator function bodies",
+  [Errors.DisallowedInContext]: "'%0' may not be used as an identifier in this context",
+  [Errors.InvalidLetClassName]: "Can not use 'let' as a class name",
+  [Errors.InvalidLetConstBinding]: 'Can not use `let` when binding through `let` or `const`',
+  [Errors.InvalidStrictLet]: 'Can not use `let` as variable name in strict mode',
+  [Errors.AwaitOutsideAsync]: 'Await is only valid in async functions',
+  [Errors.InvalidStrictReservedWord]: 'Invalid use of reserved word as variable name',
+  [Errors.InvalidStrictStatic]: '`Static` is a reserved word in strict mode',
+  [Errors.InvalidReservedWordStrict]: ' Invalid use of reserved word as a variable name in strict mode'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

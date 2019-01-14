@@ -5,7 +5,11 @@ describe('Statements - if', () => {
   const inValids: Array<[string, Context]> = [
     // Bindings
     ['if (a) function(){}', Context.OptionsDisableWebCompat],
-    ['if (a) class A {}', Context.OptionsDisableWebCompat]
+    ['if (a) class A {}', Context.OptionsDisableWebCompat],
+    ['if (true) function* g() {  } else function* _g() {}', Context.OptionsDisableWebCompat],
+    ['if (true) function* g() {  } else ;', Context.OptionsDisableWebCompat],
+    ['if (true) function* g() {  }', Context.OptionsDisableWebCompat],
+    ['if (false) ; else function* g() {  }', Context.OptionsDisableWebCompat]
   ];
 
   fail('Statements - If (fail)', inValids);
