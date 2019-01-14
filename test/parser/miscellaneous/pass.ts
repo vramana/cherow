@@ -284,6 +284,18 @@ describe('Miscellaneous - Passing tests', () => {
       return stream
     }
   `,*/
+    'a instanceof b',
+    'a in b',
+    '[a, {b:d}, c] = obj',
+    '[a, {[b]:d}, c] = obj',
+    '[a, {[b]: c}, d] = e',
+    'eval; log(eval); eval.foo; eval[foo]; eval.foo = bar; eval[foo] = bar;',
+    '[a = [b] = c, {[d]: e}, f] = g',
+    'log({foo: [bar]});',
+    'log({foo: [bar]} = obj);',
+    '[...{a = b} = c];',
+    '([...{a = b} = c]) => d;',
+    'arguments; log(arguments); arguments.foo; arguments[foo]; arguments.foo = bar; arguments[foo] = bar;',
     'class a extends b { c() { [super.d] = e } }',
     '1 + (a(), b(), c())',
     '(a) => a * yield;',

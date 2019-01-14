@@ -14,7 +14,47 @@ describe('Statements - Block', () => {
     ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
     ['{ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
     ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
-    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat]
+    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ let a; class a {} }', Context.OptionsDisableWebCompat],
+    ['{ async function a() {} async function a() {} }', Context.OptionsDisableWebCompat],
+    ['switch (0) { case 1: function* a() {} break; default: var a; }', Context.OptionsDisableWebCompat],
+    ['for (let x; false; ) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (let x of []) { var x;  }', Context.OptionsDisableWebCompat],
+    ['for (const x in {}) { var x; }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {} let f }', Context.OptionsDisableWebCompat],
+    ['{ async function* f() {} var f }', Context.OptionsDisableWebCompat],
+    ['{ async function* f() {} var f }', Context.OptionsDisableWebCompat],
+    ['{ class f {} const f = 0 }', Context.OptionsDisableWebCompat],
+    ['{ const f = 0; async function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ const f = 0; let f }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } async function f() {}; }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } class f {}; }', Context.OptionsDisableWebCompat],
+    ['{ let f; async function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ let a; class a {} }', Context.OptionsDisableWebCompat],
+    ['{ let f; let f }', Context.OptionsDisableWebCompat],
+    ['{ var f; async function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ var f; const f = 0 }', Context.OptionsDisableWebCompat],
+    ['{ var f; function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {}; var f; }', Context.OptionsDisableWebCompat],
+    ['{ const f = 0; var f; }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {}; var f; }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {}; var f; }', Context.OptionsDisableWebCompat],
+    ['{ let f; var f; }', Context.OptionsDisableWebCompat],
+    ['{ let f; const f = 0 }', Context.OptionsDisableWebCompat],
+    ['{ let f; async function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {}; { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ async function* f() {}; { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ async function f() {}; { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } let f; }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } function* f() {}; }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } const f = 0; }', Context.OptionsDisableWebCompat],
+    ['{ { var f; } async function* f() {}; } ', Context.OptionsDisableWebCompat],
+    ['{ function* f() {} class f {} }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {} async function* f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} function* f() {} }', Context.OptionsDisableWebCompat]
   ];
 
   fail('Statements - Block (fail)', inValids);
@@ -32,6 +72,54 @@ describe('Statements - Block', () => {
             body: []
           }
         ]
+      }
+    ],
+    [
+      '{ { var f; } var f }',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: [
+              {
+                body: [
+                  {
+                    declarations: [
+                      {
+                        id: {
+                          name: 'f',
+                          type: 'Identifier'
+                        },
+                        init: null,
+                        type: 'VariableDeclarator'
+                      }
+                    ],
+                    kind: 'var',
+                    type: 'VariableDeclaration'
+                  }
+                ],
+                type: 'BlockStatement'
+              },
+              {
+                declarations: [
+                  {
+                    id: {
+                      name: 'f',
+                      type: 'Identifier'
+                    },
+                    init: null,
+                    type: 'VariableDeclarator'
+                  }
+                ],
+                kind: 'var',
+                type: 'VariableDeclaration'
+              }
+            ],
+            type: 'BlockStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
