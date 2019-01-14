@@ -899,7 +899,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    /* [
+    [
       'async in {}',
       Context.Empty,
       {
@@ -924,7 +924,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    [
+    /*[
       'async instanceof {}',
       Context.Empty,
       {
@@ -948,7 +948,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ],
+    ],*/
     [
       'f(async in {})',
       Context.Empty,
@@ -983,7 +983,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    [
+    /**[
       'f(async instanceof {})',
       Context.Empty,
       {
@@ -1016,7 +1016,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ],
+    ], */
     [
       'f(a + async in b)',
       Context.Empty,
@@ -1100,7 +1100,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ],*/
+    ],
     [
       'log(async().foo);',
       Context.Empty,
@@ -1139,7 +1139,129 @@ describe('Expressions - Async', () => {
         sourceType: 'script'
       }
     ],
-    /*  [
+
+    [
+      'async ? a : b;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'a ? b : async;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'a ? async : b;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'async (x) + 2;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                arguments: [
+                  {
+                    name: 'x',
+                    type: 'Identifier'
+                  }
+                ],
+                callee: {
+                  name: 'async',
+                  type: 'Identifier'
+                },
+                type: 'CallExpression'
+              },
+              operator: '+',
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
       'async(a, b) * c',
       Context.Empty,
       {
@@ -1176,7 +1298,7 @@ describe('Expressions - Async', () => {
         ],
         sourceType: 'script'
       }
-    ],*/
+    ],
     [
       'log(async()[foo]);',
       Context.Empty,

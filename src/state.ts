@@ -2076,9 +2076,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
 
 function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context: Context): any {
   let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-  //let t = state.flags;
 
-  const scope = createScope(ScopeType.ArgumentList);
   const { token, flags } = state;
   // async + Identifier => AsyncConciseBody
   if (token & (Token.IsIdentifier | Token.Keyword)) {
@@ -2086,22 +2084,30 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
       return expr;
     }
 
+    if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+      return parseBinaryExpression(state, context, 0, expr);
+    }
+
     const maybeConciseBody = parseIdentifier(state, context);
+
     if (state.token === Token.Arrow) {
       if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
       if (token & Token.IsAwait) report(state, Errors.Unexpected);
       if (state.flags & Flags.NewLine) return expr;
+      const scope = createScope(ScopeType.ArgumentList);
       addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
       return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
     }
     return expr;
   }
-
+  let isArrow = false;
+  const scope = createScope(ScopeType.ArgumentList);
   // async () => {}
   while (state.token === Token.LeftParen) {
     expr = parseMemberExpression(state, context, expr);
     const args = parseAsyncArgumentList(state, context, scope);
     if (state.token === <Token>Token.Arrow) {
+      isArrow = true;
       if (flags & Flags.NewLine || state.flags & Flags.NewLine) report(state, Errors.Unexpected);
       expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true);
       break;
@@ -2117,9 +2123,13 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
   //
   // `async().foo`
   // `async()[foo]`
+  // `async (x) + 2;`
+  // `async (x) * 2;`
+  // `async (x) => {} + 2;` - Invalid
+  // `(async (x) => {} + 2;)` - Invalid
   //
   // Note: This cases breaks in 1.6.x
-  return parseMemberExpression(state, context, expr);
+  return parseMemberExpression(state, context, isArrow ? expr : parseBinaryExpression(state, context, 0, expr));
 }
 
 function parseAsyncArgumentList(
