@@ -2247,6 +2247,9 @@ function parseCallExpression(
     expr = parseMemberExpression(state, context, expr);
     if (state.token !== Token.LeftParen) return expr;
     const args = parseArgumentList(state, context);
+    if (optional(state, context, Token.Arrow)) {
+      return parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true);
+    }
     expr = {
       type: 'CallExpression',
       callee: expr,
@@ -2526,6 +2529,7 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   //   '(' Expression ')'
   //   TemplateLiteral
   //   AsyncFunctionLiteral
+
   switch (state.token) {
     case Token.NumericLiteral:
     case Token.StringLiteral:
@@ -2560,50 +2564,50 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
     case Token.SuperKeyword:
       return parseSuperExpression(state, context);
     case Token.AsyncKeyword: {
-      const expr: any = parseIdentifier(state, context);
+      const expr: ESTree.Identifier = parseIdentifier(state, context);
 
       if (state.flags & Flags.NewLine) return expr;
 
-      if (state.token === <Token>Token.FunctionKeyword) {
-        return parseFunctionExpression(state, context, true);
-      }
+      // async function(...) {}
+      if (state.token === <Token>Token.FunctionKeyword) return parseFunctionExpression(state, context, true);
 
       // async Identifier => AsyncConciseBody
       if (state.token & Token.IsIdentifier) {
         if (state.token === <Token>Token.AwaitKeyword) report(state, Errors.Unexpected);
         const expr = parseIdentifier(state, context);
-        if (optional(state, context, Token.Arrow)) {
-          if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-          if (context & (Context.YieldContext | Context.AwaitContext)) report(state, Errors.Unexpected);
-          const scope = createScope(ScopeType.ArgumentList);
-          addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
-          return parseArrowFunctionExpression(state, context, scope as any, [expr], true);
-        }
+        // identifer + identifer and no arrow = error
+        if (!optional(state, context, Token.Arrow)) report(state, Errors.Unexpected);
+        if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+        const scope = createScope(ScopeType.ArgumentList);
+        addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
+        return parseArrowFunctionExpression(state, context, scope, [expr], true);
       }
+
+      // async + Identifier => AsyncConciseBody
       if (optional(state, context, Token.Arrow)) {
         if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-        if (context & (Context.YieldContext | Context.AwaitContext)) report(state, Errors.Unexpected);
-        const scope = createScope(ScopeType.ArgumentList);
-        return parseArrowFunctionExpression(state, context, scope as any, [expr], false);
+        return parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), [expr], false);
       }
 
       return expr;
     }
+
     case Token.YieldKeyword:
       if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
     // falls through
     default:
       if (isValidIdentifier(context, state.token)) {
-        const token = state.token;
+        const { token } = state;
         const id = parseIdentifier(state, context | Context.TaggedTemplate);
+        // identifier + arrow
         if (optional(state, context, Token.Arrow)) {
-          // Yield in generator is keyword'
-          if (token & Token.IsYield && context & (Context.AwaitContext | Context.YieldContext))
+          if (token & Token.IsYield && context & (Context.AwaitContext | Context.YieldContext)) {
             report(state, Errors.YieldReservedKeyword);
-          const scopes = createScope(ScopeType.ArgumentList);
-          addVariableAndDeduplicate(state, context, scopes, Type.ArgList, true, state.tokenValue);
+          }
+          const scope = createScope(ScopeType.ArgumentList);
+          addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
           if (context & Context.AwaitContext && token === Token.AwaitKeyword) report(state, Errors.Unexpected);
-          return parseArrowFunctionExpression(state, context, scopes as any, [id], false);
+          return parseArrowFunctionExpression(state, context, scope, [id], false);
         }
 
         return id;
