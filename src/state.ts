@@ -2435,6 +2435,26 @@ function parseSuperExpression(state: ParserState, context: Context): ESTree.Supe
   return { type: 'Super' };
 }
 
+/**
+ * Parse identifier name or private name (stage 3 proposal)
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseIdentifierNameOrPrivateName(
+  state: ParserState,
+  context: Context
+): ESTree.PrivateName | ESTree.Identifier {
+  if (!optional(state, context, Token.PrivateName)) return parseIdentifier(state, context);
+  return {
+    type: 'PrivateName',
+    name: state.tokenValue
+  };
+}
+
 function parseMemberExpression(state: ParserState, context: Context, expr: any): ESTree.Expression {
   while (true) {
     switch (state.token) {
@@ -2444,7 +2464,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
           type: 'MemberExpression',
           object: expr,
           computed: false,
-          property: parseIdentifier(state, context)
+          property: parseIdentifierNameOrPrivateName(state, context)
         };
         continue;
       case Token.LeftBracket:
@@ -2714,12 +2734,13 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       return parseNewExpression(state, context);
     case Token.SuperKeyword:
       return parseSuperExpression(state, context);
+    case Token.PrivateName:
+      return parseIdentifierNameOrPrivateName(state, context);
     case Token.AsyncKeyword: {
       return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
         ? parseFunctionExpression(state, context, true)
         : parseIdentifier(state, context);
     }
-
     case Token.YieldKeyword:
       if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
     // falls through
@@ -2964,10 +2985,19 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   };
 }
 
+function parsePrivateName(state: ParserState, context: Context): any {
+  next(state, context);
+  // static #x = /*{ initializer }*/;
+  return {
+    type: 'PrivateName',
+    name: state.tokenValue
+  };
+}
+
 export function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody {
   expect(state, context | Context.AllowPossibleRegEx, Token.LeftBrace);
   const body: any[] = [];
-  let value: ESTree.Node | void;
+  let value: ESTree.Node | null = null;
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
   let objState = ObjectState.None;
   let token = state.token;
@@ -2982,7 +3012,15 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       key = parseIdentifier(state, context);
       if ((token & Token.StaticKeyword) === Token.StaticKeyword) {
         if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
-        if (state.token & Token.IsIdentifier) {
+        if (context & Context.OptionsNext && state.token === Token.PrivateName) {
+          objState |= ObjectState.Static;
+          key = parsePrivateName(state, context | Context.InClass);
+          if (optional(state, context, Token.Assign)) {
+            value = parseAssignmentExpression(state, context);
+          } else if (state.token === <Token>Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
+          } else objState |= ObjectState.ClassField;
+        } else if (state.token & Token.IsIdentifier) {
           objState |= ObjectState.Static;
           token = state.token;
           key = parseIdentifier(state, context);
@@ -3169,21 +3207,31 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
     optional(state, context, Token.Comma);
 
-    body.push({
-      type: 'MethodDefinition',
-      kind:
-        objState & ObjectState.Constructor
-          ? 'constructor'
-          : objState & ObjectState.Getter
-          ? 'get'
-          : objState & ObjectState.Setter
-          ? 'set'
-          : 'method',
-      static: (objState & ObjectState.Static) !== 0,
-      computed: (objState & ObjectState.Computed) !== 0,
-      key,
-      value
-    });
+    body.push(
+      objState & ObjectState.ClassField
+        ? {
+            type: 'FieldDefinition',
+            key: key,
+            value,
+            computed: (objState & ObjectState.Computed) !== 0,
+            static: (objState & ObjectState.Static) !== 0
+          }
+        : {
+            type: 'MethodDefinition',
+            kind:
+              objState & ObjectState.Constructor
+                ? 'constructor'
+                : objState & ObjectState.Getter
+                ? 'get'
+                : objState & ObjectState.Setter
+                ? 'set'
+                : 'method',
+            static: (objState & ObjectState.Static) !== 0,
+            computed: (objState & ObjectState.Computed) !== 0,
+            key,
+            value
+          }
+    );
   }
   if (constructorCount > 1) {
     report(state, Errors.DuplicateConstructor);
@@ -3453,6 +3501,7 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
     paramScoop,
     Origin.ArgList
   );
+
   const body = parseFunctionBody(
     state,
     context | Context.AllowNewTarget | Context.Strict,
@@ -3460,7 +3509,6 @@ function parseMethodDeclaration(state: ParserState, context: Context, objState: 
     firstRestricted,
     Origin.None
   );
-
   return {
     type: 'FunctionExpression',
     params,

@@ -112,8 +112,9 @@ export const enum ObjectState {
   Async = 1 << 4,
   Static = 1 << 5,
   Constructor = 1 << 6,
-  Getter = 1 << 7,
-  Setter = 1 << 8,
+  ClassField = 1 << 7,
+  Getter = 1 << 8,
+  Setter = 1 << 9,
   GetSet = Getter | Setter
 }
 
