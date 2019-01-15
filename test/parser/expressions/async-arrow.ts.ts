@@ -54,6 +54,28 @@ describe('Expressions - Async arrow', () => {
     ['cherow => { const cherow; }', Context.Empty],
     ['cherow => let cherow;', Context.Empty],
 
+    // ['async (a, ...b, ...c) => {}', Context.Empty],
+    ['async\n(a, b) => {}', Context.Empty],
+    // ['new async() => {}', Context.Empty],
+    // ['({ async\nf(){} })', Context.Empty],
+    // ['async ((a)) => {}', Context.Empty],
+    ['({ async get a(){} })', Context.Empty],
+
+    ['async a => {} ()', Context.Empty],
+    ['a + async b => {}', Context.Empty],
+    // ['a + async () => {}', Context.Empty],
+    ['with({}) async function f(){};', Context.Empty],
+    //['function* a(){ async yield => {}; }', Context.Empty],
+    // ['function* a(){ async (yield) => {}; }', Context.Empty],
+    // ['({ async *a(){} })', Context.Empty],
+    ['async await => 0', Context.Empty],
+    // ['async (await) => 0', Context.Empty],
+
+    ['(class { async })', Context.Empty],
+    // ['(class { async\na(){} })', Context.Empty],
+    ['(class { async get a(){} })', Context.Empty],
+    // ['async (a = await => {}) => {}', Context.Empty],
+
     ['f(async\n()=>c)', Context.Empty],
     // ['async x \n => x', Context.Empty],
     ['async \n (x, y) => x', Context.Empty],
@@ -184,6 +206,1105 @@ describe('Expressions - Async arrow', () => {
   }
 
   pass('Expressions - Async arrow (pass)', [
+    [
+      `id = async x => x, square = async (y) => { y * y }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'id'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ],
+                    id: null,
+                    async: true,
+                    expression: true
+                  }
+                },
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'square'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'BinaryExpression',
+                            left: {
+                              type: 'Identifier',
+                              name: 'y'
+                            },
+                            right: {
+                              type: 'Identifier',
+                              name: 'y'
+                            },
+                            operator: '*'
+                          }
+                        }
+                      ]
+                    },
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'y'
+                      }
+                    ],
+                    id: null,
+                    async: true,
+                    expression: false
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async (a, ...b) => 0`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Literal',
+                value: 0
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'RestElement',
+                  argument: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ],
+              id: null,
+              async: true,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async a => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async () => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(async a => {})()`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'ArrowFunctionExpression',
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                ],
+                id: null,
+                async: true,
+                expression: false
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `a, async () => b, c`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  params: [],
+                  id: null,
+                  async: true,
+                  expression: true
+                },
+                {
+                  type: 'Identifier',
+                  name: 'c'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async (a = await => {})`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'Identifier',
+                name: 'async'
+              },
+              arguments: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'await'
+                      }
+                    ],
+                    id: null,
+                    async: false,
+                    expression: false
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async (a = b => await (0)) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  right: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'await'
+                      },
+                      arguments: [
+                        {
+                          type: 'Literal',
+                          value: 0
+                        }
+                      ]
+                    },
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    ],
+                    id: null,
+                    async: false,
+                    expression: true
+                  }
+                }
+              ],
+              id: null,
+              async: true,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async function a() { function b(c = await (0)) {} }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'FunctionDeclaration',
+                  params: [
+                    {
+                      type: 'AssignmentPattern',
+                      left: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      right: {
+                        type: 'CallExpression',
+                        callee: {
+                          type: 'Identifier',
+                          name: 'await'
+                        },
+                        arguments: [
+                          {
+                            type: 'Literal',
+                            value: 0
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({ async })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({ async () {} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({ async a(){} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({ async get(){} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'get'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(class { async(){} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: null,
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: false,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(class { async a(){} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: null,
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: false,
+                    computed: false,
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(class { static async a(){} })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ClassExpression',
+              id: null,
+              superClass: null,
+              body: {
+                type: 'ClassBody',
+                body: [
+                  {
+                    type: 'MethodDefinition',
+                    kind: 'method',
+                    static: true,
+                    computed: false,
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: []
+                      },
+                      async: true,
+                      generator: false,
+                      id: null
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `await`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Identifier',
+              name: 'await'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(async function a() { await 0; })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [],
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'AwaitExpression',
+                      argument: {
+                        type: 'Literal',
+                        value: 0
+                      }
+                    }
+                  }
+                ]
+              },
+              async: true,
+              generator: false,
+              id: {
+                type: 'Identifier',
+                name: 'a'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `async () => await 0`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'AwaitExpression',
+                argument: {
+                  type: 'Literal',
+                  value: 0
+                }
+              },
+              params: [],
+              id: null,
+              async: true,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({ async a(){ await 0; } })`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AwaitExpression',
+                            argument: {
+                              type: 'Literal',
+                              value: 0
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: true,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `export async function a(){}`,
+      Context.Module,
+      {
+        body: [
+          {
+            declaration: {
+              async: true,
+              body: {
+                body: [],
+                type: 'BlockStatement'
+              },
+              generator: false,
+              id: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              params: [],
+              type: 'FunctionDeclaration'
+            },
+            source: null,
+            specifiers: [],
+            type: 'ExportNamedDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    [
+      `export default async function (){}`,
+      Context.Module,
+      {
+        body: [
+          {
+            declaration: {
+              async: true,
+              body: {
+                body: [],
+                type: 'BlockStatement'
+              },
+              generator: false,
+              id: null,
+              params: [],
+              type: 'FunctionDeclaration'
+            },
+            type: 'ExportDefaultDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    // [`export default async\nfunction a(){}`,  Context.Empty, {}],
+    [
+      `async;\n(a, b) => 0`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              name: 'async',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            expression: {
+              async: false,
+              body: {
+                type: 'Literal',
+                value: 0
+              },
+              expression: true,
+              id: null,
+              params: [
+                {
+                  name: 'a',
+                  type: 'Identifier'
+                },
+                {
+                  name: 'b',
+                  type: 'Identifier'
+                }
+              ],
+              type: 'ArrowFunctionExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `async\nfunction a(){}`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              name: 'async',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          },
+          {
+            async: false,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `new async()`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              arguments: [],
+              callee: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              type: 'NewExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'async()``',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              quasi: {
+                expressions: [],
+                quasis: [
+                  {
+                    tail: true,
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: '',
+                      raw: ''
+                    }
+                  }
+                ],
+                type: 'TemplateLiteral'
+              },
+              tag: {
+                arguments: [],
+                callee: {
+                  name: 'async',
+                  type: 'Identifier'
+                },
+                type: 'CallExpression'
+              },
+              type: 'TaggedTemplateExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `async ((a))`,
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              arguments: [
+                {
+                  name: 'a',
+                  type: 'Identifier'
+                }
+              ],
+              callee: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              type: 'CallExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `async function a(){}(0)`,
+      Context.Empty,
+      {
+        body: [
+          {
+            async: true,
+            body: {
+              body: [],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          },
+          {
+            expression: {
+              type: 'Literal',
+              value: 0
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      `(async function a(){}(0))`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: true,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              },
+              arguments: [
+                {
+                  type: 'Literal',
+                  value: 0
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
     [
       `async a => b => c;`,
       Context.Empty,

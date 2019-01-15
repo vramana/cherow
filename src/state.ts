@@ -26,7 +26,9 @@ import {
   ScopeType,
   createSubScope,
   createScope,
-  ObjectState
+  ObjectState,
+  nextTokenIsLeftParenOrPeriod,
+  nextTokenIsLeftParen
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
@@ -130,7 +132,11 @@ function parseModuleItem(state: ParserState, context: Context, scope: ScopeState
     case Token.ExportKeyword:
       return parseExportDeclaration(state, context, scope);
     case Token.ImportKeyword:
-      return parseImportDeclaration(state, context, scope);
+      // 'Dynamic Import' or meta property disallowed here
+      if (!(context & Context.OptionsNext && lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true))) {
+        return parseImportDeclaration(state, context, scope);
+      }
+    // falls through
     default:
       return parseStatementListItem(state, context, scope);
   }
@@ -2031,10 +2037,10 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   //   ArrowFunction
   //   YieldExpression
   //   LeftHandSideExpression AssignmentOperator AssignmentExpression
-  let value = state.tokenValue;
-  let { token } = state;
+  const value = state.tokenValue;
+  const { token } = state;
   if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
-  let expr: ESTree.Expression | ESTree.Expression[] =
+  const expr: ESTree.Expression | ESTree.Expression[] =
     state.token & Token.IsAsync && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
       ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
       : parseConditionalExpression(state, context);
@@ -2335,10 +2341,44 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
   // LeftHandSideExpression ::
   //   (NewExpression | MemberExpression) ...
   const expr =
-    state.token === Token.SuperKeyword
+    context & Context.OptionsNext && state.token === Token.ImportKeyword
+      ? parseCallImportOrMetaProperty(state, context)
+      : state.token === Token.SuperKeyword
       ? parseSuperExpression(state, context)
       : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
   return parseCallExpression(state, context, expr);
+}
+
+/**
+ * Parse either call expression or import expressions
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+
+function parseCallImportOrMetaProperty(state: ParserState, context: Context): ESTree.Expression {
+  const id = parseIdentifier(state, context);
+  // Import.meta - Stage 3 proposal
+  if (optional(state, context, Token.Period)) {
+    if (context & Context.Module && state.tokenValue === 'meta') return parseMetaProperty(state, context, id);
+    report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
+  }
+
+  const expr = parseImportExpression();
+  return parseCallExpression(state, context, expr);
+}
+
+/**
+ * Parse Import() expression. (Stage 3 proposal)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ * @param pos Location
+ */
+function parseImportExpression(): ESTree.ImportExpression {
+  return {
+    type: 'Import'
+  };
 }
 
 /**
@@ -2349,11 +2389,7 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
  * @param pos Line / Colum info
  * @param expr Expression
  */
-function parseCallExpression(
-  state: ParserState,
-  context: Context,
-  expr: ESTree.Expression | ESTree.Super
-): ESTree.Expression | ESTree.CallExpression | ESTree.Super {
+function parseCallExpression(state: ParserState, context: Context, expr: ESTree.Expression | ESTree.Super): any {
   while (true) {
     expr = parseMemberExpression(state, context, expr);
     if (state.token !== Token.LeftParen) return expr;
@@ -2613,10 +2649,17 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     if ((context & Context.AllowNewTarget) === 0 || state.tokenValue !== 'target') report(state, Errors.Unexpected);
     return parseMetaProperty(state, context, id);
   }
-
+  let callee;
+  if (context & Context.OptionsNext && state.token === Token.ImportKeyword) {
+    // Invalid: '"new import(x)"'
+    if (lookAheadOrScan(state, context, nextTokenIsLeftParen, true))
+      report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
+    // Fixes cases like ''new import.meta','
+    callee = parseCallImportOrMetaProperty(state, context);
+  } else callee = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
   return {
     type: 'NewExpression',
-    callee: parseMemberExpression(state, context, parsePrimaryExpression(state, context)),
+    callee,
     arguments: state.token === Token.LeftParen ? parseArgumentList(state, context) : []
   };
 }

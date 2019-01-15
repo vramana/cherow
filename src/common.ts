@@ -743,3 +743,25 @@ export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState 
     }
   };
 }
+
+/**
+ * Validates if the next token in the stream is a left paren or a period
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean {
+  next(state, context);
+  return state.token === Token.LeftParen || state.token === Token.Period;
+}
+
+/**
+ * Validates if the next token in the stream is left parenthesis.
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean {
+  next(parser, context);
+  return parser.token === Token.LeftParen;
+}
