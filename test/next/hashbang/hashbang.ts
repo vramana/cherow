@@ -1,7 +1,7 @@
 import * as t from 'assert';
-import { skipHashBang } from '../../../../src/scanner';
-import { Context } from '../../../../src/common';
-import { create } from '../../../../src/state';
+import { skipHashBang } from '../../../src/scanner';
+import { Context } from '../../../src/common';
+import { create } from '../../../src/state';
 
 describe('Next - Hashbang grammar', () => {
   describe('seek()', () => {
