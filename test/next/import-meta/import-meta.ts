@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Next - Import meta', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Next - Import meta', [
     ['var import.meta', Context.Empty],
     ['([import.meta] = [1])', Context.Empty],
     ['([import.meta] = [1])', Context.Empty],
@@ -14,9 +14,7 @@ describe('Next - Import meta', () => {
     ['var import.meta', Context.Empty],
     ['var import.meta', Context.Empty],
     ['var import.meta', Context.Empty]
-  ];
-
-  fail('Expressions - Async arrow', inValids);
+  ]);
 
   const validSyntax = [
     'class C {set x(_) { () => import.meta }}',
@@ -162,7 +160,7 @@ describe('Next - Import meta', () => {
       });
     });
   }
-  pass('Expressions - Async arrow (pass)', [
+  pass('Next - Import.Meta (pass)', [
     [
       `t = [...import.meta]`,
       Context.Strict | Context.Module | Context.OptionsNext,

@@ -1,5 +1,5 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
@@ -37,7 +37,7 @@ describe('Declarations - Const', () => {
     ],
     ['let let', Context.Empty]
   ];
-
+  fail('Declarations - Let (fail)', inValids);
   const validSyntax = [
     'const a = Infinity;',
     'const b = -Infinity;',
