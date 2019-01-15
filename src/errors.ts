@@ -78,7 +78,10 @@ export const enum Errors {
   InvalidStrictStatic,
   InvalidReservedWordStrict,
   ForbiddenAsStatement,
-  AsyncFunctionInSingleStatementContext
+  AsyncFunctionInSingleStatementContext,
+  PrivateFieldConstructor,
+  PublicFieldConstructor,
+  PrivateStaticPrototype
 }
 
 /*@internal*/
@@ -165,7 +168,10 @@ export const errorMessages: {
   [Errors.InvalidReservedWordStrict]: ' Invalid use of reserved word as a variable name in strict mode',
   [Errors.ForbiddenAsStatement]: "%0 can't appear in single-statement context",
   [Errors.AsyncFunctionInSingleStatementContext]:
-    'Async functions can only be declared at the top level or inside a block'
+    'Async functions can only be declared at the top level or inside a block',
+  [Errors.PrivateFieldConstructor]: "Classes may not have a private field named '#constructor'",
+  [Errors.PublicFieldConstructor]: "Classes may not have a field named 'constructor'",
+  [Errors.PrivateStaticPrototype]: "Classes may not have a static private property named '#prototype'"
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

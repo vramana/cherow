@@ -23,12 +23,12 @@ const iterations = process.argv[2] || 1;
 const rotations = process.argv[3] || 1;
 
 const tests = [
-  //  { weight: 10, imports: [V1, V2, V2New], expr: `(class A {} < 1);` },
+  { weight: 10, imports: [V1, V2, V2New], expr: `(class A {} < 1);` },
 
-  //  { weight: 3, imports: [V1, V2, V2New], expr: `x = class A {};` },
-  //  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {set foo(x){}})` },
-  //  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {"set"(){} "get"(){} "async"(){}})` },
-  //  { weight: 3, imports: [V1, V2, V2New], expr: `({ foo: bar})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `x = class A {};` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {set foo(x){}})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `(class A {"set"(){} "get"(){} "async"(){}})` },
+  { weight: 3, imports: [V1, V2, V2New], expr: `({ foo: bar})` },
   { weight: 3, imports: [V1, V2, V2New], expr: `a => b` },
   { weight: 3, imports: [V1, V2, V2New], expr: `(a) => {}` },
   { weight: 3, imports: [V1, V2, V2New], expr: `async a => b` },

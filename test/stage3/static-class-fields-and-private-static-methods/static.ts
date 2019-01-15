@@ -4,21 +4,355 @@ import { Context } from '../../../src/common';
 // import { parseSource } from '../../../src/cherow';
 
 describe('Next - Static private fields', () => {
-  fail('Next - Import', [
-    [`class A { static #constructor() {} }`, Context.Empty],
-    [`class A { static #[ab]() {} }`, Context.Empty],
-    [`a = { static #ab() {} }`, Context.Empty],
-    [`class A { static #x = /*{ initializer }*/; }`, Context.Empty],
-    [`class A { static [{#ab() {}}]() {} }`, Context.Empty],
-    [`class A{ static # a() {}}`, Context.Empty],
-    [`class C{ static #method() { super(); } };`, Context.Empty],
-    [`class C{ static #method() { super.y(); } };`, Context.Empty],
-    [`class A { static #a() {}; f() { delete A.#a } }`, Context.Empty],
-    [`class A { static #a() {}; static #a() {} }`, Context.Empty],
-    [`class A { static #a() {}; static #a() {} }`, Context.Empty]
+  fail('Next - Static private fields', [
+    [`class A { static #prototype() {} }`, Context.OptionsNext],
+    [`class A { static  #prototype = foo }`, Context.OptionsNext],
+    [`class A { static #constructor() {} }`, Context.OptionsNext],
+    [`class A { static #[ab]() {} }`, Context.OptionsNext],
+    [`a = { static #ab() {} }`, Context.OptionsNext],
+    [`class A { static #x = /*{ initializer }*/; }`, Context.OptionsNext],
+    [`class A { static [{#ab() {}}]() {} }`, Context.OptionsNext],
+    [`class A{ static # a() {}}`, Context.OptionsNext],
+    [`class C{ static #method() { super(); } };`, Context.OptionsNext],
+    [`class C{ static #method() { super.y(); } };`, Context.Empty]
+    //  [`class A { static #a() {}; f() { delete A.#a } }`, Context.OptionsNext],
+    // [`class A { static #a() {}; static #a() {} }`, Context.OptionsNext],
+    // [`class A { static #a() {}; static #a() {} }`, Context.OptionsNext]
   ]);
 
   pass('Next - Static private fields', [
+    [
+      `class A { static ['a'] = 0; *b(){} }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Literal',
+                    value: 'a'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  computed: true,
+                  static: true
+                },
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static 0; }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  value: null,
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static c = [c] = c }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  value: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'ArrayPattern',
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      ]
+                    },
+                    operator: '=',
+                    right: {
+                      type: 'Identifier',
+                      name: 'c'
+                    }
+                  },
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static a = () => function t() { arguments; } }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                      type: 'FunctionExpression',
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        body: [
+                          {
+                            type: 'ExpressionStatement',
+                            expression: {
+                              type: 'Identifier',
+                              name: 'arguments'
+                            }
+                          }
+                        ]
+                      },
+                      async: false,
+                      generator: false,
+
+                      id: {
+                        type: 'Identifier',
+                        name: 't'
+                      }
+                    },
+                    params: [],
+                    id: null,
+                    async: false,
+                    expression: true
+                  },
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static a = function t() { arguments; } }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'Identifier',
+                            name: 'arguments'
+                          }
+                        }
+                      ]
+                    },
+                    async: false,
+                    generator: false,
+
+                    id: {
+                      type: 'Identifier',
+                      name: 't'
+                    }
+                  },
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static async; }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'async'
+                  },
+                  value: null,
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `class A { static await = 0; }`,
+      Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'A'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'FieldDefinition',
+                  key: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  value: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  computed: false,
+                  static: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    // [ `class A { static a = 0; }`, Context.OptionsNext,   {}],
+    // [ `class A { static a = 0; }`, Context.OptionsNext,   {}],
+    // [ `class A { static a = 0; }`, Context.OptionsNext,   {}],
+    // [ `class A { static a = 0; }`, Context.OptionsNext,   {}],
+    // [ `class A { static a = 0; }`, Context.OptionsNext,   {}],
+
     [
       `class A { static foo = bar }`,
       Context.Strict | Context.Module | Context.OptionsNext,

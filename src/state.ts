@@ -2985,9 +2985,12 @@ function parseClassExpression(state: ParserState, context: Context): ESTree.Clas
   };
 }
 
-function parsePrivateName(state: ParserState, context: Context): any {
+function parsePrivateName(state: ParserState, context: Context, objState: ObjectState): any {
   next(state, context);
-  // static #x = /*{ initializer }*/;
+  if (objState & ObjectState.Static && state.tokenValue === 'prototype') {
+    report(state, Errors.PrivateStaticPrototype);
+  }
+  if (state.tokenValue === 'constructor') report(state, Errors.PrivateFieldConstructor);
   return {
     type: 'PrivateName',
     name: state.tokenValue
@@ -3011,10 +3014,9 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       tokenValue = state.tokenValue;
       key = parseIdentifier(state, context);
       if ((token & Token.StaticKeyword) === Token.StaticKeyword) {
-        if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
         if (context & Context.OptionsNext && state.token === Token.PrivateName) {
           objState |= ObjectState.Static;
-          key = parsePrivateName(state, context | Context.InClass);
+          key = parsePrivateName(state, context, objState);
           if (optional(state, context, Token.Assign)) {
             objState |= ObjectState.ClassField;
             value = parseAssignmentExpression(state, context);
@@ -3022,7 +3024,8 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
             value = parseMethodDeclaration(state, context, objState);
           } else objState |= ObjectState.ClassField;
         } else if (state.token & Token.IsIdentifier) {
-          objState |= ObjectState.Static;
+          if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
+          objState = (objState & ~ObjectState.ClassField) | ObjectState.Static;
           token = state.token;
           key = parseIdentifier(state, context);
           if (
@@ -3063,12 +3066,29 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
           value = parseMethodDeclaration(state, context, objState);
         } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
           key = parseLiteral(state, context);
-          objState |= ObjectState.Static;
-          value = parseMethodDeclaration(state, context, objState);
+
+          if (
+            (context & Context.OptionsNext && state.token === <Token>Token.Comma) ||
+            state.token === <Token>Token.Semicolon ||
+            state.token === <Token>Token.RightBrace ||
+            state.token === <Token>Token.Assign
+          ) {
+            objState |= ObjectState.ClassField | ObjectState.Static;
+            if (optional(state, context, Token.Assign)) {
+              value = parseAssignmentExpression(state, context);
+            }
+          } else {
+            objState |= ObjectState.Static;
+            value = parseMethodDeclaration(state, context, objState);
+          }
         } else if (state.token === <Token>Token.LeftBracket) {
           objState |= ObjectState.Computed | ObjectState.Static;
           key = parseComputedPropertyName(state, context);
-          value = parseMethodDeclaration(state, context, objState);
+          if (state.token === <Token>Token.LeftParen) value = parseMethodDeclaration(state, context, objState);
+          else if (optional(state, context, Token.Assign)) {
+            objState |= ObjectState.ClassField;
+            value = parseAssignmentExpression(state, context);
+          } else report(state, Errors.Unexpected);
         } else if (optional(state, context, Token.Multiply)) {
           if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
           objState |= ObjectState.Generator | ObjectState.Static;
@@ -3086,7 +3106,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
           value = parseMethodDeclaration(state, context, objState);
         }
       } else {
-        objState &= ~ObjectState.Static;
+        objState &= ~(ObjectState.Static | ObjectState.ClassField);
 
         if (
           state.token === Token.Comma ||
@@ -3095,10 +3115,11 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
           state.token === Token.Assign
         ) {
           if ((context & Context.OptionsNext) === 0) report(state, Errors.Unexpected);
+          if (state.tokenValue === 'constructor') report(state, Errors.PublicFieldConstructor);
           objState |= ObjectState.ClassField;
           if (optional(state, context, Token.Assign)) {
             value = parseAssignmentExpression(state, context);
-          }
+          } else value = null;
         } else if (state.token === Token.Colon) {
           report(state, Errors.Unexpected);
         } else if (state.token === Token.LeftBracket) {
@@ -3198,7 +3219,14 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       next(state, context);
       if (state.token & Token.IsIdentifier) {
         token = state.token;
-        objState &= ~(ObjectState.Async | ObjectState.Computed | ObjectState.Getter | ObjectState.Setter);
+        objState &= ~(
+          ObjectState.Async |
+          ObjectState.Static |
+          ObjectState.ClassField |
+          ObjectState.Computed |
+          ObjectState.Getter |
+          ObjectState.Setter
+        );
         key = parseIdentifier(state, context);
         if (state.token === <Token>Token.LeftParen) {
           value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
@@ -3212,13 +3240,13 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       } else if (state.token === <Token>Token.LeftBracket) {
         key = parseComputedPropertyName(state, context);
         value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
-        objState |= ObjectState.Method | ObjectState.Computed;
+        objState = (objState & ~ObjectState.ClassField) | (ObjectState.Method | ObjectState.Computed);
       } else {
         report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
       }
     } else if (context & Context.OptionsNext && state.token === Token.PrivateName) {
       objState |= ObjectState.Static;
-      key = parsePrivateName(state, context | Context.InClass);
+      key = parsePrivateName(state, context, objState);
       if (optional(state, context, Token.Assign)) {
         objState |= ObjectState.ClassField;
         value = parseAssignmentExpression(state, context);
