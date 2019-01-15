@@ -2,7 +2,6 @@ import * as ESTree from './estree';
 import { Token } from './token';
 import { next } from './scanner';
 import { Errors, report } from './errors';
-import { ScopeType, ScopeState } from 'scope';
 
 // prettier-ignore
 /**
@@ -27,7 +26,7 @@ export const enum Context {
   TopLevel = 1 << 12,
 
   DisallowInContext = 1 << 13,
-  DisallowGenerators = 1 << 14,
+
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   OptionsDirectives = 1 << 17,
@@ -89,6 +88,35 @@ export const enum Origin {
   Declaration = 1 << 7
 }
 
+export const enum ScopeType {
+  None = 0,
+  BlockStatement = 1,
+  ForStatement = 2,
+  SwitchStatement = 3,
+  CatchClause = 4,
+  ArgumentList = 5
+}
+
+export const enum LabelledState {
+  None = 0,
+  AllowAsLabelled = 1 << 0,
+  Disallow = 1 << 1
+}
+
+export const enum ObjectState {
+  None = 0,
+  Method = 1 << 0,
+  Computed = 1 << 1,
+  Shorthand = 1 << 2,
+  Generator = 1 << 3,
+  Async = 1 << 4,
+  Static = 1 << 5,
+  Constructor = 1 << 6,
+  Getter = 1 << 7,
+  Setter = 1 << 8,
+  GetSet = Getter | Setter
+}
+
 /*@internal*/
 export const enum LabelState {
   Empty = 0, // Break statement
@@ -101,6 +129,21 @@ export const enum LabelState {
  */
 export type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
+
+export interface ScopeState {
+  var: any;
+  lexVars: any;
+  lex: any;
+}
+
+export interface LexicalScope {
+  childScope: any;
+  flags: ScopeType;
+  functions: void | {
+    pattern?: string;
+    flags?: string;
+  };
+}
 
 /**
  * The parser interface.
@@ -135,6 +178,7 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
+  arrowScope: any;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -669,4 +713,33 @@ export function addVariableAndDeduplicate(
   if ((context & Context.OptionsDisableWebCompat) === 0) {
     scope.lex.funcs['#' + state.tokenValue] = false;
   }
+}
+
+/**
+ * Create a block scope
+ */
+export function createScope(type: ScopeType): ScopeState {
+  return {
+    var: {},
+    lexVars: {},
+    lex: {
+      '@': undefined,
+      type,
+      funcs: {}
+    }
+  };
+}
+
+export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState {
+  return {
+    var: parent.var,
+    lexVars: {
+      '@': parent.lexVars
+    },
+    lex: {
+      '@': parent.lex,
+      type,
+      funcs: []
+    }
+  };
 }

@@ -8,7 +8,19 @@ describe('Expressions - Async', () => {
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     ['x => { let x; }', Context.Empty],
-    ['x => { const x; }', Context.Empty]
+    ['x => { const x; }', Context.Empty],
+
+    ['async \n function(){}', Context.Empty],
+    ['(async \n function(){})', Context.Empty],
+    ['async function(){}', Context.Empty],
+    ['if (async \n () => x) x', Context.Empty],
+    ['export async \n function(){}', Context.Module],
+    // ['export async \n a => b', Context.Module],
+    // ['async \n => async', Context.Empty],
+    //  ['(async \n => async)', Context.Empty],
+    ['let async => async', Context.Empty],
+    ['let async \n => async', Context.Empty],
+    ['let f = async \n (g) => g', Context.Empty]
   ];
   fail('Expressions - Async', inValids);
 
@@ -542,6 +554,72 @@ describe('Expressions - Async', () => {
       }
     ],
     [
+      'class async {}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'async'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class x {async foo(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'foo'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
       'async();',
       Context.Empty,
       {
@@ -899,7 +977,7 @@ describe('Expressions - Async', () => {
         ]
       }
     ],
-    /* [
+    [
       'async in {}',
       Context.Empty,
       {
@@ -1100,7 +1178,7 @@ describe('Expressions - Async', () => {
           }
         ]
       }
-    ],*/
+    ],
     [
       'log(async().foo);',
       Context.Empty,
@@ -1137,6 +1215,128 @@ describe('Expressions - Async', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+
+    [
+      'async ? a : b;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'a ? b : async;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'a ? async : b;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              alternate: {
+                name: 'b',
+                type: 'Identifier'
+              },
+              consequent: {
+                name: 'async',
+                type: 'Identifier'
+              },
+              test: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              type: 'ConditionalExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+
+    [
+      'async (x) + 2;',
+      Context.Empty,
+      {
+        body: [
+          {
+            expression: {
+              left: {
+                arguments: [
+                  {
+                    name: 'x',
+                    type: 'Identifier'
+                  }
+                ],
+                callee: {
+                  name: 'async',
+                  type: 'Identifier'
+                },
+                type: 'CallExpression'
+              },
+              operator: '+',
+              right: {
+                type: 'Literal',
+                value: 2
+              },
+              type: 'BinaryExpression'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [

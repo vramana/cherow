@@ -1,8 +1,1061 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Await', () => {
+  const inValids: Array<[string, Context]> = [
+    // ['function call(foo=await bar){}', Context.Empty],
+    //['function call(foo=await bar=10){}', Context.Empty],
+    //['5 + (await bar())', Context.Empty],
+    ['function call(foo= 5 + (await bar())){}', Context.Empty],
+    //['async function x(){ function y(s=await foo){}}', Context.Empty],
+    //['async function f(){ let y = x => await x; }', Context.Empty],
+    ['let f = () => (y=await foo) => y;', Context.Empty],
+    ['async function f(){ await foo\n/foo/ }', Context.Empty],
+    ['async () => { var await; }', Context.Empty],
+    //['async function f(){ new await x; }', Context.Empty],
+    //['async function f(){ await \n x; }', Context.Empty],
+    //['async function f(){ if (await \n x) {} }', Context.Empty],
+    ['async function f(){ [new await foo] }', Context.Empty],
+    // ['async function f(){ (new await foo) }', Context.Empty],
+    ['async function f(){ await; ', Context.Empty],
+    ['function await(){}', Context.Module],
+    ['async function await(){}', Context.Module],
+    ['function *await(){}', Context.Module],
+    ['async function *await(){}', Context.Module],
+    ['let x = function await(){}', Context.Module],
+    //     ['let x = async function await(){}', Context.Empty],
+    //  ['let x = function *await(){}', Context.Module],
+    ['class x {f(await){}}', Context.Module],
+    ['let o = {*f(await){}}', Context.Module],
+    ['let o = {f(await){}}', Context.Module],
+    ['class x {f(await){}}', Context.Module],
+    ['function f(await){}', Context.Module],
+    ['let o = {async *f(await){}}', Context.Empty],
+    ['let o = {async f(await){}}', Context.Empty],
+    ['let x = async function *f(await){}', Context.Empty],
+    ['let x = function *f(await){}', Context.Module],
+    ['let x = async function f(await){}', Context.Empty],
+    ['let x = function f(await){}', Context.Module],
+    ['async function *f(await){}', Context.Empty],
+    ['function *f(await){}', Context.Module],
+    //['async function f(){  async (await) => x  }', Context.Empty],
+    //['function *f(){  async (await) => x  }', Context.Empty],
+    //['function *f(){  foo(await)  }', Context.Module],
+    //['async function f(foo = await bar){}', Context.Empty],
+    //['function *f(foo = await bar){}', Context.Empty],
+    //['async function *f(foo = await bar){}', Context.Empty],
+    //['let x = function f(foo = await bar){}', Context.Empty],
+    //['let x = async function f(foo = await bar){}', Context.Empty],
+    //['let x = function *f(foo = await bar){}', Context.Empty],
+    //    ['let x = async function *f(foo = await bar){}', Context.Empty],
+    //  ['let o = {f(foo = await bar){}}', Context.Empty],
+    //  ['let o = {async f(foo = await bar){}}', Context.Empty],
+    //['let o = {*f(foo = await bar){}}', Context.Empty],
+    //    ['let o = {async *f(foo = await bar){}}', Context.Empty],
+    //  ['class x {f(foo = await bar){}}', Context.Empty],
+    //    ['class x {async f(foo = await bar){}}', Context.Empty],
+    //  ['class x {*f(foo = await bar){}}', Context.Empty],
+    //  ['class x {*f(foo = await bar){}}', Context.Empty],
+    ['function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    //['async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    //['async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['let x = function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    //  ['let x = async function f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['let x = function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    //  ['let x = async function *f(foo = [{m: t(await bar)}]){}', Context.Empty],
+    ['let o = {f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    //['let o = {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['let o = {*f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    //  ['let o = {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['class x {f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    //  ['class x {async f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['class x {*f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    //    ['class x {async *f(foo = [{m: t(await bar)}]){}}', Context.Empty],
+    ['(foo = await bar) => {}', Context.Empty],
+    ['async (foo = await bar) => {}', Context.Empty],
+    ['async (foo = await bar);', Context.Empty],
+    ['({x} = await bar) => {}', Context.Empty],
+    ['async ({x} = await bar) => {}', Context.Empty],
+    ['async ({x} = await bar);', Context.Empty],
+    ['([x] = await bar) => {}', Context.Empty],
+    ['async ([x] = await bar) => {}', Context.Empty],
+    ['async (foo = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['({o} = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['async ({o} = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]);', Context.Empty],
+    //  ['async function g(){    function f(foo = await bar){}    }', Context.Empty],
+    //  ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
+    //    ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
+    //['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]);', Context.Empty],
+    //['async function g(){    function f(foo = await bar){}    }', Context.Empty],
+    //    ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
+    //  ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
+    //  ['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]) => {}', Context.Empty],
+    ['async ([p] = [{m: 5 + t(await bar)}]);', Context.Empty],
+    // ['async function g(){    function f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){async function f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){async function *f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){let x = function f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){let x = async function f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){let x = function *f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){let x = async function *f(foo = await bar){}    }', Context.Empty],
+    // ['async function g(){let o = {f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){let o = {async f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){let o = {*f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){let o = {async *f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){class x {f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){class x {async f(foo = await bar){}}    }', Context.Empty],
+    // ['async function g(){class x {*f(foo = await bar){}}    }', Context.Empty],
+    //['async function g(){async function f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['async function g(){function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    //['async function g(){async function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['async function g(){let x = function f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['sync function g(){let x = async function *f(foo = [h, {m: t(await bar)}]){}    }', Context.Empty],
+    ['async function g(){let o = {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    //['async function g(){let o = {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){let o = {*f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    //['async function g(){let o = {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    ['async function g(){class x {f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty]
+    // ['async function g(){class x {async f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    // ['async function a(){     (foo = await bar) => {}     }', Context.Empty],
+    // ['async function g(){class x {async *f(foo = [h, {m: t(await bar)}]){}}    }', Context.Empty],
+    // ['async function a(){     ({r} = await bar) => {}     }', Context.Empty],
+    //['async function a(){     async ({r} = await bar) => {}     }', Context.Empty],
+    //['async function a(){     ([v] = await bar) => {}     }', Context.Empty],
+    // ['async function a(){     async ([v] = await bar) => {}     }', Context.Empty]
+
+    //['async function f(){    (fail = class A {[await foo](){}; "x"(){}}) => {}    }', Context.Empty],
+    //['async function f(){    (fail = class A extends await foo {}) => fail    }', Context.Empty],
+    //['async function f(){    (fail = class A extends (await foo) {}) => fail    }', Context.Empty],
+    //['async function f(){    async function f(){   (a= {[await foo](){}, "x"(){}} ) => a    }    }', Context.Empty],
+  ];
+
+  fail('Expressions - Template', inValids);
+
   const valids: Array<[string, Context, any]> = [
+    [
+      'async function a(){     async ({r} = await bar);     }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    arguments: [
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'ObjectPattern',
+                          properties: [
+                            {
+                              type: 'Property',
+                              key: {
+                                type: 'Identifier',
+                                name: 'r'
+                              },
+                              value: {
+                                type: 'Identifier',
+                                name: 'r'
+                              },
+                              kind: 'init',
+                              computed: false,
+                              method: false,
+                              shorthand: true
+                            }
+                          ]
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'AwaitExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'bar'
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        ]
+      }
+    ],
+
+    [
+      'let y = async x => { await x; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        expression: {
+                          type: 'AwaitExpression',
+                          argument: {
+                            type: 'Identifier',
+                            name: 'x'
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: true,
+                  expression: false
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'async function f(){ await foo\n/foo/g }',
+      Context.Empty,
+      {
+        body: [
+          {
+            async: true,
+            body: {
+              body: [
+                {
+                  expression: {
+                    left: {
+                      left: {
+                        argument: {
+                          name: 'foo',
+                          type: 'Identifier'
+                        },
+                        type: 'AwaitExpression'
+                      },
+                      operator: '/',
+                      right: {
+                        name: 'foo',
+                        type: 'Identifier'
+                      },
+                      type: 'BinaryExpression'
+                    },
+                    operator: '/',
+                    right: {
+                      name: 'g',
+                      type: 'Identifier'
+                    },
+                    type: 'BinaryExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            },
+            generator: false,
+            id: {
+              name: 'f',
+              type: 'Identifier'
+            },
+            params: [],
+            type: 'FunctionDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'function await(){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'await'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async function await(){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'await'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function *await(){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: true,
+            id: {
+              type: 'Identifier',
+              name: 'await'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'let x = function *await(){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'FunctionExpression',
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: true,
+                  id: {
+                    type: 'Identifier',
+                    name: 'await'
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'let o = {await(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'await'
+                      },
+                      value: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        async: false,
+                        generator: false,
+                        id: null
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: true,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'o'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'class x {async await(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class x {await(){}}',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'await',
+                    type: 'Identifier'
+                  },
+                  kind: 'method',
+                  static: false,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'x',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      'class x {*await(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: true,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'class x {async *await(){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'await'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: true,
+                    generator: true,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function f(await){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [
+              {
+                type: 'Identifier',
+                name: 'await'
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'let x = function f(await){}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'FunctionExpression',
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'await'
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  async: false,
+                  generator: false,
+                  id: {
+                    type: 'Identifier',
+                    name: 'f'
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'let o = {f(await){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'f'
+                      },
+                      value: {
+                        type: 'FunctionExpression',
+                        params: [
+                          {
+                            type: 'Identifier',
+                            name: 'await'
+                          }
+                        ],
+                        body: {
+                          type: 'BlockStatement',
+                          body: []
+                        },
+                        async: false,
+                        generator: false,
+                        id: null
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: true,
+                      shorthand: false
+                    }
+                  ]
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'o'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'class x {f(await){}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ClassDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            superClass: null,
+            body: {
+              type: 'ClassBody',
+              body: [
+                {
+                  type: 'MethodDefinition',
+                  kind: 'method',
+                  static: false,
+                  computed: false,
+                  key: {
+                    type: 'Identifier',
+                    name: 'f'
+                  },
+                  value: {
+                    type: 'FunctionExpression',
+                    params: [
+                      {
+                        type: 'Identifier',
+                        name: 'await'
+                      }
+                    ],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async function a(){     async (foo = [{m: 5 + t(await bar)}]);     }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    arguments: [
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'foo'
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'ObjectExpression',
+                              properties: [
+                                {
+                                  type: 'Property',
+                                  key: {
+                                    type: 'Identifier',
+                                    name: 'm'
+                                  },
+                                  value: {
+                                    type: 'BinaryExpression',
+                                    left: {
+                                      type: 'Literal',
+                                      value: 5
+                                    },
+                                    right: {
+                                      type: 'CallExpression',
+                                      callee: {
+                                        type: 'Identifier',
+                                        name: 't'
+                                      },
+                                      arguments: [
+                                        {
+                                          type: 'AwaitExpression',
+                                          argument: {
+                                            type: 'Identifier',
+                                            name: 'bar'
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    operator: '+'
+                                  },
+                                  kind: 'init',
+                                  computed: false,
+                                  method: false,
+                                  shorthand: false
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'async function a(){     async ({g} = [{m: 5 + t(await bar)}]);     }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'async'
+                    },
+                    arguments: [
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'ObjectPattern',
+                          properties: [
+                            {
+                              type: 'Property',
+                              key: {
+                                type: 'Identifier',
+                                name: 'g'
+                              },
+                              value: {
+                                type: 'Identifier',
+                                name: 'g'
+                              },
+                              kind: 'init',
+                              computed: false,
+                              method: false,
+                              shorthand: true
+                            }
+                          ]
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'ObjectExpression',
+                              properties: [
+                                {
+                                  type: 'Property',
+                                  key: {
+                                    type: 'Identifier',
+                                    name: 'm'
+                                  },
+                                  value: {
+                                    type: 'BinaryExpression',
+                                    left: {
+                                      type: 'Literal',
+                                      value: 5
+                                    },
+                                    right: {
+                                      type: 'CallExpression',
+                                      callee: {
+                                        type: 'Identifier',
+                                        name: 't'
+                                      },
+                                      arguments: [
+                                        {
+                                          type: 'AwaitExpression',
+                                          argument: {
+                                            type: 'Identifier',
+                                            name: 'bar'
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    operator: '+'
+                                  },
+                                  kind: 'init',
+                                  computed: false,
+                                  method: false,
+                                  shorthand: false
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            async: true,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'let y = async x => await x',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'AwaitExpression',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  ],
+                  id: null,
+                  async: true,
+                  expression: true
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     [
       'async function f(){ await foo; }',
       Context.Empty,

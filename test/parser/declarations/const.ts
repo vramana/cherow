@@ -27,7 +27,15 @@ describe('Declarations - Const', () => {
     ['const a, b, c', Context.Empty],
     ['const a, b = c', Context.Empty],
     ['const class = foo', Context.Empty],
-    ['const break = foo', Context.Empty]
+    ['const break = foo', Context.Empty],
+    ['const break = foo', Context.Empty],
+    ['const let = "foo";', Context.Empty],
+    [
+      `const
+    let = "irrelevant initializer";`,
+      Context.Empty
+    ],
+    ['let let', Context.Empty]
   ];
 
   const validSyntax = [

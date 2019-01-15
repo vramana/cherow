@@ -4,7 +4,50 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Async Functions', () => {
-  const inValids: Array<[string, Context]> = [['(async function f(a, a) {})', Context.Strict]];
+  const inValids: Array<[string, Context]> = [
+    ['(async function f(a, a) {})', Context.Strict],
+    ['(async function () { var await; });', Context.Empty],
+    ['(async function () { void await; });', Context.Empty],
+    ['(async function () { await: ; });', Context.Empty],
+    // ['(async function (x = 1) {"use strict"})', Context.Empty],
+    ['(async function foo (foo) { super() })', Context.Empty],
+    ['(async function foo (foo) { super.prop });', Context.Empty],
+    ['(async function foo (foo = super()) { var bar; });', Context.Empty],
+    ['(async function*(await) { });', Context.Empty],
+    ['(async function foo(await) { })', Context.Empty],
+    ['(async\nfunction foo() { })', Context.Empty],
+    ['async ()\n=> a', Context.Empty],
+    [`async while (1) {}`, Context.Empty],
+    ['(async.foo7 foo8 => 1)', Context.Empty],
+    //['(async.foo9 () => 1)', Context.Empty],
+    //['(async().foo10 => 1)', Context.Empty],
+    ['(async().foo11 foo12 => 1)', Context.Empty],
+    ['(async().foo13 () => 1)', Context.Empty],
+    //['(async[\'foo14\'] => 1)', Context.Empty],
+    // ['(async`foo22` => 1)', Context.Empty],
+    //['async(...a, b) => b', Context.Empty],
+    ['(async function(...x = []) {})', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
+    ['"use strict"; (async function eval () { })', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty],
+    ['"use strict"; (async function arguments () {  })', Context.Empty]
+    /*
+    [`(async
+      function f() {})`, Context.Empty],
+       ['0, async function*(...x = []) {};', Context.Empty],
+       ['(async function f(...a,) {})', Context.Empty],
+       ['(async function foo1() { } foo2 => 1)', Context.Empty],
+       ['var f = async() => ((async(x = await 1) => x)();', Context.Empty],
+       ['class C { async constructor() {} }', Context.Empty],
+       ['class C {}; class C2 extends C { async constructor() {} }', Context.Empty],
+       ['class C { static async prototype() {} }', Context.Empty],
+       ['class C {}; class C2 extends C { static async prototype() {} }', Context.Empty],
+       ['(async function foo3() { } () => 1)', Context.Empty],
+       ['(async function foo4() { } => 1)', Context.Empty],
+       ['(async function() { } foo5 => 1)', Context.Empty],
+       */
+  ];
 
   fail('Expressions - Async Functions', inValids);
 
@@ -30,7 +73,7 @@ describe('Expressions - Async Functions', () => {
     `x = async function(a) { await a }`,
     'f(async function(x) { await x })',
     'f(b, async function(b) { await b }, c)',
-    //    'async function foo(a = async () => await b) {}',
+    'async function foo(a = async () => await b) {}',
     'async function foo(a = {async bar() { await b }}) {}',
     'async function foo(a = class {async bar() { await b }}) {}',
     '(function f() { async function yield() {} })',
@@ -44,7 +87,7 @@ describe('Expressions - Async Functions', () => {
     '"use strict"; ({ async yield() {} });',
     '(function f() { ({ async [yield]() {} }); })',
     `a = async
-            function f(){}`
+          function f(){}`
   ];
 
   for (const arg of validFormalparams) {
@@ -57,50 +100,217 @@ describe('Expressions - Async Functions', () => {
 
   const valids: Array<[string, Context, any]> = [
     [
-      'async function f(){ await foo\n/foo/g }',
+      '(async function foo(a, b = 39,) {})',
       Context.Empty,
       {
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            async: true,
-            body: {
-              body: [
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
                 {
-                  expression: {
-                    argument: {
-                      name: 'foo',
-                      type: 'Identifier'
-                    },
-                    type: 'AwaitExpression'
-                  },
-                  type: 'ExpressionStatement'
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  expression: {
-                    regex: {
-                      flags: 'g',
-                      pattern: 'foo'
-                    },
-                    type: 'Literal',
-                    value: /foo/g
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'b'
                   },
-                  type: 'ExpressionStatement'
+                  right: {
+                    type: 'Literal',
+                    value: 39
+                  }
                 }
               ],
-              type: 'BlockStatement'
-            },
-
-            generator: false,
-            id: {
-              name: 'f',
-              type: 'Identifier'
-            },
-            params: [],
-            type: 'FunctionDeclaration'
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: false,
+              id: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            }
           }
-        ],
+        ]
+      }
+    ],
+    [
+      '(async function*(a = b +=1, c = d += 1, e = f += 1, g = h += 1, i = j += 1, k = l +=1) {})',
+      Context.Empty,
+      {
+        type: 'Program',
         sourceType: 'script',
-        type: 'Program'
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'e'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'f'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'g'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'h'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'i'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'j'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'k'
+                  },
+                  right: {
+                    type: 'AssignmentExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'l'
+                    },
+                    operator: '+=',
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    }
+                  }
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: true,
+              id: null
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(async function foo(a,) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: false,
+              id: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            }
+          }
+        ]
       }
     ],
     [
@@ -380,253 +590,39 @@ describe('Expressions - Async Functions', () => {
           }
         ]
       }
-    ] /*
-    ['"use strict"; ({ async yield() {} });', Context.Empty, {
-      "type": "Program",
-      "sourceType": "script",
-      "body": [
-        {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "Literal",
-            "value": "use strict"
-          },
-          "directive": "use strict"
-        },
-        {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "ObjectExpression",
-            "properties": [
-              {
-                "type": "Property",
-                "key": {
-                  "type": "Identifier",
-                  "name": "yield"
-                },
-                "value": {
-                  "type": "FunctionExpression",
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "body": []
-                  },
-                  "async": true,
-                  "generator": false,
-                  "id": null
-                },
-                "kind": "init",
-                "computed": false,
-                "method": true,
-                "shorthand": false
-              }
-            ]
-          }
-        }
-      ]
-    }],
-    ['(async function foo(a, b = 39,) {})', Context.Empty, {
-      "type": "Program",
-      "sourceType": "script",
-      "body": [
-        {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "FunctionExpression",
-            "params": [
-              {
-                "type": "Identifier",
-                "name": "a"
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "b"
-                },
-                "right": {
-                  "type": "Literal",
-                  "value": 39
+    ],
+    [
+      '(async function foo(a,) {})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
                 }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              async: true,
+              generator: false,
+              id: {
+                type: 'Identifier',
+                name: 'foo'
               }
-            ],
-            "body": {
-              "type": "BlockStatement",
-              "body": []
-            },
-            "async": true,
-            "generator": false,
-            "id": {
-              "type": "Identifier",
-              "name": "foo"
             }
           }
-        }
-      ]
-    }],
-    ['(async function*(a = b +=1, c = d += 1, e = f += 1, g = h += 1, i = j += 1, k = l +=1) {})', Context.Empty, {
-      "type": "Program",
-      "sourceType": "script",
-      "body": [
-        {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "FunctionExpression",
-            "params": [
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "a"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "b"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "c"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "d"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "e"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "f"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "g"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "h"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "i"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "j"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              },
-              {
-                "type": "AssignmentPattern",
-                "left": {
-                  "type": "Identifier",
-                  "name": "k"
-                },
-                "right": {
-                  "type": "AssignmentExpression",
-                  "left": {
-                    "type": "Identifier",
-                    "name": "l"
-                  },
-                  "operator": "+=",
-                  "right": {
-                    "type": "Literal",
-                    "value": 1
-                  }
-                }
-              }
-            ],
-            "body": {
-              "type": "BlockStatement",
-              "body": []
-            },
-            "async": true,
-            "generator": true,
-            "id": null
-          }
-        }
-      ]
-    }],
-    ['(async function foo(a,) {})', Context.Empty, {
-      "type": "Program",
-      "sourceType": "script",
-      "body": [
-        {
-          "type": "ExpressionStatement",
-          "expression": {
-            "type": "FunctionExpression",
-            "params": [
-              {
-                "type": "Identifier",
-                "name": "a"
-              }
-            ],
-            "body": {
-              "type": "BlockStatement",
-              "body": []
-            },
-            "async": true,
-            "generator": false,
-            "id": {
-              "type": "Identifier",
-              "name": "foo"
-            }
-          }
-        }
-      ]
-    }],*/,
+        ]
+      }
+    ],
     [
       'x=async function f(){ var f }',
       Context.Empty,

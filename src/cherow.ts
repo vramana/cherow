@@ -1,8 +1,7 @@
 import { parseTopLevel, create } from './state';
 import * as ESTree from './estree';
-import { OnComment, OnToken, pushComment, pushToken, Context } from './common';
+import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang } from './scanner';
-import { createScope, ScopeType } from './scope';
 import { report, Errors } from './errors';
 
 /**

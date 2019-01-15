@@ -15,7 +15,9 @@ describe('Statements - For in', () => {
     ['for (let x of y) { var x; }', Context.OptionsDisableWebCompat],
     ['for (const a;;);', Context.OptionsDisableWebCompat],
     ['for (const a,b,c;;);', Context.OptionsDisableWebCompat],
-    ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat]
+    ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat],
+    ['for (const let in {}) {}', Context.Empty],
+    ['for (let let of {}) {}', Context.Empty]
   ];
 
   fail('Statements - For (fail)', inValids);
