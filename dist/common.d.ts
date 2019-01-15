@@ -1,6 +1,5 @@
 import * as ESTree from './estree';
 import { Token } from './token';
-import { ScopeState } from 'scope';
 export declare const enum Context {
     Empty = 0,
     OptionsNext = 1,
@@ -17,7 +16,6 @@ export declare const enum Context {
     Module = 2048,
     TopLevel = 4096,
     DisallowInContext = 8192,
-    DisallowGenerators = 16384,
     AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
     OptionsDirectives = 131072,
@@ -61,8 +59,47 @@ export declare const enum Origin {
     ClassExprDecl = 64,
     Declaration = 128
 }
+export declare const enum ScopeType {
+    None = 0,
+    BlockStatement = 1,
+    ForStatement = 2,
+    SwitchStatement = 3,
+    CatchClause = 4,
+    ArgumentList = 5
+}
+export declare const enum LabelledState {
+    None = 0,
+    AllowAsLabelled = 1,
+    Disallow = 2
+}
+export declare const enum ObjectState {
+    None = 0,
+    Method = 1,
+    Computed = 2,
+    Shorthand = 4,
+    Generator = 8,
+    Async = 16,
+    Static = 32,
+    Constructor = 64,
+    Getter = 128,
+    Setter = 256,
+    GetSet = 384
+}
 export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);
+export interface ScopeState {
+    var: any;
+    lexVars: any;
+    lex: any;
+}
+export interface LexicalScope {
+    childScope: any;
+    flags: ScopeType;
+    functions: void | {
+        pattern?: string;
+        flags?: string;
+    };
+}
 export interface ParserState {
     source: string;
     onComment: any;
@@ -95,6 +132,7 @@ export interface ParserState {
     iterationStatement: LabelState;
     labelDepth: number;
     functionBoundaryStack: any;
+    arrowScope: any;
     tokenRegExp: void | {
         pattern: string;
         flags: string;
@@ -128,4 +166,6 @@ export declare function validateContinueLabel(state: ParserState, label: string)
 export declare function validateBreakStatement(state: ParserState, label: any): void;
 export declare function getLabel(state: ParserState, label: string, iterationStatement?: boolean, crossBoundary?: boolean): LabelState;
 export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name: string): void;
+export declare function createScope(type: ScopeType): ScopeState;
+export declare function createSubScope(parent: ScopeState, type: ScopeType): ScopeState;
 //# sourceMappingURL=common.d.ts.map

@@ -1,4 +1,4 @@
-import { Context, ParserState } from '../common';
+import { ParserState } from '../common';
 import { Errors } from '../errors';
 export declare const enum Type {
     None = 0,
@@ -37,8 +37,4 @@ export declare function consumeLineFeed(state: ParserState, lastIsCR: boolean): 
 export declare function fromCodePoint(code: number): string;
 export declare function toHex(code: number): number;
 export declare function isDigit(ch: number): boolean;
-export declare function scanIntervalQuantifier(state: ParserState): boolean;
-export declare function setState(state: ParserState, currentState: RegexpState, newState: RegexpState, error: Errors): RegexpState;
-export declare function updateState(state: ParserState, currentState: RegexpState, updatedState: RegexpState): RegexpState;
-export declare function parseRegexCapturingGroupNameRemainder(state: ParserState, context: Context, firstCharOrd: number, namedGroups: any): any;
 //# sourceMappingURL=common.d.ts.map

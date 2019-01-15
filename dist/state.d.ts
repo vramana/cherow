@@ -1,24 +1,5 @@
 import * as ESTree from './estree';
-import { Context, OnComment, OnToken, ParserState, Type, Origin } from './common';
-import { ScopeState } from './scope';
-export declare const enum LabelledState {
-    None = 0,
-    AllowAsLabelled = 1,
-    Disallow = 2
-}
-export declare const enum ObjectState {
-    None = 0,
-    Method = 1,
-    Computed = 2,
-    Shorthand = 4,
-    Generator = 8,
-    Async = 16,
-    Static = 32,
-    Constructor = 64,
-    Getter = 128,
-    Setter = 256,
-    GetSet = 384
-}
+import { Context, LabelledState, OnComment, OnToken, ParserState, Type, Origin, ScopeState } from './common';
 export declare function create(source: string, onComment: OnComment | void, onToken: OnToken | void): ParserState;
 export declare function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[];
 export declare function parseDirective(state: ParserState, context: Context, scope: ScopeState): any;
@@ -46,7 +27,7 @@ export declare function parserObjectAssignmentPattern(state: ParserState, contex
 export declare function parseAssignmentPattern(state: ParserState, context: Context, left: ESTree.Pattern): any;
 export declare function parseBindingInitializer(state: ParserState, context: Context, scope: ScopeState, type: Type, origin: Origin, verifyDuplicates: boolean): ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.MemberExpression | ESTree.AssignmentPattern;
 export declare function parseComputedPropertyName(state: ParserState, context: Context): ESTree.Expression;
-export declare function parseFunctionDeclaration(state: ParserState, context: Context, scope: ScopeState, isFuncDel: boolean, isAsync: boolean): {
+export declare function parseFunctionDeclaration(state: ParserState, context: Context, scope: ScopeState, origin: Origin, isAsync: boolean): {
     type: string;
     params: any;
     body: ESTree.BlockStatement;
@@ -70,11 +51,11 @@ export declare function parseLexicalDeclaration(state: ParserState, context: Con
 export declare function parseVariableDeclarationList(state: ParserState, context: Context, type: Type, origin: Origin, checkForDuplicates: boolean, scope: ScopeState): any;
 export declare function parseExpression(state: ParserState, context: Context): any;
 export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression): ESTree.SequenceExpression;
-export declare function parseAssignmentExpression(state: ParserState, context: Context): any;
+export declare function nextTokenisIdentifierOrParen(state: ParserState, context: Context): boolean | number;
 export declare function parseLeftHandSideExpression(state: ParserState, context: Context): any;
 export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;
 export declare function parsePrimaryExpression(state: ParserState, context: Context): any;
-export declare function parseArrayExpression(state: ParserState, context: Context): any;
+export declare function parseArrayLiteral(state: ParserState, context: Context): any;
 export declare function parseGroupExpression(state: ParserState, context: Context): any;
 export declare function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody;
 export declare function parseLiteral(state: ParserState, context: Context): ESTree.Literal;
