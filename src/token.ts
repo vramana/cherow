@@ -170,7 +170,9 @@ export const enum Token {
   /** Others */
   At                      = 0b0000000000000000000_0000_01110011,
   BigIntLiteral           = 0b0000000000000000000_0000_01110100,
-  JSXText                 = 0b0000000000000000000_0000_01110101
+  JSXText                 = 0b0000000000000000000_0000_01110101,
+  PrivateName             = 0b0000000000000000000_0000_01110111,
+  Global                  = 0b0000000000000000000_0000_01111100
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -318,7 +320,9 @@ export const KeywordDescTable = [
   'enum',
   '@',
   'BigInt',
-  'JSXText'
+  'JSXText',
+  '#',
+  'Global'
 ];
 
 // Normal object is much faster than Object.create(null), even with typeof check to avoid Object.prototype interference
