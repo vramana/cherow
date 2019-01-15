@@ -442,9 +442,8 @@ describe('Next - Static private fields', () => {
                     name: 'a',
                     type: 'PrivateName'
                   },
-                  kind: 'method',
                   static: true,
-                  type: 'MethodDefinition',
+                  type: 'FieldDefinition',
                   value: {
                     type: 'Literal',
                     value: 123
