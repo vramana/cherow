@@ -1,5 +1,4 @@
 import { ParserState } from './common';
-import { RegexpState } from './scanner/common';
 
 /*@internal*/
 export const enum Errors {
@@ -177,11 +176,6 @@ export function constructError(index: number, line: number, column: number, desc
   error.column = column;
   error.description = description;
   return error;
-}
-
-export function reportRegExp(state: ParserState, type: Errors, ...params: string[]): RegexpState {
-  state.lastRegExpError = errorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
-  return RegexpState.Invalid;
 }
 
 export function report(parser: ParserState, type: Errors, ...params: string[]): never {
