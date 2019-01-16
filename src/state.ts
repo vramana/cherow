@@ -3045,22 +3045,33 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
     if (state.token & Token.IsAsync) {
       key = parseIdentifier(state, context);
-      if ((state.token & Token.LeftParen) === Token.LeftParen) {
-        value = parseMethodDeclaration(state, context, objState);
-      } else if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === Token.Assign) {
-        objState |= ObjectState.ClassField | ObjectState.Async;
-        if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
-      } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
-        objState |= ObjectState.ClassField;
-        key = parsePrivateName(state, context, objState);
-        if (optional(state, context, Token.Assign)) {
-          value = parseAssignmentExpression(state, context);
-        } else if ((state.token & Token.LeftParen) !== Token.LeftParen) {
-          report(state, Errors.Unexpected);
-        }
-        objState |= ObjectState.Async;
-        value = parseMethodDeclaration(state, context, objState);
-      } else objState |= ObjectState.Async;
+      if (state.flags & Flags.NewLine) {
+        if ((context & Context.OptionsNext) === 0) report(state, Errors.Unexpected);
+        body.push({
+          type: 'FieldDefinition',
+          key: key,
+          value,
+          computed: (objState & ObjectState.Computed) !== 0,
+          static: (objState & ObjectState.Static) !== 0
+        });
+      } else {
+        if ((state.token & Token.LeftParen) === Token.LeftParen) {
+          value = parseMethodDeclaration(state, context, objState);
+        } else if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === <Token>Token.Assign) {
+          objState |= ObjectState.ClassField | ObjectState.Async;
+          if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
+        } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
+          objState |= ObjectState.ClassField;
+          key = parsePrivateName(state, context, objState);
+          if (optional(state, context, Token.Assign)) {
+            value = parseAssignmentExpression(state, context);
+          } else if ((state.token & Token.LeftParen) !== Token.LeftParen) {
+            report(state, Errors.Unexpected);
+          }
+          objState |= ObjectState.Async;
+          value = parseMethodDeclaration(state, context, objState);
+        } else objState |= ObjectState.Async;
+      }
     }
 
     if (optional(state, context, Token.Multiply)) {
