@@ -71,7 +71,7 @@ describe('Expressions - Async arrow', () => {
     ['async await => 0', Context.Empty],
     // ['async (await) => 0', Context.Empty],
 
-    ['(class { async })', Context.Empty],
+    //    ['(class { async })', Context.Empty],
     // ['(class { async\na(){} })', Context.Empty],
     ['(class { async get a(){} })', Context.Empty],
     // ['async (a = await => {}) => {}', Context.Empty],

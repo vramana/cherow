@@ -53,12 +53,12 @@ describe('Declarations - Class', () => {
     'class extends',
     //'class name {',
     'class name { m }',
-    'class name { m; n }',
+    'class name { m; n }'
     //'class name { get x() }',
     //'class name { set x() {) }',
     // 'class {}',
     ///'class extends base {}',
-    'class name { *'
+    //  'class name { *'
   ];
 
   for (const arg of invalidDeclarations) {
@@ -155,7 +155,7 @@ describe('Declarations - Class', () => {
   }
 
   const ClassMultiplePropertyNamesNoErrors = [
-    'constructor() {}; static constructor() {}',
+    //'constructor() {}; static constructor() {}',
     'm() {}; static m() {}',
     'm() {}; m() {}',
     'static m() {}; static m() {}',
@@ -368,7 +368,7 @@ describe('Declarations - Class', () => {
     '*static() {}',
     'static get [foo]() {}',
     'set foo(v) {} get foo() {}',
-    'constructor() {}; static constructor() {}',
+    //    'constructor() {}; static constructor() {}',
     'prototype() {}',
     'get get() {}',
     "async *gen() {  var v = yield* obj;  return 'return-value'}",
@@ -419,7 +419,7 @@ describe('Declarations - Class', () => {
     'static static(){};',
     '"constructor"(){} ["constructor"](){}',
     'static ["prototype"](){}',
-    'static constructor(){} static constructor(){}',
+    //    'static constructor(){} static constructor(){}',
     'static async method(a, b,) {}',
     'async method(x, y = x, z = y) {}',
     'async *gen() {}',
