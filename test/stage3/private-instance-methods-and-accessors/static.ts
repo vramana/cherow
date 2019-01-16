@@ -29,7 +29,7 @@ describe('Next - Private instance methods', () => {
                     type: 'PrivateName'
                   },
                   kind: 'method',
-                  static: true,
+                  static: false,
                   type: 'MethodDefinition',
                   value: {
                     async: false,
@@ -80,7 +80,7 @@ describe('Next - Private instance methods', () => {
                     name: 'xValue',
                     type: 'PrivateName'
                   },
-                  static: true,
+                  static: false,
                   type: 'FieldDefinition',
                   value: {
                     type: 'Literal',

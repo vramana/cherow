@@ -4,24 +4,8 @@ import { Context } from '../../../src/common';
 // import { parseSource } from '../../../src/cherow';
 
 describe('Next - Static private fields', () => {
-  fail('Next - Static private fields', [
-    [`class A { static #prototype() {} }`, Context.OptionsNext],
-    [`class A { static  #prototype = foo }`, Context.OptionsNext],
-    [`class A { static #constructor() {} }`, Context.OptionsNext],
-    [`class A { static #[ab]() {} }`, Context.OptionsNext],
-    [`a = { static #ab() {} }`, Context.OptionsNext],
-    [`class A { static #x = /*{ initializer }*/; }`, Context.OptionsNext],
-    [`class A { static [{#ab() {}}]() {} }`, Context.OptionsNext],
-    [`class A{ static # a() {}}`, Context.OptionsNext],
-    [`class C{ static #method() { super(); } };`, Context.OptionsNext],
-    [`class C{ static #method() { super.y(); } };`, Context.Empty]
-    //  [`class A { static #a() {}; f() { delete A.#a } }`, Context.OptionsNext],
-    // [`class A { static #a() {}; static #a() {} }`, Context.OptionsNext],
-    // [`class A { static #a() {}; static #a() {} }`, Context.OptionsNext]
-  ]);
-
   pass('Next - Static private fields', [
-    [
+    /* [
       `class A { static ['a'] = 0; *b(){} }`,
       Context.OptionsNext,
       {
@@ -78,7 +62,7 @@ describe('Next - Static private fields', () => {
           }
         ]
       }
-    ],
+    ],*/
     [
       `class A { static 0; }`,
       Context.OptionsNext,

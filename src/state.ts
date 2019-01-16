@@ -3009,253 +3009,168 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
 
   while (state.token !== Token.RightBrace) {
     if (optional(state, context, Token.Semicolon)) continue;
-    if (state.token & Token.IsIdentifier) {
-      token = state.token;
-      tokenValue = state.tokenValue;
+
+    if ((state.token & Token.StaticKeyword) === Token.StaticKeyword) {
       key = parseIdentifier(state, context);
-      if ((token & Token.StaticKeyword) === Token.StaticKeyword) {
-        if (context & Context.OptionsNext && state.token === Token.PrivateName) {
-          objState |= ObjectState.Static;
+
+      if ((state.token & Token.LeftParen) === Token.LeftParen) {
+        value = parseMethodDeclaration(state, context, objState);
+      } else if (state.token === Token.LeftBracket) {
+        objState |= ObjectState.Computed | ObjectState.Static;
+        key = parseComputedPropertyName(state, context);
+        if (state.token & Token.ASI || state.token === <Token>Token.Assign) {
+          objState |= ObjectState.Computed | ObjectState.ClassField;
+          if (optional(state, context, Token.Assign)) {
+            value = parseAssignmentExpression(state, context);
+          }
+        } else {
+          value = parseMethodDeclaration(state, context, objState);
+        }
+      } else if (state.token & Token.ASI || state.token === Token.Assign) {
+        objState |= ObjectState.ClassField | ObjectState.Static;
+        if (optional(state, context, Token.Assign)) value = parseIdentifier(state, context);
+      } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
+        objState |= ObjectState.Static;
+        key = parsePrivateName(state, context, objState);
+        if (optional(state, context, Token.Assign)) {
+          objState |= ObjectState.ClassField;
+          value = parseAssignmentExpression(state, context);
+        } else if (state.token === Token.LeftParen) {
+          value = parseMethodDeclaration(state, context, objState);
+        } else objState |= ObjectState.ClassField;
+      } else {
+        objState |= ObjectState.Static;
+      }
+    }
+
+    if (state.token & Token.IsAsync) {
+      key = parseIdentifier(state, context);
+      if ((state.token & Token.LeftParen) === Token.LeftParen) {
+        value = parseMethodDeclaration(state, context, objState);
+      } else if (state.token & Token.ASI || state.token === Token.Assign) {
+        objState |= ObjectState.ClassField | ObjectState.Async;
+        if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
+      } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
+        objState |= ObjectState.ClassField;
+        key = parsePrivateName(state, context, objState);
+        if (optional(state, context, Token.Assign)) {
+          value = parseAssignmentExpression(state, context);
+        } else if ((state.token & Token.LeftParen) !== Token.LeftParen) {
+          report(state, Errors.Unexpected);
+        }
+        objState |= ObjectState.Async;
+        value = parseMethodDeclaration(state, context, objState);
+      } else objState |= ObjectState.Async;
+    }
+
+    if (optional(state, context, Token.Multiply)) {
+      objState |= ObjectState.Generator;
+    }
+
+    if (state.token & Token.IsIdentifier) {
+      if ((state.token & Token.GetKeyword) === Token.GetKeyword) {
+        key = parseIdentifier(state, context);
+        if ((state.token & Token.LeftParen) === Token.LeftParen) {
+          value = parseMethodDeclaration(state, context, objState);
+        } else if (state.token & Token.IsIdentifier) {
+          if (objState & ObjectState.Async) report(state, Errors.Unexpected);
+          objState = (objState & ~(ObjectState.Computed | ObjectState.Setter)) | ObjectState.Getter;
+          key = parseIdentifier(state, context);
+          if ((state.token & Token.LeftParen) === Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
+          }
+        } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
+          objState = (objState & ~(ObjectState.Computed | ObjectState.Setter)) | ObjectState.Getter;
+          key = parseLiteral(state, context);
+          if ((state.token & Token.LeftParen) === Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
+          }
+        } else if ((state.token & Token.LeftBracket) === Token.LeftBracket) {
+          objState = (objState & ~ObjectState.Setter) | (ObjectState.Getter | ObjectState.Computed);
+          key = parseComputedPropertyName(state, context);
+          value = parseMethodDeclaration(state, context, objState);
+        }
+      } else if ((state.token & Token.SetKeyword) === Token.SetKeyword) {
+        key = parseIdentifier(state, context);
+        if ((state.token & Token.LeftParen) === Token.LeftParen) {
+          value = parseMethodDeclaration(state, context, objState);
+        } else if (state.token & Token.IsIdentifier) {
+          if (objState & ObjectState.Async) report(state, Errors.Unexpected);
+          objState = (objState & ~(ObjectState.Getter | ObjectState.Computed)) | ObjectState.Setter;
+          key = parseIdentifier(state, context);
+          if ((state.token & Token.LeftParen) === Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
+          }
+        } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
+          objState = (objState & ~(ObjectState.Getter | ObjectState.Computed)) | ObjectState.Setter;
+          key = parseLiteral(state, context);
+          if ((state.token & Token.LeftParen) === Token.LeftParen) {
+            value = parseMethodDeclaration(state, context, objState);
+          }
+        } else if ((state.token & Token.LeftBracket) === Token.LeftBracket) {
+          objState = (objState & ~ObjectState.Getter) | (ObjectState.Setter | ObjectState.Computed);
+          key = parseComputedPropertyName(state, context);
+          value = parseMethodDeclaration(state, context, objState);
+        }
+      } else {
+        if (state.tokenValue === 'constructor') {
+          if ((objState & ObjectState.Static) === 0) objState |= ObjectState.Constructor;
+          ++constructorCount;
+        }
+
+        key = parseIdentifier(state, context);
+
+        objState &= ~(ObjectState.Getter | ObjectState.ClassField | ObjectState.Computed);
+
+        if ((state.token & Token.LeftParen) === Token.LeftParen) {
+          value = parseMethodDeclaration(state, context, objState);
+        } else if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === Token.Assign) {
+          objState |= ObjectState.ClassField;
+          if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
+        } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
+          objState |= ObjectState.ClassField;
           key = parsePrivateName(state, context, objState);
           if (optional(state, context, Token.Assign)) {
-            objState |= ObjectState.ClassField;
             value = parseAssignmentExpression(state, context);
-          } else if (state.token === <Token>Token.LeftParen) {
-            value = parseMethodDeclaration(state, context, objState);
-          } else objState |= ObjectState.ClassField;
-        } else if (state.token & Token.IsIdentifier) {
-          if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
-          objState = (objState & ~ObjectState.ClassField) | ObjectState.Static;
-          token = state.token;
-          key = parseIdentifier(state, context);
-          if (
-            (context & Context.OptionsNext && state.token === Token.Assign) ||
-            state.token === Token.Comma ||
-            state.token === <Token>Token.RightBrace ||
-            state.token === Token.Semicolon
-          ) {
-            objState |= ObjectState.ClassField;
-            if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
-          } else {
-            if (state.token !== Token.LeftParen) {
-              if (token & Token.IsAsync) objState |= ObjectState.Async;
-              if (optional(state, context, Token.Multiply)) {
-                if ((token & Token.GetKeyword) === Token.GetKeyword || (token & Token.SetKeyword) === Token.SetKeyword)
-                  report(state, Errors.UnexpectedToken, '*');
-                objState |= ObjectState.Generator;
-              }
-
-              if ((token & Token.GetKeyword) === Token.GetKeyword)
-                objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
-              else if ((token & Token.SetKeyword) === Token.SetKeyword)
-                objState = (objState & ~ObjectState.Getter) | ObjectState.Setter;
-
-              if (state.token & Token.IsIdentifier) {
-                key = parseIdentifier(state, context);
-              } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-                key = parseLiteral(state, context);
-              } else if (state.token === Token.LeftBracket) {
-                if (token & Token.IsAsync) objState |= ObjectState.Async;
-                objState |= ObjectState.Computed;
-                key = parseComputedPropertyName(state, context);
-              }
-            }
-            value = parseMethodDeclaration(state, context, objState);
-          }
-        } else if (state.token === Token.LeftParen) {
-          value = parseMethodDeclaration(state, context, objState);
-        } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-          key = parseLiteral(state, context);
-
-          if (
-            (context & Context.OptionsNext && state.token === <Token>Token.Comma) ||
-            state.token === <Token>Token.Semicolon ||
-            state.token === <Token>Token.RightBrace ||
-            state.token === <Token>Token.Assign
-          ) {
-            objState |= ObjectState.ClassField | ObjectState.Static;
-            if (optional(state, context, Token.Assign)) {
-              value = parseAssignmentExpression(state, context);
-            }
-          } else {
-            objState |= ObjectState.Static;
-            value = parseMethodDeclaration(state, context, objState);
-          }
-        } else if (state.token === <Token>Token.LeftBracket) {
-          objState |= ObjectState.Computed | ObjectState.Static;
-          key = parseComputedPropertyName(state, context);
-          if (state.token === <Token>Token.LeftParen) value = parseMethodDeclaration(state, context, objState);
-          else if (optional(state, context, Token.Assign)) {
-            objState |= ObjectState.ClassField;
-            value = parseAssignmentExpression(state, context);
-          } else report(state, Errors.Unexpected);
-        } else if (optional(state, context, Token.Multiply)) {
-          if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
-          objState |= ObjectState.Generator | ObjectState.Static;
-          if (state.token & Token.IsIdentifier) {
-            key = parseIdentifier(state, context);
-          } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
-            key = parseLiteral(state, context);
-          } else if (state.token === <Token>Token.LeftBracket) {
-            objState |= ObjectState.Computed;
-            key = parseComputedPropertyName(state, context);
-          } else {
-            report(state, Errors.Unexpected);
-          }
-
-          value = parseMethodDeclaration(state, context, objState);
-        }
-      } else {
-        objState &= ~(ObjectState.Static | ObjectState.ClassField);
-
-        if (
-          state.token === Token.Comma ||
-          state.token === Token.Semicolon ||
-          state.token === <Token>Token.RightBrace ||
-          state.token === Token.Assign
-        ) {
-          if ((context & Context.OptionsNext) === 0) report(state, Errors.Unexpected);
-          if (state.tokenValue === 'constructor') report(state, Errors.PublicFieldConstructor);
-          objState |= ObjectState.ClassField;
-          if (optional(state, context, Token.Assign)) {
-            value = parseAssignmentExpression(state, context);
-          } else value = null;
-        } else if (state.token === Token.Colon) {
-          report(state, Errors.Unexpected);
-        } else if (state.token === Token.LeftBracket) {
-          key = parseComputedPropertyName(state, context);
-
-          if (token & Token.IsAsync) {
-            objState |= ObjectState.Async;
-          } else {
-            objState |= ObjectState.Computed;
-            if ((token & Token.GetKeyword) === Token.GetKeyword) {
-              objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
-            } else if ((token & Token.SetKeyword) === Token.SetKeyword) {
-              objState = (objState & ~ObjectState.Getter) | ObjectState.Setter;
-            }
-          }
-          if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
-          value = parseMethodDeclaration(state, context, objState);
-        } else if (state.token === Token.LeftParen) {
-          if (tokenValue === 'constructor') {
-            ++constructorCount;
-            objState |= ObjectState.Constructor;
-          }
-          objState = objState & ~ObjectState.Computed;
-          value = parseMethodDeclaration(state, context, objState);
-        } else if (optional(state, context, Token.Multiply)) {
-          if ((token & Token.GetKeyword) === Token.GetKeyword || (token & Token.SetKeyword) === Token.SetKeyword)
-            report(state, Errors.Unexpected);
-          objState |= ObjectState.Generator;
-          if (token & Token.IsAsync) objState |= ObjectState.Async;
-          if (state.token & Token.IsIdentifier) {
-            key = parseIdentifier(state, context);
-          } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-            key = parseLiteral(state, context);
-          } else if (state.token === <Token>Token.LeftBracket) {
-            objState |= ObjectState.Computed;
-            key = parseComputedPropertyName(state, context);
-          } else {
+          } else if ((state.token & Token.LeftParen) !== Token.LeftParen) {
             report(state, Errors.Unexpected);
           }
           value = parseMethodDeclaration(state, context, objState);
-        } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-          tokenValue = state.tokenValue;
-
-          key = parseLiteral(state, context);
-          if (tokenValue === 'constructor') {
-            ++constructorCount;
-            objState |= ObjectState.Constructor;
-          }
-          if (token & Token.IsAsync) {
-            if (objState & ObjectState.Constructor) report(state, Errors.InvalidConstructor, 'async accessor');
-            objState |= ObjectState.Async;
-          } else if ((token & Token.GetKeyword) === Token.GetKeyword) {
-            if (objState & ObjectState.Constructor) report(state, Errors.InvalidConstructor, 'get accessor');
-            objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
-          } else if ((token & Token.SetKeyword) === Token.SetKeyword) {
-            if (objState & ObjectState.Constructor) report(state, Errors.InvalidConstructor, 'set accessor');
-            objState = (objState & ~ObjectState.Getter) | ObjectState.Setter;
-          }
-
-          value = parseMethodDeclaration(state, context, objState);
-          objState |= ObjectState.Method;
-        } else if (state.token & Token.IsIdentifier) {
-          objState = (objState & ~ObjectState.Computed) | ObjectState.Method;
-          if (token == Token.AsyncKeyword) objState |= ObjectState.Async;
-          if ((token & Token.GetKeyword) === Token.GetKeyword) {
-            objState = (objState & ~ObjectState.Setter) | ObjectState.Getter;
-          } else if ((token & Token.SetKeyword) === Token.SetKeyword) {
-            if (state.token & Token.IsAsync) report(state, Errors.Unexpected);
-            objState = (objState & ~ObjectState.Getter) | ObjectState.Setter;
-          }
-
-          key = parseIdentifier(state, context);
-          if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
-          value = parseMethodDeclaration(state, context, objState);
-        }
+        } else report(state, Errors.Unexpected);
       }
     } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
-      tokenValue = state.tokenValue;
-
+      if (state.tokenValue === 'constructor') {
+        if ((objState & ObjectState.Static) === 0) objState |= ObjectState.Constructor;
+        ++constructorCount;
+      }
       key = parseLiteral(state, context);
-      if (optional(state, context, Token.Colon)) {
-        report(state, Errors.Unexpected);
-      } else {
-        if (tokenValue === 'constructor') {
-          ++constructorCount;
-          objState |= ObjectState.Constructor;
+      if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === <Token>Token.Assign) {
+        objState |= ObjectState.ClassField;
+        if (optional(state, context, Token.Assign)) {
+          value = parseAssignmentExpression(state, context);
         }
-        value = parseMethodDeclaration(state, context, objState);
-        objState |= ObjectState.Method;
-      }
-    } else if (state.token === Token.LeftBracket) {
+      } else value = parseMethodDeclaration(state, context, objState);
+    } else if ((state.token & Token.LeftBracket) === Token.LeftBracket) {
+      objState |= ObjectState.Computed;
       key = parseComputedPropertyName(state, context);
-      objState = (ObjectState.Computed & ~(ObjectState.Async | ObjectState.Generator)) | ObjectState.Method;
-      if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
-      value = parseMethodDeclaration(state, context, objState);
-    } else if (state.token === Token.Multiply) {
-      next(state, context);
-      if (state.token & Token.IsIdentifier) {
-        token = state.token;
-        objState &= ~(
-          ObjectState.Async |
-          ObjectState.Static |
-          ObjectState.ClassField |
-          ObjectState.Computed |
-          ObjectState.Getter |
-          ObjectState.Setter
-        );
-        key = parseIdentifier(state, context);
-        if (state.token === <Token>Token.LeftParen) {
-          value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
-          objState |= ObjectState.Method | ObjectState.Generator;
-        } else report(state, Errors.Unexpected);
-      } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
-        if (state.tokenValue === 'constructor') report(state, Errors.InvalidConstructor, 'generator');
-        key = parseLiteral(state, context);
-        value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
-        objState |= ObjectState.Method;
-      } else if (state.token === <Token>Token.LeftBracket) {
-        key = parseComputedPropertyName(state, context);
-        value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
-        objState = (objState & ~ObjectState.ClassField) | (ObjectState.Method | ObjectState.Computed);
+      if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === <Token>Token.Assign) {
+        objState |= ObjectState.ClassField;
+        if (optional(state, context, Token.Assign)) {
+          value = parseAssignmentExpression(state, context);
+        }
       } else {
-        report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
+        objState &= ~ObjectState.ClassField;
+        value = parseMethodDeclaration(state, context, objState);
       }
-    } else if (context & Context.OptionsNext && state.token === Token.PrivateName) {
-      objState |= ObjectState.Static;
+    } else if (context & Context.OptionsNext && (state.token & Token.PrivateName) === Token.PrivateName) {
       key = parsePrivateName(state, context, objState);
       if (optional(state, context, Token.Assign)) {
         objState |= ObjectState.ClassField;
         value = parseAssignmentExpression(state, context);
-      } else if (state.token === <Token>Token.LeftParen) {
+      } else if ((state.token & Token.LeftParen) === Token.LeftParen) {
         value = parseMethodDeclaration(state, context, objState);
       } else objState |= ObjectState.ClassField;
-    } else {
-      report(state, Errors.UnexpectedToken, KeywordDescTable[state.token & Token.Type]);
-    }
+    } else if ((state.token & Token.ASI) === 0) report(state, Errors.Unexpected);
 
     optional(state, context, Token.Comma);
 
