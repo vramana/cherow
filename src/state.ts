@@ -3087,7 +3087,8 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
         if ((state.token & Token.LeftParen) === Token.LeftParen) {
           value = parseMethodDeclaration(state, context, objState);
         } else if (state.token & Token.IsIdentifier) {
-          if (objState & ObjectState.Async) report(state, Errors.Unexpected);
+          if (objState & (ObjectState.Generator | ObjectState.Async)) report(state, Errors.Unexpected);
+          if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
           objState = (objState & ~(ObjectState.Computed | ObjectState.Setter)) | ObjectState.Getter;
           key = parseIdentifier(state, context);
           if ((state.token & Token.LeftParen) === Token.LeftParen) {
@@ -3108,12 +3109,15 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
         }
       } else if ((state.token & Token.SetKeyword) === Token.SetKeyword) {
         key = parseIdentifier(state, context);
+
         if ((state.token & Token.LeftParen) === Token.LeftParen) {
           value = parseMethodDeclaration(state, context, objState);
         } else if (state.token & Token.IsIdentifier) {
-          if (objState & ObjectState.Async) report(state, Errors.Unexpected);
+          if (state.tokenValue === 'prototype') report(state, Errors.StaticPrototype);
+          if (objState & (ObjectState.Generator | ObjectState.Async)) report(state, Errors.Unexpected);
           objState = (objState & ~(ObjectState.Getter | ObjectState.Computed)) | ObjectState.Setter;
           key = parseIdentifier(state, context);
+
           if ((state.token & Token.LeftParen) === Token.LeftParen) {
             value = parseMethodDeclaration(state, context, objState);
           }
@@ -3160,6 +3164,8 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       }
     } else if (state.token === Token.NumericLiteral || state.token === Token.StringLiteral) {
       if (state.tokenValue === 'constructor') {
+        if (objState & (ObjectState.Generator | ObjectState.Async))
+          report(state, Errors.InvalidConstructor, 'generator');
         if ((objState & ObjectState.Static) === 0) objState |= ObjectState.Constructor;
         ++constructorCount;
       }

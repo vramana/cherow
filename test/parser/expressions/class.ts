@@ -5,7 +5,6 @@ import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - Class', () => {
   const invalidSyntax = [
-    //'a=0',
     'a',
     '3:0',
     '[3]:0',
@@ -15,7 +14,6 @@ describe('Expressions - Class', () => {
     '[3]:0',
     '[a,b](){}',
     'class name {',
-    //    'get m',
     '"constructor"() {} constructor() {}',
     'constructor() {} constructor() {}',
     '"constructor"() {} "constructor"() {}',
@@ -24,13 +22,13 @@ describe('Expressions - Class', () => {
     '`constructor`(){} }',
     '"constructor"(){}; constructor(){}; }',
     '"constructor"() {} foo() {} bar() {} constructor() {} }',
-    //'*"constructor"(){}',
+    '*"constructor"(){}',
     'static *method([...[ x ] = []]) {}',
     '*method([...{ x }, y] = [1, 2, 3]) {}',
     '*method([...x = []] = []) {}',
     '*method([...{ x }, y]) {}',
     '*method([...[x], y]) {}',
-    // 'async "constructor"(){}',
+    'async "constructor"(){}',
     'static async *method([...{ x }, y] = [1, 2, 3]) {}',
     'static async *method([...x, y] = [1, 2, 3]) {}',
     'static async *method([...[x], y] = [1, 2, 3]) {}',
@@ -185,7 +183,6 @@ describe('Expressions - Class', () => {
     ['class x {[x]z){}}', Context.Empty],
     ['class x {foo, bar(){}}', Context.Empty],
     ['class x {foo}', Context.Empty],
-    // ['class x {foo = x}', Context.Empty],
     ['class x {foo: x}', Context.Empty],
     ['class x { async [x]s){}}', Context.Empty],
     ['class x { y }', Context.Empty],
@@ -200,18 +197,18 @@ describe('Expressions - Class', () => {
     ['class X extends function(){ with(obj); } {}', Context.Empty],
     ['class let {}`;', Context.Empty],
     ['class A {async get foo(){}}', Context.Empty],
-    // ['class A {* get foo(){}}', Context.Empty],
+    ['class A {* get foo(){}}', Context.Empty],
     ['class A {async set foo(x){}}', Context.Empty],
-    //     ['class A {* set foo(x){}}', Context.Empty],
+    ['class A {* set foo(x){}}', Context.Empty],
     //  ['class A {async get "foo"(){}}', Context.Empty],
     // ['class A {* get "foo"(){}}', Context.Empty],
-    // ['class A {async set "foo"(x){}}', Context.Empty],
-    // ['class A {* set "foo"(x){}}', Context.Empty],
+    //['class A {async set "foo"(x){}}', Context.Empty],
+    //['class A {* set "foo"(x){}}', Context.Empty],
     // ['class A {async get 7(){}}', Context.Empty],
-    // ['class A {* get 8(){}}', Context.Empty],
+    ['class A {* get 8(){}}', Context.Empty],
     // ['class A {async set 11(x){}}', Context.Empty],
-    // ['class A {* set 12(x){}}', Context.Empty],
-    //    ['typeof class{}\n/foo/', Context.Empty],
+    ['class A {* set 12(x){}}', Context.Empty],
+    ['typeof class{}\n/foo/', Context.Empty],
     [
       `class C extends (function B() {
      with ({});
@@ -268,9 +265,18 @@ describe('Expressions - Class', () => {
     ['class A { ["async"] a() {} }', Context.Empty],
     ['class A { ["get"] a() {} }', Context.Empty],
     ['class A { static *prototype() {} }', Context.Empty],
-    ['class A { static prototype() {} }', Context.Empty]
-    // 'static *get [x](){}',
-    // 'static *set [x](y){}',
+    ['class A { static prototype() {} }', Context.Empty],
+    ['class A { static get prototype() {} }', Context.Empty],
+    ['class A { static set prototype(_) {} }', Context.Empty],
+    ['class A { static *prototype() {} }', Context.Empty],
+    ['static get prototype() {}', Context.Empty],
+
+    ['class A { static prototype() {} }', Context.Empty],
+    ['class A { static *prototype() {} }', Context.Empty],
+    ['class A { static prototype() {} }', Context.Empty],
+
+    ['static *get [x](){}', Context.Empty],
+    ['static *set [x](y){}', Context.Empty]
   ];
 
   fail('Expressions - Class', inValids);
@@ -443,6 +449,50 @@ describe('Expressions - Class', () => {
   }
 
   pass('Expressions - Class (pass)', [
+    [
+      'class A { static get async() {} }',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'async',
+                    type: 'Identifier'
+                  },
+                  kind: 'get',
+                  static: true,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'A',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       'class a { async *get(){} }',
       Context.Empty,
