@@ -1,7 +1,8 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token, descKeywordTable } from '../token';
-import { Chars, isIdentifierPart } from '../chars';
+import { Chars, isIdentifierStart, isIdentifierPart, AsciiLookup, CharType } from '../chars';
 import { Errors, report } from '../errors';
+import { fromCodePoint } from './common';
 
 export function scanMaybeIdentifier(state: ParserState, _: Context, first: number): Token | void {
   switch (first) {
@@ -51,4 +52,32 @@ export function scanIdentifier(state: ParserState): Token {
   state.index = index;
   state.column = column;
   return descKeywordTable[state.tokenValue] || Token.Identifier;
+}
+
+/**
+ * Scans private name. Stage 3 proposal related
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+export function scanPrivateName(state: ParserState, context: Context): Token {
+  let { index, column } = state;
+  index++;
+  column++;
+  let start = index;
+  // This validation is only to prevent `# x` and `# 3foo` cases.
+  // Note: We have to be inside a class context for this to be valid
+  if (!(context & Context.InClass) || !isIdentifierStart(state.source.charCodeAt(index))) {
+    report(state, Errors.UnexpectedToken, fromCodePoint(state.source.charCodeAt(index)));
+  }
+  index++;
+  column++;
+  while ((AsciiLookup[state.source.charCodeAt(index)] & (CharType.IDContinue | CharType.Decimal)) > 0) {
+    index++;
+    column++;
+  }
+  state.tokenValue = state.source.slice(start, index);
+  state.index = index;
+  state.column = column;
+  return Token.PrivateName;
 }

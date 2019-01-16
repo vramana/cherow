@@ -26,7 +26,7 @@ export const enum Context {
   TopLevel = 1 << 12,
 
   DisallowInContext = 1 << 13,
-
+  InClass = 1 << 14,
   AllowPossibleRegEx = 1 << 15,
   TaggedTemplate = 1 << 16,
   OptionsDirectives = 1 << 17,
@@ -742,4 +742,26 @@ export function createSubScope(parent: ScopeState, type: ScopeType): ScopeState 
       funcs: []
     }
   };
+}
+
+/**
+ * Validates if the next token in the stream is a left paren or a period
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean {
+  next(state, context);
+  return state.token === Token.LeftParen || state.token === Token.Period;
+}
+
+/**
+ * Validates if the next token in the stream is left parenthesis.
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean {
+  next(parser, context);
+  return parser.token === Token.LeftParen;
 }

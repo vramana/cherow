@@ -1,13 +1,13 @@
 import { ParserState, Context, Flags } from '../common';
 import { Token } from '../token';
 import { Chars } from '../chars';
-import { consumeOpt, consumeLineFeed, fromCodePoint } from './common';
+import { consumeOpt, consumeLineFeed } from './common';
 import { skipBlockComment, skipSingleLineComment, skipSingleHTMLComment, CommentType } from './comments';
 import { scanStringLiteral } from './string';
 import { scanTemplate } from './template';
 import { scanRegularExpression } from './regexp';
 import { scanNumeric, scanHexIntegerLiteral, scanBinaryOrOctalDigits, scanImplicitOctalDigits } from './numeric';
-import { scanIdentifier, scanMaybeIdentifier } from './identifier';
+import { scanIdentifier, scanMaybeIdentifier, scanPrivateName } from './identifier';
 
 // Table for one char punctuator lookup
 const OneCharPunc = new Array(128).fill(0) as Token[];
@@ -23,6 +23,9 @@ function scanChar(state: ParserState, _: Context, first: number): Token {
   state.column++;
   return OneCharPunc[first];
 }
+
+// `#`
+table[Chars.Hash] = scanPrivateName;
 
 // `$var`
 table[Chars.Dollar] = scanIdentifier;

@@ -1,7 +1,7 @@
-import { Chars } from '../chars';
+import { Chars, isIdentifierStart } from '../chars';
 import { Context, ParserState } from '../common';
-import { report, reportRegExp, Errors } from '../errors';
-import { Token } from 'token';
+import { report, Errors } from '../errors';
+import { Token, KeywordDescTable } from 'token';
 import { isIDContinue } from '../unicode';
 
 export const enum Type {
@@ -10,20 +10,6 @@ export const enum Type {
   SeenAssertion = 1 << 1,
   SeenUnfixableAssertion = 1 << 2,
   TopLevel = 1 << 2
-}
-
-export const enum RegexpState {
-  None = 0,
-  Valid = 1 << 0,
-  Invalid = 1 << 2,
-  Unicode = 1 << 4,
-  Plain = 1 << 5,
-  MissingDigits = 1 << 6,
-  InvalidPlainClass = 1 << 23,
-  InvalidUnicodeClass = 1 << 24,
-  Escape = 1 << 25,
-  InvalidClass = 0x110000,
-  InvalidClassRange = 0x110001
 }
 
 export const enum Escape {
