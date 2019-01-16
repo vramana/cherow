@@ -3018,7 +3018,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       } else if (state.token === Token.LeftBracket) {
         objState |= ObjectState.Computed | ObjectState.Static;
         key = parseComputedPropertyName(state, context);
-        if (state.token & Token.ASI || state.token === <Token>Token.Assign) {
+        if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === <Token>Token.Assign) {
           objState |= ObjectState.Computed | ObjectState.ClassField;
           if (optional(state, context, Token.Assign)) {
             value = parseAssignmentExpression(state, context);
@@ -3026,7 +3026,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
         } else {
           value = parseMethodDeclaration(state, context, objState);
         }
-      } else if (state.token & Token.ASI || state.token === Token.Assign) {
+      } else if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === Token.Assign) {
         objState |= ObjectState.ClassField | ObjectState.Static;
         if (optional(state, context, Token.Assign)) value = parseIdentifier(state, context);
       } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
@@ -3047,7 +3047,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       key = parseIdentifier(state, context);
       if ((state.token & Token.LeftParen) === Token.LeftParen) {
         value = parseMethodDeclaration(state, context, objState);
-      } else if (state.token & Token.ASI || state.token === Token.Assign) {
+      } else if ((context & Context.OptionsNext && state.token & Token.ASI) || state.token === Token.Assign) {
         objState |= ObjectState.ClassField | ObjectState.Async;
         if (optional(state, context, Token.Assign)) value = parseAssignmentExpression(state, context);
       } else if (context & Context.OptionsNext && (state.token & (<Token>Token.PrivateName)) === Token.PrivateName) {
