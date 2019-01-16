@@ -3866,6 +3866,262 @@ function skipBlockComment(state) {
     return report(state, 27);
 }
 
+const KeywordDescTable = [
+    'end of source',
+    'identifier',
+    'number',
+    'string',
+    'regular expression',
+    'false',
+    'true',
+    'null',
+    'template continuation',
+    'template end',
+    '=>',
+    '(',
+    '{',
+    '.',
+    '...',
+    '}',
+    ')',
+    ';',
+    ',',
+    '[',
+    ']',
+    ':',
+    '?',
+    '\'',
+    '"',
+    '</',
+    '/>',
+    '++',
+    '--',
+    '=',
+    '<<=',
+    '>>=',
+    '>>>=',
+    '**=',
+    '+=',
+    '-=',
+    '*=',
+    '/=',
+    '%=',
+    '^=',
+    '|=',
+    '&=',
+    'typeof',
+    'delete',
+    'void',
+    '!',
+    '~',
+    '+',
+    '-',
+    'in',
+    'instanceof',
+    '*',
+    '%',
+    '/',
+    '**',
+    '&&',
+    '||',
+    '===',
+    '!==',
+    '==',
+    '!=',
+    '<=',
+    '>=',
+    '<',
+    '>',
+    '<<',
+    '>>',
+    '>>>',
+    '&',
+    '|',
+    '^',
+    'var',
+    'let',
+    'const',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'continue',
+    'debugger',
+    'default',
+    'do',
+    'else',
+    'export',
+    'extends',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'import',
+    'new',
+    'return',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'try',
+    'while',
+    'with',
+    'implements',
+    'interface',
+    'package',
+    'private',
+    'protected',
+    'public',
+    'static',
+    'yield',
+    'as',
+    'async',
+    'await',
+    'constructor',
+    'get',
+    'set',
+    'from',
+    'of',
+    'enum',
+    '@',
+    'BigInt',
+    'JSXText',
+    '#',
+    'Global'
+];
+const descKeywordTable = Object.create(null, {
+    this: { value: 151646 },
+    function: { value: 151639 },
+    if: { value: 20568 },
+    return: { value: 20571 },
+    var: { value: 268587079 },
+    else: { value: 20562 },
+    for: { value: 20566 },
+    new: { value: 151642 },
+    in: { value: 33707825 },
+    typeof: { value: 33706026 },
+    while: { value: 20577 },
+    case: { value: 20555 },
+    break: { value: 20554 },
+    try: { value: 20576 },
+    catch: { value: 20556 },
+    delete: { value: 33706027 },
+    throw: { value: 151647 },
+    switch: { value: 151645 },
+    continue: { value: 20558 },
+    default: { value: 20560 },
+    instanceof: { value: 16930610 },
+    do: { value: 20561 },
+    void: { value: 33706028 },
+    finally: { value: 20565 },
+    async: { value: 1060972 },
+    await: { value: 667757 },
+    class: { value: 151629 },
+    const: { value: 402804809 },
+    constructor: { value: 12398 },
+    debugger: { value: 20559 },
+    export: { value: 20563 },
+    extends: { value: 20564 },
+    false: { value: 151557 },
+    from: { value: 12401 },
+    get: { value: 12399 },
+    implements: { value: 36963 },
+    import: { value: 151641 },
+    interface: { value: 36964 },
+    let: { value: 402821192 },
+    null: { value: 151559 },
+    of: { value: 12402 },
+    package: { value: 36965 },
+    private: { value: 36966 },
+    protected: { value: 36967 },
+    public: { value: 36968 },
+    set: { value: 12400 },
+    static: { value: 36969 },
+    super: { value: 151644 },
+    true: { value: 151558 },
+    with: { value: 20578 },
+    yield: { value: 2265194 },
+    as: { value: 16920683 }
+});
+
+const AsciiLookup = new Uint8Array(0x80)
+    .fill(3, 0x24, 0x25)
+    .fill(4, 0x30, 0x3a)
+    .fill(3, 0x41, 0x5b)
+    .fill(3, 0x5f, 0x60)
+    .fill(3, 0x61, 0x7b);
+function isIdentifierPart(code) {
+    return (AsciiLookup[code] & 1) > 0 || ((unicodeLookup[(code >>> 5) + 0] >>> code) & 31 & 1) > 0;
+}
+function isIdentifierStart(code) {
+    return (AsciiLookup[code] & 2) > 0 || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) > 0;
+}
+
+function scanMaybeIdentifier(state, _, first) {
+    switch (first) {
+        case 160:
+        case 5760:
+        case 8192:
+        case 8193:
+        case 8194:
+        case 8195:
+        case 8196:
+        case 8197:
+        case 8198:
+        case 8199:
+        case 8200:
+        case 8201:
+        case 8202:
+        case 8239:
+        case 8287:
+        case 12288:
+        case 8205:
+        case 8204:
+            state.index++;
+            state.column++;
+            return 1073741824;
+        case 8232:
+        case 8233:
+            state.flags = (state.flags & ~2) | 1;
+            state.index++;
+            state.column = 0;
+            state.line++;
+            return 1073741824;
+    }
+    report(state, 29, String.fromCharCode(first));
+}
+function scanIdentifier(state) {
+    let { index, column } = state;
+    while (isIdentifierPart(state.source.charCodeAt(index))) {
+        index++;
+        column++;
+    }
+    state.tokenValue = state.source.slice(state.startIndex, index);
+    if (state.source.charCodeAt(index) === 92) ;
+    state.index = index;
+    state.column = column;
+    return descKeywordTable[state.tokenValue] || 405505;
+}
+function scanPrivateName(state, context) {
+    let { index, column } = state;
+    index++;
+    column++;
+    let start = index;
+    if (!(context & 16384) || !isIdentifierStart(state.source.charCodeAt(index))) {
+        report(state, 1, fromCodePoint(state.source.charCodeAt(index)));
+    }
+    index++;
+    column++;
+    while ((AsciiLookup[state.source.charCodeAt(index)] & (1 | 4)) > 0) {
+        index++;
+        column++;
+    }
+    state.tokenValue = state.source.slice(start, index);
+    state.index = index;
+    state.column = column;
+    return 119;
+}
+
 function scanStringLiteral(state, context, quote) {
     const { index: start, lastChar } = state;
     let ret = '';
@@ -4138,19 +4394,6 @@ function consumeTemplateBrace(state, context) {
     return scanTemplate(state, context);
 }
 
-const AsciiLookup = new Uint8Array(0x80)
-    .fill(3, 0x24, 0x25)
-    .fill(4, 0x30, 0x3a)
-    .fill(3, 0x41, 0x5b)
-    .fill(3, 0x5f, 0x60)
-    .fill(3, 0x61, 0x7b);
-function isIdentifierPart(code) {
-    return (AsciiLookup[code] & 1) > 0 || ((unicodeLookup[(code >>> 5) + 0] >>> code) & 31 & 1) > 0;
-}
-function isIdentifierStart(code) {
-    return (AsciiLookup[code] & 2) > 0 || ((unicodeLookup[(code >>> 5) + 34816] >>> code) & 31 & 1) > 0;
-}
-
 var RegexState;
 (function (RegexState) {
     RegexState[RegexState["Empty"] = 0] = "Empty";
@@ -4399,228 +4642,6 @@ function scanImplicitOctalDigits(state, context) {
     return 131074;
 }
 
-const KeywordDescTable = [
-    'end of source',
-    'identifier',
-    'number',
-    'string',
-    'regular expression',
-    'false',
-    'true',
-    'null',
-    'template continuation',
-    'template end',
-    '=>',
-    '(',
-    '{',
-    '.',
-    '...',
-    '}',
-    ')',
-    ';',
-    ',',
-    '[',
-    ']',
-    ':',
-    '?',
-    '\'',
-    '"',
-    '</',
-    '/>',
-    '++',
-    '--',
-    '=',
-    '<<=',
-    '>>=',
-    '>>>=',
-    '**=',
-    '+=',
-    '-=',
-    '*=',
-    '/=',
-    '%=',
-    '^=',
-    '|=',
-    '&=',
-    'typeof',
-    'delete',
-    'void',
-    '!',
-    '~',
-    '+',
-    '-',
-    'in',
-    'instanceof',
-    '*',
-    '%',
-    '/',
-    '**',
-    '&&',
-    '||',
-    '===',
-    '!==',
-    '==',
-    '!=',
-    '<=',
-    '>=',
-    '<',
-    '>',
-    '<<',
-    '>>',
-    '>>>',
-    '&',
-    '|',
-    '^',
-    'var',
-    'let',
-    'const',
-    'break',
-    'case',
-    'catch',
-    'class',
-    'continue',
-    'debugger',
-    'default',
-    'do',
-    'else',
-    'export',
-    'extends',
-    'finally',
-    'for',
-    'function',
-    'if',
-    'import',
-    'new',
-    'return',
-    'super',
-    'switch',
-    'this',
-    'throw',
-    'try',
-    'while',
-    'with',
-    'implements',
-    'interface',
-    'package',
-    'private',
-    'protected',
-    'public',
-    'static',
-    'yield',
-    'as',
-    'async',
-    'await',
-    'constructor',
-    'get',
-    'set',
-    'from',
-    'of',
-    'enum',
-    '@',
-    'BigInt',
-    'JSXText'
-];
-const descKeywordTable = Object.create(null, {
-    this: { value: 151646 },
-    function: { value: 151639 },
-    if: { value: 20568 },
-    return: { value: 20571 },
-    var: { value: 268587079 },
-    else: { value: 20562 },
-    for: { value: 20566 },
-    new: { value: 151642 },
-    in: { value: 33707825 },
-    typeof: { value: 33706026 },
-    while: { value: 20577 },
-    case: { value: 20555 },
-    break: { value: 20554 },
-    try: { value: 20576 },
-    catch: { value: 20556 },
-    delete: { value: 33706027 },
-    throw: { value: 151647 },
-    switch: { value: 151645 },
-    continue: { value: 20558 },
-    default: { value: 20560 },
-    instanceof: { value: 16930610 },
-    do: { value: 20561 },
-    void: { value: 33706028 },
-    finally: { value: 20565 },
-    async: { value: 1060972 },
-    await: { value: 667757 },
-    class: { value: 151629 },
-    const: { value: 402804809 },
-    constructor: { value: 12398 },
-    debugger: { value: 20559 },
-    export: { value: 20563 },
-    extends: { value: 20564 },
-    false: { value: 151557 },
-    from: { value: 12401 },
-    get: { value: 12399 },
-    implements: { value: 36963 },
-    import: { value: 151641 },
-    interface: { value: 36964 },
-    let: { value: 402821192 },
-    null: { value: 151559 },
-    of: { value: 12402 },
-    package: { value: 36965 },
-    private: { value: 36966 },
-    protected: { value: 36967 },
-    public: { value: 36968 },
-    set: { value: 12400 },
-    static: { value: 36969 },
-    super: { value: 151644 },
-    true: { value: 151558 },
-    with: { value: 20578 },
-    yield: { value: 2265194 },
-    as: { value: 16920683 }
-});
-
-function scanMaybeIdentifier(state, _, first) {
-    switch (first) {
-        case 160:
-        case 5760:
-        case 8192:
-        case 8193:
-        case 8194:
-        case 8195:
-        case 8196:
-        case 8197:
-        case 8198:
-        case 8199:
-        case 8200:
-        case 8201:
-        case 8202:
-        case 8239:
-        case 8287:
-        case 12288:
-        case 8205:
-        case 8204:
-            state.index++;
-            state.column++;
-            return 1073741824;
-        case 8232:
-        case 8233:
-            state.flags = (state.flags & ~2) | 1;
-            state.index++;
-            state.column = 0;
-            state.line++;
-            return 1073741824;
-    }
-    report(state, 29, String.fromCharCode(first));
-}
-function scanIdentifier(state) {
-    let { index, column } = state;
-    while (isIdentifierPart(state.source.charCodeAt(index))) {
-        index++;
-        column++;
-    }
-    state.tokenValue = state.source.slice(state.startIndex, index);
-    if (state.source.charCodeAt(index) === 92) ;
-    state.index = index;
-    state.column = column;
-    return descKeywordTable[state.tokenValue] || 405505;
-}
-
 const OneCharPunc = new Array(128).fill(0);
 const table$1 = new Array(0xffff).fill(scanMaybeIdentifier, 0x80);
 function scanChar(state, _, first) {
@@ -4628,6 +4649,7 @@ function scanChar(state, _, first) {
     state.column++;
     return OneCharPunc[first];
 }
+table$1[35] = scanPrivateName;
 table$1[36] = scanIdentifier;
 table$1[34] = scanStringLiteral;
 table$1[39] = scanStringLiteral;
@@ -5347,6 +5369,14 @@ function createSubScope(parent, type) {
         }
     };
 }
+function nextTokenIsLeftParenOrPeriod(state, context) {
+    next(state, context);
+    return state.token === 131083 || state.token === 13;
+}
+function nextTokenIsLeftParen(parser, context) {
+    next(parser, context);
+    return parser.token === 131083;
+}
 
 function create(source, onComment, onToken) {
     return {
@@ -5418,7 +5448,9 @@ function parseModuleItem(state, context, scope) {
         case 20563:
             return parseExportDeclaration(state, context, scope);
         case 151641:
-            return parseImportDeclaration(state, context, scope);
+            if (!(context & 1 && lookAheadOrScan(state, context, nextTokenIsLeftParenOrPeriod, true))) {
+                return parseImportDeclaration(state, context, scope);
+            }
         default:
             return parseStatementListItem(state, context, scope);
     }
@@ -6513,11 +6545,11 @@ function nextTokenisIdentifierOrParen(state, context) {
     return token & (274432 | 2097152) || token === 131083;
 }
 function parseAssignmentExpression(state, context) {
-    let value = state.tokenValue;
-    let { token } = state;
+    const value = state.tokenValue;
+    const { token } = state;
     if (state.token & 2097152 && context & 2097152)
         return parseYieldExpression(state, context);
-    let expr = state.token & 1048576 && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
+    const expr = state.token & 1048576 && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
         ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
         : parseConditionalExpression(state, context);
     if (state.token === 131082) {
@@ -6693,10 +6725,27 @@ function parseUpdateExpression(state, context) {
     return expression;
 }
 function parseLeftHandSideExpression(state, context) {
-    const expr = state.token === 151644
-        ? parseSuperExpression(state, context)
-        : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
+    const expr = context & 1 && state.token === 151641
+        ? parseCallImportOrMetaProperty(state, context)
+        : state.token === 151644
+            ? parseSuperExpression(state, context)
+            : parseMemberExpression(state, context, parsePrimaryExpression(state, context));
     return parseCallExpression(state, context, expr);
+}
+function parseCallImportOrMetaProperty(state, context) {
+    const id = parseIdentifier(state, context);
+    if (optional(state, context, 13)) {
+        if (context & 2048 && state.tokenValue === 'meta')
+            return parseMetaProperty(state, context, id);
+        report(state, 1, KeywordDescTable[state.token & 255]);
+    }
+    const expr = parseImportExpression();
+    return parseCallExpression(state, context, expr);
+}
+function parseImportExpression() {
+    return {
+        type: 'Import'
+    };
 }
 function parseCallExpression(state, context, expr) {
     while (true) {
@@ -6847,9 +6896,17 @@ function parseNewExpression(state, context) {
             report(state, 0);
         return parseMetaProperty(state, context, id);
     }
+    let callee;
+    if (context & 1 && state.token === 151641) {
+        if (lookAheadOrScan(state, context, nextTokenIsLeftParen, true))
+            report(state, 1, KeywordDescTable[state.token & 255]);
+        callee = parseCallImportOrMetaProperty(state, context);
+    }
+    else
+        callee = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
     return {
         type: 'NewExpression',
-        callee: parseMemberExpression(state, context, parsePrimaryExpression(state, context)),
+        callee,
         arguments: state.token === 131083 ? parseArgumentList(state, context) : []
     };
 }

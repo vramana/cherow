@@ -7,19 +7,6 @@ export declare const enum Type {
     SeenUnfixableAssertion = 4,
     TopLevel = 4
 }
-export declare const enum RegexpState {
-    None = 0,
-    Valid = 1,
-    Invalid = 4,
-    Unicode = 16,
-    Plain = 32,
-    MissingDigits = 64,
-    InvalidPlainClass = 8388608,
-    InvalidUnicodeClass = 16777216,
-    Escape = 33554432,
-    InvalidClass = 1114112,
-    InvalidClassRange = 1114113
-}
 export declare const enum Escape {
     Empty = -1,
     StrictOctal = -2,

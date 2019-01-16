@@ -16,6 +16,7 @@ export declare const enum Context {
     Module = 2048,
     TopLevel = 4096,
     DisallowInContext = 8192,
+    InClass = 16384,
     AllowPossibleRegEx = 32768,
     TaggedTemplate = 65536,
     OptionsDirectives = 131072,
@@ -168,4 +169,6 @@ export declare function getLabel(state: ParserState, label: string, iterationSta
 export declare function addVariableAndDeduplicate(state: ParserState, context: Context, scope: ScopeState, type: Type, isVariableDecl: boolean, name: string): void;
 export declare function createScope(type: ScopeType): ScopeState;
 export declare function createSubScope(parent: ScopeState, type: ScopeType): ScopeState;
+export declare function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Context): boolean;
+export declare function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean;
 //# sourceMappingURL=common.d.ts.map
