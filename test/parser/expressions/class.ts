@@ -255,11 +255,22 @@ describe('Expressions - Class', () => {
     ['class x{static set *"foo"(a){}}', Context.Empty],
     ['class x{static set *555(a){}}', Context.Empty],
     ['class x{static set *%x(a){}}', Context.Empty],
-    ['class x{static async *%x(a){}}', Context.Empty]
-    // ['class A { ["async"] a() {} }', Context.Empty],
-    // ['class A { ["get"] a() {} }', Context.Empty],
-    // ['class A { static *prototype() {} }', Context.Empty],
-    // ['class A { static prototype() {} }', Context.Empty]
+    ['class x{static async *%x(a){}}', Context.Empty],
+    ['class x{static async *%x(a){}}', Context.Empty],
+    ['async *get 8(){}', Context.Empty],
+    ['static *async 8(){}', Context.Empty],
+    ['static *get 8(){}', Context.Empty],
+    ['static *set 8(y){}', Context.Empty],
+    ['static *"x"(){}', Context.Empty],
+    ['static *async "x"(){}', Context.Empty],
+    ['static *get "x"(){}', Context.Empty],
+    ['static *set "x"(y){}', Context.Empty],
+    ['class A { ["async"] a() {} }', Context.Empty],
+    ['class A { ["get"] a() {} }', Context.Empty],
+    ['class A { static *prototype() {} }', Context.Empty],
+    ['class A { static prototype() {} }', Context.Empty]
+    // 'static *get [x](){}',
+    // 'static *set [x](y){}',
   ];
 
   fail('Expressions - Class', inValids);
@@ -375,6 +386,27 @@ describe('Expressions - Class', () => {
     'static async *method({...rest} = {a: 3, b: 4}) {}',
     'static async *method({ x: [y], }) {}',
     'static async *method({ x: y, }) {}',
+    'static x(){}',
+    'static *x(){}',
+    'static async x(){}',
+    'static get x(){}',
+    'static set x(y){}',
+    'static [x](){}',
+    'static async [x](){}',
+    'static get [x](){}',
+    'static set [x](y){}',
+    'static *[x](){}',
+    'static 8(){}',
+    'static async 8(){}',
+    'static get 8(){}',
+    'static set 8(y){}',
+    'static *8(){}',
+    'static "x"(){}',
+    'static async "x"(){}',
+    'static get "x"(){}',
+    'static set "x"(y){}',
+    'static *get [x](){}',
+    'static *set [x](y){}',
     '*method([x]) {}',
     '*method([[] = function() { a += 1; return function*() {}; }()]) {}',
     '*method([x = 23]) {}',
@@ -411,6 +443,50 @@ describe('Expressions - Class', () => {
   }
 
   pass('Expressions - Class (pass)', [
+    [
+      'class a { async *get(){} }',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'get',
+                    type: 'Identifier'
+                  },
+                  kind: 'method',
+                  static: false,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: true,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
+                    },
+                    generator: true,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       `class A { async\nfoo() {}    }`,
       Context.OptionsNext,

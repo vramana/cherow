@@ -81,7 +81,9 @@ export const enum Errors {
   AsyncFunctionInSingleStatementContext,
   PrivateFieldConstructor,
   PublicFieldConstructor,
-  PrivateStaticPrototype
+  PrivateStaticPrototype,
+  AsyncRestricedProd,
+  OnlyMethodInClass
 }
 
 /*@internal*/
@@ -171,7 +173,9 @@ export const errorMessages: {
     'Async functions can only be declared at the top level or inside a block',
   [Errors.PrivateFieldConstructor]: "Classes may not have a private field named '#constructor'",
   [Errors.PublicFieldConstructor]: "Classes may not have a field named 'constructor'",
-  [Errors.PrivateStaticPrototype]: "Classes may not have a static private property named '#prototype'"
+  [Errors.PrivateStaticPrototype]: "Classes may not have a static private property named '#prototype'",
+  [Errors.AsyncRestricedProd]: 'Async methods are a restricted production and cannot have a newline following it',
+  [Errors.OnlyMethodInClass]: 'Only methods are allowed in classes'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
