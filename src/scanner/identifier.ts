@@ -60,19 +60,17 @@ export function scanIdentifier(state: ParserState): Token {
  * @param parser Parser object
  * @param context Context masks
  */
-export function scanPrivateName(state: ParserState, context: Context): Token {
+export function scanPrivateName(state: ParserState, _: Context): Token {
   let { index, column } = state;
   index++;
   column++;
   let start = index;
   // This validation is only to prevent `# x` and `# 3foo` cases.
   // Note: We have to be inside a class context for this to be valid
-  if (!(context & Context.InClass) || !isIdentifierStart(state.source.charCodeAt(index))) {
+  if (/*!(context & Context.InClass) ||*/ !isIdentifierStart(state.source.charCodeAt(index))) {
     report(state, Errors.UnexpectedToken, fromCodePoint(state.source.charCodeAt(index)));
   }
-  index++;
-  column++;
-  while ((AsciiLookup[state.source.charCodeAt(index)] & (CharType.IDContinue | CharType.Decimal)) > 0) {
+  while (isIdentifierStart(state.source.charCodeAt(index))) {
     index++;
     column++;
   }
