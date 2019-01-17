@@ -2256,40 +2256,50 @@ function parseAwaitExpression(
  * @param parser Parser object
  * @param context Context masks
  */
-function parseUnaryExpression(state: ParserState, context: Context): any {
+function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expression {
   // UnaryExpression ::
   //   PostfixExpression
-  //   'delete' UnaryExpression
-  //   'void' UnaryExpression
-  //   'typeof' UnaryExpression
-  //   '++' UnaryExpression
-  //   '--' UnaryExpression
-  //   '+' UnaryExpression
-  //   '-' UnaryExpression
-  //   '~' UnaryExpression
-  //   '!' UnaryExpression
-  //   [+Await] AwaitExpression[?Yield]
-  const t = state.token;
-  if (context & Context.AwaitContext && t & Token.IsAwait) {
-    return parseAwaitExpression(state, context);
-  } else if ((t & Token.IsUnaryOp) === Token.IsUnaryOp) {
+  //   1. 'delete' UnaryExpression
+  //   2. 'void' UnaryExpression
+  //   3. 'typeof' UnaryExpression
+  //   4. '++' UnaryExpression
+  //   5. '--' UnaryExpression
+  //   6. '+' UnaryExpression
+  //   7. '-' UnaryExpression
+  //   8. '~' UnaryExpression
+  //   9. '!' UnaryExpression
+  //   AwaitExpression
+  const { token } = state;
+  if ((token & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const { token } = state;
     next(state, context | Context.AllowPossibleRegEx);
-    const argument: ESTree.Expression = parseUnaryExpression(state, context);
-    if (state.token === Token.Exponentiate) {
-      report(state, Errors.InvalidLOExponentation);
+    if (context & Context.Strict && (token & Token.DeleteKeyword) === Token.DeleteKeyword) {
+      // The extra 'import' check fixes 'delete import.meta' wich is valid
+      if (state.token & Token.Identifier && (state.token & Token.ImportKeyword) !== Token.ImportKeyword)
+        report(state, Errors.StrictDelete);
     }
-    if (context & Context.Strict && token === Token.DeleteKeyword) {
-      if (argument.type === 'Identifier') report(state, Errors.StrictDelete);
+    const argument: ESTree.Expression = parseUnaryExpression(state, context);
+    if (state.token === Token.Exponentiate) report(state, Errors.InvalidLOExponentation);
+    // TODO: Track this and prevent a possible performance deopt
+    if (
+      context & Context.OptionsNext &&
+      context & Context.Strict &&
+      (token & Token.DeleteKeyword) === Token.DeleteKeyword &&
+      (argument as any).property.type === 'PrivateName'
+    ) {
+      report(state, Errors.DeletePrivateField);
     }
     return {
       type: 'UnaryExpression',
-      operator: KeywordDescTable[t & Token.Type],
+      operator: KeywordDescTable[token & Token.Type],
       argument,
       prefix: true
     };
   }
-  return parseUpdateExpression(state, context);
+
+  return context & Context.AwaitContext && token & Token.IsAwait
+    ? parseAwaitExpression(state, context)
+    : parseUpdateExpression(state, context);
 }
 
 /**
@@ -2305,6 +2315,12 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
     next(state, context);
     const expr = parseLeftHandSideExpression(state, context);
+    if ((context & Context.Strict && expr.name === 'eval') || expr.name === 'arguments') {
+      report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
+    }
+    if (!isValidSimpleAssignmentTarget(expr)) {
+      report(state, Errors.InvalidLHSInAssignment);
+    }
     return {
       type: 'UpdateExpression',
       argument: expr,
@@ -2316,6 +2332,12 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   const expression = parseLeftHandSideExpression(state, context);
 
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) === 0) {
+    if ((context & Context.Strict && expression.name === 'eval') || expression.name === 'arguments') {
+      report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
+    }
+    if (!isValidSimpleAssignmentTarget(expression)) {
+      report(state, Errors.InvalidLHSInAssignment);
+    }
     const operator = state.token;
     next(state, context);
     return {
@@ -2327,6 +2349,16 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   }
 
   return expression;
+}
+
+/**
+ * Returns true if this an valid simple assignment target
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
+  return node.type === 'Identifier' || node.type === 'MemberExpression' ? true : false;
 }
 
 /**
