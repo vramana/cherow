@@ -32,7 +32,7 @@ import {
 } from './common';
 import { Token, KeywordDescTable } from './token';
 import { next } from './scanner';
-import { consumeTemplateBrace } from './scanner/template';
+import { scanTemplateTail } from './scanner/template';
 import {
   optional,
   expect,
@@ -2509,36 +2509,26 @@ function parseTemplateLiteral(parser: ParserState, context: Context): ESTree.Tem
   return {
     type: 'TemplateLiteral',
     expressions: [],
-    quasis: [parseTemplateSpans(parser, context)]
+    quasis: [parseTemplateTail(parser, context)]
   };
 }
 
 /**
  * Parse template head
  *
- * @param parser Parser object
+ * @param state Parser object
  * @param context Context masks
- * @param cooked Cooked template value
- * @param raw Raw template value
- * @param pos Current location
  */
 
-function parseTemplateHead(
-  parser: ParserState,
-  context: Context,
-  cooked: string | null = null,
-  raw: string | null
-): ESTree.TemplateElement {
-  parser.token = consumeTemplateBrace(parser, context);
-
+function parseTemplateSpans(state: ParserState, tail: boolean): ESTree.TemplateElement {
   return {
     type: 'TemplateElement',
     value: {
-      cooked,
-      raw
+      cooked: state.tokenValue,
+      raw: state.tokenRaw
     },
-    tail: false
-  } as any;
+    tail
+  };
 }
 
 /**
@@ -2550,24 +2540,18 @@ function parseTemplateHead(
  * @param quasis Array of Template elements
  */
 
-function parseTemplate(
-  parser: ParserState,
-  context: Context,
-  expressions: ESTree.Expression[] = [],
-  quasis: ESTree.TemplateElement[] = []
-): ESTree.TemplateLiteral {
-  const { tokenValue, tokenRaw } = parser;
+function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLiteral {
+  const quasis = [parseTemplateSpans(state, false)];
+  expect(state, context, Token.TemplateCont);
+  const expressions = [parseExpression(state, context)];
 
-  expect(parser, context, Token.TemplateCont);
-
-  expressions.push(parseExpression(parser, context));
-  quasis.push(parseTemplateHead(parser, context, tokenValue, tokenRaw));
-
-  if (parser.token === Token.TemplateTail) {
-    quasis.push(parseTemplateSpans(parser, context));
-  } else {
-    parseTemplate(parser, context, expressions, quasis);
+  while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
+    quasis.push(parseTemplateSpans(state, false));
+    expect(state, context, Token.TemplateCont);
+    expressions.push(parseExpression(state, context));
   }
+  quasis.push(parseTemplateSpans(state, true));
+  next(state, context);
 
   return {
     type: 'TemplateLiteral',
@@ -2577,20 +2561,18 @@ function parseTemplate(
 }
 
 /**
- * Parse template spans
+ * Parse template tail
  *
  * @see [Link](https://tc39.github.io/ecma262/#prod-TemplateSpans)
  *
- * @param parser Parser object
+ * @param state Parser object
  * @param context Context masks
  * @param loc Current AST node location
  */
 
-function parseTemplateSpans(state: ParserState, context: Context): ESTree.TemplateElement {
+function parseTemplateTail(state: ParserState, context: Context): ESTree.TemplateElement {
   const { tokenValue, tokenRaw } = state;
-
   expect(state, context, Token.TemplateTail);
-
   return {
     type: 'TemplateElement',
     value: {

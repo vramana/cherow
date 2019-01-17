@@ -803,7 +803,7 @@ describe('Expressions - Template', () => {
                   {
                     type: 'TemplateElement',
                     value: {
-                      cooked: null,
+                      cooked: undefined,
                       raw: '\\xg '
                     },
                     tail: false
@@ -1080,7 +1080,7 @@ describe('Expressions - Template', () => {
                     tail: false,
                     type: 'TemplateElement',
                     value: {
-                      cooked: null,
+                      cooked: undefined,
                       raw: ' \\xg '
                     }
                   },
