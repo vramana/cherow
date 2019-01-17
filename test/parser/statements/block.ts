@@ -8,7 +8,6 @@ describe('Statements - Block', () => {
     ['if{};else{}', Context.OptionsDisableWebCompat],
     ['try{};catch{};finally{}', Context.OptionsDisableWebCompat],
     ['try{};catch(){}', Context.OptionsDisableWebCompat],
-
     ['{ if (x) function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
     ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
     ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
@@ -70,6 +69,85 @@ describe('Statements - Block', () => {
           {
             type: 'BlockStatement',
             body: []
+          }
+        ]
+      }
+    ],
+    [
+      '{if (false) {} else ;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'IfStatement',
+                test: {
+                  type: 'Literal',
+                  value: false
+                },
+                consequent: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                alternate: {
+                  type: 'EmptyStatement'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{for (;;) ;}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'ForStatement',
+                body: {
+                  type: 'EmptyStatement'
+                },
+                init: null,
+                test: null,
+                update: null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '{with ({}) {}}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'WithStatement',
+                object: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                }
+              }
+            ]
           }
         ]
       }

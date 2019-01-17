@@ -1228,6 +1228,7 @@ export function parseBindingIdentifier(
   checkForDuplicates: boolean
 ): ESTree.Identifier {
   const name = state.tokenValue;
+
   validateBindingIdentifier(state, context, type);
   addVariable(
     state,
@@ -2325,7 +2326,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
     next(state, context);
     const expr = parseLeftHandSideExpression(state, context);
-    if ((context & Context.Strict && expr.name === 'eval') || expr.name === 'arguments') {
+    if (context & Context.Strict && (expr.name === 'eval' || expr.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
     }
     if (!isValidSimpleAssignmentTarget(expr)) {
@@ -2342,7 +2343,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
   const expression = parseLeftHandSideExpression(state, context);
 
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) === 0) {
-    if ((context & Context.Strict && expression.name === 'eval') || expression.name === 'arguments') {
+    if (context & Context.Strict && (expression.name === 'eval' || expression.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'PostFix');
     }
     if (!isValidSimpleAssignmentTarget(expression)) {
