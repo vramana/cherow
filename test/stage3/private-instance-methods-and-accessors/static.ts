@@ -2,6 +2,25 @@ import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/common';
 
 describe('Next - Private instance methods', () => {
+  fail('Next - Private instance methods', [
+    ['class foo { foo() { delete this.#a }}', Context.OptionsNext],
+    ['class foo { foo() { delete this.x.#a } }', Context.OptionsNext],
+    ['class foo { foo() { delete this.x().#a } }', Context.OptionsNext],
+    ['class foo { foo() { delete f.#a }}', Context.OptionsNext],
+    ['class foo { foo() { delete f.x.#a }}', Context.OptionsNext],
+    ['class foo { foo() { delete f.x().#a } }', Context.OptionsNext],
+    ['class Cat { foo() { delete this.#a }', Context.OptionsNext],
+    ['class foo { foo.#{; }', Context.OptionsNext],
+    ['class foo { foo.#}; }', Context.OptionsNext],
+    ['class foo { foo.#=; }', Context.OptionsNext],
+    ['class foo { foo.#888; }', Context.OptionsNext],
+    ['class foo { foo.#-; }', Context.OptionsNext],
+    ['class foo { new.#[a] }', Context.OptionsNext],
+    ['class foo { super.#["a"] }', Context.OptionsNext],
+    ['class foo { super.#[a] }', Context.OptionsNext],
+    ["class foo { #a = 0\n ['b'](){} }", Context.OptionsNext]
+  ]);
+
   pass('Next - Private instance methods', [
     [
       `class A { get #foo() { return #xValue; } }`,

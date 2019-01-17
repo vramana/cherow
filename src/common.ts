@@ -56,7 +56,8 @@ export const enum Flags {
   Octal = 1 << 3,
   Binary = 1 << 4,
   SeenPrototype = 1 << 5,
-  SimpleParameterList  = 1 << 6
+  SimpleParameterList = 1 << 6,
+  HasPrivateName = 1 << 7,
 }
 // prettier-ignore
 /**

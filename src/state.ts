@@ -2269,11 +2269,11 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
   //   8. '~' UnaryExpression
   //   9. '!' UnaryExpression
   //   AwaitExpression
-  const { token } = state;
-  if ((token & Token.IsUnaryOp) === Token.IsUnaryOp) {
-    const { token } = state;
+
+  if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
+    const unaryOperator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
-    if (context & Context.Strict && (token & Token.DeleteKeyword) === Token.DeleteKeyword) {
+    if (context & Context.Strict && (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword) {
       // The extra 'import' check fixes 'delete import.meta' wich is valid
       if (state.token & Token.Identifier && (state.token & Token.ImportKeyword) !== Token.ImportKeyword)
         report(state, Errors.StrictDelete);
@@ -2283,21 +2283,22 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
     // TODO: Track this and prevent a possible performance deopt
     if (
       context & Context.OptionsNext &&
+      // Prevent further validation in case this isn't a 'PrivateName'
+      state.flags & Flags.HasPrivateName &&
       context & Context.Strict &&
-      (token & Token.DeleteKeyword) === Token.DeleteKeyword &&
-      (argument as any).property.type === 'PrivateName'
+      (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword
     ) {
       report(state, Errors.DeletePrivateField);
     }
     return {
       type: 'UnaryExpression',
-      operator: KeywordDescTable[token & Token.Type],
+      operator: KeywordDescTable[unaryOperator & Token.Type],
       argument,
       prefix: true
     };
   }
 
-  return context & Context.AwaitContext && token & Token.IsAwait
+  return context & Context.AwaitContext && state.token & Token.IsAwait
     ? parseAwaitExpression(state, context)
     : parseUpdateExpression(state, context);
 }
@@ -2333,7 +2334,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
 
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) === 0) {
     if ((context & Context.Strict && expression.name === 'eval') || expression.name === 'arguments') {
-      report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
+      report(state, Errors.StrictLHSPrefixPostFix, 'PostFix');
     }
     if (!isValidSimpleAssignmentTarget(expression)) {
       report(state, Errors.InvalidLHSInAssignment);
@@ -2482,6 +2483,7 @@ function parseIdentifierNameOrPrivateName(
   context: Context
 ): ESTree.PrivateName | ESTree.Identifier {
   if (!optional(state, context, Token.PrivateName)) return parseIdentifier(state, context);
+  state.flags |= Flags.HasPrivateName;
   return {
     type: 'PrivateName',
     name: state.tokenValue
