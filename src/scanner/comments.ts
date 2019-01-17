@@ -53,22 +53,24 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
   const { index: start } = state;
   while (state.index < state.length) {
     let next = state.source.charCodeAt(state.index);
-    if ((next & 8) === 8 && (next & 83) < 3 && next === Chars.CarriageReturn) {
-      ++state.index;
-      state.column = 0;
-      ++state.line;
-      if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
-      state.flags | Flags.NewLine;
-      break;
-    } else if (
-      ((next & 8) === 8 && (next & 83) < 3 && next === Chars.LineFeed) ||
-      (next ^ Chars.ParagraphSeparator) <= 1
-    ) {
-      ++state.index;
-      state.column = 0;
-      ++state.line;
-      state.flags | Flags.NewLine;
-      break;
+    if ((next & 8) === 8 && (next & 83) < 3) {
+      if (next === Chars.CarriageReturn) {
+        ++state.index;
+        state.column = 0;
+        ++state.line;
+        if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
+        state.flags | Flags.NewLine;
+        break;
+      } else if (next === Chars.LineFeed || (next ^ Chars.ParagraphSeparator) <= 1) {
+        ++state.index;
+        state.column = 0;
+        ++state.line;
+        state.flags | Flags.NewLine;
+        break;
+      } else {
+        ++state.index;
+        ++state.column;
+      }
     } else {
       ++state.index;
       ++state.column;
