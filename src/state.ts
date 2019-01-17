@@ -2514,10 +2514,11 @@ function parseTemplateLiteral(parser: ParserState, context: Context): ESTree.Tem
 }
 
 /**
- * Parse template head
+ * Parse template spans
  *
  * @param state Parser object
  * @param context Context masks
+ * @param tail
  */
 
 function parseTemplateSpans(state: ParserState, tail: boolean): ESTree.TemplateElement {
@@ -2536,21 +2537,19 @@ function parseTemplateSpans(state: ParserState, tail: boolean): ESTree.TemplateE
  *
  * @param parser Parser object
  * @param context Context masks
- * @param expression Expression AST node
- * @param quasis Array of Template elements
  */
 
 function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLiteral {
-  const quasis = [parseTemplateSpans(state, false)];
+  const quasis = [parseTemplateSpans(state, /* tail */ false)];
   expect(state, context, Token.TemplateCont);
   const expressions = [parseExpression(state, context)];
 
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
-    quasis.push(parseTemplateSpans(state, false));
+    quasis.push(parseTemplateSpans(state, /* tail */ false));
     expect(state, context, Token.TemplateCont);
     expressions.push(parseExpression(state, context));
   }
-  quasis.push(parseTemplateSpans(state, true));
+  quasis.push(parseTemplateSpans(state, /* tail */ true));
   next(state, context);
 
   return {
