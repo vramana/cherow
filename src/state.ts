@@ -3144,8 +3144,8 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
   let value: ESTree.Node | null = null;
   let key: ESTree.Identifier | ESTree.Literal | ESTree.Expression | void;
   let objState = ObjectState.None;
-  let token = state.token;
-  let tokenValue = state.tokenValue;
+  const token = state.token;
+  const tokenValue = state.tokenValue;
   let constructorCount = 0; // track the occurance of construcors
 
   while (state.token !== Token.RightBrace) {

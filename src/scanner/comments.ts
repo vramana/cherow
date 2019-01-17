@@ -52,7 +52,7 @@ export function skipSingleHTMLComment(state: ParserState, context: Context, type
 export function skipSingleLineComment(state: ParserState, type: CommentType): Token {
   const { index: start } = state;
   while (state.index < state.length) {
-    let next = state.source.charCodeAt(state.index);
+    const next = state.source.charCodeAt(state.index);
     if ((next & 8) === 8 && (next & 83) < 3) {
       if (next === Chars.CarriageReturn) {
         ++state.index;
@@ -85,7 +85,7 @@ export function skipBlockComment(state: ParserState): Token {
   const { index: start } = state;
 
   while (state.index < state.length) {
-    let next = state.source.charCodeAt(state.index);
+    const next = state.source.charCodeAt(state.index);
     if (next === Chars.Asterisk) {
       state.index++;
       state.column++;
