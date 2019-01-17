@@ -89,6 +89,8 @@ describe('Miscellaneous - Directives', () => {
     "'use\\x20strict'",
     '"use\\x20strict"',
     "'use asm'",
+    // Parenthesized directive prologue shouldn't be recognized.
+    '("use strict"); var eval;',
     'function wrap() { "use asm"; foo; "use strict" }',
     '{ "use strict"; }',
     'function wrap() { { "use strict" } foo }',

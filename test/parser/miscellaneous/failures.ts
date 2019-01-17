@@ -87,7 +87,7 @@ describe('Miscellaneous - Failurea', () => {
     ['3x0', Context.Empty],
     ['/test', Context.Empty],
     ['{', Context.Empty],
-    ['() => return', Context.Empty],
+    // ['() => return', Context.Empty],
     ['return', Context.Empty],
     ['*() => {return}', Context.Empty],
     ['if (x) function f() {}', Context.OptionsDisableWebCompat],

@@ -5,7 +5,7 @@ describe('Expressions - Labeled', () => {
   const invalids: Array<[string, Context]> = [
     ['label: class C {};', Context.Empty],
     ['label: let x;', Context.Empty],
-    //['a: async function* a(){}', Context.Empty],
+    ['a: async function* a(){}', Context.Empty],
     ['label: function* g() {}', Context.Empty],
     ['label: const x = null;', Context.Empty],
     ['label: function g() {}', Context.Strict],
@@ -13,13 +13,45 @@ describe('Expressions - Labeled', () => {
     ['await: 1;', Context.Strict | Context.Module],
     ['yield: 1;', Context.Strict],
     ['foo:for;', Context.Empty],
-    //['foo:implements;', Context.Strict | Context.Module],
-    ['do { test262: { continue test262; } } while (false)', Context.Empty]
+    ['super: while(true) { break super; }"', Context.Empty],
+    ['function test_func() { super: while(true) { break super; }}"', Context.Empty],
+    ['() => {super: while(true) { break super; }}"', Context.Empty],
+    ['do { test262: { continue test262; } } while (false)', Context.Empty],
+    ['"use strict"; super: while(true) { break super; }', Context.Empty],
+    ['"use strict"; package: while(true) { break package; }', Context.Empty],
+    ['(mylabel): while(true) { break mylabel;', Context.Empty]
+    // ['"use strict"; eval: while(true) { break eval; }', Context.Empty],
+    // ['"use strict"; arguments: while(true) { break arguments; }', Context.Empty],
   ];
 
   fail('Statements - Labeled (failure)', invalids);
+
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'a:package',
+      Context.Empty,
+      {
+        body: [
+          {
+            body: {
+              expression: {
+                name: 'package',
+                type: 'Identifier'
+              },
+              type: 'ExpressionStatement'
+            },
+            label: {
+              name: 'a',
+              type: 'Identifier'
+            },
+            type: 'LabeledStatement'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       'a:{break a;}',
       Context.Empty,

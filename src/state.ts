@@ -2491,7 +2491,12 @@ function parseIdentifierNameOrPrivateName(
   state: ParserState,
   context: Context
 ): ESTree.PrivateName | ESTree.Identifier {
-  if (!optional(state, context, Token.PrivateName)) return parseIdentifier(state, context);
+  if (!optional(state, context, Token.PrivateName)) {
+    if (!isValidIdentifier(context, state.token)) {
+      report(state, Errors.Unexpected);
+    }
+    return parseIdentifier(state, context);
+  }
   state.flags |= Flags.HasPrivateName;
   return {
     type: 'PrivateName',

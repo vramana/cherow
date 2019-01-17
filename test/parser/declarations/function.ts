@@ -80,7 +80,17 @@ describe('Declarations - Function', () => {
     ['function a(,,) {}', Context.Empty],
     ['function a(,,,,a) {}', Context.Empty],
     ['function (){}', Context.Empty],
-    ['class {}', Context.Empty]
+    ['class {}', Context.Empty],
+
+    // Strict function names
+    ['function eval() {"use strict";}', Context.Empty],
+    ['function arguments() {"use strict";}', Context.Empty],
+    ['function super() {"use strict";}', Context.Empty],
+    ['"use strict"; function eval() {}', Context.Empty],
+    ['"use strict"; function arguments() {}', Context.Empty],
+    ['"use strict"; function super() {}', Context.Empty],
+    ['"use strict"; function interface() {}', Context.Empty],
+    ['"use strict"; function *super() {}', Context.Empty]
   ];
 
   fail('Declarations - Functions (fail)', inValids);
@@ -233,7 +243,9 @@ describe('Declarations - Function', () => {
       b: 2
     });`,
     'function ref(a,) {}',
-    'function universe(__proto__) { }'
+    'function eval() { }',
+    'function interface() { }',
+    'function yield() { }'
   ];
 
   for (const arg of programs) {
