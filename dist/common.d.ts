@@ -82,9 +82,10 @@ export declare const enum ObjectState {
     Async = 16,
     Static = 32,
     Constructor = 64,
-    Getter = 128,
-    Setter = 256,
-    GetSet = 384
+    ClassField = 128,
+    Getter = 256,
+    Setter = 512,
+    GetSet = 768
 }
 export declare type OnComment = void | ESTree.Comment[] | ((type: string, value: string, start?: number, end?: number) => any);
 export declare type OnToken = void | Token[] | ((token: Token, start?: number, end?: number) => any);

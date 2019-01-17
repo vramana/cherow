@@ -77,7 +77,12 @@ define(['exports'], function (exports) { 'use strict';
       [73]: '`Static` is a reserved word in strict mode',
       [74]: ' Invalid use of reserved word as a variable name in strict mode',
       [75]: "%0 can't appear in single-statement context",
-      [76]: 'Async functions can only be declared at the top level or inside a block'
+      [76]: 'Async functions can only be declared at the top level or inside a block',
+      [77]: "Classes may not have a private field named '#constructor'",
+      [78]: "Classes may not have a field named 'constructor'",
+      [79]: "Classes may not have a static private property named '#prototype'",
+      [80]: 'Async methods are a restricted production and cannot have a newline following it',
+      [81]: 'Only methods are allowed in classes'
   };
   function constructError(index, line, column, description) {
       const error = new SyntaxError(`Line ${line}, column ${column}: ${description}`);
@@ -4104,17 +4109,15 @@ define(['exports'], function (exports) { 'use strict';
       state.column = column;
       return descKeywordTable[state.tokenValue] || 405505;
   }
-  function scanPrivateName(state, context) {
+  function scanPrivateName(state, _) {
       let { index, column } = state;
       index++;
       column++;
       let start = index;
-      if (!(context & 16384) || !isIdentifierStart(state.source.charCodeAt(index))) {
+      if (!isIdentifierStart(state.source.charCodeAt(index))) {
           report(state, 1, fromCodePoint(state.source.charCodeAt(index)));
       }
-      index++;
-      column++;
-      while ((AsciiLookup[state.source.charCodeAt(index)] & (1 | 4)) > 0) {
+      while (isIdentifierStart(state.source.charCodeAt(index))) {
           index++;
           column++;
       }
@@ -6779,6 +6782,14 @@ define(['exports'], function (exports) { 'use strict';
       }
       return { type: 'Super' };
   }
+  function parseIdentifierNameOrPrivateName(state, context) {
+      if (!optional(state, context, 119))
+          return parseIdentifier(state, context);
+      return {
+          type: 'PrivateName',
+          name: state.tokenValue
+      };
+  }
   function parseMemberExpression(state, context, expr) {
       while (true) {
           switch (state.token) {
@@ -6788,7 +6799,7 @@ define(['exports'], function (exports) { 'use strict';
                       type: 'MemberExpression',
                       object: expr,
                       computed: false,
-                      property: parseIdentifier(state, context)
+                      property: parseIdentifierNameOrPrivateName(state, context)
                   };
                   continue;
               case 131091:
@@ -6946,6 +6957,8 @@ define(['exports'], function (exports) { 'use strict';
               return parseNewExpression(state, context);
           case 151644:
               return parseSuperExpression(state, context);
+          case 119:
+              return parseIdentifierNameOrPrivateName(state, context);
           case 1060972: {
               return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
                   ? parseFunctionExpression(state, context, true)
@@ -7152,10 +7165,22 @@ define(['exports'], function (exports) { 'use strict';
           body
       };
   }
+  function parsePrivateName(state, context, objState) {
+      next(state, context);
+      if (objState & 32 && state.tokenValue === 'prototype') {
+          report(state, 79);
+      }
+      if (state.tokenValue === 'constructor')
+          report(state, 77);
+      return {
+          type: 'PrivateName',
+          name: state.tokenValue
+      };
+  }
   function parseClassBodyAndElementList(state, context, origin) {
       expect(state, context | 32768, 131084);
       const body = [];
-      let value;
+      let value = null;
       let key;
       let objState = 0;
       let token = state.token;
@@ -7164,248 +7189,255 @@ define(['exports'], function (exports) { 'use strict';
       while (state.token !== 536870927) {
           if (optional(state, context, 536870929))
               continue;
-          if (state.token & 274432) {
-              token = state.token;
-              tokenValue = state.tokenValue;
+          if ((state.token & 36969) === 36969) {
               key = parseIdentifier(state, context);
-              if ((token & 36969) === 36969) {
-                  if (state.tokenValue === 'prototype')
-                      report(state, 62);
-                  if (state.token & 274432) {
-                      objState |= 32;
-                      token = state.token;
-                      key = parseIdentifier(state, context);
-                      if (state.token !== 131083) {
-                          if (token & 1048576)
-                              objState |= 16;
-                          if (optional(state, context, 21105203)) {
-                              if ((token & 12399) === 12399 || (token & 12400) === 12400)
-                                  report(state, 1, '*');
-                              objState |= 8;
-                          }
-                          if ((token & 12399) === 12399)
-                              objState = (objState & ~256) | 128;
-                          else if ((token & 12400) === 12400)
-                              objState = (objState & ~128) | 256;
-                          if (state.token & 274432) {
-                              key = parseIdentifier(state, context);
-                          }
-                          else if (state.token === 131074 || state.token === 131075) {
-                              key = parseLiteral(state, context);
-                          }
-                          else if (state.token === 131091) {
-                              if (token & 1048576)
-                                  objState |= 16;
-                              objState |= 2;
-                              key = parseComputedPropertyName(state, context);
-                          }
+              if ((state.token & 131083) === 131083) {
+                  value = parseMethodDeclaration(state, context, objState);
+              }
+              else if (state.token === 131091) {
+                  objState |= 2 | 32;
+                  key = parseComputedPropertyName(state, context);
+                  if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                      objState |= 2 | 128;
+                      if (optional(state, context, 8388637)) {
+                          value = parseAssignmentExpression(state, context);
                       }
-                      value = parseMethodDeclaration(state, context, objState);
                   }
-                  else if (state.token === 131083) {
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-                  else if (state.token === 131074 || state.token === 131075) {
-                      key = parseLiteral(state, context);
-                      objState |= 32;
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-                  else if (state.token === 131091) {
-                      objState |= 2 | 32;
-                      key = parseComputedPropertyName(state, context);
-                      value = parseMethodDeclaration(state, context, objState);
-                  }
-                  else if (optional(state, context, 21105203)) {
-                      if (state.tokenValue === 'prototype')
-                          report(state, 62);
-                      objState |= 8 | 32;
-                      if (state.token & 274432) {
-                          key = parseIdentifier(state, context);
-                      }
-                      else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context);
-                      }
-                      else if (state.token === 131091) {
-                          objState |= 2;
-                          key = parseComputedPropertyName(state, context);
-                      }
-                      else {
-                          report(state, 0);
-                      }
+                  else {
                       value = parseMethodDeclaration(state, context, objState);
                   }
               }
-              else {
-                  objState &= ~32;
-                  if (state.token === 18 ||
-                      state.token === 536870929 ||
-                      state.token === 536870927 ||
-                      state.token === 8388637) {
-                      report(state, 0);
-                  }
-                  else if (state.token === 21) {
-                      report(state, 0);
-                  }
-                  else if (state.token === 131091) {
-                      key = parseComputedPropertyName(state, context);
-                      if (token & 1048576) {
-                          objState |= 16;
-                      }
-                      else {
-                          objState |= 2;
-                          if ((token & 12399) === 12399) {
-                              objState = (objState & ~256) | 128;
-                          }
-                          else if ((token & 12400) === 12400) {
-                              objState = (objState & ~128) | 256;
-                          }
-                      }
-                      if (state.token !== 131083)
-                          report(state, 0);
-                      value = parseMethodDeclaration(state, context, objState);
+              else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                  objState |= 128 | 32;
+                  if (optional(state, context, 8388637))
+                      value = parseIdentifier(state, context);
+              }
+              else if (context & 1 && (state.token & 119) === 119) {
+                  objState |= 32;
+                  key = parsePrivateName(state, context, objState);
+                  if (optional(state, context, 8388637)) {
+                      objState |= 128;
+                      value = parseAssignmentExpression(state, context);
                   }
                   else if (state.token === 131083) {
-                      if (tokenValue === 'constructor') {
-                          ++constructorCount;
-                          objState |= 64;
-                      }
-                      objState = objState & ~2;
                       value = parseMethodDeclaration(state, context, objState);
                   }
-                  else if (optional(state, context, 21105203)) {
-                      if ((token & 12399) === 12399 || (token & 12400) === 12400)
-                          report(state, 0);
-                      objState |= 8;
-                      if (token & 1048576)
-                          objState |= 16;
-                      if (state.token & 274432) {
-                          key = parseIdentifier(state, context);
-                      }
-                      else if (state.token === 131074 || state.token === 131075) {
-                          key = parseLiteral(state, context);
-                      }
-                      else if (state.token === 131091) {
-                          objState |= 2;
-                          key = parseComputedPropertyName(state, context);
-                      }
-                      else {
-                          report(state, 0);
-                      }
+                  else
+                      objState |= 128;
+              }
+              else {
+                  objState |= 32;
+              }
+          }
+          if (state.token & 1048576) {
+              key = parseIdentifier(state, context);
+              if (state.flags & 1) {
+                  if ((context & 1) === 0)
+                      report(state, 80);
+                  body.push({
+                      type: 'FieldDefinition',
+                      key,
+                      value,
+                      computed: (objState & 2) !== 0,
+                      static: (objState & 32) !== 0
+                  });
+              }
+              else {
+                  if ((state.token & 131083) === 131083) {
                       value = parseMethodDeclaration(state, context, objState);
                   }
-                  else if (state.token === 131074 || state.token === 131075) {
-                      tokenValue = state.tokenValue;
-                      key = parseLiteral(state, context);
-                      if (tokenValue === 'constructor') {
-                          ++constructorCount;
-                          objState |= 64;
+                  else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                      objState |= 128 | 16;
+                      if (optional(state, context, 8388637))
+                          value = parseAssignmentExpression(state, context);
+                  }
+                  else if (context & 1 && (state.token & 119) === 119) {
+                      objState |= 128;
+                      key = parsePrivateName(state, context, objState);
+                      if (optional(state, context, 8388637)) {
+                          value = parseAssignmentExpression(state, context);
                       }
-                      if (token & 1048576) {
-                          if (objState & 64)
-                              report(state, 63, 'async accessor');
-                          objState |= 16;
+                      else if ((state.token & 131083) !== 131083) {
+                          report(state, 0);
                       }
-                      else if ((token & 12399) === 12399) {
-                          if (objState & 64)
-                              report(state, 63, 'get accessor');
-                          objState = (objState & ~256) | 128;
-                      }
-                      else if ((token & 12400) === 12400) {
-                          if (objState & 64)
-                              report(state, 63, 'set accessor');
-                          objState = (objState & ~128) | 256;
-                      }
+                      objState |= 16;
                       value = parseMethodDeclaration(state, context, objState);
-                      objState |= 1;
+                  }
+                  else
+                      objState |= 16;
+              }
+          }
+          if (optional(state, context, 21105203)) {
+              objState |= 8;
+          }
+          if (state.token & 274432) {
+              if ((state.token & 12399) === 12399) {
+                  key = parseIdentifier(state, context);
+                  if ((state.token & 131083) === 131083) {
+                      value = parseMethodDeclaration(state, context, objState);
                   }
                   else if (state.token & 274432) {
-                      objState = (objState & ~2) | 1;
-                      if (token == 1060972)
-                          objState |= 16;
-                      if ((token & 12399) === 12399) {
-                          objState = (objState & ~256) | 128;
-                      }
-                      else if ((token & 12400) === 12400) {
-                          if (state.token & 1048576)
-                              report(state, 0);
-                          objState = (objState & ~128) | 256;
-                      }
-                      key = parseIdentifier(state, context);
-                      if (state.token !== 131083)
+                      if (objState & (8 | 16))
                           report(state, 0);
+                      if (state.tokenValue === 'prototype')
+                          report(state, 62);
+                      objState = (objState & ~(2 | 512)) | 256;
+                      key = parseIdentifier(state, context);
+                      if ((state.token & 131083) === 131083) {
+                          value = parseMethodDeclaration(state, context, objState);
+                      }
+                  }
+                  else if (state.token === 131074 || state.token === 131075) {
+                      if (objState & 8)
+                          report(state, 1, KeywordDescTable[state.token & 255]);
+                      objState = (objState & ~(2 | 512)) | 256;
+                      key = parseLiteral(state, context);
+                      if ((state.token & 131083) === 131083) {
+                          value = parseMethodDeclaration(state, context, objState);
+                      }
+                  }
+                  else if ((state.token & 131091) === 131091) {
+                      objState = (objState & ~512) | (256 | 2);
+                      key = parseComputedPropertyName(state, context);
                       value = parseMethodDeclaration(state, context, objState);
                   }
               }
-          }
-          else if (state.token === 131074 || state.token === 131075) {
-              tokenValue = state.tokenValue;
-              key = parseLiteral(state, context);
-              if (optional(state, context, 21)) {
-                  report(state, 0);
+              else if ((state.token & 12400) === 12400) {
+                  key = parseIdentifier(state, context);
+                  if ((state.token & 131083) === 131083) {
+                      value = parseMethodDeclaration(state, context, objState);
+                  }
+                  else if (state.token & 274432) {
+                      if (state.tokenValue === 'prototype')
+                          report(state, 62);
+                      if (objState & (8 | 16))
+                          report(state, 0);
+                      objState = (objState & ~(256 | 2)) | 512;
+                      key = parseIdentifier(state, context);
+                      if ((state.token & 131083) === 131083) {
+                          value = parseMethodDeclaration(state, context, objState);
+                      }
+                  }
+                  else if (state.token === 131074 || state.token === 131075) {
+                      if (objState & 8)
+                          report(state, 1, KeywordDescTable[state.token & 255]);
+                      objState = (objState & ~(256 | 2)) | 512;
+                      key = parseLiteral(state, context);
+                      if ((state.token & 131083) === 131083) {
+                          value = parseMethodDeclaration(state, context, objState);
+                      }
+                  }
+                  else if ((state.token & 131091) === 131091) {
+                      objState = (objState & ~256) | (512 | 2);
+                      key = parseComputedPropertyName(state, context);
+                      value = parseMethodDeclaration(state, context, objState);
+                  }
               }
               else {
-                  if (tokenValue === 'constructor') {
+                  if (state.tokenValue === 'constructor') {
+                      if ((objState & 32) === 0)
+                          objState |= 64;
                       ++constructorCount;
-                      objState |= 64;
                   }
-                  value = parseMethodDeclaration(state, context, objState);
-                  objState |= 1;
-              }
-          }
-          else if (state.token === 131091) {
-              key = parseComputedPropertyName(state, context);
-              objState = (2 & ~(16 | 8)) | 1;
-              if (state.token !== 131083)
-                  report(state, 0);
-              value = parseMethodDeclaration(state, context, objState);
-          }
-          else if (state.token & 21105203) {
-              next(state, context);
-              if (state.token & 274432) {
-                  token = state.token;
-                  objState &= ~(16 | 2 | 128 | 256);
+                  if (objState & 32 && state.tokenValue === 'prototype') {
+                      report(state, 62);
+                  }
                   key = parseIdentifier(state, context);
-                  if (state.token === 131083) {
-                      value = parseMethodDeclaration(state, context, objState | 8);
-                      objState |= 1 | 8;
+                  objState &= ~(256 | 128 | 2);
+                  if ((state.token & 131083) === 131083) {
+                      value = parseMethodDeclaration(state, context, objState);
+                  }
+                  else if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                      objState |= 128;
+                      if (optional(state, context, 8388637))
+                          value = parseAssignmentExpression(state, context);
+                  }
+                  else if (context & 1 && (state.token & 119) === 119) {
+                      objState |= 128;
+                      key = parsePrivateName(state, context, objState);
+                      if (optional(state, context, 8388637)) {
+                          value = parseAssignmentExpression(state, context);
+                      }
+                      else if ((state.token & 131083) !== 131083) {
+                          report(state, 0);
+                      }
+                      value = parseMethodDeclaration(state, context, objState);
                   }
                   else
                       report(state, 0);
               }
-              else if (state.token === 131074 || state.token === 131075) {
-                  if (state.tokenValue === 'constructor')
+          }
+          else if (state.token === 131074 || state.token === 131075) {
+              if (state.tokenValue === 'constructor') {
+                  if (objState & (8 | 16))
                       report(state, 63, 'generator');
-                  key = parseLiteral(state, context);
-                  value = parseMethodDeclaration(state, context, objState | 8);
-                  objState |= 1;
+                  if ((objState & 32) === 0)
+                      objState |= 64;
+                  ++constructorCount;
               }
-              else if (state.token & 131091) {
-                  key = parseComputedPropertyName(state, context);
-                  value = parseMethodDeclaration(state, context, objState | 8);
-                  objState |= 1 | 2;
+              key = parseLiteral(state, context);
+              if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                  objState |= 128;
+                  if (optional(state, context, 8388637)) {
+                      value = parseAssignmentExpression(state, context);
+                  }
+              }
+              else
+                  value = parseMethodDeclaration(state, context, objState);
+          }
+          else if ((state.token & 131091) === 131091) {
+              objState |= 2;
+              key = parseComputedPropertyName(state, context);
+              if ((context & 1 && state.token & 536870912) || state.token === 8388637) {
+                  objState |= 128;
+                  if (optional(state, context, 8388637)) {
+                      value = parseAssignmentExpression(state, context);
+                  }
               }
               else {
-                  report(state, 1, KeywordDescTable[state.token & 255]);
+                  objState &= ~128;
+                  if (state.token !== 131083)
+                      report(state, 81);
+                  value = parseMethodDeclaration(state, context, objState);
               }
           }
-          else {
-              report(state, 1, KeywordDescTable[state.token & 255]);
+          else if (context & 1 && (state.token & 119) === 119) {
+              key = parsePrivateName(state, context, objState);
+              if (optional(state, context, 8388637)) {
+                  objState |= 128;
+                  value = parseAssignmentExpression(state, context);
+              }
+              else if ((state.token & 131083) === 131083) {
+                  value = parseMethodDeclaration(state, context, objState);
+              }
+              else
+                  objState |= 128;
           }
+          else if ((state.token & 536870912) === 0)
+              report(state, 0);
           optional(state, context, 18);
-          body.push({
-              type: 'MethodDefinition',
-              kind: objState & 64
-                  ? 'constructor'
-                  : objState & 128
-                      ? 'get'
+          body.push(objState & 128
+              ? {
+                  type: 'FieldDefinition',
+                  key: key,
+                  value,
+                  computed: (objState & 2) !== 0,
+                  static: (objState & 32) !== 0
+              }
+              : {
+                  type: 'MethodDefinition',
+                  kind: objState & 64
+                      ? 'constructor'
                       : objState & 256
-                          ? 'set'
-                          : 'method',
-              static: (objState & 32) !== 0,
-              computed: (objState & 2) !== 0,
-              key,
-              value
-          });
+                          ? 'get'
+                          : objState & 512
+                              ? 'set'
+                              : 'method',
+                  static: (objState & 32) !== 0,
+                  computed: (objState & 2) !== 0,
+                  key,
+                  value
+              });
       }
       if (constructorCount > 1) {
           report(state, 60);
@@ -7473,9 +7505,9 @@ define(['exports'], function (exports) { 'use strict';
                           }
                           else {
                               if ((token & 12399) === 12399)
-                                  objState = (objState & ~256) | 128;
+                                  objState = (objState & ~512) | 256;
                               else if ((token & 12400) === 12400)
-                                  objState = (objState & ~128) | 256;
+                                  objState = (objState & ~256) | 512;
                               objState |= 2 & ~1;
                           }
                           if (state.token !== 131083)
@@ -7510,10 +7542,10 @@ define(['exports'], function (exports) { 'use strict';
                       else if ((token & 12399) === 12399 ||
                           (token & 12400) === 12400) {
                           if ((token & 12399) === 12399) {
-                              objState = (objState & ~256) | 128;
+                              objState = (objState & ~512) | 256;
                           }
                           else if ((token & 12400) === 12400) {
-                              objState = (objState & ~128) | 256;
+                              objState = (objState & ~256) | 512;
                           }
                           else if (state.token !== 1060972)
                               report(state, 0);
@@ -7557,7 +7589,7 @@ define(['exports'], function (exports) { 'use strict';
               else if (state.token === 131091) {
                   key = parseComputedPropertyName(state, context);
                   objState =
-                      (objState & ~(16 | 8 | 384)) | 2;
+                      (objState & ~(16 | 8 | 768)) | 2;
                   if (state.token === 21) {
                       next(state, context);
                       value = parseAssignmentExpression(state, context | 32768);
@@ -7612,7 +7644,7 @@ define(['exports'], function (exports) { 'use strict';
                   type: 'Property',
                   key,
                   value,
-                  kind: !(objState & 384) ? 'init' : objState & 256 ? 'set' : 'get',
+                  kind: !(objState & 768) ? 'init' : objState & 512 ? 'set' : 'get',
                   computed: (objState & 2) !== 0,
                   method: (objState & 1) !== 0,
                   shorthand: (objState & 4) !== 0
