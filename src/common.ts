@@ -170,6 +170,7 @@ export interface ParserState {
   largestBackReference: number;
   lastChar: number;
   inCatch: boolean;
+  assignable: boolean;
   exportedNames: any[];
   exportedBindings: any[];
   labelSet: any;
