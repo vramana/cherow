@@ -117,7 +117,7 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
  * @param context Context masks
  */
 export function parseDirective(state: ParserState, context: Context, scope: ScopeState): any {
-  if ((context & Context.OptionsDirectives) === 0) return parseStatementListItem(state, context, scope);
+  if ((context & Context.OptionsDirectives) < 1) return parseStatementListItem(state, context, scope);
   const directive = state.tokenRaw.slice(1, -1);
   const expression = parseExpression(state, context);
   consumeSemicolon(state, context);
@@ -1167,7 +1167,7 @@ export function parseExpressionOrLabelledStatement(
     addLabel(state, tokenValue);
     let body: any = null;
     if (
-      (context & (Context.OptionsDisableWebCompat | Context.Strict)) === 0 &&
+      (context & (Context.OptionsDisableWebCompat | Context.Strict)) < 1 &&
       ((state.token as Token) === Token.FunctionKeyword && label === LabelledState.AllowAsLabelled)
     ) {
       body = parseFunctionDeclaration(state, context, scope, Origin.Statement, false);
@@ -1530,7 +1530,7 @@ export function parseFunctionDeclaration(
 ) {
   next(state, context);
 
-  const isGenerator: boolean = (origin & Origin.Statement) === 0 && optional(state, context, Token.Multiply);
+  const isGenerator: boolean = (origin & Origin.Statement) < 1 && optional(state, context, Token.Multiply);
 
   // Create a new function scope
   let funcScope = createScope(ScopeType.BlockStatement);
@@ -1797,7 +1797,7 @@ export function parseFunctionBody(
   }
   if (state.flags & Flags.SimpleParameterList) report(state, Errors.StrictFunctionName);
 
-  if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) === 0) {
+  if (!isStrict && (context & Context.Strict) !== 0 && (context & Context.InGlobal) < 1) {
     checkFunctionsArgForDuplicate(state, scope.lex['@'], true);
   }
   if (state.token !== Token.RightBrace) {
@@ -1953,7 +1953,7 @@ function parseVariableDeclaration(
     init = parseAssignmentExpression(state, context);
   } else if (
     type & Type.Const &&
-    ((origin & Origin.ForStatement) === 0 || (state.token === Token.Semicolon || state.token === Token.Comma))
+    ((origin & Origin.ForStatement) < 1 || (state.token === Token.Semicolon || state.token === Token.Comma))
   ) {
     report(state, Errors.MissingInitInConstDecl);
   }
@@ -2008,7 +2008,7 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
   expect(state, context | Context.AllowPossibleRegEx, Token.YieldKeyword);
   let argument: ESTree.Expression | null = null;
   let delegate = false; // yield*
-  if ((state.flags & Flags.NewLine) === 0) {
+  if ((state.flags & Flags.NewLine) < 1) {
     delegate = optional(state, context, Token.Multiply);
     if (state.token & Token.IsExpressionStart || delegate) {
       argument = parseAssignmentExpression(state, context);
@@ -2282,7 +2282,6 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
     }
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
     if (state.token === Token.Exponentiate) report(state, Errors.InvalidLOExponentation);
-    // TODO: Track this and prevent a possible performance deopt
     if (
       context & Context.OptionsNext &&
       // Prevent further validation in case this isn't a 'PrivateName'
@@ -2342,7 +2341,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
 
   const expression = parseLeftHandSideExpression(state, context);
 
-  if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) === 0) {
+  if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp && (state.flags & Flags.NewLine) < 1) {
     if (context & Context.Strict && (expression.name === 'eval' || expression.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'PostFix');
     }
@@ -2468,11 +2467,11 @@ export function parseMetaProperty(state: ParserState, context: Context, id: ESTr
 function parseSuperExpression(state: ParserState, context: Context): ESTree.Super {
   next(state, context);
 
-  if ((context & Context.SuperProperty) === 0 && (state.token === Token.LeftBracket || state.token === Token.Period)) {
+  if ((context & Context.SuperProperty) < 1 && (state.token === Token.LeftBracket || state.token === Token.Period)) {
     report(state, Errors.InvalidSuperProperty);
     // new super() is never allowed.
     // super() is only allowed in derived constructor
-  } else if ((context & Context.SuperCall) === 0 && state.token === Token.LeftParen) {
+  } else if ((context & Context.SuperCall) < 1 && state.token === Token.LeftParen) {
     report(state, Errors.SuperNoConstructor);
   }
 
@@ -2741,7 +2740,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
   const id = parseIdentifier(state, context | Context.AllowPossibleRegEx);
 
   if (optional(state, context, Token.Period)) {
-    if ((context & Context.AllowNewTarget) === 0 || state.tokenValue !== 'target') report(state, Errors.Unexpected);
+    if ((context & Context.AllowNewTarget) < 1 || state.tokenValue !== 'target') report(state, Errors.Unexpected);
     return parseMetaProperty(state, context, id);
   }
   let callee;
@@ -3190,7 +3189,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       if (state.flags & Flags.NewLine) {
         // `class A{async \n ..(){}}` is always an error due to async being a restricted production
         // expect for ClassFields where `async` is an classfield and `..(){}` is a method
-        if ((context & Context.OptionsNext) === 0) report(state, Errors.AsyncRestricedProd);
+        if ((context & Context.OptionsNext) < 1) report(state, Errors.AsyncRestricedProd);
         body.push({
           type: 'FieldDefinition',
           key,
@@ -3278,7 +3277,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
         }
       } else {
         if (state.tokenValue === 'constructor') {
-          if ((objState & ObjectState.Static) === 0) objState |= ObjectState.Constructor;
+          if ((objState & ObjectState.Static) < 1) objState |= ObjectState.Constructor;
           ++constructorCount;
         }
         if (objState & ObjectState.Static && state.tokenValue === 'prototype') {
@@ -3308,7 +3307,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       if (state.tokenValue === 'constructor') {
         if (objState & (ObjectState.Generator | ObjectState.Async))
           report(state, Errors.InvalidConstructor, 'generator');
-        if ((objState & ObjectState.Static) === 0) objState |= ObjectState.Constructor;
+        if ((objState & ObjectState.Static) < 1) objState |= ObjectState.Constructor;
         ++constructorCount;
       }
       key = parseLiteral(state, context, state.tokenValue);
@@ -3339,7 +3338,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
       } else if ((state.token & Token.LeftParen) === Token.LeftParen) {
         value = parseMethodDeclaration(state, context, objState);
       } else objState |= ObjectState.ClassField;
-    } else if ((state.token & Token.ASI) === 0) report(state, Errors.Unexpected);
+    } else if ((state.token & Token.ASI) < 1) report(state, Errors.Unexpected);
 
     optional(state, context, Token.Comma);
 
