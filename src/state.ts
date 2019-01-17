@@ -2257,18 +2257,19 @@ function parseAwaitExpression(
  * @param context Context masks
  */
 function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expression {
-  // UnaryExpression ::
-  //   PostfixExpression
-  //   1. 'delete' UnaryExpression
-  //   2. 'void' UnaryExpression
-  //   3. 'typeof' UnaryExpression
-  //   4. '++' UnaryExpression
-  //   5. '--' UnaryExpression
-  //   6. '+' UnaryExpression
-  //   7. '-' UnaryExpression
-  //   8. '~' UnaryExpression
-  //   9. '!' UnaryExpression
-  //   AwaitExpression
+  /**
+   *  UnaryExpression ::
+   *   PostfixExpression
+   *      1) UpdateExpression
+   *      2) delete UnaryExpression
+   *      3) void UnaryExpression
+   *      4) typeof UnaryExpression
+   *      5) + UnaryExpression
+   *      6) - UnaryExpression
+   *      7) ~ UnaryExpression
+   *      8) ! UnaryExpression
+   *      9) await UnaryExpression
+   */
 
   if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const unaryOperator = state.token;
@@ -2312,6 +2313,14 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
  * @param context Context masks
  */
 function parseUpdateExpression(state: ParserState, context: Context): any {
+  /**
+   *  UpdateExpression:
+   *      LeftHandSideExpression[?Yield]
+   *      LeftHandSideExpression[?Yield][no LineTerminator here]++
+   *      LeftHandSideExpression[?Yield][no LineTerminator here]--
+   *      ++LeftHandSideExpression[?Yield]
+   *      --LeftHandSideExpression[?Yield]
+   */
   const { token } = state;
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
     next(state, context);

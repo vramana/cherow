@@ -227,6 +227,34 @@ function run(isModule: boolean) {
     column: 27
   });
 
+  pass('skips single line comment with form feed', {
+    source: '\n-->\nvar y = 37;\n',
+    hasNext: true,
+    line: 3,
+    column: 3
+  });
+
+  pass('skips multiple comments preceding HTMLEndComment', {
+    source: '/* MLC \n */ /* SLDC */ --> is eol-comment\nvar y = 37;\n',
+    hasNext: true,
+    line: 3,
+    column: 3
+  });
+
+  pass('skips multiple comments preceding HTMLEndComment', {
+    source: '/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n',
+    hasNext: false,
+    line: 4,
+    column: 0
+  });
+
+  pass('skips before first real token', {
+    source: '--> is eol-comment',
+    hasNext: false,
+    line: 1,
+    column: 18
+  });
+
   passAll(
     () => 'skips single line comments with line feed',
     lt => ({

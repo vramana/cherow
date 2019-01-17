@@ -1,8 +1,123 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Comments', () => {
+  fail('Miscellaneous - Failurea', [
+    ['x --> is eol-comment\nvar y = 37;\n', Context.Empty],
+    ['"\\n" --> is eol-comment\nvar y = 37;\n', Context.Empty],
+    ['x/* precomment */ --> is eol-comment\nvar y = 37;\n', Context.Empty],
+    ['var x = 42; --> is eol-comment\nvar y = 37;\n', Context.Empty],
+    ['-->', Context.Module]
+  ]);
+
   pass('Expressions - Comments (pass)', [
+    [
+      'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'x',
+                  type: 'Identifier'
+                },
+                init: {
+                  type: 'Literal',
+                  value: 42
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          },
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'y',
+                  type: 'Identifier'
+                },
+                init: {
+                  type: 'Literal',
+                  value: 37
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '\n/*precomment*/-->eol-comment\nvar y = 37;\n',
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'y',
+                  type: 'Identifier'
+                },
+                init: {
+                  type: 'Literal',
+                  value: 37
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '\n-->is eol-comment\nvar y = 37;\n',
+      Context.Empty,
+      {
+        body: [
+          {
+            declarations: [
+              {
+                id: {
+                  name: 'y',
+                  type: 'Identifier'
+                },
+                init: {
+                  type: 'Literal',
+                  value: 37
+                },
+                type: 'VariableDeclarator'
+              }
+            ],
+            kind: 'var',
+            type: 'VariableDeclaration'
+          }
+        ],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
+    [
+      '-->',
+      Context.Empty,
+      {
+        body: [],
+        sourceType: 'script',
+        type: 'Program'
+      }
+    ],
     [
       '42 /* block comment 1 */ /* block comment 2 */',
       Context.Empty,
