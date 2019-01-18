@@ -2491,17 +2491,29 @@ function parseIdentifierNameOrPrivateName(
   state: ParserState,
   context: Context
 ): ESTree.PrivateName | ESTree.Identifier {
-  if (!optional(state, context, Token.PrivateName)) {
-    if (!isValidIdentifier(context, state.token)) {
-      report(state, Errors.Unexpected);
-    }
-    return parseIdentifier(state, context);
-  }
+  if (!optional(state, context, Token.PrivateName)) return parseIdentifierName(state, context);
   state.flags |= Flags.HasPrivateName;
   return {
     type: 'PrivateName',
     name: state.tokenValue
   };
+}
+
+/**
+ * Parses identifier name
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-IdentifierName)
+ *
+ * @param parser Parser object
+ * @param context Context masks
+ */
+function parseIdentifierName(state: ParserState, context: Context): ESTree.Identifier {
+  if (
+    (state.token & (Token.IsIdentifier | Token.Keyword)) !== Token.IsIdentifier &&
+    (state.token & Token.Keyword) !== Token.Keyword
+  )
+    report(state, Errors.Unexpected);
+  return parseIdentifier(state, context);
 }
 
 /**
@@ -2521,7 +2533,10 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
           type: 'MemberExpression',
           object: expr,
           computed: false,
-          property: parseIdentifierNameOrPrivateName(state, context)
+          property:
+            context & Context.OptionsNext
+              ? parseIdentifierNameOrPrivateName(state, context)
+              : parseIdentifierName(state, context)
         };
         continue;
       case Token.LeftBracket:
