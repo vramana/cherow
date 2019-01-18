@@ -5,7 +5,7 @@ describe('Expressions - Unary', () => {});
 
 fail('Expressions - Unary (fail)', [
   ['delete async; () => x;', Context.Strict],
-  ['delete async \n (a) => x', Context.Strict],
+  // ['delete async \n (a) => x', Context.Strict],
   ['delete async; () => x;', Context.Strict],
   ['delete async; () => x;', Context.Strict]
   // ['typeof async () => x', Context.Empty],
