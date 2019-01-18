@@ -44,6 +44,13 @@ describe('Expressions - Arrows', () => {
     '(a, ...[]) => 1',
     "(x)=>{'use strict';}",
     '(() => 5)() === 5;',
+    'a, b => 0',
+    'a, b, (c, d) => 0',
+    '(a, b, (c, d) => 0)',
+    '(a, b) => 0, (c, d) => 1',
+    '(a, b => {}, a => a + 1)',
+    '((a, b) => {}, (a => a + 1))',
+    '(a, (a, (b, c) => 0))',
     '() => a + b - yield / 1',
     '(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
     'var f = (function() { return z => arguments[0]; }(5));',
@@ -54,6 +61,16 @@ describe('Expressions - Arrows', () => {
     `([y]) => x;`,
     '(x=1) => x * x;',
     '(eval = 10) => 42;',
+    '(a, {}) => {}',
+    '({}, a) => {}',
+    '([]) => {}',
+    '(a, []) => {}',
+    '([], a) => {}',
+    '(a = b) => {}',
+    '(a = b, c) => {}',
+    '(a, b = c) => {}',
+    '({a}) => {}',
+    '(x = 9) => {}',
     '(a, b=(c)=>{}) => {}',
     '(async function foo(a) { await a });',
     '(a,b) =>{}',
@@ -76,6 +93,17 @@ describe('Expressions - Arrows', () => {
     '(x, y) => x.a = y',
     'x => (y, z) => z * (x + y)',
     '(a = b, c) => {}',
+    'x => x * x',
+    '(x) => x',
+    '(x) => x * x',
+    '(x, y) => x + y',
+    '(x, y, z) => x, y, z',
+    '(x, y) => x.a = y',
+    "() => ({'value': 42})",
+    'x => y => x + y',
+    '(x, y) => (u, v) => x*u + y*v',
+    '(x, y) => z => z * (x + y)',
+    'x => (y, z) => z * (x + y)',
     '(x, ...a) => {}',
     '({a} = {}) => {}',
     '({a} = {}) => {}',
@@ -88,6 +116,23 @@ describe('Expressions - Arrows', () => {
     '() => 0',
     '(...a) => 0',
     '([a]) => 0',
+    'eval => {}',
+    'arguments => {}',
+    'yield => {}',
+    'interface => {}',
+    '(eval) => {}',
+    '(arguments) => {}',
+    '(yield) => {}',
+    '(interface) => {}',
+    '(eval, bar) => {}',
+    '(bar, eval) => {}',
+    '(bar, arguments) => {}',
+    '(bar, yield) => {}',
+    '(bar, interface) => {}',
+    '(interface, eval) => {}',
+    '(interface, arguments) => {}',
+    '(eval, interface) => {}',
+    '(arguments, interface) => {}',
     '(() => null)();',
     '(() => {})()',
     '(...args) => console.log( args );',
@@ -118,12 +163,1045 @@ describe('Expressions - Arrows', () => {
     ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
     ['x => { let x; }', Context.Empty],
-    ['x => { const x; }', Context.Empty]
+    ['x => { const x; }', Context.Empty],
+    ['()?c:d=>{}=>{}', Context.Empty],
+    ['()=c=>{}=>{};', Context.Empty],
+    ['var x = ()+c=>{}', Context.Empty],
+    ['var x = ()c++=>{};', Context.Empty],
+    //['a?c:d=>{}=>{};', Context.Empty],
+    //    ['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
+    // ['var x = ac++=>{};', Context.Empty],
+    //['(a)`${c}template-tail`=>{}', Context.Empty],
+    //['(a)`template-head${c}template-tail`=>{};', Context.Empty],
+    // ['var x = (a)?c:d=>{}=>{}', Context.Empty],
+    // ['var x = (a)`${c}template-tail`=>{};', Context.Empty],
+    ['(...a)`template-head${c}`=>{}', Context.Empty],
+    ['(...a)?c:d=>{}=>{};', Context.Empty],
+    ['var x = (...a)?c:d=>{}=>{}', Context.Empty],
+    ['var x = (...a)[1]=>{};', Context.Empty],
+    //    ['(a,b)+c=>{}', Context.Empty],
+    // ['var x = (a,b)+c=>{};', Context.Empty],
+    ['(a,...b)`template-head${c}`=>{}', Context.Empty],
+    ['(a,...b)`${c}template-tail`=>{};', Context.Empty],
+    ['var x = (a,...b)`${c}template-tail`=>{}', Context.Empty],
+    ['var x = (a,...b)[c]=>{};', Context.Empty],
+    ['()`template-head${c}template-tail`=>{}', Context.Empty],
+    ['()?c:d=>{}=>{};', Context.Empty],
+    ['var x = ()[1]=>{}', Context.Empty],
+    ['var x = ()[c]=>{};', Context.Empty],
+    // ['a`${c}template-tail`=>{}', Context.Empty],
+    //['a`template-head${c}template-tail`=>{};', Context.Empty],
+    //    ['var x = a`c`=>{}', Context.Empty],
+    // ['(a)[1]=>{}', Context.Empty],
+    // ['(a)[c]=>{};', Context.Empty],
+    // ['var x = (a)`c`=>{}', Context.Empty],
+    // ['var x = (a)-c=>{};', Context.Empty],
+    ['(...a)`c`=>{}', Context.Empty],
+    ['(...a)-c=>{};', Context.Empty],
+    ['var x = (...a)+c=>{}', Context.Empty],
+    ['var x = (...a)-c=>{};', Context.Empty],
+    //    ['(a,b)+c=>{}', Context.Empty],
+    ['var x = (a,b)", "=>{}', Context.Empty],
+    // ['var x = (a,b)-c=>{};', Context.Empty],
+    ['(a,...b)+c=>{}', Context.Empty],
+    ['eval => { "use strict"; 0 }', Context.Empty],
+    ['arguments => { "use strict"; 0 }', Context.Empty],
+    // ['yield => { "use strict"; 0 }', Context.Empty],
+    // ['interface => { "use strict"; 0 }', Context.Empty],
+    ['(eval) => { "use strict"; 0 }', Context.Empty],
+    ['(arguments) => { "use strict"; 0 }', Context.Empty],
+    // ['(yield) => { "use strict"; 0 }', Context.Empty],
+    // ['(interface) => { "use strict"; 0 }', Context.Empty],
+    ['eval, bar) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, eval) => { "use strict"; 0 }', Context.Empty],
+    ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
+    // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
+    // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
+    ['(a,...b)+c=>{}', Context.Empty]
+
+    // ["32 => {}", Context.Empty],
+    // ["(32) => {}", Context.Empty],
+    // ["(a, 32) => {}", Context.Empty],
+    // ["if => {}", Context.Empty],
+    // ["(if) => {}", Context.Empty],
+    // ["(a, if) => {}", Context.Empty],
+    // ["a + b => {}", Context.Empty],
+    // ["(a + b) => {}", Context.Empty],
+    // ["(a + b, c) => {}", Context.Empty],
+    // ["(a, b - c) => {}", Context.Empty],
+    // ["\"a\" => {}", Context.Empty],
+    // ["(\"a\") => {}", Context.Empty],
+    // ["(\"a\", b) => {}", Context.Empty],
+    // ["(a, \"b\") => {}", Context.Empty],
+    // ["-a => {}", Context.Empty],
+    // ["(-a) => {}", Context.Empty],
+    // ["(-a, b) => {}", Context.Empty],
+    // ["(a, -b) => {}", Context.Empty],
+    // ["{} => {}", Context.Empty],
+    // ["a++ => {}", Context.Empty],
+    // ["(a++) => {}", Context.Empty],
+    // ["(a++, b) => {}", Context.Empty],
+    // ["(a, b++) => {}", Context.Empty],
+    // ["[] => {}", Context.Empty],
+    // ["(foo ? bar : baz) => {}", Context.Empty],
+    // ["(a, foo ? bar : baz) => {}", Context.Empty],
+    // ["(foo ? bar : baz, a) => {}", Context.Empty],
+    // ["(a.b, c) => {}", Context.Empty],
+    // ["(c, a.b) => {}", Context.Empty],
+    // ["(a['b'], c) => {}", Context.Empty],
+    // ["(c, a['b']) => {}", Context.Empty],
+    // ["(...a = b) => b", Context.Empty],
   ];
   fail('Expressions - Functions', inValids);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      `(x, y, z) => { return x + y + z; }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ReturnStatement',
+                    argument: {
+                      type: 'BinaryExpression',
+                      left: {
+                        type: 'BinaryExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        right: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        operator: '+'
+                      },
+                      right: {
+                        type: 'Identifier',
+                        name: 'z'
+                      },
+                      operator: '+'
+                    }
+                  }
+                ]
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'y'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'z'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x, y) => { x.a = y; }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'MemberExpression',
+                        object: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        computed: false,
+                        property: {
+                          type: 'Identifier',
+                          name: 'a'
+                        }
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'Identifier',
+                        name: 'y'
+                      }
+                    }
+                  }
+                ]
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x, y) => (u, v) => x*u + y*v`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'ArrowFunctionExpression',
+                body: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'u'
+                    },
+                    operator: '*'
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'v'
+                    },
+                    operator: '*'
+                  },
+                  operator: '+'
+                },
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'u'
+                  },
+                  {
+                    type: 'Identifier',
+                    name: 'v'
+                  }
+                ],
+                id: null,
+                async: false,
+                expression: true
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x, y) => z => z * (x + y)`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'ArrowFunctionExpression',
+                body: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    operator: '+'
+                  },
+                  operator: '*'
+                },
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'z'
+                  }
+                ],
+                id: null,
+                async: false,
+                expression: true
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `x => (y, z) => z * (x + y)`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'ArrowFunctionExpression',
+                body: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    operator: '+'
+                  },
+                  operator: '*'
+                },
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  {
+                    type: 'Identifier',
+                    name: 'z'
+                  }
+                ],
+                id: null,
+                async: false,
+                expression: true
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(a, b) => 0, (c, d) => 1`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                },
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'd'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(a, b => {}, a => a + 1)`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                },
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    operator: '+'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `((a, b) => {}, (a => a + 1))`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: false
+                },
+                {
+                  type: 'ArrowFunctionExpression',
+                  body: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    operator: '+'
+                  },
+                  params: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    }
+                  ],
+                  id: null,
+                  async: false,
+                  expression: true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(a, (a, (b, c) => 0))`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'SequenceExpression',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'ArrowFunctionExpression',
+                      body: {
+                        type: 'Literal',
+                        value: 0
+                      },
+                      params: [
+                        {
+                          type: 'Identifier',
+                          name: 'b'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'c'
+                        }
+                      ],
+                      id: null,
+                      async: false,
+                      expression: true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `foo ? bar : baz => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ConditionalExpression',
+              test: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              consequent: {
+                type: 'Identifier',
+                name: 'bar'
+              },
+              alternate: {
+                type: 'ArrowFunctionExpression',
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                params: [
+                  {
+                    type: 'Identifier',
+                    name: 'baz'
+                  }
+                ],
+                id: null,
+                async: false,
+                expression: false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({}) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: []
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `([], a) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'ArrayPattern',
+                  elements: []
+                },
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(a = b) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(a, b = c) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'c'
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x, y = 9, z = 8) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: 9
+                  }
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: 8
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `(x, y = 9, {b}, z = 8, ...a) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: 9
+                  }
+                },
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: true
+                    }
+                  ]
+                },
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'Literal',
+                    value: 8
+                  }
+                },
+                {
+                  type: 'RestElement',
+                  argument: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `({a} = {}) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'a'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ObjectExpression',
+                    properties: []
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `([x] = []) => {}`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ArrayExpression',
+                    elements: []
+                  }
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
     [
       `(...a) => 0`,
       Context.Empty,

@@ -1,7 +1,12 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Postfix', () => {});
+
+fail('Expressions - Template', [
+  ['this.foo[foo].bar(this)(bar)[foo]()--', Context.Empty],
+  ['foo[bar]()--', Context.Empty]
+]);
 
 pass('Expressions - Postfix (pass)', [
   [

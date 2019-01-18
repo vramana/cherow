@@ -237,6 +237,108 @@ describe('Statements - Try', () => {
       }
     ],
     [
+      'try {} catch(x) { x = 0; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'TryStatement',
+            block: {
+              type: 'BlockStatement',
+              body: []
+            },
+            handler: {
+              type: 'CatchClause',
+              param: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'Literal',
+                        value: 0
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            finalizer: null
+          }
+        ]
+      }
+    ],
+    [
+      'try {} catch(x) { with ({}) { x = 1; } }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'TryStatement',
+            block: {
+              type: 'BlockStatement',
+              body: []
+            },
+            handler: {
+              type: 'CatchClause',
+              param: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'WithStatement',
+                    object: {
+                      type: 'ObjectExpression',
+                      properties: []
+                    },
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'ExpressionStatement',
+                          expression: {
+                            type: 'AssignmentExpression',
+                            left: {
+                              type: 'Identifier',
+                              name: 'x'
+                            },
+                            operator: '=',
+                            right: {
+                              type: 'Literal',
+                              value: 1
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            finalizer: null
+          }
+        ]
+      }
+    ],
+    [
       'try {} catch ([a,b,c]) { }',
       Context.Empty,
       {
