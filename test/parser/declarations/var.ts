@@ -26,6 +26,274 @@ describe('Declarations - Var', () => {
 
   pass('Declarations - Var (pass)', [
     [
+      'var foo = {}; foo.if;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'if'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var foo = {}; foo.super;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'super'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '"use strict"; var foo = {}; foo.eval;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'eval'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '      "use strict";    var foo = {}; foo.interface;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'interface'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var foo = {}; foo.interface;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'interface'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'var foo = {}; foo.arguments;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'ObjectExpression',
+                  properties: []
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'foo'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'foo'
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'arguments'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
       'var [,] = x;',
       Context.Empty,
       {

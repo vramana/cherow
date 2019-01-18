@@ -78,6 +78,165 @@ describe('Statements - Try', () => {
 
   pass('Statements - Try (pass)', [
     [
+      'try {try { let e; } catch { let e; } finally { let e; }} catch (e) { }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'TryStatement',
+            block: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'TryStatement',
+                  block: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                          {
+                            type: 'VariableDeclarator',
+                            init: null,
+                            id: {
+                              type: 'Identifier',
+                              name: 'e'
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  handler: {
+                    type: 'CatchClause',
+                    param: null,
+                    body: {
+                      type: 'BlockStatement',
+                      body: [
+                        {
+                          type: 'VariableDeclaration',
+                          kind: 'let',
+                          declarations: [
+                            {
+                              type: 'VariableDeclarator',
+                              init: null,
+                              id: {
+                                type: 'Identifier',
+                                name: 'e'
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  finalizer: {
+                    type: 'BlockStatement',
+                    body: [
+                      {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                          {
+                            type: 'VariableDeclarator',
+                            init: null,
+                            id: {
+                              type: 'Identifier',
+                              name: 'e'
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            handler: {
+              type: 'CatchClause',
+              param: {
+                type: 'Identifier',
+                name: 'e'
+              },
+              body: {
+                type: 'BlockStatement',
+                body: []
+              }
+            },
+            finalizer: null
+          }
+        ]
+      }
+    ],
+    [
+      'try {try { } catch { } finally { }} catch ({e}) { }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'TryStatement',
+            block: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'TryStatement',
+                  block: {
+                    type: 'BlockStatement',
+                    body: []
+                  },
+                  handler: {
+                    type: 'CatchClause',
+                    param: null,
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    }
+                  },
+                  finalizer: {
+                    type: 'BlockStatement',
+                    body: []
+                  }
+                }
+              ]
+            },
+            handler: {
+              type: 'CatchClause',
+              param: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    kind: 'init',
+                    key: {
+                      type: 'Identifier',
+                      name: 'e'
+                    },
+                    computed: false,
+                    value: {
+                      type: 'Identifier',
+                      name: 'e'
+                    },
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              body: {
+                type: 'BlockStatement',
+                body: []
+              }
+            },
+            finalizer: null
+          }
+        ]
+      }
+    ],
+    [
       'try {} catch ([a,b,c]) { }',
       Context.Empty,
       {

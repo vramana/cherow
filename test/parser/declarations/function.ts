@@ -82,6 +82,13 @@ describe('Declarations - Function', () => {
     ['function (){}', Context.Empty],
     ['class {}', Context.Empty],
 
+    // ['function foo(bar, interface) { "use strict"; }', Context.Empty],
+    // ['function foo(arguments) { "use strict"; }', Context.Empty],
+    // ['function foo(yield) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, eval) { "use strict"; }', Context.Empty],
+    ['function foo(bar, bar) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, yield) { "use strict"; }', Context.Empty],
+
     // Strict function names
     ['function eval() {"use strict";}', Context.Empty],
     ['function arguments() {"use strict";}', Context.Empty],
