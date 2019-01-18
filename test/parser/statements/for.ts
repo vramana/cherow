@@ -1,561 +1,561 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Statements - For", () => {
+describe('Statements - For', () => {
   const inValids: Array<[string, Context]> = [
     // Bindings
 
-    ["for (let x;;) { var x; }", Context.OptionsDisableWebCompat],
-    ["for (const x = y;;) { var x; }", Context.OptionsDisableWebCompat],
-    ["for (let x in y) { var x; }", Context.OptionsDisableWebCompat],
-    ["for (const x in y) { var x; }", Context.OptionsDisableWebCompat],
-    ["for (let x of y) { var x; }", Context.OptionsDisableWebCompat],
-    ["for (const a;;);", Context.OptionsDisableWebCompat],
-    ["for (const a,b,c;;);", Context.OptionsDisableWebCompat],
+    ['for (let x;;) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (const x = y;;) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (let x in y) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (const x in y) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (let x of y) { var x; }', Context.OptionsDisableWebCompat],
+    ['for (const a;;);', Context.OptionsDisableWebCompat],
+    ['for (const a,b,c;;);', Context.OptionsDisableWebCompat],
     // ['for (const [x, x] in {}) {}', Context.OptionsDisableWebCompat],
-    ["for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }", Context.OptionsDisableWebCompat],
+    ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat],
 
     // General
-    ["for (var [foo] = arr, [bar] = arr2);", Context.OptionsDisableWebCompat],
-    ["for (var [foo,,bar] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo,bar] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [,,foo] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [,foo] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo,,] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo,] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [,,] = x);", Context.OptionsDisableWebCompat],
-    ["for (var [,] = x);", Context.OptionsDisableWebCompat],
-    ["for (var [] = x);", Context.OptionsDisableWebCompat],
-    ["for (var [foo] = arr, [bar] = arr2);", Context.OptionsDisableWebCompat],
-    ["for (var [foo] = arr, bar);", Context.OptionsDisableWebCompat],
-    ["for (var [foo] = arr, bar = arr2);", Context.OptionsDisableWebCompat],
-    ["for (var foo = arr, [bar] = arr2);", Context.OptionsDisableWebCompat],
-    ["for (var [foo=a] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo=a, bar] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo, bar=b] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo=a, bar=b] = arr);", Context.OptionsDisableWebCompat],
-    ["for (var [foo]);", Context.OptionsDisableWebCompat],
-    ["for (var [foo = x]);", Context.OptionsDisableWebCompat],
-    ["for (var [foo], bar);", Context.OptionsDisableWebCompat],
-    ["for (var foo, [bar]);", Context.OptionsDisableWebCompat],
-    ["for (var [...foo] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [foo, ...bar] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...foo, bar] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...foo,] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...foo,,] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...[foo, bar]] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...[foo, bar],] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...[foo, bar],,] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [x, ...[foo, bar]] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...bar = foo] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var [...] = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {,} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {,,} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x,} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x,,} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {,x} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {,,x} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x, y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x,, y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x} = a, {y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x} = a, y = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x} = a, obj);", Context.OptionsDisableWebCompat],
-    ["for (var x = a, {y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var x, {y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x = y} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x = y, z} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x, y = z} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x = y, z = a} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {x}, {y} = z);", Context.OptionsDisableWebCompat],
-    ["for (var {x}, y);", Context.OptionsDisableWebCompat],
-    ["for (var x = y, {z});", Context.OptionsDisableWebCompat],
-    ["for (var {x}, y);", Context.OptionsDisableWebCompat],
-    ["for (var {x=y});", Context.OptionsDisableWebCompat],
-    ["for (var {x:y=z});", Context.OptionsDisableWebCompat],
-    ["for (var {x:y=z} = obj, {a:b=c});", Context.OptionsDisableWebCompat],
-    ["for (var {x:y=z}, {a:b=c} = obj);", Context.OptionsDisableWebCompat],
-    ["for (var {a:=c} = z);", Context.OptionsDisableWebCompat],
-    ["for (var {[x]: y} = z);", Context.OptionsDisableWebCompat],
-    ["for (var {[x]} = z);", Context.OptionsDisableWebCompat],
-    ["for (var {[x]: y});", Context.OptionsDisableWebCompat],
-    ["for (var {[x]: y = z});", Context.OptionsDisableWebCompat],
-    ["for (var {[x]: y = z} = a);", Context.OptionsDisableWebCompat],
-    ["for (var {a, [x]: y} = a);", Context.OptionsDisableWebCompat]
+    ['for (var [foo] = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
+    ['for (var [foo,,bar] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo,bar] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [,,foo] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [,foo] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo,,] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo,] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [,,] = x);', Context.OptionsDisableWebCompat],
+    ['for (var [,] = x);', Context.OptionsDisableWebCompat],
+    ['for (var [] = x);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr, bar);', Context.OptionsDisableWebCompat],
+    ['for (var [foo] = arr, bar = arr2);', Context.OptionsDisableWebCompat],
+    ['for (var foo = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
+    ['for (var [foo=a] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo=a, bar] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo, bar=b] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo=a, bar=b] = arr);', Context.OptionsDisableWebCompat],
+    ['for (var [foo]);', Context.OptionsDisableWebCompat],
+    ['for (var [foo = x]);', Context.OptionsDisableWebCompat],
+    ['for (var [foo], bar);', Context.OptionsDisableWebCompat],
+    ['for (var foo, [bar]);', Context.OptionsDisableWebCompat],
+    ['for (var [...foo] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [foo, ...bar] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...foo, bar] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...foo,] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...foo,,] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...[foo, bar]] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...[foo, bar],] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...[foo, bar],,] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [x, ...[foo, bar]] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...bar = foo] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var [...] = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {,} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {,,} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x,} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x,,} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {,x} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {,,x} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x, y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x,, y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x} = a, {y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x} = a, y = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x} = a, obj);', Context.OptionsDisableWebCompat],
+    ['for (var x = a, {y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var x, {y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x = y} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x = y, z} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x, y = z} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x = y, z = a} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {x}, {y} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {x}, y);', Context.OptionsDisableWebCompat],
+    ['for (var x = y, {z});', Context.OptionsDisableWebCompat],
+    ['for (var {x}, y);', Context.OptionsDisableWebCompat],
+    ['for (var {x=y});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z} = obj, {a:b=c});', Context.OptionsDisableWebCompat],
+    ['for (var {x:y=z}, {a:b=c} = obj);', Context.OptionsDisableWebCompat],
+    ['for (var {a:=c} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]} = z);', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y});', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y = z});', Context.OptionsDisableWebCompat],
+    ['for (var {[x]: y = z} = a);', Context.OptionsDisableWebCompat],
+    ['for (var {a, [x]: y} = a);', Context.OptionsDisableWebCompat]
   ];
 
-  fail("Statements - For (fail)", inValids);
+  fail('Statements - For (fail)', inValids);
 
   const programs = [
-    "for (x of [1,2,3]) {}",
-    "for (x in {a: 1}) {}",
-    "for ([x] of [[1],[2],[3]]) {}",
-    "for ([x] in {ab: 1}) {}",
-    "for (j=x; j<10; ++j) { foo = j }",
-    "for (j=x; j<10; ++j) { [foo] = [j] }",
-    "for (j=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for (j=x; j<10; ++j) { var foo = j }",
-    "for (j=x; j<10; ++j) { var [foo] = [j] }",
-    "for (j=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for (j=x; j<10; ++j) { var foo; foo = j }",
-    "for (j=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for (j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for (j=x; j<10; ++j) { let foo; foo = j }",
-    "for (j=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for (j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for (j=x; j<10; ++j) { let foo = j }",
-    "for (j=x; j<10; ++j) { let [foo] = [j] }",
-    "for (j=x; j<10; ++j) { const foo = j }",
-    "for (j=x; j<10; ++j) { const [foo] = [j] }",
-    "for (j=x; j<10; ++j) { function foo() {return j} }",
-    "for ([...x] in {ab: 1}) {}",
-    "for (j=x; j<10; ++j) { foo = j }",
-    "for (j=x; j<10; ++j) { [foo] = [j] }",
-    "for (j=x; j<10; ++j) { let foo = j }",
-    "for (j=x; j<10; ++j) { function foo() {return j} }",
-    "for ({j}=x; j<10; ++j) { var [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { const [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { function foo() {return j} }",
-    "for (var j=x; j<10; ++j) { foo = j }",
-    "for (var {j}=x; j<10; ++j) { var [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { function foo(){return j} }",
-    "for (let j=x; j<10; ++j) { const foo = j }",
-    "for (let j=x; j<10; ++j) { let [foo] = [j] }",
+    'for (x of [1,2,3]) {}',
+    'for (x in {a: 1}) {}',
+    'for ([x] of [[1],[2],[3]]) {}',
+    'for ([x] in {ab: 1}) {}',
+    'for (j=x; j<10; ++j) { foo = j }',
+    'for (j=x; j<10; ++j) { [foo] = [j] }',
+    'for (j=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for (j=x; j<10; ++j) { var foo = j }',
+    'for (j=x; j<10; ++j) { var [foo] = [j] }',
+    'for (j=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for (j=x; j<10; ++j) { var foo; foo = j }',
+    'for (j=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for (j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for (j=x; j<10; ++j) { let foo; foo = j }',
+    'for (j=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for (j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for (j=x; j<10; ++j) { let foo = j }',
+    'for (j=x; j<10; ++j) { let [foo] = [j] }',
+    'for (j=x; j<10; ++j) { const foo = j }',
+    'for (j=x; j<10; ++j) { const [foo] = [j] }',
+    'for (j=x; j<10; ++j) { function foo() {return j} }',
+    'for ([...x] in {ab: 1}) {}',
+    'for (j=x; j<10; ++j) { foo = j }',
+    'for (j=x; j<10; ++j) { [foo] = [j] }',
+    'for (j=x; j<10; ++j) { let foo = j }',
+    'for (j=x; j<10; ++j) { function foo() {return j} }',
+    'for ({j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { const [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (var j=x; j<10; ++j) { foo = j }',
+    'for (var {j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { function foo(){return j} }',
+    'for (let j=x; j<10; ++j) { const foo = j }',
+    'for (let j=x; j<10; ++j) { let [foo] = [j] }',
 
-    "for ({j}=x; j<10; ++j) { foo = j }",
-    "for ({j}=x; j<10; ++j) { [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for ({j}=x; j<10; ++j) { var foo = j }",
-    "for ({j}=x; j<10; ++j) { var [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for ({j}=x; j<10; ++j) { var foo; foo = j }",
-    "for ({j}=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for ({j}=x; j<10; ++j) { let foo; foo = j }",
-    "for ({j}=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for ({j}=x; j<10; ++j) { let foo = j }",
-    "for ({j}=x; j<10; ++j) { let [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { const foo = j }",
-    "for ({j}=x; j<10; ++j) { const [foo] = [j] }",
-    "for ({j}=x; j<10; ++j) { function foo() {return j} }",
+    'for ({j}=x; j<10; ++j) { foo = j }',
+    'for ({j}=x; j<10; ++j) { [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for ({j}=x; j<10; ++j) { var foo = j }',
+    'for ({j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for ({j}=x; j<10; ++j) { var foo; foo = j }',
+    'for ({j}=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for ({j}=x; j<10; ++j) { let foo; foo = j }',
+    'for ({j}=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for ({j}=x; j<10; ++j) { let foo = j }',
+    'for ({j}=x; j<10; ++j) { let [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { const foo = j }',
+    'for ({j}=x; j<10; ++j) { const [foo] = [j] }',
+    'for ({j}=x; j<10; ++j) { function foo() {return j} }',
 
-    "for (var j=x; j<10; ++j) { foo = j }",
-    "for (var j=x; j<10; ++j) { [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for (var j=x; j<10; ++j) { var foo = j }",
-    "for (var j=x; j<10; ++j) { var [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for (var j=x; j<10; ++j) { var foo; foo = j }",
-    "for (var j=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for (var j=x; j<10; ++j) { let foo; foo = j }",
-    "for (var j=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for (var j=x; j<10; ++j) { let foo = j }",
-    "for (var j=x; j<10; ++j) { let [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { const foo = j }",
-    "for (var j=x; j<10; ++j) { const [foo] = [j] }",
-    "for (var j=x; j<10; ++j) { function foo() {return j} }",
+    'for (var j=x; j<10; ++j) { foo = j }',
+    'for (var j=x; j<10; ++j) { [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for (var j=x; j<10; ++j) { var foo = j }',
+    'for (var j=x; j<10; ++j) { var [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for (var j=x; j<10; ++j) { var foo; foo = j }',
+    'for (var j=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for (var j=x; j<10; ++j) { let foo; foo = j }',
+    'for (var j=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for (var j=x; j<10; ++j) { let foo = j }',
+    'for (var j=x; j<10; ++j) { let [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { const foo = j }',
+    'for (var j=x; j<10; ++j) { const [foo] = [j] }',
+    'for (var j=x; j<10; ++j) { function foo() {return j} }',
 
-    "for (var {j}=x; j<10; ++j) { foo = j }",
-    "for (var {j}=x; j<10; ++j) { [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for (var {j}=x; j<10; ++j) { var foo = j }",
-    "for (var {j}=x; j<10; ++j) { var [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for (var {j}=x; j<10; ++j) { var foo; foo = j }",
-    "for (var {j}=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for (var {j}=x; j<10; ++j) { let foo; foo = j }",
-    "for (var {j}=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for (var {j}=x; j<10; ++j) { let foo = j }",
-    "for (var {j}=x; j<10; ++j) { let [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { const foo = j }",
-    "for (var {j}=x; j<10; ++j) { const [foo] = [j] }",
-    "for (var {j}=x; j<10; ++j) { function foo() {return j} }",
-    "for (let j=x; j<10; ++j) { foo = j }",
-    "for (let j=x; j<10; ++j) { [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for (let j=x; j<10; ++j) { var foo = j }",
-    "for (let j=x; j<10; ++j) { var [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for (let j=x; j<10; ++j) { var foo; foo = j }",
-    "for (let j=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for (let j=x; j<10; ++j) { let foo; foo = j }",
-    "for (let j=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for (let j=x; j<10; ++j) { let foo = j }",
-    "for (let j=x; j<10; ++j) { let [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { const foo = j }",
-    "for (let j=x; j<10; ++j) { const [foo] = [j] }",
-    "for (let j=x; j<10; ++j) { function foo() {return j} }",
-    "for (let {j}=x; j<10; ++j) { foo = j }",
-    "for (let {j}=x; j<10; ++j) { [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { [[foo]=[42]] = [] }",
-    "for (let {j}=x; j<10; ++j) { var foo = j }",
-    "for (let {j}=x; j<10; ++j) { var [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { var [[foo]=[42]] = [] }",
-    "for (let {j}=x; j<10; ++j) { var foo; foo = j }",
-    "for (let {j}=x; j<10; ++j) { var foo; [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }",
-    "for (let {j}=x; j<10; ++j) { let foo; foo = j }",
-    "for (let {j}=x; j<10; ++j) { let foo; [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }",
-    "for (let {j}=x; j<10; ++j) { let foo = j }",
-    "for (let {j}=x; j<10; ++j) { let [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { const foo = j }",
-    "for (let {j}=x; j<10; ++j) { const [foo] = [j] }",
-    "for (let {j}=x; j<10; ++j) { function foo(){return j} }",
-    "for (j of x) { foo = j }",
-    "for (j of x) { [foo] = [j] }",
-    "for (j of x) { [[foo]=[42]] = [] }",
-    "for (j of x) { var foo = j }",
-    "for (j of x) { var [foo] = [j] }",
-    "for (j of x) { var [[foo]=[42]] = [] }",
-    "for (j of x) { var foo; foo = j }",
-    "for (j of x) { var foo; [foo] = [j] }",
-    "for (j of x) { var foo; [[foo]=[42]] = [] }",
-    "for (j of x) { let foo; foo = j }",
-    "for (j of x) { let foo; [foo] = [j] }",
-    "for (j of x) { let foo; [[foo]=[42]] = [] }",
-    "for (j of x) { let foo = j }",
-    "for (j of x) { let [foo] = [j] }",
-    "for (j of x) { const foo = j }",
-    "for (j of x) { const [foo] = [j] }",
-    "for (j of x) { function foo() {return j} }",
-    "for ({j} of x) { foo = j }",
-    "for ({j} of x) { [foo] = [j] }",
-    "for ({j} of x) { [[foo]=[42]] = [] }",
-    "for ({j} of x) { var foo = j }",
-    "for ({j} of x) { var [foo] = [j] }",
-    "for ({j} of x) { var [[foo]=[42]] = [] }",
-    "for ({j} of x) { var foo; foo = j }",
-    "for ({j} of x) { var foo; [foo] = [j] }",
-    "for ({j} of x) { var foo; [[foo]=[42]] = [] }",
-    "for ({j} of x) { let foo; foo = j }",
-    "for ({j} of x) { let foo; [foo] = [j] }",
-    "for ({j} of x) { let foo; [[foo]=[42]] = [] }",
-    "for ({j} of x) { let foo = j }",
-    "for ({j} of x) { let [foo] = [j] }",
-    "for ({j} of x) { const foo = j }",
-    "for ({j} of x) { const [foo] = [j] }",
-    "for ({j} of x) { function foo() {return j} }",
-    "for (var j of x) { foo = j }",
-    "for (var j of x) { [foo] = [j] }",
-    "for (var j of x) { [[foo]=[42]] = [] }",
-    "for (var j of x) { var foo = j }",
-    "for (var j of x) { var [foo] = [j] }",
-    "for (var j of x) { var [[foo]=[42]] = [] }",
-    "for (var j of x) { var foo; foo = j }",
-    "for (var j of x) { var foo; [foo] = [j] }",
-    "for (var j of x) { var foo; [[foo]=[42]] = [] }",
-    "for (var j of x) { let foo; foo = j }",
-    "for (var j of x) { let foo; [foo] = [j] }",
-    "for (var j of x) { let foo; [[foo]=[42]] = [] }",
-    "for (var j of x) { let foo = j }",
-    "for (var j of x) { let [foo] = [j] }",
-    "for (var j of x) { const foo = j }",
-    "for (var j of x) { const [foo] = [j] }",
-    "for (var j of x) { function foo() {return j} }",
-    "for (var {j} of x) { foo = j }",
-    "for (var {j} of x) { [foo] = [j] }",
-    "for (var {j} of x) { [[foo]=[42]] = [] }",
-    "for (var {j} of x) { var foo = j }",
-    "for (var {j} of x) { var [foo] = [j] }",
-    "for (var {j} of x) { var [[foo]=[42]] = [] }",
-    "for (var {j} of x) { var foo; foo = j }",
-    "for (var {j} of x) { var foo; [foo] = [j] }",
-    "for (var {j} of x) { var foo; [[foo]=[42]] = [] }",
-    "for (var {j} of x) { let foo; foo = j }",
-    "for (var {j} of x) { let foo; [foo] = [j] }",
-    "for (var {j} of x) { let foo; [[foo]=[42]] = [] }",
-    "for (var {j} of x) { let foo = j }",
-    "for (var {j} of x) { let [foo] = [j] }",
-    "for (var {j} of x) { const foo = j }",
-    "for (var {j} of x) { const [foo] = [j] }",
-    "for (var {j} of x) { function foo() {return j} }",
-    "for (let j of x) { foo = j }",
-    "for (let j of x) { [foo] = [j] }",
-    "for (let j of x) { [[foo]=[42]] = [] }",
-    "for (let j of x) { var foo = j }",
-    "for (let j of x) { var [foo] = [j] }",
-    "for (let j of x) { var [[foo]=[42]] = [] }",
-    "for (let j of x) { var foo; foo = j }",
-    "for (let j of x) { var foo; [foo] = [j] }",
-    "for (let j of x) { var foo; [[foo]=[42]] = [] }",
-    "for (let j of x) { let foo; foo = j }",
-    "for (let j of x) { let foo; [foo] = [j] }",
-    "for (let j of x) { let foo; [[foo]=[42]] = [] }",
-    "for (let j of x) { let foo = j }",
-    "for (let j of x) { let [foo] = [j] }",
-    "for (let j of x) { const foo = j }",
-    "for (let j of x) { const [foo] = [j] }",
-    "for (let j of x) { function foo() {return j} }",
-    "for (let {j} of x) { foo = j }",
-    "for (let {j} of x) { [foo] = [j] }",
-    "for (let {j} of x) { [[foo]=[42]] = [] }",
-    "for (let {j} of x) { var foo = j }",
-    "for (let {j} of x) { var [foo] = [j] }",
-    "for (let {j} of x) { var [[foo]=[42]] = [] }",
-    "for (let {j} of x) { var foo; foo = j }",
-    "for (let {j} of x) { var foo; [foo] = [j] }",
-    "for (let {j} of x) { var foo; [[foo]=[42]] = [] }",
-    "for (let {j} of x) { let foo; foo = j }",
-    "for (let {j} of x) { let foo; [foo] = [j] }",
-    "for (let {j} of x) { let foo; [[foo]=[42]] = [] }",
-    "for (let {j} of x) { let foo = j }",
-    "for (let {j} of x) { let [foo] = [j] }",
-    "for (let {j} of x) { const foo = j }",
-    "for (let {j} of x) { const [foo] = [j] }",
-    "for (let {j} of x) { function foo() {return j} }",
-    "for (j=x; j<10; ++j) { function foo() {return j} }",
-    "for ({j}=x; j<10; ++j) { function foo() {return j} }",
-    "for (var j=x; j<10; ++j) { function foo() {return j} }",
-    "for (var {j}=x; j<10; ++j) { function foo() {return j} }",
-    "for (let j=x; j<10; ++j) { function foo() {return j} }",
-    "for (let {j}=x; j<10; ++j) { function foo() {return j} }",
-    "for (j of x) { function foo() {return j} }",
-    "for ({j} of x) { function foo() {return j} }",
-    "for (var j of x) { function foo() {return j} }",
-    "for (var {j} of x) { function foo() {return j} }",
-    "for (let j of x) { function foo() {return j} }",
-    "for (let {j} of x) { function foo() {return j} }",
-    "for (const j of x) { function foo() {return j} }",
-    "for (const {j} of x) { function foo() {return j} }",
-    "for (j in x) { function foo() {return j} }",
-    "for ({j} in x) { function foo() {return j} }",
-    "for (var j in x) { function foo() {return j} }",
-    "for (var {j} in x) { function foo() {return j} }",
-    "for (let j in x) { function foo() {return j} }",
-    "for (let {j} in x) { function foo() {return j} }",
-    "for (const j in x) { function foo() {return j} }",
-    "for (const {j} in x) { function foo() {return j} }",
-    "while (j) { function foo() {return j} }",
-    "do { function foo() {return j} } while (j)",
-    "for (const j of x) { foo = j }",
-    "for (const j of x) { [foo] = [j] }",
-    "for (const j of x) { [[foo]=[42]] = [] }",
-    "for (const j of x) { var foo = j }",
-    "for (const j of x) { var [foo] = [j] }",
-    "for (const j of x) { var [[foo]=[42]] = [] }",
-    "for (const j of x) { var foo; foo = j }",
-    "for (const j of x) { var foo; [foo] = [j] }",
-    "for (const j of x) { var foo; [[foo]=[42]] = [] }",
-    "for (const j of x) { let foo; foo = j }",
-    "for (const j of x) { let foo; [foo] = [j] }",
-    "for (const j of x) { let foo; [[foo]=[42]] = [] }",
-    "for (const j of x) { let foo = j }",
-    "for (const j of x) { let [foo] = [j] }",
-    "for (const j of x) { const foo = j }",
-    "for (const j of x) { const [foo] = [j] }",
-    "for (const j of x) { function foo() {return j} }",
+    'for (var {j}=x; j<10; ++j) { foo = j }',
+    'for (var {j}=x; j<10; ++j) { [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for (var {j}=x; j<10; ++j) { var foo = j }',
+    'for (var {j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for (var {j}=x; j<10; ++j) { var foo; foo = j }',
+    'for (var {j}=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for (var {j}=x; j<10; ++j) { let foo; foo = j }',
+    'for (var {j}=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for (var {j}=x; j<10; ++j) { let foo = j }',
+    'for (var {j}=x; j<10; ++j) { let [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { const foo = j }',
+    'for (var {j}=x; j<10; ++j) { const [foo] = [j] }',
+    'for (var {j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (let j=x; j<10; ++j) { foo = j }',
+    'for (let j=x; j<10; ++j) { [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for (let j=x; j<10; ++j) { var foo = j }',
+    'for (let j=x; j<10; ++j) { var [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for (let j=x; j<10; ++j) { var foo; foo = j }',
+    'for (let j=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for (let j=x; j<10; ++j) { let foo; foo = j }',
+    'for (let j=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for (let j=x; j<10; ++j) { let foo = j }',
+    'for (let j=x; j<10; ++j) { let [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { const foo = j }',
+    'for (let j=x; j<10; ++j) { const [foo] = [j] }',
+    'for (let j=x; j<10; ++j) { function foo() {return j} }',
+    'for (let {j}=x; j<10; ++j) { foo = j }',
+    'for (let {j}=x; j<10; ++j) { [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { [[foo]=[42]] = [] }',
+    'for (let {j}=x; j<10; ++j) { var foo = j }',
+    'for (let {j}=x; j<10; ++j) { var [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { var [[foo]=[42]] = [] }',
+    'for (let {j}=x; j<10; ++j) { var foo; foo = j }',
+    'for (let {j}=x; j<10; ++j) { var foo; [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { var foo; [[foo]=[42]] = [] }',
+    'for (let {j}=x; j<10; ++j) { let foo; foo = j }',
+    'for (let {j}=x; j<10; ++j) { let foo; [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { let foo; [[foo]=[42]] = [] }',
+    'for (let {j}=x; j<10; ++j) { let foo = j }',
+    'for (let {j}=x; j<10; ++j) { let [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { const foo = j }',
+    'for (let {j}=x; j<10; ++j) { const [foo] = [j] }',
+    'for (let {j}=x; j<10; ++j) { function foo(){return j} }',
+    'for (j of x) { foo = j }',
+    'for (j of x) { [foo] = [j] }',
+    'for (j of x) { [[foo]=[42]] = [] }',
+    'for (j of x) { var foo = j }',
+    'for (j of x) { var [foo] = [j] }',
+    'for (j of x) { var [[foo]=[42]] = [] }',
+    'for (j of x) { var foo; foo = j }',
+    'for (j of x) { var foo; [foo] = [j] }',
+    'for (j of x) { var foo; [[foo]=[42]] = [] }',
+    'for (j of x) { let foo; foo = j }',
+    'for (j of x) { let foo; [foo] = [j] }',
+    'for (j of x) { let foo; [[foo]=[42]] = [] }',
+    'for (j of x) { let foo = j }',
+    'for (j of x) { let [foo] = [j] }',
+    'for (j of x) { const foo = j }',
+    'for (j of x) { const [foo] = [j] }',
+    'for (j of x) { function foo() {return j} }',
+    'for ({j} of x) { foo = j }',
+    'for ({j} of x) { [foo] = [j] }',
+    'for ({j} of x) { [[foo]=[42]] = [] }',
+    'for ({j} of x) { var foo = j }',
+    'for ({j} of x) { var [foo] = [j] }',
+    'for ({j} of x) { var [[foo]=[42]] = [] }',
+    'for ({j} of x) { var foo; foo = j }',
+    'for ({j} of x) { var foo; [foo] = [j] }',
+    'for ({j} of x) { var foo; [[foo]=[42]] = [] }',
+    'for ({j} of x) { let foo; foo = j }',
+    'for ({j} of x) { let foo; [foo] = [j] }',
+    'for ({j} of x) { let foo; [[foo]=[42]] = [] }',
+    'for ({j} of x) { let foo = j }',
+    'for ({j} of x) { let [foo] = [j] }',
+    'for ({j} of x) { const foo = j }',
+    'for ({j} of x) { const [foo] = [j] }',
+    'for ({j} of x) { function foo() {return j} }',
+    'for (var j of x) { foo = j }',
+    'for (var j of x) { [foo] = [j] }',
+    'for (var j of x) { [[foo]=[42]] = [] }',
+    'for (var j of x) { var foo = j }',
+    'for (var j of x) { var [foo] = [j] }',
+    'for (var j of x) { var [[foo]=[42]] = [] }',
+    'for (var j of x) { var foo; foo = j }',
+    'for (var j of x) { var foo; [foo] = [j] }',
+    'for (var j of x) { var foo; [[foo]=[42]] = [] }',
+    'for (var j of x) { let foo; foo = j }',
+    'for (var j of x) { let foo; [foo] = [j] }',
+    'for (var j of x) { let foo; [[foo]=[42]] = [] }',
+    'for (var j of x) { let foo = j }',
+    'for (var j of x) { let [foo] = [j] }',
+    'for (var j of x) { const foo = j }',
+    'for (var j of x) { const [foo] = [j] }',
+    'for (var j of x) { function foo() {return j} }',
+    'for (var {j} of x) { foo = j }',
+    'for (var {j} of x) { [foo] = [j] }',
+    'for (var {j} of x) { [[foo]=[42]] = [] }',
+    'for (var {j} of x) { var foo = j }',
+    'for (var {j} of x) { var [foo] = [j] }',
+    'for (var {j} of x) { var [[foo]=[42]] = [] }',
+    'for (var {j} of x) { var foo; foo = j }',
+    'for (var {j} of x) { var foo; [foo] = [j] }',
+    'for (var {j} of x) { var foo; [[foo]=[42]] = [] }',
+    'for (var {j} of x) { let foo; foo = j }',
+    'for (var {j} of x) { let foo; [foo] = [j] }',
+    'for (var {j} of x) { let foo; [[foo]=[42]] = [] }',
+    'for (var {j} of x) { let foo = j }',
+    'for (var {j} of x) { let [foo] = [j] }',
+    'for (var {j} of x) { const foo = j }',
+    'for (var {j} of x) { const [foo] = [j] }',
+    'for (var {j} of x) { function foo() {return j} }',
+    'for (let j of x) { foo = j }',
+    'for (let j of x) { [foo] = [j] }',
+    'for (let j of x) { [[foo]=[42]] = [] }',
+    'for (let j of x) { var foo = j }',
+    'for (let j of x) { var [foo] = [j] }',
+    'for (let j of x) { var [[foo]=[42]] = [] }',
+    'for (let j of x) { var foo; foo = j }',
+    'for (let j of x) { var foo; [foo] = [j] }',
+    'for (let j of x) { var foo; [[foo]=[42]] = [] }',
+    'for (let j of x) { let foo; foo = j }',
+    'for (let j of x) { let foo; [foo] = [j] }',
+    'for (let j of x) { let foo; [[foo]=[42]] = [] }',
+    'for (let j of x) { let foo = j }',
+    'for (let j of x) { let [foo] = [j] }',
+    'for (let j of x) { const foo = j }',
+    'for (let j of x) { const [foo] = [j] }',
+    'for (let j of x) { function foo() {return j} }',
+    'for (let {j} of x) { foo = j }',
+    'for (let {j} of x) { [foo] = [j] }',
+    'for (let {j} of x) { [[foo]=[42]] = [] }',
+    'for (let {j} of x) { var foo = j }',
+    'for (let {j} of x) { var [foo] = [j] }',
+    'for (let {j} of x) { var [[foo]=[42]] = [] }',
+    'for (let {j} of x) { var foo; foo = j }',
+    'for (let {j} of x) { var foo; [foo] = [j] }',
+    'for (let {j} of x) { var foo; [[foo]=[42]] = [] }',
+    'for (let {j} of x) { let foo; foo = j }',
+    'for (let {j} of x) { let foo; [foo] = [j] }',
+    'for (let {j} of x) { let foo; [[foo]=[42]] = [] }',
+    'for (let {j} of x) { let foo = j }',
+    'for (let {j} of x) { let [foo] = [j] }',
+    'for (let {j} of x) { const foo = j }',
+    'for (let {j} of x) { const [foo] = [j] }',
+    'for (let {j} of x) { function foo() {return j} }',
+    'for (j=x; j<10; ++j) { function foo() {return j} }',
+    'for ({j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (var j=x; j<10; ++j) { function foo() {return j} }',
+    'for (var {j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (let j=x; j<10; ++j) { function foo() {return j} }',
+    'for (let {j}=x; j<10; ++j) { function foo() {return j} }',
+    'for (j of x) { function foo() {return j} }',
+    'for ({j} of x) { function foo() {return j} }',
+    'for (var j of x) { function foo() {return j} }',
+    'for (var {j} of x) { function foo() {return j} }',
+    'for (let j of x) { function foo() {return j} }',
+    'for (let {j} of x) { function foo() {return j} }',
+    'for (const j of x) { function foo() {return j} }',
+    'for (const {j} of x) { function foo() {return j} }',
+    'for (j in x) { function foo() {return j} }',
+    'for ({j} in x) { function foo() {return j} }',
+    'for (var j in x) { function foo() {return j} }',
+    'for (var {j} in x) { function foo() {return j} }',
+    'for (let j in x) { function foo() {return j} }',
+    'for (let {j} in x) { function foo() {return j} }',
+    'for (const j in x) { function foo() {return j} }',
+    'for (const {j} in x) { function foo() {return j} }',
+    'while (j) { function foo() {return j} }',
+    'do { function foo() {return j} } while (j)',
+    'for (const j of x) { foo = j }',
+    'for (const j of x) { [foo] = [j] }',
+    'for (const j of x) { [[foo]=[42]] = [] }',
+    'for (const j of x) { var foo = j }',
+    'for (const j of x) { var [foo] = [j] }',
+    'for (const j of x) { var [[foo]=[42]] = [] }',
+    'for (const j of x) { var foo; foo = j }',
+    'for (const j of x) { var foo; [foo] = [j] }',
+    'for (const j of x) { var foo; [[foo]=[42]] = [] }',
+    'for (const j of x) { let foo; foo = j }',
+    'for (const j of x) { let foo; [foo] = [j] }',
+    'for (const j of x) { let foo; [[foo]=[42]] = [] }',
+    'for (const j of x) { let foo = j }',
+    'for (const j of x) { let [foo] = [j] }',
+    'for (const j of x) { const foo = j }',
+    'for (const j of x) { const [foo] = [j] }',
+    'for (const j of x) { function foo() {return j} }',
 
-    "for (const {j} of x) { foo = j }",
-    "for (const {j} of x) { [foo] = [j] }",
-    "for (const {j} of x) { [[foo]=[42]] = [] }",
-    "for (const {j} of x) { var foo = j }",
-    "for (const {j} of x) { var [foo] = [j] }",
-    "for (const {j} of x) { var [[foo]=[42]] = [] }",
-    "for (const {j} of x) { var foo; foo = j }",
-    "for (const {j} of x) { var foo; [foo] = [j] }",
-    "for (const {j} of x) { var foo; [[foo]=[42]] = [] }",
-    "for (const {j} of x) { let foo; foo = j }",
-    "for (const {j} of x) { let foo; [foo] = [j] }",
-    "for (const {j} of x) { let foo; [[foo]=[42]] = [] }",
-    "for (const {j} of x) { let foo = j }",
-    "for (const {j} of x) { let [foo] = [j] }",
-    "for (const {j} of x) { const foo = j }",
-    "for (const {j} of x) { const [foo] = [j] }",
-    "for (const {j} of x) { function foo() {return j} }",
+    'for (const {j} of x) { foo = j }',
+    'for (const {j} of x) { [foo] = [j] }',
+    'for (const {j} of x) { [[foo]=[42]] = [] }',
+    'for (const {j} of x) { var foo = j }',
+    'for (const {j} of x) { var [foo] = [j] }',
+    'for (const {j} of x) { var [[foo]=[42]] = [] }',
+    'for (const {j} of x) { var foo; foo = j }',
+    'for (const {j} of x) { var foo; [foo] = [j] }',
+    'for (const {j} of x) { var foo; [[foo]=[42]] = [] }',
+    'for (const {j} of x) { let foo; foo = j }',
+    'for (const {j} of x) { let foo; [foo] = [j] }',
+    'for (const {j} of x) { let foo; [[foo]=[42]] = [] }',
+    'for (const {j} of x) { let foo = j }',
+    'for (const {j} of x) { let [foo] = [j] }',
+    'for (const {j} of x) { const foo = j }',
+    'for (const {j} of x) { const [foo] = [j] }',
+    'for (const {j} of x) { function foo() {return j} }',
 
-    "for (j in x) { foo = j }",
-    "for (j in x) { [foo] = [j] }",
-    "for (j in x) { [[foo]=[42]] = [] }",
-    "for (j in x) { var foo = j }",
-    "for (j in x) { var [foo] = [j] }",
-    "for (j in x) { var [[foo]=[42]] = [] }",
-    "for (j in x) { var foo; foo = j }",
-    "for (j in x) { var foo; [foo] = [j] }",
-    "for (j in x) { var foo; [[foo]=[42]] = [] }",
-    "for (j in x) { let foo; foo = j }",
-    "for (j in x) { let foo; [foo] = [j] }",
-    "for (j in x) { let foo; [[foo]=[42]] = [] }",
-    "for (j in x) { let foo = j }",
-    "for (j in x) { let [foo] = [j] }",
-    "for (j in x) { const foo = j }",
-    "for (j in x) { const [foo] = [j] }",
-    "for (j in x) { function foo() {return j} }",
+    'for (j in x) { foo = j }',
+    'for (j in x) { [foo] = [j] }',
+    'for (j in x) { [[foo]=[42]] = [] }',
+    'for (j in x) { var foo = j }',
+    'for (j in x) { var [foo] = [j] }',
+    'for (j in x) { var [[foo]=[42]] = [] }',
+    'for (j in x) { var foo; foo = j }',
+    'for (j in x) { var foo; [foo] = [j] }',
+    'for (j in x) { var foo; [[foo]=[42]] = [] }',
+    'for (j in x) { let foo; foo = j }',
+    'for (j in x) { let foo; [foo] = [j] }',
+    'for (j in x) { let foo; [[foo]=[42]] = [] }',
+    'for (j in x) { let foo = j }',
+    'for (j in x) { let [foo] = [j] }',
+    'for (j in x) { const foo = j }',
+    'for (j in x) { const [foo] = [j] }',
+    'for (j in x) { function foo() {return j} }',
 
-    "for ({j} in x) { foo = j }",
-    "for ({j} in x) { [foo] = [j] }",
-    "for ({j} in x) { [[foo]=[42]] = [] }",
-    "for ({j} in x) { var foo = j }",
-    "for ({j} in x) { var [foo] = [j] }",
-    "for ({j} in x) { var [[foo]=[42]] = [] }",
-    "for ({j} in x) { var foo; foo = j }",
-    "for ({j} in x) { var foo; [foo] = [j] }",
-    "for ({j} in x) { var foo; [[foo]=[42]] = [] }",
-    "for ({j} in x) { let foo; foo = j }",
-    "for ({j} in x) { let foo; [foo] = [j] }",
-    "for ({j} in x) { let foo; [[foo]=[42]] = [] }",
-    "for ({j} in x) { let foo = j }",
-    "for ({j} in x) { let [foo] = [j] }",
-    "for ({j} in x) { const foo = j }",
-    "for ({j} in x) { const [foo] = [j] }",
-    "for ({j} in x) { function foo() {return j} }",
+    'for ({j} in x) { foo = j }',
+    'for ({j} in x) { [foo] = [j] }',
+    'for ({j} in x) { [[foo]=[42]] = [] }',
+    'for ({j} in x) { var foo = j }',
+    'for ({j} in x) { var [foo] = [j] }',
+    'for ({j} in x) { var [[foo]=[42]] = [] }',
+    'for ({j} in x) { var foo; foo = j }',
+    'for ({j} in x) { var foo; [foo] = [j] }',
+    'for ({j} in x) { var foo; [[foo]=[42]] = [] }',
+    'for ({j} in x) { let foo; foo = j }',
+    'for ({j} in x) { let foo; [foo] = [j] }',
+    'for ({j} in x) { let foo; [[foo]=[42]] = [] }',
+    'for ({j} in x) { let foo = j }',
+    'for ({j} in x) { let [foo] = [j] }',
+    'for ({j} in x) { const foo = j }',
+    'for ({j} in x) { const [foo] = [j] }',
+    'for ({j} in x) { function foo() {return j} }',
 
-    "for (var j in x) { foo = j }",
-    "for (var j in x) { [foo] = [j] }",
-    "for (var j in x) { [[foo]=[42]] = [] }",
-    "for (var j in x) { var foo = j }",
-    "for (var j in x) { var [foo] = [j] }",
-    "for (var j in x) { var [[foo]=[42]] = [] }",
-    "for (var j in x) { var foo; foo = j }",
-    "for (var j in x) { var foo; [foo] = [j] }",
-    "for (var j in x) { var foo; [[foo]=[42]] = [] }",
-    "for (var j in x) { let foo; foo = j }",
-    "for (var j in x) { let foo; [foo] = [j] }",
-    "for (var j in x) { let foo; [[foo]=[42]] = [] }",
-    "for (var j in x) { let foo = j }",
-    "for (var j in x) { let [foo] = [j] }",
-    "for (var j in x) { const foo = j }",
-    "for (var j in x) { const [foo] = [j] }",
-    "for (var j in x) { function foo() {return j} }",
-    "for (var {j} in x) { foo = j }",
-    "for (var {j} in x) { [foo] = [j] }",
-    "for (var {j} in x) { [[foo]=[42]] = [] }",
-    "for (var {j} in x) { var foo = j }",
-    "for (var {j} in x) { var [foo] = [j] }",
-    "for (var {j} in x) { var [[foo]=[42]] = [] }",
-    "for (var {j} in x) { var foo; foo = j }",
-    "for (var {j} in x) { var foo; [foo] = [j] }",
-    "for (var {j} in x) { var foo; [[foo]=[42]] = [] }",
-    "for (var {j} in x) { let foo; foo = j }",
-    "for (var {j} in x) { let foo; [foo] = [j] }",
-    "for (var {j} in x) { let foo; [[foo]=[42]] = [] }",
-    "for (var {j} in x) { let foo = j }",
-    "for (var {j} in x) { let [foo] = [j] }",
-    "for (var {j} in x) { const foo = j }",
-    "for (var {j} in x) { const [foo] = [j] }",
-    "for (var {j} in x) { function foo() {return j} }",
+    'for (var j in x) { foo = j }',
+    'for (var j in x) { [foo] = [j] }',
+    'for (var j in x) { [[foo]=[42]] = [] }',
+    'for (var j in x) { var foo = j }',
+    'for (var j in x) { var [foo] = [j] }',
+    'for (var j in x) { var [[foo]=[42]] = [] }',
+    'for (var j in x) { var foo; foo = j }',
+    'for (var j in x) { var foo; [foo] = [j] }',
+    'for (var j in x) { var foo; [[foo]=[42]] = [] }',
+    'for (var j in x) { let foo; foo = j }',
+    'for (var j in x) { let foo; [foo] = [j] }',
+    'for (var j in x) { let foo; [[foo]=[42]] = [] }',
+    'for (var j in x) { let foo = j }',
+    'for (var j in x) { let [foo] = [j] }',
+    'for (var j in x) { const foo = j }',
+    'for (var j in x) { const [foo] = [j] }',
+    'for (var j in x) { function foo() {return j} }',
+    'for (var {j} in x) { foo = j }',
+    'for (var {j} in x) { [foo] = [j] }',
+    'for (var {j} in x) { [[foo]=[42]] = [] }',
+    'for (var {j} in x) { var foo = j }',
+    'for (var {j} in x) { var [foo] = [j] }',
+    'for (var {j} in x) { var [[foo]=[42]] = [] }',
+    'for (var {j} in x) { var foo; foo = j }',
+    'for (var {j} in x) { var foo; [foo] = [j] }',
+    'for (var {j} in x) { var foo; [[foo]=[42]] = [] }',
+    'for (var {j} in x) { let foo; foo = j }',
+    'for (var {j} in x) { let foo; [foo] = [j] }',
+    'for (var {j} in x) { let foo; [[foo]=[42]] = [] }',
+    'for (var {j} in x) { let foo = j }',
+    'for (var {j} in x) { let [foo] = [j] }',
+    'for (var {j} in x) { const foo = j }',
+    'for (var {j} in x) { const [foo] = [j] }',
+    'for (var {j} in x) { function foo() {return j} }',
 
-    "for (let j in x) { foo = j }",
-    "for (let j in x) { [foo] = [j] }",
-    "for (let j in x) { [[foo]=[42]] = [] }",
-    "for (let j in x) { var foo = j }",
-    "for (let j in x) { var [foo] = [j] }",
-    "for (let j in x) { var [[foo]=[42]] = [] }",
-    "for (let j in x) { var foo; foo = j }",
-    "for (let j in x) { var foo; [foo] = [j] }",
-    "for (let j in x) { var foo; [[foo]=[42]] = [] }",
-    "for (let j in x) { let foo; foo = j }",
-    "for (let j in x) { let foo; [foo] = [j] }",
-    "for (let j in x) { let foo; [[foo]=[42]] = [] }",
-    "for (let j in x) { let foo = j }",
-    "for (let j in x) { let [foo] = [j] }",
-    "for (let j in x) { const foo = j }",
-    "for (let j in x) { const [foo] = [j] }",
-    "for (let j in x) { function foo() {return j} }",
+    'for (let j in x) { foo = j }',
+    'for (let j in x) { [foo] = [j] }',
+    'for (let j in x) { [[foo]=[42]] = [] }',
+    'for (let j in x) { var foo = j }',
+    'for (let j in x) { var [foo] = [j] }',
+    'for (let j in x) { var [[foo]=[42]] = [] }',
+    'for (let j in x) { var foo; foo = j }',
+    'for (let j in x) { var foo; [foo] = [j] }',
+    'for (let j in x) { var foo; [[foo]=[42]] = [] }',
+    'for (let j in x) { let foo; foo = j }',
+    'for (let j in x) { let foo; [foo] = [j] }',
+    'for (let j in x) { let foo; [[foo]=[42]] = [] }',
+    'for (let j in x) { let foo = j }',
+    'for (let j in x) { let [foo] = [j] }',
+    'for (let j in x) { const foo = j }',
+    'for (let j in x) { const [foo] = [j] }',
+    'for (let j in x) { function foo() {return j} }',
 
-    "for (let {j} in x) { foo = j }",
-    "for (let {j} in x) { [foo] = [j] }",
-    "for (let {j} in x) { [[foo]=[42]] = [] }",
-    "for (let {j} in x) { var foo = j }",
-    "for (let {j} in x) { var [foo] = [j] }",
-    "for (let {j} in x) { var [[foo]=[42]] = [] }",
-    "for (let {j} in x) { var foo; foo = j }",
-    "for (let {j} in x) { var foo; [foo] = [j] }",
-    "for (let {j} in x) { var foo; [[foo]=[42]] = [] }",
-    "for (let {j} in x) { let foo; foo = j }",
-    "for (let {j} in x) { let foo; [foo] = [j] }",
-    "for (let {j} in x) { let foo; [[foo]=[42]] = [] }",
-    "for (let {j} in x) { let foo = j }",
-    "for (let {j} in x) { let [foo] = [j] }",
-    "for (let {j} in x) { const foo = j }",
-    "for (let {j} in x) { const [foo] = [j] }",
-    "for (let {j} in x) { function foo() {return j} }",
+    'for (let {j} in x) { foo = j }',
+    'for (let {j} in x) { [foo] = [j] }',
+    'for (let {j} in x) { [[foo]=[42]] = [] }',
+    'for (let {j} in x) { var foo = j }',
+    'for (let {j} in x) { var [foo] = [j] }',
+    'for (let {j} in x) { var [[foo]=[42]] = [] }',
+    'for (let {j} in x) { var foo; foo = j }',
+    'for (let {j} in x) { var foo; [foo] = [j] }',
+    'for (let {j} in x) { var foo; [[foo]=[42]] = [] }',
+    'for (let {j} in x) { let foo; foo = j }',
+    'for (let {j} in x) { let foo; [foo] = [j] }',
+    'for (let {j} in x) { let foo; [[foo]=[42]] = [] }',
+    'for (let {j} in x) { let foo = j }',
+    'for (let {j} in x) { let [foo] = [j] }',
+    'for (let {j} in x) { const foo = j }',
+    'for (let {j} in x) { const [foo] = [j] }',
+    'for (let {j} in x) { function foo() {return j} }',
 
-    "for (const j in x) { foo = j }",
-    "for (const j in x) { [foo] = [j] }",
-    "for (const j in x) { [[foo]=[42]] = [] }",
-    "for (const j in x) { var foo = j }",
-    "for (const j in x) { var [foo] = [j] }",
-    "for (const j in x) { var [[foo]=[42]] = [] }",
-    "for (const j in x) { var foo; foo = j }",
-    "for (const j in x) { var foo; [foo] = [j] }",
-    "for (const j in x) { var foo; [[foo]=[42]] = [] }",
-    "for (const j in x) { let foo; foo = j }",
-    "for (const j in x) { let foo; [foo] = [j] }",
-    "for (const j in x) { let foo; [[foo]=[42]] = [] }",
-    "for (const j in x) { let foo = j }",
-    "for (const j in x) { let [foo] = [j] }",
-    "for (const j in x) { const foo = j }",
-    "for (const j in x) { const [foo] = [j] }",
-    "for (const j in x) { function foo() {return j} }",
+    'for (const j in x) { foo = j }',
+    'for (const j in x) { [foo] = [j] }',
+    'for (const j in x) { [[foo]=[42]] = [] }',
+    'for (const j in x) { var foo = j }',
+    'for (const j in x) { var [foo] = [j] }',
+    'for (const j in x) { var [[foo]=[42]] = [] }',
+    'for (const j in x) { var foo; foo = j }',
+    'for (const j in x) { var foo; [foo] = [j] }',
+    'for (const j in x) { var foo; [[foo]=[42]] = [] }',
+    'for (const j in x) { let foo; foo = j }',
+    'for (const j in x) { let foo; [foo] = [j] }',
+    'for (const j in x) { let foo; [[foo]=[42]] = [] }',
+    'for (const j in x) { let foo = j }',
+    'for (const j in x) { let [foo] = [j] }',
+    'for (const j in x) { const foo = j }',
+    'for (const j in x) { const [foo] = [j] }',
+    'for (const j in x) { function foo() {return j} }',
 
-    "for (const {j} in x) { foo = j }",
-    "for (const {j} in x) { [foo] = [j] }",
-    "for (const {j} in x) { [[foo]=[42]] = [] }",
-    "for (const {j} in x) { var foo = j }",
-    "for (const {j} in x) { var [foo] = [j] }",
-    "for (const {j} in x) { var [[foo]=[42]] = [] }",
-    "for (const {j} in x) { var foo; foo = j }",
-    "for (const {j} in x) { var foo; [foo] = [j] }",
-    "for (const {j} in x) { var foo; [[foo]=[42]] = [] }",
-    "for (const {j} in x) { let foo; foo = j }",
-    "for (const {j} in x) { let foo; [foo] = [j] }",
-    "for (const {j} in x) { let foo; [[foo]=[42]] = [] }",
-    "for (const {j} in x) { let foo = j }",
-    "for (const {j} in x) { let [foo] = [j] }",
-    "for (const {j} in x) { const foo = j }",
-    "for (const {j} in x) { const [foo] = [j] }",
-    "for (const {j} in x) { function foo() {return j} }",
+    'for (const {j} in x) { foo = j }',
+    'for (const {j} in x) { [foo] = [j] }',
+    'for (const {j} in x) { [[foo]=[42]] = [] }',
+    'for (const {j} in x) { var foo = j }',
+    'for (const {j} in x) { var [foo] = [j] }',
+    'for (const {j} in x) { var [[foo]=[42]] = [] }',
+    'for (const {j} in x) { var foo; foo = j }',
+    'for (const {j} in x) { var foo; [foo] = [j] }',
+    'for (const {j} in x) { var foo; [[foo]=[42]] = [] }',
+    'for (const {j} in x) { let foo; foo = j }',
+    'for (const {j} in x) { let foo; [foo] = [j] }',
+    'for (const {j} in x) { let foo; [[foo]=[42]] = [] }',
+    'for (const {j} in x) { let foo = j }',
+    'for (const {j} in x) { let [foo] = [j] }',
+    'for (const {j} in x) { const foo = j }',
+    'for (const {j} in x) { const [foo] = [j] }',
+    'for (const {j} in x) { function foo() {return j} }',
 
-    "while (j) { foo = j }",
-    "while (j) { [foo] = [j] }",
-    "while (j) { [[foo]=[42]] = [] }",
-    "while (j) { var foo = j }",
-    "while (j) { var [foo] = [j] }",
-    "while (j) { var [[foo]=[42]] = [] }",
-    "while (j) { var foo; foo = j }",
-    "while (j) { var foo; [foo] = [j] }",
-    "while (j) { var foo; [[foo]=[42]] = [] }",
-    "while (j) { let foo; foo = j }",
-    "while (j) { let foo; [foo] = [j] }",
-    "while (j) { let foo; [[foo]=[42]] = [] }",
-    "while (j) { let foo = j }",
-    "while (j) { let [foo] = [j] }",
-    "while (j) { const foo = j }",
-    "while (j) { const [foo] = [j] }",
-    "while (j) { function foo() {return j} }",
+    'while (j) { foo = j }',
+    'while (j) { [foo] = [j] }',
+    'while (j) { [[foo]=[42]] = [] }',
+    'while (j) { var foo = j }',
+    'while (j) { var [foo] = [j] }',
+    'while (j) { var [[foo]=[42]] = [] }',
+    'while (j) { var foo; foo = j }',
+    'while (j) { var foo; [foo] = [j] }',
+    'while (j) { var foo; [[foo]=[42]] = [] }',
+    'while (j) { let foo; foo = j }',
+    'while (j) { let foo; [foo] = [j] }',
+    'while (j) { let foo; [[foo]=[42]] = [] }',
+    'while (j) { let foo = j }',
+    'while (j) { let [foo] = [j] }',
+    'while (j) { const foo = j }',
+    'while (j) { const [foo] = [j] }',
+    'while (j) { function foo() {return j} }',
 
-    "do { foo = j } while (j)",
-    "do { [foo] = [j] } while (j)",
-    "do { [[foo]=[42]] = [] } while (j)",
-    "do { var foo = j } while (j)",
-    "do { var [foo] = [j] } while (j)",
-    "do { var [[foo]=[42]] = [] } while (j)",
-    "do { var foo; foo = j } while (j)",
-    "do { var foo; [foo] = [j] } while (j)",
-    "do { var foo; [[foo]=[42]] = [] } while (j)",
-    "do { let foo; foo = j } while (j)",
-    "do { let foo; [foo] = [j] } while (j)",
-    "do { let foo; [[foo]=[42]] = [] } while (j)",
-    "do { let foo = j } while (j)",
-    "do { let [foo] = [j] } while (j)",
-    "do { const foo = j } while (j)",
-    "do { const [foo] = [j] } while (j)",
-    "do { function foo() {return j} } while (j)",
+    'do { foo = j } while (j)',
+    'do { [foo] = [j] } while (j)',
+    'do { [[foo]=[42]] = [] } while (j)',
+    'do { var foo = j } while (j)',
+    'do { var [foo] = [j] } while (j)',
+    'do { var [[foo]=[42]] = [] } while (j)',
+    'do { var foo; foo = j } while (j)',
+    'do { var foo; [foo] = [j] } while (j)',
+    'do { var foo; [[foo]=[42]] = [] } while (j)',
+    'do { let foo; foo = j } while (j)',
+    'do { let foo; [foo] = [j] } while (j)',
+    'do { let foo; [[foo]=[42]] = [] } while (j)',
+    'do { let foo = j } while (j)',
+    'do { let [foo] = [j] } while (j)',
+    'do { const foo = j } while (j)',
+    'do { const [foo] = [j] } while (j)',
+    'do { function foo() {return j} } while (j)',
 
     // tests for possible destructuring regression
-    "for (var {j}=x; j<10; ++j) { const foo = j }",
+    'for (var {j}=x; j<10; ++j) { const foo = j }',
     `        for ("boolean" == typeof a && (l = a, a = arguments[s] ||
              {}, s++), "object" == typeof a ||
              g(a) || (a = {}), s === u && (a = this, s--); s < u; s++)
@@ -578,409 +578,409 @@ describe("Statements - For", () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
-      "for (let foo, bar;;);",
+      'for (let foo, bar;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   init: null
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let foo = bar;;);",
+      'for (let foo = bar;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   init: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [,] = x;;);",
+      'for (let [,] = x;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [null]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let\nfoo;;);",
+      'for (let\nfoo;;);',
       Context.OptionsDisableWebCompat,
       {
         body: [
           {
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: {
               declarations: [
                 {
                   id: {
-                    name: "foo",
-                    type: "Identifier"
+                    name: 'foo',
+                    type: 'Identifier'
                   },
                   init: null,
-                  type: "VariableDeclarator"
+                  type: 'VariableDeclarator'
                 }
               ],
-              kind: "let",
-              type: "VariableDeclaration"
+              kind: 'let',
+              type: 'VariableDeclaration'
             },
             test: null,
-            type: "ForStatement",
+            type: 'ForStatement',
             update: null
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "for (let [] = x;;);",
+      'for (let [] = x;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: []
                   },
                   init: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [,,] = x;;);",
+      'for (let [,,] = x;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [null, null]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo] = arr;;);",
+      'for (let [foo] = arr;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo,] = arr;;);",
+      'for (let [foo,] = arr;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo] = arr, [bar] = arr2;;);",
+      'for (let [foo] = arr, [bar] = arr2;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr2"
+                    type: 'Identifier',
+                    name: 'arr2'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo] = arr, bar;;);",
+      'for (let [foo] = arr, bar;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo, ...bar] = obj;;);",
+      'for (let [foo, ...bar] = obj;;);',
       Context.OptionsDisableWebCompat,
       {
         body: [
           {
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: {
               declarations: [
@@ -988,118 +988,118 @@ describe("Statements - For", () => {
                   id: {
                     elements: [
                       {
-                        name: "foo",
-                        type: "Identifier"
+                        name: 'foo',
+                        type: 'Identifier'
                       },
                       {
                         argument: {
-                          name: "bar",
-                          type: "Identifier"
+                          name: 'bar',
+                          type: 'Identifier'
                         },
-                        type: "RestElement"
+                        type: 'RestElement'
                       }
                     ],
-                    type: "ArrayPattern"
+                    type: 'ArrayPattern'
                   },
                   init: {
-                    name: "obj",
-                    type: "Identifier"
+                    name: 'obj',
+                    type: 'Identifier'
                   },
-                  type: "VariableDeclarator"
+                  type: 'VariableDeclarator'
                 }
               ],
-              kind: "let",
-              type: "VariableDeclaration"
+              kind: 'let',
+              type: 'VariableDeclaration'
             },
             test: null,
-            type: "ForStatement",
+            type: 'ForStatement',
             update: null
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "for (let {x} = obj;;);",
+      'for (let {x} = obj;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
                         computed: false,
                         value: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
-                        kind: "init",
+                        kind: 'init',
                         method: false,
                         shorthand: true
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "obj"
+                    type: 'Identifier',
+                    name: 'obj'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo, bar=b] in arr);",
+      'for (let [foo, bar=b] in arr);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForInStatement",
+            type: 'ForInStatement',
             left: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       }
                     ]
@@ -1107,42 +1107,42 @@ describe("Statements - For", () => {
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             right: {
-              type: "Identifier",
-              name: "arr"
+              type: 'Identifier',
+              name: 'arr'
             },
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (var a;;);",
+      'for (var a;;);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: {
-              type: "VariableDeclaration",
-              kind: "var",
+              type: 'VariableDeclaration',
+              kind: 'var',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ]
@@ -1154,237 +1154,237 @@ describe("Statements - For", () => {
       }
     ],
     [
-      "for (var a,b,c;;);",
+      'for (var a,b,c;;);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   init: null
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   init: null
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   },
                   init: null
                 }
               ],
-              kind: "var"
+              kind: 'var'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let a;;);",
+      'for (let a;;);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let a,b,c;;);",
+      'for (let a,b,c;;);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   init: null
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   init: null
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   },
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (var a;;) { let a; }",
+      'for (var a;;) { let a; }',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   init: null
                 }
               ],
-              kind: "var"
+              kind: 'var'
             },
             test: null,
             update: null,
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       init: null
                     }
                   ],
-                  kind: "let"
+                  kind: 'let'
                 }
               ]
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let foo in x);",
+      'for (let foo in x);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForInStatement",
+            type: 'ForInStatement',
             left: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             right: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let foo;;);",
+      'for (let foo;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: {
-              type: "VariableDeclaration",
-              kind: "let",
+              type: 'VariableDeclaration',
+              kind: 'let',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 }
               ]
@@ -1396,39 +1396,39 @@ describe("Statements - For", () => {
       }
     ],
     [
-      "for (;;);",
+      'for (;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: null,
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (a;;);",
+      'for (a;;);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             test: null,
             update: null
@@ -1437,160 +1437,160 @@ describe("Statements - For", () => {
       }
     ],
     [
-      "for (;b;);",
+      'for (;b;);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: null,
             test: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (;;c);",
+      'for (;;c);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: null,
             test: null,
             update: {
-              type: "Identifier",
-              name: "c"
+              type: 'Identifier',
+              name: 'c'
             },
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (a;b;);",
+      'for (a;b;);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             test: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (a;;c);",
+      'for (a;;c);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             test: null,
             update: {
-              type: "Identifier",
-              name: "c"
+              type: 'Identifier',
+              name: 'c'
             },
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (;b;c);",
+      'for (;b;c);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             init: null,
             test: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             update: {
-              type: "Identifier",
-              name: "c"
+              type: 'Identifier',
+              name: 'c'
             }
           }
         ]
       }
     ],
     [
-      "for (let [foo=a, bar=b] in arr);",
+      'for (let [foo=a, bar=b] in arr);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForInStatement",
+            type: 'ForInStatement',
             left: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         }
                       },
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       }
                     ]
@@ -1598,271 +1598,271 @@ describe("Statements - For", () => {
                   init: null
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             right: {
-              type: "Identifier",
-              name: "arr"
+              type: 'Identifier',
+              name: 'arr'
             },
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [...foo] = obj;;);",
+      'for (let [...foo] = obj;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "RestElement",
+                        type: 'RestElement',
                         argument: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         }
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "obj"
+                    type: 'Identifier',
+                    name: 'obj'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo=a, bar=b] = arr;;);",
+      'for (let [foo=a, bar=b] = arr;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         }
                       },
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo, bar=b] = arr;;);",
+      'for (let [foo, bar=b] = arr;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let [foo=a] = arr;;);",
+      'for (let [foo=a] = arr;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         }
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for (let foo = arr, [bar] = arr2;;);",
+      'for (let foo = arr, [bar] = arr2;;);',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForStatement",
+            type: 'ForStatement',
             init: {
-              type: "VariableDeclaration",
+              type: 'VariableDeclaration',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr"
+                    type: 'Identifier',
+                    name: 'arr'
                   }
                 },
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   id: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       }
                     ]
                   },
                   init: {
-                    type: "Identifier",
-                    name: "arr2"
+                    type: 'Identifier',
+                    name: 'arr2'
                   }
                 }
               ],
-              kind: "let"
+              kind: 'let'
             },
             test: null,
             update: null,
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ]
   ];
 
-  pass("Statements - For (pass)", valids);
+  pass('Statements - For (pass)', valids);
 });

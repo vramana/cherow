@@ -1,43 +1,43 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Statements - Try", () => {
-  fail("Statements - Try (fail)", [
-    ["try {} catch (a, a) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([a,a]) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([a] = b) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([a] = b) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([a] = b) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([a] = b) { }", Context.OptionsDisableWebCompat],
-    ["try {} catch (fkleuver) { const fkleuver = 1; } ", Context.OptionsDisableWebCompat],
-    ["try {} catch (foo) { var foo; }", Context.OptionsDisableWebCompat],
-    ["try {} catch (foo) { let foo; }", Context.Empty],
-    ["try {} catch (foo) { try {} catch (_) { var foo; } }", Context.OptionsDisableWebCompat],
-    ["try {} catch ([foo]) { var foo; }", Context.OptionsDisableWebCompat],
-    ["try {} catch ({ foo }) { var foo; }", Context.OptionsDisableWebCompat],
-    ["try {} catch ({ a: foo, b: { c: [foo] } }) {}", Context.Empty],
-    ["try {} catch (foo) { function foo() {} }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { for (var e;;) {} }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { for (var e in y) {} }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { for (var e of y) {} }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { let e = x; }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { const e = x; }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { for (var e of y) {} }", Context.Empty],
-    ["try {} catch (e) { let e = x; }", Context.Empty],
-    ["try {} catch (e) { const e = x; }", Context.Empty],
-    ["try {} catch (e) { for (var e of y) {} }", Context.Empty],
-    ["try {} catch (e) { for (var e of y) {} }", Context.Empty],
-    ["try {} catch(e) { var e; }", Context.OptionsDisableWebCompat],
-    ["try {} catch (e) { let e = x; }", Context.Empty]
+describe('Statements - Try', () => {
+  fail('Statements - Try (fail)', [
+    ['try {} catch (a, a) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([a,a]) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([a] = b) { }', Context.OptionsDisableWebCompat],
+    ['try {} catch (fkleuver) { const fkleuver = 1; } ', Context.OptionsDisableWebCompat],
+    ['try {} catch (foo) { var foo; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (foo) { let foo; }', Context.Empty],
+    ['try {} catch (foo) { try {} catch (_) { var foo; } }', Context.OptionsDisableWebCompat],
+    ['try {} catch ([foo]) { var foo; }', Context.OptionsDisableWebCompat],
+    ['try {} catch ({ foo }) { var foo; }', Context.OptionsDisableWebCompat],
+    ['try {} catch ({ a: foo, b: { c: [foo] } }) {}', Context.Empty],
+    ['try {} catch (foo) { function foo() {} }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { for (var e;;) {} }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { for (var e in y) {} }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { for (var e of y) {} }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { let e = x; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { const e = x; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
+    ['try {} catch (e) { let e = x; }', Context.Empty],
+    ['try {} catch (e) { const e = x; }', Context.Empty],
+    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
+    ['try {} catch (e) { for (var e of y) {} }', Context.Empty],
+    ['try {} catch(e) { var e; }', Context.OptionsDisableWebCompat],
+    ['try {} catch (e) { let e = x; }', Context.Empty]
   ]);
 
   const invalidSyntax: any = [
-    "try { }",
-    "try { } foo();",
-    "try { } catch (e) foo();",
-    "try { } finally foo();",
+    'try { }',
+    'try { } foo();',
+    'try { } catch (e) foo();',
+    'try { } finally foo();',
     `try{}
     catch(){`,
     `try{}
@@ -76,34 +76,34 @@ describe("Statements - Try", () => {
     });
   }
 
-  pass("Statements - Try (pass)", [
+  pass('Statements - Try (pass)', [
     [
-      "try {try { let e; } catch { let e; } finally { let e; }} catch (e) { }",
+      'try {try { let e; } catch { let e; } finally { let e; }} catch (e) { }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "TryStatement",
+                  type: 'TryStatement',
                   block: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
-                        kind: "let",
+                        type: 'VariableDeclaration',
+                        kind: 'let',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             init: null,
                             id: {
-                              type: "Identifier",
-                              name: "e"
+                              type: 'Identifier',
+                              name: 'e'
                             }
                           }
                         ]
@@ -111,21 +111,21 @@ describe("Statements - Try", () => {
                     ]
                   },
                   handler: {
-                    type: "CatchClause",
+                    type: 'CatchClause',
                     param: null,
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "VariableDeclaration",
-                          kind: "let",
+                          type: 'VariableDeclaration',
+                          kind: 'let',
                           declarations: [
                             {
-                              type: "VariableDeclarator",
+                              type: 'VariableDeclarator',
                               init: null,
                               id: {
-                                type: "Identifier",
-                                name: "e"
+                                type: 'Identifier',
+                                name: 'e'
                               }
                             }
                           ]
@@ -134,18 +134,18 @@ describe("Statements - Try", () => {
                     }
                   },
                   finalizer: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
-                        kind: "let",
+                        type: 'VariableDeclaration',
+                        kind: 'let',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             init: null,
                             id: {
-                              type: "Identifier",
-                              name: "e"
+                              type: 'Identifier',
+                              name: 'e'
                             }
                           }
                         ]
@@ -156,13 +156,13 @@ describe("Statements - Try", () => {
               ]
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
@@ -172,54 +172,54 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {try { } catch { } finally { }} catch ({e}) { }",
+      'try {try { } catch { } finally { }} catch ({e}) { }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "TryStatement",
+                  type: 'TryStatement',
                   block: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   handler: {
-                    type: "CatchClause",
+                    type: 'CatchClause',
                     param: null,
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     }
                   },
                   finalizer: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   }
                 }
               ]
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
-                    kind: "init",
+                    type: 'Property',
+                    kind: 'init',
                     key: {
-                      type: "Identifier",
-                      name: "e"
+                      type: 'Identifier',
+                      name: 'e'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "e"
+                      type: 'Identifier',
+                      name: 'e'
                     },
                     method: false,
                     shorthand: true
@@ -227,7 +227,7 @@ describe("Statements - Try", () => {
                 ]
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
@@ -237,38 +237,38 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch(x) { x = 0; }",
+      'try {} catch(x) { x = 0; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     expression: {
-                      type: "AssignmentExpression",
+                      type: 'AssignmentExpression',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
-                      operator: "=",
+                      operator: '=',
                       right: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 0
                       }
                     }
@@ -282,47 +282,47 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch(x) { with ({}) { x = 1; } }",
+      'try {} catch(x) { with ({}) { x = 1; } }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "WithStatement",
+                    type: 'WithStatement',
                     object: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: []
                     },
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ExpressionStatement",
+                          type: 'ExpressionStatement',
                           expression: {
-                            type: "AssignmentExpression",
+                            type: 'AssignmentExpression',
                             left: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             },
-                            operator: "=",
+                            operator: '=',
                             right: {
-                              type: "Literal",
+                              type: 'Literal',
                               value: 1
                             }
                           }
@@ -339,39 +339,39 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch ([a,b,c]) { }",
+      'try {} catch ([a,b,c]) { }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 ]
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
@@ -381,125 +381,125 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (foo) {} var foo;",
+      'try {} catch (foo) {} var foo;',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
             finalizer: null
           },
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: null
               }
             ],
-            kind: "var"
+            kind: 'var'
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try { throw null; } catch ({}) {}",
+      'try { throw null; } catch ({}) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ThrowStatement",
+                  type: 'ThrowStatement',
                   argument: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: null
                   }
                 }
               ]
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: []
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try { } catch (a) { { const a = b; } }",
+      'try { } catch (a) { { const a = b; } }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
+                        type: 'VariableDeclaration',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             id: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             },
                             init: {
-                              type: "Identifier",
-                              name: "b"
+                              type: 'Identifier',
+                              name: 'b'
                             }
                           }
                         ],
-                        kind: "const"
+                        kind: 'const'
                       }
                     ]
                   }
@@ -509,58 +509,58 @@ describe("Statements - Try", () => {
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "var foo; try {} catch (_) { const foo = 1; }",
+      'var foo; try {} catch (_) { const foo = 1; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: null,
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 }
               }
             ]
           },
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "_"
+                type: 'Identifier',
+                name: '_'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
-                    kind: "const",
+                    type: 'VariableDeclaration',
+                    kind: 'const',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         init: {
-                          type: "Literal",
+                          type: 'Literal',
                           value: 1
                         },
                         id: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         }
                       }
                     ]
@@ -574,40 +574,40 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch(e) { try {} catch (e) {} }",
+      'try {} catch(e) { try {} catch (e) {} }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "TryStatement",
+                    type: 'TryStatement',
                     block: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     handler: {
-                      type: "CatchClause",
+                      type: 'CatchClause',
                       param: {
-                        type: "Identifier",
-                        name: "e"
+                        type: 'Identifier',
+                        name: 'e'
                       },
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       }
                     },
@@ -619,46 +619,46 @@ describe("Statements - Try", () => {
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try {} catch (foo) { { let foo; } }",
+      'try {} catch (foo) { { let foo; } }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
+                        type: 'VariableDeclaration',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             id: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             },
                             init: null
                           }
                         ],
-                        kind: "let"
+                        kind: 'let'
                       }
                     ]
                   }
@@ -668,57 +668,57 @@ describe("Statements - Try", () => {
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "var foo; try {} catch (_) { let foo; }",
+      'var foo; try {} catch (_) { let foo; }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: null
               }
             ],
-            kind: "var"
+            kind: 'var'
           },
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "_"
+                type: 'Identifier',
+                name: '_'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
+                    type: 'VariableDeclaration',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         id: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         init: null
                       }
                     ],
-                    kind: "let"
+                    kind: 'let'
                   }
                 ]
               }
@@ -726,49 +726,49 @@ describe("Statements - Try", () => {
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try {} catch (e) { { let e = x; } }",
+      'try {} catch (e) { { let e = x; } }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
+                        type: 'VariableDeclaration',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             id: {
-                              type: "Identifier",
-                              name: "e"
+                              type: 'Identifier',
+                              name: 'e'
                             },
                             init: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             }
                           }
                         ],
-                        kind: "let"
+                        kind: 'let'
                       }
                     ]
                   }
@@ -778,87 +778,87 @@ describe("Statements - Try", () => {
             finalizer: null
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try {} catch (foo) {} let foo;",
+      'try {} catch (foo) {} let foo;',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
             finalizer: null
           },
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: null
               }
             ],
-            kind: "let"
+            kind: 'let'
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "try {} catch (e) { let b = x; }",
+      'try {} catch (e) { let b = x; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
-                    kind: "let",
+                    type: 'VariableDeclaration',
+                    kind: 'let',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         init: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
                         id: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       }
                     ]
@@ -872,40 +872,40 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { var e = x; }",
+      'try {} catch (e) { var e = x; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
-                    kind: "var",
+                    type: 'VariableDeclaration',
+                    kind: 'var',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         init: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
                         id: {
-                          type: "Identifier",
-                          name: "e"
+                          type: 'Identifier',
+                          name: 'e'
                         }
                       }
                     ]
@@ -919,26 +919,26 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (a) { }",
+      'try {} catch (a) { }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               }
             },
@@ -948,50 +948,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (const e in y) {} }",
+      'try {} catch (e) { for (const e in y) {} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForInStatement",
+                    type: 'ForInStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "const",
+                      type: 'VariableDeclaration',
+                      kind: 'const',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 ]
@@ -1003,50 +1003,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (let e of y) {} }",
+      'try {} catch (e) { for (let e of y) {} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForOfStatement",
+                    type: 'ForOfStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "let",
+                      type: 'VariableDeclaration',
+                      kind: 'let',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     await: false
                   }
@@ -1059,50 +1059,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (const e of y) {} }",
+      'try {} catch (e) { for (const e of y) {} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForOfStatement",
+                    type: 'ForOfStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "const",
+                      type: 'VariableDeclaration',
+                      kind: 'const',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     await: false
                   }
@@ -1115,50 +1115,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (var e in y) {} }",
+      'try {} catch (e) { for (var e in y) {} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForInStatement",
+                    type: 'ForInStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "var",
+                      type: 'VariableDeclaration',
+                      kind: 'var',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 ]
@@ -1170,50 +1170,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (let e of y) {} }",
+      'try {} catch (e) { for (let e of y) {} }',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForOfStatement",
+                    type: 'ForOfStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "let",
+                      type: 'VariableDeclaration',
+                      kind: 'let',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     await: false
                   }
@@ -1226,50 +1226,50 @@ describe("Statements - Try", () => {
       }
     ],
     [
-      "try {} catch (e) { for (const e of y) {} }",
+      'try {} catch (e) { for (const e of y) {} }',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "TryStatement",
+            type: 'TryStatement',
             block: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             handler: {
-              type: "CatchClause",
+              type: 'CatchClause',
               param: {
-                type: "Identifier",
-                name: "e"
+                type: 'Identifier',
+                name: 'e'
               },
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ForOfStatement",
+                    type: 'ForOfStatement',
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     left: {
-                      type: "VariableDeclaration",
-                      kind: "const",
+                      type: 'VariableDeclaration',
+                      kind: 'const',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "e"
+                            type: 'Identifier',
+                            name: 'e'
                           }
                         }
                       ]
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     await: false
                   }
