@@ -56,7 +56,8 @@ export const enum Flags {
   Octal = 1 << 3,
   Binary = 1 << 4,
   SeenPrototype = 1 << 5,
-  SimpleParameterList  = 1 << 6
+  SimpleParameterList = 1 << 6,
+  HasPrivateName = 1 << 7,
 }
 // prettier-ignore
 /**
@@ -170,6 +171,7 @@ export interface ParserState {
   largestBackReference: number;
   lastChar: number;
   inCatch: boolean;
+  assignable: boolean;
   exportedNames: any[];
   exportedBindings: any[];
   labelSet: any;
@@ -537,6 +539,7 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
   return (
     (t & Token.IsIdentifier) === Token.IsIdentifier ||
     (t & Token.Contextual) === Token.Contextual ||
+    (t && t !== Token.ImportKeyword && t & Token.Reserved) === Token.Reserved ||
     (t & Token.FutureReserved) === Token.FutureReserved
   );
 }

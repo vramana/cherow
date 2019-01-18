@@ -9,6 +9,14 @@ describe('Declarations - Var', () => {
     ['const a = b; var a = c', Context.Empty],
     ['{ var f; function f() {} }', Context.Empty],
 
+    ['var foo = {}; foo.{;', Context.Empty],
+    ['var foo = {}; foo.};', Context.Empty],
+    ['var foo = {}; foo.=;', Context.Empty],
+    ['ar foo = {}; foo.888;', Context.Empty],
+    ['var foo = {}; foo.-;', Context.Empty],
+    ['"use strict"; var foo = {}; foo.-;', Context.Empty],
+    ['var foo = {}; foo.--;', Context.Empty],
+
     // Bindings - Blockstatement
 
     ['{ let x; var x; }', Context.Empty]

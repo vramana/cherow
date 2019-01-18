@@ -83,7 +83,10 @@ export const enum Errors {
   PublicFieldConstructor,
   PrivateStaticPrototype,
   AsyncRestricedProd,
-  OnlyMethodInClass
+  OnlyMethodInClass,
+  DeletePrivateField,
+  StrictLHSPrefixPostFix,
+  InvalidLHSInAssignment
 }
 
 /*@internal*/
@@ -175,7 +178,11 @@ export const errorMessages: {
   [Errors.PublicFieldConstructor]: "Classes may not have a field named 'constructor'",
   [Errors.PrivateStaticPrototype]: "Classes may not have a static private property named '#prototype'",
   [Errors.AsyncRestricedProd]: 'Async methods are a restricted production and cannot have a newline following it',
-  [Errors.OnlyMethodInClass]: 'Only methods are allowed in classes'
+  [Errors.OnlyMethodInClass]: 'Only methods are allowed in classes',
+  [Errors.DeletePrivateField]: 'Private fields can not be deleted',
+  [Errors.StrictLHSPrefixPostFix]: 'Private fields can not be deleted',
+  [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
+  [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {

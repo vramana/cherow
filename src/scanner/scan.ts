@@ -176,13 +176,12 @@ table[Chars.Hyphen] = (state, context) => {
   state.column++;
   if (state.index < state.length) {
     const next = state.source.charCodeAt(state.index);
-
     if (next === Chars.Hyphen) {
       state.index++;
       state.column++;
       if (
         (context & Context.OptionsDisableWebCompat) === 0 &&
-        (state.flags & Flags.NewLine && consumeOpt(state, Chars.GreaterThan))
+        ((state.flags & Flags.NewLine || state.startIndex === 0) && consumeOpt(state, Chars.GreaterThan))
       ) {
         return skipSingleHTMLComment(state, context, CommentType.HTMLClose);
       }

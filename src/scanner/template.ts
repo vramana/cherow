@@ -21,9 +21,8 @@ export function scanTemplate(state: ParserState, context: Context): Token {
   loop: while (ch !== Chars.Backtick) {
     switch (ch) {
       case Chars.Dollar: {
-        const index = state.index + 1;
-        if (index < state.source.length && state.source.charCodeAt(index) === Chars.LeftBrace) {
-          state.index = index;
+        if (state.index + 1 < state.source.length && state.source.charCodeAt(state.index + 1) === Chars.LeftBrace) {
+          state.index++;
           state.column++;
           tail = false;
           break loop;
@@ -122,7 +121,7 @@ function scanLooserTemplateSegment(state: ParserState, ch: number): number {
  * @param parser Parser object
  * @param context Context masks
  */
-export function consumeTemplateBrace(state: ParserState, context: Context): Token {
+export function scanTemplateTail(state: ParserState, context: Context): Token {
   if (state.index >= state.length) return report(state, Errors.Unexpected);
   state.index--;
   state.column--;

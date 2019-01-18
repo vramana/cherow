@@ -64,7 +64,7 @@ export function scanPrivateName(state: ParserState, _: Context): Token {
   let { index, column } = state;
   index++;
   column++;
-  let start = index;
+  const start = index;
   // This validation is only to prevent `# x` and `# 3foo` cases.
   // Note: We have to be inside a class context for this to be valid
   if (/*!(context & Context.InClass) ||*/ !isIdentifierStart(state.source.charCodeAt(index))) {

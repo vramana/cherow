@@ -51,26 +51,29 @@ export function skipSingleHTMLComment(state: ParserState, context: Context, type
  */
 export function skipSingleLineComment(state: ParserState, type: CommentType): Token {
   const { index: start } = state;
-  loop: while (state.index < state.length) {
-    switch (state.source.charCodeAt(state.index)) {
-      case Chars.CarriageReturn:
-        state.index++;
+  while (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
+    if ((next & 8) === 8 && (next & 83) < 3) {
+      if (next === Chars.CarriageReturn) {
+        ++state.index;
         state.column = 0;
-        state.line++;
+        ++state.line;
         if (state.index < state.length && state.source.charCodeAt(state.index) === Chars.LineFeed) state.index++;
         state.flags | Flags.NewLine;
-        break loop;
-      case Chars.LineFeed:
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
-        state.index++;
+        break;
+      } else if (next === Chars.LineFeed || (next ^ Chars.ParagraphSeparator) <= 1) {
+        ++state.index;
         state.column = 0;
-        state.line++;
+        ++state.line;
         state.flags | Flags.NewLine;
-        break loop;
-
-      default:
-        consumeAny(state);
+        break;
+      } else {
+        ++state.index;
+        ++state.column;
+      }
+    } else {
+      ++state.index;
+      ++state.column;
     }
   }
   if (state.onComment)
@@ -80,47 +83,46 @@ export function skipSingleLineComment(state: ParserState, type: CommentType): To
 
 export function skipBlockComment(state: ParserState): Token {
   const { index: start } = state;
-  while (state.index < state.length) {
-    switch (state.source.charCodeAt(state.index)) {
-      case Chars.Asterisk:
-        state.index++;
-        state.column++;
-        state.flags &= ~Flags.LastIsCR;
-        if (consumeOpt(state, Chars.Slash)) {
-          if (state.onComment)
-            state.onComment(
-              CommentTypes[CommentType.Multi & 0xff],
-              state.source.slice(start, state.index - 2),
-              start,
-              state.index
-            );
-          return Token.WhiteSpace;
-        }
-        break;
 
-      case Chars.CarriageReturn:
+  while (state.index < state.length) {
+    const next = state.source.charCodeAt(state.index);
+    if (next === Chars.Asterisk) {
+      state.index++;
+      state.column++;
+      state.flags &= ~Flags.LastIsCR;
+      if (consumeOpt(state, Chars.Slash)) {
+        if (state.onComment)
+          state.onComment(
+            CommentTypes[CommentType.Multi & 0xff],
+            state.source.slice(start, state.index - 2),
+            start,
+            state.index
+          );
+        return Token.WhiteSpace;
+      }
+    } else if ((next & 8) === 8) {
+      if ((next & 83) < 3 && next === Chars.CarriageReturn) {
         state.flags |= Flags.NewLine | Flags.LastIsCR;
         state.index++;
         state.column = 0;
         state.line++;
-        break;
-
-      case Chars.LineFeed:
+      } else if (next === Chars.LineFeed) {
         consumeLineFeed(state, (state.flags & Flags.LastIsCR) !== 0);
         state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
-        break;
-
-      case Chars.LineSeparator:
-      case Chars.ParagraphSeparator:
+      } else if ((next ^ Chars.ParagraphSeparator) <= 1) {
         state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
         state.index++;
         state.column = 0;
         state.line++;
-        break;
-
-      default:
+      } else {
         state.flags &= ~Flags.LastIsCR;
-        consumeAny(state);
+        state.index++;
+        state.column++;
+      }
+    } else {
+      state.flags &= ~Flags.LastIsCR;
+      state.index++;
+      state.column++;
     }
   }
 
