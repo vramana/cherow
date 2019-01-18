@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Const', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Declarations - Let (fail)', [
     // Bindings
 
     ['const a = b, a = c', Context.Empty],
@@ -35,9 +35,11 @@ describe('Declarations - Const', () => {
     let = "irrelevant initializer";`,
       Context.Empty
     ],
-    ['let let', Context.Empty]
-  ];
-  fail('Declarations - Let (fail)', inValids);
+    ['let let', Context.Empty],
+    ['const [let] = 1', Context.Empty],
+    ['const let = 1', Context.Empty]
+  ]);
+
   const validSyntax = [
     'const a = Infinity;',
     'const b = -Infinity;',
