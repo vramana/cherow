@@ -39,7 +39,8 @@ export declare const enum Flags {
     Octal = 8,
     Binary = 16,
     SeenPrototype = 32,
-    SimpleParameterList = 64
+    SimpleParameterList = 64,
+    HasPrivateName = 128
 }
 export declare const enum Type {
     None = 0,
@@ -123,6 +124,7 @@ export interface ParserState {
     largestBackReference: number;
     lastChar: number;
     inCatch: boolean;
+    assignable: boolean;
     exportedNames: any[];
     exportedBindings: any[];
     labelSet: any;

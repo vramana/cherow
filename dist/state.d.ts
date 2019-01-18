@@ -52,13 +52,14 @@ export declare function parseVariableDeclarationList(state: ParserState, context
 export declare function parseExpression(state: ParserState, context: Context): any;
 export declare function parseSequenceExpression(state: ParserState, context: Context, left: ESTree.Expression): ESTree.SequenceExpression;
 export declare function nextTokenisIdentifierOrParen(state: ParserState, context: Context): boolean | number;
+export declare function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean;
 export declare function parseLeftHandSideExpression(state: ParserState, context: Context): any;
 export declare function parseMetaProperty(state: ParserState, context: Context, id: ESTree.Identifier): any;
 export declare function parsePrimaryExpression(state: ParserState, context: Context): any;
-export declare function parseArrayLiteral(state: ParserState, context: Context): any;
-export declare function parseGroupExpression(state: ParserState, context: Context): any;
+export declare function parseArrayLiteral(state: ParserState, context: Context): ESTree.ArrayExpression;
+export declare function parseParenthesizedExpression(state: ParserState, context: Context): any;
 export declare function parseClassBodyAndElementList(state: ParserState, context: Context, origin: Origin): ESTree.ClassBody;
-export declare function parseLiteral(state: ParserState, context: Context): ESTree.Literal;
+export declare function parseLiteral(state: ParserState, context: Context, value: string | boolean | null): ESTree.Literal;
 export declare function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier;
 export declare function parseBigIntLiteral(state: ParserState, context: Context): ESTree.BigIntLiteral;
 //# sourceMappingURL=state.d.ts.map
