@@ -1,16 +1,16 @@
-import { Context } from '../../../src/common';
-import { pass, fail } from '../../test-utils';
-import * as t from 'assert';
-import { parseSource } from '../../../src/cherow';
+import { Context } from "../../../src/common";
+import { pass, fail } from "../../test-utils";
+import * as t from "assert";
+import { parseSource } from "../../../src/cherow";
 
-describe('Module - Import', () => {
+describe("Module - Import", () => {
   const failures = [
-    'import',
-    'import;',
-    'import {};',
-    'import {} from;',
+    "import",
+    "import;",
+    "import {};",
+    "import {} from;",
     "import {,} from 'a';",
-    'import from;',
+    "import from;",
     "import {function} from 'a';",
     "import {a as function} from 'a';",
     "import {b,,c} from 'a';",
@@ -22,12 +22,12 @@ describe('Module - Import', () => {
     "import a, b from 'a'",
     "import from 'foo';",
     "import 'a',",
-    'import { };',
-    'import {;',
-    'import };',
-    'import { , };',
+    "import { };",
+    "import {;",
+    "import };",
+    "import { , };",
     "import { , } from 'foo';",
-    'import { a } from;',
+    "import { a } from;",
     "import { a } 'foo';",
     "import , from 'foo';",
     "import a , from 'foo';",
@@ -66,19 +66,48 @@ describe('Module - Import', () => {
     'iimport { class, var } from "foo"',
     'import { a as class } from "foo"',
     'import * as class from "foo"',
-    'import { foo, bar }',
-    'import foo from bar',
-    'import * 12',
+    "import { foo, bar }",
+    "import foo from bar",
+    "import * 12",
+    "import from;",
+    "import from 'm.js';",
+    "import { };",
+    "import {;",
+    "import };",
+    "import { , };",
+    "import { , } from 'm.js';",
+    "import { a } from;",
+    "import { a } 'm.js';",
+    "import , from 'm.js';",
+    "import a , from 'm.js';",
+    "import a { b, c } from 'm.js';",
+    //    "import arguments from 'm.js';",
+    // "import eval from 'm.js';",
+    // "import { arguments } from 'm.js';",
+    // "import { eval } from 'm.js';",
+    // "import { a as arguments } from 'm.js';",
+    "import { for } from 'm.js';",
+    "import { y as yield } from 'm.js'",
+    "import { s as static } from 'm.js'",
+    "import { l as let } from 'm.js'",
+    "import { a as await } from 'm.js';",
+    // "import { a as enum } from 'm.js';",
+    "import { x }, def from 'm.js';",
+    "import def, def2 from 'm.js';",
+    "import * as x, def from 'm.js';",
+    "import * as x, * as y from 'm.js';",
+    "import {x}, {y} from 'm.js';",
+    "import * as x, {y} from 'm.js';",
     "import a, 12 from 'foo'",
-    'import * as a from 12',
-    'import {a as b, e as l 12',
-    'import icefapper from ;',
+    "import * as a from 12",
+    "import {a as b, e as l 12",
+    "import icefapper from ;",
     '{ import in_block from ""; }',
-    'import {',
-    'import { foo',
-    'import { foo as ',
-    'import { foo as bar ',
-    'import { foo as bar, ',
+    "import {",
+    "import { foo",
+    "import { foo as ",
+    "import { foo as bar ",
+    "import { foo as bar, ",
     'import { foo as switch } from "module";',
     'import { foo, , } from "module";',
     `for (const y in [])
@@ -94,11 +123,11 @@ describe('Module - Import', () => {
   }
 
   const inValids: Array<[string, Context]> = [
-    ['import foo', Context.Strict | Context.Module],
-    ['import', Context.Strict | Context.Module],
-    ['import;', Context.Strict | Context.Module],
-    ['import {}', Context.Strict | Context.Module],
-    ['import {} from;', Context.Strict | Context.Module],
+    ["import foo", Context.Strict | Context.Module],
+    ["import", Context.Strict | Context.Module],
+    ["import;", Context.Strict | Context.Module],
+    ["import {}", Context.Strict | Context.Module],
+    ["import {} from;", Context.Strict | Context.Module],
     ["import {,} from 'a';", Context.Strict | Context.Module],
     ["import {b,,} from 'a';", Context.Strict | Context.Module],
     ["import {a as function} from 'a';", Context.Strict | Context.Module],
@@ -111,12 +140,12 @@ describe('Module - Import', () => {
     ["import a, b from 'a'", Context.Strict | Context.Module],
     ["import from 'foo';", Context.Strict | Context.Module],
     ["import 'a',", Context.Strict | Context.Module],
-    ['import { };', Context.Strict | Context.Module],
-    ['import {;', Context.Strict | Context.Module],
-    ['import };', Context.Strict | Context.Module],
-    ['import { , };', Context.Strict | Context.Module],
+    ["import { };", Context.Strict | Context.Module],
+    ["import {;", Context.Strict | Context.Module],
+    ["import };", Context.Strict | Context.Module],
+    ["import { , };", Context.Strict | Context.Module],
     ["import { , } from 'foo';", Context.Strict | Context.Module],
-    ['import { a } from;', Context.Strict | Context.Module],
+    ["import { a } from;", Context.Strict | Context.Module],
     ["import { a } 'foo';", Context.Strict | Context.Module],
     ["import , from 'foo';", Context.Strict | Context.Module],
     ["import a , from 'foo';", Context.Strict | Context.Module],
@@ -141,16 +170,16 @@ describe('Module - Import', () => {
     ["import * as x, * as y from 'foo';", Context.Strict | Context.Module],
     ["import * as x, {y} from 'foo';", Context.Strict | Context.Module],
     ['import default from "foo"', Context.Strict | Context.Module],
-    ['import foo from bar', Context.Strict | Context.Module],
-    ['import * 12', Context.Strict | Context.Module],
-    ['import {a as b, e as l 12', Context.Strict | Context.Module],
-    ['import cherow from ;', Context.Strict | Context.Module],
-    ['import cherow from 12', Context.Strict | Context.Module],
-    ['import cherow from []', Context.Strict | Context.Module],
+    ["import foo from bar", Context.Strict | Context.Module],
+    ["import * 12", Context.Strict | Context.Module],
+    ["import {a as b, e as l 12", Context.Strict | Context.Module],
+    ["import cherow from ;", Context.Strict | Context.Module],
+    ["import cherow from 12", Context.Strict | Context.Module],
+    ["import cherow from []", Context.Strict | Context.Module],
     ['import foo, bar from "foo.js";', Context.Strict | Context.Module],
     ['import { foo }, * as ns1 from "foo.js";', Context.Strict | Context.Module],
     ['import [ foo ] from "foo.js";', Context.Strict | Context.Module],
-    ['import { foo as ', Context.Strict | Context.Module],
+    ["import { foo as ", Context.Strict | Context.Module],
     ['import { foo as switch } from "module";', Context.Strict | Context.Module],
     ['import { foo, , } from "module";', Context.Strict | Context.Module],
     ['import * as a in b from "foo";', Context.Strict | Context.Module],
@@ -171,19 +200,19 @@ describe('Module - Import', () => {
     ['import {a} from "c"; import {b as a} from "c"', Context.Strict | Context.Module],
     ['import {a} from "c"; import {a as a} from "c"', Context.Strict | Context.Module],
     ['import a from "c"; import * as a from "c"', Context.Strict | Context.Module],
-    ['import { foo, bar }', Context.Strict | Context.Module],
+    ["import { foo, bar }", Context.Strict | Context.Module],
     ['import foo { bar } from "bar";', Context.Strict | Context.Module],
-    ['export {foo} from bar', Context.Strict | Context.Module],
+    ["export {foo} from bar", Context.Strict | Context.Module],
     ['import * as foo, {bar} from "foo";', Context.Strict | Context.Module],
     ['import * as foo, {bar} from "foo";', Context.Strict | Context.Module],
-    ['import {default as foo}', Context.Strict | Context.Module],
+    ["import {default as foo}", Context.Strict | Context.Module],
     ['import {bar}, * as foo from "foo";', Context.Strict | Context.Module],
     ['import * from "foo"', Context.Strict | Context.Module],
     ['import { null } from "null"', Context.Strict | Context.Module],
     ['import foo, from "bar";', Context.Strict | Context.Module]
   ];
 
-  fail('Module - Export (fail)', inValids);
+  fail("Module - Export (fail)", inValids);
 
   const programs = [
     "import 'foo';",
@@ -198,6 +227,24 @@ describe('Module - Import', () => {
     "import { for as f } from 'foo';",
     "import { yield as y } from 'foo';",
     "import { static as s } from 'foo';",
+    "import 'somemodule.js';",
+    "import { } from 'm.js';",
+    "import { a } from 'm.js';",
+    "import { a, b as d, c, } from 'm.js';",
+    "import * as thing from 'm.js';",
+    "import thing from 'm.js';",
+    "import thing, * as rest from 'm.js';",
+    "import thing, { a, b, c } from 'm.js';",
+    "import { arguments as a } from 'm.js';",
+    "import { for as f } from 'm.js';",
+    "import { yield as y } from 'm.js';",
+    "import { static as s } from 'm.js';",
+    "import { let as l } from 'm.js';",
+    "import thing from 'a.js'; export {thing};",
+    "export {thing}; import thing from 'a.js';",
+    "import {thing} from 'a.js'; export {thing};",
+    "export {thing}; import {thing} from 'a.js';",
+    "import * as thing from 'a.js'; export {thing};",
     "import { let as l } from 'foo';",
     "import { q as z } from 'foo';",
     'import { null as nil } from "bar"',
@@ -247,15 +294,15 @@ describe('Module - Import', () => {
       'import {} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -265,56 +312,56 @@ describe('Module - Import', () => {
       'import e, {f as g, h as i, j} from "module";',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'e'
+                  type: "Identifier",
+                  name: "e"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'g'
+                  type: "Identifier",
+                  name: "g"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'f'
+                  type: "Identifier",
+                  name: "f"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'i'
+                  type: "Identifier",
+                  name: "i"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'h'
+                  type: "Identifier",
+                  name: "h"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'j'
+                  type: "Identifier",
+                  name: "j"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'j'
+                  type: "Identifier",
+                  name: "j"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'module'
+              type: "Literal",
+              value: "module"
             }
           }
         ]
@@ -324,38 +371,38 @@ describe('Module - Import', () => {
       'import {n, o as p} from "module";',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'n'
+                  type: "Identifier",
+                  name: "n"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'n'
+                  type: "Identifier",
+                  name: "n"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'p'
+                  type: "Identifier",
+                  name: "p"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'o'
+                  type: "Identifier",
+                  name: "o"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'module'
+              type: "Literal",
+              value: "module"
             }
           }
         ]
@@ -365,60 +412,60 @@ describe('Module - Import', () => {
       'import { as, get, set, from } from "baz"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'as'
+                  type: "Identifier",
+                  name: "as"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'as'
+                  type: "Identifier",
+                  name: "as"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'get'
+                  type: "Identifier",
+                  name: "get"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'get'
+                  type: "Identifier",
+                  name: "get"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'set'
+                  type: "Identifier",
+                  name: "set"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'set'
+                  type: "Identifier",
+                  name: "set"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'from'
+                  type: "Identifier",
+                  name: "from"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'from'
+                  type: "Identifier",
+                  name: "from"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'baz'
+              type: "Literal",
+              value: "baz"
             }
           }
         ]
@@ -428,30 +475,30 @@ describe('Module - Import', () => {
       'import x, * as ns from "foo"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportNamespaceSpecifier',
+                type: "ImportNamespaceSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'ns'
+                  type: "Identifier",
+                  name: "ns"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'foo'
+              type: "Literal",
+              value: "foo"
             }
           }
         ]
@@ -461,23 +508,23 @@ describe('Module - Import', () => {
       'import $ from "foo"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: '$'
+                  type: "Identifier",
+                  name: "$"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'foo'
+              type: "Literal",
+              value: "foo"
             }
           }
         ]
@@ -487,23 +534,23 @@ describe('Module - Import', () => {
       'import * as d from "module";',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportNamespaceSpecifier',
+                type: "ImportNamespaceSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'd'
+                  type: "Identifier",
+                  name: "d"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'module'
+              type: "Literal",
+              value: "module"
             }
           }
         ]
@@ -513,38 +560,38 @@ describe('Module - Import', () => {
       'import {n, o as p} from "module";',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'n'
+                  type: "Identifier",
+                  name: "n"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'n'
+                  type: "Identifier",
+                  name: "n"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'p'
+                  type: "Identifier",
+                  name: "p"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'o'
+                  type: "Identifier",
+                  name: "o"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'module'
+              type: "Literal",
+              value: "module"
             }
           }
         ]
@@ -554,23 +601,23 @@ describe('Module - Import', () => {
       'import icefapper from "await"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'icefapper'
+                  type: "Identifier",
+                  name: "icefapper"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'await'
+              type: "Literal",
+              value: "await"
             }
           }
         ]
@@ -580,23 +627,23 @@ describe('Module - Import', () => {
       'import x from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -606,163 +653,163 @@ describe('Module - Import', () => {
       'import {a, b} from "c"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'b'
+                  type: "Identifier",
+                  name: "b"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'b'
+                  type: "Identifier",
+                  name: "b"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'c'
+              type: "Literal",
+              value: "c"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import * as a from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportNamespaceSpecifier',
+                type: "ImportNamespaceSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import x, * as a from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportDefaultSpecifier',
+                type: "ImportDefaultSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportNamespaceSpecifier',
+                type: "ImportNamespaceSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -772,27 +819,27 @@ describe('Module - Import', () => {
       'import {x,} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -802,57 +849,57 @@ describe('Module - Import', () => {
       'import {x as z} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x as z,} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -862,120 +909,120 @@ describe('Module - Import', () => {
       'import {x, z} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x, z,} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x as a, z} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ]
@@ -985,126 +1032,126 @@ describe('Module - Import', () => {
       'import {x, z as b} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'b'
+                  type: "Identifier",
+                  name: "b"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x as a, z as b} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'b'
+                  type: "Identifier",
+                  name: "b"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ],
     [
       'import {x as a, z as b,} from "y"',
       Context.Strict | Context.Module,
       {
-        type: 'Program',
+        type: "Program",
         body: [
           {
-            type: 'ImportDeclaration',
+            type: "ImportDeclaration",
             specifiers: [
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'a'
+                  type: "Identifier",
+                  name: "a"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'x'
+                  type: "Identifier",
+                  name: "x"
                 }
               },
               {
-                type: 'ImportSpecifier',
+                type: "ImportSpecifier",
                 local: {
-                  type: 'Identifier',
-                  name: 'b'
+                  type: "Identifier",
+                  name: "b"
                 },
                 imported: {
-                  type: 'Identifier',
-                  name: 'z'
+                  type: "Identifier",
+                  name: "z"
                 }
               }
             ],
             source: {
-              type: 'Literal',
-              value: 'y'
+              type: "Literal",
+              value: "y"
             }
           }
         ],
-        sourceType: 'module'
+        sourceType: "module"
       }
     ]
   ];
 
-  pass('Module - Export', valids);
+  pass("Module - Export", valids);
 });
