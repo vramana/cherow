@@ -453,6 +453,8 @@ export function next(state: ParserState, context: Context): Token {
   state.flags &= ~Flags.NewLine; // reset the 'NewLine' flag for each scan
   while (state.index < state.length) {
     state.startIndex = state.index;
+    state.startColumn = state.column;
+    state.startLine = state.line;
     const first = state.source.charCodeAt(state.index);
     if (((state.token = table[first](state, context, first)) & Token.WhiteSpace) !== Token.WhiteSpace) {
       if (state.onToken) state.onToken(state.token, state.startIndex, state.index);

@@ -26,9 +26,10 @@ describe('Declarations - Let', () => {
     // Bindings - Blockstatement
 
     ['let x; { var x; var y; }', Context.Empty],
-    ['let x; { var x; }', Context.Empty]
+    ['let x; { var x; }', Context.Empty],
 
-    //['let [foo];', Context.Empty],
+    ['let let = 1', Context.Empty]
+    // ['let [foo];', Context.Empty],
     // ['let [foo = x];', Context.Empty],
     //    ['let [foo], bar;', Context.Empty],
     //['let foo, [bar];', Context.Empty],
@@ -184,6 +185,48 @@ describe('Declarations - Let', () => {
                 }
               }
             ]
+          }
+        ]
+      }
+    ],
+    [
+      'let',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Identifier',
+              name: 'let'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'let = 1',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'let'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 1
+              }
+            }
           }
         ]
       }

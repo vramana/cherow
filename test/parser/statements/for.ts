@@ -18,6 +18,19 @@ describe('Statements - For', () => {
     ['for (let a, b, x, d;;) { var foo; var bar; { var doo, x, ee; } }', Context.OptionsDisableWebCompat],
 
     // General
+
+    ['for (const let = 1; let < 1; let++) {}', Context.OptionsDisableWebCompat],
+    ['for (const let in {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const let of []) {}', Context.OptionsDisableWebCompat],
+    ['for (let [let] = 1; let < 1; let++) {}', Context.OptionsDisableWebCompat],
+    ['for (let [let] in {}) {}', Context.OptionsDisableWebCompat],
+    ['for (let [let] of []) {}', Context.OptionsDisableWebCompat],
+    ['for (const [let] = 1; let < 1; let++) {}', Context.OptionsDisableWebCompat],
+    ['for (const [let] in {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const [let] of []) {}', Context.OptionsDisableWebCompat],
+    ['for (let let = 1; let < 1; let++) {}', Context.OptionsDisableWebCompat],
+    ['for (let let in {}) {}', Context.OptionsDisableWebCompat],
+    ['for (let let of []) {}', Context.OptionsDisableWebCompat],
     ['for (var [foo] = arr, [bar] = arr2);', Context.OptionsDisableWebCompat],
     ['for (var [foo,,bar] = arr);', Context.OptionsDisableWebCompat],
     ['for (var [foo,bar] = arr);', Context.OptionsDisableWebCompat],
@@ -356,7 +369,12 @@ describe('Statements - For', () => {
     'for (const j of x) { const foo = j }',
     'for (const j of x) { const [foo] = [j] }',
     'for (const j of x) { function foo() {return j} }',
-
+    // "for (let = 1; let < 1; let++) {}",
+    'for (let in {}) {}',
+    'for (var let = 1; let < 1; let++) {}',
+    'for (var let in {}) {}',
+    'for (var [let] = 1; let < 1; let++) {}',
+    'for (var [let] in {}) {}',
     'for (const {j} of x) { foo = j }',
     'for (const {j} of x) { [foo] = [j] }',
     'for (const {j} of x) { [[foo]=[42]] = [] }',

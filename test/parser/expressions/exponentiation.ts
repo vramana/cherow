@@ -4,7 +4,7 @@ import { parseSource } from '../../../src/cherow';
 import * as t from 'assert';
 
 describe('Expressions - Exponentiation', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Expressions - Exponentiation', [
     ['(async function f() { (await x ** y) }', Context.Empty],
     ['(-x ** 2)', Context.Empty],
     ['(+x ** 2)', Context.Empty],
@@ -17,9 +17,37 @@ describe('Expressions - Exponentiation', () => {
     ['delete 3 ** 2;', Context.Empty],
     ['!3 ** 2;', Context.Empty],
     ['typeof 3 ** 2;', Context.Empty],
-    ['~3 ** 2;', Context.Empty]
-  ];
-  fail('Expressions - Template', inValids);
+    ['~3 ** 2;', Context.Empty],
+    ['delete O.p ** 10', Context.Empty],
+    ['delete x ** 10', Context.Empty],
+    ['~O.p ** 10', Context.Empty],
+    ['~x ** 10', Context.Empty],
+    ['!O.p ** 10', Context.Empty],
+    ['!x ** 10', Context.Empty],
+    ['+O.p ** 10', Context.Empty],
+    ['+x ** 10', Context.Empty],
+    ['-O.p ** 10', Context.Empty],
+    ['-x ** 10', Context.Empty],
+    ['typeof O.p ** 10', Context.Empty],
+    ['typeof x ** 10', Context.Empty],
+    ['void ** 10', Context.Empty],
+    ['void O.p ** 10', Context.Empty],
+    ['void x ** 10', Context.Empty],
+    ['++delete O.p ** 10', Context.Empty],
+    ['--delete O.p ** 10', Context.Empty],
+    ['++~O.p ** 10', Context.Empty],
+    ['++~x ** 10', Context.Empty],
+    ['--!O.p ** 10', Context.Empty],
+    ['--!x ** 10', Context.Empty],
+    ['++-O.p ** 10', Context.Empty],
+    ['++-x ** 10', Context.Empty],
+    ['--+O.p ** 10', Context.Empty],
+    ['--+x ** 10', Context.Empty],
+    // ["[ x ] **= [ 2 ]", Context.Empty],
+    //["[ x **= 2 ] = [ 2 ]", Context.Empty],
+    ['{ x } **= { x: 2 }', Context.Empty],
+    ['{ x: x **= 2 ] = { x: 2 }', Context.Empty]
+  ]);
 
   const validSyntax = [
     '(delete O.p) ** 10',
