@@ -20,6 +20,36 @@ fail('Expressions - Unary (fail)', [
 
 pass('Expressions - Unary (pass)', [
   [
+    'delete obj.$$hashKey;',
+    Context.Empty,
+    {
+      body: [
+        {
+          expression: {
+            argument: {
+              computed: false,
+              object: {
+                name: 'obj',
+                type: 'Identifier'
+              },
+              property: {
+                name: '$$hashKey',
+                type: 'Identifier'
+              },
+              type: 'MemberExpression'
+            },
+            operator: 'delete',
+            prefix: true,
+            type: 'UnaryExpression'
+          },
+          type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+  ],
+  [
     'delete async',
     Context.Empty,
     {

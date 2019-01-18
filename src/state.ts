@@ -2275,21 +2275,14 @@ function parseUnaryExpression(state: ParserState, context: Context): ESTree.Expr
   if ((state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
     const unaryOperator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
-    if (context & Context.Strict && (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword) {
-      // The extra 'import' check fixes 'delete import.meta' wich is valid
-      if (state.token & Token.Identifier && (state.token & Token.ImportKeyword) !== Token.ImportKeyword)
-        report(state, Errors.StrictDelete);
-    }
     const argument: ESTree.Expression = parseUnaryExpression(state, context);
     if (state.token === Token.Exponentiate) report(state, Errors.InvalidLOExponentation);
-    if (
-      context & Context.OptionsNext &&
-      // Prevent further validation in case this isn't a 'PrivateName'
-      state.flags & Flags.HasPrivateName &&
-      context & Context.Strict &&
-      (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword
-    ) {
-      report(state, Errors.DeletePrivateField);
+    if (context & Context.Strict && (unaryOperator & Token.DeleteKeyword) === Token.DeleteKeyword) {
+      if (argument.type === 'Identifier') {
+        report(state, Errors.StrictDelete);
+      } else if (context & Context.OptionsNext && state.flags & Flags.HasPrivateName) {
+        report(state, Errors.DeletePrivateField);
+      }
     }
     return {
       type: 'UnaryExpression',
