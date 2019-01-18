@@ -110,8 +110,6 @@ export function parseSource(source: string, options: Options | void, context: Co
     if (options.disableWebCompat) context |= Context.OptionsDisableWebCompat;
     // The flag to enable stage 3 support (ESNext)
     if (options.next) context |= Context.OptionsNext;
-    // The flag to enable React JSX parsing
-    if (options.jsx) context |= Context.OptionsJSX;
     // The flag to enable start and end offsets to each node
     if (options.ranges) context |= Context.OptionsRanges;
     // The flag to enable start and end offsets to each node

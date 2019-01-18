@@ -1,6 +1,6 @@
 import * as t from 'assert';
 import { next } from '../../src/scanner';
-import { Context } from '../../src/common';
+import { Context, pushComment } from '../../src/common';
 import { create } from '../../src/state';
 
 describe('Lexer - Whitespace', () => {
@@ -18,7 +18,7 @@ function run(isModule: boolean) {
 
   function pass(name: string, opts: Opts) {
     it(name, () => {
-      const state = create(opts.source, undefined);
+      const state = create(opts.source, pushComment(Context.OptionsLoc, []));
       next(state, Context.Empty);
       t.deepEqual(
         {

@@ -5,23 +5,38 @@ import { parseModule, parseScript, parse } from '../../../src/cherow';
 
 describe('Expressions - Functions', () => {
   it('should parse script code with "parse"', () => {
-    t.deepEqual(parse('foo'), {
-      body: [
-        {
-          expression: {
-            name: 'foo',
-            type: 'Identifier'
-          },
-          type: 'ExpressionStatement'
-        }
-      ],
-      sourceType: 'script',
-      type: 'Program'
-    });
+    t.deepEqual(
+      parse('foo', {
+        experimental: true,
+        loc: true,
+        ranges: true,
+        native: true,
+        jsx: true,
+        disableWebCompat: true,
+        onComment: [],
+        onToken: [],
+        module: true
+      }),
+      {
+        body: [
+          {
+            expression: {
+              name: 'foo',
+              type: 'Identifier'
+            },
+            type: 'ExpressionStatement'
+          }
+        ],
+        end: 3,
+        sourceType: 'module',
+        start: 0,
+        type: 'Program'
+      }
+    );
   });
 
   it('should parse script code', () => {
-    t.deepEqual(parseScript('foo'), {
+    t.deepEqual(parseScript('foo', { onComment: function() {}, onToken: function() {}, ecmaVersion: 2015 }), {
       body: [
         {
           expression: {

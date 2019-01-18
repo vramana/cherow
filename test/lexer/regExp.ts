@@ -1,13 +1,13 @@
 import * as t from 'assert';
 import { next } from '../../src/scanner';
 import { create } from '../../src/state';
-import { Context } from '../../src/common';
+import { Context, pushToken } from '../../src/common';
 import { Token } from '../../src/token';
 
 describe('Lexer - RegExp', () => {
   function pass(name: string, opts: any) {
     it(name, () => {
-      const state = create(opts.source, undefined, undefined);
+      const state = create(opts.source, undefined, pushToken(Context.OptionsLoc, []));
       t.deepEqual(
         {
           token: next(state, Context.AllowPossibleRegEx),
