@@ -1220,6 +1220,60 @@ describe('Statements - For', () => {
       }
     ],
     [
+      'for (var x = 0; x < 1000000; x++);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            },
+            test: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              right: {
+                type: 'Literal',
+                value: 1000000
+              },
+              operator: '<'
+            },
+            update: {
+              type: 'UpdateExpression',
+              argument: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '++',
+              prefix: false
+            }
+          }
+        ]
+      }
+    ],
+    [
       'for (let a;;);',
       Context.Empty,
       {

@@ -827,6 +827,246 @@ describe('Next - Static private fields', () => {
       }
     ],
     [
+      `class A {
+        static #a = 1;
+        static getA() { return this.#a; }
+        }`,
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'a',
+                    type: 'PrivateName'
+                  },
+                  static: true,
+                  type: 'FieldDefinition',
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    name: 'getA',
+                    type: 'Identifier'
+                  },
+                  kind: 'method',
+                  static: true,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [
+                        {
+                          argument: {
+                            computed: false,
+                            object: {
+                              type: 'ThisExpression'
+                            },
+                            property: {
+                              name: 'a',
+                              type: 'PrivateName'
+                            },
+                            type: 'MemberExpression'
+                          },
+                          type: 'ReturnStatement'
+                        }
+                      ],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'A',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    [
+      `class A {
+            static #a = 1;
+            static #b = this.#a;
+            static getB() { return this.#b; }
+           }`,
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'a',
+                    type: 'PrivateName'
+                  },
+                  static: true,
+                  type: 'FieldDefinition',
+                  value: {
+                    type: 'Literal',
+                    value: 1
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    name: 'b',
+                    type: 'PrivateName'
+                  },
+                  static: true,
+                  type: 'FieldDefinition',
+                  value: {
+                    computed: false,
+                    object: {
+                      type: 'ThisExpression'
+                    },
+                    property: {
+                      name: 'a',
+                      type: 'PrivateName'
+                    },
+                    type: 'MemberExpression'
+                  }
+                },
+                {
+                  computed: false,
+                  key: {
+                    name: 'getB',
+                    type: 'Identifier'
+                  },
+                  kind: 'method',
+                  static: true,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [
+                        {
+                          argument: {
+                            computed: false,
+                            object: {
+                              type: 'ThisExpression'
+                            },
+                            property: {
+                              name: 'b',
+                              type: 'PrivateName'
+                            },
+                            type: 'MemberExpression'
+                          },
+                          type: 'ReturnStatement'
+                        }
+                      ],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'A',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    [
+      `class A { static #a; static getA() { return this.#a; } }`,
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        body: [
+          {
+            body: {
+              body: [
+                {
+                  computed: false,
+                  key: {
+                    name: 'a',
+                    type: 'PrivateName'
+                  },
+                  static: true,
+                  type: 'FieldDefinition',
+                  value: null
+                },
+                {
+                  computed: false,
+                  key: {
+                    name: 'getA',
+                    type: 'Identifier'
+                  },
+                  kind: 'method',
+                  static: true,
+                  type: 'MethodDefinition',
+                  value: {
+                    async: false,
+                    body: {
+                      body: [
+                        {
+                          argument: {
+                            computed: false,
+                            object: {
+                              type: 'ThisExpression'
+                            },
+                            property: {
+                              name: 'a',
+                              type: 'PrivateName'
+                            },
+                            type: 'MemberExpression'
+                          },
+                          type: 'ReturnStatement'
+                        }
+                      ],
+                      type: 'BlockStatement'
+                    },
+                    generator: false,
+                    id: null,
+                    params: [],
+                    type: 'FunctionExpression'
+                  }
+                }
+              ],
+              type: 'ClassBody'
+            },
+            id: {
+              name: 'A',
+              type: 'Identifier'
+            },
+            superClass: null,
+            type: 'ClassDeclaration'
+          }
+        ],
+        sourceType: 'module',
+        type: 'Program'
+      }
+    ],
+    [
       `class A { static #a; }`,
       Context.Strict | Context.Module | Context.OptionsNext,
       {

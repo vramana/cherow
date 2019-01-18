@@ -2705,7 +2705,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
     } else {
       expressions.push(parseAssignmentExpression(state, context));
     }
-    if (state.token !== <Token>Token.RightParen) expect(state, context, Token.Comma);
+    if (state.token !== <Token>Token.RightParen) expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);

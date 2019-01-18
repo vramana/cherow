@@ -274,6 +274,224 @@ describe('Miscellaneous - Passing tests', () => {
     'my_var;',
     '{my_var}',
     '',
+    `function assert(a, e) {
+      if (a !== e)
+          throw new Error("Expected: " + e + " but got: " + a);
+  }
+
+  function bitAnd(a, b) {
+      return a & b;
+  }
+  noInline(bitAnd);
+
+  var o = { valueOf: () => 0b1101 };
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitAnd(0b11, o), 0b1);
+
+  assert(numberOfDFGCompiles(bitAnd) <= 1, true);
+
+  function bitOr(a, b) {
+      return a | b;
+  }
+  noInline(bitOr);
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitOr(0b11, o), 0b1111);
+
+  assert(numberOfDFGCompiles(bitOr) <= 1, true);
+
+  function bitXor(a, b) {
+      return a ^ b;
+  }
+  noInline(bitXor);
+
+  for (var i = 0; i < 10000; i++)
+      assert(bitXor(0b0011, o), 0b1110);
+
+  assert(numberOfDFGCompiles(bitXor) <= 1, true);`,
+    `for (var i = 0; i < 1e6; ++i)
+    foo();
+for (var i = 0; i < 1e6; ++i)
+    shouldBe(get(), 4);
+`,
+    `function foo() {
+      bar = 4;
+  }
+  function get() {
+      return bar;
+  }`,
+    `var invokeCount = 0;
+
+     Object.defineProperty(Function.prototype, 'prototype', {
+         get: function () {
+             invokeCount++;
+         }
+     });
+
+     new Promise(resolve => {
+         for (var i = 0; i < 10000; ++i)
+             new resolve();
+
+         if (invokeCount != 10000)
+             $vm.crash();
+     });`,
+    `forEach({ length: 5 }, function() {
+      for (var i = 0; i < 10; i++) {
+          forEach([1], function() {});
+      }
+  });
+
+  function forEach(a, b) {
+      for (var c = 0; c < a.length; c++)
+          b();
+  }`,
+    `function shouldBe(actual, expected)
+     {
+         if (actual !== expected)
+             throw new Error('bad value: ' + actual);
+     }
+     noInline(shouldBe);
+
+     function test(value)
+     {
+         return Object.prototype.toString.call(value);
+     }
+     noInline(test);
+
+     for (var i = 0; i < 1e6; ++i) {
+         switch (i % 3) {
+         case 0:
+             shouldBe(test(null), "[object Null]");
+             break;
+         case 1:
+             shouldBe(test(undefined), "[object Undefined]");
+             break;
+         case 2:
+             shouldBe(test(true), "[object Boolean]");
+             break;
+         }
+     }`,
+    `for (var i = 0; i < 1e6; ++i) {
+      if (i & 0x1)
+          shouldBe(test(null), "[object Null]");
+      else
+          shouldBe(test(undefined), "[object Undefined]");
+  }`,
+    `function f(x, y) {
+      x.y = y;
+  };
+
+  function g(x) {
+      return x.y + 42;
+  }
+  noInline(f);
+  noInline(g);
+
+  var x = {};
+  var y = {};
+  f(x, 42);
+  f(y, {});
+
+  while (!numberOfDFGCompiles(g)) {
+      optimizeNextInvocation(g);
+      if (typeof g(x) !== 'number')
+          throw 'failed warming up';
+  }
+
+  if (typeof g(y) !== 'string')
+      throw 'failed after compilation';`,
+    `function __isPropertyOfType(obj, name, type) {
+      desc = Object.getOwnPropertyDescriptor(obj, name)
+      return typeof type === 'undefined' || typeof desc.value === type;
+  }
+  function __getProperties(obj, type) {
+      let properties = [];
+      for (let name of Object.getOwnPropertyNames(obj)) {
+          if (__isPropertyOfType(obj, name, type)) properties.push(name);
+      }
+      let proto = Object.getPrototypeOf(obj);
+      while (proto && proto != Object.prototype) {
+          Object.getOwnPropertyNames(proto).forEach(name => {
+          });
+          proto = Object.getPrototypeOf(proto);
+      }
+      return properties;
+  }
+  function* __getObjects(root = this, level = 0) {
+      if (level > 4) return;
+      let obj_names = __getProperties(root, 'object');
+      for (let obj_name of obj_names) {
+          let obj = root[obj_name];
+          yield* __getObjects(obj, level + 1);
+      }
+  }
+  function __getRandomObject() {
+      for (let obj of __getObjects()) {
+      }
+  }
+  var theClass = class {
+      constructor() {
+          if (242487 != null && typeof __getRandomObject() == "object") try {
+          } catch (e) {}
+      }
+  };
+  var childClass = class Class extends theClass {
+      constructor() {
+          var arrow = () => {
+              try {
+                  super();
+              } catch (e) {}
+              this.idValue
+          };
+          arrow()()();
+      }
+  };
+  for (var counter = 0; counter < 1000; counter++) {
+      try {
+          new childClass();
+      } catch (e) {}
+  }`,
+    `function Hello(y) {
+    this.y = y;
+    this.x = foo(this.y);
+  }
+  function foo(z) {
+    try {
+      for (var i = 0; i < 1; i++) {
+        z[i];
+      }
+    } catch {
+    }
+  }
+  new Hello('a');
+  new Hello('a');
+  for (let i = 0; i < 100; ++i) {
+    new Hello();
+  }
+
+  // Busy loop to let the crash reporter have a chance to capture the crash log for the Compiler thread.
+  for (let i = 0; i < 1000000; ++i) {
+      $vm.ftlTrue();
+  }`,
+    `function foo(o) {
+    for (var i = 0; i < 100; ++i) {
+        o.f = o.f;
+    }
+}
+
+let typedArrays = [
+    Uint8Array,
+    Uint32Array,
+    Uint8Array,
+];
+
+for (let constructor of typedArrays) {
+    let a = new constructor(0);
+    for (let i = 0; i < 10000; i++) {
+        foo(a);
+    }
+}`,
     'function inner2(my_var) { my_var; }',
     'function inner2(my_var) { }',
     'function inner2(my_var = 5) { my_var; }',
