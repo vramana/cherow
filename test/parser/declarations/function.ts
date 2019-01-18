@@ -82,6 +82,13 @@ describe('Declarations - Function', () => {
     ['function (){}', Context.Empty],
     ['class {}', Context.Empty],
 
+    // ['function foo(bar, interface) { "use strict"; }', Context.Empty],
+    // ['function foo(arguments) { "use strict"; }', Context.Empty],
+    // ['function foo(yield) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, eval) { "use strict"; }', Context.Empty],
+    ['function foo(bar, bar) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, yield) { "use strict"; }', Context.Empty],
+
     // Strict function names
     ['function eval() {"use strict";}', Context.Empty],
     ['function arguments() {"use strict";}', Context.Empty],
@@ -245,7 +252,41 @@ describe('Declarations - Function', () => {
     'function ref(a,) {}',
     'function eval() { }',
     'function interface() { }',
-    'function yield() { }'
+    'function yield() { }',
+    'function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}',
+    "function f(arg) {'use strict'; g(arg); arguments[0] = 42; g(arg)}",
+    'function f(arg) {g(arg); f.arguments[0] = 42; g(arg)}',
+    'function f(arg, args=arguments) {g(arg); args[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); arg = 42; g(arg)}',
+    "function f(arg) {g(arg); eval('arg = 42'); g(arg)}",
+    'function f(arg) {g(arg); var arg = 42; g(arg)}',
+    'function f(arg, x=1) {g(arg); arg = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arg = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arg = 42; g(arg)}',
+    "function f(arg) {'use strict'; g(arg); arg = 42; g(arg)}",
+    'function f(arg, {a=(g(arg), arg=42)}) {g(arg)}',
+    'function f(arg) {g(arg); g(function() {arg = 42}); g(arg)}',
+    "function f(arg) {g(arg); g(function() {eval('arg = 42')}); g(arg)}",
+    'function f(arg) {g(arg); g(() => arg = 42); g(arg)}',
+    "function f(arg) {g(arg); g(() => eval('arg = 42')); g(arg)}",
+    "function f(...arg) {g(arg); eval('arg = 42'); g(arg)}",
+    'function f(arg) {}',
+    'function f(arg) {g(arg)}',
+    'function f(arg) {function h() { g(arg) }; h()}',
+    'function f(arg) {function h() { g(arg) }; return h}',
+    'function f(arg=1) {}',
+    'function f(arg=1) {g(arg)}',
+    'function f(arg, arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(...arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}',
+    'function f(arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); h(arguments); g(arg)}',
+    "function f(arg) {g(arg); eval('arguments[0] = 42'); g(arg)}",
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}'
   ];
 
   for (const arg of programs) {
@@ -660,6 +701,148 @@ describe('Declarations - Function', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      '"use strict"; { function x() {} }; x = 0;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 0
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function x() { eval(""); }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'eval'
+                    },
+                    arguments: [
+                      {
+                        type: 'Literal',
+                        value: ''
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function(x) { eval(""); })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'eval'
+                      },
+                      arguments: [
+                        {
+                          type: 'Literal',
+                          value: ''
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              async: false,
+              generator: false,
+              id: null
+            }
+          }
+        ]
       }
     ],
     [

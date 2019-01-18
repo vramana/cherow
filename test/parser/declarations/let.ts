@@ -75,6 +75,120 @@ describe('Declarations - Let', () => {
 
   pass('Statements - Let (pass)', [
     [
+      '"use strict"; let x;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '"use strict"; let x; x = 8;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 8
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '"use strict"; let x = 8;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 8
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
       'let = b',
       Context.Empty,
       {

@@ -4,7 +4,24 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Statements - For of', () => {
-  const inValids: Array<[string, Context]> = [['for (let of x) y', Context.OptionsDisableWebCompat]];
+  const inValids: Array<[string, Context]> = [
+    ['for (let of x) y', Context.OptionsDisableWebCompat],
+    //['for (var i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    //['for (var i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    //['for (var i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    //['for (let i, j of {}) {}', Context.OptionsDisableWebCompat],
+    //['for (let i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    // ['for (let i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    //    ['for (let i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for(const x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(var x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat]
+  ];
 
   const programs = [
     'for({a=0} of b);',
@@ -19,11 +36,21 @@ describe('Statements - For of', () => {
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { var [foo] = [j] }',
     'for (j of x) { const [foo] = [j] }',
+    'for (var i, j of {}) {}',
     'for (j of x) { function foo() {return j} }',
     'for ({j} of x) { foo = j }',
     'for ({j} of x) { let foo = j }',
     'for ({j} of x) { function foo() {return j} }',
     'for (var {j} of x) { foo = j }',
+    'function* g() { for(x of yield) {} }',
+    'function* g() { for(var x of yield) {} }',
+    'function* g() { for(let x of yield) {} }',
+    'function* g() { for(const x of yield) {} }',
+    // AssignmentExpression should be validated statically:
+    'for(x of { y = 23 }) {}',
+    'for(var x of { y = 23 }) {}',
+    //"for(let x of { y = 23 }) {}",
+    'for(const x of { y = 23 }) {}',
     'for (var {j} of x) { let foo = j }',
     'for (let j of x) { const [foo] = [j] }',
     'for (let j of x) { [foo] = [j] }',
