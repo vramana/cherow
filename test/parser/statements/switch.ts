@@ -2,7 +2,7 @@ import { Context } from '../../../src/common';
 import { pass, fail } from '../../test-utils';
 
 describe('Expressions - Switch', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Statements - Return (fail)', [
     // Bindings
 
     ['switch (x) { case a: let foo; break; case b: let foo; break; }', Context.OptionsDisableWebCompat],
@@ -45,7 +45,6 @@ describe('Expressions - Switch', () => {
     ['switch (0) { case 1: let f; default: async function* f() {} }', Context.OptionsDisableWebCompat],
     ['switch (0) { case 1: var f; default: const f = 0 }', Context.OptionsDisableWebCompat],
     ['switch (0) { case 1: var f; default: let f }', Context.OptionsDisableWebCompat],
-    ['switch (0) { case 1: var f; default: var f }', Context.OptionsDisableWebCompat],
     ['switch (0) { case 1: function* f() {} default: async function* f() {} }', Context.OptionsDisableWebCompat],
     ['switch (0) { case 1: function f() {} default: var f }', Context.OptionsDisableWebCompat],
     ['switch (0) { case 1: function f() {} default: function* f() {} }', Context.OptionsDisableWebCompat],
@@ -74,10 +73,185 @@ describe('Expressions - Switch', () => {
     }`,
       Context.OptionsDisableWebCompat
     ]
-  ];
+  ]);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      '"use strict"; switch(x) { case 1: }',
+      Context.OptionsRaw | Context.OptionsDirectives,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'SwitchStatement',
+            discriminant: {
+              type: 'Identifier',
+              name: 'x'
+            },
+            cases: [
+              {
+                type: 'SwitchCase',
+                test: {
+                  type: 'Literal',
+                  value: 1
+                },
+                consequent: []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'function foo() {"use strict"; switch(x) { default: class C {}; function f() {}}}',
+      Context.OptionsNext | Context.OptionsDirectives,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict'
+                  },
+                  directive: ''
+                },
+                {
+                  type: 'SwitchStatement',
+                  discriminant: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  cases: [
+                    {
+                      type: 'SwitchCase',
+                      test: null,
+                      consequent: [
+                        {
+                          type: 'ClassDeclaration',
+                          id: {
+                            type: 'Identifier',
+                            name: 'C'
+                          },
+                          superClass: null,
+                          body: {
+                            type: 'ClassBody',
+                            body: []
+                          }
+                        },
+                        {
+                          type: 'EmptyStatement'
+                        },
+                        {
+                          type: 'FunctionDeclaration',
+                          params: [],
+                          body: {
+                            type: 'BlockStatement',
+                            body: []
+                          },
+                          async: false,
+                          generator: false,
+                          id: {
+                            type: 'Identifier',
+                            name: 'f'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'foo'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function foo() {"use strict"; switch(x) { default:class C extends Q {}}}',
+      Context.OptionsNext | Context.OptionsDirectives,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict'
+                  },
+                  directive: ''
+                },
+                {
+                  type: 'SwitchStatement',
+                  discriminant: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  cases: [
+                    {
+                      type: 'SwitchCase',
+                      test: null,
+                      consequent: [
+                        {
+                          type: 'ClassDeclaration',
+                          id: {
+                            type: 'Identifier',
+                            name: 'C'
+                          },
+                          superClass: {
+                            type: 'Identifier',
+                            name: 'Q'
+                          },
+                          body: {
+                            type: 'ClassBody',
+                            body: []
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'foo'
+            }
+          }
+        ]
+      }
+    ],
     [
       'switch (A) {case B: C;}',
       Context.Empty,
