@@ -1,50 +1,50 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Declarations - Const", () => {
+describe('Declarations - Const', () => {
   const inValids: Array<[string, Context]> = [
     // Bindings
 
-    ["const a = b, a = c", Context.Empty],
-    ["const a = b; const a = c", Context.Empty],
-    ["let a = b; const a = c", Context.Empty],
-    ["const a = b; let a = c", Context.Empty],
-    ["const x = a; const x = b;", Context.Empty],
-    ["let x = a; const x = b;", Context.Empty],
-    ["var x = a; const x = b;", Context.Empty],
+    ['const a = b, a = c', Context.Empty],
+    ['const a = b; const a = c', Context.Empty],
+    ['let a = b; const a = c', Context.Empty],
+    ['const a = b; let a = c', Context.Empty],
+    ['const x = a; const x = b;', Context.Empty],
+    ['let x = a; const x = b;', Context.Empty],
+    ['var x = a; const x = b;', Context.Empty],
 
     // Bindings - Blockstatement
 
-    ["const x; { let x; var y; }", Context.Empty],
-    ["{ const f = a; let f; }", Context.Empty],
-    ["{ const f = a; function f() {} }", Context.Empty],
+    ['const x; { let x; var y; }', Context.Empty],
+    ['{ const f = a; let f; }', Context.Empty],
+    ['{ const f = a; function f() {} }', Context.Empty],
 
     // General
 
-    ["const a", Context.Empty],
-    ["const a, b, c", Context.Empty],
-    ["const a, b = c", Context.Empty],
-    ["const class = foo", Context.Empty],
-    ["const break = foo", Context.Empty],
-    ["const break = foo", Context.Empty],
+    ['const a', Context.Empty],
+    ['const a, b, c', Context.Empty],
+    ['const a, b = c', Context.Empty],
+    ['const class = foo', Context.Empty],
+    ['const break = foo', Context.Empty],
+    ['const break = foo', Context.Empty],
     ['const let = "foo";', Context.Empty],
     [
       `const
     let = "irrelevant initializer";`,
       Context.Empty
     ],
-    ["let let", Context.Empty]
+    ['let let', Context.Empty]
   ];
-  fail("Declarations - Let (fail)", inValids);
+  fail('Declarations - Let (fail)', inValids);
   const validSyntax = [
-    "const a = Infinity;",
-    "const b = -Infinity;",
-    "const c = +Infinity;",
-    "const d = /abc/;",
-    "const e = /abc/g;",
-    "const f = /abc/gi;"
+    'const a = Infinity;',
+    'const b = -Infinity;',
+    'const c = +Infinity;',
+    'const d = /abc/;',
+    'const e = /abc/g;',
+    'const f = /abc/gi;'
   ];
 
   for (const arg of validSyntax) {
@@ -60,28 +60,28 @@ describe("Declarations - Const", () => {
       });
     });
   }
-  pass("Declarations - Const (pass)", [
+  pass('Declarations - Const (pass)', [
     // Babylon issue: https://github.com/babel/babel/issues/6687
     [
-      "const await = foo;",
+      'const await = foo;',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "const",
+            type: 'VariableDeclaration',
+            kind: 'const',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 id: {
-                  type: "Identifier",
-                  name: "await"
+                  type: 'Identifier',
+                  name: 'await'
                 }
               }
             ]
@@ -93,33 +93,33 @@ describe("Declarations - Const", () => {
       '"use strict"; { const x = 1; }; x = 0;',
       Context.OptionsDirectives | Context.OptionsRaw,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "Literal",
-              value: "use strict"
+              type: 'Literal',
+              value: 'use strict'
             },
-            directive: "use strict"
+            directive: 'use strict'
           },
           {
-            type: "BlockStatement",
+            type: 'BlockStatement',
             body: [
               {
-                type: "VariableDeclaration",
-                kind: "const",
+                type: 'VariableDeclaration',
+                kind: 'const',
                 declarations: [
                   {
-                    type: "VariableDeclarator",
+                    type: 'VariableDeclarator',
                     init: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     },
                     id: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     }
                   }
                 ]
@@ -127,19 +127,19 @@ describe("Declarations - Const", () => {
             ]
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           },
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Literal",
+                type: 'Literal',
                 value: 0
               }
             }
@@ -148,30 +148,30 @@ describe("Declarations - Const", () => {
       }
     ],
     [
-      "const foo = bar;",
+      'const foo = bar;',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: {
-                  type: "Identifier",
-                  name: "bar"
+                  type: 'Identifier',
+                  name: 'bar'
                 }
               }
             ],
-            kind: "const"
+            kind: 'const'
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ]
   ]);

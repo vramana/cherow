@@ -1,9 +1,9 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Expressions - Arrows", () => {
+describe('Expressions - Arrows', () => {
   const fuckingsIcefapper = [
     `const a = () => {return (3, 4);};`,
     `"use strict";
@@ -16,132 +16,132 @@ describe("Expressions - Arrows", () => {
     `({a,b=b,a:c,[a]:[d]})=>0;`,
     `(() => {}) || true;
 (() => {}) ? a : b;`,
-    "(() => {}) + 2",
-    "new (() => {});",
-    "bar ? ( (x) => x ) : baz;",
-    "bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;",
-    "bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;",
-    "bar ? ( (a, (a, (b, c) => 0)) ) : baz;",
-    "bar ? ( foo ? bar : baz => {} ) : baz;",
-    "bar ? ( (a, {}) => {} ) : baz;",
-    "bar ? ( (x, y = 9) => {} ) : baz;",
-    "bar ? ( (...a) => {} ) : baz;",
-    "bar ? ( ([x] = []) => {} ) : baz;",
-    "bar ? ( (x = 9, ...a) => {} ) : baz;",
-    "(x, y = 9, {b}, z = 8, ...a) => {}",
-    "(x = 9) => {}",
-    "([x = 0]) => {}",
-    "(a, (a, (b, c) => 0))",
+    '(() => {}) + 2',
+    'new (() => {});',
+    'bar ? ( (x) => x ) : baz;',
+    'bar ? ( (x, y) => (u, v) => x*u + y*v ) : baz;',
+    'bar ? ( (a, b) => 0, (c, d) => 1 ) : baz;',
+    'bar ? ( (a, (a, (b, c) => 0)) ) : baz;',
+    'bar ? ( foo ? bar : baz => {} ) : baz;',
+    'bar ? ( (a, {}) => {} ) : baz;',
+    'bar ? ( (x, y = 9) => {} ) : baz;',
+    'bar ? ( (...a) => {} ) : baz;',
+    'bar ? ( ([x] = []) => {} ) : baz;',
+    'bar ? ( (x = 9, ...a) => {} ) : baz;',
+    '(x, y = 9, {b}, z = 8, ...a) => {}',
+    '(x = 9) => {}',
+    '([x = 0]) => {}',
+    '(a, (a, (b, c) => 0))',
     `a => 0`,
     `() => () => 0`,
-    "() => 0, 1",
-    "() => 0 + 1",
-    "(a,b) => 0 + 1",
+    '() => 0, 1',
+    '() => 0 + 1',
+    '(a,b) => 0 + 1',
     `(a,b,...c) => 0 + 1`,
-    "() => (a) = 0",
-    "a => b => c => 0",
+    '() => (a) = 0',
+    'a => b => c => 0',
     '(e) => "test"',
-    "(a, ...[]) => 1",
+    '(a, ...[]) => 1',
     "(x)=>{'use strict';}",
-    "(() => 5)() === 5;",
-    "a, b => 0",
-    "a, b, (c, d) => 0",
-    "(a, b, (c, d) => 0)",
-    "(a, b) => 0, (c, d) => 1",
-    "(a, b => {}, a => a + 1)",
-    "((a, b) => {}, (a => a + 1))",
-    "(a, (a, (b, c) => 0))",
-    "() => a + b - yield / 1",
+    '(() => 5)() === 5;',
+    'a, b => 0',
+    'a, b, (c, d) => 0',
+    '(a, b, (c, d) => 0)',
+    '(a, b) => 0, (c, d) => 1',
+    '(a, b => {}, a => a + 1)',
+    '((a, b) => {}, (a => a + 1))',
+    '(a, (a, (b, c) => 0))',
+    '() => a + b - yield / 1',
     '(() => { try { Function("0 || () => 2")(); } catch(e) { return true; } })();',
-    "var f = (function() { return z => arguments[0]; }(5));",
-    "({y}) => x;",
-    "([x = 10]) => x",
-    "({x = 10, y: { z = 10 }}) => [x, z]",
-    "({x = 10}) => x",
+    'var f = (function() { return z => arguments[0]; }(5));',
+    '({y}) => x;',
+    '([x = 10]) => x',
+    '({x = 10, y: { z = 10 }}) => [x, z]',
+    '({x = 10}) => x',
     `([y]) => x;`,
-    "(x=1) => x * x;",
-    "(eval = 10) => 42;",
-    "(a, {}) => {}",
-    "({}, a) => {}",
-    "([]) => {}",
-    "(a, []) => {}",
-    "([], a) => {}",
-    "(a = b) => {}",
-    "(a = b, c) => {}",
-    "(a, b = c) => {}",
-    "({a}) => {}",
-    "(x = 9) => {}",
-    "(a, b=(c)=>{}) => {}",
-    "(async function foo(a) { await a });",
-    "(a,b) =>{}",
-    "var x = (a,b) =>{}",
-    "(a,...b) =>{}",
-    "var x = (a,...b) =>{}",
-    "foo((x, y) => {});",
-    "e => { 42; };",
-    "e => ({ property: 42 });",
-    "(a, b) => { 42; };",
-    "(x) => ((y, z) => (x, y, z));",
-    "(a) => 00;",
+    '(x=1) => x * x;',
+    '(eval = 10) => 42;',
+    '(a, {}) => {}',
+    '({}, a) => {}',
+    '([]) => {}',
+    '(a, []) => {}',
+    '([], a) => {}',
+    '(a = b) => {}',
+    '(a = b, c) => {}',
+    '(a, b = c) => {}',
+    '({a}) => {}',
+    '(x = 9) => {}',
+    '(a, b=(c)=>{}) => {}',
+    '(async function foo(a) { await a });',
+    '(a,b) =>{}',
+    'var x = (a,b) =>{}',
+    '(a,...b) =>{}',
+    'var x = (a,...b) =>{}',
+    'foo((x, y) => {});',
+    'e => { 42; };',
+    'e => ({ property: 42 });',
+    '(a, b) => { 42; };',
+    '(x) => ((y, z) => (x, y, z));',
+    '(a) => 00;',
     'e => "test";',
-    "a =>{}",
-    "(...a) =>{}",
-    "var x = a =>{}",
-    "(a,b) => [a]",
-    "() => { value: b}",
-    "(x, y) => { x.a = y; }",
-    "(x, y) => x.a = y",
-    "x => (y, z) => z * (x + y)",
-    "(a = b, c) => {}",
-    "x => x * x",
-    "(x) => x",
-    "(x) => x * x",
-    "(x, y) => x + y",
-    "(x, y, z) => x, y, z",
-    "(x, y) => x.a = y",
+    'a =>{}',
+    '(...a) =>{}',
+    'var x = a =>{}',
+    '(a,b) => [a]',
+    '() => { value: b}',
+    '(x, y) => { x.a = y; }',
+    '(x, y) => x.a = y',
+    'x => (y, z) => z * (x + y)',
+    '(a = b, c) => {}',
+    'x => x * x',
+    '(x) => x',
+    '(x) => x * x',
+    '(x, y) => x + y',
+    '(x, y, z) => x, y, z',
+    '(x, y) => x.a = y',
     "() => ({'value': 42})",
-    "x => y => x + y",
-    "(x, y) => (u, v) => x*u + y*v",
-    "(x, y) => z => z * (x + y)",
-    "x => (y, z) => z * (x + y)",
-    "(x, ...a) => {}",
-    "({a} = {}) => {}",
-    "({a} = {}) => {}",
-    "(interface, eval) => {}",
-    "yield => {}",
-    "arguments => {}",
-    "(...[]) => 0",
-    "(()=>0)",
-    "(()=>0)",
-    "() => 0",
-    "(...a) => 0",
-    "([a]) => 0",
-    "eval => {}",
-    "arguments => {}",
-    "yield => {}",
-    "interface => {}",
-    "(eval) => {}",
-    "(arguments) => {}",
-    "(yield) => {}",
-    "(interface) => {}",
-    "(eval, bar) => {}",
-    "(bar, eval) => {}",
-    "(bar, arguments) => {}",
-    "(bar, yield) => {}",
-    "(bar, interface) => {}",
-    "(interface, eval) => {}",
-    "(interface, arguments) => {}",
-    "(eval, interface) => {}",
-    "(arguments, interface) => {}",
-    "(() => null)();",
-    "(() => {})()",
-    "(...args) => console.log( args );",
-    "var double = (x) => x * 2",
-    "let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))",
-    "factorial = x =>  x < 1 ? 1 : x * factorial(x-1)",
-    "a => (a + 1)",
+    'x => y => x + y',
+    '(x, y) => (u, v) => x*u + y*v',
+    '(x, y) => z => z * (x + y)',
+    'x => (y, z) => z * (x + y)',
+    '(x, ...a) => {}',
+    '({a} = {}) => {}',
+    '({a} = {}) => {}',
+    '(interface, eval) => {}',
+    'yield => {}',
+    'arguments => {}',
+    '(...[]) => 0',
+    '(()=>0)',
+    '(()=>0)',
+    '() => 0',
+    '(...a) => 0',
+    '([a]) => 0',
+    'eval => {}',
+    'arguments => {}',
+    'yield => {}',
+    'interface => {}',
+    '(eval) => {}',
+    '(arguments) => {}',
+    '(yield) => {}',
+    '(interface) => {}',
+    '(eval, bar) => {}',
+    '(bar, eval) => {}',
+    '(bar, arguments) => {}',
+    '(bar, yield) => {}',
+    '(bar, interface) => {}',
+    '(interface, eval) => {}',
+    '(interface, arguments) => {}',
+    '(eval, interface) => {}',
+    '(arguments, interface) => {}',
+    '(() => null)();',
+    '(() => {})()',
+    '(...args) => console.log( args );',
+    'var double = (x) => x * 2',
+    'let Y = F => (x=>F(y=>(x(x))(y)))(x=>F(y=>(x(x))(y)))',
+    'factorial = x =>  x < 1 ? 1 : x * factorial(x-1)',
+    'a => (a + 1)',
     `var foo = ({ name }) => \`\${name}! Hello \${name}!\`.toUpperCase();`,
-    "const sum = ( ...nums ) => nums.reduce( ( t, n ) => t + n, 0 );",
+    'const sum = ( ...nums ) => nums.reduce( ( t, n ) => t + n, 0 );',
     `'use strict';
  setTimeout( () => console.log( this ) );
   function foo () {
@@ -158,16 +158,16 @@ describe("Expressions - Arrows", () => {
   }
 
   const inValids: Array<[string, Context]> = [
-    ["await => { let x; }", Context.AwaitContext],
+    ['await => { let x; }', Context.AwaitContext],
     //    ['async await => {}', Context.Empty],
-    ["async x => { let x; }", Context.Empty],
+    ['async x => { let x; }', Context.Empty],
     // ['(x) => { let x; }', Context.Empty],
-    ["x => { let x; }", Context.Empty],
-    ["x => { const x; }", Context.Empty],
-    ["()?c:d=>{}=>{}", Context.Empty],
-    ["()=c=>{}=>{};", Context.Empty],
-    ["var x = ()+c=>{}", Context.Empty],
-    ["var x = ()c++=>{};", Context.Empty],
+    ['x => { let x; }', Context.Empty],
+    ['x => { const x; }', Context.Empty],
+    ['()?c:d=>{}=>{}', Context.Empty],
+    ['()=c=>{}=>{};', Context.Empty],
+    ['var x = ()+c=>{}', Context.Empty],
+    ['var x = ()c++=>{};', Context.Empty],
     //['a?c:d=>{}=>{};', Context.Empty],
     //    ['var x = a`template-head${c}template-tail`=>{}', Context.Empty],
     // ['var x = ac++=>{};', Context.Empty],
@@ -175,20 +175,20 @@ describe("Expressions - Arrows", () => {
     //['(a)`template-head${c}template-tail`=>{};', Context.Empty],
     // ['var x = (a)?c:d=>{}=>{}', Context.Empty],
     // ['var x = (a)`${c}template-tail`=>{};', Context.Empty],
-    ["(...a)`template-head${c}`=>{}", Context.Empty],
-    ["(...a)?c:d=>{}=>{};", Context.Empty],
-    ["var x = (...a)?c:d=>{}=>{}", Context.Empty],
-    ["var x = (...a)[1]=>{};", Context.Empty],
+    ['(...a)`template-head${c}`=>{}', Context.Empty],
+    ['(...a)?c:d=>{}=>{};', Context.Empty],
+    ['var x = (...a)?c:d=>{}=>{}', Context.Empty],
+    ['var x = (...a)[1]=>{};', Context.Empty],
     //    ['(a,b)+c=>{}', Context.Empty],
     // ['var x = (a,b)+c=>{};', Context.Empty],
-    ["(a,...b)`template-head${c}`=>{}", Context.Empty],
-    ["(a,...b)`${c}template-tail`=>{};", Context.Empty],
-    ["var x = (a,...b)`${c}template-tail`=>{}", Context.Empty],
-    ["var x = (a,...b)[c]=>{};", Context.Empty],
-    ["()`template-head${c}template-tail`=>{}", Context.Empty],
-    ["()?c:d=>{}=>{};", Context.Empty],
-    ["var x = ()[1]=>{}", Context.Empty],
-    ["var x = ()[c]=>{};", Context.Empty],
+    ['(a,...b)`template-head${c}`=>{}', Context.Empty],
+    ['(a,...b)`${c}template-tail`=>{};', Context.Empty],
+    ['var x = (a,...b)`${c}template-tail`=>{}', Context.Empty],
+    ['var x = (a,...b)[c]=>{};', Context.Empty],
+    ['()`template-head${c}template-tail`=>{}', Context.Empty],
+    ['()?c:d=>{}=>{};', Context.Empty],
+    ['var x = ()[1]=>{}', Context.Empty],
+    ['var x = ()[c]=>{};', Context.Empty],
     // ['a`${c}template-tail`=>{}', Context.Empty],
     //['a`template-head${c}template-tail`=>{};', Context.Empty],
     //    ['var x = a`c`=>{}', Context.Empty],
@@ -196,14 +196,14 @@ describe("Expressions - Arrows", () => {
     // ['(a)[c]=>{};', Context.Empty],
     // ['var x = (a)`c`=>{}', Context.Empty],
     // ['var x = (a)-c=>{};', Context.Empty],
-    ["(...a)`c`=>{}", Context.Empty],
-    ["(...a)-c=>{};", Context.Empty],
-    ["var x = (...a)+c=>{}", Context.Empty],
-    ["var x = (...a)-c=>{};", Context.Empty],
+    ['(...a)`c`=>{}', Context.Empty],
+    ['(...a)-c=>{};', Context.Empty],
+    ['var x = (...a)+c=>{}', Context.Empty],
+    ['var x = (...a)-c=>{};', Context.Empty],
     //    ['(a,b)+c=>{}', Context.Empty],
     ['var x = (a,b)", "=>{}', Context.Empty],
     // ['var x = (a,b)-c=>{};', Context.Empty],
-    ["(a,...b)+c=>{}", Context.Empty],
+    ['(a,...b)+c=>{}', Context.Empty],
     ['eval => { "use strict"; 0 }', Context.Empty],
     ['arguments => { "use strict"; 0 }', Context.Empty],
     // ['yield => { "use strict"; 0 }', Context.Empty],
@@ -217,7 +217,7 @@ describe("Expressions - Arrows", () => {
     ['(bar, arguments) => { "use strict"; 0 }', Context.Empty],
     // ['(bar, yield) => { "use strict"; 0 }', Context.Empty],
     // ['(bar, interface) => { "use strict"; 0 }', Context.Empty],
-    ["(a,...b)+c=>{}", Context.Empty]
+    ['(a,...b)+c=>{}', Context.Empty]
 
     // ["32 => {}", Context.Empty],
     // ["(32) => {}", Context.Empty],
@@ -252,7 +252,7 @@ describe("Expressions - Arrows", () => {
     // ["(c, a['b']) => {}", Context.Empty],
     // ["(...a = b) => b", Context.Empty],
   ];
-  fail("Expressions - Functions", inValids);
+  fail('Expressions - Functions', inValids);
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
@@ -260,53 +260,53 @@ describe("Expressions - Arrows", () => {
       `(x, y, z) => { return x + y + z; }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ReturnStatement",
+                    type: 'ReturnStatement',
                     argument: {
-                      type: "BinaryExpression",
+                      type: 'BinaryExpression',
                       left: {
-                        type: "BinaryExpression",
+                        type: 'BinaryExpression',
                         left: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "y"
+                          type: 'Identifier',
+                          name: 'y'
                         },
-                        operator: "+"
+                        operator: '+'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "z"
+                        type: 'Identifier',
+                        name: 'z'
                       },
-                      operator: "+"
+                      operator: '+'
                     }
                   }
                 ]
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 },
                 {
-                  type: "Identifier",
-                  name: "z"
+                  type: 'Identifier',
+                  name: 'z'
                 }
               ],
               id: null,
@@ -321,36 +321,36 @@ describe("Expressions - Arrows", () => {
       `(x, y) => { x.a = y; }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     expression: {
-                      type: "AssignmentExpression",
+                      type: 'AssignmentExpression',
                       left: {
-                        type: "MemberExpression",
+                        type: 'MemberExpression',
                         object: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
                         computed: false,
                         property: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         }
                       },
-                      operator: "=",
+                      operator: '=',
                       right: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     }
                   }
@@ -358,12 +358,12 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               ],
               id: null,
@@ -378,51 +378,51 @@ describe("Expressions - Arrows", () => {
       `(x, y) => (u, v) => x*u + y*v`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "ArrowFunctionExpression",
+                type: 'ArrowFunctionExpression',
                 body: {
-                  type: "BinaryExpression",
+                  type: 'BinaryExpression',
                   left: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "u"
+                      type: 'Identifier',
+                      name: 'u'
                     },
-                    operator: "*"
+                    operator: '*'
                   },
                   right: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "v"
+                      type: 'Identifier',
+                      name: 'v'
                     },
-                    operator: "*"
+                    operator: '*'
                   },
-                  operator: "+"
+                  operator: '+'
                 },
                 params: [
                   {
-                    type: "Identifier",
-                    name: "u"
+                    type: 'Identifier',
+                    name: 'u'
                   },
                   {
-                    type: "Identifier",
-                    name: "v"
+                    type: 'Identifier',
+                    name: 'v'
                   }
                 ],
                 id: null,
@@ -431,12 +431,12 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               ],
               id: null,
@@ -451,39 +451,39 @@ describe("Expressions - Arrows", () => {
       `(x, y) => z => z * (x + y)`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "ArrowFunctionExpression",
+                type: 'ArrowFunctionExpression',
                 body: {
-                  type: "BinaryExpression",
+                  type: 'BinaryExpression',
                   left: {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   },
                   right: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
-                    operator: "+"
+                    operator: '+'
                   },
-                  operator: "*"
+                  operator: '*'
                 },
                 params: [
                   {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   }
                 ],
                 id: null,
@@ -492,12 +492,12 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               ],
               id: null,
@@ -512,43 +512,43 @@ describe("Expressions - Arrows", () => {
       `x => (y, z) => z * (x + y)`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "ArrowFunctionExpression",
+                type: 'ArrowFunctionExpression',
                 body: {
-                  type: "BinaryExpression",
+                  type: 'BinaryExpression',
                   left: {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   },
                   right: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
-                    operator: "+"
+                    operator: '+'
                   },
-                  operator: "*"
+                  operator: '*'
                 },
                 params: [
                   {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   },
                   {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   }
                 ],
                 id: null,
@@ -557,8 +557,8 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -573,28 +573,28 @@ describe("Expressions - Arrows", () => {
       `(a, b) => 0, (c, d) => 1`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 0
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   ],
                   id: null,
@@ -602,19 +602,19 @@ describe("Expressions - Arrows", () => {
                   expression: true
                 },
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'c'
                     },
                     {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     }
                   ],
                   id: null,
@@ -631,28 +631,28 @@ describe("Expressions - Arrows", () => {
       `(a, b => {}, a => a + 1)`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   ],
                   id: null,
@@ -660,23 +660,23 @@ describe("Expressions - Arrows", () => {
                   expression: false
                 },
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     },
-                    operator: "+"
+                    operator: '+'
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   ],
                   id: null,
@@ -693,28 +693,28 @@ describe("Expressions - Arrows", () => {
       `((a, b) => {}, (a => a + 1))`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   ],
                   id: null,
@@ -722,23 +722,23 @@ describe("Expressions - Arrows", () => {
                   expression: false
                 },
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     },
-                    operator: "+"
+                    operator: '+'
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   ],
                   id: null,
@@ -755,39 +755,39 @@ describe("Expressions - Arrows", () => {
       `(a, (a, (b, c) => 0))`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "SequenceExpression",
+                  type: 'SequenceExpression',
                   expressions: [
                     {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     {
-                      type: "ArrowFunctionExpression",
+                      type: 'ArrowFunctionExpression',
                       body: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 0
                       },
                       params: [
                         {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
                         {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         }
                       ],
                       id: null,
@@ -806,31 +806,31 @@ describe("Expressions - Arrows", () => {
       `foo ? bar : baz => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ConditionalExpression",
+              type: 'ConditionalExpression',
               test: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               consequent: {
-                type: "Identifier",
-                name: "bar"
+                type: 'Identifier',
+                name: 'bar'
               },
               alternate: {
-                type: "ArrowFunctionExpression",
+                type: 'ArrowFunctionExpression',
                 body: {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: []
                 },
                 params: [
                   {
-                    type: "Identifier",
-                    name: "baz"
+                    type: 'Identifier',
+                    name: 'baz'
                   }
                 ],
                 id: null,
@@ -846,20 +846,20 @@ describe("Expressions - Arrows", () => {
       `({}) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: []
                 }
               ],
@@ -875,25 +875,25 @@ describe("Expressions - Arrows", () => {
       `([], a) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: []
                 },
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 }
               ],
               id: null,
@@ -908,27 +908,27 @@ describe("Expressions - Arrows", () => {
       `(a = b) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   right: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   }
                 }
               ],
@@ -944,31 +944,31 @@ describe("Expressions - Arrows", () => {
       `(a, b = c) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   right: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 }
               ],
@@ -984,41 +984,41 @@ describe("Expressions - Arrows", () => {
       `(x, y = 9, z = 8) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 9
                   }
                 },
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 8
                   }
                 }
@@ -1035,47 +1035,47 @@ describe("Expressions - Arrows", () => {
       `(x, y = 9, {b}, z = 8, ...a) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 9
                   }
                 },
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: true
@@ -1083,21 +1083,21 @@ describe("Expressions - Arrows", () => {
                   ]
                 },
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 8
                   }
                 },
                 {
-                  type: "RestElement",
+                  type: 'RestElement',
                   argument: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ],
@@ -1113,34 +1113,34 @@ describe("Expressions - Arrows", () => {
       `({a} = {}) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
@@ -1148,7 +1148,7 @@ describe("Expressions - Arrows", () => {
                     ]
                   },
                   right: {
-                    type: "ObjectExpression",
+                    type: 'ObjectExpression',
                     properties: []
                   }
                 }
@@ -1165,31 +1165,31 @@ describe("Expressions - Arrows", () => {
       `([x] = []) => {}`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     ]
                   },
                   right: {
-                    type: "ArrayExpression",
+                    type: 'ArrayExpression',
                     elements: []
                   }
                 }
@@ -1206,23 +1206,23 @@ describe("Expressions - Arrows", () => {
       `(...a) => 0`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Literal",
+                type: 'Literal',
                 value: 0
               },
               params: [
                 {
-                  type: "RestElement",
+                  type: 'RestElement',
                   argument: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ],
@@ -1238,21 +1238,21 @@ describe("Expressions - Arrows", () => {
       `e => "test"`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Literal",
-                value: "test"
+                type: 'Literal',
+                value: 'test'
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "e"
+                  type: 'Identifier',
+                  name: 'e'
                 }
               ],
               id: null,
@@ -1267,26 +1267,26 @@ describe("Expressions - Arrows", () => {
       `e => { label: 42 }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "LabeledStatement",
+                    type: 'LabeledStatement',
                     label: {
-                      type: "Identifier",
-                      name: "label"
+                      type: 'Identifier',
+                      name: 'label'
                     },
                     body: {
-                      type: "ExpressionStatement",
+                      type: 'ExpressionStatement',
                       expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 42
                       }
                     }
@@ -1295,8 +1295,8 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "e"
+                  type: 'Identifier',
+                  name: 'e'
                 }
               ],
               id: null,
@@ -1311,20 +1311,20 @@ describe("Expressions - Arrows", () => {
       `(a, b) => { 42; }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     expression: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 42
                     }
                   }
@@ -1332,12 +1332,12 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 }
               ],
               id: null,
@@ -1352,34 +1352,34 @@ describe("Expressions - Arrows", () => {
       `(x=1) => x * x`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BinaryExpression",
+                type: 'BinaryExpression',
                 left: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
-                operator: "*"
+                operator: '*'
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   }
                 }
@@ -1396,21 +1396,21 @@ describe("Expressions - Arrows", () => {
       `arguments => 42`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Literal",
+                type: 'Literal',
                 value: 42
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "arguments"
+                  type: 'Identifier',
+                  name: 'arguments'
                 }
               ],
               id: null,
@@ -1425,26 +1425,26 @@ describe("Expressions - Arrows", () => {
       `(eval = 10) => 42`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Literal",
+                type: 'Literal',
                 value: 42
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "eval"
+                    type: 'Identifier',
+                    name: 'eval'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 10
                   }
                 }
@@ -1461,40 +1461,40 @@ describe("Expressions - Arrows", () => {
       `(x) => ((y, z) => (x, y, z))`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "ArrowFunctionExpression",
+                type: 'ArrowFunctionExpression',
                 body: {
-                  type: "SequenceExpression",
+                  type: 'SequenceExpression',
                   expressions: [
                     {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     {
-                      type: "Identifier",
-                      name: "z"
+                      type: 'Identifier',
+                      name: 'z'
                     }
                   ]
                 },
                 params: [
                   {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   },
                   {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   }
                 ],
                 id: null,
@@ -1503,8 +1503,8 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -1519,22 +1519,22 @@ describe("Expressions - Arrows", () => {
       `foo(() => {})`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               arguments: [
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   params: [],
@@ -1552,32 +1552,32 @@ describe("Expressions - Arrows", () => {
       `foo((x, y) => {})`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               arguments: [
                 {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   params: [
                     {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   ],
                   id: null,
@@ -1594,21 +1594,21 @@ describe("Expressions - Arrows", () => {
       `(sun) => earth`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "earth"
+                type: 'Identifier',
+                name: 'earth'
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "sun"
+                  type: 'Identifier',
+                  name: 'sun'
                 }
               ],
               id: null,
@@ -1646,36 +1646,36 @@ describe("Expressions - Arrows", () => {
       `const t = ({a}) => a`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "const",
+            type: 'VariableDeclaration',
+            kind: 'const',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ArrowFunctionExpression",
+                  type: 'ArrowFunctionExpression',
                   body: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   params: [
                     {
-                      type: "ObjectPattern",
+                      type: 'ObjectPattern',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           value: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: true
@@ -1688,8 +1688,8 @@ describe("Expressions - Arrows", () => {
                   expression: true
                 },
                 id: {
-                  type: "Identifier",
-                  name: "t"
+                  type: 'Identifier',
+                  name: 't'
                 }
               }
             ]
@@ -1701,37 +1701,37 @@ describe("Expressions - Arrows", () => {
       `x => { function x() {} }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "FunctionDeclaration",
+                    type: 'FunctionDeclaration',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
 
                     id: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     }
                   }
                 ]
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -1746,26 +1746,26 @@ describe("Expressions - Arrows", () => {
       `x => { var x; }`,
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
-                    kind: "var",
+                    type: 'VariableDeclaration',
+                    kind: 'var',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         init: null,
                         id: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       }
                     ]
@@ -1774,8 +1774,8 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -1790,28 +1790,28 @@ describe("Expressions - Arrows", () => {
       `(a, ...b) => {}`,
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               id: null,
               params: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "RestElement",
+                  type: 'RestElement',
                   argument: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   }
                 }
               ],
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               expression: false,
@@ -1819,31 +1819,31 @@ describe("Expressions - Arrows", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       `(...a) => {}`,
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               id: null,
               params: [
                 {
-                  type: "RestElement",
+                  type: 'RestElement',
                   argument: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ],
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               expression: false,
@@ -1851,28 +1851,28 @@ describe("Expressions - Arrows", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "(a) => {}",
+      '(a) => {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 }
               ],
               id: null,
@@ -1884,29 +1884,29 @@ describe("Expressions - Arrows", () => {
       }
     ],
     [
-      "(a = 1) => {}",
+      '(a = 1) => {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   right: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   }
                 }
@@ -1920,29 +1920,29 @@ describe("Expressions - Arrows", () => {
       }
     ],
     [
-      "(x) => { var x; }",
+      '(x) => { var x; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "VariableDeclaration",
-                    kind: "var",
+                    type: 'VariableDeclaration',
+                    kind: 'var',
                     declarations: [
                       {
-                        type: "VariableDeclarator",
+                        type: 'VariableDeclarator',
                         init: null,
                         id: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       }
                     ]
@@ -1951,8 +1951,8 @@ describe("Expressions - Arrows", () => {
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -1964,39 +1964,39 @@ describe("Expressions - Arrows", () => {
       }
     ],
     [
-      "(x) => { function x() {} }",
+      '(x) => { function x() {} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "FunctionDeclaration",
+                    type: 'FunctionDeclaration',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     }
                   }
                 ]
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               id: null,
@@ -2008,5 +2008,5 @@ describe("Expressions - Arrows", () => {
       }
     ]
   ];
-  pass("Expressions - Arrows (pass)", valids);
+  pass('Expressions - Arrows (pass)', valids);
 });

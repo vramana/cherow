@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
 module.exports = {
   semi: true,
-  singleQuote: false,
+  singleQuote: true,
   jsxSingleQuote: true,
   tabWidth: 2,
-  trailingComma: "none",
+  trailingComma: 'none',
   useTabs: false,
   bracketSpacing: true,
   printWidth: 120

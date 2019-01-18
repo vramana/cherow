@@ -1,93 +1,93 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Expressions - Super", () => {});
+describe('Expressions - Super', () => {});
 
 const inValids: Array<[string, Context]> = [
   // Esprima issue: https://github.com/jquery/esprima/issues/1784
-  ["!{ a() { !function* (a = super.b()){} } };", Context.Empty],
-  ["async(foo) => { super.prop };", Context.Empty],
-  ["async (foo = super.foo) => { }", Context.Empty],
-  ["async(foo) => { super() };", Context.Empty],
-  ["(async function*() { super(); });", Context.Empty],
-  ["super.property;", Context.Empty],
-  ["class a extends b { c() { function* d(c = super.e()){} } }", Context.Empty],
-  ["function* a(b){ super.c }", Context.Empty],
+  ['!{ a() { !function* (a = super.b()){} } };', Context.Empty],
+  ['async(foo) => { super.prop };', Context.Empty],
+  ['async (foo = super.foo) => { }', Context.Empty],
+  ['async(foo) => { super() };', Context.Empty],
+  ['(async function*() { super(); });', Context.Empty],
+  ['super.property;', Context.Empty],
+  ['class a extends b { c() { function* d(c = super.e()){} } }', Context.Empty],
+  ['function* a(b){ super.c }', Context.Empty],
   //  ['class A extends B { constructor() { (super)() } }', Context.Empty],
-  ["function wrap() { function foo(a = super(), b = super.foo()) {}}", Context.Empty],
+  ['function wrap() { function foo(a = super(), b = super.foo()) {}}', Context.Empty],
   // ['({ a() { (super).b(); } });', Context.Empty],
-  ["class X { x(){super();} }", Context.Empty],
-  ["class X { x(){class X { constructor(){super();} }} }", Context.Empty],
-  ["function* foo(a = 1 + (yield 2)) { super.foo() }", Context.Empty],
-  ["!{ a() { !function* (a = super.b()){} } };", Context.Empty],
+  ['class X { x(){super();} }', Context.Empty],
+  ['class X { x(){class X { constructor(){super();} }} }', Context.Empty],
+  ['function* foo(a = 1 + (yield 2)) { super.foo() }', Context.Empty],
+  ['!{ a() { !function* (a = super.b()){} } };', Context.Empty],
   // ['({ f: function*() {() => new super; } })', Context.Empty],
-  ["async function* x() { super(); }", Context.Empty],
-  ["ref = async function*() { super(); }", Context.Empty],
-  ["export default async function*() { super(); }", Context.Strict | Context.Module],
-  ["var C = class { async *method() { super(); } }", Context.Empty],
-  ["var C = class { static async *method() { super(); } }", Context.Empty],
-  ["var C = class { static async *method() { var x = function () { super(); } } }", Context.Empty],
-  ["async function* x() { var x = { y: function () { super(); } } }", Context.Empty],
-  ["var gen = { async *method() { var x = { y: function () { super(); } } } }", Context.Empty],
-  ["export default async function*() { var x = { y: function () { super(); } } }", Context.Strict | Context.Module],
-  ["var C = class { async *method() { var x = { y: function () { super(); } } } }", Context.Empty],
-  ["var C = class { static async *method() { var x = { y: function () { super(); } } } }", Context.Empty],
-  ["class x { constructor() { super(); } }", Context.Empty],
-  ["class x extends y { foo(){ super(); } }", Context.Empty],
-  ["class x { foo(){ super(); } }", Context.Empty],
-  ["let x = { foo(){ super(); } }", Context.Empty],
-  ["class A { constructor(){  let x = { foo(){ super(); } };  }}", Context.Empty],
-  ["super();", Context.Empty],
-  ["const x = 5 + super();", Context.Empty],
-  ["function f(){ super(); }", Context.Empty],
-  ["function f(x = super()){}", Context.Empty],
-  ["g=function f(){ super(); }", Context.Empty],
-  ["g=function f(x = super()){ }", Context.Empty],
-  ["g={f: function f(){ super() }]", Context.Empty],
-  ["x={constructor(){ super(); }}", Context.Empty],
-  ["x={ foo: function(){ super.foo; }}", Context.Empty],
-  ["function f(){ super.foo; }", Context.Empty],
-  ["function f(x=super.foo){ }", Context.Empty],
-  ["super.foo;", Context.Empty],
-  ["x = function(){ super.foo; }", Context.Empty],
-  ["class x { constructor(){ function f(){ super.foo; } }}", Context.Empty],
-  ["class x { foo(){ function f(){ super.foo; } }}", Context.Empty],
-  ["let f = () => super();", Context.Empty],
-  ["let f = (a=super()) => a;", Context.Empty],
-  ["class x { constructor(){ return () => () => super(); }}", Context.Empty],
+  ['async function* x() { super(); }', Context.Empty],
+  ['ref = async function*() { super(); }', Context.Empty],
+  ['export default async function*() { super(); }', Context.Strict | Context.Module],
+  ['var C = class { async *method() { super(); } }', Context.Empty],
+  ['var C = class { static async *method() { super(); } }', Context.Empty],
+  ['var C = class { static async *method() { var x = function () { super(); } } }', Context.Empty],
+  ['async function* x() { var x = { y: function () { super(); } } }', Context.Empty],
+  ['var gen = { async *method() { var x = { y: function () { super(); } } } }', Context.Empty],
+  ['export default async function*() { var x = { y: function () { super(); } } }', Context.Strict | Context.Module],
+  ['var C = class { async *method() { var x = { y: function () { super(); } } } }', Context.Empty],
+  ['var C = class { static async *method() { var x = { y: function () { super(); } } } }', Context.Empty],
+  ['class x { constructor() { super(); } }', Context.Empty],
+  ['class x extends y { foo(){ super(); } }', Context.Empty],
+  ['class x { foo(){ super(); } }', Context.Empty],
+  ['let x = { foo(){ super(); } }', Context.Empty],
+  ['class A { constructor(){  let x = { foo(){ super(); } };  }}', Context.Empty],
+  ['super();', Context.Empty],
+  ['const x = 5 + super();', Context.Empty],
+  ['function f(){ super(); }', Context.Empty],
+  ['function f(x = super()){}', Context.Empty],
+  ['g=function f(){ super(); }', Context.Empty],
+  ['g=function f(x = super()){ }', Context.Empty],
+  ['g={f: function f(){ super() }]', Context.Empty],
+  ['x={constructor(){ super(); }}', Context.Empty],
+  ['x={ foo: function(){ super.foo; }}', Context.Empty],
+  ['function f(){ super.foo; }', Context.Empty],
+  ['function f(x=super.foo){ }', Context.Empty],
+  ['super.foo;', Context.Empty],
+  ['x = function(){ super.foo; }', Context.Empty],
+  ['class x { constructor(){ function f(){ super.foo; } }}', Context.Empty],
+  ['class x { foo(){ function f(){ super.foo; } }}', Context.Empty],
+  ['let f = () => super();', Context.Empty],
+  ['let f = (a=super()) => a;', Context.Empty],
+  ['class x { constructor(){ return () => () => super(); }}', Context.Empty],
   //  ['class x extends y { constructor(){ return function() { return () => super(); } }}', Context.Empty],
-  ["class x extends y { fo(){ return () => super(); }}", Context.Empty],
-  ["class x extends y { dsda(){ return (a=super()) => a; }}", Context.Empty],
-  ["class x extends y { foo(){ return () => () => super(); }}", Context.Empty],
-  ["x={ fo(){ return () => super(); }}", Context.Empty],
-  ["x={ dsda(){ return (a=super()) => a; }}", Context.Empty],
-  ["x={ foo(){ return () => () => super(); }}", Context.Empty],
-  ["let f = () => super.foo;", Context.Empty],
-  ["let f = (a=super.foo) => a;", Context.Empty],
-  ["class x extends y { constructor(){ return function() { return () => super.foo; } }}", Context.Empty],
-  ["class x { constructor() { super(); } }", Context.Empty]
+  ['class x extends y { fo(){ return () => super(); }}', Context.Empty],
+  ['class x extends y { dsda(){ return (a=super()) => a; }}', Context.Empty],
+  ['class x extends y { foo(){ return () => () => super(); }}', Context.Empty],
+  ['x={ fo(){ return () => super(); }}', Context.Empty],
+  ['x={ dsda(){ return (a=super()) => a; }}', Context.Empty],
+  ['x={ foo(){ return () => () => super(); }}', Context.Empty],
+  ['let f = () => super.foo;', Context.Empty],
+  ['let f = (a=super.foo) => a;', Context.Empty],
+  ['class x extends y { constructor(){ return function() { return () => super.foo; } }}', Context.Empty],
+  ['class x { constructor() { super(); } }', Context.Empty]
 ];
-fail("Expressions - Template", inValids);
+fail('Expressions - Template', inValids);
 // V8
 const invalidSuperCall = [
-  "class C { constructor() { super(); } }",
-  "class C { method() { super(); } }",
-  "class C { method() { () => super(); } }",
-  "class C { *method() { super(); } }",
-  "class C { get x() { super(); } }",
-  "class C { set x(_) { super(); } }",
-  "({ method() { super(); } })",
-  "({ *method() { super(); } })",
-  "({ get x() { super(); } })",
-  "({ set x(_) { super(); } })",
-  "({ f: function() { super(); } })",
-  "(function() { super(); })",
-  "var f = function() { super(); }",
-  "({ f: function*() { super(); } })",
-  "(function*() { super(); })",
-  "var f = function*() { super(); }"
+  'class C { constructor() { super(); } }',
+  'class C { method() { super(); } }',
+  'class C { method() { () => super(); } }',
+  'class C { *method() { super(); } }',
+  'class C { get x() { super(); } }',
+  'class C { set x(_) { super(); } }',
+  '({ method() { super(); } })',
+  '({ *method() { super(); } })',
+  '({ get x() { super(); } })',
+  '({ set x(_) { super(); } })',
+  '({ f: function() { super(); } })',
+  '(function() { super(); })',
+  'var f = function() { super(); }',
+  '({ f: function*() { super(); } })',
+  '(function*() { super(); })',
+  'var f = function*() { super(); }'
 ];
 
 for (const arg of invalidSuperCall) {
@@ -98,7 +98,7 @@ for (const arg of invalidSuperCall) {
   });
 }
 
-const SuperNewNoErrors = ["new super.x;", "new super.x();", "() => new super.x;", "() => new super.x();"];
+const SuperNewNoErrors = ['new super.x;', 'new super.x();', '() => new super.x;', '() => new super.x();'];
 
 for (const arg of SuperNewNoErrors) {
   it(`class C { constructor() { ${arg} } }`, () => {
@@ -150,52 +150,52 @@ for (const arg of SuperNewNoErrors) {
   });
 }
 
-pass("Expressions - Super (pass)", [
+pass('Expressions - Super (pass)', [
   [
-    "class C { constructor() {new super.x; } }",
+    'class C { constructor() {new super.x; } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "C"
+            type: 'Identifier',
+            name: 'C'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "NewExpression",
+                          type: 'NewExpression',
                           callee: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             }
                           },
                           arguments: []
@@ -215,39 +215,39 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { } }",
+    'class x extends y { constructor() { } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   async: false,
@@ -262,61 +262,61 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { log(this); super(); } }",
+    'class x extends y { constructor() { log(this); super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Identifier",
-                            name: "log"
+                            type: 'Identifier',
+                            name: 'log'
                           },
                           arguments: [
                             {
-                              type: "ThisExpression"
+                              type: 'ThisExpression'
                             }
                           ]
                         }
                       },
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -335,69 +335,69 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { log(super.foo); super(); } }",
+    'class x extends y { constructor() { log(super.foo); super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Identifier",
-                            name: "log"
+                            type: 'Identifier',
+                            name: 'log'
                           },
                           arguments: [
                             {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             }
                           ]
                         }
                       },
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -416,54 +416,54 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(x = super()) { } }",
+    'class x extends y { constructor(x = super()) { } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "CallExpression",
+                        type: 'CallExpression',
                         callee: {
-                          type: "Super"
+                          type: 'Super'
                         },
                         arguments: []
                       }
                     }
                   ],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   async: false,
@@ -478,57 +478,57 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(x = this) { super(); } }",
+    'class x extends y { constructor(x = this) { super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "ThisExpression"
+                        type: 'ThisExpression'
                       }
                     }
                   ],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -547,64 +547,64 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(x = super(), y = this) { } }",
+    'class x extends y { constructor(x = super(), y = this) { } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "CallExpression",
+                        type: 'CallExpression',
                         callee: {
-                          type: "Super"
+                          type: 'Super'
                         },
                         arguments: []
                       }
                     },
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       right: {
-                        type: "ThisExpression"
+                        type: 'ThisExpression'
                       }
                     }
                   ],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   async: false,
@@ -619,56 +619,56 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { super(); super(); } }",
+    'class x extends y { constructor() { super(); super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
                       },
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -687,50 +687,50 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { super(this); } }",
+    'class x extends y { constructor() { super(this); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: [
                             {
-                              type: "ThisExpression"
+                              type: 'ThisExpression'
                             }
                           ]
                         }
@@ -749,71 +749,71 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { let xx = x + x; super(); } }",
+    'class x extends y { constructor() { let xx = x + x; super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "VariableDeclaration",
-                        kind: "let",
+                        type: 'VariableDeclaration',
+                        kind: 'let',
                         declarations: [
                           {
-                            type: "VariableDeclarator",
+                            type: 'VariableDeclarator',
                             init: {
-                              type: "BinaryExpression",
+                              type: 'BinaryExpression',
                               left: {
-                                type: "Identifier",
-                                name: "x"
+                                type: 'Identifier',
+                                name: 'x'
                               },
                               right: {
-                                type: "Identifier",
-                                name: "x"
+                                type: 'Identifier',
+                                name: 'x'
                               },
-                              operator: "+"
+                              operator: '+'
                             },
                             id: {
-                              type: "Identifier",
-                              name: "xx"
+                              type: 'Identifier',
+                              name: 'xx'
                             }
                           }
                         ]
                       },
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -832,62 +832,62 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { f(x); super(); } }",
+    'class x extends y { constructor() { f(x); super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Identifier",
-                            name: "f"
+                            type: 'Identifier',
+                            name: 'f'
                           },
                           arguments: [
                             {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             }
                           ]
                         }
                       },
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }
@@ -906,55 +906,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "function f(x = class A extends B { constructor(){ super(); }}){ }",
+    'function f(x = class A extends B { constructor(){ super(); }}){ }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "FunctionDeclaration",
+          type: 'FunctionDeclaration',
           params: [
             {
-              type: "AssignmentPattern",
+              type: 'AssignmentPattern',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ClassExpression",
+                type: 'ClassExpression',
                 id: {
-                  type: "Identifier",
-                  name: "A"
+                  type: 'Identifier',
+                  name: 'A'
                 },
                 superClass: {
-                  type: "Identifier",
-                  name: "B"
+                  type: 'Identifier',
+                  name: 'B'
                 },
                 body: {
-                  type: "ClassBody",
+                  type: 'ClassBody',
                   body: [
                     {
-                      type: "MethodDefinition",
-                      kind: "constructor",
+                      type: 'MethodDefinition',
+                      kind: 'constructor',
                       static: false,
                       computed: false,
                       key: {
-                        type: "Identifier",
-                        name: "constructor"
+                        type: 'Identifier',
+                        name: 'constructor'
                       },
                       value: {
-                        type: "FunctionExpression",
+                        type: 'FunctionExpression',
                         params: [],
                         body: {
-                          type: "BlockStatement",
+                          type: 'BlockStatement',
                           body: [
                             {
-                              type: "ExpressionStatement",
+                              type: 'ExpressionStatement',
                               expression: {
-                                type: "CallExpression",
+                                type: 'CallExpression',
                                 callee: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 arguments: []
                               }
@@ -972,62 +972,62 @@ pass("Expressions - Super (pass)", [
             }
           ],
           body: {
-            type: "BlockStatement",
+            type: 'BlockStatement',
             body: []
           },
           async: false,
           generator: false,
           id: {
-            type: "Identifier",
-            name: "f"
+            type: 'Identifier',
+            name: 'f'
           }
         }
       ]
     }
   ],
   [
-    "class x { constructor(){ super.foo; }}",
+    'class x { constructor(){ super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: false,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
@@ -1045,48 +1045,48 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { foo(){ super.foo; }}",
+    'class x { foo(){ super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: false,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
@@ -1104,55 +1104,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { foo(x=super.foo){ }}",
+    'class x { foo(x=super.foo){ }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "MemberExpression",
+                        type: 'MemberExpression',
                         object: {
-                          type: "Super"
+                          type: 'Super'
                         },
                         computed: false,
                         property: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         }
                       }
                     }
                   ],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   async: false,
@@ -1167,47 +1167,47 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ foo(){ super.foo; }}",
+    'x={ foo(){ super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ExpressionStatement",
+                          type: 'ExpressionStatement',
                           expression: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           }
                         }
@@ -1217,7 +1217,7 @@ pass("Expressions - Super (pass)", [
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -1230,61 +1230,61 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ foo(a = super.foo){ }}",
+    'x={ foo(a = super.foo){ }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         right: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: false,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -1297,48 +1297,48 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { constructor(){ super[foo]; }}",
+    'class x { constructor(){ super[foo]; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: true,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
@@ -1356,48 +1356,48 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { foo(){ super[foo]; }}",
+    'class x { foo(){ super[foo]; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: true,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
@@ -1415,55 +1415,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { foo(x=super[foo]){ }}",
+    'class x { foo(x=super[foo]){ }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "MemberExpression",
+                        type: 'MemberExpression',
                         object: {
-                          type: "Super"
+                          type: 'Super'
                         },
                         computed: true,
                         property: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         }
                       }
                     }
                   ],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   async: false,
@@ -1478,47 +1478,47 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ foo(){ super[foo]; }}",
+    'x={ foo(){ super[foo]; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ExpressionStatement",
+                          type: 'ExpressionStatement',
                           expression: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: true,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           }
                         }
@@ -1528,7 +1528,7 @@ pass("Expressions - Super (pass)", [
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -1541,61 +1541,61 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ foo(a = super[foo]){ }}",
+    'x={ foo(a = super[foo]){ }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         right: {
-                          type: "MemberExpression",
+                          type: 'MemberExpression',
                           object: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           computed: true,
                           property: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           }
                         }
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -1608,48 +1608,48 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return () => super(); }}",
+    'class x extends y { constructor(){ return () => super(); }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "CallExpression",
+                            type: 'CallExpression',
                             callee: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             arguments: []
                           },
@@ -1673,59 +1673,59 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return (a=super()) => a; }}",
+    'class x extends y { constructor(){ return (a=super()) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           params: [
                             {
-                              type: "AssignmentPattern",
+                              type: 'AssignmentPattern',
                               left: {
-                                type: "Identifier",
-                                name: "a"
+                                type: 'Identifier',
+                                name: 'a'
                               },
                               right: {
-                                type: "CallExpression",
+                                type: 'CallExpression',
                                 callee: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 arguments: []
                               }
@@ -1750,50 +1750,50 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return () => () => super(); }}",
+    'class x extends y { constructor(){ return () => () => super(); }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "CallExpression",
+                              type: 'CallExpression',
                               callee: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               arguments: []
                             },
@@ -1822,53 +1822,53 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return () => super.foo; }}",
+    'class x extends y { constructor(){ return () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           },
                           params: [],
@@ -1891,53 +1891,53 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return () => super[foo]; }}",
+    'class x extends y { constructor(){ return () => super[foo]; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: true,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           },
                           params: [],
@@ -1960,50 +1960,50 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { constructor(){ return () => super.foo; }}",
+    'class x { constructor(){ return () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           },
                           params: [],
@@ -2026,64 +2026,64 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return (a=super.foo) => a; }}",
+    'class x extends y { constructor(){ return (a=super.foo) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           params: [
                             {
-                              type: "AssignmentPattern",
+                              type: 'AssignmentPattern',
                               left: {
-                                type: "Identifier",
-                                name: "a"
+                                type: 'Identifier',
+                                name: 'a'
                               },
                               right: {
-                                type: "MemberExpression",
+                                type: 'MemberExpression',
                                 object: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 computed: false,
                                 property: {
-                                  type: "Identifier",
-                                  name: "foo"
+                                  type: 'Identifier',
+                                  name: 'foo'
                                 }
                               }
                             }
@@ -2107,64 +2107,64 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return (a=super.foo) => a; }}",
+    'class x extends y { constructor(){ return (a=super.foo) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           params: [
                             {
-                              type: "AssignmentPattern",
+                              type: 'AssignmentPattern',
                               left: {
-                                type: "Identifier",
-                                name: "a"
+                                type: 'Identifier',
+                                name: 'a'
                               },
                               right: {
-                                type: "MemberExpression",
+                                type: 'MemberExpression',
                                 object: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 computed: false,
                                 property: {
-                                  type: "Identifier",
-                                  name: "foo"
+                                  type: 'Identifier',
+                                  name: 'foo'
                                 }
                               }
                             }
@@ -2188,55 +2188,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor(){ return () => () => super.foo; }}",
+    'class x extends y { constructor(){ return () => () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             },
                             params: [],
@@ -2264,52 +2264,52 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { constructor(){ return () => () => super.foo; }}",
+    'class x { constructor(){ return () => () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             },
                             params: [],
@@ -2337,53 +2337,53 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { fo(){ return () => super.foo; }}",
+    'class x extends y { fo(){ return () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "fo"
+                  type: 'Identifier',
+                  name: 'fo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           },
                           params: [],
@@ -2406,50 +2406,50 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { fo(){ return () => super.foo; }}",
+    'class x { fo(){ return () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "fo"
+                  type: 'Identifier',
+                  name: 'fo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Super"
+                              type: 'Super'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "foo"
+                              type: 'Identifier',
+                              name: 'foo'
                             }
                           },
                           params: [],
@@ -2472,64 +2472,64 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { dsda(){ return (a=super.foo) => a; }}",
+    'class x extends y { dsda(){ return (a=super.foo) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "dsda"
+                  type: 'Identifier',
+                  name: 'dsda'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           params: [
                             {
-                              type: "AssignmentPattern",
+                              type: 'AssignmentPattern',
                               left: {
-                                type: "Identifier",
-                                name: "a"
+                                type: 'Identifier',
+                                name: 'a'
                               },
                               right: {
-                                type: "MemberExpression",
+                                type: 'MemberExpression',
                                 object: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 computed: false,
                                 property: {
-                                  type: "Identifier",
-                                  name: "foo"
+                                  type: 'Identifier',
+                                  name: 'foo'
                                 }
                               }
                             }
@@ -2553,61 +2553,61 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x { dsda(){ return (a=super.foo) => a; }}",
+    'class x { dsda(){ return (a=super.foo) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: null,
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "dsda"
+                  type: 'Identifier',
+                  name: 'dsda'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           params: [
                             {
-                              type: "AssignmentPattern",
+                              type: 'AssignmentPattern',
                               left: {
-                                type: "Identifier",
-                                name: "a"
+                                type: 'Identifier',
+                                name: 'a'
                               },
                               right: {
-                                type: "MemberExpression",
+                                type: 'MemberExpression',
                                 object: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 computed: false,
                                 property: {
-                                  type: "Identifier",
-                                  name: "foo"
+                                  type: 'Identifier',
+                                  name: 'foo'
                                 }
                               }
                             }
@@ -2631,55 +2631,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { foo(){ return () => () => super.foo; }}",
+    'class x extends y { foo(){ return () => () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             },
                             params: [],
@@ -2707,55 +2707,55 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { foo(){ return () => () => super.foo; }}",
+    'class x extends y { foo(){ return () => () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "method",
+                type: 'MethodDefinition',
+                kind: 'method',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ReturnStatement",
+                        type: 'ReturnStatement',
                         argument: {
-                          type: "ArrowFunctionExpression",
+                          type: 'ArrowFunctionExpression',
                           body: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             },
                             params: [],
@@ -2783,49 +2783,49 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ fo(){ return () => super.foo; }}",
+    'x={ fo(){ return () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "fo"
+                    type: 'Identifier',
+                    name: 'fo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ReturnStatement",
+                          type: 'ReturnStatement',
                           argument: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "MemberExpression",
+                              type: 'MemberExpression',
                               object: {
-                                type: "Super"
+                                type: 'Super'
                               },
                               computed: false,
                               property: {
-                                type: "Identifier",
-                                name: "foo"
+                                type: 'Identifier',
+                                name: 'foo'
                               }
                             },
                             params: [],
@@ -2840,7 +2840,7 @@ pass("Expressions - Super (pass)", [
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -2853,60 +2853,60 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ dsda(){ return (a=super.foo) => a; }}",
+    'x={ dsda(){ return (a=super.foo) => a; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "dsda"
+                    type: 'Identifier',
+                    name: 'dsda'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ReturnStatement",
+                          type: 'ReturnStatement',
                           argument: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             },
                             params: [
                               {
-                                type: "AssignmentPattern",
+                                type: 'AssignmentPattern',
                                 left: {
-                                  type: "Identifier",
-                                  name: "a"
+                                  type: 'Identifier',
+                                  name: 'a'
                                 },
                                 right: {
-                                  type: "MemberExpression",
+                                  type: 'MemberExpression',
                                   object: {
-                                    type: "Super"
+                                    type: 'Super'
                                   },
                                   computed: false,
                                   property: {
-                                    type: "Identifier",
-                                    name: "foo"
+                                    type: 'Identifier',
+                                    name: 'foo'
                                   }
                                 }
                               }
@@ -2922,7 +2922,7 @@ pass("Expressions - Super (pass)", [
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -2935,51 +2935,51 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "x={ foo(){ return () => () => super.foo; }}",
+    'x={ foo(){ return () => () => super.foo; }}',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "AssignmentExpression",
+            type: 'AssignmentExpression',
             left: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "=",
+            operator: '=',
             right: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ReturnStatement",
+                          type: 'ReturnStatement',
                           argument: {
-                            type: "ArrowFunctionExpression",
+                            type: 'ArrowFunctionExpression',
                             body: {
-                              type: "ArrowFunctionExpression",
+                              type: 'ArrowFunctionExpression',
                               body: {
-                                type: "MemberExpression",
+                                type: 'MemberExpression',
                                 object: {
-                                  type: "Super"
+                                  type: 'Super'
                                 },
                                 computed: false,
                                 property: {
-                                  type: "Identifier",
-                                  name: "foo"
+                                  type: 'Identifier',
+                                  name: 'foo'
                                 }
                               },
                               params: [],
@@ -2999,7 +2999,7 @@ pass("Expressions - Super (pass)", [
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3012,46 +3012,46 @@ pass("Expressions - Super (pass)", [
     }
   ],
   [
-    "class x extends y { constructor() { super(); } }",
+    'class x extends y { constructor() { super(); } }',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ClassDeclaration",
+          type: 'ClassDeclaration',
           id: {
-            type: "Identifier",
-            name: "x"
+            type: 'Identifier',
+            name: 'x'
           },
           superClass: {
-            type: "Identifier",
-            name: "y"
+            type: 'Identifier',
+            name: 'y'
           },
           body: {
-            type: "ClassBody",
+            type: 'ClassBody',
             body: [
               {
-                type: "MethodDefinition",
-                kind: "constructor",
+                type: 'MethodDefinition',
+                kind: 'constructor',
                 static: false,
                 computed: false,
                 key: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 },
                 value: {
-                  type: "FunctionExpression",
+                  type: 'FunctionExpression',
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: [
                       {
-                        type: "ExpressionStatement",
+                        type: 'ExpressionStatement',
                         expression: {
-                          type: "CallExpression",
+                          type: 'CallExpression',
                           callee: {
-                            type: "Super"
+                            type: 'Super'
                           },
                           arguments: []
                         }

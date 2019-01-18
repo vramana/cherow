@@ -1,58 +1,58 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Expressions - New", () => {
-  fail("Expressions - New", [
-    ["new foo bar", Context.Empty],
+describe('Expressions - New', () => {
+  fail('Expressions - New', [
+    ['new foo bar', Context.Empty],
     ['new ) foo"', Context.Empty],
-    ["new ++foo`;", Context.Empty],
-    ["new foo ++", Context.Empty],
-    ["var f = new ++foo`;", Context.Empty],
-    ["var f = new foo ++", Context.Empty]
+    ['new ++foo`;', Context.Empty],
+    ['new foo ++', Context.Empty],
+    ['var f = new ++foo`;', Context.Empty],
+    ['var f = new foo ++', Context.Empty]
   ]);
 
   const validSyntax = [
-    "new foo",
-    "new foo();",
-    "new foo(1);",
-    "new foo(1, 2);",
-    "new foo()();",
-    "new new foo()();",
-    "new foo.bar;",
-    "new foo.bar();",
-    "new foo.bar.baz;",
-    "new foo.bar().baz;",
-    "new foo[bar];",
-    "new foo[bar]();",
-    "new foo[bar][baz];",
-    "new foo[bar]()[baz];",
-    "new foo[bar].baz(baz)()[bar].baz;",
+    'new foo',
+    'new foo();',
+    'new foo(1);',
+    'new foo(1, 2);',
+    'new foo()();',
+    'new new foo()();',
+    'new foo.bar;',
+    'new foo.bar();',
+    'new foo.bar.baz;',
+    'new foo.bar().baz;',
+    'new foo[bar];',
+    'new foo[bar]();',
+    'new foo[bar][baz];',
+    'new foo[bar]()[baz];',
+    'new foo[bar].baz(baz)()[bar].baz;',
     'new "foo"',
-    "new 1",
-    "new a(b,c)",
-    "new Button",
-    "new Button(a)",
+    'new 1',
+    'new a(b,c)',
+    'new Button',
+    'new Button(a)',
     '(new new Function("this.x = 1")).x;',
-    "new function() {}(...[3, 4, 5]);",
-    "new function() {}(...[]);",
-    "new function() {}(...target = [2, 3, 4]);",
-    "new function() {}({...{c: 3, d: 4}});",
-    "new function() {}({...null});",
-    "new function() {}({...{a: 2, b: 3}, get c() { icefapper = false; }});",
-    "new function() {}({...{get a() {}}, c: 4, d: 5, a: 42, ...{get a() {}}});",
-    "new function() {}({a: 1, b: 2, ...undefined});",
-    "new function() {}({a: 1, b: 2, ...null});",
-    "new function() {}(1, 2, 3, ...[]);",
+    'new function() {}(...[3, 4, 5]);',
+    'new function() {}(...[]);',
+    'new function() {}(...target = [2, 3, 4]);',
+    'new function() {}({...{c: 3, d: 4}});',
+    'new function() {}({...null});',
+    'new function() {}({...{a: 2, b: 3}, get c() { icefapper = false; }});',
+    'new function() {}({...{get a() {}}, c: 4, d: 5, a: 42, ...{get a() {}}});',
+    'new function() {}({a: 1, b: 2, ...undefined});',
+    'new function() {}({a: 1, b: 2, ...null});',
+    'new function() {}(1, 2, 3, ...[]);',
     `new f(...a)`,
     `new f(...a, ...b)`,
-    "new(a in b)",
-    "new f(...a, b, ...c)",
-    "function f(a = new.target){}",
-    "(function f(a = new.target){})",
-    "function f() { new new.target; }",
-    "function f() { new.target(); }",
+    'new(a in b)',
+    'new f(...a, b, ...c)',
+    'function f(a = new.target){}',
+    '(function f(a = new.target){})',
+    'function f() { new new.target; }',
+    'function f() { new.target(); }',
     'function f() { new["target"]; }'
   ];
 
@@ -72,36 +72,36 @@ describe("Expressions - New", () => {
 
   const valids: Array<[string, Context, any]> = [
     [
-      "new foo.bar().baz",
+      'new foo.bar().baz',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 },
                 arguments: []
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "baz"
+                type: 'Identifier',
+                name: 'baz'
               }
             }
           }
@@ -109,40 +109,40 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new new foo().bar().baz",
+      'new new foo().bar().baz',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "NewExpression",
+                    type: 'NewExpression',
                     callee: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     arguments: []
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 },
                 arguments: []
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "baz"
+                type: 'Identifier',
+                name: 'baz'
               }
             }
           }
@@ -150,27 +150,27 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new(a in b)",
+      'new(a in b)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "BinaryExpression",
+                type: 'BinaryExpression',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 },
-                operator: "in"
+                operator: 'in'
               },
               arguments: []
             }
@@ -179,24 +179,24 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Button(a)",
+      'new Button(a)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "Button"
+                type: 'Identifier',
+                name: 'Button'
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 }
               ]
             }
@@ -205,21 +205,21 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new new foo",
+      'new new foo',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 arguments: []
               },
@@ -231,26 +231,26 @@ describe("Expressions - New", () => {
     ],
 
     [
-      "new Foo.Bar",
+      'new Foo.Bar',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "Bar"
+                  type: 'Identifier',
+                  name: 'Bar'
                 }
               },
               arguments: []
@@ -260,42 +260,42 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new a.b.c.d",
+      'new a.b.c.d',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "MemberExpression",
+                    type: 'MemberExpression',
                     object: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     property: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "d"
+                  type: 'Identifier',
+                  name: 'd'
                 }
               },
               arguments: []
@@ -308,23 +308,23 @@ describe("Expressions - New", () => {
       'new Foo["bar"]',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: true,
                 property: {
-                  type: "Literal",
-                  value: "bar"
+                  type: 'Literal',
+                  value: 'bar'
                 }
               },
               arguments: []
@@ -334,19 +334,19 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo()",
+      'new Foo()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "Foo"
+                type: 'Identifier',
+                name: 'Foo'
               },
               arguments: []
             }
@@ -355,26 +355,26 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo.Bar()",
+      'new Foo.Bar()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "Bar"
+                  type: 'Identifier',
+                  name: 'Bar'
                 }
               },
               arguments: []
@@ -384,42 +384,42 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new a.b.c.d()",
+      'new a.b.c.d()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "MemberExpression",
+                    type: 'MemberExpression',
                     object: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     property: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "d"
+                  type: 'Identifier',
+                  name: 'd'
                 }
               },
               arguments: []
@@ -432,23 +432,23 @@ describe("Expressions - New", () => {
       'new Foo["bar"]()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: true,
                 property: {
-                  type: "Literal",
-                  value: "bar"
+                  type: 'Literal',
+                  value: 'bar'
                 }
               },
               arguments: []
@@ -458,24 +458,24 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo(X)",
+      'new Foo(X)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "Foo"
+                type: 'Identifier',
+                name: 'Foo'
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "X"
+                  type: 'Identifier',
+                  name: 'X'
                 }
               ]
             }
@@ -484,32 +484,32 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo.Bar(X)",
+      'new Foo.Bar(X)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "Bar"
+                  type: 'Identifier',
+                  name: 'Bar'
                 }
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "X"
+                  type: 'Identifier',
+                  name: 'X'
                 }
               ]
             }
@@ -521,29 +521,29 @@ describe("Expressions - New", () => {
       'new Foo["bar"](X)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: true,
                 property: {
-                  type: "Literal",
-                  value: "bar"
+                  type: 'Literal',
+                  value: 'bar'
                 }
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "X"
+                  type: 'Identifier',
+                  name: 'X'
                 }
               ]
             }
@@ -552,32 +552,32 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo(X, Y, Z)",
+      'new Foo(X, Y, Z)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "Foo"
+                type: 'Identifier',
+                name: 'Foo'
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "X"
+                  type: 'Identifier',
+                  name: 'X'
                 },
                 {
-                  type: "Identifier",
-                  name: "Y"
+                  type: 'Identifier',
+                  name: 'Y'
                 },
                 {
-                  type: "Identifier",
-                  name: "Z"
+                  type: 'Identifier',
+                  name: 'Z'
                 }
               ]
             }
@@ -586,40 +586,40 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new Foo.Bar(X, Y, Z)",
+      'new Foo.Bar(X, Y, Z)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "Identifier",
-                  name: "Foo"
+                  type: 'Identifier',
+                  name: 'Foo'
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "Bar"
+                  type: 'Identifier',
+                  name: 'Bar'
                 }
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "X"
+                  type: 'Identifier',
+                  name: 'X'
                 },
                 {
-                  type: "Identifier",
-                  name: "Y"
+                  type: 'Identifier',
+                  name: 'Y'
                 },
                 {
-                  type: "Identifier",
-                  name: "Z"
+                  type: 'Identifier',
+                  name: 'Z'
                 }
               ]
             }
@@ -628,28 +628,28 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x().y",
+      'new x().y',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 arguments: []
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             }
           }
@@ -657,28 +657,28 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x()[y]",
+      'new x()[y]',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 arguments: []
               },
               computed: true,
               property: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             }
           }
@@ -686,21 +686,21 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x()();",
+      'new x()();',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 arguments: []
               },
@@ -711,7 +711,7 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x()`y`",
+      'new x()`y`',
       Context.Empty,
       {
         body: [
@@ -722,63 +722,63 @@ describe("Expressions - New", () => {
                 quasis: [
                   {
                     tail: true,
-                    type: "TemplateElement",
+                    type: 'TemplateElement',
                     value: {
-                      cooked: "y",
-                      raw: "y"
+                      cooked: 'y',
+                      raw: 'y'
                     }
                   }
                 ],
-                type: "TemplateLiteral"
+                type: 'TemplateLiteral'
               },
               tag: {
                 arguments: [],
                 callee: {
-                  name: "x",
-                  type: "Identifier"
+                  name: 'x',
+                  type: 'Identifier'
                 },
-                type: "NewExpression"
+                type: 'NewExpression'
               },
-              type: "TaggedTemplateExpression"
+              type: 'TaggedTemplateExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "new x().y = z",
+      'new x().y = z',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "z"
+                type: 'Identifier',
+                name: 'z'
               }
             }
           }
@@ -786,73 +786,73 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x().y + z",
+      'new x().y + z',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "BinaryExpression",
+              type: 'BinaryExpression',
               left: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
               right: {
-                type: "Identifier",
-                name: "z"
+                type: 'Identifier',
+                name: 'z'
               },
-              operator: "+"
+              operator: '+'
             }
           }
         ]
       }
     ],
     [
-      "new x()[y] = z",
+      'new x()[y] = z',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: true,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "z"
+                type: 'Identifier',
+                name: 'z'
               }
             }
           }
@@ -860,33 +860,33 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x().y++",
+      'new x().y++',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "UpdateExpression",
+              type: 'UpdateExpression',
               argument: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
-              operator: "++",
+              operator: '++',
               prefix: false
             }
           }
@@ -894,22 +894,22 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "delete new x()",
+      'delete new x()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "UnaryExpression",
-              operator: "delete",
+              type: 'UnaryExpression',
+              operator: 'delete',
               argument: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 arguments: []
               },
@@ -920,31 +920,31 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "delete new x().y",
+      'delete new x().y',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "UnaryExpression",
-              operator: "delete",
+              type: 'UnaryExpression',
+              operator: 'delete',
               argument: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
               prefix: true
@@ -954,21 +954,21 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new new x",
+      'new new x',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 arguments: []
               },
@@ -979,31 +979,31 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "function f(){ new new .target; }",
+      'function f(){ new new .target; }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "NewExpression",
+                    type: 'NewExpression',
                     callee: {
                       meta: {
-                        type: "Identifier",
-                        name: "new"
+                        type: 'Identifier',
+                        name: 'new'
                       },
-                      type: "MetaProperty",
+                      type: 'MetaProperty',
                       property: {
-                        type: "Identifier",
-                        name: "target"
+                        type: 'Identifier',
+                        name: 'target'
                       }
                     },
                     arguments: []
@@ -1015,8 +1015,8 @@ describe("Expressions - New", () => {
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
@@ -1024,19 +1024,19 @@ describe("Expressions - New", () => {
     ],
 
     [
-      "new await",
+      'new await',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "await"
+                type: 'Identifier',
+                name: 'await'
               },
               arguments: []
             }
@@ -1045,19 +1045,19 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new eval()",
+      'new eval()',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "eval"
+                type: 'Identifier',
+                name: 'eval'
               },
               arguments: []
             }
@@ -1066,34 +1066,34 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new false.__proto__.constructor",
+      'new false.__proto__.constructor',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: false
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "__proto__"
+                    type: 'Identifier',
+                    name: '__proto__'
                   }
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "constructor"
+                  type: 'Identifier',
+                  name: 'constructor'
                 }
               },
               arguments: []
@@ -1103,21 +1103,21 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new function(){}",
+      'new function(){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "FunctionExpression",
+                type: 'FunctionExpression',
                 params: [],
                 body: {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: []
                 },
                 async: false,
@@ -1131,19 +1131,19 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new let",
+      'new let',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "let"
+                type: 'Identifier',
+                name: 'let'
               },
               arguments: []
             }
@@ -1152,7 +1152,7 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "f(new /z/())",
+      'f(new /z/())',
       Context.Empty,
       {
         body: [
@@ -1163,30 +1163,30 @@ describe("Expressions - New", () => {
                   arguments: [],
                   callee: {
                     regex: {
-                      flags: "",
-                      pattern: "z"
+                      flags: '',
+                      pattern: 'z'
                     },
-                    type: "Literal",
+                    type: 'Literal',
                     value: /z/
                   },
-                  type: "NewExpression"
+                  type: 'NewExpression'
                 }
               ],
               callee: {
-                name: "f",
-                type: "Identifier"
+                name: 'f',
+                type: 'Identifier'
               },
-              type: "CallExpression"
+              type: 'CallExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "f(new /z/)",
+      'f(new /z/)',
       Context.Empty,
       {
         body: [
@@ -1197,30 +1197,30 @@ describe("Expressions - New", () => {
                   arguments: [],
                   callee: {
                     regex: {
-                      flags: "",
-                      pattern: "z"
+                      flags: '',
+                      pattern: 'z'
                     },
-                    type: "Literal",
+                    type: 'Literal',
                     value: /z/
                   },
-                  type: "NewExpression"
+                  type: 'NewExpression'
                 }
               ],
               callee: {
-                name: "f",
-                type: "Identifier"
+                name: 'f',
+                type: 'Identifier'
               },
-              type: "CallExpression"
+              type: 'CallExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "f(new /z/.foo)",
+      'f(new /z/.foo)',
       Context.Empty,
       {
         body: [
@@ -1233,36 +1233,36 @@ describe("Expressions - New", () => {
                     computed: false,
                     object: {
                       regex: {
-                        flags: "",
-                        pattern: "z"
+                        flags: '',
+                        pattern: 'z'
                       },
-                      type: "Literal",
+                      type: 'Literal',
                       value: /z/
                     },
                     property: {
-                      name: "foo",
-                      type: "Identifier"
+                      name: 'foo',
+                      type: 'Identifier'
                     },
-                    type: "MemberExpression"
+                    type: 'MemberExpression'
                   },
-                  type: "NewExpression"
+                  type: 'NewExpression'
                 }
               ],
               callee: {
-                name: "f",
-                type: "Identifier"
+                name: 'f',
+                type: 'Identifier'
               },
-              type: "CallExpression"
+              type: 'CallExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "new x\n/y",
+      'new x\n/y',
       Context.Empty,
       {
         body: [
@@ -1271,28 +1271,28 @@ describe("Expressions - New", () => {
               left: {
                 arguments: [],
                 callee: {
-                  name: "x",
-                  type: "Identifier"
+                  name: 'x',
+                  type: 'Identifier'
                 },
-                type: "NewExpression"
+                type: 'NewExpression'
               },
-              operator: "/",
+              operator: '/',
               right: {
-                name: "y",
-                type: "Identifier"
+                name: 'y',
+                type: 'Identifier'
               },
-              type: "BinaryExpression"
+              type: 'BinaryExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
 
     [
-      "new x()\n/y",
+      'new x()\n/y',
       Context.Empty,
       {
         body: [
@@ -1301,46 +1301,46 @@ describe("Expressions - New", () => {
               left: {
                 arguments: [],
                 callee: {
-                  name: "x",
-                  type: "Identifier"
+                  name: 'x',
+                  type: 'Identifier'
                 },
-                type: "NewExpression"
+                type: 'NewExpression'
               },
-              operator: "/",
+              operator: '/',
               right: {
-                name: "y",
-                type: "Identifier"
+                name: 'y',
+                type: 'Identifier'
               },
-              type: "BinaryExpression"
+              type: 'BinaryExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "new async (...x)",
+      'new async (...x)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "async"
+                type: 'Identifier',
+                name: 'async'
               },
               arguments: [
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ]
@@ -1350,33 +1350,33 @@ describe("Expressions - New", () => {
       }
     ],
     [
-      "new x().y++",
+      'new x().y++',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "UpdateExpression",
+              type: 'UpdateExpression',
               argument: {
-                type: "MemberExpression",
+                type: 'MemberExpression',
                 object: {
-                  type: "NewExpression",
+                  type: 'NewExpression',
                   callee: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   arguments: []
                 },
                 computed: false,
                 property: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
-              operator: "++",
+              operator: '++',
               prefix: false
             }
           }
@@ -1385,5 +1385,5 @@ describe("Expressions - New", () => {
     ]
   ];
 
-  pass("Expressions - New (pass)", valids);
+  pass('Expressions - New (pass)', valids);
 });

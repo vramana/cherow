@@ -1,11 +1,11 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Statements - For of", () => {
+describe('Statements - For of', () => {
   const inValids: Array<[string, Context]> = [
-    ["for (let of x) y", Context.OptionsDisableWebCompat],
+    ['for (let of x) y', Context.OptionsDisableWebCompat],
     //['for (var i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
     //['for (var i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
     //['for (var i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
@@ -13,49 +13,49 @@ describe("Statements - For of", () => {
     //['for (let i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
     // ['for (let i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
     //    ['for (let i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
-    ["for (const i, j of {}) {}", Context.OptionsDisableWebCompat],
-    ["for (const i, j of [1, 2, 3]) {}", Context.OptionsDisableWebCompat],
-    ["for (const i, j = 1 of {}) {}", Context.OptionsDisableWebCompat],
-    ["for (const i, j = void 0 of [1, 2, 3]) {}", Context.OptionsDisableWebCompat],
-    ["for(const x of [], []) {}", Context.OptionsDisableWebCompat],
-    ["for(x of [], []) {}", Context.OptionsDisableWebCompat],
-    ["for(var x of [], []) {}", Context.OptionsDisableWebCompat],
-    ["for(let x of [], []) {}", Context.OptionsDisableWebCompat]
+    ['for (const i, j of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j = 1 of {}) {}', Context.OptionsDisableWebCompat],
+    ['for (const i, j = void 0 of [1, 2, 3]) {}', Context.OptionsDisableWebCompat],
+    ['for(const x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(var x of [], []) {}', Context.OptionsDisableWebCompat],
+    ['for(let x of [], []) {}', Context.OptionsDisableWebCompat]
   ];
 
   const programs = [
-    "for({a=0} of b);",
-    "for (let of of ([0])) { }",
-    "for (let of of [0]) { }",
-    "for (let of; false; ) { }",
-    "for (let of, bar; false; ) { }",
-    "for (let of = 10; false; ) { }",
-    "for (j of x) { foo = j }",
-    "for (j of x) { [foo] = [j] }",
-    "for (j of x) { var foo = j }",
-    "for (j of x) { var [foo] = [j] }",
-    "for (j of x) { var [foo] = [j] }",
-    "for (j of x) { const [foo] = [j] }",
-    "for (var i, j of {}) {}",
-    "for (j of x) { function foo() {return j} }",
-    "for ({j} of x) { foo = j }",
-    "for ({j} of x) { let foo = j }",
-    "for ({j} of x) { function foo() {return j} }",
-    "for (var {j} of x) { foo = j }",
-    "function* g() { for(x of yield) {} }",
-    "function* g() { for(var x of yield) {} }",
-    "function* g() { for(let x of yield) {} }",
-    "function* g() { for(const x of yield) {} }",
+    'for({a=0} of b);',
+    'for (let of of ([0])) { }',
+    'for (let of of [0]) { }',
+    'for (let of; false; ) { }',
+    'for (let of, bar; false; ) { }',
+    'for (let of = 10; false; ) { }',
+    'for (j of x) { foo = j }',
+    'for (j of x) { [foo] = [j] }',
+    'for (j of x) { var foo = j }',
+    'for (j of x) { var [foo] = [j] }',
+    'for (j of x) { var [foo] = [j] }',
+    'for (j of x) { const [foo] = [j] }',
+    'for (var i, j of {}) {}',
+    'for (j of x) { function foo() {return j} }',
+    'for ({j} of x) { foo = j }',
+    'for ({j} of x) { let foo = j }',
+    'for ({j} of x) { function foo() {return j} }',
+    'for (var {j} of x) { foo = j }',
+    'function* g() { for(x of yield) {} }',
+    'function* g() { for(var x of yield) {} }',
+    'function* g() { for(let x of yield) {} }',
+    'function* g() { for(const x of yield) {} }',
     // AssignmentExpression should be validated statically:
-    "for(x of { y = 23 }) {}",
-    "for(var x of { y = 23 }) {}",
+    'for(x of { y = 23 }) {}',
+    'for(var x of { y = 23 }) {}',
     //"for(let x of { y = 23 }) {}",
-    "for(const x of { y = 23 }) {}",
-    "for (var {j} of x) { let foo = j }",
-    "for (let j of x) { const [foo] = [j] }",
-    "for (let j of x) { [foo] = [j] }",
-    "for (let {j} of x) { [foo] = [j] }",
-    "for ( let x of y ) {}",
+    'for(const x of { y = 23 }) {}',
+    'for (var {j} of x) { let foo = j }',
+    'for (let j of x) { const [foo] = [j] }',
+    'for (let j of x) { [foo] = [j] }',
+    'for (let {j} of x) { [foo] = [j] }',
+    'for ( let x of y ) {}',
     `var x, y;
     for ({x, y} of [{x: 1, y: 2}]) {}`,
     `var x, y;
@@ -70,7 +70,7 @@ describe("Statements - For of", () => {
     if ( x > 10 ) return;
     }
   }`,
-    "for (let {j} of x) { foo = j }",
+    'for (let {j} of x) { foo = j }',
     `for ( var i = 0, list = items; i < list.length; i += 1 ) {
     var item = list[i];
       if ( item.foo ) { continue; }
@@ -82,8 +82,8 @@ describe("Statements - For of", () => {
     });
    }`,
     `for ( let member of array ) { doSomething( member ); }`,
-    "for (const {j} of x) { const [foo] = [j] }",
-    "for (const {j} of x) { var [foo] = [j] }",
+    'for (const {j} of x) { const [foo] = [j] }',
+    'for (const {j} of x) { var [foo] = [j] }',
     `for ([] of [{ next: function() {return { done: true }; },return: function() {return {}; }}]) {}`,
     `function* g() { for(x of yield) {} }`,
     `function* g() { for(var x of yield) {} }`,
@@ -115,34 +115,34 @@ describe("Statements - For of", () => {
   // valid tests
   const valids: Array<[string, Context, any]> = [
     [
-      "for (var a of b);",
+      'for (var a of b);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             left: {
-              type: "VariableDeclaration",
-              kind: "var",
+              type: 'VariableDeclaration',
+              kind: 'var',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             await: false
           }
@@ -150,34 +150,34 @@ describe("Statements - For of", () => {
       }
     ],
     [
-      "for (let a of b);",
+      'for (let a of b);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             left: {
-              type: "VariableDeclaration",
-              kind: "let",
+              type: 'VariableDeclaration',
+              kind: 'let',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             await: false
           }
@@ -185,34 +185,34 @@ describe("Statements - For of", () => {
       }
     ],
     [
-      "for (const a of b);",
+      'for (const a of b);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             left: {
-              type: "VariableDeclaration",
-              kind: "const",
+              type: 'VariableDeclaration',
+              kind: 'const',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             await: false
           }
@@ -220,24 +220,24 @@ describe("Statements - For of", () => {
       }
     ],
     [
-      "for (a of b);",
+      'for (a of b);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             left: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             right: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             await: false
           }
@@ -245,34 +245,34 @@ describe("Statements - For of", () => {
       }
     ],
     [
-      "for (var a of b);",
+      'for (var a of b);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             body: {
-              type: "EmptyStatement"
+              type: 'EmptyStatement'
             },
             left: {
-              type: "VariableDeclaration",
-              kind: "var",
+              type: 'VariableDeclaration',
+              kind: 'var',
               declarations: [
                 {
-                  type: "VariableDeclarator",
+                  type: 'VariableDeclarator',
                   init: null,
                   id: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   }
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "b"
+              type: 'Identifier',
+              name: 'b'
             },
             await: false
           }
@@ -281,7 +281,7 @@ describe("Statements - For of", () => {
     ]
   ];
 
-  pass("Statements - For of (pass)", valids);
+  pass('Statements - For of (pass)', valids);
 
-  fail("Statements - For (fail)", inValids);
+  fail('Statements - For (fail)', inValids);
 });

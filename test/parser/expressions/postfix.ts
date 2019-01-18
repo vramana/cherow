@@ -1,38 +1,38 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
 
-describe("Expressions - Postfix", () => {});
+describe('Expressions - Postfix', () => {});
 
-fail("Expressions - Template", [
-  ["this.foo[foo].bar(this)(bar)[foo]()--", Context.Empty],
-  ["foo[bar]()--", Context.Empty]
+fail('Expressions - Template', [
+  ['this.foo[foo].bar(this)(bar)[foo]()--', Context.Empty],
+  ['foo[bar]()--', Context.Empty]
 ]);
 
-pass("Expressions - Postfix (pass)", [
+pass('Expressions - Postfix (pass)', [
   [
-    "foo.bar--",
+    'foo.bar--',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UpdateExpression",
+            type: 'UpdateExpression',
             argument: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "bar"
+                type: 'Identifier',
+                name: 'bar'
               }
             },
-            operator: "--",
+            operator: '--',
             prefix: false
           }
         }
@@ -40,33 +40,33 @@ pass("Expressions - Postfix (pass)", [
     }
   ],
   [
-    "new foo().bar--",
+    'new foo().bar--',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UpdateExpression",
+            type: 'UpdateExpression',
             argument: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "NewExpression",
+                type: 'NewExpression',
                 callee: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 arguments: []
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "bar"
+                type: 'Identifier',
+                name: 'bar'
               }
             },
-            operator: "--",
+            operator: '--',
             prefix: false
           }
         }
@@ -74,21 +74,21 @@ pass("Expressions - Postfix (pass)", [
     }
   ],
   [
-    "x--",
+    'x--',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UpdateExpression",
+            type: 'UpdateExpression',
             argument: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "--",
+            operator: '--',
             prefix: false
           }
         }
@@ -96,21 +96,21 @@ pass("Expressions - Postfix (pass)", [
     }
   ],
   [
-    "x++",
+    'x++',
     Context.Empty,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UpdateExpression",
+            type: 'UpdateExpression',
             argument: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
-            operator: "++",
+            operator: '++',
             prefix: false
           }
         }

@@ -1,127 +1,127 @@
-import * as t from "assert";
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import { parseSource } from "../../../src/cherow";
+import * as t from 'assert';
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import { parseSource } from '../../../src/cherow';
 
-describe("Expressions - Object", () => {
+describe('Expressions - Object', () => {
   const inValids: Array<[string, Context]> = [
-    ["({a(b, b){}})", Context.Strict],
+    ['({a(b, b){}})', Context.Strict],
     ['({a(b, b){ "use strict"; }})', Context.Empty],
     ['"use strict"; ({a(b, b){}})', Context.Empty],
 
-    ["o = {f(x) { let x }}", Context.Empty],
-    ["o = {f(x) { const x = y }}", Context.Empty],
+    ['o = {f(x) { let x }}', Context.Empty],
+    ['o = {f(x) { const x = y }}', Context.Empty],
 
     // Duplicate arguments
-    ["({f(a, a) {}})", Context.Strict],
-    ["({f(a, b, a) {}})", Context.Empty],
-    ["({f(b, a, a) {}})", Context.Empty],
-    ["({f(a, a, b) {}})", Context.Empty],
-    ["({f(b, a, b, a) {}})", Context.Empty],
-    ["({f(b, a, b, a = x) {}})", Context.Empty],
+    ['({f(a, a) {}})', Context.Strict],
+    ['({f(a, b, a) {}})', Context.Empty],
+    ['({f(b, a, a) {}})', Context.Empty],
+    ['({f(a, a, b) {}})', Context.Empty],
+    ['({f(b, a, b, a) {}})', Context.Empty],
+    ['({f(b, a, b, a = x) {}})', Context.Empty],
 
     // General
 
-    ["({f(){ let x; var x; }})", Context.Empty],
-    ["({f(){ var x; let x; }})", Context.Empty],
-    ["({f(){ const x = y; var x; }})", Context.Empty],
-    ["({f(){ var x; const x = y; }})", Context.Empty],
-    ["({f(){ let x; function x(){} }})", Context.Empty],
-    ["({f(){ function x(){} let x; }})", Context.Empty],
-    ["({f(){ const x = y; function x(){} }})", Context.Empty],
-    ["({f(){ function x(){} const x = y; }})", Context.Empty],
-    ["x = {f(){ function x(){} let x; }}", Context.Empty],
-    ["x = {f(){ const x = y; function x(){} }}", Context.Empty],
-    ["x = {f(){ function x(){} const x = y; }}", Context.Empty],
-    ["x = {f(){ const x = y; var x; }}", Context.Empty],
-    ["x = {f(){ var x; const x = y; }}", Context.Empty],
-    ["x = {f(){ var x; let x; }}", Context.Empty],
-    ["x = {f(){ let x; var x; }}", Context.Empty],
-    ["x = {f([b, a], {b}) {}}", Context.Empty],
-    ["x = {f([b, a], b=x) {}}", Context.Empty],
-    ["x = {f([b, a, a]) {}}", Context.Empty],
-    ["x = {f([a, b, a]) {}}", Context.Empty],
-    ["x = {f(b, a, b, a, [fine]) {}}", Context.Empty],
-    ["x = {f(b, a, b, a = x) {}}", Context.Empty],
-    ["x = {f(b, a, b, a) {}}", Context.Empty],
-    ["x = {f(a, a, b) {}}", Context.Empty],
-    ["x = {f(b, a, a) {}}", Context.Empty],
-    ["x = {f(a, b, a) {}}", Context.Empty],
-    ["x = {f(a, a) {}}", Context.Empty],
-    ["x = {f(x) { const x = y }}", Context.Empty],
-    ["x = {f(x) { let x }}", Context.Empty],
-    ["x = {f([a, b, a]) {}}", Context.Empty],
-    ["({*get x(){}})", Context.Empty],
-    ["({*set x(){}})", Context.Empty],
-    ["({*ident: x})", Context.Empty],
-    ["({*ident x(){}})", Context.Empty],
-    ["({*async x(){}})", Context.Empty],
-    ["({[fkleuver] 1(){}})", Context.Empty],
+    ['({f(){ let x; var x; }})', Context.Empty],
+    ['({f(){ var x; let x; }})', Context.Empty],
+    ['({f(){ const x = y; var x; }})', Context.Empty],
+    ['({f(){ var x; const x = y; }})', Context.Empty],
+    ['({f(){ let x; function x(){} }})', Context.Empty],
+    ['({f(){ function x(){} let x; }})', Context.Empty],
+    ['({f(){ const x = y; function x(){} }})', Context.Empty],
+    ['({f(){ function x(){} const x = y; }})', Context.Empty],
+    ['x = {f(){ function x(){} let x; }}', Context.Empty],
+    ['x = {f(){ const x = y; function x(){} }}', Context.Empty],
+    ['x = {f(){ function x(){} const x = y; }}', Context.Empty],
+    ['x = {f(){ const x = y; var x; }}', Context.Empty],
+    ['x = {f(){ var x; const x = y; }}', Context.Empty],
+    ['x = {f(){ var x; let x; }}', Context.Empty],
+    ['x = {f(){ let x; var x; }}', Context.Empty],
+    ['x = {f([b, a], {b}) {}}', Context.Empty],
+    ['x = {f([b, a], b=x) {}}', Context.Empty],
+    ['x = {f([b, a, a]) {}}', Context.Empty],
+    ['x = {f([a, b, a]) {}}', Context.Empty],
+    ['x = {f(b, a, b, a, [fine]) {}}', Context.Empty],
+    ['x = {f(b, a, b, a = x) {}}', Context.Empty],
+    ['x = {f(b, a, b, a) {}}', Context.Empty],
+    ['x = {f(a, a, b) {}}', Context.Empty],
+    ['x = {f(b, a, a) {}}', Context.Empty],
+    ['x = {f(a, b, a) {}}', Context.Empty],
+    ['x = {f(a, a) {}}', Context.Empty],
+    ['x = {f(x) { const x = y }}', Context.Empty],
+    ['x = {f(x) { let x }}', Context.Empty],
+    ['x = {f([a, b, a]) {}}', Context.Empty],
+    ['({*get x(){}})', Context.Empty],
+    ['({*set x(){}})', Context.Empty],
+    ['({*ident: x})', Context.Empty],
+    ['({*ident x(){}})', Context.Empty],
+    ['({*async x(){}})', Context.Empty],
+    ['({[fkleuver] 1(){}})', Context.Empty],
 
     // Misc
 
-    ["({get +:3})", Context.Strict],
-    ["({async get : 0})", Context.Strict],
-    ["({*get x(){}})", Context.Strict],
+    ['({get +:3})', Context.Strict],
+    ['({async get : 0})', Context.Strict],
+    ['({*get x(){}})', Context.Strict],
 
     // ['({get foo( +})', Context.Strict],
     // ['({static x: 0})', Context.Strict],
     // ['({static x(){}})', Context.Strict],
     // ['({static async x(){}})', Context.Strict],
-    ["({*x: 0})", Context.Empty],
-    ["({*get x(){}})", Context.Empty],
-    ["*async x(){}", Context.Empty],
-    ["async x*(){}", Context.Empty],
+    ['({*x: 0})', Context.Empty],
+    ['({*get x(){}})', Context.Empty],
+    ['*async x(){}', Context.Empty],
+    ['async x*(){}', Context.Empty],
 
     ['async 0 : 0"', Context.Empty],
-    ["async get x(){}", Context.Empty],
-    ["async get *x(){}", Context.Empty],
-    ["async set x(y){}", Context.Empty],
+    ['async get x(){}', Context.Empty],
+    ['async get *x(){}', Context.Empty],
+    ['async set x(y){}', Context.Empty],
 
-    ["({get +:3})", Context.Empty],
-    ["({get bar(x) {})", Context.Empty],
-    ["({  async 0 : 0 })", Context.Empty],
-    ["({  async get x(){} })", Context.Empty],
-    ["({ async get *x(){} })", Context.Empty],
-    ["({ async set x(y){} })", Context.Empty],
-    ["({ async get : 0 })", Context.Empty],
-    ["({ *set x(y){} })", Context.Empty],
-    ["({ get *x(){} })", Context.Empty],
-    ["({ *x: 0 })", Context.Empty],
-    ["({ ... })", Context.Empty],
-    ["({ , })", Context.Empty],
-    ["({ * *x(){} })", Context.Empty],
-    ["({ x*(){} })", Context.Empty],
+    ['({get +:3})', Context.Empty],
+    ['({get bar(x) {})', Context.Empty],
+    ['({  async 0 : 0 })', Context.Empty],
+    ['({  async get x(){} })', Context.Empty],
+    ['({ async get *x(){} })', Context.Empty],
+    ['({ async set x(y){} })', Context.Empty],
+    ['({ async get : 0 })', Context.Empty],
+    ['({ *set x(y){} })', Context.Empty],
+    ['({ get *x(){} })', Context.Empty],
+    ['({ *x: 0 })', Context.Empty],
+    ['({ ... })', Context.Empty],
+    ['({ , })', Context.Empty],
+    ['({ * *x(){} })', Context.Empty],
+    ['({ x*(){} })', Context.Empty],
     ['({ "async foo (arguments) { "use strict"; } })', Context.Empty],
-    ["({ a: () {}a })", Context.Empty],
-    ["({ a: ()a })", Context.Empty],
-    ["({)", Context.Empty],
-    ["({async async});", Context.Empty],
-    ["({async get foo() { }})", Context.Empty],
-    ["({async set foo(value) { }})", Context.Empty],
-    ["({async set foo(value) { }})", Context.Empty],
-    ["({async foo: 1});", Context.Empty],
-    ["x = { async f: function() {} }", Context.Empty],
+    ['({ a: () {}a })', Context.Empty],
+    ['({ a: ()a })', Context.Empty],
+    ['({)', Context.Empty],
+    ['({async async});', Context.Empty],
+    ['({async get foo() { }})', Context.Empty],
+    ['({async set foo(value) { }})', Context.Empty],
+    ['({async set foo(value) { }})', Context.Empty],
+    ['({async foo: 1});', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
 
     //     ['s = {"foo": yield /fail/g = x} = x', Context.Empty],
-    ["x = { async f: function() {} }", Context.Empty],
-    ["x = { async f: function() {} }", Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
+    ['x = { async f: function() {} }', Context.Empty],
     //  ['s = {"foo": yield /x/g}', Context.Strict],
     ['s = {"foo": yield /x/}', Context.Empty],
     ['s = {"foo": yield}', Context.Strict],
-    ["function *f(){   s = {foo: yield / x}   }", Context.Empty],
-    ["s = {foo: yield /x/g}", Context.Strict],
-    ["s = {foo: yield /x/}", Context.Empty],
+    ['function *f(){   s = {foo: yield / x}   }', Context.Empty],
+    ['s = {foo: yield /x/g}', Context.Strict],
+    ['s = {foo: yield /x/}', Context.Empty],
 
-    ["s = {foo: yield / x}", Context.Strict],
-    ["s = {foo: yield}", Context.Strict]
+    ['s = {foo: yield / x}', Context.Strict],
+    ['s = {foo: yield}', Context.Strict]
   ];
 
   // [      '{ function a() {} ; function b() {} }', Context.Empty,   {}],
 
-  fail("Expressions - Object", inValids);
+  fail('Expressions - Object', inValids);
 
-  const methodDefinition = ["m() {}", "m(x) { return x; }", "m(x, y) {}, n() {}", "set(x, y) {}", "get(x, y) {}"];
+  const methodDefinition = ['m() {}', 'm(x) { return x; }', 'm(x, y) {}, n() {}', 'set(x, y) {}', 'get(x, y) {}'];
 
   for (const arg of methodDefinition) {
     it(`({ ${arg} })`, () => {
@@ -150,63 +150,63 @@ describe("Expressions - Object", () => {
   }
 
   const methodDefinitionNames = [
-    "m",
+    'm',
     "'m'",
     '"m"',
     '"m n"',
-    "true",
-    "false",
-    "null",
-    "1.2",
-    "1e1",
-    "1E1",
-    ".12e3",
+    'true',
+    'false',
+    'null',
+    '1.2',
+    '1e1',
+    '1E1',
+    '.12e3',
 
     // Keywords
-    "async",
-    "await",
-    "break",
-    "case",
-    "catch",
-    "class",
-    "const",
-    "continue",
-    "debugger",
-    "default",
-    "delete",
-    "do",
-    "else",
-    "enum",
-    "export",
-    "extends",
-    "finally",
-    "for",
-    "function",
-    "if",
-    "implements",
-    "import",
-    "in",
-    "instanceof",
-    "interface",
-    "let",
-    "new",
-    "package",
-    "private",
-    "protected",
-    "public",
-    "return",
-    "static",
-    "super",
-    "switch",
-    "this",
-    "throw",
-    "try",
-    "typeof",
-    "var",
-    "void",
-    "while",
-    "with",
-    "yield"
+    'async',
+    'await',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'debugger',
+    'default',
+    'delete',
+    'do',
+    'else',
+    'enum',
+    'export',
+    'extends',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'implements',
+    'import',
+    'in',
+    'instanceof',
+    'interface',
+    'let',
+    'new',
+    'package',
+    'private',
+    'protected',
+    'public',
+    'return',
+    'static',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'try',
+    'typeof',
+    'var',
+    'void',
+    'while',
+    'with',
+    'yield'
   ];
   for (const arg of methodDefinitionNames) {
     it(`({ ${arg}(x, y) {}});`, () => {
@@ -217,24 +217,24 @@ describe("Expressions - Object", () => {
   }
 
   const methodDefinitionDuplicateProperty = [
-    "x: 1, x() {}",
-    "x() {}, x: 1",
-    "x() {}, get x() {}",
-    "x() {}, set x(_) {}",
-    "x() {}, x() {}",
-    "x() {}, y() {}, x() {}",
+    'x: 1, x() {}',
+    'x() {}, x: 1',
+    'x() {}, get x() {}',
+    'x() {}, set x(_) {}',
+    'x() {}, x() {}',
+    'x() {}, y() {}, x() {}',
     'x() {}, "x"() {}',
     "x() {}, 'x'() {}",
-    "1.0() {}, 1: 1",
-    "x: 1, *x() {}",
-    "*x() {}, x: 1",
-    "*x() {}, get x() {}",
-    "*x() {}, set x(_) {}",
-    "*x() {}, *x() {}",
-    "*x() {}, y() {}, *x() {}",
+    '1.0() {}, 1: 1',
+    'x: 1, *x() {}',
+    '*x() {}, x: 1',
+    '*x() {}, get x() {}',
+    '*x() {}, set x(_) {}',
+    '*x() {}, *x() {}',
+    '*x() {}, y() {}, *x() {}',
     '*x() {}, *"x"() {}',
     "*x() {}, *'x'() {}",
-    "*1.0() {}, 1: 1"
+    '*1.0() {}, 1: 1'
   ];
   for (const arg of methodDefinitionDuplicateProperty) {
     it(`"use strict"; ({ ${arg} })`, () => {
@@ -245,16 +245,16 @@ describe("Expressions - Object", () => {
   }
 
   const validGetterAndSetterShorthand = [
-    "var get = 1;",
-    "var set = 2;",
-    "var z = 3;",
-    "var o = { get };",
-    "var p = { set };",
-    "var q = { get, set };",
-    "var r = { set, get };",
-    "var s = { get, z };",
-    "var t = { a, set };",
-    "var u = { a, get, z };",
+    'var get = 1;',
+    'var set = 2;',
+    'var z = 3;',
+    'var o = { get };',
+    'var p = { set };',
+    'var q = { get, set };',
+    'var r = { set, get };',
+    'var s = { get, z };',
+    'var t = { a, set };',
+    'var u = { a, get, z };',
     // concise method shorthand
     'var o = { get() { return "g"; } }',
     'var o = { set() { return "s"; } }'
@@ -268,35 +268,35 @@ describe("Expressions - Object", () => {
   }
 
   const validSyntax = [
-    "*method(a,) {}",
-    "*[anonSym]() {}",
-    "*id() {}",
-    "async method(a,) {}",
-    "async method(x, y = x, z = y) {}",
-    "async() {}",
-    "*async() {}",
-    "*await() {}",
-    "async get(){}",
-    "async set(){}",
-    "async static(){}",
-    "method(a, b, c) {}",
-    "method(a,) {}",
-    "method(a, b,) {}",
-    "method(x = y, y) {}",
-    "async *method(...a) {}",
-    "foo: 1, foo: 2",
+    '*method(a,) {}',
+    '*[anonSym]() {}',
+    '*id() {}',
+    'async method(a,) {}',
+    'async method(x, y = x, z = y) {}',
+    'async() {}',
+    '*async() {}',
+    '*await() {}',
+    'async get(){}',
+    'async set(){}',
+    'async static(){}',
+    'method(a, b, c) {}',
+    'method(a,) {}',
+    'method(a, b,) {}',
+    'method(x = y, y) {}',
+    'async *method(...a) {}',
+    'foo: 1, foo: 2',
     '"foo": 1, "foo": 2',
     'foo: 1, "foo": 2',
-    "1: 1, 1: 2",
+    '1: 1, 1: 2',
     '1: 1, "1": 2',
-    "foo: 1, get foo() {}",
-    "foo: 1, set foo(v) {}",
+    'foo: 1, get foo() {}',
+    'foo: 1, set foo(v) {}',
     '"foo": 1, get "foo"() {}',
     '"foo": 1, set "foo"(v) {}',
-    "1: 1, get 1() {}",
-    "1: 1, set 1(v) {}",
-    "get foo() {}, get foo() {}",
-    "set foo(_) {}, set foo(v) {}",
+    '1: 1, get 1() {}',
+    '1: 1, set 1(v) {}',
+    'get foo() {}, get foo() {}',
+    'set foo(_) {}, set foo(v) {}',
     'foo: 1, get "foo"() {}',
     'foo: 1, set "foo"(v) {}',
     '"foo": 1, get foo() {}',
@@ -305,126 +305,126 @@ describe("Expressions - Object", () => {
     '1: 1, set "1"(v) {}',
     '"1": 1, get 1() {}',
     '"1": 1, set 1(v) {}',
-    "foo: 1, bar: 2",
+    'foo: 1, bar: 2',
     '"foo": 1, "bar": 2',
-    "1: 1, 2: 2",
+    '1: 1, 2: 2',
     // Syntax: IdentifierName ':' AssignmentExpression
-    "foo: bar = 5 + baz",
+    'foo: bar = 5 + baz',
     // Syntax: 'get' PropertyName '(' ')' '{' FunctionBody '}'
-    "get foo() {}",
+    'get foo() {}',
     'get "foo"() {}',
-    "get 1() {}",
+    'get 1() {}',
     // Syntax: 'set' PropertyName '(' PropertySetParameterList ')'
     //     '{' FunctionBody '}'
-    "set foo(v) {}",
+    'set foo(v) {}',
     'set "foo"(v) {}',
-    "set 1(v) {}",
+    'set 1(v) {}',
     // Non-colliding getters and setters -> no errors
-    "foo: 1, get bar() {}",
-    "foo: 1, set bar(v) {}",
+    'foo: 1, get bar() {}',
+    'foo: 1, set bar(v) {}',
     '"foo": 1, get "bar"() {}',
     '"foo": 1, set "bar"(v) {}',
-    "1: 1, get 2() {}",
-    "1: 1, set 2(v) {}",
-    "get: 1, get foo() {}",
-    "set: 1, set foo(_) {}",
+    '1: 1, get 2() {}',
+    '1: 1, set 2(v) {}',
+    'get: 1, get foo() {}',
+    'set: 1, set foo(_) {}',
     // Potentially confusing cases
-    "get(){}",
-    "set(){}",
-    "static(){}",
-    "async(){}",
-    "*get() {}",
-    "*set() {}",
-    "*static() {}",
-    "*async(){}",
-    "get : 0",
-    "set : 0",
-    "static : 0",
-    "async : 0",
+    'get(){}',
+    'set(){}',
+    'static(){}',
+    'async(){}',
+    '*get() {}',
+    '*set() {}',
+    '*static() {}',
+    '*async(){}',
+    'get : 0',
+    'set : 0',
+    'static : 0',
+    'async : 0',
     // Keywords, future reserved and strict future reserved are also allowed as
     // property names.
-    "if: 4",
-    "interface: 5",
-    "super: 6",
-    "eval: 7",
-    "arguments: 8",
-    "async x(){}",
-    "async 0(){}",
-    "async get(){}",
-    "async set(){}",
-    "async static(){}",
-    "async async(){}",
-    "async : 0",
-    "async(){}",
-    "*async(){}",
-    "get: 1, get: 2",
-    "set: 1, set: 2",
-    "async",
-    "await",
-    "async *method(a, b,) {}",
-    "async *method(x, y = x, z = y) {}",
-    "async *method(x = y, y) {}",
-    "prop: 12",
-    "get foo(){return 1;}",
-    "get foo(){return 1;}",
-    "set foo(arg){return 1;}",
-    "set foo(arg){}",
-    "1 : true",
-    "prop : true",
-    "true : 1",
+    'if: 4',
+    'interface: 5',
+    'super: 6',
+    'eval: 7',
+    'arguments: 8',
+    'async x(){}',
+    'async 0(){}',
+    'async get(){}',
+    'async set(){}',
+    'async static(){}',
+    'async async(){}',
+    'async : 0',
+    'async(){}',
+    '*async(){}',
+    'get: 1, get: 2',
+    'set: 1, set: 2',
+    'async',
+    'await',
+    'async *method(a, b,) {}',
+    'async *method(x, y = x, z = y) {}',
+    'async *method(x = y, y) {}',
+    'prop: 12',
+    'get foo(){return 1;}',
+    'get foo(){return 1;}',
+    'set foo(arg){return 1;}',
+    'set foo(arg){}',
+    '1 : true',
+    'prop : true',
+    'true : 1',
     "get ['unicod\\u{000065}Escape']() { return 'get string'; }",
-    "[++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter",
-    "async: foo",
-    "await: foo",
-    "*method([[x, y, z] = [4, 5, 6]]) {}",
-    "async *method([[,] = g()]) {}",
-    "async *method([x = 23]) {}",
-    "async *method([x]) {}",
-    "async *method([_, x]) {}",
-    "async *method([...[x, y, z]]) {}",
-    "async *method([...x]) {}",
-    "async *method([[x, y, z] = [4, 5, 6]] = [[7, 8, 9]]) {}",
-    "async *method([[...x] = function() {}()] = [[2, 1, 3]]) {}",
-    "async *method([[x]] = [null]) {}",
-    "async *method([x = 23] = [undefined]) {}",
-    "async *method([x] = g[Symbol.iterator] = function() {}) {}",
-    "async *method([...x] = {}) {}",
-    "async *method({ w: [x, y, z] = [4, 5, 6] } = {}) {}",
-    "async *method({ [function foo() {}]: x } = {}) {}",
-    "async *method({ x: y = thrower() } = {}) {}",
-    "foo: 1, get foo() {}",
-    "foo: 1, set foo(v) {}",
+    '[++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter, [++counter]: ++counter',
+    'async: foo',
+    'await: foo',
+    '*method([[x, y, z] = [4, 5, 6]]) {}',
+    'async *method([[,] = g()]) {}',
+    'async *method([x = 23]) {}',
+    'async *method([x]) {}',
+    'async *method([_, x]) {}',
+    'async *method([...[x, y, z]]) {}',
+    'async *method([...x]) {}',
+    'async *method([[x, y, z] = [4, 5, 6]] = [[7, 8, 9]]) {}',
+    'async *method([[...x] = function() {}()] = [[2, 1, 3]]) {}',
+    'async *method([[x]] = [null]) {}',
+    'async *method([x = 23] = [undefined]) {}',
+    'async *method([x] = g[Symbol.iterator] = function() {}) {}',
+    'async *method([...x] = {}) {}',
+    'async *method({ w: [x, y, z] = [4, 5, 6] } = {}) {}',
+    'async *method({ [function foo() {}]: x } = {}) {}',
+    'async *method({ x: y = thrower() } = {}) {}',
+    'foo: 1, get foo() {}',
+    'foo: 1, set foo(v) {}',
     '"foo": 1, get "foo"() {}',
     '"foo": 1, set "foo"(v) {}',
-    "1: 1, get 1() {}",
-    "1: 1, set 1(v) {}",
-    "get foo() {}, get foo() {}",
-    "set foo(_) {}, set foo(v) {}",
+    '1: 1, get 1() {}',
+    '1: 1, set 1(v) {}',
+    'get foo() {}, get foo() {}',
+    'set foo(_) {}, set foo(v) {}',
     'foo: 1, get "foo"() {}',
     'foo: 1, set "foo"(v) {}',
-    "get width() { return m_width }, set width(width) { m_width = width; }",
-    "method({ arrow = () => {} }) {}",
-    "method({ x: y, }) {}",
-    "id: function*() {}",
-    "null: 42",
+    'get width() { return m_width }, set width(width) { m_width = width; }',
+    'method({ arrow = () => {} }) {}',
+    'method({ x: y, }) {}',
+    'id: function*() {}',
+    'null: 42',
     '"answer": 42',
-    "get if() {}",
-    "__proto__: 2 ",
-    "set i(x) {}, i: 42 ",
-    "[a]:()=>{}",
-    "async",
-    "async: true",
-    "async() { }",
-    "async foo() { }",
-    "foo() { }",
-    "x, y, z () {}",
+    'get if() {}',
+    '__proto__: 2 ',
+    'set i(x) {}, i: 42 ',
+    '[a]:()=>{}',
+    'async',
+    'async: true',
+    'async() { }',
+    'async foo() { }',
+    'foo() { }',
+    'x, y, z () {}',
     '[x]: "x"',
-    "async delete() {}",
-    "async [foo](){}",
-    "async 100(){}",
+    'async delete() {}',
+    'async [foo](){}',
+    'async 100(){}',
     "async 'foo'(){}",
     'async "foo"(){}',
-    "async, foo"
+    'async, foo'
   ];
   for (const arg of validSyntax) {
     it(`({ ${arg} })`, () => {
@@ -459,123 +459,123 @@ describe("Expressions - Object", () => {
                 {
                   computed: false,
                   key: {
-                    name: "a",
-                    type: "Identifier"
+                    name: 'a',
+                    type: 'Identifier'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 0
                   }
                 },
                 {
                   computed: false,
                   key: {
-                    type: "Literal",
-                    value: "b"
+                    type: 'Literal',
+                    value: 'b'
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
                     async: false,
                     body: {
                       body: [],
-                      type: "BlockStatement"
+                      type: 'BlockStatement'
                     },
                     generator: false,
                     id: null,
                     params: [],
-                    type: "FunctionExpression"
+                    type: 'FunctionExpression'
                   }
                 },
                 {
                   computed: false,
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 3
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
                     async: false,
                     body: {
                       body: [],
-                      type: "BlockStatement"
+                      type: 'BlockStatement'
                     },
                     generator: false,
                     id: null,
                     params: [
                       {
-                        name: "d",
-                        type: "Identifier"
+                        name: 'd',
+                        type: 'Identifier'
                       }
                     ],
-                    type: "FunctionExpression"
+                    type: 'FunctionExpression'
                   }
                 }
               ],
-              type: "ObjectExpression"
+              type: 'ObjectExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
 
     [
-      "x={async f(){ let f }}",
+      'x={async f(){ let f }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
+                            type: 'VariableDeclaration',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 id: {
-                                  type: "Identifier",
-                                  name: "f"
+                                  type: 'Identifier',
+                                  name: 'f'
                                 },
                                 init: null
                               }
                             ],
-                            kind: "let"
+                            kind: 'let'
                           }
                         ]
                       },
@@ -583,7 +583,7 @@ describe("Expressions - Object", () => {
 
                       async: true
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -592,55 +592,55 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "x={f(){ var f }}",
+      'x={f(){ var f }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
+                            type: 'VariableDeclaration',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 id: {
-                                  type: "Identifier",
-                                  name: "f"
+                                  type: 'Identifier',
+                                  name: 'f'
                                 },
                                 init: null
                               }
                             ],
-                            kind: "var"
+                            kind: 'var'
                           }
                         ]
                       },
@@ -648,7 +648,7 @@ describe("Expressions - Object", () => {
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -657,54 +657,54 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x={async f(){ var f }}",
+      'x={async f(){ var f }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
+                            type: 'VariableDeclaration',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 id: {
-                                  type: "Identifier",
-                                  name: "f"
+                                  type: 'Identifier',
+                                  name: 'f'
                                 },
                                 init: null
                               }
                             ],
-                            kind: "var"
+                            kind: 'var'
                           }
                         ]
                       },
@@ -712,7 +712,7 @@ describe("Expressions - Object", () => {
 
                       async: true
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -721,50 +721,50 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x={async *f(){ var f }}",
+      'x={async *f(){ var f }}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
-                            kind: "var",
+                            type: 'VariableDeclaration',
+                            kind: 'var',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 init: null,
                                 id: {
-                                  type: "Identifier",
-                                  name: "f"
+                                  type: 'Identifier',
+                                  name: 'f'
                                 }
                               }
                             ]
@@ -776,7 +776,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -789,37 +789,37 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x=async function *f(){ let f }",
+      'x=async function *f(){ let f }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "FunctionExpression",
+                type: 'FunctionExpression',
                 params: [],
                 body: {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
-                      kind: "let",
+                      type: 'VariableDeclaration',
+                      kind: 'let',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           init: null,
                           id: {
-                            type: "Identifier",
-                            name: "f"
+                            type: 'Identifier',
+                            name: 'f'
                           }
                         }
                       ]
@@ -829,8 +829,8 @@ describe("Expressions - Object", () => {
                 async: true,
                 generator: true,
                 id: {
-                  type: "Identifier",
-                  name: "f"
+                  type: 'Identifier',
+                  name: 'f'
                 }
               }
             }
@@ -839,46 +839,46 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x={async *f(){ let f }}",
+      'x={async *f(){ let f }}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
-                            kind: "let",
+                            type: 'VariableDeclaration',
+                            kind: 'let',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 init: null,
                                 id: {
-                                  type: "Identifier",
-                                  name: "f"
+                                  type: 'Identifier',
+                                  name: 'f'
                                 }
                               }
                             ]
@@ -890,7 +890,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -904,48 +904,48 @@ describe("Expressions - Object", () => {
     ],
 
     [
-      "o = {f(f) { }}",
+      'o = {f(f) { }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [
                         {
-                          type: "Identifier",
-                          name: "f"
+                          type: 'Identifier',
+                          name: 'f'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -954,11 +954,11 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({foo: typeof /x/});",
+      '({foo: typeof /x/});',
       Context.Empty,
       {
         body: [
@@ -968,69 +968,69 @@ describe("Expressions - Object", () => {
                 {
                   computed: false,
                   key: {
-                    name: "foo",
-                    type: "Identifier"
+                    name: 'foo',
+                    type: 'Identifier'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
                     argument: {
                       regex: {
-                        flags: "",
-                        pattern: "x"
+                        flags: '',
+                        pattern: 'x'
                       },
-                      type: "Literal",
+                      type: 'Literal',
                       value: /x/
                     },
-                    operator: "typeof",
+                    operator: 'typeof',
                     prefix: true,
-                    type: "UnaryExpression"
+                    type: 'UnaryExpression'
                   }
                 }
               ],
-              type: "ObjectExpression"
+              type: 'ObjectExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "({foo: typeof /x/g});",
+      '({foo: typeof /x/g});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "UnaryExpression",
-                    operator: "typeof",
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
                     argument: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: {},
                       regex: {
-                        pattern: "x",
-                        flags: "g"
+                        pattern: 'x',
+                        flags: 'g'
                       }
                     },
                     prefix: true
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -1042,49 +1042,49 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "function *f(){   s = {foo: yield /x/g}   }",
+      'function *f(){   s = {foo: yield /x/g}   }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "s"
+                      type: 'Identifier',
+                      name: 's'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           },
                           value: {
-                            type: "YieldExpression",
+                            type: 'YieldExpression',
                             argument: {
-                              type: "Literal",
+                              type: 'Literal',
                               value: {},
                               regex: {
-                                pattern: "x",
-                                flags: "g"
+                                pattern: 'x',
+                                flags: 'g'
                               }
                             },
                             delegate: false
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
@@ -1098,8 +1098,8 @@ describe("Expressions - Object", () => {
             async: false,
             generator: true,
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
@@ -1109,46 +1109,46 @@ describe("Expressions - Object", () => {
       'function *f(){   s = {"foo": yield /x/g}   }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "s"
+                      type: 'Identifier',
+                      name: 's'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Literal",
-                            value: "foo"
+                            type: 'Literal',
+                            value: 'foo'
                           },
                           value: {
-                            type: "YieldExpression",
+                            type: 'YieldExpression',
                             argument: {
-                              type: "Literal",
+                              type: 'Literal',
                               value: {},
                               regex: {
-                                pattern: "x",
-                                flags: "g"
+                                pattern: 'x',
+                                flags: 'g'
                               }
                             },
                             delegate: false
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
@@ -1162,8 +1162,8 @@ describe("Expressions - Object", () => {
             async: false,
             generator: true,
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
@@ -1173,46 +1173,46 @@ describe("Expressions - Object", () => {
       'function *f(){   s = {"foo": yield /x/}   }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "s"
+                      type: 'Identifier',
+                      name: 's'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Literal",
-                            value: "foo"
+                            type: 'Literal',
+                            value: 'foo'
                           },
                           value: {
-                            type: "YieldExpression",
+                            type: 'YieldExpression',
                             argument: {
-                              type: "Literal",
+                              type: 'Literal',
                               value: {},
                               regex: {
-                                pattern: "x",
-                                flags: ""
+                                pattern: 'x',
+                                flags: ''
                               }
                             },
                             delegate: false
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
@@ -1226,8 +1226,8 @@ describe("Expressions - Object", () => {
             async: false,
             generator: true,
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
@@ -1237,39 +1237,39 @@ describe("Expressions - Object", () => {
       'function *f(){   s = {"foo": yield}   }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "s"
+                      type: 'Identifier',
+                      name: 's'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Literal",
-                            value: "foo"
+                            type: 'Literal',
+                            value: 'foo'
                           },
                           value: {
-                            type: "YieldExpression",
+                            type: 'YieldExpression',
                             argument: null,
                             delegate: false
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
@@ -1283,50 +1283,50 @@ describe("Expressions - Object", () => {
             async: false,
             generator: true,
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function *f(){   s = {foo: yield}   }",
+      'function *f(){   s = {foo: yield}   }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "s"
+                      type: 'Identifier',
+                      name: 's'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           },
                           value: {
-                            type: "YieldExpression",
+                            type: 'YieldExpression',
                             argument: null,
                             delegate: false
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
@@ -1340,45 +1340,45 @@ describe("Expressions - Object", () => {
             async: false,
             generator: true,
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "({[foo]: x} = x) => y",
+      '({[foo]: x} = x) => y',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: true,
                         method: false,
                         shorthand: false
@@ -1386,8 +1386,8 @@ describe("Expressions - Object", () => {
                     ]
                   },
                   right: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ],
@@ -1400,62 +1400,62 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {__proto__: a, __proto__: b} = y",
+      'x = {__proto__: a, __proto__: b} = y',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "AssignmentExpression",
+                type: 'AssignmentExpression',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "__proto__"
+                        type: 'Identifier',
+                        name: '__proto__'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "__proto__"
+                        type: 'Identifier',
+                        name: '__proto__'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     }
                   ]
                 },
-                operator: "=",
+                operator: '=',
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             }
@@ -1464,55 +1464,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({__proto__: a, __proto__: b} = x)",
+      '({__proto__: a, __proto__: b} = x)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
@@ -1520,36 +1520,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "class x {static __proto__(){}; get __proto__(){}}",
+      'class x {static __proto__(){}; get __proto__(){}}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ClassDeclaration",
+            type: 'ClassDeclaration',
             id: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             },
             superClass: null,
             body: {
-              type: "ClassBody",
+              type: 'ClassBody',
               body: [
                 {
-                  type: "MethodDefinition",
-                  kind: "method",
+                  type: 'MethodDefinition',
+                  kind: 'method',
                   static: true,
                   computed: false,
                   key: {
-                    type: "Identifier",
-                    name: "__proto__"
+                    type: 'Identifier',
+                    name: '__proto__'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -1558,19 +1558,19 @@ describe("Expressions - Object", () => {
                   }
                 },
                 {
-                  type: "MethodDefinition",
-                  kind: "get",
+                  type: 'MethodDefinition',
+                  kind: 'get',
                   static: true,
                   computed: false,
                   key: {
-                    type: "Identifier",
-                    name: "__proto__"
+                    type: 'Identifier',
+                    name: '__proto__'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -1585,29 +1585,29 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...a}) => x",
+      '({...a}) => x',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     }
                   ]
@@ -1622,7 +1622,7 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...{a, b}} = x)",
+      '({...{a, b}} = x)',
       Context.Empty,
       {
         body: [
@@ -1636,109 +1636,109 @@ describe("Expressions - Object", () => {
                         {
                           computed: false,
                           key: {
-                            name: "a",
-                            type: "Identifier"
+                            name: 'a',
+                            type: 'Identifier'
                           },
-                          kind: "init",
+                          kind: 'init',
                           method: false,
                           shorthand: true,
-                          type: "Property",
+                          type: 'Property',
                           value: {
-                            name: "a",
-                            type: "Identifier"
+                            name: 'a',
+                            type: 'Identifier'
                           }
                         },
                         {
                           computed: false,
                           key: {
-                            name: "b",
-                            type: "Identifier"
+                            name: 'b',
+                            type: 'Identifier'
                           },
-                          kind: "init",
+                          kind: 'init',
                           method: false,
                           shorthand: true,
-                          type: "Property",
+                          type: 'Property',
                           value: {
-                            name: "b",
-                            type: "Identifier"
+                            name: 'b',
+                            type: 'Identifier'
                           }
                         }
                       ],
-                      type: "ObjectPattern"
+                      type: 'ObjectPattern'
                     },
-                    type: "RestElement"
+                    type: 'RestElement'
                   }
                 ],
-                type: "ObjectPattern"
+                type: 'ObjectPattern'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                name: "x",
-                type: "Identifier"
+                name: 'x',
+                type: 'Identifier'
               },
-              type: "AssignmentExpression"
+              type: 'AssignmentExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
       '({x:a["x"]} = {x:20});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "MemberExpression",
+                      type: 'MemberExpression',
                       object: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       computed: true,
                       property: {
-                        type: "Literal",
-                        value: "x"
+                        type: 'Literal',
+                        value: 'x'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 20
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -1751,59 +1751,59 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({y:y2} = {y:y2-2})",
+      '({y:y2} = {y:y2-2})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "y2"
+                      type: 'Identifier',
+                      name: 'y2'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     value: {
-                      type: "BinaryExpression",
+                      type: 'BinaryExpression',
                       left: {
-                        type: "Identifier",
-                        name: "y2"
+                        type: 'Identifier',
+                        name: 'y2'
                       },
                       right: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 2
                       },
-                      operator: "-"
+                      operator: '-'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -1816,48 +1816,48 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var o = { __proto__: { pp: 123 } };",
+      'var o = { __proto__: { pp: 123 } };',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "__proto__"
+                        type: 'Identifier',
+                        name: '__proto__'
                       },
                       value: {
-                        type: "ObjectExpression",
+                        type: 'ObjectExpression',
                         properties: [
                           {
-                            type: "Property",
+                            type: 'Property',
                             key: {
-                              type: "Identifier",
-                              name: "pp"
+                              type: 'Identifier',
+                              name: 'pp'
                             },
                             value: {
-                              type: "Literal",
+                              type: 'Literal',
                               value: 123
                             },
-                            kind: "init",
+                            kind: 'init',
                             computed: false,
                             method: false,
                             shorthand: false
                           }
                         ]
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -1865,8 +1865,8 @@ describe("Expressions - Object", () => {
                   ]
                 },
                 id: {
-                  type: "Identifier",
-                  name: "o"
+                  type: 'Identifier',
+                  name: 'o'
                 }
               }
             ]
@@ -1875,32 +1875,32 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var o = { yield: 10 }",
+      'var o = { yield: 10 }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "yield"
+                        type: 'Identifier',
+                        name: 'yield'
                       },
                       value: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 10
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -1908,8 +1908,8 @@ describe("Expressions - Object", () => {
                   ]
                 },
                 id: {
-                  type: "Identifier",
-                  name: "o"
+                  type: 'Identifier',
+                  name: 'o'
                 }
               }
             ]
@@ -1921,58 +1921,58 @@ describe("Expressions - Object", () => {
       'var x1; ({[zee +"foo"]:x1} = {})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: null,
                 id: {
-                  type: "Identifier",
-                  name: "x1"
+                  type: 'Identifier',
+                  name: 'x1'
                 }
               }
             ]
           },
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "BinaryExpression",
+                      type: 'BinaryExpression',
                       left: {
-                        type: "Identifier",
-                        name: "zee"
+                        type: 'Identifier',
+                        name: 'zee'
                       },
                       right: {
-                        type: "Literal",
-                        value: "foo"
+                        type: 'Literal',
+                        value: 'foo'
                       },
-                      operator: "+"
+                      operator: '+'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "x1"
+                      type: 'Identifier',
+                      name: 'x1'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: []
               }
             }
@@ -1981,90 +1981,90 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var z, y; ({x:z = 1, x1:y = 20} = {});",
+      'var z, y; ({x:z = 1, x1:y = 20} = {});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: null,
                 id: {
-                  type: "Identifier",
-                  name: "z"
+                  type: 'Identifier',
+                  name: 'z'
                 }
               },
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: null,
                 id: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ]
           },
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "z"
+                        type: 'Identifier',
+                        name: 'z'
                       },
                       right: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 1
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x1"
+                      type: 'Identifier',
+                      name: 'x1'
                     },
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       right: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 20
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: []
               }
             }
@@ -2073,41 +2073,41 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var {x:z = 1, x1:y = 20} = {};",
+      'var {x:z = 1, x1:y = 20} = {};',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: []
                 },
                 id: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "z"
+                          type: 'Identifier',
+                          name: 'z'
                         },
                         right: {
-                          type: "Literal",
+                          type: 'Literal',
                           value: 1
                         }
                       },
@@ -2115,21 +2115,21 @@ describe("Expressions - Object", () => {
                       shorthand: false
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "x1"
+                        type: 'Identifier',
+                        name: 'x1'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "y"
+                          type: 'Identifier',
+                          name: 'y'
                         },
                         right: {
-                          type: "Literal",
+                          type: 'Literal',
                           value: 20
                         }
                       },
@@ -2145,39 +2145,39 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({x:y} = {});",
+      '({x:y} = {});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: []
               }
             }
@@ -2186,77 +2186,77 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };",
+      'var { x : x, y : y, get, set } = { x : 1, y : 2, get: 3, set: 4 };',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       value: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 1
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       value: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 2
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "get"
+                        type: 'Identifier',
+                        name: 'get'
                       },
                       value: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 3
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "set"
+                        type: 'Identifier',
+                        name: 'set'
                       },
                       value: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 4
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -2264,64 +2264,64 @@ describe("Expressions - Object", () => {
                   ]
                 },
                 id: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "get"
+                        type: 'Identifier',
+                        name: 'get'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "get"
+                        type: 'Identifier',
+                        name: 'get'
                       },
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "set"
+                        type: 'Identifier',
+                        name: 'set'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "set"
+                        type: 'Identifier',
+                        name: 'set'
                       },
                       method: false,
                       shorthand: true
@@ -2335,56 +2335,56 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "async function wrap() { ({a = await b} = obj) };",
+      'async function wrap() { ({a = await b} = obj) };',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "ObjectPattern",
+                      type: 'ObjectPattern',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           value: {
-                            type: "AssignmentPattern",
+                            type: 'AssignmentPattern',
                             left: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             },
                             right: {
-                              type: "AwaitExpression",
+                              type: 'AwaitExpression',
                               argument: {
-                                type: "Identifier",
-                                name: "b"
+                                type: 'Identifier',
+                                name: 'b'
                               }
                             }
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: true
                         }
                       ]
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "Identifier",
-                      name: "obj"
+                      type: 'Identifier',
+                      name: 'obj'
                     }
                   }
                 }
@@ -2393,43 +2393,43 @@ describe("Expressions - Object", () => {
             async: true,
             generator: false,
             id: {
-              type: "Identifier",
-              name: "wrap"
+              type: 'Identifier',
+              name: 'wrap'
             }
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           }
         ]
       }
     ],
     [
-      "async function wrap() { (a = await b) };",
+      'async function wrap() { (a = await b) };',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "AwaitExpression",
+                      type: 'AwaitExpression',
                       argument: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     }
                   }
@@ -2439,54 +2439,54 @@ describe("Expressions - Object", () => {
             async: true,
             generator: false,
             id: {
-              type: "Identifier",
-              name: "wrap"
+              type: 'Identifier',
+              name: 'wrap'
             }
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           }
         ]
       }
     ],
     [
-      "async function foo(a = {async bar() { await b }}) {};",
+      'async function foo(a = {async bar() { await b }}) {};',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       value: {
-                        type: "FunctionExpression",
+                        type: 'FunctionExpression',
                         params: [],
                         body: {
-                          type: "BlockStatement",
+                          type: 'BlockStatement',
                           body: [
                             {
-                              type: "ExpressionStatement",
+                              type: 'ExpressionStatement',
                               expression: {
-                                type: "AwaitExpression",
+                                type: 'AwaitExpression',
                                 argument: {
-                                  type: "Identifier",
-                                  name: "b"
+                                  type: 'Identifier',
+                                  name: 'b'
                                 }
                               }
                             }
@@ -2496,7 +2496,7 @@ describe("Expressions - Object", () => {
                         generator: false,
                         id: null
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: true,
                       shorthand: false
@@ -2506,58 +2506,58 @@ describe("Expressions - Object", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: true,
             generator: false,
             id: {
-              type: "Identifier",
-              name: "foo"
+              type: 'Identifier',
+              name: 'foo'
             }
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           }
         ]
       }
     ],
     [
-      "({async foo(a) { await a }});",
+      '({async foo(a) { await a }});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "ExpressionStatement",
+                          type: 'ExpressionStatement',
                           expression: {
-                            type: "AwaitExpression",
+                            type: 'AwaitExpression',
                             argument: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             }
                           }
                         }
@@ -2567,7 +2567,7 @@ describe("Expressions - Object", () => {
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -2579,35 +2579,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async() { }});",
+      '({async() { }});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -2619,28 +2619,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async})",
+      '({async})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -2652,43 +2652,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async, foo})",
+      '({async, foo})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -2700,42 +2700,42 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "o({async await() { }})",
+      'o({async await() { }})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               },
               arguments: [
                 {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "await"
+                        type: 'Identifier',
+                        name: 'await'
                       },
                       value: {
-                        type: "FunctionExpression",
+                        type: 'FunctionExpression',
                         params: [],
                         body: {
-                          type: "BlockStatement",
+                          type: 'BlockStatement',
                           body: []
                         },
                         async: true,
                         generator: false,
                         id: null
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: true,
                       shorthand: false
@@ -2749,43 +2749,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "async ({a: b = c})",
+      'async ({a: b = c})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "async"
+                type: 'Identifier',
+                name: 'async'
               },
               arguments: [
                 {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       value: {
-                        type: "AssignmentExpression",
+                        type: 'AssignmentExpression',
                         left: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
-                        operator: "=",
+                        operator: '=',
                         right: {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         }
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -2799,35 +2799,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async foo() { }})",
+      '({async foo() { }})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -2839,47 +2839,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var o = {x: x, y: y}",
+      'var o = {x: x, y: y}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -2887,8 +2887,8 @@ describe("Expressions - Object", () => {
                   ]
                 },
                 id: {
-                  type: "Identifier",
-                  name: "o"
+                  type: 'Identifier',
+                  name: 'o'
                 }
               }
             ]
@@ -2897,55 +2897,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({x, y} = o)",
+      '({x, y} = o)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               }
             }
           }
@@ -2953,41 +2953,41 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "var method = { method() {} }.method;",
+      'var method = { method() {} }.method;',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "MemberExpression",
+                  type: 'MemberExpression',
                   object: {
-                    type: "ObjectExpression",
+                    type: 'ObjectExpression',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "method"
+                          type: 'Identifier',
+                          name: 'method'
                         },
                         value: {
-                          type: "FunctionExpression",
+                          type: 'FunctionExpression',
                           params: [],
                           body: {
-                            type: "BlockStatement",
+                            type: 'BlockStatement',
                             body: []
                           },
                           async: false,
                           generator: false,
                           id: null
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: true,
                         shorthand: false
@@ -2996,13 +2996,13 @@ describe("Expressions - Object", () => {
                   },
                   computed: false,
                   property: {
-                    type: "Identifier",
-                    name: "method"
+                    type: 'Identifier',
+                    name: 'method'
                   }
                 },
                 id: {
-                  type: "Identifier",
-                  name: "method"
+                  type: 'Identifier',
+                  name: 'method'
                 }
               }
             ]
@@ -3011,35 +3011,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({ async *foo() {} })",
+      '({ async *foo() {} })',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
                     generator: true,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3051,28 +3051,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({ enum: 0 })",
+      '({ enum: 0 })',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "enum"
+                    type: 'Identifier',
+                    name: 'enum'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 0
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -3084,28 +3084,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({ async: 0 })",
+      '({ async: 0 })',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 0
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -3117,28 +3117,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({yield})",
+      '({yield})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "yield"
+                    type: 'Identifier',
+                    name: 'yield'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "yield"
+                    type: 'Identifier',
+                    name: 'yield'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -3150,44 +3150,44 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(b,c){}})",
+      '({a(b,c){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3199,40 +3199,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set a(eval){}})",
+      '({set a(eval){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "eval"
+                        type: 'Identifier',
+                        name: 'eval'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -3244,48 +3244,48 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({ set a([{b = 0}]){}, })",
+      '({ set a([{b = 0}]){}, })',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "ArrayPattern",
+                        type: 'ArrayPattern',
                         elements: [
                           {
-                            type: "ObjectPattern",
+                            type: 'ObjectPattern',
                             properties: [
                               {
-                                type: "Property",
-                                kind: "init",
+                                type: 'Property',
+                                kind: 'init',
                                 key: {
-                                  type: "Identifier",
-                                  name: "b"
+                                  type: 'Identifier',
+                                  name: 'b'
                                 },
                                 computed: false,
                                 value: {
-                                  type: "AssignmentPattern",
+                                  type: 'AssignmentPattern',
                                   left: {
-                                    type: "Identifier",
-                                    name: "b"
+                                    type: 'Identifier',
+                                    name: 'b'
                                   },
                                   right: {
-                                    type: "Literal",
+                                    type: 'Literal',
                                     value: 0
                                   }
                                 },
@@ -3298,14 +3298,14 @@ describe("Expressions - Object", () => {
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -3317,43 +3317,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a, b})",
+      '({a, b})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -3365,35 +3365,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(){}})",
+      '({a(){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3405,40 +3405,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(b){}})",
+      '({a(b){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3450,47 +3450,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(b,...c){}})",
+      '({a(b,...c){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       {
-                        type: "RestElement",
+                        type: 'RestElement',
                         argument: {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         }
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
                     generator: false,
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -3502,51 +3502,51 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "o = {f(x) { function x() {} }}",
+      'o = {f(x) { function x() {} }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [
                         {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "FunctionDeclaration",
+                            type: 'FunctionDeclaration',
                             id: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             },
                             params: [],
                             body: {
-                              type: "BlockStatement",
+                              type: 'BlockStatement',
                               body: []
                             },
                             generator: false,
@@ -3559,7 +3559,7 @@ describe("Expressions - Object", () => {
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -3568,59 +3568,59 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "o = {f(x) { var x; }}",
+      'o = {f(x) { var x; }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [
                         {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "VariableDeclaration",
+                            type: 'VariableDeclaration',
                             declarations: [
                               {
-                                type: "VariableDeclarator",
+                                type: 'VariableDeclarator',
                                 id: {
-                                  type: "Identifier",
-                                  name: "x"
+                                  type: 'Identifier',
+                                  name: 'x'
                                 },
                                 init: null
                               }
                             ],
-                            kind: "var"
+                            kind: 'var'
                           }
                         ]
                       },
@@ -3628,7 +3628,7 @@ describe("Expressions - Object", () => {
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -3637,43 +3637,43 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "(a, {b}) => {}",
+      '(a, {b}) => {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: []
               },
               params: [
                 {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: true
@@ -3690,28 +3690,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async})",
+      '({async})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -3723,7 +3723,7 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({foo: typeof /x/});",
+      '({foo: typeof /x/});',
       Context.Empty,
       {
         body: [
@@ -3733,60 +3733,60 @@ describe("Expressions - Object", () => {
                 {
                   computed: false,
                   key: {
-                    name: "foo",
-                    type: "Identifier"
+                    name: 'foo',
+                    type: 'Identifier'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
                     argument: {
                       regex: {
-                        flags: "",
-                        pattern: "x"
+                        flags: '',
+                        pattern: 'x'
                       },
-                      type: "Literal",
+                      type: 'Literal',
                       value: /x/
                     },
-                    operator: "typeof",
+                    operator: 'typeof',
                     prefix: true,
-                    type: "UnaryExpression"
+                    type: 'UnaryExpression'
                   }
                 }
               ],
-              type: "ObjectExpression"
+              type: 'ObjectExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "({async: await})",
+      '({async: await})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "async"
+                    type: 'Identifier',
+                    name: 'async'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "await"
+                    type: 'Identifier',
+                    name: 'await'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -3798,28 +3798,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({await})",
+      '({await})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "await"
+                    type: 'Identifier',
+                    name: 'await'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "await"
+                    type: 'Identifier',
+                    name: 'await'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -3831,69 +3831,69 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({eval} = x);",
+      '({eval} = x);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "eval"
+                      type: 'Identifier',
+                      name: 'eval'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "eval"
+                      type: 'Identifier',
+                      name: 'eval'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   }
                 ]
               },
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({eval});",
+      '({eval});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "eval"
+                    type: 'Identifier',
+                    name: 'eval'
                   },
                   computed: false,
                   value: {
-                    type: "Identifier",
-                    name: "eval"
+                    type: 'Identifier',
+                    name: 'eval'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: true
                 }
@@ -3901,36 +3901,36 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({eval}) => x;",
+      '({eval}) => x;',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               id: null,
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "eval"
+                        type: 'Identifier',
+                        name: 'eval'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "eval"
+                        type: 'Identifier',
+                        name: 'eval'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: true
                     }
@@ -3938,63 +3938,63 @@ describe("Expressions - Object", () => {
                 }
               ],
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               expression: true,
               async: false
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "x = {__proto__: 1, __proto__}",
+      'x = {__proto__: 1, __proto__}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   }
@@ -4003,39 +4003,39 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = {__proto__(){}, __proto__: 2}",
+      'x = {__proto__(){}, __proto__: 2}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -4043,22 +4043,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 2
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -4071,35 +4071,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {__proto__(){}, __proto__(){}}",
+      'x = {__proto__(){}, __proto__(){}}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -4107,22 +4107,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -4130,7 +4130,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -4143,35 +4143,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {async __proto__(){}, *__proto__(){}}",
+      'x = {async __proto__(){}, *__proto__(){}}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -4179,22 +4179,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -4202,7 +4202,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -4215,29 +4215,29 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...y}",
+      'x = {...y}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 ]
@@ -4248,44 +4248,44 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {x, ...y}",
+      'x = {x, ...y}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 ]
@@ -4296,105 +4296,57 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {a, ...y, b}",
+      'x = {a, ...y, b}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: true
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      "x = {...y, b}",
-      Context.OptionsDisableWebCompat,
-      {
-        type: "Program",
-        sourceType: "script",
-        body: [
-          {
-            type: "ExpressionStatement",
-            expression: {
-              type: "AssignmentExpression",
-              left: {
-                type: "Identifier",
-                name: "x"
-              },
-              operator: "=",
-              right: {
-                type: "ObjectExpression",
-                properties: [
-                  {
-                    type: "SpreadElement",
-                    argument: {
-                      type: "Identifier",
-                      name: "y"
-                    }
-                  },
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
@@ -4407,29 +4359,77 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...a,}",
+      'x = {...y, b}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'x = {...a,}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'SpreadElement',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   }
                 ]
@@ -4440,36 +4440,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...a=b}",
+      'x = {...a=b}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "AssignmentExpression",
+                      type: 'AssignmentExpression',
                       left: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      operator: "=",
+                      operator: '=',
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     }
                   }
@@ -4481,37 +4481,37 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...a + b}",
+      'x = {...a + b}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "BinaryExpression",
+                      type: 'BinaryExpression',
                       left: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      operator: "+"
+                      operator: '+'
                     }
                   }
                 ]
@@ -4522,36 +4522,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...[a, b]}",
+      'x = {...[a, b]}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "ArrayExpression",
+                      type: 'ArrayExpression',
                       elements: [
                         {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       ]
                     }
@@ -4564,55 +4564,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...{a, b}}",
+      'x = {...{a, b}}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           value: {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: true
                         },
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "b"
+                            type: 'Identifier',
+                            name: 'b'
                           },
                           value: {
-                            type: "Identifier",
-                            name: "b"
+                            type: 'Identifier',
+                            name: 'b'
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: true
@@ -4628,36 +4628,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {...a, ...b}",
+      'x = {...a, ...b}',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   },
                   {
-                    type: "SpreadElement",
+                    type: 'SpreadElement',
                     argument: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   }
                 ]
@@ -4668,32 +4668,32 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...a} = x)",
+      '({...a} = x)',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
@@ -4701,7 +4701,7 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...[a, b]} = x)",
+      '({...[a, b]} = x)',
       Context.OptionsDisableWebCompat,
       {
         body: [
@@ -4713,66 +4713,66 @@ describe("Expressions - Object", () => {
                     argument: {
                       elements: [
                         {
-                          name: "a",
-                          type: "Identifier"
+                          name: 'a',
+                          type: 'Identifier'
                         },
                         {
-                          name: "b",
-                          type: "Identifier"
+                          name: 'b',
+                          type: 'Identifier'
                         }
                       ],
-                      type: "ArrayPattern"
+                      type: 'ArrayPattern'
                     },
-                    type: "RestElement"
+                    type: 'RestElement'
                   }
                 ],
-                type: "ObjectPattern"
+                type: 'ObjectPattern'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                name: "x",
-                type: "Identifier"
+                name: 'x',
+                type: 'Identifier'
               },
-              type: "AssignmentExpression"
+              type: 'AssignmentExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "({...[a, b]}) => x",
+      '({...[a, b]}) => x',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "ArrayPattern",
+                        type: 'ArrayPattern',
                         elements: [
                           {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           {
-                            type: "Identifier",
-                            name: "b"
+                            type: 'Identifier',
+                            name: 'b'
                           }
                         ]
                       }
@@ -4789,55 +4789,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...{a, b}}) => x",
+      '({...{a, b}}) => x',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "ObjectPattern",
+                        type: 'ObjectPattern',
                         properties: [
                           {
-                            type: "Property",
+                            type: 'Property',
                             key: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             },
                             value: {
-                              type: "Identifier",
-                              name: "a"
+                              type: 'Identifier',
+                              name: 'a'
                             },
-                            kind: "init",
+                            kind: 'init',
                             computed: false,
                             method: false,
                             shorthand: true
                           },
                           {
-                            type: "Property",
+                            type: 'Property',
                             key: {
-                              type: "Identifier",
-                              name: "b"
+                              type: 'Identifier',
+                              name: 'b'
                             },
                             value: {
-                              type: "Identifier",
-                              name: "b"
+                              type: 'Identifier',
+                              name: 'b'
                             },
-                            kind: "init",
+                            kind: 'init',
                             computed: false,
                             method: false,
                             shorthand: true
@@ -4857,53 +4857,53 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "(z = {...x.y} = z) => z",
+      '(z = {...x.y} = z) => z',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "z"
+                type: 'Identifier',
+                name: 'z'
               },
               params: [
                 {
-                  type: "AssignmentPattern",
+                  type: 'AssignmentPattern',
                   left: {
-                    type: "Identifier",
-                    name: "z"
+                    type: 'Identifier',
+                    name: 'z'
                   },
                   right: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "ObjectPattern",
+                      type: 'ObjectPattern',
                       properties: [
                         {
-                          type: "RestElement",
+                          type: 'RestElement',
                           argument: {
-                            type: "MemberExpression",
+                            type: 'MemberExpression',
                             object: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             },
                             computed: false,
                             property: {
-                              type: "Identifier",
-                              name: "y"
+                              type: 'Identifier',
+                              name: 'y'
                             }
                           }
                         }
                       ]
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "Identifier",
-                      name: "z"
+                      type: 'Identifier',
+                      name: 'z'
                     }
                   }
                 }
@@ -4917,29 +4917,29 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...x=y});",
+      '({...x=y});',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 }
@@ -4950,29 +4950,29 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...x+=y});",
+      '({...x+=y});',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "AssignmentExpression",
+                    type: 'AssignmentExpression',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    operator: "+=",
+                    operator: '+=',
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   }
                 }
@@ -4983,29 +4983,29 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...x, ...y});",
+      '({...x, ...y});',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 },
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   }
                 }
               ]
@@ -5015,40 +5015,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({...x.y} = z)",
+      '({...x.y} = z)',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "MemberExpression",
+                      type: 'MemberExpression',
                       object: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       computed: false,
                       property: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     }
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "z"
+                type: 'Identifier',
+                name: 'z'
               }
             }
           }
@@ -5056,104 +5056,104 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({[foo]: x} = y)",
+      '({[foo]: x} = y)',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     computed: true,
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
                 ]
               },
               right: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({[foo]: bar} = baz)",
+      '({[foo]: bar} = baz)',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     computed: true,
                     value: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
                 ]
               },
               right: {
-                type: "Identifier",
-                name: "baz"
+                type: 'Identifier',
+                name: 'baz'
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({...x});",
+      '({...x});',
       Context.OptionsDisableWebCompat,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "SpreadElement",
+                  type: 'SpreadElement',
                   argument: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ]
@@ -5173,96 +5173,96 @@ describe("Expressions - Object", () => {
                 {
                   computed: false,
                   key: {
-                    name: "__proto__",
-                    type: "Identifier"
+                    name: '__proto__',
+                    type: 'Identifier'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
-                    name: "b",
-                    type: "Identifier"
+                    name: 'b',
+                    type: 'Identifier'
                   }
                 },
                 {
                   computed: false,
                   key: {
-                    type: "Literal",
-                    value: "__proto__"
+                    type: 'Literal',
+                    value: '__proto__'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false,
-                  type: "Property",
+                  type: 'Property',
                   value: {
-                    name: "c",
-                    type: "Identifier"
+                    name: 'c',
+                    type: 'Identifier'
                   }
                 }
               ],
-              type: "ObjectExpression"
+              type: 'ObjectExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "x = {__proto__(){}, __proto__: 2}",
+      'x = {__proto__(){}, __proto__: 2}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 2
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -5271,70 +5271,70 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = {__proto__(){}, __proto__(){}}",
+      'x = {__proto__(){}, __proto__(){}}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -5343,70 +5343,70 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = {async __proto__(){}, *__proto__(){}}",
+      'x = {async __proto__(){}, *__proto__(){}}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: true
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "__proto__"
+                      type: 'Identifier',
+                      name: '__proto__'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: true,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -5415,32 +5415,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       '({ "__proto__": "__proto__"})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "__proto__"
+                    type: 'Literal',
+                    value: '__proto__'
                   },
                   computed: false,
                   value: {
-                    type: "Literal",
-                    value: "__proto__"
+                    type: 'Literal',
+                    value: '__proto__'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -5448,52 +5448,52 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({f(x) { var x; }})",
+      '({f(x) { var x; }})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "f"
+                    type: 'Identifier',
+                    name: 'f'
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: [
                         {
-                          type: "VariableDeclaration",
+                          type: 'VariableDeclaration',
                           declarations: [
                             {
-                              type: "VariableDeclarator",
+                              type: 'VariableDeclarator',
                               id: {
-                                type: "Identifier",
-                                name: "x"
+                                type: 'Identifier',
+                                name: 'x'
                               },
                               init: null
                             }
                           ],
-                          kind: "var"
+                          kind: 'var'
                         }
                       ]
                     },
@@ -5501,7 +5501,7 @@ describe("Expressions - Object", () => {
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -5509,52 +5509,52 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = {f(f) { }}",
+      'x = {f(f) { }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [
                         {
-                          type: "Identifier",
-                          name: "f"
+                          type: 'Identifier',
+                          name: 'f'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       generator: false,
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -5563,55 +5563,55 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "o = {f(x) { function x() {} }}",
+      'o = {f(x) { function x() {} }}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "o"
+                type: 'Identifier',
+                name: 'o'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "f"
+                      type: 'Identifier',
+                      name: 'f'
                     },
                     computed: false,
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       id: null,
                       params: [
                         {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: [
                           {
-                            type: "FunctionDeclaration",
+                            type: 'FunctionDeclaration',
                             id: {
-                              type: "Identifier",
-                              name: "x"
+                              type: 'Identifier',
+                              name: 'x'
                             },
                             params: [],
                             body: {
-                              type: "BlockStatement",
+                              type: 'BlockStatement',
                               body: []
                             },
                             generator: false,
@@ -5624,7 +5624,7 @@ describe("Expressions - Object", () => {
 
                       async: false
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: true,
                     shorthand: false
                   }
@@ -5633,32 +5633,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({15: bar});",
+      '({15: bar});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 15
                   },
                   computed: false,
                   value: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -5666,40 +5666,40 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({9:a=b});",
+      '({9:a=b});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 9
                   },
                   computed: false,
                   value: {
-                    type: "AssignmentExpression",
-                    operator: "=",
+                    type: 'AssignmentExpression',
+                    operator: '=',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -5707,40 +5707,40 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({15(){}});",
+      '({15(){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 15
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -5748,36 +5748,36 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({15: bar}) => x",
+      '({15: bar}) => x',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               id: null,
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 15
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: false
                     }
@@ -5785,48 +5785,48 @@ describe("Expressions - Object", () => {
                 }
               ],
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               expression: true,
               async: false
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       '({"a b c"(){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "a b c"
+                    type: 'Literal',
+                    value: 'a b c'
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -5834,32 +5834,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({ident: yield})",
+      '({ident: yield})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "ident"
+                    type: 'Identifier',
+                    name: 'ident'
                   },
                   computed: false,
                   value: {
-                    type: "Identifier",
-                    name: "yield"
+                    type: 'Identifier',
+                    name: 'yield'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -5867,39 +5867,39 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({get});",
+      'x = ({get});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "get"
+                      type: 'Identifier',
+                      name: 'get'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "get"
+                      type: 'Identifier',
+                      name: 'get'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
@@ -5913,35 +5913,35 @@ describe("Expressions - Object", () => {
     ],
 
     [
-      "x = ({async});",
+      'x = ({async});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "async"
+                      type: 'Identifier',
+                      name: 'async'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "async"
+                      type: 'Identifier',
+                      name: 'async'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
@@ -5954,47 +5954,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "wrap({get} = x);",
+      'wrap({get} = x);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "wrap"
+                type: 'Identifier',
+                name: 'wrap'
               },
               arguments: [
                 {
-                  type: "AssignmentExpression",
+                  type: 'AssignmentExpression',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "get"
+                          type: 'Identifier',
+                          name: 'get'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "get"
+                          type: 'Identifier',
+                          name: 'get'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       }
                     ]
                   },
-                  operator: "=",
+                  operator: '=',
                   right: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ]
@@ -6004,47 +6004,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "wrap({async} = x);",
+      'wrap({async} = x);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "wrap"
+                type: 'Identifier',
+                name: 'wrap'
               },
               arguments: [
                 {
-                  type: "AssignmentExpression",
+                  type: 'AssignmentExpression',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "async"
+                          type: 'Identifier',
+                          name: 'async'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "async"
+                          type: 'Identifier',
+                          name: 'async'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       }
                     ]
                   },
-                  operator: "=",
+                  operator: '=',
                   right: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ]
@@ -6054,35 +6054,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({get:b});",
+      'x = ({get:b});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "get"
+                      type: 'Identifier',
+                      name: 'get'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -6095,50 +6095,50 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({a, b});",
+      'x = ({a, b});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   }
@@ -6147,118 +6147,118 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({a, b} = x);",
+      'x = ({a, b} = x);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "AssignmentExpression",
-                operator: "=",
+                type: 'AssignmentExpression',
+                operator: '=',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: true
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({a:b, c:d});",
+      'x = ({a:b, c:d});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'c'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -6267,54 +6267,54 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({a, c:d});",
+      'x = ({a, c:d});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'c'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -6323,54 +6323,54 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({a:b, c});",
+      'x = ({a:b, c});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'c'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'c'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
@@ -6383,266 +6383,266 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({a, c:d} = x);",
+      'x = ({a, c:d} = x);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "AssignmentExpression",
-                operator: "=",
+                type: 'AssignmentExpression',
+                operator: '=',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "d"
+                        type: 'Identifier',
+                        name: 'd'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: false
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({a:b, c} = x);",
+      'x = ({a:b, c} = x);',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "AssignmentExpression",
-                operator: "=",
+                type: 'AssignmentExpression',
+                operator: '=',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: false,
                       shorthand: true
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for ({x=y} in a) b",
+      'for ({x=y} in a) b',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForInStatement",
+            type: 'ForInStatement',
             left: {
-              type: "ObjectPattern",
+              type: 'ObjectPattern',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   computed: false,
                   value: {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: true
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             body: {
-              type: "ExpressionStatement",
+              type: 'ExpressionStatement',
               expression: {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "for ({x=y} of a) b",
+      'for ({x=y} of a) b',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ForOfStatement",
+            type: 'ForOfStatement',
             await: false,
             left: {
-              type: "ObjectPattern",
+              type: 'ObjectPattern',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   computed: false,
                   value: {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     }
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: true
                 }
               ]
             },
             right: {
-              type: "Identifier",
-              name: "a"
+              type: 'Identifier',
+              name: 'a'
             },
             body: {
-              type: "ExpressionStatement",
+              type: 'ExpressionStatement',
               expression: {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               }
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "x = ({15:b});",
+      'x = ({15:b});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
-              operator: "=",
+              type: 'AssignmentExpression',
+              operator: '=',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 15
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -6651,7 +6651,7 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     //['wrap({1:b, 2:d});', Context.Empty, {}],
@@ -6659,32 +6659,32 @@ describe("Expressions - Object", () => {
       'x = ({"a":b});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -6700,47 +6700,47 @@ describe("Expressions - Object", () => {
       'x = ({"a":b, "c":d});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "c"
+                      type: 'Literal',
+                      value: 'c'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -6756,32 +6756,32 @@ describe("Expressions - Object", () => {
       'x = ({"a":b});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -6797,47 +6797,47 @@ describe("Expressions - Object", () => {
       'x = ({"a":b, "c":d});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "c"
+                      type: 'Literal',
+                      value: 'c'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -6850,35 +6850,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({[a]:b});",
+      'x = ({[a]:b});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
@@ -6891,50 +6891,50 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({[a]:b, [15]:d});",
+      'x = ({[a]:b, [15]:d});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 15
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
@@ -6947,35 +6947,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({foo(){}});",
+      'x = ({foo(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -6983,7 +6983,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -6996,28 +6996,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({typeof: x});",
+      '({typeof: x});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7029,40 +7029,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({typeof: x} = y);",
+      '({typeof: x} = y);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "typeof"
+                      type: 'Identifier',
+                      name: 'typeof'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             }
           }
@@ -7070,35 +7070,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({typeof: x}) => x;",
+      '({typeof: x}) => x;',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "typeof"
+                        type: 'Identifier',
+                        name: 'typeof'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -7115,28 +7115,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({typeof(){}});",
+      '({typeof(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7144,7 +7144,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7156,28 +7156,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({*typeof(){}});",
+      '({*typeof(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7185,7 +7185,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7197,33 +7197,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set typeof(x){}});",
+      '({set typeof(x){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7231,7 +7231,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7243,28 +7243,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get typeof(){}});",
+      '({get typeof(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7272,7 +7272,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7284,28 +7284,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async typeof(){}});",
+      '({async typeof(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
@@ -7313,7 +7313,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7325,28 +7325,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async * typeof(){}});",
+      '({async * typeof(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "typeof"
+                    type: 'Identifier',
+                    name: 'typeof'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
@@ -7354,7 +7354,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7366,35 +7366,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = { async *[y](){} }",
+      'x = { async *[y](){} }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -7402,7 +7402,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7418,25 +7418,25 @@ describe("Expressions - Object", () => {
       '({async "a b c"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "a b c"
+                    type: 'Literal',
+                    value: 'a b c'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
@@ -7444,7 +7444,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7456,28 +7456,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({async 15(){}});",
+      '({async 15(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 15
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: true,
@@ -7485,7 +7485,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -7500,25 +7500,25 @@ describe("Expressions - Object", () => {
       '({get "a b c"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "a b c"
+                    type: 'Literal',
+                    value: 'a b c'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7526,7 +7526,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7538,28 +7538,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get 15(){}});",
+      '({get 15(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 15
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7567,7 +7567,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7582,30 +7582,30 @@ describe("Expressions - Object", () => {
       '({set "a b c"(x){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "a b c"
+                    type: 'Literal',
+                    value: 'a b c'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7613,7 +7613,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7625,33 +7625,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set 15(x){}});",
+      '({set 15(x){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 15
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -7659,7 +7659,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -7671,35 +7671,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async(){}});",
+      'x = ({async(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "async"
+                      type: 'Identifier',
+                      name: 'async'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7707,7 +7707,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7720,35 +7720,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({foo(){}, bar(){}});",
+      'x = ({foo(){}, bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7756,22 +7756,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7779,7 +7779,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7792,48 +7792,48 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({foo(a,b,c){}});",
+      'x = ({foo(a,b,c){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [
                         {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
                         {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         }
                       ],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7841,7 +7841,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7854,35 +7854,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({1(){}});",
+      'x = ({1(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7890,7 +7890,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7906,32 +7906,32 @@ describe("Expressions - Object", () => {
       'x = ({"foo"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "foo"
+                      type: 'Literal',
+                      value: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -7939,7 +7939,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -7952,35 +7952,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async foo(){}});",
+      'x = ({async foo(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -7988,7 +7988,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8001,35 +8001,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async get(){}});",
+      'x = ({async get(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "get"
+                      type: 'Identifier',
+                      name: 'get'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8037,7 +8037,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8050,35 +8050,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async async(){}});",
+      'x = ({async async(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "async"
+                      type: 'Identifier',
+                      name: 'async'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8086,7 +8086,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8102,32 +8102,32 @@ describe("Expressions - Object", () => {
       'x = ({async "foo"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "foo"
+                      type: 'Literal',
+                      value: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8135,7 +8135,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8148,35 +8148,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async 100(){}});",
+      'x = ({async 100(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 100
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8184,7 +8184,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8242,35 +8242,35 @@ describe("Expressions - Object", () => {
     ]
   }],*/,
     [
-      "x = ({async foo(){}, async bar(){}});",
+      'x = ({async foo(){}, async bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8278,22 +8278,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8301,7 +8301,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8314,35 +8314,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({async foo(){}, bar(){}});",
+      'x = ({async foo(){}, bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8350,22 +8350,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8373,7 +8373,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8386,35 +8386,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({foo(){}, async bar(){}});",
+      'x = ({foo(){}, async bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8422,22 +8422,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: true,
@@ -8445,7 +8445,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8458,35 +8458,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({*foo(){}});",
+      'x = ({*foo(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8494,7 +8494,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8507,35 +8507,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({*get(){}});",
+      'x = ({*get(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "get"
+                      type: 'Identifier',
+                      name: 'get'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8543,7 +8543,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8556,35 +8556,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({*async(){}});",
+      'x = ({*async(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "async"
+                      type: 'Identifier',
+                      name: 'async'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8592,7 +8592,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8608,32 +8608,32 @@ describe("Expressions - Object", () => {
       'x = ({*"foo"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "foo"
+                      type: 'Literal',
+                      value: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8641,7 +8641,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8654,35 +8654,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({*123(){}});",
+      'x = ({*123(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 123
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8690,7 +8690,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8703,35 +8703,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({*[foo](){}});",
+      'x = ({*[foo](){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8739,7 +8739,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: true,
                     shorthand: false
@@ -8752,35 +8752,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({* foo(){},*bar(){}});",
+      'x = ({* foo(){},*bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8788,22 +8788,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8811,7 +8811,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8824,35 +8824,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({* foo(){}, bar(){}});",
+      'x = ({* foo(){}, bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8860,22 +8860,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8883,7 +8883,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8896,35 +8896,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = ({foo(){}, *bar(){}});",
+      'x = ({foo(){}, *bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8932,22 +8932,22 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     value: {
-                      type: "FunctionExpression",
+                      type: 'FunctionExpression',
                       params: [],
                       body: {
-                        type: "BlockStatement",
+                        type: 'BlockStatement',
                         body: []
                       },
                       async: false,
@@ -8955,7 +8955,7 @@ describe("Expressions - Object", () => {
 
                       id: null
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: true,
                     shorthand: false
@@ -8968,28 +8968,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get foo(){}});",
+      '({get foo(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -8997,7 +8997,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9009,28 +9009,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get get(){}});",
+      '({get get(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "get"
+                    type: 'Identifier',
+                    name: 'get'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9038,7 +9038,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9050,28 +9050,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get foo(){}, get bar(){}});",
+      '({get foo(){}, get bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9079,22 +9079,22 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9102,7 +9102,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9114,28 +9114,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get foo(){}, bar(){}});",
+      '({get foo(){}, bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9143,22 +9143,22 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9166,7 +9166,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -9178,28 +9178,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({foo(){}, get bar(){}});",
+      '({foo(){}, get bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9207,22 +9207,22 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9230,7 +9230,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9242,36 +9242,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get [foo](){}});",
+      '({get [foo](){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false
                 }
@@ -9279,63 +9279,63 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({get [foo](){}, get [bar](){}});",
+      '({get [foo](){}, get [bar](){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false
                 }
@@ -9343,63 +9343,63 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({get [foo](){}, [bar](){}});",
+      '({get [foo](){}, [bar](){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -9407,63 +9407,63 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({[foo](){}, get [bar](){}});",
+      '({[foo](){}, get [bar](){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "get",
+                  kind: 'get',
                   method: false,
                   shorthand: false
                 }
@@ -9471,32 +9471,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       '({get "foo"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "foo"
+                    type: 'Literal',
+                    value: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9504,7 +9504,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9519,25 +9519,25 @@ describe("Expressions - Object", () => {
       '({get "foo"(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "foo"
+                    type: 'Literal',
+                    value: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9545,7 +9545,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9557,28 +9557,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({get 123(){}});",
+      '({get 123(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 123
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9586,7 +9586,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "get",
+                  kind: 'get',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9598,33 +9598,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set foo(a){}});",
+      '({set foo(a){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9632,7 +9632,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9644,33 +9644,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set get(a){}});",
+      '({set get(a){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "get"
+                    type: 'Identifier',
+                    name: 'get'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9678,7 +9678,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9690,33 +9690,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set foo(b){}, set bar(d){}});",
+      '({set foo(b){}, set bar(d){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9724,27 +9724,27 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "d"
+                        type: 'Identifier',
+                        name: 'd'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9752,7 +9752,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9764,33 +9764,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set foo(c){}, bar(){}});",
+      '({set foo(c){}, bar(){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9798,22 +9798,22 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9821,7 +9821,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -9833,28 +9833,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({foo(){}, set bar(e){}});",
+      '({foo(){}, set bar(e){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9862,27 +9862,27 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "e"
+                        type: 'Identifier',
+                        name: 'e'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -9890,7 +9890,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -9902,41 +9902,41 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set [foo](a){}});",
+      '({set [foo](a){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false
                 }
@@ -9944,73 +9944,73 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({set [foo](b){}, set [bar](d){}});",
+      '({set [foo](b){}, set [bar](d){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "d"
+                        type: 'Identifier',
+                        name: 'd'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false
                 }
@@ -10018,68 +10018,68 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({set [foo](c){}, [bar](){}});",
+      '({set [foo](c){}, [bar](){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -10087,68 +10087,68 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({[foo](){}, set [bar](e){}});",
+      '({[foo](){}, set [bar](e){}});',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "e"
+                        type: 'Identifier',
+                        name: 'e'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "set",
+                  kind: 'set',
                   method: false,
                   shorthand: false
                 }
@@ -10156,37 +10156,37 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       '({set "foo"(a){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "foo"
+                    type: 'Literal',
+                    value: 'foo'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -10194,7 +10194,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -10206,33 +10206,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({set 123(a){}});",
+      '({set 123(a){}});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 123
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -10240,7 +10240,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "set",
+                  kind: 'set',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -10252,33 +10252,33 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({foo: typeof x});",
+      '({foo: typeof x});',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   value: {
-                    type: "UnaryExpression",
-                    operator: "typeof",
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
                     argument: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     prefix: true
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -10290,24 +10290,24 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({}=obj);",
+      '({}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: []
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10315,40 +10315,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a}=obj);",
+      '({a}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10356,40 +10356,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a:b}=obj);",
+      '({a:b}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10397,223 +10397,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a, b}=obj);",
+      '({a, b}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: true
-                  },
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: true
-                  }
-                ]
-              },
-              operator: "=",
-              right: {
-                type: "Identifier",
-                name: "obj"
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      "({a:b, c:d}=obj);",
-      Context.Empty,
-      {
-        type: "Program",
-        sourceType: "script",
-        body: [
-          {
-            type: "ExpressionStatement",
-            expression: {
-              type: "AssignmentExpression",
-              left: {
-                type: "ObjectPattern",
-                properties: [
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "a"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: false
-                  },
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "c"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "d"
-                    },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: false
-                  }
-                ]
-              },
-              operator: "=",
-              right: {
-                type: "Identifier",
-                name: "obj"
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      "({a, c:d}=obj);",
-      Context.Empty,
-      {
-        type: "Program",
-        sourceType: "script",
-        body: [
-          {
-            type: "ExpressionStatement",
-            expression: {
-              type: "AssignmentExpression",
-              left: {
-                type: "ObjectPattern",
-                properties: [
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "a"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "a"
-                    },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "c"
+                      type: 'Identifier',
+                      name: 'b'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: false
-                  }
-                ]
-              },
-              operator: "=",
-              right: {
-                type: "Identifier",
-                name: "obj"
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      "({a:b, c}=obj);",
-      Context.Empty,
-      {
-        type: "Program",
-        sourceType: "script",
-        body: [
-          {
-            type: "ExpressionStatement",
-            expression: {
-              type: "AssignmentExpression",
-              left: {
-                type: "ObjectPattern",
-                properties: [
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "a"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "b"
-                    },
-                    kind: "init",
-                    computed: false,
-                    method: false,
-                    shorthand: false
-                  },
-                  {
-                    type: "Property",
-                    key: {
-                      type: "Identifier",
-                      name: "c"
-                    },
-                    value: {
-                      type: "Identifier",
-                      name: "c"
-                    },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10621,24 +10453,192 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({}=x);",
+      '({a:b, c:d}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a, c:d}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'd'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({a:b, c}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  },
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'c'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: true
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({}=x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
                 properties: []
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
@@ -10646,47 +10646,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a=b}=c);",
+      '({a=b}=c);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "c"
+                type: 'Identifier',
+                name: 'c'
               }
             }
           }
@@ -10694,47 +10694,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a:v=b}=c);",
+      '({a:v=b}=c);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "v"
+                        type: 'Identifier',
+                        name: 'v'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "c"
+                type: 'Identifier',
+                name: 'c'
               }
             }
           }
@@ -10742,40 +10742,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({x:let} = a)",
+      '({x:let} = a)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "let"
+                      type: 'Identifier',
+                      name: 'let'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             }
           }
@@ -10783,28 +10783,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({x:let})",
+      '({x:let})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "let"
+                    type: 'Identifier',
+                    name: 'let'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -10816,47 +10816,47 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a:b=x}=y);",
+      '({a:b=x}=y);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             }
           }
@@ -10867,37 +10867,37 @@ describe("Expressions - Object", () => {
       '({"a":b}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10908,52 +10908,52 @@ describe("Expressions - Object", () => {
       '({"a":b, "c":d}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "a"
+                      type: 'Literal',
+                      value: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "c"
+                      type: 'Literal',
+                      value: 'c'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -10964,33 +10964,33 @@ describe("Expressions - Object", () => {
       '({"x": y+z})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "BinaryExpression",
+                    type: 'BinaryExpression',
                     left: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "z"
+                      type: 'Identifier',
+                      name: 'z'
                     },
-                    operator: "+"
+                    operator: '+'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11005,30 +11005,30 @@ describe("Expressions - Object", () => {
       '({"x": [y]})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "ArrayExpression",
+                    type: 'ArrayExpression',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     ]
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11043,37 +11043,37 @@ describe("Expressions - Object", () => {
       '({"x": [y]}) => x',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Literal",
-                        value: "x"
+                        type: 'Literal',
+                        value: 'x'
                       },
                       value: {
-                        type: "ArrayPattern",
+                        type: 'ArrayPattern',
                         elements: [
                           {
-                            type: "Identifier",
-                            name: "y"
+                            type: 'Identifier',
+                            name: 'y'
                           }
                         ]
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -11093,38 +11093,38 @@ describe("Expressions - Object", () => {
       '({"x": [y + x]})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "ArrayExpression",
+                    type: 'ArrayExpression',
                     elements: [
                       {
-                        type: "BinaryExpression",
+                        type: 'BinaryExpression',
                         left: {
-                          type: "Identifier",
-                          name: "y"
+                          type: 'Identifier',
+                          name: 'y'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         },
-                        operator: "+"
+                        operator: '+'
                       }
                     ]
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11139,41 +11139,41 @@ describe("Expressions - Object", () => {
       '({"x": {y: z}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "ObjectExpression",
+                    type: 'ObjectExpression',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "y"
+                          type: 'Identifier',
+                          name: 'y'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "z"
+                          type: 'Identifier',
+                          name: 'z'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: false
                       }
                     ]
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11188,53 +11188,53 @@ describe("Expressions - Object", () => {
       '({"x": {y: z}} = x)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "x"
+                      type: 'Literal',
+                      value: 'x'
                     },
                     value: {
-                      type: "ObjectPattern",
+                      type: 'ObjectPattern',
                       properties: [
                         {
-                          type: "Property",
+                          type: 'Property',
                           key: {
-                            type: "Identifier",
-                            name: "y"
+                            type: 'Identifier',
+                            name: 'y'
                           },
                           value: {
-                            type: "Identifier",
-                            name: "z"
+                            type: 'Identifier',
+                            name: 'z'
                           },
-                          kind: "init",
+                          kind: 'init',
                           computed: false,
                           method: false,
                           shorthand: false
                         }
                       ]
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
@@ -11245,48 +11245,48 @@ describe("Expressions - Object", () => {
       '({"x": {y: z}}) => x',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ArrowFunctionExpression",
+              type: 'ArrowFunctionExpression',
               body: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               params: [
                 {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Literal",
-                        value: "x"
+                        type: 'Literal',
+                        value: 'x'
                       },
                       value: {
-                        type: "ObjectPattern",
+                        type: 'ObjectPattern',
                         properties: [
                           {
-                            type: "Property",
+                            type: 'Property',
                             key: {
-                              type: "Identifier",
-                              name: "y"
+                              type: 'Identifier',
+                              name: 'y'
                             },
                             value: {
-                              type: "Identifier",
-                              name: "z"
+                              type: 'Identifier',
+                              name: 'z'
                             },
-                            kind: "init",
+                            kind: 'init',
                             computed: false,
                             method: false,
                             shorthand: false
                           }
                         ]
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: false
@@ -11306,49 +11306,49 @@ describe("Expressions - Object", () => {
       '({"x": {a: y + x}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "ObjectExpression",
+                    type: 'ObjectExpression',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         value: {
-                          type: "BinaryExpression",
+                          type: 'BinaryExpression',
                           left: {
-                            type: "Identifier",
-                            name: "y"
+                            type: 'Identifier',
+                            name: 'y'
                           },
                           right: {
-                            type: "Identifier",
-                            name: "x"
+                            type: 'Identifier',
+                            name: 'x'
                           },
-                          operator: "+"
+                          operator: '+'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: false
                       }
                     ]
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11363,25 +11363,25 @@ describe("Expressions - Object", () => {
       '({"x": 600})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "x"
+                    type: 'Literal',
+                    value: 'x'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 600
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11393,40 +11393,40 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({[a]:b}=obj);",
+      '({[a]:b}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -11434,55 +11434,55 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({[a]:b, [15]:d}=obj);",
+      '({[a]:b, [15]:d}=obj);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 15
                     },
                     value: {
-                      type: "Identifier",
-                      name: "d"
+                      type: 'Identifier',
+                      name: 'd'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: true,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "obj"
+                type: 'Identifier',
+                name: 'obj'
               }
             }
           }
@@ -11490,35 +11490,35 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {y}",
+      'x = {y}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "y"
+                      type: 'Identifier',
+                      name: 'y'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
@@ -11531,62 +11531,62 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x, {foo, bar} = doo",
+      'x, {foo, bar} = doo',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "AssignmentExpression",
+                  type: 'AssignmentExpression',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       },
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       }
                     ]
                   },
-                  operator: "=",
+                  operator: '=',
                   right: {
-                    type: "Identifier",
-                    name: "doo"
+                    type: 'Identifier',
+                    name: 'doo'
                   }
                 }
               ]
@@ -11596,69 +11596,69 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x, {foo = y, bar} = doo",
+      'x, {foo = y, bar} = doo',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "SequenceExpression",
+              type: 'SequenceExpression',
               expressions: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 {
-                  type: "AssignmentExpression",
+                  type: 'AssignmentExpression',
                   left: {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         value: {
-                          type: "AssignmentPattern",
+                          type: 'AssignmentPattern',
                           left: {
-                            type: "Identifier",
-                            name: "foo"
+                            type: 'Identifier',
+                            name: 'foo'
                           },
                           right: {
-                            type: "Identifier",
-                            name: "y"
+                            type: 'Identifier',
+                            name: 'y'
                           }
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       },
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         value: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
-                        kind: "init",
+                        kind: 'init',
                         computed: false,
                         method: false,
                         shorthand: true
                       }
                     ]
                   },
-                  operator: "=",
+                  operator: '=',
                   right: {
-                    type: "Identifier",
-                    name: "doo"
+                    type: 'Identifier',
+                    name: 'doo'
                   }
                 }
               ]
@@ -11668,62 +11668,62 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "x = {a, b} = y",
+      'x = {a, b} = y',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "AssignmentExpression",
+                type: 'AssignmentExpression',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       value: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
-                      kind: "init",
+                      kind: 'init',
                       computed: false,
                       method: false,
                       shorthand: true
                     }
                   ]
                 },
-                operator: "=",
+                operator: '=',
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             }
@@ -11732,62 +11732,62 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a, b} = c = d)",
+      '({a, b} = c = d)',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   },
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
                     value: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: true
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "AssignmentExpression",
+                type: 'AssignmentExpression',
                 left: {
-                  type: "Identifier",
-                  name: "c"
+                  type: 'Identifier',
+                  name: 'c'
                 },
-                operator: "=",
+                operator: '=',
                 right: {
-                  type: "Identifier",
-                  name: "d"
+                  type: 'Identifier',
+                  name: 'd'
                 }
               }
             }
@@ -11796,48 +11796,48 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({ x: x[Y] } = x);",
+      '({ x: x[Y] } = x);',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     value: {
-                      type: "MemberExpression",
+                      type: 'MemberExpression',
                       object: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       computed: true,
                       property: {
-                        type: "Identifier",
-                        name: "Y"
+                        type: 'Identifier',
+                        name: 'Y'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
                   }
                 ]
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             }
           }
@@ -11848,40 +11848,40 @@ describe("Expressions - Object", () => {
       'a={"b":c=d}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "ObjectExpression",
+                type: 'ObjectExpression',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Literal",
-                      value: "b"
+                      type: 'Literal',
+                      value: 'b'
                     },
                     value: {
-                      type: "AssignmentExpression",
+                      type: 'AssignmentExpression',
                       left: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       },
-                      operator: "=",
+                      operator: '=',
                       right: {
-                        type: "Identifier",
-                        name: "d"
+                        type: 'Identifier',
+                        name: 'd'
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     computed: false,
                     method: false,
                     shorthand: false
@@ -11894,43 +11894,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a: 1, a: 2})",
+      '({a: 1, a: 2})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 2
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -11942,58 +11942,58 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a: 1, b: 3, a: 2})",
+      '({a: 1, b: 3, a: 2})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 3
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 2
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -12005,58 +12005,58 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a: 1, a: 2, b: 3})",
+      '({a: 1, a: 2, b: 3})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 2
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 3
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -12068,43 +12068,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a, a})",
+      '({a, a})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -12116,43 +12116,43 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a, a: 1})",
+      '({a, a: 1})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
                 },
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 1
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: false
@@ -12165,36 +12165,36 @@ describe("Expressions - Object", () => {
     ],
 
     [
-      "({[foo](){}})",
+      '({[foo](){}})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: false,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -12202,32 +12202,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({[foo]: x})",
+      '({[foo]: x})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   computed: true,
                   value: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -12235,47 +12235,47 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       'const foo = { get ["bar"] () { }, };',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Literal",
-                        value: "bar"
+                        type: 'Literal',
+                        value: 'bar'
                       },
                       computed: true,
                       value: {
-                        type: "FunctionExpression",
+                        type: 'FunctionExpression',
                         id: null,
                         params: [],
                         body: {
-                          type: "BlockStatement",
+                          type: 'BlockStatement',
                           body: []
                         },
                         generator: false,
 
                         async: false
                       },
-                      kind: "get",
+                      kind: 'get',
                       method: false,
                       shorthand: false
                     }
@@ -12283,50 +12283,50 @@ describe("Expressions - Object", () => {
                 }
               }
             ],
-            kind: "const"
+            kind: 'const'
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "const foo = { async [key] () { } };",
+      'const foo = { async [key] () { } };',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "foo"
+                  type: 'Identifier',
+                  name: 'foo'
                 },
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
+                      type: 'Property',
                       key: {
-                        type: "Identifier",
-                        name: "key"
+                        type: 'Identifier',
+                        name: 'key'
                       },
                       computed: true,
                       value: {
-                        type: "FunctionExpression",
+                        type: 'FunctionExpression',
                         id: null,
                         params: [],
                         body: {
-                          type: "BlockStatement",
+                          type: 'BlockStatement',
                           body: []
                         },
                         generator: false,
 
                         async: true
                       },
-                      kind: "init",
+                      kind: 'init',
                       method: true,
                       shorthand: false
                     }
@@ -12334,35 +12334,35 @@ describe("Expressions - Object", () => {
                 }
               }
             ],
-            kind: "const"
+            kind: 'const'
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({*[expr](){}})",
+      '({*[expr](){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "expr"
+                    type: 'Identifier',
+                    name: 'expr'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -12370,7 +12370,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: true,
                   method: true,
                   shorthand: false
@@ -12385,33 +12385,33 @@ describe("Expressions - Object", () => {
       '({*"cherow"(){}})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
-                    value: "cherow"
+                    type: 'Literal',
+                    value: 'cherow'
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: true,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -12419,40 +12419,40 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({*99(){}})",
+      '({*99(){}})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Literal",
+                    type: 'Literal',
                     value: 99
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: true,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -12460,45 +12460,45 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({*ident(d){}})",
+      '({*ident(d){}})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "ident"
+                    type: 'Identifier',
+                    name: 'ident'
                   },
                   computed: false,
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     id: null,
                     params: [
                       {
-                        type: "Identifier",
-                        name: "d"
+                        type: 'Identifier',
+                        name: 'd'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     generator: true,
 
                     async: false
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: true,
                   shorthand: false
                 }
@@ -12506,20 +12506,20 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({})",
+      '({})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: []
             }
           }
@@ -12527,37 +12527,37 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(b, c){}})",
+      '({a(b, c){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     ],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -12565,7 +12565,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -12577,28 +12577,28 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a(){}})",
+      '({a(){}})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "FunctionExpression",
+                    type: 'FunctionExpression',
                     params: [],
                     body: {
-                      type: "BlockStatement",
+                      type: 'BlockStatement',
                       body: []
                     },
                     async: false,
@@ -12606,7 +12606,7 @@ describe("Expressions - Object", () => {
 
                     id: null
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: true,
                   shorthand: false
@@ -12618,36 +12618,36 @@ describe("Expressions - Object", () => {
       }
     ],
     [
-      "({a: a={}})",
+      '({a: a={}})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   computed: false,
                   value: {
-                    type: "AssignmentExpression",
-                    operator: "=",
+                    type: 'AssignmentExpression',
+                    operator: '=',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "ObjectExpression",
+                      type: 'ObjectExpression',
                       properties: []
                     }
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -12655,7 +12655,7 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
@@ -12670,82 +12670,82 @@ describe("Expressions - Object", () => {
                 {
                   expression: {
                     left: {
-                      name: "s",
-                      type: "Identifier"
+                      name: 's',
+                      type: 'Identifier'
                     },
-                    operator: "=",
+                    operator: '=',
                     right: {
                       properties: [
                         {
                           computed: false,
                           key: {
-                            type: "Literal",
-                            value: "foo"
+                            type: 'Literal',
+                            value: 'foo'
                           },
-                          kind: "init",
+                          kind: 'init',
                           method: false,
                           shorthand: false,
-                          type: "Property",
+                          type: 'Property',
                           value: {
                             argument: {
                               regex: {
-                                flags: "g",
-                                pattern: "x"
+                                flags: 'g',
+                                pattern: 'x'
                               },
-                              type: "Literal",
+                              type: 'Literal',
                               value: /x/g
                             },
                             delegate: false,
-                            type: "YieldExpression"
+                            type: 'YieldExpression'
                           }
                         }
                       ],
-                      type: "ObjectExpression"
+                      type: 'ObjectExpression'
                     },
-                    type: "AssignmentExpression"
+                    type: 'AssignmentExpression'
                   },
-                  type: "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              type: "BlockStatement"
+              type: 'BlockStatement'
             },
 
             generator: true,
             id: {
-              name: "f",
-              type: "Identifier"
+              name: 'f',
+              type: 'Identifier'
             },
             params: [],
-            type: "FunctionDeclaration"
+            type: 'FunctionDeclaration'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "({a:b})",
+      '({a:b})',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   computed: false,
                   value: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
-                  kind: "init",
+                  kind: 'init',
                   method: false,
                   shorthand: false
                 }
@@ -12753,32 +12753,32 @@ describe("Expressions - Object", () => {
             }
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "({a})",
+      '({a})',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "ObjectExpression",
+              type: 'ObjectExpression',
               properties: [
                 {
-                  type: "Property",
+                  type: 'Property',
                   key: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   value: {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
-                  kind: "init",
+                  kind: 'init',
                   computed: false,
                   method: false,
                   shorthand: true
@@ -12790,5 +12790,5 @@ describe("Expressions - Object", () => {
       }
     ]
   ];
-  pass("Expressions - Object (pass)", valids);
+  pass('Expressions - Object (pass)', valids);
 });

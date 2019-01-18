@@ -1,13 +1,13 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
 
-describe("Expressions - Unary", () => {});
+describe('Expressions - Unary', () => {});
 
-fail("Expressions - Unary (fail)", [
-  ["delete async; () => x;", Context.Strict],
+fail('Expressions - Unary (fail)', [
+  ['delete async; () => x;', Context.Strict],
   // ['delete async \n (a) => x', Context.Strict],
-  ["delete async; () => x;", Context.Strict],
-  ["delete async; () => x;", Context.Strict],
+  ['delete async; () => x;', Context.Strict],
+  ['delete async; () => x;', Context.Strict],
   ['"use strict"; delete foo;', Context.Strict],
   ['"use strict"; delete foo + 1;', Context.Strict],
   ['"use strict"; delete eval;', Context.Strict],
@@ -23,29 +23,29 @@ fail("Expressions - Unary (fail)", [
   // ['let x = delete async (x) \n => x', Context.Empty]
 ]);
 
-pass("Expressions - Unary (pass)", [
+pass('Expressions - Unary (pass)', [
   [
     '"use strict"; delete this;',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "ThisExpression"
+              type: 'ThisExpression'
             },
             prefix: true
           }
@@ -57,24 +57,24 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete 1;',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "Literal",
+              type: 'Literal',
               value: 1
             },
             prefix: true
@@ -87,35 +87,35 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete 1 + 2;',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "BinaryExpression",
+            type: 'BinaryExpression',
             left: {
-              type: "UnaryExpression",
-              operator: "delete",
+              type: 'UnaryExpression',
+              operator: 'delete',
               argument: {
-                type: "Literal",
+                type: 'Literal',
                 value: 1
               },
               prefix: true
             },
             right: {
-              type: "Literal",
+              type: 'Literal',
               value: 2
             },
-            operator: "+"
+            operator: '+'
           }
         }
       ]
@@ -125,27 +125,27 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete foo();',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "CallExpression",
+              type: 'CallExpression',
               callee: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               arguments: []
             },
@@ -159,32 +159,32 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete foo.bar;',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               object: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               computed: false,
               property: {
-                type: "Identifier",
-                name: "bar"
+                type: 'Identifier',
+                name: 'bar'
               }
             },
             prefix: true
@@ -197,29 +197,29 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete --foo;',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "UpdateExpression",
+              type: 'UpdateExpression',
               argument: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
-              operator: "--",
+              operator: '--',
               prefix: true
             },
             prefix: true
@@ -232,27 +232,27 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete new foo();',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               arguments: []
             },
@@ -266,32 +266,32 @@ pass("Expressions - Unary (pass)", [
     '"use strict"; delete new foo(bar);',
     Context.OptionsDirectives | Context.OptionsRaw,
     {
-      type: "Program",
-      sourceType: "script",
+      type: 'Program',
+      sourceType: 'script',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "Literal",
-            value: "use strict"
+            type: 'Literal',
+            value: 'use strict'
           },
-          directive: "use strict"
+          directive: 'use strict'
         },
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "NewExpression",
+              type: 'NewExpression',
               callee: {
-                type: "Identifier",
-                name: "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               arguments: [
                 {
-                  type: "Identifier",
-                  name: "bar"
+                  type: 'Identifier',
+                  name: 'bar'
                 }
               ]
             },
@@ -303,7 +303,7 @@ pass("Expressions - Unary (pass)", [
   ],
 
   [
-    "delete obj.$$hashKey;",
+    'delete obj.$$hashKey;',
     Context.Empty,
     {
       body: [
@@ -312,98 +312,98 @@ pass("Expressions - Unary (pass)", [
             argument: {
               computed: false,
               object: {
-                name: "obj",
-                type: "Identifier"
+                name: 'obj',
+                type: 'Identifier'
               },
               property: {
-                name: "$$hashKey",
-                type: "Identifier"
+                name: '$$hashKey',
+                type: 'Identifier'
               },
-              type: "MemberExpression"
+              type: 'MemberExpression'
             },
-            operator: "delete",
+            operator: 'delete',
             prefix: true,
-            type: "UnaryExpression"
+            type: 'UnaryExpression'
           },
-          type: "ExpressionStatement"
+          type: 'ExpressionStatement'
         }
       ],
-      sourceType: "script",
-      type: "Program"
+      sourceType: 'script',
+      type: 'Program'
     }
   ],
   [
-    "delete async",
+    'delete async',
     Context.Empty,
     {
-      type: "Program",
+      type: 'Program',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "Identifier",
-              name: "async"
+              type: 'Identifier',
+              name: 'async'
             },
             prefix: true
           }
         }
       ],
-      sourceType: "script"
+      sourceType: 'script'
     }
   ],
   [
-    "delete x.y",
+    'delete x.y',
     Context.Empty,
     {
-      type: "Program",
+      type: 'Program',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "delete",
+            type: 'UnaryExpression',
+            operator: 'delete',
             argument: {
-              type: "MemberExpression",
+              type: 'MemberExpression',
               computed: false,
               object: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               property: {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             },
             prefix: true
           }
         }
       ],
-      sourceType: "script"
+      sourceType: 'script'
     }
   ],
   [
-    "typeof async",
+    'typeof async',
     Context.Empty,
     {
-      type: "Program",
+      type: 'Program',
       body: [
         {
-          type: "ExpressionStatement",
+          type: 'ExpressionStatement',
           expression: {
-            type: "UnaryExpression",
-            operator: "typeof",
+            type: 'UnaryExpression',
+            operator: 'typeof',
             argument: {
-              type: "Identifier",
-              name: "async"
+              type: 'Identifier',
+              name: 'async'
             },
             prefix: true
           }
         }
       ],
-      sourceType: "script"
+      sourceType: 'script'
     }
   ]
 ]);

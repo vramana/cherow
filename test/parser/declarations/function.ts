@@ -1,48 +1,48 @@
-import { Context } from "../../../src/common";
-import { pass, fail } from "../../test-utils";
-import * as t from "assert";
-import { parseSource } from "../../../src/cherow";
+import { Context } from '../../../src/common';
+import { pass, fail } from '../../test-utils';
+import * as t from 'assert';
+import { parseSource } from '../../../src/cherow';
 
-describe("Declarations - Function", () => {
+describe('Declarations - Function', () => {
   const inValids: Array<[string, Context]> = [
     // Acorn
-    ["let foo = 1; function x(foo) {} { var foo = 1; }", Context.Empty],
-    ["var foo = 1; function x() {} let foo = 1;", Context.Empty],
-    ["var foo = 1; function x(a) { let a; } ", Context.Empty],
+    ['let foo = 1; function x(foo) {} { var foo = 1; }', Context.Empty],
+    ['var foo = 1; function x() {} let foo = 1;', Context.Empty],
+    ['var foo = 1; function x(a) { let a; } ', Context.Empty],
 
     // Duplicate function args in strct mode
 
-    ["function f(a, a) {}", Context.Strict],
-    ["function f(a, b, a) {}", Context.Strict],
-    ["function f(b, a, a) {}", Context.Strict],
-    ["function f(a, a, b) {}", Context.Strict],
-    ["function f(b, a, b, a) {}", Context.Strict],
-    ["function f(b, a, b, a = x) {}", Context.Strict],
+    ['function f(a, a) {}', Context.Strict],
+    ['function f(a, b, a) {}', Context.Strict],
+    ['function f(b, a, a) {}', Context.Strict],
+    ['function f(a, a, b) {}', Context.Strict],
+    ['function f(b, a, b, a) {}', Context.Strict],
+    ['function f(b, a, b, a = x) {}', Context.Strict],
 
     // General
 
-    ["let x = a; function x(){};", Context.Empty],
-    ["const x = a; function x(){};", Context.Empty],
+    ['let x = a; function x(){};', Context.Empty],
+    ['const x = a; function x(){};', Context.Empty],
     // ['"use strict"; function eval(){}', Context.Strict],
-    ["const x = a; function x(){};", Context.Empty],
+    ['const x = a; function x(){};', Context.Empty],
 
-    ["function f([b, a], b) {}", Context.Strict],
-    ["function f([b, a], {b}) {}", Context.Strict],
-    ["function f([b, a], b=x) {}", Context.Strict],
-    ["function f([b, a, b, a]) {}", Context.Strict],
-    ["function f([a, a, b]) {}", Context.Strict],
-    ["function f([b, a, a]) {}", Context.Strict],
-    ["function f([a, b, a]) {}", Context.Strict],
-    ["function f([a, a]) {}", Context.Strict],
-    ["function f([a, b, a]) {}", Context.Strict],
-    ["function f([a, b, a]) {}", Context.Strict],
-    ["function f([b, a], ...b) {}", Context.Strict],
+    ['function f([b, a], b) {}', Context.Strict],
+    ['function f([b, a], {b}) {}', Context.Strict],
+    ['function f([b, a], b=x) {}', Context.Strict],
+    ['function f([b, a, b, a]) {}', Context.Strict],
+    ['function f([a, a, b]) {}', Context.Strict],
+    ['function f([b, a, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([a, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([a, b, a]) {}', Context.Strict],
+    ['function f([b, a], ...b) {}', Context.Strict],
 
     // Block scope
 
-    ["{ function f() {} { var f; } }", Context.OptionsDisableWebCompat],
-    ["{ function* f() {} function f() {} }", Context.OptionsDisableWebCompat],
-    ["{ function f() {} var f; }", Context.OptionsDisableWebCompat],
+    ['{ function f() {} { var f; } }', Context.OptionsDisableWebCompat],
+    ['{ function* f() {} function f() {} }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} var f; }', Context.OptionsDisableWebCompat],
 
     // Duplicate function args with explicit directive
 
@@ -56,31 +56,31 @@ describe("Declarations - Function", () => {
 
     // Duplicate args with locale binding
 
-    ["let x; var x;", Context.Empty],
-    ["let x; { var x; }", Context.Empty],
-    ["{ var x; } let x;", Context.Empty],
+    ['let x; var x;', Context.Empty],
+    ['let x; { var x; }', Context.Empty],
+    ['{ var x; } let x;', Context.Empty],
 
     // General
 
-    ["{ function f(){} function f(){} }", Context.OptionsDisableWebCompat],
-    ["function f(x) { let x }", Context.OptionsDisableWebCompat],
-    ["function f(x) { const x = y }", Context.Empty],
-    ["function f(){ let x; var x; }", Context.Empty],
-    ["function f(){ var x; let x; }", Context.Empty],
-    ["function f(){ const x = y; var x; }", Context.Empty],
-    ["function f(){ var x; const x = y; }", Context.Empty],
-    ["function f(){ let x; function x(){} }", Context.Empty],
-    ["function f(){ function x(){} let x; }", Context.OptionsDisableWebCompat],
-    ["function f(){ const x = y; function x(){} }", Context.Empty],
-    ["function f(){ function x(){} const x = y; }", Context.OptionsDisableWebCompat],
-    ["{ function f() {} ; function f() {} }", Context.OptionsDisableWebCompat], // Fails only Without AnnexB
-    ["{ function f() {} ; function f() {} }", Context.Strict], // throws if no AnnexB and in strict mode only
-    ["{ if (x) function f() {} ; function f() {} }", Context.Strict], // throws if no AnnexB and in strict mode only
-    ["switch (x) {case a: function f(){}; break; case b: function f(){}; break; }", Context.Strict | Context.Module], // throws if no AnnexB and in strict mode only
-    ["function a(,,) {}", Context.Empty],
-    ["function a(,,,,a) {}", Context.Empty],
-    ["function (){}", Context.Empty],
-    ["class {}", Context.Empty],
+    ['{ function f(){} function f(){} }', Context.OptionsDisableWebCompat],
+    ['function f(x) { let x }', Context.OptionsDisableWebCompat],
+    ['function f(x) { const x = y }', Context.Empty],
+    ['function f(){ let x; var x; }', Context.Empty],
+    ['function f(){ var x; let x; }', Context.Empty],
+    ['function f(){ const x = y; var x; }', Context.Empty],
+    ['function f(){ var x; const x = y; }', Context.Empty],
+    ['function f(){ let x; function x(){} }', Context.Empty],
+    ['function f(){ function x(){} let x; }', Context.OptionsDisableWebCompat],
+    ['function f(){ const x = y; function x(){} }', Context.Empty],
+    ['function f(){ function x(){} const x = y; }', Context.OptionsDisableWebCompat],
+    ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat], // Fails only Without AnnexB
+    ['{ function f() {} ; function f() {} }', Context.Strict], // throws if no AnnexB and in strict mode only
+    ['{ if (x) function f() {} ; function f() {} }', Context.Strict], // throws if no AnnexB and in strict mode only
+    ['switch (x) {case a: function f(){}; break; case b: function f(){}; break; }', Context.Strict | Context.Module], // throws if no AnnexB and in strict mode only
+    ['function a(,,) {}', Context.Empty],
+    ['function a(,,,,a) {}', Context.Empty],
+    ['function (){}', Context.Empty],
+    ['class {}', Context.Empty],
 
     // ['function foo(bar, interface) { "use strict"; }', Context.Empty],
     // ['function foo(arguments) { "use strict"; }', Context.Empty],
@@ -100,50 +100,50 @@ describe("Declarations - Function", () => {
     ['"use strict"; function *super() {}', Context.Empty]
   ];
 
-  fail("Declarations - Functions (fail)", inValids);
+  fail('Declarations - Functions (fail)', inValids);
 
   const programs = [
-    "if (true) function foo() {}",
-    "if (false) {} else function f() { };",
-    "label: function f() { }",
-    "label: if (true) function f() { }",
-    "label: if (true) {} else function f() { }",
-    "label: label2: function f() { }",
-    "function f() { ++(yield); }",
-    "function f(a, a) {}",
-    "function f(a, a) { function f(a, a) {} }",
-    "function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(...arg) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}",
-    "function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); arg = 42; g(arg)}",
-    "function f(arg=1) {g(arg); arg = 42; g(arg)}",
-    "function f(arg) {g(arg); g(() => arg = 42); g(arg)}",
-    "function f(arg) {g(arg); h(arguments); g(arg)}",
-    "function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}",
-    "function foo() { label: function bar() { } }",
+    'if (true) function foo() {}',
+    'if (false) {} else function f() { };',
+    'label: function f() { }',
+    'label: if (true) function f() { }',
+    'label: if (true) {} else function f() { }',
+    'label: label2: function f() { }',
+    'function f() { ++(yield); }',
+    'function f(a, a) {}',
+    'function f(a, a) { function f(a, a) {} }',
+    'function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(...arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}',
+    'function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); arg = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arg = 42; g(arg)}',
+    'function f(arg) {g(arg); g(() => arg = 42); g(arg)}',
+    'function f(arg) {g(arg); h(arguments); g(arg)}',
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}',
+    'function foo() { label: function bar() { } }',
     'function foo () {"use strict";}',
-    "function __func(){};",
+    'function __func(){};',
     '"use strict"; (function(){}).hasOwnProperty("icefapper");',
-    "function __func(){ delete arguments; return arguments; }",
-    "function hello() { say_hi_to_ariya(); }",
-    "function arguments() { }",
-    "function hello(a, b) { sayHi(); }",
-    "var hi = function eval() { };",
-    "var hi = function arguments() { };",
-    "(function(){})",
+    'function __func(){ delete arguments; return arguments; }',
+    'function hello() { say_hi_to_ariya(); }',
+    'function arguments() { }',
+    'function hello(a, b) { sayHi(); }',
+    'var hi = function eval() { };',
+    'var hi = function arguments() { };',
+    '(function(){})',
     'function test() { "use strict" + 42; }',
-    "function test(t, t) { }",
-    "function hello() { z(); }",
-    "function hello(a) { z(); }",
+    'function test(t, t) { }',
+    'function hello() { z(); }',
+    'function hello(a) { z(); }',
     'function eval() { function inner() { "use strict" } }',
-    "function hello(a, b) { z(); }",
+    'function hello(a, b) { z(); }',
     'function test() { "use strict"\n + 0; }',
-    "function a() {} function a() {}",
-    "function a() { function a() {} function a() {} }",
-    "function arguments() { }",
+    'function a() {} function a() {}',
+    'function a() { function a() {} function a() {} }',
+    'function arguments() { }',
     'function arguments() { function foo() { "use strict"; } }',
     'function arguments(eval) { function foo() { "use strict"; } }',
     'function arguments(eval) { function foo() { "use strict"; } function eval() {} }',
@@ -151,19 +151,19 @@ describe("Declarations - Function", () => {
     'function arguments(eval) { eval = arguments; function foo() { "use strict"; } }',
     'function arguments(eval) { eval = arguments; function foo() { "use strict"; } "use strict"; }',
     'function arguments(eval) { function foo() { "use strict"; } eval = arguments;  }',
-    "function f([x]) {}",
-    "function f([[,] = g()]) {}",
-    "function f([[...x] = function() {}()]) {}",
-    "function f([x = 23]) {}",
-    "function f([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {}",
-    "function f([...x]) {}",
-    "function f([x = 23] = []) {}",
-    "function f([{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]) {}",
-    "function f([...[]] = function*() {}) {}",
-    "function f({ x, } = { x: 23 }) {}",
-    "function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } }) {}",
-    "function f({ x, }) {}",
-    "function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } }) {}",
+    'function f([x]) {}',
+    'function f([[,] = g()]) {}',
+    'function f([[...x] = function() {}()]) {}',
+    'function f([x = 23]) {}',
+    'function f([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {}',
+    'function f([...x]) {}',
+    'function f([x = 23] = []) {}',
+    'function f([{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]) {}',
+    'function f([...[]] = function*() {}) {}',
+    'function f({ x, } = { x: 23 }) {}',
+    'function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } } = { w: { x: undefined, z: 7 } }) {}',
+    'function f({ x, }) {}',
+    'function f({ w: { x, y, z } = { x: 4, y: 5, z: 6 } }) {}',
     `function
     x
     (
@@ -249,44 +249,44 @@ describe("Declarations - Function", () => {
       a: 1,
       b: 2
     });`,
-    "function ref(a,) {}",
-    "function eval() { }",
-    "function interface() { }",
-    "function yield() { }",
-    "function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg, ...x) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}",
+    'function ref(a,) {}',
+    'function eval() { }',
+    'function interface() { }',
+    'function yield() { }',
+    'function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}',
     "function f(arg) {'use strict'; g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); f.arguments[0] = 42; g(arg)}",
-    "function f(arg, args=arguments) {g(arg); args[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); arg = 42; g(arg)}",
+    'function f(arg) {g(arg); f.arguments[0] = 42; g(arg)}',
+    'function f(arg, args=arguments) {g(arg); args[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); arg = 42; g(arg)}',
     "function f(arg) {g(arg); eval('arg = 42'); g(arg)}",
-    "function f(arg) {g(arg); var arg = 42; g(arg)}",
-    "function f(arg, x=1) {g(arg); arg = 42; g(arg)}",
-    "function f(arg, ...x) {g(arg); arg = 42; g(arg)}",
-    "function f(arg=1) {g(arg); arg = 42; g(arg)}",
+    'function f(arg) {g(arg); var arg = 42; g(arg)}',
+    'function f(arg, x=1) {g(arg); arg = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arg = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arg = 42; g(arg)}',
     "function f(arg) {'use strict'; g(arg); arg = 42; g(arg)}",
-    "function f(arg, {a=(g(arg), arg=42)}) {g(arg)}",
-    "function f(arg) {g(arg); g(function() {arg = 42}); g(arg)}",
+    'function f(arg, {a=(g(arg), arg=42)}) {g(arg)}',
+    'function f(arg) {g(arg); g(function() {arg = 42}); g(arg)}',
     "function f(arg) {g(arg); g(function() {eval('arg = 42')}); g(arg)}",
-    "function f(arg) {g(arg); g(() => arg = 42); g(arg)}",
+    'function f(arg) {g(arg); g(() => arg = 42); g(arg)}',
     "function f(arg) {g(arg); g(() => eval('arg = 42')); g(arg)}",
     "function f(...arg) {g(arg); eval('arg = 42'); g(arg)}",
-    "function f(arg) {}",
-    "function f(arg) {g(arg)}",
-    "function f(arg) {function h() { g(arg) }; h()}",
-    "function f(arg) {function h() { g(arg) }; return h}",
-    "function f(arg=1) {}",
-    "function f(arg=1) {g(arg)}",
-    "function f(arg, arguments) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(...arg) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}",
-    "function f(arg) {g(arg); arguments[0] = 42; g(arg)}",
-    "function f(arg) {g(arg); h(arguments); g(arg)}",
+    'function f(arg) {}',
+    'function f(arg) {g(arg)}',
+    'function f(arg) {function h() { g(arg) }; h()}',
+    'function f(arg) {function h() { g(arg) }; return h}',
+    'function f(arg=1) {}',
+    'function f(arg=1) {g(arg)}',
+    'function f(arg, arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(...arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}',
+    'function f(arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); h(arguments); g(arg)}',
     "function f(arg) {g(arg); eval('arguments[0] = 42'); g(arg)}",
-    "function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}"
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}'
   ];
 
   for (const arg of programs) {
@@ -297,50 +297,50 @@ describe("Declarations - Function", () => {
     });
   }
 
-  pass("Declarations - Function (pass)", [
+  pass('Declarations - Function (pass)', [
     [
-      "function f([foo=a,bar] = x){}",
+      'function f([foo=a,bar] = x){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     },
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -348,45 +348,45 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo,bar=b]){}",
+      'function f([foo,bar=b]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -394,52 +394,52 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo,bar=b] = x){}",
+      'function f([foo,bar=b] = x){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -447,11 +447,11 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function x(foo=/bar/){}",
+      'function x(foo=/bar/){}',
       Context.Empty,
       {
         body: [
@@ -459,80 +459,80 @@ describe("Declarations - Function", () => {
             async: false,
             body: {
               body: [],
-              type: "BlockStatement"
+              type: 'BlockStatement'
             },
             generator: false,
             id: {
-              name: "x",
-              type: "Identifier"
+              name: 'x',
+              type: 'Identifier'
             },
             params: [
               {
                 left: {
-                  name: "foo",
-                  type: "Identifier"
+                  name: 'foo',
+                  type: 'Identifier'
                 },
                 right: {
                   regex: {
-                    flags: "",
-                    pattern: "bar"
+                    flags: '',
+                    pattern: 'bar'
                   },
-                  type: "Literal",
+                  type: 'Literal',
                   value: /bar/
                 },
-                type: "AssignmentPattern"
+                type: 'AssignmentPattern'
               }
             ],
-            type: "FunctionDeclaration"
+            type: 'FunctionDeclaration'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "function f([foo=a,bar=b]){}",
+      'function f([foo=a,bar=b]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   },
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     }
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -540,59 +540,59 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo=a,bar=b] = x){}",
+      'function f([foo=a,bar=b] = x){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     },
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -600,41 +600,41 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([a=b=c]){}",
+      'function f([a=b=c]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "AssignmentExpression",
-                      operator: "=",
+                      type: 'AssignmentExpression',
+                      operator: '=',
                       left: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     }
                   }
@@ -642,7 +642,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -650,41 +650,41 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([a=b+=c]){}",
+      'function f([a=b+=c]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "AssignmentExpression",
-                      operator: "+=",
+                      type: 'AssignmentExpression',
+                      operator: '+=',
                       left: {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "c"
+                        type: 'Identifier',
+                        name: 'c'
                       }
                     }
                   }
@@ -692,7 +692,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -700,57 +700,57 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       '"use strict"; { function x() {} }; x = 0;',
       Context.OptionsDirectives | Context.OptionsRaw,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "Literal",
-              value: "use strict"
+              type: 'Literal',
+              value: 'use strict'
             },
-            directive: "use strict"
+            directive: 'use strict'
           },
           {
-            type: "BlockStatement",
+            type: 'BlockStatement',
             body: [
               {
-                type: "FunctionDeclaration",
+                type: 'FunctionDeclaration',
                 params: [],
                 body: {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: []
                 },
                 async: false,
                 generator: false,
                 id: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ]
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           },
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "AssignmentExpression",
+              type: 'AssignmentExpression',
               left: {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
-              operator: "=",
+              operator: '=',
               right: {
-                type: "Literal",
+                type: 'Literal',
                 value: 0
               }
             }
@@ -762,27 +762,27 @@ describe("Declarations - Function", () => {
       'function x() { eval(""); }',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "CallExpression",
+                    type: 'CallExpression',
                     callee: {
-                      type: "Identifier",
-                      name: "eval"
+                      type: 'Identifier',
+                      name: 'eval'
                     },
                     arguments: [
                       {
-                        type: "Literal",
-                        value: ""
+                        type: 'Literal',
+                        value: ''
                       }
                     ]
                   }
@@ -792,8 +792,8 @@ describe("Declarations - Function", () => {
             async: false,
             generator: false,
             id: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             }
           }
         ]
@@ -803,34 +803,34 @@ describe("Declarations - Function", () => {
       '(function(x) { eval(""); })',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "ExpressionStatement",
+            type: 'ExpressionStatement',
             expression: {
-              type: "FunctionExpression",
+              type: 'FunctionExpression',
               params: [
                 {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               ],
               body: {
-                type: "BlockStatement",
+                type: 'BlockStatement',
                 body: [
                   {
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     expression: {
-                      type: "CallExpression",
+                      type: 'CallExpression',
                       callee: {
-                        type: "Identifier",
-                        name: "eval"
+                        type: 'Identifier',
+                        name: 'eval'
                       },
                       arguments: [
                         {
-                          type: "Literal",
-                          value: ""
+                          type: 'Literal',
+                          value: ''
                         }
                       ]
                     }
@@ -846,52 +846,52 @@ describe("Declarations - Function", () => {
       }
     ],
     [
-      "function f([a = b = c] = arr){}",
+      'function f([a = b = c] = arr){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       right: {
-                        type: "AssignmentExpression",
-                        operator: "=",
+                        type: 'AssignmentExpression',
+                        operator: '=',
                         left: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         }
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "arr"
+                  type: 'Identifier',
+                  name: 'arr'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -899,37 +899,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f({b: []}) {}",
+      'function f({b: []}) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "b"
+                      type: 'Identifier',
+                      name: 'b'
                     },
                     computed: false,
                     value: {
-                      type: "ArrayPattern",
+                      type: 'ArrayPattern',
                       elements: []
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -937,7 +937,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -945,40 +945,40 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([{b}]) {}",
+      'function f([{b}]) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
                         computed: false,
                         value: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
-                        kind: "init",
+                        kind: 'init',
                         method: false,
                         shorthand: true
                       }
@@ -988,7 +988,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -996,44 +996,44 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([a, {b: []}]) {}",
+      'function f([a, {b: []}]) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   {
-                    type: "ObjectPattern",
+                    type: 'ObjectPattern',
                     properties: [
                       {
-                        type: "Property",
+                        type: 'Property',
                         key: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         },
                         computed: false,
                         value: {
-                          type: "ArrayPattern",
+                          type: 'ArrayPattern',
                           elements: []
                         },
-                        kind: "init",
+                        kind: 'init',
                         method: false,
                         shorthand: false
                       }
@@ -1043,7 +1043,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1051,55 +1051,55 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function fk({x: [a, {b: []}]}) {}",
+      'function fk({x: [a, {b: []}]}) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "fk"
+              type: 'Identifier',
+              name: 'fk'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     computed: false,
                     value: {
-                      type: "ArrayPattern",
+                      type: 'ArrayPattern',
                       elements: [
                         {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         {
-                          type: "ObjectPattern",
+                          type: 'ObjectPattern',
                           properties: [
                             {
-                              type: "Property",
+                              type: 'Property',
                               key: {
-                                type: "Identifier",
-                                name: "b"
+                                type: 'Identifier',
+                                name: 'b'
                               },
                               computed: false,
                               value: {
-                                type: "ArrayPattern",
+                                type: 'ArrayPattern',
                                 elements: []
                               },
-                              kind: "init",
+                              kind: 'init',
                               method: false,
                               shorthand: false
                             }
@@ -1107,7 +1107,7 @@ describe("Declarations - Function", () => {
                         }
                       ]
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -1115,7 +1115,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1123,47 +1123,47 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([a, [b], c]) {}",
+      'function f([a, [b], c]) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "a"
+                    type: 'Identifier',
+                    name: 'a'
                   },
                   {
-                    type: "ArrayPattern",
+                    type: 'ArrayPattern',
                     elements: [
                       {
-                        type: "Identifier",
-                        name: "b"
+                        type: 'Identifier',
+                        name: 'b'
                       }
                     ]
                   },
                   {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1171,37 +1171,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([...bar]){}",
+      'function f([...bar]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1209,44 +1209,44 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([...bar] = obj){}",
+      'function f([...bar] = obj){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "obj"
+                  type: 'Identifier',
+                  name: 'obj'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1254,41 +1254,41 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo, ...bar]){}",
+      'function f([foo, ...bar]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1296,48 +1296,48 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo, ...bar] = obj){}",
+      'function f([foo, ...bar] = obj){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "obj"
+                  type: 'Identifier',
+                  name: 'obj'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1345,37 +1345,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([...[a, b]]){}",
+      'function f([...[a, b]]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "ArrayPattern",
+                      type: 'ArrayPattern',
                       elements: [
                         {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       ]
                     }
@@ -1384,7 +1384,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1392,39 +1392,39 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([...[a, b]] = obj){}",
+      'function f([...[a, b]] = obj){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "ArrayPattern",
+                        type: 'ArrayPattern',
                         elements: [
                           {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           {
-                            type: "Identifier",
-                            name: "b"
+                            type: 'Identifier',
+                            name: 'b'
                           }
                         ]
                       }
@@ -1432,13 +1432,13 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "obj"
+                  type: 'Identifier',
+                  name: 'obj'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1446,41 +1446,41 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([x, ...[a, b]]){}",
+      'function f([x, ...[a, b]]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   {
-                    type: "RestElement",
+                    type: 'RestElement',
                     argument: {
-                      type: "ArrayPattern",
+                      type: 'ArrayPattern',
                       elements: [
                         {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       ]
                     }
@@ -1489,7 +1489,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1497,43 +1497,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([x, ...[a, b]] = obj){}",
+      'function f([x, ...[a, b]] = obj){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     {
-                      type: "RestElement",
+                      type: 'RestElement',
                       argument: {
-                        type: "ArrayPattern",
+                        type: 'ArrayPattern',
                         elements: [
                           {
-                            type: "Identifier",
-                            name: "a"
+                            type: 'Identifier',
+                            name: 'a'
                           },
                           {
-                            type: "Identifier",
-                            name: "b"
+                            type: 'Identifier',
+                            name: 'b'
                           }
                         ]
                       }
@@ -1541,13 +1541,13 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "obj"
+                  type: 'Identifier',
+                  name: 'obj'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1555,30 +1555,30 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){foo}",
+      'function f(){foo}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 }
               ]
@@ -1588,34 +1588,34 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([ x ]) {}",
+      'function f([ x ]) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1623,38 +1623,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo], b){}",
+      'function f([foo], b){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               },
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1662,45 +1662,45 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo] = x, b){}",
+      'function f([foo] = x, b){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               },
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1708,46 +1708,46 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f([foo], b = y){}",
+      'function f([foo], b = y){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1755,52 +1755,52 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo] = x, b = y){}",
+      'function f([foo] = x, b = y){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1808,38 +1808,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x, [foo]){}",
+      'function f(x, [foo]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1847,45 +1847,45 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x = y, [foo]){}",
+      'function f(x = y, [foo]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               },
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1893,48 +1893,48 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([foo=a] = c){}",
+      'function f([foo=a] = c){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "c"
+                  type: 'Identifier',
+                  name: 'c'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1942,35 +1942,35 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([,foo]){}",
+      'function f([,foo]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   null,
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -1978,35 +1978,35 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([,foo]){}",
+      'function f([,foo]){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   null,
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2014,44 +2014,44 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f({ x : y = 1 }) {}",
+      'function f({ x : y = 1 }) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     computed: false,
                     value: {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       right: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 1
                       }
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -2059,7 +2059,7 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2067,30 +2067,30 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([a = 1]) {}",
+      'function f([a = 1]) {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     right: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 1
                     }
                   }
@@ -2098,59 +2098,59 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([ x = y ] = []) {}",
+      'function f([ x = y ] = []) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "ArrayExpression",
+                  type: 'ArrayExpression',
                   elements: []
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2158,36 +2158,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
       'function f([,] = "icefapper") {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [null]
                 },
                 right: {
-                  type: "Literal",
-                  value: "icefapper"
+                  type: 'Literal',
+                  value: 'icefapper'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2195,36 +2195,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([,] = null) {}",
+      'function f([,] = null) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [null]
                 },
                 right: {
-                  type: "Literal",
+                  type: 'Literal',
                   value: null
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2232,47 +2232,47 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f([[x]] = 1) {}",
+      'function f([[x]] = 1) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "ArrayPattern",
+                      type: 'ArrayPattern',
                       elements: [
                         {
-                          type: "Identifier",
-                          name: "x"
+                          type: 'Identifier',
+                          name: 'x'
                         }
                       ]
                     }
                   ]
                 },
                 right: {
-                  type: "Literal",
+                  type: 'Literal',
                   value: 1
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2280,37 +2280,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f1({x}) { var x = 2; return x }",
+      'function f1({x}) { var x = 2; return x }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f1"
+              type: 'Identifier',
+              name: 'f1'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   }
@@ -2318,30 +2318,30 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       init: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 2
                       }
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 },
                 {
-                  type: "ReturnStatement",
+                  type: 'ReturnStatement',
                   argument: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   }
                 }
               ]
@@ -2351,69 +2351,69 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f10({x}, y) { var y; return y }",
+      'function f10({x}, y) { var y; return y }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f10"
+              type: 'Identifier',
+              name: 'f10'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: true
                   }
                 ]
               },
               {
-                type: "Identifier",
-                name: "y"
+                type: 'Identifier',
+                name: 'y'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 },
                 {
-                  type: "ReturnStatement",
+                  type: 'ReturnStatement',
                   argument: {
-                    type: "Identifier",
-                    name: "y"
+                    type: 'Identifier',
+                    name: 'y'
                   }
                 }
               ]
@@ -2423,37 +2423,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f7({a: x}) { x = 2; return arguments[1].a }",
+      'function f7({a: x}) { x = 2; return arguments[1].a }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f7"
+              type: 'Identifier',
+              name: 'f7'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
+                    type: 'Property',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
-                    kind: "init",
+                    kind: 'init',
                     method: false,
                     shorthand: false
                   }
@@ -2461,43 +2461,43 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "AssignmentExpression",
-                    operator: "=",
+                    type: 'AssignmentExpression',
+                    operator: '=',
                     left: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     right: {
-                      type: "Literal",
+                      type: 'Literal',
                       value: 2
                     }
                   }
                 },
                 {
-                  type: "ReturnStatement",
+                  type: 'ReturnStatement',
                   argument: {
-                    type: "MemberExpression",
+                    type: 'MemberExpression',
                     computed: false,
                     object: {
-                      type: "MemberExpression",
+                      type: 'MemberExpression',
                       computed: true,
                       object: {
-                        type: "Identifier",
-                        name: "arguments"
+                        type: 'Identifier',
+                        name: 'arguments'
                       },
                       property: {
-                        type: "Literal",
+                        type: 'Literal',
                         value: 1
                       }
                     },
                     property: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   }
                 }
@@ -2508,43 +2508,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f([]){ var a }",
+      'function f([]){ var a }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: []
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -2553,43 +2553,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f({}){ var a }",
+      'function f({}){ var a }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: []
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -2598,43 +2598,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a){ var a }",
+      'function f(a){ var a }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -2643,29 +2643,29 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a,){}",
+      'function f(a,){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2673,36 +2673,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a = b,){}",
+      'function f(a = b,){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2710,36 +2710,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a=b){}",
+      'function f(a=b){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2747,44 +2747,44 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a=b=c){}",
+      'function f(a=b=c){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "AssignmentExpression",
-                  operator: "=",
+                  type: 'AssignmentExpression',
+                  operator: '=',
                   left: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
                   right: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -2792,30 +2792,30 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){foo}",
+      'function f(){foo}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 }
               ]
@@ -2825,37 +2825,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){foo;bar}",
+      'function f(){foo;bar}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 },
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 }
               ]
@@ -2865,42 +2865,42 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f() {{var f}}",
+      'function f() {{var f}}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
+                      type: 'VariableDeclaration',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           id: {
-                            type: "Identifier",
-                            name: "f"
+                            type: 'Identifier',
+                            name: 'f'
                           },
                           init: null
                         }
                       ],
-                      kind: "var"
+                      kind: 'var'
                     }
                   ]
                 }
@@ -2911,38 +2911,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f() {let f}",
+      'function f() {let f}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "let"
+                  kind: 'let'
                 }
               ]
             },
@@ -2951,41 +2951,41 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f() {{let f}}",
+      'function f() {{let f}}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
+                      type: 'VariableDeclaration',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           id: {
-                            type: "Identifier",
-                            name: "f"
+                            type: 'Identifier',
+                            name: 'f'
                           },
                           init: null
                         }
                       ],
-                      kind: "let"
+                      kind: 'let'
                     }
                   ]
                 }
@@ -2996,35 +2996,35 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f(){ function x(){} var x = y; }",
+      'function f(){ function x(){} var x = y; }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "FunctionDeclaration",
+                  type: 'FunctionDeclaration',
                   id: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   generator: false,
@@ -3032,21 +3032,21 @@ describe("Declarations - Function", () => {
                   async: false
                 },
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       init: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -3055,98 +3055,98 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "var x = a; function x(){};",
+      'var x = a; function x(){};',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "VariableDeclaration",
-            kind: "var",
+            type: 'VariableDeclaration',
+            kind: 'var',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 init: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 id: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ]
           },
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "x"
+              type: 'Identifier',
+              name: 'x'
             }
           },
           {
-            type: "EmptyStatement"
+            type: 'EmptyStatement'
           }
         ]
       }
     ],
 
     [
-      "function f(){ var x = y; function x(){} }",
+      'function f(){ var x = y; function x(){} }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       init: {
-                        type: "Identifier",
-                        name: "y"
+                        type: 'Identifier',
+                        name: 'y'
                       }
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 },
                 {
-                  type: "FunctionDeclaration",
+                  type: 'FunctionDeclaration',
                   id: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   generator: false,
@@ -3160,33 +3160,33 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a, a) {}",
+      'function f(a, a) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -3194,37 +3194,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(a, b, a) {}",
+      'function f(a, b, a) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               },
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -3232,37 +3232,37 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(b, a, a) {}",
+      'function f(b, a, a) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               },
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -3270,34 +3270,34 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f({a},){}",
+      'function f({a},){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ObjectPattern",
+                type: 'ObjectPattern',
                 properties: [
                   {
-                    type: "Property",
-                    kind: "init",
+                    type: 'Property',
+                    kind: 'init',
                     key: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     computed: false,
                     value: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     },
                     method: false,
                     shorthand: true
@@ -3306,88 +3306,88 @@ describe("Declarations - Function", () => {
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([x] = y,){}",
+      'function f([x] = y,){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f({a} = b,){}",
+      'function f({a} = b,){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       },
                       method: false,
                       shorthand: true
@@ -3395,134 +3395,134 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f(a=b){}",
+      'function f(a=b){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f(a=b=c){}",
+      'function f(a=b=c){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "AssignmentExpression",
+                  type: 'AssignmentExpression',
                   left: {
-                    type: "Identifier",
-                    name: "b"
+                    type: 'Identifier',
+                    name: 'b'
                   },
-                  operator: "=",
+                  operator: '=',
                   right: {
-                    type: "Identifier",
-                    name: "c"
+                    type: 'Identifier',
+                    name: 'c'
                   }
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f({foo,} = x){}",
+      'function f({foo,} = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       method: false,
                       shorthand: true
@@ -3530,73 +3530,73 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f({foo,bar=b} = x){}",
+      'function f({foo,bar=b} = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       computed: false,
                       value: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       },
                       method: false,
@@ -3605,80 +3605,80 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f({foo=a,bar=b} = x){}",
+      'function f({foo=a,bar=b} = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "foo"
+                          type: 'Identifier',
+                          name: 'foo'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         }
                       },
                       method: false,
                       shorthand: true
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "bar"
+                          type: 'Identifier',
+                          name: 'bar'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       },
                       method: false,
@@ -3687,80 +3687,80 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f({foo:a=b, bar:c=d} = x){}",
+      'function f({foo:a=b, bar:c=d} = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ObjectPattern",
+                  type: 'ObjectPattern',
                   properties: [
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "a"
+                          type: 'Identifier',
+                          name: 'a'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "b"
+                          type: 'Identifier',
+                          name: 'b'
                         }
                       },
                       method: false,
                       shorthand: false
                     },
                     {
-                      type: "Property",
-                      kind: "init",
+                      type: 'Property',
+                      kind: 'init',
                       key: {
-                        type: "Identifier",
-                        name: "bar"
+                        type: 'Identifier',
+                        name: 'bar'
                       },
                       computed: false,
                       value: {
-                        type: "AssignmentPattern",
+                        type: 'AssignmentPattern',
                         left: {
-                          type: "Identifier",
-                          name: "c"
+                          type: 'Identifier',
+                          name: 'c'
                         },
                         right: {
-                          type: "Identifier",
-                          name: "d"
+                          type: 'Identifier',
+                          name: 'd'
                         }
                       },
                       method: false,
@@ -3769,420 +3769,420 @@ describe("Declarations - Function", () => {
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([,,] = x){}",
+      'function f([,,] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [null, null]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([,foo] = x){}",
+      'function f([,foo] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     null,
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo,bar] = x){}",
+      'function f([foo,bar] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo], b){}",
+      'function f([foo], b){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               },
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo] = x, b = y){}",
+      'function f([foo] = x, b = y){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "b"
+                  type: 'Identifier',
+                  name: 'b'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo=a]){}",
+      'function f([foo=a]){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "AssignmentPattern",
+                    type: 'AssignmentPattern',
                     left: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     right: {
-                      type: "Identifier",
-                      name: "a"
+                      type: 'Identifier',
+                      name: 'a'
                     }
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo=a] = c){}",
+      'function f([foo=a] = c){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "c"
+                  type: 'Identifier',
+                  name: 'c'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo=a,bar] = x){}",
+      'function f([foo=a,bar] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "AssignmentPattern",
+                      type: 'AssignmentPattern',
                       left: {
-                        type: "Identifier",
-                        name: "foo"
+                        type: 'Identifier',
+                        name: 'foo'
                       },
                       right: {
-                        type: "Identifier",
-                        name: "a"
+                        type: 'Identifier',
+                        name: 'a'
                       }
                     },
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([,] = x){}",
+      'function f([,] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [null]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
@@ -4190,423 +4190,423 @@ describe("Declarations - Function", () => {
     ],
 
     [
-      "function f([,,foo] = x){}",
+      'function f([,,foo] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     null,
                     null,
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo,bar]){}",
+      'function f([foo,bar]){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   },
                   {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo,bar] = x){}",
+      'function f([foo,bar] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo,,bar] = x){}",
+      'function f([foo,,bar] = x){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     null,
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo], [bar]){}",
+      'function f([foo], [bar]){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "foo"
+                    type: 'Identifier',
+                    name: 'foo'
                   }
                 ]
               },
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [
                   {
-                    type: "Identifier",
-                    name: "bar"
+                    type: 'Identifier',
+                    name: 'bar'
                   }
                 ]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f([foo] = x, [bar] = y){}",
+      'function f([foo] = x, [bar] = y){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "bar"
+                      type: 'Identifier',
+                      name: 'bar'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f(x, [foo] = y){}",
+      'function f(x, [foo] = y){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "ArrayPattern",
+                  type: 'ArrayPattern',
                   elements: [
                     {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   ]
                 },
                 right: {
-                  type: "Identifier",
-                  name: "y"
+                  type: 'Identifier',
+                  name: 'y'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function yield() {}",
+      'function yield() {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "yield"
+              type: 'Identifier',
+              name: 'yield'
             }
           }
         ]
       }
     ],
     [
-      "function f([,,]){}",
+      'function f([,,]){}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [
               {
-                type: "ArrayPattern",
+                type: 'ArrayPattern',
                 elements: [null, null]
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             }
           }
         ]
       }
     ],
     [
-      "function f(b, a, b, a = x) {}",
+      'function f(b, a, b, a = x) {}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               },
               {
-                type: "Identifier",
-                name: "a"
+                type: 'Identifier',
+                name: 'a'
               },
               {
-                type: "Identifier",
-                name: "b"
+                type: 'Identifier',
+                name: 'b'
               },
               {
-                type: "AssignmentPattern",
+                type: 'AssignmentPattern',
                 left: {
-                  type: "Identifier",
-                  name: "a"
+                  type: 'Identifier',
+                  name: 'a'
                 },
                 right: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 }
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -4614,83 +4614,83 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "var x; { let x; }",
+      'var x; { let x; }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "VariableDeclaration",
+            type: 'VariableDeclaration',
             declarations: [
               {
-                type: "VariableDeclarator",
+                type: 'VariableDeclarator',
                 id: {
-                  type: "Identifier",
-                  name: "x"
+                  type: 'Identifier',
+                  name: 'x'
                 },
                 init: null
               }
             ],
-            kind: "var"
+            kind: 'var'
           },
           {
-            type: "BlockStatement",
+            type: 'BlockStatement',
             body: [
               {
-                type: "VariableDeclaration",
+                type: 'VariableDeclaration',
                 declarations: [
                   {
-                    type: "VariableDeclarator",
+                    type: 'VariableDeclarator',
                     id: {
-                      type: "Identifier",
-                      name: "x"
+                      type: 'Identifier',
+                      name: 'x'
                     },
                     init: null
                   }
                 ],
-                kind: "let"
+                kind: 'let'
               }
             ]
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x) { function x() {} }",
+      'function f(x) { function x() {} }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "FunctionDeclaration",
+                  type: 'FunctionDeclaration',
                   id: {
-                    type: "Identifier",
-                    name: "x"
+                    type: 'Identifier',
+                    name: 'x'
                   },
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   generator: false,
@@ -4704,43 +4704,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x) { var x; }",
+      'function f(x) { var x; }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -4749,38 +4749,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ var f }",
+      'function f(){ var f }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -4789,38 +4789,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ let f }",
+      'function f(){ let f }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "let"
+                  kind: 'let'
                 }
               ]
             },
@@ -4829,38 +4829,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ let f; }",
+      'function f(){ let f; }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "let"
+                  kind: 'let'
                 }
               ]
             },
@@ -4869,38 +4869,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f() {let f}",
+      'function f() {let f}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "let"
+                  kind: 'let'
                 }
               ]
             },
@@ -4909,38 +4909,38 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f() {var f}",
+      'function f() {var f}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "f"
+                        type: 'Identifier',
+                        name: 'f'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -4949,24 +4949,24 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){} function f(){}",
+      'function f(){} function f(){}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -4974,14 +4974,14 @@ describe("Declarations - Function", () => {
             async: false
           },
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -4989,34 +4989,34 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function g() {  function f(){} function f(){} }",
+      'function g() {  function f(){} function f(){} }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "g"
+              type: 'Identifier',
+              name: 'g'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "FunctionDeclaration",
+                  type: 'FunctionDeclaration',
                   id: {
-                    type: "Identifier",
-                    name: "f"
+                    type: 'Identifier',
+                    name: 'f'
                   },
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   generator: false,
@@ -5024,14 +5024,14 @@ describe("Declarations - Function", () => {
                   async: false
                 },
                 {
-                  type: "FunctionDeclaration",
+                  type: 'FunctionDeclaration',
                   id: {
-                    type: "Identifier",
-                    name: "f"
+                    type: 'Identifier',
+                    name: 'f'
                   },
                   params: [],
                   body: {
-                    type: "BlockStatement",
+                    type: 'BlockStatement',
                     body: []
                   },
                   generator: false,
@@ -5045,50 +5045,50 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
 
     [
-      "function f(x) { { const x = y } }",
+      'function f(x) { { const x = y } }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
+                      type: 'VariableDeclaration',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           id: {
-                            type: "Identifier",
-                            name: "x"
+                            type: 'Identifier',
+                            name: 'x'
                           },
                           init: {
-                            type: "Identifier",
-                            name: "y"
+                            type: 'Identifier',
+                            name: 'y'
                           }
                         }
                       ],
-                      kind: "const"
+                      kind: 'const'
                     }
                   ]
                 }
@@ -5099,46 +5099,46 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x) { { let x } }",
+      'function f(x) { { let x } }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
+                      type: 'VariableDeclaration',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           id: {
-                            type: "Identifier",
-                            name: "x"
+                            type: 'Identifier',
+                            name: 'x'
                           },
                           init: null
                         }
                       ],
-                      kind: "let"
+                      kind: 'let'
                     }
                   ]
                 }
@@ -5149,36 +5149,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ new.target }",
+      'function f(){ new.target }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "MetaProperty",
+                    type: 'MetaProperty',
                     meta: {
-                      type: "Identifier",
-                      name: "new"
+                      type: 'Identifier',
+                      name: 'new'
                     },
                     property: {
-                      type: "Identifier",
-                      name: "target"
+                      type: 'Identifier',
+                      name: 'target'
                     }
                   }
                 }
@@ -5189,36 +5189,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ new . target }",
+      'function f(){ new . target }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "MetaProperty",
+                    type: 'MetaProperty',
                     meta: {
-                      type: "Identifier",
-                      name: "new"
+                      type: 'Identifier',
+                      name: 'new'
                     },
                     property: {
-                      type: "Identifier",
-                      name: "target"
+                      type: 'Identifier',
+                      name: 'target'
                     }
                   }
                 }
@@ -5229,44 +5229,44 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ new.target + foo }",
+      'function f(){ new.target + foo }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "BinaryExpression",
-                    operator: "+",
+                    type: 'BinaryExpression',
+                    operator: '+',
                     left: {
-                      type: "MetaProperty",
+                      type: 'MetaProperty',
                       meta: {
-                        type: "Identifier",
-                        name: "new"
+                        type: 'Identifier',
+                        name: 'new'
                       },
                       property: {
-                        type: "Identifier",
-                        name: "target"
+                        type: 'Identifier',
+                        name: 'target'
                       }
                     },
                     right: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     }
                   }
                 }
@@ -5277,91 +5277,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ foo + new.target }",
+      'function f(){ foo + new.target }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "BinaryExpression",
-                    operator: "+",
+                    type: 'BinaryExpression',
+                    operator: '+',
                     left: {
-                      type: "Identifier",
-                      name: "foo"
+                      type: 'Identifier',
+                      name: 'foo'
                     },
                     right: {
-                      type: "MetaProperty",
+                      type: 'MetaProperty',
                       meta: {
-                        type: "Identifier",
-                        name: "new"
+                        type: 'Identifier',
+                        name: 'new'
                       },
                       property: {
-                        type: "Identifier",
-                        name: "target"
-                      }
-                    }
-                  }
-                }
-              ]
-            },
-            generator: false,
-
-            async: false
-          }
-        ],
-        sourceType: "script"
-      }
-    ],
-    [
-      "function f(){ foo = new.target }",
-      Context.Empty,
-      {
-        type: "Program",
-        body: [
-          {
-            type: "FunctionDeclaration",
-            id: {
-              type: "Identifier",
-              name: "f"
-            },
-            params: [],
-            body: {
-              type: "BlockStatement",
-              body: [
-                {
-                  type: "ExpressionStatement",
-                  expression: {
-                    type: "AssignmentExpression",
-                    operator: "=",
-                    left: {
-                      type: "Identifier",
-                      name: "foo"
-                    },
-                    right: {
-                      type: "MetaProperty",
-                      meta: {
-                        type: "Identifier",
-                        name: "new"
-                      },
-                      property: {
-                        type: "Identifier",
-                        name: "target"
+                        type: 'Identifier',
+                        name: 'target'
                       }
                     }
                   }
@@ -5373,38 +5325,86 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(){ new new .target; }",
+      'function f(){ foo = new.target }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "ExpressionStatement",
+                  type: 'ExpressionStatement',
                   expression: {
-                    type: "NewExpression",
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                      type: 'Identifier',
+                      name: 'foo'
+                    },
+                    right: {
+                      type: 'MetaProperty',
+                      meta: {
+                        type: 'Identifier',
+                        name: 'new'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        name: 'target'
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            generator: false,
+
+            async: false
+          }
+        ],
+        sourceType: 'script'
+      }
+    ],
+    [
+      'function f(){ new new .target; }',
+      Context.Empty,
+      {
+        type: 'Program',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            },
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'NewExpression',
                     callee: {
-                      type: "MetaProperty",
+                      type: 'MetaProperty',
                       meta: {
-                        type: "Identifier",
-                        name: "new"
+                        type: 'Identifier',
+                        name: 'new'
                       },
                       property: {
-                        type: "Identifier",
-                        name: "target"
+                        type: 'Identifier',
+                        name: 'target'
                       }
                     },
                     arguments: []
@@ -5417,29 +5417,29 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(f) { }",
+      'function f(f) { }',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "f"
+                type: 'Identifier',
+                name: 'f'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             generator: false,
@@ -5447,43 +5447,43 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x) {var x}",
+      'function f(x) {var x}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "VariableDeclaration",
+                  type: 'VariableDeclaration',
                   declarations: [
                     {
-                      type: "VariableDeclarator",
+                      type: 'VariableDeclarator',
                       id: {
-                        type: "Identifier",
-                        name: "x"
+                        type: 'Identifier',
+                        name: 'x'
                       },
                       init: null
                     }
                   ],
-                  kind: "var"
+                  kind: 'var'
                 }
               ]
             },
@@ -5492,46 +5492,46 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function f(x) {{var x}}",
+      'function f(x) {{var x}}',
       Context.Empty,
       {
-        type: "Program",
+        type: 'Program',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             id: {
-              type: "Identifier",
-              name: "f"
+              type: 'Identifier',
+              name: 'f'
             },
             params: [
               {
-                type: "Identifier",
-                name: "x"
+                type: 'Identifier',
+                name: 'x'
               }
             ],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: [
                 {
-                  type: "BlockStatement",
+                  type: 'BlockStatement',
                   body: [
                     {
-                      type: "VariableDeclaration",
+                      type: 'VariableDeclaration',
                       declarations: [
                         {
-                          type: "VariableDeclarator",
+                          type: 'VariableDeclarator',
                           id: {
-                            type: "Identifier",
-                            name: "x"
+                            type: 'Identifier',
+                            name: 'x'
                           },
                           init: null
                         }
                       ],
-                      kind: "var"
+                      kind: 'var'
                     }
                   ]
                 }
@@ -5542,36 +5542,36 @@ describe("Declarations - Function", () => {
             async: false
           }
         ],
-        sourceType: "script"
+        sourceType: 'script'
       }
     ],
     [
-      "function foo() {}",
+      'function foo() {}',
       Context.Empty,
       {
-        type: "Program",
-        sourceType: "script",
+        type: 'Program',
+        sourceType: 'script',
         body: [
           {
-            type: "FunctionDeclaration",
+            type: 'FunctionDeclaration',
             params: [],
             body: {
-              type: "BlockStatement",
+              type: 'BlockStatement',
               body: []
             },
             async: false,
             generator: false,
 
             id: {
-              type: "Identifier",
-              name: "foo"
+              type: 'Identifier',
+              name: 'foo'
             }
           }
         ]
       }
     ],
     [
-      "function f(){}\n/foo/",
+      'function f(){}\n/foo/',
       Context.Empty,
       {
         body: [
@@ -5579,36 +5579,36 @@ describe("Declarations - Function", () => {
             async: false,
             body: {
               body: [],
-              type: "BlockStatement"
+              type: 'BlockStatement'
             },
 
             generator: false,
             id: {
-              name: "f",
-              type: "Identifier"
+              name: 'f',
+              type: 'Identifier'
             },
             params: [],
-            type: "FunctionDeclaration"
+            type: 'FunctionDeclaration'
           },
           {
             expression: {
               regex: {
-                flags: "",
-                pattern: "foo"
+                flags: '',
+                pattern: 'foo'
               },
-              type: "Literal",
+              type: 'Literal',
               value: /foo/
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
 
     [
-      "function f(){}\n/foo/",
+      'function f(){}\n/foo/',
       Context.Empty,
       {
         body: [
@@ -5616,34 +5616,34 @@ describe("Declarations - Function", () => {
             async: false,
             body: {
               body: [],
-              type: "BlockStatement"
+              type: 'BlockStatement'
             },
             generator: false,
             id: {
-              name: "f",
-              type: "Identifier"
+              name: 'f',
+              type: 'Identifier'
             },
             params: [],
-            type: "FunctionDeclaration"
+            type: 'FunctionDeclaration'
           },
           {
             expression: {
               regex: {
-                flags: "",
-                pattern: "foo"
+                flags: '',
+                pattern: 'foo'
               },
-              type: "Literal",
+              type: 'Literal',
               value: /foo/
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
     [
-      "function f(){}\n/foo/g",
+      'function f(){}\n/foo/g',
       Context.Empty,
       {
         body: [
@@ -5651,35 +5651,35 @@ describe("Declarations - Function", () => {
             async: false,
             body: {
               body: [],
-              type: "BlockStatement"
+              type: 'BlockStatement'
             },
             generator: false,
             id: {
-              name: "f",
-              type: "Identifier"
+              name: 'f',
+              type: 'Identifier'
             },
             params: [],
-            type: "FunctionDeclaration"
+            type: 'FunctionDeclaration'
           },
           {
             expression: {
               regex: {
-                flags: "g",
-                pattern: "foo"
+                flags: 'g',
+                pattern: 'foo'
               },
-              type: "Literal",
+              type: 'Literal',
               value: /foo/g
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ],
 
     [
-      "typeof function f(){}\n/foo/g",
+      'typeof function f(){}\n/foo/g',
       Context.Empty,
       {
         body: [
@@ -5691,39 +5691,39 @@ describe("Declarations - Function", () => {
                     async: false,
                     body: {
                       body: [],
-                      type: "BlockStatement"
+                      type: 'BlockStatement'
                     },
                     generator: false,
                     id: {
-                      name: "f",
-                      type: "Identifier"
+                      name: 'f',
+                      type: 'Identifier'
                     },
                     params: [],
-                    type: "FunctionExpression"
+                    type: 'FunctionExpression'
                   },
-                  operator: "typeof",
+                  operator: 'typeof',
                   prefix: true,
-                  type: "UnaryExpression"
+                  type: 'UnaryExpression'
                 },
-                operator: "/",
+                operator: '/',
                 right: {
-                  name: "foo",
-                  type: "Identifier"
+                  name: 'foo',
+                  type: 'Identifier'
                 },
-                type: "BinaryExpression"
+                type: 'BinaryExpression'
               },
-              operator: "/",
+              operator: '/',
               right: {
-                name: "g",
-                type: "Identifier"
+                name: 'g',
+                type: 'Identifier'
               },
-              type: "BinaryExpression"
+              type: 'BinaryExpression'
             },
-            type: "ExpressionStatement"
+            type: 'ExpressionStatement'
           }
         ],
-        sourceType: "script",
-        type: "Program"
+        sourceType: 'script',
+        type: 'Program'
       }
     ]
   ]);
