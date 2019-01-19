@@ -1740,20 +1740,15 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
   state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
+  if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
-      // state.flags |=  Flags.SimpleParameterList;
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
-    } else {
-      let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
-      if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
-        if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
-        left = parseAssignmentPattern(state, context, left);
-      }
-      params.push(left);
-      expect(state, context, Token.Comma);
-      if (state.token === Token.Comma) report(state, Errors.UnexpectedToken, ',');
+    }
+    params.push(parseFormalParameterList(state, context, scope, origin));
+    if (optional(state, context, Token.Comma)) {
+      if (state.token === (Token.Comma as any)) report(state, Errors.Unexpected);
     }
   }
 
@@ -1762,6 +1757,13 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
   if ((context & (Context.Strict | Context.InMethod)) !== 0) checkFunctionsArgForDuplicate(state, scope.lex, true);
 
   return params;
+}
+
+function parseFormalParameterList(state: ParserState, context: Context, scope: ScopeState, origin: Origin) {
+  const left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
+  if (!optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) return left;
+  if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
+  return parseAssignmentPattern(state, context, left);
 }
 
 /**
