@@ -45,6 +45,12 @@ import {
 } from './common';
 import { report, Errors } from './errors';
 
+const enum Arrows {
+  None = 0,
+  ConciseBody = 1 << 0,
+  Async = 1 << 1
+}
+
 /**
  * Create a new parser instance.
  */
@@ -126,6 +132,138 @@ export function parseDirective(state: ParserState, context: Context, scope: Scop
     expression,
     directive
   };
+}
+
+/**
+ * Parses either async function or assignment expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+function parseAsyncFunctionOrAssignmentExpression(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  isDefault: boolean
+): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
+  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+    ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
+    : (parseAssignmentExpression(state, context) as any);
+}
+
+function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
+  switch (state.token) {
+    case Token.FunctionKeyword:
+      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
+    case Token.ClassKeyword:
+      return parseClassDeclaration(state, context, scope);
+    case Token.ConstKeyword:
+      return parseLexicalDeclaration(state, context, Type.Const, Origin.Statement, scope);
+    case Token.LetKeyword:
+      return parseLetOrExpressionStatement(state, context, scope);
+    case Token.AsyncKeyword:
+      return parseAsyncFunctionOrExpressionStatement(state, context, scope);
+    default:
+      return parseStatement(state, context, scope, LabelledState.AllowAsLabelled);
+  }
+}
+
+/**
+ * Parses either an async function declaration or an expression statement
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
+ *
+ * @param parser  Parser instance
+ * @param context Context masks
+ */
+function parseAsyncFunctionOrExpressionStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
+  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
+    ? parseFunctionDeclaration(state, context, scope, Origin.None, true)
+    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
+}
+
+function parseLetOrExpressionStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState
+): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
+  return lookAheadOrScan(state, context, isLexical, true)
+    ? parseLexicalDeclaration(state, context, Type.Let, Origin.Statement, scope)
+    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
+}
+
+/**
+ * Parses statements
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
+ *
+ * @param state Parser instance
+ * @param context Context masks
+ * @param scope Scope instance
+ */
+function parseStatement(
+  state: ParserState,
+  context: Context,
+  scope: ScopeState,
+  label: LabelledState
+): ESTree.Statement {
+  switch (state.token) {
+    case Token.VarKeyword:
+      return parseVariableStatement(state, context, Type.Variable, Origin.Statement, scope);
+    case Token.SwitchKeyword:
+      return parseSwitchStatement(state, context, scope);
+    case Token.DoKeyword:
+      return parseDoWhileStatement(state, context, scope);
+    case Token.ReturnKeyword:
+      return parseReturnStatement(state, context);
+    case Token.WhileKeyword:
+      return parseWhileStatement(state, context, scope);
+    case Token.WithKeyword:
+      return parseWithStatement(state, context, scope);
+    case Token.BreakKeyword:
+      return parseBreakStatement(state, context);
+    case Token.ContinueKeyword:
+      return parseContinueStatement(state, context);
+    case Token.DebuggerKeyword:
+      return parseDebuggerStatement(state, context);
+    case Token.TryKeyword:
+      return parseTryStatement(state, context, scope);
+    case Token.ThrowKeyword:
+      return parseThrowStatement(state, context);
+    case Token.IfKeyword:
+      return parseIfStatement(state, context, scope);
+    case Token.Semicolon:
+      return parseEmptyStatement(state, context);
+    case Token.LeftBrace:
+      return parseBlockStatement(
+        state,
+        (context | Context.TopLevel) ^ Context.TopLevel,
+        createSubScope(scope, ScopeType.BlockStatement)
+      );
+    case Token.ForKeyword:
+      return parseForStatement(state, context, scope);
+    case Token.AsyncKeyword:
+      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
+        report(state, Errors.AsyncFunctionInSingleStatementContext);
+      }
+      return parseExpressionOrLabelledStatement(state, context, scope, label);
+    case Token.FunctionKeyword:
+      // V8
+      report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
+    case Token.ClassKeyword:
+      report(state, Errors.ForbiddenAsStatement, KeywordDescTable[state.token & Token.Type]);
+    default:
+      return parseExpressionOrLabelledStatement(state, context, scope, label);
+  }
 }
 
 function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
@@ -460,138 +598,6 @@ function parseModuleSpecifier(state: ParserState, context: Context): ESTree.Lite
   expect(state, context, Token.FromKeyword);
   if (state.token !== Token.StringLiteral) report(state, Errors.Unexpected);
   return parseLiteral(state, context, state.tokenValue);
-}
-
-/**
- * Parses either async function or assignment expression
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
- * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncFunctionDeclaration)
- * @see [Link](https://tc39.github.io/ecma262/#prod-AsyncGeneratorDeclaration)
- *
- * @param parser  Parser instance
- * @param context Context masks
- */
-function parseAsyncFunctionOrAssignmentExpression(
-  state: ParserState,
-  context: Context,
-  scope: ScopeState,
-  isDefault: boolean
-): ESTree.FunctionDeclaration | ESTree.AssignmentExpression {
-  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseHoistableFunctionDeclaration(state, context, scope, isDefault, true)
-    : (parseAssignmentExpression(state, context) as any);
-}
-
-function parseStatementListItem(state: ParserState, context: Context, scope: ScopeState): any {
-  switch (state.token) {
-    case Token.FunctionKeyword:
-      return parseFunctionDeclaration(state, context, scope, Origin.Declaration, false);
-    case Token.ClassKeyword:
-      return parseClassDeclaration(state, context, scope);
-    case Token.ConstKeyword:
-      return parseLexicalDeclaration(state, context, Type.Const, Origin.Statement, scope);
-    case Token.LetKeyword:
-      return parseLetOrExpressionStatement(state, context, scope);
-    case Token.AsyncKeyword:
-      return parseAsyncFunctionOrExpressionStatement(state, context, scope);
-    default:
-      return parseStatement(state, context, scope, LabelledState.AllowAsLabelled);
-  }
-}
-
-/**
- * Parses either an async function declaration or an expression statement
- *
- * @see [Link](https://tc39.github.io/ecma262/#sec-let-and-const-declarations)
- * @see [Link](https://tc39.github.io/ecma262/#prod-ExpressionStatement)
- *
- * @param parser  Parser instance
- * @param context Context masks
- */
-function parseAsyncFunctionOrExpressionStatement(
-  state: ParserState,
-  context: Context,
-  scope: ScopeState
-): ReturnType<typeof parseFunctionDeclaration | typeof parseExpressionOrLabelledStatement> {
-  return lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)
-    ? parseFunctionDeclaration(state, context, scope, Origin.None, true)
-    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
-}
-
-function parseLetOrExpressionStatement(
-  state: ParserState,
-  context: Context,
-  scope: ScopeState
-): ReturnType<typeof parseVariableStatement | typeof parseExpressionOrLabelledStatement> {
-  return lookAheadOrScan(state, context, isLexical, true)
-    ? parseLexicalDeclaration(state, context, Type.Let, Origin.Statement, scope)
-    : parseExpressionOrLabelledStatement(state, context, scope, LabelledState.Disallow);
-}
-
-/**
- * Parses statements
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-Statement)
- *
- * @param state Parser instance
- * @param context Context masks
- * @param scope Scope instance
- */
-function parseStatement(
-  state: ParserState,
-  context: Context,
-  scope: ScopeState,
-  label: LabelledState
-): ESTree.Statement {
-  switch (state.token) {
-    case Token.VarKeyword:
-      return parseVariableStatement(state, context, Type.Variable, Origin.Statement, scope);
-    case Token.SwitchKeyword:
-      return parseSwitchStatement(state, context, scope);
-    case Token.DoKeyword:
-      return parseDoWhileStatement(state, context, scope);
-    case Token.ReturnKeyword:
-      return parseReturnStatement(state, context);
-    case Token.WhileKeyword:
-      return parseWhileStatement(state, context, scope);
-    case Token.WithKeyword:
-      return parseWithStatement(state, context, scope);
-    case Token.BreakKeyword:
-      return parseBreakStatement(state, context);
-    case Token.ContinueKeyword:
-      return parseContinueStatement(state, context);
-    case Token.DebuggerKeyword:
-      return parseDebuggerStatement(state, context);
-    case Token.TryKeyword:
-      return parseTryStatement(state, context, scope);
-    case Token.ThrowKeyword:
-      return parseThrowStatement(state, context);
-    case Token.IfKeyword:
-      return parseIfStatement(state, context, scope);
-    case Token.Semicolon:
-      return parseEmptyStatement(state, context);
-    case Token.LeftBrace:
-      return parseBlockStatement(
-        state,
-        (context | Context.TopLevel) ^ Context.TopLevel,
-        createSubScope(scope, ScopeType.BlockStatement)
-      );
-    case Token.ForKeyword:
-      return parseForStatement(state, context, scope);
-    case Token.AsyncKeyword:
-      if (lookAheadOrScan(state, context, nextTokenIsFuncKeywordOnSameLine, false)) {
-        report(state, Errors.AsyncFunctionInSingleStatementContext);
-      }
-      return parseExpressionOrLabelledStatement(state, context, scope, label);
-    case Token.FunctionKeyword:
-      // V8
-      report(state, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
-    case Token.ClassKeyword:
-      report(state, Errors.ForbiddenAsStatement, KeywordDescTable[state.token & Token.Type]);
-    default:
-      return parseExpressionOrLabelledStatement(state, context, scope, label);
-  }
 }
 
 /**
@@ -2022,41 +2028,55 @@ function parseYieldExpression(state: ParserState, context: Context): ESTree.Yiel
 }
 
 /**
- * Validates if the next token in the stream is a identifier or left paren
+ * Parses assignment expression
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-AssignmentExpression)
  *
  * @param parser Parser object
  * @param context  Context masks
  */
-export function nextTokenisIdentifierOrParen(state: ParserState, context: Context): boolean | number {
-  next(state, context);
-  const { token } = state;
-  return token & (Token.IsIdentifier | Token.IsYield) || token === Token.LeftParen;
-}
 
 function parseAssignmentExpression(state: ParserState, context: Context): any {
-  // AssignmentExpression ::
-  //   ConditionalExpression
-  //   ArrowFunction
-  //   YieldExpression
-  //   LeftHandSideExpression AssignmentOperator AssignmentExpression
-  const value = state.tokenValue;
-  const { token } = state;
-  if (state.token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
-  const expr: ESTree.Expression | ESTree.Expression[] =
-    state.token & Token.IsAsync && lookAheadOrScan(state, context, nextTokenisIdentifierOrParen, true)
-      ? parserCoverCallExpressionAndAsyncArrowHead(state, context)
-      : parseConditionalExpression(state, context);
+  /**
+   * AssignmentExpression ::
+   *
+   *      1) ConditionalExpression
+   *      2) LeftHandSideExpression = AssignmentExpression
+   *      3) LeftHandSideExpression AssignmentOperator AssignmentExpression
+   *      4) ArrowFunctionExpression
+   *      5) AsyncArrowFunctionExpression
+   *      6) YieldExpression
+   */
 
-  if (state.token === Token.Arrow) {
+  const { token, tokenValue } = state;
+
+  if (token & Token.IsYield && context & Context.YieldContext) return parseYieldExpression(state, context);
+
+  const expr: any = parseBinaryExpression(state, context, 0);
+
+  if (
+    (token & Token.IsAsync &&
+      (state.flags & Flags.NewLine) < 1 &&
+      (state.token & Token.IsIdentifier) === Token.IsIdentifier) ||
+    (state.token & Token.IsYield) === Token.IsYield
+  ) {
     const scope = createScope(ScopeType.ArgumentList);
-    if (token & (Token.IsIdentifier | Token.Keyword)) {
-      addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, value);
-      return parseArrowFunctionExpression(state, context, scope, [expr], false, true);
+    addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
+    const arg = parseIdentifier(state, context);
+    if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+    return parseArrowFunctionExpression(state, context, scope, [arg], true, Type.ConciseBody);
+  }
+  if (state.token === Token.Arrow) {
+    if (expr.type === Arrows.None) {
+      if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
+      return parseArrowFunctionExpression(state, context, expr.scope, expr.params, expr.async, Type.None);
     }
-    return parseArrowFunctionExpression(state, context, scope, expr, false, false);
+    const scope = createScope(ScopeType.ArgumentList);
+    addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, tokenValue);
+    return parseArrowFunctionExpression(state, context, scope, [expr], false, Type.ConciseBody);
   }
 
-  if (state.assignable && (state.token & Token.IsAssignOp) === Token.IsAssignOp) {
+  if ((state.token & Token.IsAssignOp) === Token.IsAssignOp && state.assignable) {
     if (state.token === Token.Assign) reinterpret(expr);
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
@@ -2069,91 +2089,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     };
   }
 
-  return expr;
-}
-
-/**
- * Parse cover call expression and async arrow head
- *
- * @see [Link](https://tc39.github.io/ecma262/#prod-CoverCallExpressionAndAsyncArrowHead)
- *
- * @param parser  Parser object
- * @param context Context masks
- */
-
-function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context: Context): any {
-  let expr = parseMemberExpression(state, context, parsePrimaryExpression(state, context));
-
-  const { token, flags } = state;
-  // async + Identifier => AsyncConciseBody
-  if (token & Token.IsIdentifier) {
-    if (state.flags & Flags.NewLine) return expr;
-    if ((state.token & Token.IsBinaryOp) === Token.IsBinaryOp || (state.token & Token.IsUnaryOp) === Token.IsUnaryOp) {
-      return parseBinaryExpression(state, context, 0, expr);
-    }
-
-    const maybeConciseBody = parseIdentifier(state, context);
-
-    if ((state.token & Token.Arrow) === Token.Arrow) {
-      if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-      if (token & Token.IsAwait) report(state, Errors.Unexpected);
-      if (state.flags & Flags.NewLine) return expr;
-      const scope = createScope(ScopeType.ArgumentList);
-      addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
-      return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true, true);
-    }
-    return expr;
-  }
-  let isArrow = false;
-  const scope = createScope(ScopeType.ArgumentList);
-  // async () => {}
-  while (state.token === Token.LeftParen) {
-    expr = parseMemberExpression(state, context, expr);
-    const args = parseAsyncArgumentList(state, context, scope);
-    if (state.token === <Token>Token.Arrow) {
-      isArrow = true;
-      if (flags & Flags.NewLine || state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-      expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true, false);
-      break;
-    }
-    expr = {
-      type: 'CallExpression',
-      callee: expr,
-      arguments: args
-    };
-  }
-
-  // Calling 'MemberExpression' here fixes cases like:
-  //
-  // `async().foo`
-  // `async()[foo]`
-  // `async (x) + 2;`
-  // `async (x) * 2;`
-  // `async (x) => {} + 2;` - Invalid
-  // `(async (x) => {} + 2;)` - Invalid
-  //
-  // Note: This cases breaks in 1.6.x
-  return isArrow ? expr : parseMemberExpression(state, context, parseBinaryExpression(state, context, 0, expr));
-}
-
-function parseAsyncArgumentList(
-  state: ParserState,
-  context: Context,
-  _: ScopeState
-): (ESTree.Expression | ESTree.SpreadElement)[] {
-  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
-  while (state.token !== Token.RightParen) {
-    if (state.token === Token.Ellipsis) {
-      expressions.push(parseSpreadElement(state, context));
-    } else {
-      expressions.push(parseAssignmentExpression(state, context));
-    }
-    if (state.token !== <Token>Token.RightParen) expect(state, context, Token.Comma);
-  }
-
-  expect(state, context, Token.RightParen);
-  return expressions;
+  return parseConditionalExpression(state, context, expr);
 }
 
 /**
@@ -2167,12 +2103,12 @@ function parseAsyncArgumentList(
 
 function parseConditionalExpression(
   state: ParserState,
-  context: Context
+  context: Context,
+  test: ESTree.Expression
 ): ESTree.Expression | ESTree.ConditionalExpression {
   // ConditionalExpression ::
   // LogicalOrExpression
   // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
-  const test = parseBinaryExpression(state, context, 0);
   if (!optional(state, context | Context.AllowPossibleRegEx, Token.QuestionMark)) return test;
   const consequent = parseAssignmentExpression(state, context);
   expect(state, context | Context.AllowPossibleRegEx, Token.Colon);
@@ -2373,10 +2309,21 @@ export function isValidSimpleAssignmentTarget(node: ESTree.Node): boolean {
  * @param Context Contextmasks
  * @param pos Location info
  */
+
+function isPropertyOrCall(token: Token) {
+  return (
+    token === Token.TemplateCont ||
+    token === Token.TemplateTail ||
+    token === Token.Period ||
+    token === Token.LeftBracket ||
+    token === Token.LeftParen
+  );
+}
+
 export function parseLeftHandSideExpression(state: ParserState, context: Context): any {
   // LeftHandSideExpression ::
   //   (NewExpression | MemberExpression) ...
-  const expr =
+  const expr: any =
     context & Context.OptionsNext && state.token === Token.ImportKeyword
       ? parseCallImportOrMetaProperty(state, context)
       : state.token === Token.SuperKeyword
@@ -2385,6 +2332,38 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
   return parseCallExpression(state, context, expr);
 }
 
+/**
+ * Parse call expression
+ *
+ * @param parser Parer instance
+ * @param context Context masks
+ * @param pos Line / Colum info
+ * @param expr Expression
+ */
+function parseCallExpression(state: ParserState, context: Context, expr: any | ESTree.Super): any {
+  const isAsync = expr.name === 'async';
+  let scope: any;
+  while (true) {
+    expr = parseMemberExpression(state, context, expr);
+    if (state.token !== Token.LeftParen) return expr;
+    if (isAsync) scope = createScope(ScopeType.BlockStatement);
+    const args = parseArgumentList(state, context);
+    if (isAsync && state.token === <Token>Token.Arrow) {
+      expr = {
+        type: Arrows.None,
+        scope,
+        params: args,
+        async: true
+      };
+    } else {
+      expr = {
+        type: 'CallExpression',
+        callee: expr,
+        arguments: args
+      };
+    }
+  }
+}
 /**
  * Parse either call expression or import expressions
  *
@@ -2415,27 +2394,6 @@ function parseImportExpression(): ESTree.ImportExpression {
   return {
     type: 'Import'
   };
-}
-
-/**
- * Parse call expression
- *
- * @param parser Parer instance
- * @param context Context masks
- * @param pos Line / Colum info
- * @param expr Expression
- */
-function parseCallExpression(state: ParserState, context: Context, expr: ESTree.Expression | ESTree.Super): any {
-  while (true) {
-    expr = parseMemberExpression(state, context, expr);
-    if (state.token !== Token.LeftParen) return expr;
-    const args = parseArgumentList(state, context);
-    expr = {
-      type: 'CallExpression',
-      callee: expr,
-      arguments: args
-    };
-  }
 }
 
 /**
@@ -2984,9 +2942,9 @@ function parseArrowFunctionExpression(
   scope: ScopeState,
   params: any,
   isAsync: boolean,
-  ConciseBody: boolean
+  type: Type
 ): ESTree.ArrowFunctionExpression {
-  expect(state, context | (ConciseBody ? Context.AllowPossibleRegEx : 0), Token.Arrow);
+  expect(state, context | (type & Type.ConciseBody ? Context.AllowPossibleRegEx : 0), Token.Arrow);
 
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
   for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
@@ -3026,13 +2984,23 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     next(state, context);
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.arrowScope = scope;
-    return [];
+    return {
+      type: Arrows.None,
+      scope,
+      params: [],
+      async: false
+    };
   } else if (state.token === Token.Ellipsis) {
     const rest = [parseRestElement(state, context, scope, Type.ArgList, Origin.None)];
     expect(state, context, Token.RightParen);
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.arrowScope = scope;
-    return rest;
+    return {
+      type: Arrows.None,
+      scope,
+      params: rest,
+      async: false
+    };
   }
   let expr = parseAssignmentExpression(state, context);
   if (state.token === Token.Comma) {
@@ -3043,10 +3011,20 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         expect(state, context, Token.RightParen);
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
         expressions.push(restElement);
-        return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
+        return {
+          type: Arrows.None,
+          scope,
+          params: expressions,
+          async: false
+        };
       } else if (optional(state, context, Token.RightParen)) {
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
-        return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
+        return {
+          type: Arrows.None,
+          scope,
+          params: expressions,
+          async: false
+        };
       } else {
         expressions.push(parseAssignmentExpression(state, context));
       }
@@ -3060,9 +3038,14 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
 
   expect(state, context, Token.RightParen);
 
-  if (state.token === <Token>Token.Arrow) {
+  if ((state.flags & Flags.NewLine) === 0 && state.token === <Token>Token.Arrow) {
     state.arrowScope = scope;
-    return expr.type === 'SequenceExpression' ? expr.expressions : [expr];
+    return {
+      type: Arrows.None,
+      scope,
+      params: expr.type === 'SequenceExpression' ? expr.expressions : [expr],
+      async: false
+    };
   }
 
   return expr;

@@ -60,6 +60,7 @@ export const enum Flags {
   SeenPrototype = 1 << 5,
   SimpleParameterList = 1 << 6,
   HasPrivateName = 1 << 7,
+  InArrowContext = 1 << 8,
 }
 // prettier-ignore
 /**
@@ -72,7 +73,8 @@ export const enum Type {
   Variable = 1 << 1,
   Let = 1 << 2, // Lexical
   Const = 1 << 3, // Lexical
-  ClassExprDecl = 1 << 4
+  ClassExprDecl = 1 << 4,
+  ConciseBody = 1 << 6,
 }
 
 /**
