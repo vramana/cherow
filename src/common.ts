@@ -190,13 +190,6 @@ export interface ParserState {
   };
 }
 
-/**
- * A simple `unimplemented` helper.
- */
-export function unimplemented(): never {
-  throw new Error('unimplemented');
-}
-
 // Note: this is intentionally ambient, since it should never be called. (It should be a guaranteed
 // runtime error.)
 export declare function unreachable(...values: never[]): never;
@@ -246,13 +239,11 @@ export function optional(state: ParserState, context: Context, token: Token): bo
   return true;
 }
 
-export function expect(state: ParserState, context: Context, t: Token): boolean {
+export function expect(state: ParserState, context: Context, t: Token): void {
   if (state.token !== t) {
     report(state, Errors.Unexpected);
-    return false;
   }
   next(state, context);
-  return true;
 }
 
 /**

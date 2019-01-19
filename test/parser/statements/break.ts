@@ -405,6 +405,83 @@ describe('Statements - Break', () => {
       }
     ],
     [
+      `a: if (true) b: { break a; break b; }
+      else b: { break a; break b; }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            body: {
+              type: 'IfStatement',
+              test: {
+                type: 'Literal',
+                value: true
+              },
+              consequent: {
+                type: 'LabeledStatement',
+                label: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BreakStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    },
+                    {
+                      type: 'BreakStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    }
+                  ]
+                }
+              },
+              alternate: {
+                type: 'LabeledStatement',
+                label: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                body: {
+                  type: 'BlockStatement',
+                  body: [
+                    {
+                      type: 'BreakStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'a'
+                      }
+                    },
+                    {
+                      type: 'BreakStatement',
+                      label: {
+                        type: 'Identifier',
+                        name: 'b'
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
       'foo: while (true) if (x) break foo;',
       Context.Empty,
       {

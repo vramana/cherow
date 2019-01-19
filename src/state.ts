@@ -627,7 +627,7 @@ export function parseBlockStatement(state: ParserState, context: Context, scope:
  * @param context Context masks
  */
 export function parseEmptyStatement(state: ParserState, context: Context): ESTree.EmptyStatement {
-  next(state, context);
+  next(state, context | Context.AllowPossibleRegEx);
   return {
     type: 'EmptyStatement'
   };
@@ -1017,7 +1017,7 @@ function parseForStatement(
 ): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
   next(state, context);
 
-  const forAwait = optional(state, context, Token.AwaitKeyword);
+  const forAwait = context & Context.AwaitContext ? optional(state, context, Token.AwaitKeyword) : false;
 
   scope = createSubScope(scope, ScopeType.ForStatement);
 
@@ -1073,7 +1073,7 @@ function parseForStatement(
    * https://tc39.github.io/ecma262/#sec-for-statement
    */
 
-  if (forAwait ? expect(state, context, Token.OfKeyword) : optional(state, context, Token.OfKeyword)) {
+  if (optional(state, context | Context.AllowPossibleRegEx, Token.OfKeyword)) {
     if (state.inCatch) report(state, Errors.Unexpected);
     if (isPattern) reinterpret(init);
     right = parseAssignmentExpression(state, context);
@@ -1984,7 +1984,7 @@ export function parseSequenceExpression(
   left: ESTree.Expression
 ): ESTree.SequenceExpression {
   const expressions: ESTree.Expression[] = [left];
-  while (optional(state, context, Token.Comma)) {
+  while (optional(state, context | Context.AllowPossibleRegEx, Token.Comma)) {
     expressions.push(parseAssignmentExpression(state, context));
   }
   return {
@@ -2051,9 +2051,9 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     const scope = createScope(ScopeType.ArgumentList);
     if (token & (Token.IsIdentifier | Token.Keyword)) {
       addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, value);
-      return parseArrowFunctionExpression(state, context, scope, [expr], false);
+      return parseArrowFunctionExpression(state, context, scope, [expr], false, true);
     }
-    return parseArrowFunctionExpression(state, context, scope, expr, false);
+    return parseArrowFunctionExpression(state, context, scope, expr, false, false);
   }
 
   if (state.assignable && (state.token & Token.IsAssignOp) === Token.IsAssignOp) {
@@ -2100,7 +2100,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
       if (state.flags & Flags.NewLine) return expr;
       const scope = createScope(ScopeType.ArgumentList);
       addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
-      return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true);
+      return parseArrowFunctionExpression(state, context, scope, [maybeConciseBody], true, true);
     }
     return expr;
   }
@@ -2113,7 +2113,7 @@ function parserCoverCallExpressionAndAsyncArrowHead(state: ParserState, context:
     if (state.token === <Token>Token.Arrow) {
       isArrow = true;
       if (flags & Flags.NewLine || state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-      expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true);
+      expr = parseArrowFunctionExpression(state, context, createScope(ScopeType.ArgumentList), args, true, false);
       break;
     }
     expr = {
@@ -2316,7 +2316,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
    */
   const { token } = state;
   if ((state.token & Token.IsUpdateOp) === Token.IsUpdateOp) {
-    next(state, context);
+    next(state, context | Context.AllowPossibleRegEx);
     const expr = parseLeftHandSideExpression(state, context);
     if (context & Context.Strict && (expr.name === 'eval' || expr.name === 'arguments')) {
       report(state, Errors.StrictLHSPrefixPostFix, 'Prefix');
@@ -2342,7 +2342,7 @@ function parseUpdateExpression(state: ParserState, context: Context): any {
       report(state, Errors.InvalidLHSInAssignment);
     }
     const operator = state.token;
-    next(state, context);
+    next(state, context | Context.AllowPossibleRegEx);
     return {
       type: 'UpdateExpression',
       argument: expression,
@@ -2533,7 +2533,7 @@ function parseMemberExpression(state: ParserState, context: Context, expr: any):
         };
         continue;
       case Token.LeftBracket:
-        next(state, context);
+        next(state, context | Context.AllowPossibleRegEx);
         expr = {
           type: 'MemberExpression',
           object: expr,
@@ -2638,12 +2638,12 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
    *
    */
   const quasis = [parseTemplateSpans(state, /* tail */ false)];
-  expect(state, context, Token.TemplateCont);
+  expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
   const expressions = [parseExpression(state, context)];
 
   while ((state.token = scanTemplateTail(state, context)) !== Token.TemplateTail) {
     quasis.push(parseTemplateSpans(state, /* tail */ false));
-    expect(state, context, Token.TemplateCont);
+    expect(state, context | Context.AllowPossibleRegEx, Token.TemplateCont);
     expressions.push(parseExpression(state, context));
   }
   quasis.push(parseTemplateSpans(state, /* tail */ true));
@@ -2667,7 +2667,7 @@ function parseTemplate(state: ParserState, context: Context): ESTree.TemplateLit
 
 function parseTemplateTail(state: ParserState, context: Context): ESTree.TemplateElement {
   const { tokenValue, tokenRaw } = state;
-  expect(state, context, Token.TemplateTail);
+  expect(state, context | Context.AllowPossibleRegEx, Token.TemplateTail);
   return {
     type: 'TemplateElement',
     value: {
@@ -2705,7 +2705,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
     } else {
       expressions.push(parseAssignmentExpression(state, context));
     }
-    if (state.token !== <Token>Token.RightParen) expect(state, context, Token.Comma);
+    if (state.token !== <Token>Token.RightParen) expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);
@@ -2713,7 +2713,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
 }
 
 function parseSpreadElement(state: ParserState, context: Context): ESTree.SpreadElement {
-  expect(state, context, Token.Ellipsis);
+  expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
   const argument = parseAssignmentExpression(state, context);
   return {
     type: 'SpreadElement',
@@ -2983,9 +2983,11 @@ function parseArrowFunctionExpression(
   context: Context,
   scope: ScopeState,
   params: any,
-  isAsync: boolean
+  isAsync: boolean,
+  ConciseBody: boolean
 ): ESTree.ArrowFunctionExpression {
-  expect(state, context, Token.Arrow);
+  expect(state, context | (ConciseBody ? Context.AllowPossibleRegEx : 0), Token.Arrow);
+
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
   for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
 
@@ -3041,10 +3043,10 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         expect(state, context, Token.RightParen);
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
         expressions.push(restElement);
-        return parseArrowFunctionExpression(state, context, scope, expressions, false);
+        return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
       } else if (optional(state, context, Token.RightParen)) {
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
-        return parseArrowFunctionExpression(state, context, scope, expressions, false);
+        return parseArrowFunctionExpression(state, context, scope, expressions, false, false);
       } else {
         expressions.push(parseAssignmentExpression(state, context));
       }

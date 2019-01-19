@@ -9,6 +9,7 @@ describe('Statements - Block', () => {
     ['try{};catch{};finally{}', Context.OptionsDisableWebCompat],
     ['try{};catch(){}', Context.OptionsDisableWebCompat],
     ['{ if (x) function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
+    [' { function a() {} } { let a; function a() {}; }', Context.OptionsDisableWebCompat],
     ['{ function f() {} ; function f() {} }', Context.OptionsDisableWebCompat],
     ['function f(){ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],
     ['{ var f = 123; if (true) function f(){} }', Context.OptionsDisableWebCompat],

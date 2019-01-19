@@ -435,7 +435,7 @@ table[Chars.Space] = table[Chars.Tab] = table[Chars.FormFeed] = table[Chars.Vert
 
 // Linefeed
 table[Chars.LineFeed] = state => {
-  consumeLineFeed(state, (state.flags & Flags.LastIsCR) !== 0);
+  consumeLineFeed(state, (state.flags & Flags.LastIsCR) > 0);
   state.flags = (state.flags & ~Flags.LastIsCR) | Flags.NewLine;
   return Token.WhiteSpace;
 };

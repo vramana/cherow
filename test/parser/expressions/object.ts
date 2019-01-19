@@ -424,7 +424,16 @@ describe('Expressions - Object', () => {
     'async 100(){}',
     "async 'foo'(){}",
     'async "foo"(){}',
-    'async, foo'
+    'async, foo',
+    '.9(){}, 0x84(){}, 0b1(){}, 0o27(){}, 1e234(){}',
+    '"foo"(){}',
+    'async foo(){}',
+    'set get(a){}',
+    'set foo(b){}, set bar(d){}',
+    'set foo(c){}, bar(){}',
+    'foo: typeof x',
+    'foo: true / false',
+    'foo: typeof /x/'
   ];
   for (const arg of validSyntax) {
     it(`({ ${arg} })`, () => {
@@ -448,6 +457,410 @@ describe('Expressions - Object', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      '({"a":b}=obj);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'a'
+                    },
+                    value: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'obj'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y]} = x)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'x'
+                    },
+                    value: {
+                      type: 'ArrayPattern',
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          name: 'y'
+                        }
+                      ]
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y]}) => x',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              params: [
+                {
+                  type: 'ObjectPattern',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Literal',
+                        value: 'x'
+                      },
+                      value: {
+                        type: 'ArrayPattern',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ],
+              id: null,
+              async: false,
+              expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": [y].slice(0)})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'ArrayExpression',
+                        elements: [
+                          {
+                            type: 'Identifier',
+                            name: 'y'
+                          }
+                        ]
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'slice'
+                      }
+                    },
+                    arguments: [
+                      {
+                        type: 'Literal',
+                        value: 0
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {y: z}} = x)',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'ObjectPattern',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'x'
+                    },
+                    value: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          key: {
+                            type: 'Identifier',
+                            name: 'y'
+                          },
+                          value: {
+                            type: 'Identifier',
+                            name: 'z'
+                          },
+                          kind: 'init',
+                          computed: false,
+                          method: false,
+                          shorthand: false
+                        }
+                      ]
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'x'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '({"x": {a: y + x}.slice(0)})',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'ObjectExpression',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Literal',
+                    value: 'x'
+                  },
+                  value: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'ObjectExpression',
+                        properties: [
+                          {
+                            type: 'Property',
+                            key: {
+                              type: 'Identifier',
+                              name: 'a'
+                            },
+                            value: {
+                              type: 'BinaryExpression',
+                              left: {
+                                type: 'Identifier',
+                                name: 'y'
+                              },
+                              right: {
+                                type: 'Identifier',
+                                name: 'x'
+                              },
+                              operator: '+'
+                            },
+                            kind: 'init',
+                            computed: false,
+                            method: false,
+                            shorthand: false
+                          }
+                        ]
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'slice'
+                      }
+                    },
+                    arguments: [
+                      {
+                        type: 'Literal',
+                        value: 0
+                      }
+                    ]
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      's = {s: this}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 's'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 's'
+                    },
+                    value: {
+                      type: 'ThisExpression'
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      's = {"foo": true}',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 's'
+              },
+              operator: '=',
+              right: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Literal',
+                      value: 'foo'
+                    },
+                    value: {
+                      type: 'Literal',
+                      value: true
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       "({a:0, get 'b'(){}, set 3(d){}})",
       Context.Empty,

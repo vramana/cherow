@@ -359,6 +359,291 @@ describe('Expressions - Functions', () => {
       }
     ],
     [
+      '(function f( {p, q} = class C { get [[] = ";"]() {} } ) {})();',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'FunctionExpression',
+                params: [
+                  {
+                    type: 'AssignmentPattern',
+                    left: {
+                      type: 'ObjectPattern',
+                      properties: [
+                        {
+                          type: 'Property',
+                          kind: 'init',
+                          key: {
+                            type: 'Identifier',
+                            name: 'p'
+                          },
+                          computed: false,
+                          value: {
+                            type: 'Identifier',
+                            name: 'p'
+                          },
+                          method: false,
+                          shorthand: true
+                        },
+                        {
+                          type: 'Property',
+                          kind: 'init',
+                          key: {
+                            type: 'Identifier',
+                            name: 'q'
+                          },
+                          computed: false,
+                          value: {
+                            type: 'Identifier',
+                            name: 'q'
+                          },
+                          method: false,
+                          shorthand: true
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'ClassExpression',
+                      id: {
+                        type: 'Identifier',
+                        name: 'C'
+                      },
+                      superClass: null,
+                      body: {
+                        type: 'ClassBody',
+                        body: [
+                          {
+                            type: 'MethodDefinition',
+                            kind: 'get',
+                            static: false,
+                            computed: true,
+                            key: {
+                              type: 'AssignmentExpression',
+                              left: {
+                                type: 'ArrayPattern',
+                                elements: []
+                              },
+                              operator: '=',
+                              right: {
+                                type: 'Literal',
+                                value: ';'
+                              }
+                            },
+                            value: {
+                              type: 'FunctionExpression',
+                              params: [],
+                              body: {
+                                type: 'BlockStatement',
+                                body: []
+                              },
+                              async: false,
+                              generator: false,
+                              id: null
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'f'
+                }
+              },
+              arguments: []
+            }
+          }
+        ]
+      }
+    ],
+    [
+      `var E = 'Σ';
+        var PI = 123;
+        function f() {
+            print(E = 2, /b/.test(E) || /b/.test(E = 2));
+            ((E = 3) * PI);
+        }`,
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 'Σ'
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'E'
+                }
+              }
+            ]
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'var',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 123
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'PI'
+                }
+              }
+            ]
+          },
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'print'
+                    },
+                    arguments: [
+                      {
+                        type: 'AssignmentExpression',
+                        left: {
+                          type: 'Identifier',
+                          name: 'E'
+                        },
+                        operator: '=',
+                        right: {
+                          type: 'Literal',
+                          value: 2
+                        }
+                      },
+                      {
+                        type: 'LogicalExpression',
+                        left: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Literal',
+                              value: {},
+                              regex: {
+                                pattern: 'b',
+                                flags: ''
+                              }
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'test'
+                            }
+                          },
+                          arguments: [
+                            {
+                              type: 'Identifier',
+                              name: 'E'
+                            }
+                          ]
+                        },
+                        right: {
+                          type: 'CallExpression',
+                          callee: {
+                            type: 'MemberExpression',
+                            object: {
+                              type: 'Literal',
+                              value: {},
+                              regex: {
+                                pattern: 'b',
+                                flags: ''
+                              }
+                            },
+                            computed: false,
+                            property: {
+                              type: 'Identifier',
+                              name: 'test'
+                            }
+                          },
+                          arguments: [
+                            {
+                              type: 'AssignmentExpression',
+                              left: {
+                                type: 'Identifier',
+                                name: 'E'
+                              },
+                              operator: '=',
+                              right: {
+                                type: 'Literal',
+                                value: 2
+                              }
+                            }
+                          ]
+                        },
+                        operator: '||'
+                      }
+                    ]
+                  }
+                },
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'AssignmentExpression',
+                      left: {
+                        type: 'Identifier',
+                        name: 'E'
+                      },
+                      operator: '=',
+                      right: {
+                        type: 'Literal',
+                        value: 3
+                      }
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'PI'
+                    },
+                    operator: '*'
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'f'
+            }
+          }
+        ]
+      }
+    ],
+    [
       '(function foo(y, z) {{ function x() {} } })(1);',
       Context.Empty,
       {
