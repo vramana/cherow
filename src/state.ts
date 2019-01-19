@@ -1715,6 +1715,28 @@ export function parseHoistableFunctionDeclaration(
  */
 
 export function parseFormalParameters(state: ParserState, context: Context, scope: ScopeState, origin: Origin): any {
+  /**
+   * FormalParameterList :
+   *    [empty]
+   *       FunctionRestParameter
+   *      FormalsList
+   *     FormalsList , FunctionRestParameter
+   *
+   *     FunctionRestParameter :
+   *      ... BindingIdentifier
+   *
+   *     FormalsList :
+   *      FormalParameter
+   *     FormalsList , FormalParameter
+   *
+   *     FormalParameter :
+   *      BindingElement
+   *
+   *     BindingElement :
+   *      SingleNameBinding
+   *   BindingPattern Initializeropt
+   *
+   */
   expect(state, context, Token.LeftParen);
   const params: any[] = [];
   state.flags = (state.flags | Flags.SimpleParameterList) ^ Flags.SimpleParameterList;
@@ -1724,16 +1746,14 @@ export function parseFormalParameters(state: ParserState, context: Context, scop
       params.push(parseRestElement(state, context, scope, Type.ArgList, Origin.None));
       break; //rest parameter must be the last
     } else {
-      if (optional(state, context, Token.Comma)) {
-        if (state.token === Token.Comma) report(state, Errors.Unexpected);
-      } else {
-        let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
-        if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
-          if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
-          left = parseAssignmentPattern(state, context, left);
-        }
-        params.push(left);
+      let left: any = parseBindingIdentifierOrPattern(state, context, scope, Type.ArgList, origin, false);
+      if (optional(state, context | Context.AllowPossibleRegEx, Token.Assign)) {
+        if (state.token & Token.IsYield && context & Context.YieldContext) report(state, Errors.Unexpected);
+        left = parseAssignmentPattern(state, context, left);
       }
+      params.push(left);
+      expect(state, context, Token.Comma);
+      if (state.token === Token.Comma) report(state, Errors.UnexpectedToken, ',');
     }
   }
 
@@ -2056,10 +2076,9 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
   const expr: any = parseBinaryExpression(state, context, 0);
 
   if (
-    (token & Token.IsAsync &&
-      (state.flags & Flags.NewLine) < 1 &&
-      (state.token & Token.IsIdentifier) === Token.IsIdentifier) ||
-    (state.token & Token.IsYield) === Token.IsYield
+    token & Token.IsAsync &&
+    (state.flags & Flags.NewLine) < 1 &&
+    ((state.token & Token.IsIdentifier) === Token.IsIdentifier || (state.token & Token.IsYield) === Token.IsYield)
   ) {
     const scope = createScope(ScopeType.ArgumentList);
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, state.tokenValue);
@@ -2664,10 +2683,14 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
   while (state.token !== Token.RightParen) {
     if (state.token === Token.Ellipsis) {
       expressions.push(parseSpreadElement(state, context));
+      if (state.token === <Token>Token.RightParen) break;
+      expect(state, context, Token.Comma);
+      continue;
     } else {
       expressions.push(parseAssignmentExpression(state, context));
     }
-    if (state.token !== <Token>Token.RightParen) expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
+    if (state.token === <Token>Token.RightParen) break;
+    expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
   }
 
   expect(state, context, Token.RightParen);
