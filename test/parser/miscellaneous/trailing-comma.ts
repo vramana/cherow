@@ -3,8 +3,6 @@ import { pass, fail } from '../../test-utils';
 
 describe('Miscellaneous - Trailing comma', () => {
   fail('Miscellaneous - Trailing comma (fail)', [
-    // ['`\\00`', Context.Empty],
-    // ['`a\\00b`', Context.Empty],
     ['(,) => 0', Context.Empty],
     ['(a,,) => 0', Context.Empty],
     ['(a, ...b,) => 0', Context.Empty],
@@ -22,10 +20,89 @@ describe('Miscellaneous - Trailing comma', () => {
     ['({ a (b, ...c,) {} })', Context.Empty],
     // ['({ set a (b,) {} })', Context.Empty],
     ['(a,)', Context.Empty],
-    ['({a:1},)', Context.Empty]
+    ['({a:1},)', Context.Empty],
+    ['for (a of b,c) d;', Context.Empty],
+    ['do x, y while (z)', Context.Empty],
+    ['a ? b, c : d', Context.Empty]
   ]);
 
   pass('Miscellaneous - Trailing comma (pass)', [
+    [
+      '`x`,`y`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'TemplateLiteral',
+                  expressions: [],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'x',
+                        raw: 'x'
+                      },
+                      tail: true
+                    }
+                  ]
+                },
+                {
+                  type: 'TemplateLiteral',
+                  expressions: [],
+                  quasis: [
+                    {
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: 'y',
+                        raw: 'y'
+                      },
+                      tail: true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '/x/,y;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Literal',
+                  value: {},
+                  regex: {
+                    pattern: 'x',
+                    flags: ''
+                  }
+                },
+                {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
     [
       'async (a,) => 0',
       Context.Empty,
@@ -154,6 +231,41 @@ describe('Miscellaneous - Trailing comma', () => {
                 }
               ]
             }
+          }
+        ]
+      }
+    ],
+    [
+      'for (a,b;;) c;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            },
+            init: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'b'
+                }
+              ]
+            },
+            test: null,
+            update: null
           }
         ]
       }
@@ -289,6 +401,121 @@ describe('Miscellaneous - Trailing comma', () => {
               id: null,
               async: false,
               expression: true
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'with (a,b) c;',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'WithStatement',
+            object: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'b'
+                }
+              ]
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'a: b, c',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'LabeledStatement',
+            label: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'SequenceExpression',
+                expressions: [
+                  {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  {
+                    type: 'Identifier',
+                    name: 'c'
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '`x${a,b}y`',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [
+                {
+                  type: 'SequenceExpression',
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  ]
+                }
+              ],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'x',
+                    raw: 'x'
+                  },
+                  tail: false
+                },
+                {
+                  type: 'TemplateElement',
+                  value: {
+                    cooked: 'y',
+                    raw: 'y'
+                  },
+                  tail: true
+                }
+              ]
             }
           }
         ]

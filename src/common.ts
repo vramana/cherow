@@ -61,6 +61,8 @@ export const enum Flags {
   SimpleParameterList = 1 << 6,
   HasPrivateName = 1 << 7,
   InArrowContext = 1 << 8,
+  HasStrictReserved = 1 << 9,
+  StrictEvalArguments = 1 << 10,
 }
 // prettier-ignore
 /**

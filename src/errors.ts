@@ -86,7 +86,9 @@ export const enum Errors {
   OnlyMethodInClass,
   DeletePrivateField,
   StrictLHSPrefixPostFix,
-  InvalidLHSInAssignment
+  InvalidLHSInAssignment,
+  StrictEvalArguments,
+  UnexpectedStrictReserved
 }
 
 /*@internal*/
@@ -182,7 +184,9 @@ export const errorMessages: {
   [Errors.DeletePrivateField]: 'Private fields can not be deleted',
   [Errors.StrictLHSPrefixPostFix]: 'Private fields can not be deleted',
   [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
-  [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment'
+  [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment',
+  [Errors.StrictEvalArguments]: 'Unexpected eval or arguments in strict mode',
+  [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
