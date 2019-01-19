@@ -48,7 +48,8 @@ import { report, Errors } from './errors';
 const enum Arrows {
   None = 0,
   ConciseBody = 1 << 0,
-  Async = 1 << 1
+  Plain = 1 << 1,
+  Async = 1 << 2
 }
 
 /**
@@ -2067,9 +2068,16 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     return parseArrowFunctionExpression(state, context, scope, [arg], true, Type.ConciseBody);
   }
   if (state.token === Token.Arrow) {
-    if (expr.type === Arrows.None) {
+    if (expr.type & (Arrows.Plain | Arrows.Async)) {
       if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-      return parseArrowFunctionExpression(state, context, expr.scope, expr.params, expr.async, Type.None);
+      return parseArrowFunctionExpression(
+        state,
+        context,
+        expr.scope,
+        expr.params,
+        (expr.type & Arrows.Async) !== 0,
+        Type.None
+      );
     }
     const scope = createScope(ScopeType.ArgumentList);
     addVariableAndDeduplicate(state, context, scope, Type.ArgList, true, tokenValue);
@@ -2347,19 +2355,18 @@ function parseCallExpression(state: ParserState, context: Context, expr: any | E
     expr = parseMemberExpression(state, context, expr);
     if (state.token !== Token.LeftParen) return expr;
     if (isAsync) scope = createScope(ScopeType.BlockStatement);
-    const args = parseArgumentList(state, context);
+    const params = parseArgumentList(state, context);
     if (isAsync && state.token === <Token>Token.Arrow) {
       expr = {
-        type: Arrows.None,
+        type: Arrows.Async,
         scope,
-        params: args,
-        async: true
+        params
       };
     } else {
       expr = {
         type: 'CallExpression',
         callee: expr,
-        arguments: args
+        arguments: params
       };
     }
   }
@@ -2989,7 +2996,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.arrowScope = scope;
     return {
-      type: Arrows.None,
+      type: Arrows.Plain,
       scope,
       params: [],
       async: false
@@ -3000,7 +3007,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
     if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
     state.arrowScope = scope;
     return {
-      type: Arrows.None,
+      type: Arrows.Plain,
       scope,
       params: rest,
       async: false
@@ -3016,7 +3023,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
         expressions.push(restElement);
         return {
-          type: Arrows.None,
+          type: Arrows.Plain,
           scope,
           params: expressions,
           async: false
@@ -3024,7 +3031,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
       } else if (optional(state, context, Token.RightParen)) {
         if (state.token !== <Token>Token.Arrow) report(state, Errors.Unexpected);
         return {
-          type: Arrows.None,
+          type: Arrows.Plain,
           scope,
           params: expressions,
           async: false
@@ -3045,7 +3052,7 @@ export function parseParenthesizedExpression(state: ParserState, context: Contex
   if ((state.flags & Flags.NewLine) === 0 && state.token === <Token>Token.Arrow) {
     state.arrowScope = scope;
     return {
-      type: Arrows.None,
+      type: Arrows.Plain,
       scope,
       params: expr.type === 'SequenceExpression' ? expr.expressions : [expr],
       async: false
