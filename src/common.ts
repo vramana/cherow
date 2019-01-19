@@ -176,6 +176,7 @@ export interface ParserState {
   lastChar: number;
   inCatch: boolean;
   assignable: boolean;
+  bindable: boolean;
   exportedNames: any[];
   exportedBindings: any[];
   labelSet: any;
@@ -185,7 +186,6 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
-  arrowScope: any;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
