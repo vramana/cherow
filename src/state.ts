@@ -2944,10 +2944,14 @@ function parseArrowFunctionExpression(
   isAsync: boolean,
   type: Type
 ): ESTree.ArrowFunctionExpression {
-  expect(state, context | (type & Type.ConciseBody ? Context.AllowPossibleRegEx : 0), Token.Arrow);
+  if (type & Type.ConciseBody) {
+    expect(state, context | Context.AllowPossibleRegEx, Token.Arrow);
+  } else {
+    expect(state, context, Token.Arrow);
+    for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
+  }
 
   if (state.flags & Flags.NewLine) report(state, Errors.Unexpected);
-  for (let i = 0; i < params.length; ++i) reinterpret(params[i]);
 
   if (checkIfExistInLexicalBindings(state, context, scope, true)) report(state, Errors.AlreadyDeclared);
 
