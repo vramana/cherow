@@ -2079,7 +2079,7 @@ function parseAssignmentExpression(state: ParserState, context: Context): any {
     return parseArrowFunctionExpression(state, context, arrowScope, [expr], false, Type.ConciseBody);
   }
 
-  if ((state.token & Token.IsAssignOp) === Token.IsAssignOp /* && state.assignable*/) {
+  if ((state.token & Token.IsAssignOp) === Token.IsAssignOp) {
     if (state.token === Token.Assign) reinterpret(expr);
     const operator = state.token;
     next(state, context | Context.AllowPossibleRegEx);
@@ -3418,6 +3418,7 @@ export function parseClassBodyAndElementList(state: ParserState, context: Contex
  * @param scope Scope object
  * @param type Binding type
  */
+
 function parseObjectLiteral(
   state: ParserState,
   context: Context,
@@ -3509,9 +3510,11 @@ function parseObjectLiteral(
             }
 
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
+            state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           } else if (state.token === Token.LeftParen) {
             objState = objState | (ObjectState.Method & ~(ObjectState.Async | ObjectState.Generator));
+            state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           } else if (token === Token.AsyncKeyword) {
             objState |= ObjectState.Async;
@@ -3528,6 +3531,7 @@ function parseObjectLiteral(
 
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             objState |= ObjectState.Method | ObjectState.Async;
+            state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           } else if (
             (token & Token.GetKeyword) === Token.GetKeyword ||
@@ -3552,6 +3556,7 @@ function parseObjectLiteral(
 
             if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
             objState &= ~(ObjectState.Method | ObjectState.Computed | ObjectState.Generator | ObjectState.Async);
+            state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState);
           }
         }
@@ -3564,6 +3569,7 @@ function parseObjectLiteral(
           addVariable(state, context, scope, type, false, false, tokenValue);
         } else {
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
+          state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
           objState |= ObjectState.Method;
         }
@@ -3577,6 +3583,7 @@ function parseObjectLiteral(
         } else {
           objState |= ObjectState.Method;
           if (state.token !== <Token>Token.LeftParen) report(state, Errors.Unexpected);
+          state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState);
         }
       } else if (state.token & Token.Multiply) {
@@ -3586,6 +3593,7 @@ function parseObjectLiteral(
           objState &= ~(ObjectState.Method | ObjectState.Async);
           key = parseIdentifier(state, context);
           if (state.token === Token.LeftParen) {
+            state.bindable = state.assignable = false;
             value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
             objState |= ObjectState.Method | ObjectState.Generator;
           } else {
@@ -3597,10 +3605,12 @@ function parseObjectLiteral(
           }
         } else if (state.token === <Token>Token.NumericLiteral || state.token === <Token>Token.StringLiteral) {
           key = parseLiteral(state, context, state.tokenValue);
+          state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
           objState |= ObjectState.Method;
         } else if (state.token === <Token>Token.LeftBracket) {
           key = parseComputedPropertyName(state, context);
+          state.bindable = state.assignable = false;
           value = parseMethodDeclaration(state, context, objState | ObjectState.Generator);
           objState |= ObjectState.Method | ObjectState.Computed;
         } else {
