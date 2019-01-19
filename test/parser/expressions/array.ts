@@ -82,6 +82,1574 @@ pass('Expressions - Array (pass)', [
     }
   ],
   [
+    '[,,,]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [null, null, null]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[,,x]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              null,
+              null,
+              {
+                type: 'Identifier',
+                name: 'x'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[this];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'ThisExpression'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, y, ...z]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'Identifier',
+                  name: 'z'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, ...y, z]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'Identifier',
+                  name: 'y'
+                }
+              },
+              {
+                type: 'Identifier',
+                name: 'z'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, y, ...z = arr]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, y, ...z()]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  arguments: []
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, y, ...z + arr]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  },
+                  operator: '+'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, ...z = arr, y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  }
+                }
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, ...z(), y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  arguments: []
+                }
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x, ...z + arr, y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'Identifier',
+                name: 'x'
+              },
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'z'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'arr'
+                  },
+                  operator: '+'
+                }
+              },
+              {
+                type: 'Identifier',
+                name: 'y'
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...this];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'ThisExpression'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...x.list];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'list'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...x.list] = a;',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'RestElement',
+                  argument: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'list'
+                    }
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...x = y];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...x += y];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'x'
+                  },
+                  operator: '+=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...[x].map(y, z)];',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'CallExpression',
+                  callee: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'ArrayExpression',
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      ]
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'map'
+                    }
+                  },
+                  arguments: [
+                    {
+                      type: 'Identifier',
+                      name: 'y'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'z'
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...[x].map(y, z)[x]] = a;',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'RestElement',
+                  argument: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'MemberExpression',
+                        object: {
+                          type: 'ArrayExpression',
+                          elements: [
+                            {
+                              type: 'Identifier',
+                              name: 'x'
+                            }
+                          ]
+                        },
+                        computed: false,
+                        property: {
+                          type: 'Identifier',
+                          name: 'map'
+                        }
+                      },
+                      arguments: [
+                        {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        {
+                          type: 'Identifier',
+                          name: 'z'
+                        }
+                      ]
+                    },
+                    computed: true,
+                    property: {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'a'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...{x:y}/y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'y'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: false
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '/'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...{x}/y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'ObjectExpression',
+                    properties: [
+                      {
+                        type: 'Property',
+                        key: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        value: {
+                          type: 'Identifier',
+                          name: 'x'
+                        },
+                        kind: 'init',
+                        computed: false,
+                        method: false,
+                        shorthand: true
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '/'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[...[x]/y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'ArrayExpression',
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        name: 'x'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '/'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[.../x/]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'Literal',
+                  value: {},
+                  regex: {
+                    pattern: 'x',
+                    flags: ''
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[.../x/+y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Literal',
+                    value: {},
+                    regex: {
+                      pattern: 'x',
+                      flags: ''
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '+'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[.../x//y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Literal',
+                    value: {},
+                    regex: {
+                      pattern: 'x',
+                      flags: ''
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '/'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[.../x/g/y]',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'ArrayExpression',
+            elements: [
+              {
+                type: 'SpreadElement',
+                argument: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Literal',
+                    value: {},
+                    regex: {
+                      pattern: 'x',
+                      flags: 'g'
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'y'
+                  },
+                  operator: '/'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[new x()[y]] = z',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'NewExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'x'
+                    },
+                    arguments: []
+                  },
+                  computed: true,
+                  property: {
+                    type: 'Identifier',
+                    name: 'y'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[new x().y = a] = z',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'NewExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      arguments: []
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[new x()[y] = a] = z',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'NewExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      arguments: []
+                    },
+                    computed: true,
+                    property: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[x()[y] = a + b] = z',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      arguments: []
+                    },
+                    computed: true,
+                    property: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    operator: '+'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[new x()[y] = a + b] = z',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'AssignmentPattern',
+                  left: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'NewExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'x'
+                      },
+                      arguments: []
+                    },
+                    computed: true,
+                    property: {
+                      type: 'Identifier',
+                      name: 'y'
+                    }
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    left: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    operator: '+'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'z'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[function(){}.length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'FunctionExpression',
+                    params: [],
+                    body: {
+                      type: 'BlockStatement',
+                      body: []
+                    },
+                    async: false,
+                    generator: false,
+                    id: null
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[5..length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Literal',
+                    value: 5
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '["X".length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Literal',
+                    value: 'X'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[`x`.length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'TemplateLiteral',
+                    expressions: [],
+                    quasis: [
+                      {
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'x',
+                          raw: 'x'
+                        },
+                        tail: true
+                      }
+                    ]
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[`a${5}b`.length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'TemplateLiteral',
+                    expressions: [
+                      {
+                        type: 'Literal',
+                        value: 5
+                      }
+                    ],
+                    quasis: [
+                      {
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'a',
+                          raw: 'a'
+                        },
+                        tail: false
+                      },
+                      {
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'b',
+                          raw: 'b'
+                        },
+                        tail: true
+                      }
+                    ]
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[/foo/.length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Literal',
+                    value: {},
+                    regex: {
+                      pattern: 'foo',
+                      flags: ''
+                    }
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[/x/g.length] = x',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Literal',
+                    value: {},
+                    regex: {
+                      pattern: 'x',
+                      flags: 'g'
+                    }
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'length'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[{}.x] = y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'ObjectExpression',
+                    properties: []
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '[{}[x]] = y',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'ObjectExpression',
+                    properties: []
+                  },
+                  computed: true,
+                  property: {
+                    type: 'Identifier',
+                    name: 'x'
+                  }
+                }
+              ]
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
     '[x()[y]] = z',
     Context.Empty,
     {
@@ -940,45 +2508,49 @@ pass('Expressions - Array (pass)', [
       sourceType: 'script'
     }
   ],
-  /* ['(foo, [bar, baz] = doo);', Context.Empty, {
-"type": "Program",
-"body": [
-  {
-      "type": "ExpressionStatement",
-      "expression": {
-          "type": "SequenceExpression",
-          "expressions": [
+  [
+    '(foo, [bar, baz] = doo);',
+    Context.Empty,
+    {
+      type: 'Program',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'SequenceExpression',
+            expressions: [
               {
-                  "type": "Identifier",
-                  "name": "foo"
+                type: 'Identifier',
+                name: 'foo'
               },
               {
-                  "type": "AssignmentExpression",
-                  "operator": "=",
-                  "left": {
-                      "type": "ArrayPattern",
-                      "elements": [
-                          {
-                              "type": "Identifier",
-                              "name": "bar"
-                          },
-                          {
-                              "type": "Identifier",
-                              "name": "baz"
-                          }
-                      ]
-                  },
-                  "right": {
-                      "type": "Identifier",
-                      "name": "doo"
-                  }
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                  type: 'ArrayPattern',
+                  elements: [
+                    {
+                      type: 'Identifier',
+                      name: 'bar'
+                    },
+                    {
+                      type: 'Identifier',
+                      name: 'baz'
+                    }
+                  ]
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'doo'
+                }
               }
-          ]
-      }
-  }
-],
-"sourceType": "script"
-}], */
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+  ],
   [
     '[x.y] = z',
     Context.Empty,

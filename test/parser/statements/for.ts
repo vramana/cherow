@@ -773,6 +773,1373 @@ describe('Statements - For', () => {
       }
     ],
     [
+      'for (a + b * c * d;b;c);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'Identifier',
+                name: 'a'
+              },
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'c'
+                  },
+                  operator: '*'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'd'
+                },
+                operator: '*'
+              },
+              operator: '+'
+            },
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (a * b + c * d;b;c);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'b'
+                },
+                operator: '*'
+              },
+              right: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'Identifier',
+                  name: 'c'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'd'
+                },
+                operator: '*'
+              },
+              operator: '+'
+            },
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for ((a * b + c) * d;b;c);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'BinaryExpression',
+                left: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  right: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  operator: '*'
+                },
+                right: {
+                  type: 'Identifier',
+                  name: 'c'
+                },
+                operator: '+'
+              },
+              right: {
+                type: 'Identifier',
+                name: 'd'
+              },
+              operator: '*'
+            },
+            test: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            update: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (const [...x] in y){}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (const [...x] in y){}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ArrayPattern',
+                    elements: [
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (const {...x} in y){}',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'BlockStatement',
+              body: []
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'ObjectPattern',
+                    properties: [
+                      {
+                        type: 'RestElement',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'x'
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'y'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a=1;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a=1, b;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a, b=1;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a=1, b=2;;);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            init: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 1
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 2
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            test: null,
+            update: null
+          }
+        ]
+      }
+    ],
+    [
+      'for (const a in b);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'const',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a = b in c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Identifier',
+                    name: 'b'
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a = ++b in c);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'UpdateExpression',
+                    argument: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    operator: '++',
+                    prefix: true
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a = 0 in stored = a, {});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'Literal',
+                    value: 0
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'stored'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  properties: []
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a = (++effects, -1) in x);',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'SequenceExpression',
+                    expressions: [
+                      {
+                        type: 'UpdateExpression',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'effects'
+                        },
+                        operator: '++',
+                        prefix: true
+                      },
+                      {
+                        type: 'UnaryExpression',
+                        operator: '-',
+                        argument: {
+                          type: 'Literal',
+                          value: 1
+                        },
+                        prefix: true
+                      }
+                    ]
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a in stored = a, {a: 0, b: 1, c: 2});',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'stored'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 0
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 1
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 2
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (var a = (++effects, -1) in stored = a, {a: 0, b: 1, c: 2});',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'var',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: {
+                    type: 'SequenceExpression',
+                    expressions: [
+                      {
+                        type: 'UpdateExpression',
+                        argument: {
+                          type: 'Identifier',
+                          name: 'effects'
+                        },
+                        operator: '++',
+                        prefix: true
+                      },
+                      {
+                        type: 'UnaryExpression',
+                        operator: '-',
+                        argument: {
+                          type: 'Literal',
+                          value: 1
+                        },
+                        prefix: true
+                      }
+                    ]
+                  },
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'SequenceExpression',
+              expressions: [
+                {
+                  type: 'AssignmentExpression',
+                  left: {
+                    type: 'Identifier',
+                    name: 'stored'
+                  },
+                  operator: '=',
+                  right: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                },
+                {
+                  type: 'ObjectExpression',
+                  properties: [
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 0
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 1
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    },
+                    {
+                      type: 'Property',
+                      key: {
+                        type: 'Identifier',
+                        name: 'c'
+                      },
+                      value: {
+                        type: 'Literal',
+                        value: 2
+                      },
+                      kind: 'init',
+                      computed: false,
+                      method: false,
+                      shorthand: false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for ([a.b] in c) d',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'd'
+              }
+            },
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for ([a.b].foo in c) d',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'd'
+              }
+            },
+            left: {
+              type: 'MemberExpression',
+              object: {
+                type: 'ArrayExpression',
+                elements: [
+                  {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  }
+                ]
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for ({a: b.c} in d) e',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'e'
+              }
+            },
+            left: {
+              type: 'ObjectPattern',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'c'
+                    }
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'd'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for ({a: b.c}.foo in d) e',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForInStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'e'
+              }
+            },
+            left: {
+              type: 'MemberExpression',
+              object: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            },
+            right: {
+              type: 'Identifier',
+              name: 'd'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'for (let a of b);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'VariableDeclaration',
+              kind: 'let',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  init: null,
+                  id: {
+                    type: 'Identifier',
+                    name: 'a'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for (a of b=c);',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'EmptyStatement'
+            },
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            right: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'b'
+              },
+              operator: '=',
+              right: {
+                type: 'Identifier',
+                name: 'c'
+              }
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for ([a.b] of c) d',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'd'
+              }
+            },
+            left: {
+              type: 'ArrayPattern',
+              elements: [
+                {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  computed: false,
+                  property: {
+                    type: 'Identifier',
+                    name: 'b'
+                  }
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for ([a.b].foo of c) d',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'd'
+              }
+            },
+            left: {
+              type: 'MemberExpression',
+              object: {
+                type: 'ArrayExpression',
+                elements: [
+                  {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'b'
+                    }
+                  }
+                ]
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            },
+            right: {
+              type: 'Identifier',
+              name: 'c'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for ({a: b.c} of d) e',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'e'
+              }
+            },
+            left: {
+              type: 'ObjectPattern',
+              properties: [
+                {
+                  type: 'Property',
+                  key: {
+                    type: 'Identifier',
+                    name: 'a'
+                  },
+                  value: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'b'
+                    },
+                    computed: false,
+                    property: {
+                      type: 'Identifier',
+                      name: 'c'
+                    }
+                  },
+                  kind: 'init',
+                  computed: false,
+                  method: false,
+                  shorthand: false
+                }
+              ]
+            },
+            right: {
+              type: 'Identifier',
+              name: 'd'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
+      'for ({a: b.c}.foo of d) e',
+      Context.OptionsDisableWebCompat,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ForOfStatement',
+            body: {
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'Identifier',
+                name: 'e'
+              }
+            },
+            left: {
+              type: 'MemberExpression',
+              object: {
+                type: 'ObjectExpression',
+                properties: [
+                  {
+                    type: 'Property',
+                    key: {
+                      type: 'Identifier',
+                      name: 'a'
+                    },
+                    value: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'b'
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: 'c'
+                      }
+                    },
+                    kind: 'init',
+                    computed: false,
+                    method: false,
+                    shorthand: false
+                  }
+                ]
+              },
+              computed: false,
+              property: {
+                type: 'Identifier',
+                name: 'foo'
+              }
+            },
+            right: {
+              type: 'Identifier',
+              name: 'd'
+            },
+            await: false
+          }
+        ]
+      }
+    ],
+    [
       'for (let [,,] = x;;);',
       Context.OptionsDisableWebCompat,
       {

@@ -2713,7 +2713,7 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
 }
 
 function parseSpreadElement(state: ParserState, context: Context): ESTree.SpreadElement {
-  expect(state, context, Token.Ellipsis);
+  expect(state, context | Context.AllowPossibleRegEx, Token.Ellipsis);
   const argument = parseAssignmentExpression(state, context);
   return {
     type: 'SpreadElement',

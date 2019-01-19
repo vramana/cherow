@@ -649,5 +649,80 @@ pass('Expressions - Assignment (pass)', [
         }
       ]
     }
+  ],
+  [
+    'a /= b',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            operator: '/=',
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    'a += b',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            operator: '+=',
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            }
+          }
+        }
+      ]
+    }
+  ],
+  [
+    '(a) = b;',
+    Context.Empty,
+    {
+      type: 'Program',
+      sourceType: 'script',
+      body: [
+        {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            left: {
+              type: 'Identifier',
+              name: 'a'
+            },
+            operator: '=',
+            right: {
+              type: 'Identifier',
+              name: 'b'
+            }
+          }
+        }
+      ]
+    }
   ]
 ]);
