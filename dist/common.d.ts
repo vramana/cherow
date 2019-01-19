@@ -29,7 +29,8 @@ export declare const enum Context {
     InConstructor = 16777216,
     InMethod = 33554432,
     AllowNewTarget = 67108864,
-    AllowReturn = 134217728
+    AllowReturn = 134217728,
+    LocationTracking = 34
 }
 export declare const enum Flags {
     Empty = 0,

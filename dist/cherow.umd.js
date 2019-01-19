@@ -5002,6 +5002,8 @@
       state.flags &= ~1;
       while (state.index < state.length) {
           state.startIndex = state.index;
+          state.startColumn = state.column;
+          state.startLine = state.line;
           const first = state.source.charCodeAt(state.index);
           if (((state.token = table$1[first](state, context, first)) & 1073741824) !== 1073741824) {
               if (state.onToken)
@@ -6693,18 +6695,16 @@
       if ((state.token & 33685504) === 33685504) {
           const unaryOperator = state.token;
           next(state, context | 32768);
-          if (context & 1024 && (unaryOperator & 33706027) === 33706027) {
-              if (state.token & 405505 && (state.token & 151641) !== 151641)
-                  report(state, 56);
-          }
           const argument = parseUnaryExpression(state, context);
           if (state.token === 16911158)
               report(state, 57);
-          if (context & 1 &&
-              state.flags & 128 &&
-              context & 1024 &&
-              (unaryOperator & 33706027) === 33706027) {
-              report(state, 82);
+          if (context & 1024 && (unaryOperator & 33706027) === 33706027) {
+              if (argument.type === 'Identifier') {
+                  report(state, 56);
+              }
+              else if (context & 1 && state.flags & 128) {
+                  report(state, 82);
+              }
           }
           return {
               type: 'UnaryExpression',
@@ -6811,17 +6811,19 @@
       return { type: 'Super' };
   }
   function parseIdentifierNameOrPrivateName(state, context) {
-      if (!optional(state, context, 119)) {
-          if (!isValidIdentifier(context, state.token)) {
-              report(state, 0);
-          }
-          return parseIdentifier(state, context);
-      }
+      if (!optional(state, context, 119))
+          return parseIdentifierName(state, context);
       state.flags |= 128;
       return {
           type: 'PrivateName',
           name: state.tokenValue
       };
+  }
+  function parseIdentifierName(state, context) {
+      if ((state.token & (274432 | 4096)) !== 274432 &&
+          (state.token & 4096) !== 4096)
+          report(state, 0);
+      return parseIdentifier(state, context);
   }
   function parseMemberExpression(state, context, expr) {
       while (true) {
@@ -6832,7 +6834,9 @@
                       type: 'MemberExpression',
                       object: expr,
                       computed: false,
-                      property: parseIdentifierNameOrPrivateName(state, context)
+                      property: context & 1
+                          ? parseIdentifierNameOrPrivateName(state, context)
+                          : parseIdentifierName(state, context)
                   };
                   continue;
               case 131091:
