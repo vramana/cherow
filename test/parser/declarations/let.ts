@@ -26,9 +26,10 @@ describe('Declarations - Let', () => {
     // Bindings - Blockstatement
 
     ['let x; { var x; var y; }', Context.Empty],
-    ['let x; { var x; }', Context.Empty]
+    ['let x; { var x; }', Context.Empty],
 
-    //['let [foo];', Context.Empty],
+    ['let let = 1', Context.Empty]
+    // ['let [foo];', Context.Empty],
     // ['let [foo = x];', Context.Empty],
     //    ['let [foo], bar;', Context.Empty],
     //['let foo, [bar];', Context.Empty],
@@ -74,6 +75,162 @@ describe('Declarations - Let', () => {
   }
 
   pass('Statements - Let (pass)', [
+    [
+      '"use strict"; let x;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      '"use strict"; let x; x = 8;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: null,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 8
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '"use strict"; let x = 8;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'VariableDeclaration',
+            kind: 'let',
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                init: {
+                  type: 'Literal',
+                  value: 8
+                },
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      'let',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Identifier',
+              name: 'let'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'let = 1',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'let'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 1
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       'let = b',
       Context.Empty,

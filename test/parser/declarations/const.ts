@@ -4,7 +4,7 @@ import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Declarations - Const', () => {
-  const inValids: Array<[string, Context]> = [
+  fail('Declarations - Let (fail)', [
     // Bindings
 
     ['const a = b, a = c', Context.Empty],
@@ -35,9 +35,11 @@ describe('Declarations - Const', () => {
     let = "irrelevant initializer";`,
       Context.Empty
     ],
-    ['let let', Context.Empty]
-  ];
-  fail('Declarations - Let (fail)', inValids);
+    ['let let', Context.Empty],
+    ['const [let] = 1', Context.Empty],
+    ['const let = 1', Context.Empty]
+  ]);
+
   const validSyntax = [
     'const a = Infinity;',
     'const b = -Infinity;',
@@ -89,7 +91,64 @@ describe('Declarations - Const', () => {
         ]
       }
     ],
-
+    [
+      '"use strict"; { const x = 1; }; x = 0;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'VariableDeclaration',
+                kind: 'const',
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    init: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    id: {
+                      type: 'Identifier',
+                      name: 'x'
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 0
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       'const foo = bar;',
       Context.Empty,

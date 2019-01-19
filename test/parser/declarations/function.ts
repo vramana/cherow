@@ -82,6 +82,13 @@ describe('Declarations - Function', () => {
     ['function (){}', Context.Empty],
     ['class {}', Context.Empty],
 
+    // ['function foo(bar, interface) { "use strict"; }', Context.Empty],
+    // ['function foo(arguments) { "use strict"; }', Context.Empty],
+    // ['function foo(yield) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, eval) { "use strict"; }', Context.Empty],
+    ['function foo(bar, bar) { "use strict"; }', Context.Empty],
+    // ['function foo(bar, yield) { "use strict"; }', Context.Empty],
+
     // Strict function names
     ['function eval() {"use strict";}', Context.Empty],
     ['function arguments() {"use strict";}', Context.Empty],
@@ -90,7 +97,41 @@ describe('Declarations - Function', () => {
     ['"use strict"; function arguments() {}', Context.Empty],
     ['"use strict"; function super() {}', Context.Empty],
     ['"use strict"; function interface() {}', Context.Empty],
-    ['"use strict"; function *super() {}', Context.Empty]
+    ['"use strict"; function *super() {}', Context.Empty],
+
+    ['try function foo() {} catch (e) {}', Context.Empty],
+    ['do function foo() {} while (0);', Context.Empty],
+    ['for (;false;) function foo() {}', Context.Empty],
+    ['for (var i = 0; i < 1; i++) function f() { };', Context.Empty],
+    ['for (var x in {a: 1}) function f() { };', Context.Empty],
+    ['for (var x in {}) function f() { };', Context.Empty],
+    ['for (var x in {}) function foo() {}', Context.Empty],
+    ['for (x in {a: 1}) function f() { };', Context.Empty],
+    ['for (x in {}) function f() { };', Context.Empty],
+    ['var x; for (x in {}) function foo() {}', Context.Empty],
+    ['with ({}) function f() { };', Context.Empty],
+    ['do label: function foo() {} while (0);', Context.Empty],
+    ['for (;false;) label: function foo() {}', Context.Empty],
+    ['(function() {var x; for (x in {}) function foo() {}})()', Context.Empty],
+    ['(function() {with ({}) function f() { };})()', Context.Empty],
+    ['(function() {do label: function foo() {} while (0);})()', Context.Empty],
+    ['(function() {for (;false;) label: function foo() {}})()', Context.Empty],
+    ['for (var i = 0; i < 1; i++) label: function f() { };', Context.Empty],
+    ['for (var x in {a: 1}) label: function f() { };', Context.Empty],
+    ['for (var x in {}) label: function f() { };', Context.Empty],
+    ['for (var x in {}) label: function foo() {}', Context.Empty],
+    ['for (x in {a: 1}) label: function f() { };', Context.Empty],
+    ['for (x in {}) label: function f() { };', Context.Empty],
+    ['var x; for (x in {}) label: function foo() {}', Context.Empty],
+    ['with ({}) label: function f() { };', Context.Empty],
+    ['if (true) label: function f() {}', Context.Empty],
+    ['if (true) {} else label: function f() {}', Context.Empty],
+    ['if (true) function* f() { }', Context.Empty],
+    ['label: function* f() { }', Context.Empty],
+    ['if (true) async function f() { }', Context.Empty],
+    ['label: async function f() { }', Context.Empty],
+    ['if (true) async function* f() { }', Context.Empty],
+    ['label: async function* f() { }', Context.Empty]
   ];
 
   fail('Declarations - Functions (fail)', inValids);
@@ -125,6 +166,24 @@ describe('Declarations - Function', () => {
     'function arguments() { }',
     'function hello(a, b) { sayHi(); }',
     'var hi = function eval() { };',
+
+    'function f() {var async = 1; return async;}',
+    'function f() {let async = 1; return async;}',
+    'function f() {const async = 1; return async;}',
+    'function f() {function async() {} return async();}',
+    'function f() {var async = async => async; return async();}',
+    'function f() {function foo() { var await = 1; return await; }}',
+    'function f() {function foo(await) { return await; }}',
+    'function f() {function* foo() { var await = 1; return await; }}',
+    'function f() {function* foo(await) { return await; }}',
+    'function f() {var f = () => { var await = 1; return await; }}',
+    'var f = () => {var O = { method() { var await = 1; return await; } };}',
+    'var f = () => {var O = { method(await) { return await; } };}',
+    'var f = () => {var O = { *method() { var await = 1; return await; } };}',
+    'var O = { *method(await) { return await; } };',
+    "'use strict'; var O = { method() { var asyncFn = async function*() {}} }",
+    "'use strict'; var f = () => {async function* f() {}}",
+    "'use strict'; var f = () => {var O = { async *method() {} };}",
     'var hi = function arguments() { };',
     '(function(){})',
     'function test() { "use strict" + 42; }',
@@ -245,7 +304,41 @@ describe('Declarations - Function', () => {
     'function ref(a,) {}',
     'function eval() { }',
     'function interface() { }',
-    'function yield() { }'
+    'function yield() { }',
+    'function f(arg, x=1) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arguments[0] = 42; g(arg)}',
+    "function f(arg) {'use strict'; g(arg); arguments[0] = 42; g(arg)}",
+    'function f(arg) {g(arg); f.arguments[0] = 42; g(arg)}',
+    'function f(arg, args=arguments) {g(arg); args[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); arg = 42; g(arg)}',
+    "function f(arg) {g(arg); eval('arg = 42'); g(arg)}",
+    'function f(arg) {g(arg); var arg = 42; g(arg)}',
+    'function f(arg, x=1) {g(arg); arg = 42; g(arg)}',
+    'function f(arg, ...x) {g(arg); arg = 42; g(arg)}',
+    'function f(arg=1) {g(arg); arg = 42; g(arg)}',
+    "function f(arg) {'use strict'; g(arg); arg = 42; g(arg)}",
+    'function f(arg, {a=(g(arg), arg=42)}) {g(arg)}',
+    'function f(arg) {g(arg); g(function() {arg = 42}); g(arg)}',
+    "function f(arg) {g(arg); g(function() {eval('arg = 42')}); g(arg)}",
+    'function f(arg) {g(arg); g(() => arg = 42); g(arg)}',
+    "function f(arg) {g(arg); g(() => eval('arg = 42')); g(arg)}",
+    "function f(...arg) {g(arg); eval('arg = 42'); g(arg)}",
+    'function f(arg) {}',
+    'function f(arg) {g(arg)}',
+    'function f(arg) {function h() { g(arg) }; h()}',
+    'function f(arg) {function h() { g(arg) }; return h}',
+    'function f(arg=1) {}',
+    'function f(arg=1) {g(arg)}',
+    'function f(arg, arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, ...arguments) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg, arguments=[]) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(...arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); g(function() {arguments[0] = 42}); g(arg)}',
+    'function f(arg) {g(arg); arguments[0] = 42; g(arg)}',
+    'function f(arg) {g(arg); h(arguments); g(arg)}',
+    "function f(arg) {g(arg); eval('arguments[0] = 42'); g(arg)}",
+    'function f(arg) {g(arg); g(() => arguments[0] = 42); g(arg)}'
   ];
 
   for (const arg of programs) {
@@ -660,6 +753,148 @@ describe('Declarations - Function', () => {
           }
         ],
         sourceType: 'script'
+      }
+    ],
+    [
+      '"use strict"; { function x() {} }; x = 0;',
+      Context.OptionsDirectives | Context.OptionsRaw,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'Literal',
+              value: 'use strict'
+            },
+            directive: 'use strict'
+          },
+          {
+            type: 'BlockStatement',
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  body: []
+                },
+                async: false,
+                generator: false,
+                id: {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              }
+            ]
+          },
+          {
+            type: 'EmptyStatement'
+          },
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              left: {
+                type: 'Identifier',
+                name: 'x'
+              },
+              operator: '=',
+              right: {
+                type: 'Literal',
+                value: 0
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'function x() { eval(""); }',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              body: [
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'Identifier',
+                      name: 'eval'
+                    },
+                    arguments: [
+                      {
+                        type: 'Literal',
+                        value: ''
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            async: false,
+            generator: false,
+            id: {
+              type: 'Identifier',
+              name: 'x'
+            }
+          }
+        ]
+      }
+    ],
+    [
+      '(function(x) { eval(""); })',
+      Context.Empty,
+      {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'FunctionExpression',
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'x'
+                }
+              ],
+              body: {
+                type: 'BlockStatement',
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    expression: {
+                      type: 'CallExpression',
+                      callee: {
+                        type: 'Identifier',
+                        name: 'eval'
+                      },
+                      arguments: [
+                        {
+                          type: 'Literal',
+                          value: ''
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              async: false,
+              generator: false,
+              id: null
+            }
+          }
+        ]
       }
     ],
     [

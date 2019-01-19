@@ -1,9 +1,18 @@
 import { Context } from '../../../src/common';
-import { pass } from '../../test-utils';
+import { pass, fail } from '../../test-utils';
 import * as t from 'assert';
 import { parseSource } from '../../../src/cherow';
 
 describe('Expressions - New', () => {
+  fail('Expressions - New', [
+    ['new foo bar', Context.Empty],
+    ['new ) foo"', Context.Empty],
+    ['new ++foo`;', Context.Empty],
+    ['new foo ++', Context.Empty],
+    ['var f = new ++foo`;', Context.Empty],
+    ['var f = new foo ++', Context.Empty]
+  ]);
+
   const validSyntax = [
     'new foo',
     'new foo();',
