@@ -90,7 +90,9 @@ export const enum Errors {
   StrictEvalArguments,
   UnexpectedStrictReserved,
   InvalidCoverInitializedName,
-  InvalidArrowFuncParamList
+  InvalidArrowFuncParamList,
+  InvalidLHSInForIn,
+  InvalidLHSInForLoop
 }
 
 /*@internal*/
@@ -190,7 +192,9 @@ export const errorMessages: {
   [Errors.StrictEvalArguments]: 'Unexpected eval or arguments in strict mode',
   [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
   [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
-  [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list'
+  [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list',
+  [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
+  [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
