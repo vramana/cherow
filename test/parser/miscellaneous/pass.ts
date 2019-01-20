@@ -727,7 +727,6 @@ h({ name: "bar", val: 42 })`,
     '[`x`.foo]=x',
     `[x]=y`,
     `[x=y]=z`,
-    `[...{a = b} = c] = x`,
     `({"a b c": bar});`,
     `({"a b c"(){}});`,
     `({"a b c": bar}) => x`,
@@ -742,7 +741,6 @@ h({ name: "bar", val: 42 })`,
     ' ({...x, y});',
     '({...x+y});',
     '({[foo]: bar} = baz)',
-    '({[foo]: a + b} = baz)',
     '({ident: [foo].length} = x)',
     '({ident: [foo].length = x} = x)',
     '[...new x];',
@@ -874,6 +872,165 @@ h({ name: "bar", val: 42 })`,
     'function f([foo] = x, b = y){}',
     'function f(x, [foo]){}',
     'function f(x, [foo] = y){}',
+    '[(a)] = 0',
+    '[(a) = 0] = 1',
+    '[(a.b)] = 0',
+    '[a = (b = c)] = 0',
+    '[(a = 0)]',
+    '({a:(b)} = 0)',
+    '({a:(b) = 0} = 1)',
+    '({a:(b.c)} = 0)',
+    '({a:(b = 0)})',
+
+    'a = { b(c=1) {} }',
+
+    `(function () {
+      while (!a || b()) {
+          c();
+      }
+  }());`,
+    'a = []',
+    `(function () {
+      a(typeof b === 'c');
+  }());`,
+    '(let[let])',
+    '({[1*2]:3})',
+    'a = { set b (c) {} }',
+    '(function(){ return a * b })',
+    '[a] = 1',
+    '({ false: 1 })',
+    '({*yield(){}})',
+    `var a = {
+      'arguments': 1,
+      'eval': 2
+  };`,
+    'var {a} = 1;',
+    'var [a = b] = c',
+    'for(a; a < 1;);',
+    '(function a() {"use strict";return 1;});',
+    `(function(){ return // Comment
+      a; })`,
+    '/*42*/',
+    'function *a(){yield ~1}',
+    `with (a)
+    // do not optimize it
+    (function () {
+      b('c');
+    }());`,
+    '(a,b) => 1 + 2',
+    'a = { set true(b) { c = b } }',
+    'function a(b, c) { return b-- > c; }',
+    `(function () {
+      a();
+      function a() {
+          b.c('d');
+      }
+      function a() {
+          b.c('e');
+      }
+  }());`,
+    'do a(); while (true)',
+    'do continue; while(1);',
+    `'use strict';
+    var a = {
+        '10': 1,
+        '0x20': 2
+    };`,
+    `{ throw a/* Multiline
+      Comment */a; }`,
+    '({} = 1);',
+    '({a = 1} = 2)',
+    '(a) => { yield + a };',
+    `function a() {
+      var b = function c() { }
+  }`,
+    `/*a
+    c*/ 1`,
+    'function a() {} / 1 /',
+    ';;;;',
+    'if (a) (function(){})',
+    `
+    function a([[a = 123] = {abc}] = [{a = 1} = 2] ) {
+    function a() {
+    class A { await() {(a = b)} }
+    b => {}
+    (b = [{}]) => {}
+    b => {}
+    b => {}
+    }
+      (yield) = 1;
+       (yield) = 1;
+    var a = ((((c)))) = b;
+    ([][[[]]], a, b, c[[]])
+    }`,
+    '(class { constructor() { super.a } });',
+    '// one\n',
+    'a => { b: 1 }',
+    `/**
+    * @type {number}
+    */
+   var a = 1;`,
+    'new a(...b, ...c, ...d);',
+    'var [a, ...a] = 1;',
+    '__proto__: a',
+    `do {
+      // do not optimize it
+      (function () {
+        a('b');
+      }());
+    } while (c);`,
+    'a ** b',
+    `a['0'];
+    a['1'];
+    a['00'];
+    a['0x20'];`,
+    `while (a) {
+      b;
+    }`,
+    'if (!a) debugger;',
+    'var a = class extends (b,c) {};',
+    `(class {;;;
+      ;
+      })`,
+    `({
+      a,
+      a:a,
+      a:a=a,
+      [a]:{a},
+      a:b()[a],
+      a:this.a
+  } = 1);`,
+    `/((((((((((((.))))))))))))\\12/;`,
+    `b: {
+      if (a) break b;
+      c.d("e");
+  }`,
+    '0xdef',
+    `class a {
+      constructor() {
+      };
+      b() {};
+  };
+  class c {
+      constructor(...d) {
+      }
+      b() {}
+  };
+  class e extends a {};
+  var f = class g {};
+  var h = class {};`,
+    '((((((((((((((((((((((((((((((((((((((((a.a)))))))))))))))))))))))))))))))))))))))) = 1',
+    'a = a += 1',
+    '(function*() { yield 1; })',
+    'var a, b;',
+    '({ a: 1, get a() { } })',
+    'a = { __proto__: 1 }',
+    'a`hello ${b}`',
+    '{do ; while(false); false}',
+
+    '/* assignment */\n a = b',
+    'function* a(){(class extends (yield) {});}',
+    'function* a(){(class {[yield](){}})};',
     'function f(x = y, [foo] = z){}',
     'function f(x = y, [foo]){}',
     'function f([foo=a]){}',
@@ -1419,7 +1576,6 @@ h({ name: "bar", val: 42 })`,
     'a>=b',
     'function f(){   return;    }',
     '[...{a = b} = c];',
-    '([...{a = b} = c]) => d;',
     'arguments; log(arguments); arguments.foo; arguments[foo]; arguments.foo = bar; arguments[foo] = bar;',
     'class a extends b { c() { [super.d] = e } }',
     '1 + (a(), b(), c())',

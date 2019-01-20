@@ -132,6 +132,15 @@ export const enum Arrows {
   Async = 1 << 2
 }
 
+export const enum Grammar {
+  None = 0,
+  Bindable = 1 << 0,
+  Assignable = 1 << 1,
+  NotBindable = 1 << 2,
+  NotAssignable = 1 << 3,
+  NotAssignbleOrBindable = NotBindable | NotAssignable
+}
+
 /*@internal*/
 export const enum LabelState {
   Empty = 0, // Break statement
@@ -195,7 +204,7 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
-  firstCoverInitializedNameError: any;
+  pendingCoverInitializeError: Errors | null;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -773,4 +782,74 @@ export function nextTokenIsLeftParenOrPeriod(state: ParserState, context: Contex
 export function nextTokenIsLeftParen(parser: ParserState, context: Context): boolean {
   next(parser, context);
   return parser.token === Token.LeftParen;
+}
+
+/**
+ * Bit fiddle current grammar state and keep track of the state during the parse and restore
+ * it back to original state after finish parsing or throw.
+ *
+ * Ideas for this is basicly from V8 and SM, but also the Esprima parser does this in a similar way.
+ *
+ * However this implementation is an major improvement over similiar implementations, and
+ * does not require additonal bitmasks to be set / unset during the parsing outside this function.
+ *
+ * @param parser Parser object
+ * @param context Context mask
+ * @param callback Callback function
+ * @param errMsg Optional error message
+ */
+//RecordExpressionError
+export function secludeGrammar<T>(
+  state: ParserState,
+  context: Context,
+  callback: (state: ParserState, context: Context) => T
+): T {
+  const previousBindable = state.bindable;
+  const previousAssignable = state.assignable;
+  const previouspendingCoverInitializeError = state.pendingCoverInitializeError;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context);
+  if (state.pendingCoverInitializeError !== null) {
+    report(state, state.pendingCoverInitializeError);
+  }
+
+  state.bindable = previousBindable;
+  state.assignable = previousAssignable;
+  state.pendingCoverInitializeError = previouspendingCoverInitializeError;
+
+  return result;
+}
+
+/**
+ * Restore current grammar to previous state, or unset necessary bitmasks
+ *
+ * @param parser Parser state
+ * @param context Context mask
+ * @param callback Callback function
+ */
+export function acquireGrammar<T>(
+  state: ParserState,
+  context: Context,
+  precedence: number,
+  callback: (state: ParserState, context: Context, precedence: number) => T
+): T {
+  const previousBindable = state.bindable;
+  const previousAssignable = state.assignable;
+  const previouspendingCoverInitializeError = state.pendingCoverInitializeError;
+
+  state.bindable = true;
+  state.assignable = true;
+  state.pendingCoverInitializeError = null;
+
+  const result = callback(state, context, precedence);
+
+  state.bindable = state.bindable && previousBindable;
+  state.assignable = state.assignable && previousAssignable;
+  state.pendingCoverInitializeError = previouspendingCoverInitializeError || state.pendingCoverInitializeError;
+
+  return result;
 }
