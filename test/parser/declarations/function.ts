@@ -133,7 +133,7 @@ describe('Declarations - Function', () => {
     ['if (true) async function* f() { }', Context.Empty],
     ['label: async function* f() { }', Context.Empty],
     ['function f(,,){}', Context.Empty]
-    //['function f(a,){}', Context.Empty],
+    // ['function f(a,){}', Context.Empty],
   ];
 
   fail('Declarations - Functions (fail)', inValids);

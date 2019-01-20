@@ -125,6 +125,13 @@ export const enum ObjectState {
   GetSet = Getter | Setter
 }
 
+export const enum Arrows {
+  None = 0,
+  ConciseBody = 1 << 0,
+  Plain = 1 << 1,
+  Async = 1 << 2
+}
+
 /*@internal*/
 export const enum LabelState {
   Empty = 0, // Break statement
@@ -188,6 +195,7 @@ export interface ParserState {
   iterationStatement: LabelState;
   labelDepth: number;
   functionBoundaryStack: any;
+  firstCoverInitializedNameError: any;
   tokenRegExp: void | {
     pattern: string;
     flags: string;
@@ -542,12 +550,12 @@ export function isValidIdentifier(context: Context, t: Token): boolean {
 }
 
 export function validateBindingIdentifier(state: ParserState, context: Context, type: Type, token = state.token) {
-  if (context & Context.Strict) {
-    if ((token & Token.FutureReserved) === Token.FutureReserved) {
-      report(state, Errors.Unexpected);
-    }
-    if (token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+  if (context & Context.Strict && token === Token.StaticKeyword) report(state, Errors.InvalidStrictStatic);
+
+  if ((token & Token.FutureReserved) === Token.FutureReserved) {
+    if (context & Context.Strict) report(state, Errors.Unexpected);
   }
+
   if ((token & Token.Reserved) === Token.Reserved) {
     report(state, Errors.InvalidStrictReservedWord);
   }

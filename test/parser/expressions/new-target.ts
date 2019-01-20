@@ -424,54 +424,6 @@ describe('Expressions - New target', () => {
       }
     ],
     [
-      'function f(){ new.target = foo }',
-      Context.Empty,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'FunctionDeclaration',
-            params: [],
-            body: {
-              type: 'BlockStatement',
-              body: [
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'AssignmentExpression',
-                    left: {
-                      meta: {
-                        type: 'Identifier',
-                        name: 'new'
-                      },
-                      type: 'MetaProperty',
-                      property: {
-                        type: 'Identifier',
-                        name: 'target'
-                      }
-                    },
-                    operator: '=',
-                    right: {
-                      type: 'Identifier',
-                      name: 'foo'
-                    }
-                  }
-                }
-              ]
-            },
-            async: false,
-            generator: false,
-
-            id: {
-              type: 'Identifier',
-              name: 'f'
-            }
-          }
-        ]
-      }
-    ],
-    [
       'function f(){ new.target + foo }',
       Context.Empty,
       {

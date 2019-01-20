@@ -12,6 +12,31 @@ describe('Module - Export', () => {
     'var a; export { a, ;',
     'var a; export { a as };',
     'var a, b; export { a as , b};',
+    'export var {[x]} = z;',
+    'export var {[x]};',
+    'export var {[x] = y} = z;',
+    'export {x}; export let [...x] = y;',
+    'export {x}; export let {...x} = y;',
+    'export {x}; export let [x] = y;',
+    'export var foo; export let foo;',
+    'export let foo; export let foo;',
+    'export {a}; export {b as a};',
+    'var a,b; export {b, a}; export {a};',
+    'var a,b; export {a, b}; export {a};',
+    'var a,b; export {a}; export {a, b};',
+    'export {b as a}; export {a};',
+    'export {a}; export {b as a};',
+    'export var a = x, a = y;',
+    'export let x = y, {...x} = y;',
+    'export let x = y, [...x] = y;',
+    'export let [x] = y; export function x(){};',
+    'export function x(){}; export let [x] = y;',
+    'export {x}; export let [x] = y;',
+    'export let [x, x] = y;',
+    'var a, b; export {a, a, b}',
+    'var a, b; export {b, a, a}',
+    'var a, b; export {a, b, a}',
+    'var a; export {a, a}',
     'class C { method() { export default null; } }',
     '{ export default null; }',
     'class C { *method() { export default null; } }',
@@ -281,6 +306,8 @@ describe('Module - Export', () => {
     'var a; export default a = 10;',
     'export default () => 3',
     'function _default() { }; export default _default',
+    'export let a, [...x] = y',
+    'export let [...x] = y',
     // Named generator function statement
     'function* g() { }; export default g',
     'class c { }; export default c',
@@ -297,6 +324,79 @@ describe('Module - Export', () => {
 
   // valid tests
   const valids: Array<[string, Context, any]> = [
+    [
+      'export default (a,b) => {}',
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExportDefaultDeclaration',
+            declaration: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [
+                {
+                  type: 'Identifier',
+                  name: 'a'
+                },
+                {
+                  type: 'Identifier',
+                  name: 'b'
+                }
+              ],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'export default () => {}',
+      Context.Strict | Context.Module | Context.OptionsNext,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExportDefaultDeclaration',
+            declaration: {
+              type: 'ArrowFunctionExpression',
+              body: {
+                type: 'BlockStatement',
+                body: []
+              },
+              params: [],
+              id: null,
+              async: false,
+              expression: false
+            }
+          }
+        ]
+      }
+    ],
+    [
+      'export {};',
+      Context.Strict | Context.Module,
+      {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+          {
+            type: 'ExportNamedDeclaration',
+            source: null,
+            specifiers: [],
+            declaration: null
+          }
+        ]
+      }
+    ],
     [
       'export {};',
       Context.Strict | Context.Module,

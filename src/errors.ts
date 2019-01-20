@@ -88,7 +88,9 @@ export const enum Errors {
   StrictLHSPrefixPostFix,
   InvalidLHSInAssignment,
   StrictEvalArguments,
-  UnexpectedStrictReserved
+  UnexpectedStrictReserved,
+  InvalidCoverInitializedName,
+  InvalidArrowFuncParamList
 }
 
 /*@internal*/
@@ -186,7 +188,9 @@ export const errorMessages: {
   [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
   [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment',
   [Errors.StrictEvalArguments]: 'Unexpected eval or arguments in strict mode',
-  [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word'
+  [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
+  [Errors.InvalidCoverInitializedName]: 'Invalid shorthand property initializer',
+  [Errors.InvalidArrowFuncParamList]: 'Illegal arrow function parameter list'
 };
 
 export function constructError(index: number, line: number, column: number, description: string): void {
