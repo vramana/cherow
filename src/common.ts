@@ -138,7 +138,8 @@ export const enum Grammar {
   Assignable = 1 << 1,
   NotBindable = 1 << 2,
   NotAssignable = 1 << 3,
-  NotAssignbleOrBindable = NotBindable | NotAssignable
+  NotAssignbleOrBindable = NotBindable | NotAssignable,
+  BindableAndAssignable = Assignable | Bindable
 }
 
 /*@internal*/
@@ -177,6 +178,7 @@ export interface ParserState {
   onComment: any;
   onToken: any;
   flags: Flags;
+  grammar: Grammar;
   index: number;
   line: number;
   startIndex: number;
@@ -804,9 +806,7 @@ export function secludeGrammar<T>(
   context: Context,
   callback: (state: ParserState, context: Context) => T
 ): T {
-  const previousBindable = state.bindable;
-  const previousAssignable = state.assignable;
-  const previouspendingCoverInitializeError = state.pendingCoverInitializeError;
+  const { assignable, bindable, pendingCoverInitializeError } = state;
 
   state.bindable = true;
   state.assignable = true;
@@ -817,9 +817,9 @@ export function secludeGrammar<T>(
     report(state, state.pendingCoverInitializeError);
   }
 
-  state.bindable = previousBindable;
-  state.assignable = previousAssignable;
-  state.pendingCoverInitializeError = previouspendingCoverInitializeError;
+  state.bindable = bindable;
+  state.assignable = assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError;
 
   return result;
 }
@@ -837,9 +837,7 @@ export function acquireGrammar<T>(
   precedence: number,
   callback: (state: ParserState, context: Context, precedence: number) => T
 ): T {
-  const previousBindable = state.bindable;
-  const previousAssignable = state.assignable;
-  const previouspendingCoverInitializeError = state.pendingCoverInitializeError;
+  const { assignable, bindable, pendingCoverInitializeError } = state;
 
   state.bindable = true;
   state.assignable = true;
@@ -847,9 +845,9 @@ export function acquireGrammar<T>(
 
   const result = callback(state, context, precedence);
 
-  state.bindable = state.bindable && previousBindable;
-  state.assignable = state.assignable && previousAssignable;
-  state.pendingCoverInitializeError = previouspendingCoverInitializeError || state.pendingCoverInitializeError;
+  state.bindable = state.bindable && bindable;
+  state.assignable = state.assignable && assignable;
+  state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
 
   return result;
 }

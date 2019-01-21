@@ -11,6 +11,7 @@ import {
   Type,
   Origin,
   Arrows,
+  Grammar,
   reinterpret,
   validateBindingIdentifier,
   addToExportedNamesAndCheckForDuplicates,
@@ -48,15 +49,6 @@ import {
 } from './common';
 import { report, Errors } from './errors';
 
-export const enum Grammar {
-  None = 0,
-  Bindable = 1 << 0,
-  Assignable = 1 << 1,
-  NotBindable = 1 << 2,
-  NotAssignable = 1 << 3,
-  NotAssignbleOrBindable = NotBindable | NotAssignable
-}
-
 /**
  * Create a new parser instance.
  */
@@ -66,6 +58,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
     onComment,
     onToken,
     flags: Flags.Empty,
+    grammar: Grammar.BindableAndAssignable,
     index: 0,
     line: 1,
     column: 0,
