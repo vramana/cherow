@@ -2431,11 +2431,16 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
 function parseCallExpression(state: ParserState, context: Context, callee: any | ESTree.Super): any {
   const scope: ScopeState | null =
     state.bindable && callee.name === 'async' ? createScope(ScopeType.BlockStatement) : null;
+  const { flags } = state;
   while (true) {
     callee = parseMemberExpression(state, context, callee);
     if (state.token !== Token.LeftParen) return callee;
     const params = parseArgumentList(state, context, Origin.AsyncArrow);
-    if (state.bindable && state.token === <Token>Token.Arrow) {
+    if (state.token === <Token>Token.Arrow) {
+      if (flags & Flags.NewLine) report(state, Errors.Unexpected);
+      // Fixes cases like: `async().foo13 () => 1`
+      if (!state.bindable) report(state, Errors.Unexpected);
+      state.bindable = state.assignable = false;
       return {
         type: Arrows.Async,
         scope,
