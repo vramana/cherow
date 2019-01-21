@@ -39,7 +39,7 @@ export function scanMaybeIdentifier(state: ParserState, _: Context, first: numbe
   report(state, Errors.IllegalCaracter, String.fromCharCode(first));
 }
 
-export function scanIdentifier(state: ParserState): Token {
+export function scanIdentifier(state: ParserState, context: Context): Token {
   let { index, column } = state;
   while (isIdentifierPart(state.source.charCodeAt(index))) {
     index++;
@@ -51,6 +51,7 @@ export function scanIdentifier(state: ParserState): Token {
   }
   state.index = index;
   state.column = column;
+  if (context & Context.OptionsRaw) state.tokenRaw = state.source.slice(state.startIndex, index);
   return descKeywordTable[state.tokenValue] || Token.Identifier;
 }
 

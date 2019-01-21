@@ -103,6 +103,7 @@ describe('Declarations - Const', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -118,6 +119,7 @@ describe('Declarations - Const', () => {
                     type: 'VariableDeclarator',
                     init: {
                       type: 'Literal',
+                      raw: '1',
                       value: 1
                     },
                     id: {
@@ -138,11 +140,13 @@ describe('Declarations - Const', () => {
               type: 'AssignmentExpression',
               left: {
                 type: 'Identifier',
+                raw: 'x',
                 name: 'x'
               },
               operator: '=',
               right: {
                 type: 'Literal',
+                raw: '0',
                 value: 0
               }
             }

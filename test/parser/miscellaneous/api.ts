@@ -3,7 +3,7 @@ import { pass, fail } from '../../test-utils';
 import * as t from 'assert';
 import { parseModule, parseScript, parse } from '../../../src/cherow';
 
-describe('Expressions - Functions', () => {
+describe('Expressions - API', () => {
   it('should parse script code with "parse"', () => {
     t.deepEqual(
       parse('foo', {
@@ -99,6 +99,7 @@ describe('Expressions - Functions', () => {
           {
             expression: {
               name: 'foo',
+              raw: 'foo',
               type: 'Identifier'
             },
             type: 'ExpressionStatement'
@@ -120,6 +121,7 @@ describe('Expressions - Functions', () => {
           {
             expression: {
               type: 'Literal',
+              raw: '"a"',
               value: 'a'
             },
             type: 'ExpressionStatement'
@@ -162,6 +164,7 @@ describe('Expressions - Functions', () => {
             directive: 'abc',
             expression: {
               type: 'Literal',
+              raw: '"abc"',
               value: 'abc'
             },
             type: 'ExpressionStatement'

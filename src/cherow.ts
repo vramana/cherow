@@ -67,7 +67,7 @@ export interface Options {
   directives?: boolean;
 }
 
-export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replae plugin for bundle
+export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replace plugin for bundle
 
 /**
  * Parse a module body, function body, script body, etc.
@@ -82,10 +82,6 @@ export function parseSource(source: string, options: Options | void, context: Co
   let onToken: OnToken;
 
   if (options != null) {
-    // The option to specify ecamVersion
-    const ecmaVersion = options.ecmaVersion || 10;
-    options.ecmaVersion = <EcmaVersion>(ecmaVersion > 2009 ? ecmaVersion - 2009 : ecmaVersion);
-
     // The flag to enable module syntax support
     if (options.module) context |= Context.Module;
     // The flag to enable stage 3 support (ESNext)

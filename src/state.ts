@@ -3901,11 +3901,14 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
 }
 
 export function parseLiteral(state: ParserState, context: Context, value: string | boolean | null): ESTree.Literal {
+  const { tokenRaw } = state;
   next(state, context);
-  return {
+  const node: any = {
     type: 'Literal',
     value
   };
+  if (context & Context.OptionsRaw) node.raw = tokenRaw;
+  return node;
 }
 
 function parseThisExpression(state: ParserState, context: Context): ESTree.ThisExpression {
@@ -3916,12 +3919,14 @@ function parseThisExpression(state: ParserState, context: Context): ESTree.ThisE
 }
 
 export function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier {
-  const tokenValue = state.tokenValue;
+  const { tokenRaw, tokenValue } = state;
   next(state, context);
-  return {
+  const node: any = {
     type: 'Identifier',
     name: tokenValue
   };
+  if (context & Context.OptionsRaw) node.raw = tokenRaw;
+  return node;
 }
 
 /**

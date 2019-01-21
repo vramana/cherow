@@ -95,6 +95,7 @@ describe('Declarations - Let', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -127,6 +128,7 @@ describe('Declarations - Let', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -140,6 +142,7 @@ describe('Declarations - Let', () => {
                 init: null,
                 id: {
                   type: 'Identifier',
+
                   name: 'x'
                 }
               }
@@ -151,11 +154,13 @@ describe('Declarations - Let', () => {
               type: 'AssignmentExpression',
               left: {
                 type: 'Identifier',
-                name: 'x'
+                name: 'x',
+                raw: 'x'
               },
               operator: '=',
               right: {
                 type: 'Literal',
+                raw: '8',
                 value: 8
               }
             }
@@ -174,6 +179,7 @@ describe('Declarations - Let', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -186,6 +192,7 @@ describe('Declarations - Let', () => {
                 type: 'VariableDeclarator',
                 init: {
                   type: 'Literal',
+                  raw: '8',
                   value: 8
                 },
                 id: {

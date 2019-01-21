@@ -1571,6 +1571,7 @@ describe('Declarations - Var', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -1598,62 +1599,14 @@ describe('Declarations - Var', () => {
               type: 'MemberExpression',
               object: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               computed: false,
               property: {
                 type: 'Identifier',
-                name: 'eval'
-              }
-            }
-          }
-        ]
-      }
-    ],
-    [
-      '      "use strict";    var foo = {}; foo.interface;',
-      Context.OptionsDirectives | Context.OptionsRaw,
-      {
-        type: 'Program',
-        sourceType: 'script',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'Literal',
-              value: 'use strict'
-            },
-            directive: 'use strict'
-          },
-          {
-            type: 'VariableDeclaration',
-            kind: 'var',
-            declarations: [
-              {
-                type: 'VariableDeclarator',
-                init: {
-                  type: 'ObjectExpression',
-                  properties: []
-                },
-                id: {
-                  type: 'Identifier',
-                  name: 'foo'
-                }
-              }
-            ]
-          },
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'MemberExpression',
-              object: {
-                type: 'Identifier',
-                name: 'foo'
-              },
-              computed: false,
-              property: {
-                type: 'Identifier',
-                name: 'interface'
+                name: 'eval',
+                raw: 'eval'
               }
             }
           }
