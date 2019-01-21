@@ -94,7 +94,7 @@ export function create(source: string, onComment: OnComment | void, onToken: OnT
 /**
  * Parse a module body, function body, script body, etc.
  */
-export function parseTopLevel(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
+export function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
   // Prime the scanner
   next(state, context | Context.AllowPossibleRegEx);
   const statements: ESTree.Statement[] = [];
@@ -107,8 +107,29 @@ export function parseTopLevel(state: ParserState, context: Context, scope: Scope
   }
 
   while (state.token !== Token.EndOfSource) {
-    if (context & Context.Module) statements.push(parseModuleItem(state, context, scope));
-    else statements.push(parseStatementListItem(state, context, scope));
+    statements.push(parseModuleItemList(state, context, scope));
+  }
+
+  return statements;
+}
+
+/**
+ * Parse a module body, function body, script body, etc.
+ */
+export function parseStatementList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement[] {
+  // Prime the scanner
+  next(state, context | Context.AllowPossibleRegEx);
+  const statements: ESTree.Statement[] = [];
+  while (state.token === Token.StringLiteral) {
+    const tokenValue = state.tokenValue;
+    if (!(context & Context.Strict) && tokenValue.length === 10 && tokenValue === 'use strict') {
+      context |= Context.Strict;
+    }
+    statements.push(parseDirective(state, context, scope));
+  }
+
+  while (state.token !== Token.EndOfSource) {
+    statements.push(parseStatementListItem(state, context, scope));
   }
 
   return statements;
@@ -267,7 +288,7 @@ function parseStatement(
   }
 }
 
-function parseModuleItem(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
+function parseModuleItemList(state: ParserState, context: Context, scope: ScopeState): ESTree.Statement {
   state.assignable = state.bindable = true;
   switch (state.token) {
     case Token.ExportKeyword:
@@ -2942,6 +2963,8 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
       }
       return parseIdentifier(state, context);
     }
+    case Token.DoKeyword:
+      return parseDoExpression(state, context);
     case Token.YieldKeyword:
       if (context & (Context.YieldContext | Context.Strict)) report(state, Errors.DisallowedInContext);
     // falls through
@@ -2953,6 +2976,22 @@ export function parsePrimaryExpression(state: ParserState, context: Context): an
   }
 }
 
+/**
+ * Parse do expression (*experimental*)
+ *
+ * @param parser Parser object
+ * @param context  Context masks
+ */
+function parseDoExpression(state: ParserState, context: Context): ESTree.DoExpression {
+  // AssignmentExpression ::
+  //     do '{' StatementList '}'
+  if ((context & Context.OptionsExperimental) === 0) report(state, Errors.NoExperimentalOption);
+  expect(state, context, Token.DoKeyword);
+  return {
+    type: 'DoExpression',
+    body: parseBlockStatement(state, context, createScope(ScopeType.BlockStatement))
+  };
+}
 /**
  * Parse array literal expression
  *
@@ -3901,11 +3940,14 @@ function parsePropertyMethod(state: ParserState, context: Context, objState: Obj
 }
 
 export function parseLiteral(state: ParserState, context: Context, value: string | boolean | null): ESTree.Literal {
+  const { tokenRaw } = state;
   next(state, context);
-  return {
+  const node: any = {
     type: 'Literal',
     value
   };
+  if (context & Context.OptionsRaw) node.raw = tokenRaw;
+  return node;
 }
 
 function parseThisExpression(state: ParserState, context: Context): ESTree.ThisExpression {
@@ -3916,12 +3958,14 @@ function parseThisExpression(state: ParserState, context: Context): ESTree.ThisE
 }
 
 export function parseIdentifier(state: ParserState, context: Context): ESTree.Identifier {
-  const tokenValue = state.tokenValue;
+  const { tokenRaw, tokenValue } = state;
   next(state, context);
-  return {
+  const node: any = {
     type: 'Identifier',
     name: tokenValue
   };
+  if (context & Context.OptionsRaw) node.raw = tokenRaw;
+  return node;
 }
 
 /**

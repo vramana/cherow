@@ -1,4 +1,4 @@
-import { parseTopLevel, create } from './state';
+import { parseStatementList, create, parseModuleItem } from './state';
 import * as ESTree from './estree';
 import { OnComment, OnToken, pushComment, pushToken, Context, createScope, ScopeType } from './common';
 import { skipHashBang } from './scanner';
@@ -67,7 +67,7 @@ export interface Options {
   directives?: boolean;
 }
 
-export const version = '2.0';
+export const version = '2.0'; // TODO: (fkleuver) Add back Rollup replace plugin for bundle
 
 /**
  * Parse a module body, function body, script body, etc.
@@ -82,10 +82,6 @@ export function parseSource(source: string, options: Options | void, context: Co
   let onToken: OnToken;
 
   if (options != null) {
-    // The option to specify ecamVersion
-    const ecmaVersion = options.ecmaVersion || 10;
-    options.ecmaVersion = <EcmaVersion>(ecmaVersion > 2009 ? ecmaVersion - 2009 : ecmaVersion);
-
     // The flag to enable module syntax support
     if (options.module) context |= Context.Module;
     // The flag to enable stage 3 support (ESNext)
@@ -132,20 +128,26 @@ export function parseSource(source: string, options: Options | void, context: Co
   skipHashBang(state, context);
 
   const scope = createScope(ScopeType.BlockStatement);
-
-  const node: ESTree.Program = {
-    type: 'Program',
-    sourceType: context & Context.Module ? 'module' : 'script',
-    body: parseTopLevel(state, context | Context.TopLevel, scope)
-  };
-
+  let body;
+  let sourceType: 'module' | 'script' = 'script';
   if (context & Context.Module) {
+    sourceType = 'module';
+    body = parseModuleItem(state, context | Context.TopLevel, scope);
     for (const key in state.exportedBindings) {
       if (key[0] === '@' && key !== '#default' && (scope.var[key] === undefined && scope.lex[key] === undefined)) {
         report(state, Errors.UndeclaredExportedBinding, key.slice(1));
       }
     }
+  } else {
+    body = parseStatementList(state, context | Context.TopLevel, scope);
   }
+
+  const node: ESTree.Program = {
+    type: 'Program',
+    sourceType,
+    body
+  };
+
   if (context & Context.OptionsRanges) {
     node.start = 0;
     node.end = source.length;

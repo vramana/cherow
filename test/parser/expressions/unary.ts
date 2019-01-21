@@ -35,6 +35,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -64,6 +65,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -75,6 +77,7 @@ pass('Expressions - Unary (pass)', [
             operator: 'delete',
             argument: {
               type: 'Literal',
+              raw: '1',
               value: 1
             },
             prefix: true
@@ -94,6 +97,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -107,12 +111,14 @@ pass('Expressions - Unary (pass)', [
               operator: 'delete',
               argument: {
                 type: 'Literal',
+                raw: '1',
                 value: 1
               },
               prefix: true
             },
             right: {
               type: 'Literal',
+              raw: '2',
               value: 2
             },
             operator: '+'
@@ -132,6 +138,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -145,6 +152,7 @@ pass('Expressions - Unary (pass)', [
               type: 'CallExpression',
               callee: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               arguments: []
@@ -166,6 +174,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -179,11 +188,13 @@ pass('Expressions - Unary (pass)', [
               type: 'MemberExpression',
               object: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               computed: false,
               property: {
                 type: 'Identifier',
+                raw: 'bar',
                 name: 'bar'
               }
             },
@@ -204,6 +215,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -217,6 +229,7 @@ pass('Expressions - Unary (pass)', [
               type: 'UpdateExpression',
               argument: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               operator: '--',
@@ -239,6 +252,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -252,6 +266,7 @@ pass('Expressions - Unary (pass)', [
               type: 'NewExpression',
               callee: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               arguments: []
@@ -273,6 +288,7 @@ pass('Expressions - Unary (pass)', [
           type: 'ExpressionStatement',
           expression: {
             type: 'Literal',
+            raw: '"use strict"',
             value: 'use strict'
           },
           directive: 'use strict'
@@ -286,11 +302,13 @@ pass('Expressions - Unary (pass)', [
               type: 'NewExpression',
               callee: {
                 type: 'Identifier',
+                raw: 'foo',
                 name: 'foo'
               },
               arguments: [
                 {
                   type: 'Identifier',
+                  raw: 'bar',
                   name: 'bar'
                 }
               ]

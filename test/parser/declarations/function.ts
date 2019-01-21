@@ -1157,6 +1157,7 @@ describe('Declarations - Function', () => {
             type: 'ExpressionStatement',
             expression: {
               type: 'Literal',
+              raw: '"use strict"',
               value: 'use strict'
             },
             directive: 'use strict'
@@ -1175,7 +1176,8 @@ describe('Declarations - Function', () => {
                 generator: false,
                 id: {
                   type: 'Identifier',
-                  name: 'x'
+                  name: 'x',
+                  raw: 'x'
                 }
               }
             ]
@@ -1189,11 +1191,13 @@ describe('Declarations - Function', () => {
               type: 'AssignmentExpression',
               left: {
                 type: 'Identifier',
-                name: 'x'
+                name: 'x',
+                raw: 'x'
               },
               operator: '=',
               right: {
                 type: 'Literal',
+                raw: '0',
                 value: 0
               }
             }
