@@ -2428,65 +2428,27 @@ export function parseLeftHandSideExpression(state: ParserState, context: Context
  * @param pos Line / Colum info
  * @param expr Expression
  */
-function parseCallExpression(state: ParserState, context: Context, expr: any | ESTree.Super): any {
-  const isAsync = expr.name === 'async';
-  let scope: any;
+function parseCallExpression(state: ParserState, context: Context, callee: any | ESTree.Super): any {
+  const scope: ScopeState | null =
+    state.bindable && callee.name === 'async' ? createScope(ScopeType.BlockStatement) : null;
   while (true) {
-    expr = parseMemberExpression(state, context, expr);
-    if (state.token !== Token.LeftParen) return expr;
-    if (isAsync) scope = createScope(ScopeType.BlockStatement);
-    state.bindable = state.assignable = false;
-    const params = isAsync ? parseAsyncArgumentList(state, context) : parseArgumentList(state, context);
-    if (isAsync && state.token === <Token>Token.Arrow) {
-      expr = {
+    callee = parseMemberExpression(state, context, callee);
+    if (state.token !== Token.LeftParen) return callee;
+    const params = parseArgumentList(state, context, Origin.AsyncArrow);
+    if (state.bindable && state.token === <Token>Token.Arrow) {
+      return {
         type: Arrows.Async,
         scope,
         params
       };
-    } else {
-      expr = {
-        type: 'CallExpression',
-        callee: expr,
-        arguments: params
-      };
     }
+    state.bindable = state.assignable = false;
+    callee = {
+      type: 'CallExpression',
+      callee,
+      arguments: params
+    };
   }
-}
-
-function parseAsyncArgumentList(state: ParserState, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
-  /**
-   * ArgumentList
-   *
-   * AssignmentExpression
-   * ...AssignmentExpression
-   *
-   * ArgumentList, AssignmentExpression
-   * ArgumentList, ...AssignmentExpression
-   *
-   */
-  expect(state, context | Context.AllowPossibleRegEx, Token.LeftParen);
-  const expressions: (ESTree.Expression | ESTree.SpreadElement)[] = [];
-  while (state.token !== Token.RightParen) {
-    if (state.token === Token.Ellipsis) {
-      expressions.push(parseSpreadElement(state, context));
-      if (state.token === <Token>Token.RightParen) break;
-      expect(state, context, Token.Comma);
-      continue;
-    } else {
-      expressions.push(secludeGrammar(state, context, parseAsyncArgument));
-    }
-    if (state.token === <Token>Token.RightParen) break;
-    expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
-  }
-
-  expect(state, context, Token.RightParen);
-  return expressions;
-}
-
-function parseAsyncArgument(state: ParserState, context: Context): any {
-  const arg = parseAssignmentExpression(state, context);
-  state.pendingCoverInitializeError = null;
-  return arg;
 }
 
 /**
@@ -2775,7 +2737,11 @@ function parseTemplateTail(state: ParserState, context: Context): ESTree.Templat
  * @param Parser Parser object
  * @param Context Context masks
  */
-function parseArgumentList(state: ParserState, context: Context): (ESTree.Expression | ESTree.SpreadElement)[] {
+function parseArgumentList(
+  state: ParserState,
+  context: Context,
+  origin: Origin
+): (ESTree.Expression | ESTree.SpreadElement)[] {
   /**
    * ArgumentList
    *
@@ -2795,7 +2761,9 @@ function parseArgumentList(state: ParserState, context: Context): (ESTree.Expres
       expect(state, context, Token.Comma);
       continue;
     } else {
-      expressions.push(secludeGrammar(state, context, parseAssignmentExpression));
+      expressions.push(
+        secludeGrammar(state, context, origin & Origin.AsyncArrow ? parseAsyncArgument : parseAssignmentExpression)
+      );
     }
     if (state.token === <Token>Token.RightParen) break;
     expect(state, context | Context.AllowPossibleRegEx, Token.Comma);
@@ -2812,6 +2780,12 @@ function parseSpreadElement(state: ParserState, context: Context): ESTree.Spread
     type: 'SpreadElement',
     argument
   };
+}
+
+function parseAsyncArgument(state: ParserState, context: Context): any {
+  const arg = parseAssignmentExpression(state, context);
+  state.pendingCoverInitializeError = null;
+  return arg;
 }
 
 /**
@@ -2867,7 +2841,7 @@ function parseNewExpression(state: ParserState, context: Context): ESTree.NewExp
     state.pendingCoverInitializeError = pendingCoverInitializeError || state.pendingCoverInitializeError;
   }
 
-  const args = state.token === Token.LeftParen ? parseArgumentList(state, context) : [];
+  const args = state.token === Token.LeftParen ? parseArgumentList(state, context, Origin.None) : [];
 
   state.assignable = state.bindable = false;
 

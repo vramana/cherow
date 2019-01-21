@@ -75,20 +75,20 @@ describe('Expressions - Async arrow', () => {
     // ['async (a = await => {}) => {}', Context.Empty],
 
     //['f(async\n()=>c)', Context.Empty],
-    // ['async x \n => x', Context.Empty],
+    ['async x \n => x', Context.Empty],
     // ['async \n (x, y) => x', Context.Empty],
-    // ['async (x, y) \n => x', Context.Empty],
-    // ['async \n (x, y) \n => x', Context.Empty],
-    // ['async \n (x) \n => x', Context.Empty],
-    // ['async (x) \n => x', Context.Empty],
+    ['async (x, y) \n => x', Context.Empty],
+    ['async \n (x, y) \n => x', Context.Empty],
+    ['async \n (x) \n => x', Context.Empty],
+    ['async (x) \n => x', Context.Empty],
     // ['async \n (x) => x', Context.Empty],
     // ['async \n () => x', Context.Empty],
     //['function f(){   return async \n () => x    }', Context.Empty],
     // ['break async \n () => x', Context.Empty],
-    // ['continue async \n () => x', Context.Empty],
+    ['continue async \n () => x', Context.Empty],
     ['let x = {[async () => x, y]: z}', Context.Empty],
-    ['const x = async () => x, y', Context.Empty]
-    // ['const x = async \n () => x, y', Context.Empty],
+    ['const x = async () => x, y', Context.Empty],
+    ['const x = async \n () => x, y', Context.Empty],
     // ['export async () => x', Context.Module],
     // ['(async \n () => x)', Context.Empty],
     // ['[async \n () => x]', Context.Empty],
@@ -123,11 +123,14 @@ describe('Expressions - Async arrow', () => {
     // ['x(async \n () => x);', Context.Empty],
     // ['function f(x = async \n () => x){};', Context.Empty],
     // ['`${async \n () => x}`;', Context.Empty],
-    // ['do async \n () => x while (x);;', Context.Empty],
+    ['do async \n () => x while (x);;', Context.Empty],
     // ['if (async \n () => x) x;', Context.Empty],
-    // ['try {} catch(e = async \n () => x) {}', Context.Empty],
-    // ['if (x) async \n () => x else y;', Context.Empty],
-    // ['class x extends async \n () => x {};', Context.Empty]
+    ['try {} catch(e = async \n () => x) {}', Context.Empty],
+    ['if (x) async \n () => x else y;', Context.Empty],
+    ['class x extends async \n () => x {};', Context.Empty]
+
+    // ['{x: async \n () => x};', Context.Empty],
+    // ['{x: async \n () => x};', Context.Empty],
   ];
 
   fail('Expressions - Async arrow', inValids);

@@ -92,7 +92,8 @@ export const enum Origin {
   AsyncArgs = 1 << 4,
   ArgList = 1 << 5,
   ClassExprDecl = 1 << 6,
-  Declaration = 1 << 7
+  Declaration = 1 << 7,
+  AsyncArrow = 1 << 8,
 }
 
 export const enum ScopeType {
